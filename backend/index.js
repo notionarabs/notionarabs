@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 const allowedOrigins = [
-  process.env.FRONTEND_URL || 'http://localhost:3000',
+  process.env.FRONTEND_URL || 'https://notion-arabs.vercel.app',
   'https://notion-arabs.vercel.app',
   'https://www.notion-arabs.vercel.app'
 ];

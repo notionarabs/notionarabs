@@ -234,12 +234,28 @@ router.put('/profile', auth, [
 // @desc    Google OAuth login
 // @access  Public
 router.get('/google', (req, res) => {
+  console.log('Google OAuth request received');
+  console.log('GOOGLE_CLIENT_ID exists:', !!process.env.GOOGLE_CLIENT_ID);
+  console.log('GOOGLE_CLIENT_SECRET exists:', !!process.env.GOOGLE_CLIENT_SECRET);
+  console.log('JWT_SECRET exists:', !!process.env.JWT_SECRET);
+  console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
+
   if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+    console.error('Google OAuth credentials missing');
     return res.status(503).json({
       success: false,
       message: 'Google OAuth is not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables.'
     });
   }
+
+  if (!process.env.JWT_SECRET) {
+    console.error('JWT_SECRET missing');
+    return res.status(503).json({
+      success: false,
+      message: 'JWT_SECRET is not configured. Please set JWT_SECRET environment variable.'
+    });
+  }
+
   passport.authenticate('google', {
     scope: ['profile', 'email']
   })(req, res);
@@ -252,16 +268,36 @@ router.get('/google/callback',
   passport.authenticate('google', { session: false }),
   async (req, res) => {
     try {
+      console.log('Google OAuth callback received');
+      console.log('User from passport:', req.user);
+
+      if (!req.user) {
+        console.error('No user from Google OAuth');
+        const frontendUrl = process.env.FRONTEND_URL || 'https://notion-arabs.vercel.app';
+        return res.redirect(`${frontendUrl}/auth/callback?success=false&error=no_user`);
+      }
+
       const user = req.user;
+      console.log('User ID:', user._id);
+
+      // Check if JWT_SECRET exists
+      if (!process.env.JWT_SECRET) {
+        console.error('JWT_SECRET is missing');
+        const frontendUrl = process.env.FRONTEND_URL || 'https://notion-arabs.vercel.app';
+        return res.redirect(`${frontendUrl}/auth/callback?success=false&error=jwt_secret_missing`);
+      }
 
       // Generate token
       const token = generateToken(user._id);
+      console.log('Token generated successfully');
 
       // Redirect to frontend with token
       const frontendUrl = process.env.FRONTEND_URL || 'https://notion-arabs.vercel.app';
+      console.log('Redirecting to:', `${frontendUrl}/auth/callback?token=${token}&success=true`);
       res.redirect(`${frontendUrl}/auth/callback?token=${token}&success=true`);
     } catch (error) {
       console.error('Google OAuth callback error:', error);
+      console.error('Error stack:', error.stack);
       const frontendUrl = process.env.FRONTEND_URL || 'https://notion-arabs.vercel.app';
       res.redirect(`${frontendUrl}/auth/callback?success=false&error=authentication_failed`);
     }

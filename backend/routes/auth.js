@@ -278,64 +278,59 @@ router.get('/google', (req, res) => {
 // @route   GET /api/auth/google/callback
 // @desc    Google OAuth callback
 // @access  Public
-router.get('/google/callback',
-  (req, res, next) => {
+router.get('/google/callback', async (req, res) => {
+  try {
     console.log('Google OAuth callback received');
     console.log('Query params:', req.query);
-    console.log('Headers:', req.headers);
-    next();
-  },
-  passport.authenticate('google', {
-    session: false,
-    failureRedirect: 'https://notion-arabs.vercel.app/auth/callback?success=false&error=passport_auth_failed'
-  }),
-  async (req, res) => {
-    try {
-      console.log('Passport authentication successful');
-      console.log('User from passport:', req.user);
-
-      if (!req.user) {
-        console.error('No user from Google OAuth after passport authentication');
-        const frontendUrl = process.env.FRONTEND_URL || 'https://notion-arabs.vercel.app';
-        return res.redirect(`${frontendUrl}/auth/callback?success=false&error=no_user`);
-      }
-
-      const user = req.user;
-      console.log('User ID:', user._id);
-      console.log('User email:', user.email);
-
-      // Check if JWT_SECRET exists
-      if (!process.env.JWT_SECRET) {
-        console.error('JWT_SECRET is missing');
-        const frontendUrl = process.env.FRONTEND_URL || 'https://notion-arabs.vercel.app';
-        return res.redirect(`${frontendUrl}/auth/callback?success=false&error=jwt_secret_missing`);
-      }
-
-      // Check database connection
-      const mongoose = require('mongoose');
-      if (mongoose.connection.readyState !== 1) {
-        console.error('Database not connected. State:', mongoose.connection.readyState);
-        const frontendUrl = process.env.FRONTEND_URL || 'https://notion-arabs.vercel.app';
-        return res.redirect(`${frontendUrl}/auth/callback?success=false&error=database_not_connected`);
-      }
-
-      // Generate token
-      console.log('Generating JWT token...');
-      const token = generateToken(user._id);
-      console.log('Token generated successfully');
-
-      // Redirect to frontend with token
-      const frontendUrl = process.env.FRONTEND_URL || 'https://notion-arabs.vercel.app';
-      console.log('Redirecting to:', `${frontendUrl}/auth/callback?token=${token}&success=true`);
-      res.redirect(`${frontendUrl}/auth/callback?token=${token}&success=true`);
-    } catch (error) {
-      console.error('Google OAuth callback error:', error);
-      console.error('Error message:', error.message);
-      console.error('Error stack:', error.stack);
-      const frontendUrl = process.env.FRONTEND_URL || 'https://notion-arabs.vercel.app';
-      res.redirect(`${frontendUrl}/auth/callback?success=false&error=authentication_failed`);
+    
+    // Check if we have the required parameters
+    if (!req.query.code) {
+      console.error('No authorization code received');
+      return res.redirect('https://notion-arabs.vercel.app/auth/callback?success=false&error=no_code');
     }
+
+    // Use passport.authenticate as middleware
+    passport.authenticate('google', { session: false }, async (err, user, info) => {
+      try {
+        console.log('Passport authentication completed');
+        console.log('Error:', err);
+        console.log('User:', user);
+        console.log('Info:', info);
+
+        if (err) {
+          console.error('Passport authentication error:', err);
+          return res.redirect('https://notion-arabs.vercel.app/auth/callback?success=false&error=passport_error');
+        }
+
+        if (!user) {
+          console.error('No user from Google OAuth');
+          return res.redirect('https://notion-arabs.vercel.app/auth/callback?success=false&error=no_user');
+        }
+
+        console.log('User authenticated successfully:', user.email);
+
+        // Generate token
+        console.log('Generating JWT token...');
+        const token = generateToken(user._id);
+        console.log('Token generated successfully');
+
+        // Redirect to frontend with token
+        const frontendUrl = process.env.FRONTEND_URL || 'https://notion-arabs.vercel.app';
+        console.log('Redirecting to:', `${frontendUrl}/auth/callback?token=${token}&success=true`);
+        res.redirect(`${frontendUrl}/auth/callback?token=${token}&success=true`);
+      } catch (error) {
+        console.error('Callback processing error:', error);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        res.redirect('https://notion-arabs.vercel.app/auth/callback?success=false&error=processing_error');
+      }
+    })(req, res);
+  } catch (error) {
+    console.error('Google OAuth callback error:', error);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    res.redirect('https://notion-arabs.vercel.app/auth/callback?success=false&error=callback_error');
   }
-);
+});
 
 module.exports = router;

@@ -147,9 +147,9 @@ export default function LoginPage() {
           {/* Social Login Buttons */}
           <div className="space-y-3">
             <a
-              href={`${process.env.NEXT_PUBLIC_API_URL || 
-                (typeof window !== 'undefined' && window.location.hostname === 'localhost' 
-                  ? 'http://localhost:5000/api' 
+              href={`${process.env.NEXT_PUBLIC_API_URL ||
+                (typeof window !== 'undefined' && window.location.hostname === 'localhost'
+                  ? 'http://localhost:5000/api'
                   : 'https://notion-arabs.onrender.com/api')}/auth/google`}
               className="w-full py-3 px-4 border border-gray-300 rounded-lg font-medium text-bw-black hover:bg-gray-50 transition-colors flex items-center justify-center"
             >

@@ -292,14 +292,14 @@ router.get('/google/callback',
       console.log('Token generated successfully');
 
       // Redirect to frontend with token
-      const frontendUrl = process.env.FRONTEND_URL || 
+      const frontendUrl = process.env.FRONTEND_URL ||
         (req.get('host')?.includes('localhost') ? 'http://localhost:3000' : 'https://notion-arabs.vercel.app');
       console.log('Redirecting to:', `${frontendUrl}/auth/callback?token=${token}&success=true`);
       res.redirect(`${frontendUrl}/auth/callback?token=${token}&success=true`);
     } catch (error) {
       console.error('Google OAuth callback error:', error);
       console.error('Error stack:', error.stack);
-      const frontendUrl = process.env.FRONTEND_URL || 
+      const frontendUrl = process.env.FRONTEND_URL ||
         (req.get('host')?.includes('localhost') ? 'http://localhost:3000' : 'https://notion-arabs.vercel.app');
       res.redirect(`${frontendUrl}/auth/callback?success=false&error=authentication_failed`);
     }

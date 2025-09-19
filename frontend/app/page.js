@@ -191,79 +191,196 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Enhanced Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-bw px-4 md:px-6 lg:px-12 py-16 md:py-24">
-        <div className="absolute inset-0 bg-gradient-to-r from-black/5 to-gray-600/5"></div>
-        <div className="max-w-7xl mx-auto relative flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
-          {/* النصوص */}
-          <div className="lg:w-1/2 text-center lg:text-right">
-            <div className="inline-flex items-center px-4 py-2 bg-bw-gray text-bw-black rounded-full text-sm font-medium mb-6">
-              <span className="w-2 h-2 bg-black rounded-full ml-2 animate-pulse"></span>
-              أكثر من 10,000 قالب متاح
-            </div>
+      {/* Enhanced Hero Section with Notion-inspired Animations */}
+      <section className="relative overflow-hidden hero-gradient-animation px-4 md:px-6 lg:px-12 py-16 md:py-24">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          {/* Floating Notion-style Blocks */}
+          <div className="absolute top-20 left-10 w-16 h-16 bg-white/60 rounded-lg shadow-lg floating-block notion-block-hover"></div>
+          <div className="absolute top-40 right-20 w-12 h-12 bg-gray-100/70 rounded-md shadow-md floating-block-delayed notion-block-hover"></div>
+          <div className="absolute bottom-32 left-1/4 w-20 h-20 bg-white/50 rounded-xl shadow-lg floating-block notion-block-hover"></div>
+          <div className="absolute top-1/3 right-1/3 w-14 h-14 bg-gray-50/80 rounded-lg shadow-md floating-block-delayed notion-block-hover"></div>
+          <div className="absolute bottom-20 right-10 w-18 h-18 bg-white/40 rounded-2xl shadow-lg floating-block notion-block-hover"></div>
 
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 text-gradient-bw">
-              منصتك العربية لبيع وشراء قوالب نوتيون
-            </h1>
+          {/* Gradient Orbs */}
+          <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-r from-blue-100/30 to-purple-100/30 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-l from-gray-100/40 to-black/20 rounded-full blur-3xl animate-pulse"></div>
 
-            <p className="text-lg md:text-xl text-bw-gray mb-8 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-              انضم إلى مجتمع عربي متنامٍ من المبدعين، وابدأ رحلتك مع آلاف
-              القوالب المصممة للعمل، الدراسة، والحياة اليومية.
-            </p>
+          {/* Subtle Grid Pattern */}
+          <div className="absolute inset-0 opacity-[0.02]" style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(0,0,0,0.3) 1px, transparent 0)`,
+            backgroundSize: '20px 20px'
+          }}></div>
+        </div>
 
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4 mb-8">
-              <a
-                href="/templates"
-                className="px-8 py-4 rounded-xl btn-bw-primary font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-              >
-                تصفح القوالب
-                <svg className="inline-block mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </a>
-              <a
-                href="/templates"
-                className="px-8 py-4 rounded-xl btn-bw-primary font-semibold text-lg transition-all duration-300 transform hover:scale-105"
-              >
-                بيع قوالبك
-              </a>
-            </div>
-
-            {/* Enhanced Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center lg:text-right">
-              <div className="bg-bw-white/80 backdrop-blur-sm rounded-xl p-4 shadow-sm border">
-                <div className="text-2xl font-bold text-black">1,200+</div>
-                <div className="text-sm text-bw-gray">قالب جاهز</div>
+        <div className="max-w-7xl mx-auto relative">
+          {/* Full Width Content Layout */}
+          <div className="text-center mb-12">
+            {/* النصوص */}
+            <div className="max-w-4xl mx-auto">
+              <div className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-sm text-bw-black rounded-full text-sm font-medium mb-6 text-reveal shadow-lg border border-white/50">
+                <span className="w-2 h-2 bg-black rounded-full ml-2 pulse-glow"></span>
+                أكثر من 10,000 قالب متاح
               </div>
-              <div className="bg-bw-white/80 backdrop-blur-sm rounded-xl p-4 shadow-sm border">
-                <div className="text-2xl font-bold text-gray-700">500+</div>
-                <div className="text-sm text-bw-gray">مبدع عربي</div>
+
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-6 text-gradient-bw text-reveal-delayed">
+                منصتك العربية لبيع وشراء قوالب نوتيون
+              </h1>
+
+              <p className="text-xl md:text-2xl text-bw-gray mb-8 leading-relaxed max-w-3xl mx-auto text-reveal-delayed-2">
+                انضم إلى مجتمع عربي متنامٍ من المبدعين، وابدأ رحلتك مع آلاف
+                القوالب المصممة للعمل، الدراسة، والحياة اليومية.
+              </p>
+
+              {/* CTAs */}
+              <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12 text-reveal-delayed-3">
+                <a
+                  href="/templates"
+                  className="px-10 py-5 rounded-xl btn-bw-primary font-semibold text-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl notion-block-hover"
+                >
+                  تصفح القوالب
+                  <svg className="inline-block mr-2 w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </a>
+                <a
+                  href="/templates"
+                  className="px-10 py-5 rounded-xl bg-white/90 backdrop-blur-sm text-black border border-gray-200 font-semibold text-xl transition-all duration-300 transform hover:scale-105 notion-block-hover shadow-lg hover:shadow-xl"
+                >
+                  بيع قوالبك
+                </a>
               </div>
-              <div className="bg-bw-white/80 backdrop-blur-sm rounded-xl p-4 shadow-sm border">
-                <div className="text-2xl font-bold text-bw-gray">50K+</div>
-                <div className="text-sm text-bw-gray">تحميل شهري</div>
-              </div>
-              <div className="bg-bw-white/80 backdrop-blur-sm rounded-xl p-4 shadow-sm border">
-                <div className="text-2xl font-bold text-bw-black">4.9</div>
-                <div className="text-sm text-bw-gray">تقييم المستخدمين</div>
+
+              {/* Enhanced Stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/50 notion-block-hover stats-counter">
+                  <div className="text-3xl font-bold text-black mb-2">1,200+</div>
+                  <div className="text-sm text-bw-gray">قالب جاهز</div>
+                </div>
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/50 notion-block-hover stats-counter">
+                  <div className="text-3xl font-bold text-gray-700 mb-2">500+</div>
+                  <div className="text-sm text-bw-gray">مبدع عربي</div>
+                </div>
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/50 notion-block-hover stats-counter">
+                  <div className="text-3xl font-bold text-bw-gray mb-2">50K+</div>
+                  <div className="text-sm text-bw-gray">تحميل شهري</div>
+                </div>
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/50 notion-block-hover stats-counter">
+                  <div className="text-3xl font-bold text-bw-black mb-2">4.9</div>
+                  <div className="text-sm text-bw-gray">تقييم المستخدمين</div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Enhanced Image */}
-          <div className="lg:w-1/2 relative">
-            <div className="absolute -top-10 -left-10 w-72 h-72 bg-gradient-to-r from-gray-400 to-black rounded-full blur-3xl opacity-20"></div>
-            <div className="relative group">
-              <div className="absolute -inset-4 bg-gradient-to-r from-black to-gray-600 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
-              <Image
-                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop&crop=center"
-                alt="عرض قوالب نوشن"
-                width={800}
-                height={600}
-                className="relative rounded-2xl shadow-2xl border-4 border-white transform group-hover:scale-105 transition duration-700"
-                priority
-              />
+          {/* Full Width Interactive Demo Section */}
+          <div className="relative">
+            {/* Floating UI Elements - More strategically placed */}
+            <div className="absolute top-0 left-10 w-24 h-24 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg floating-block notion-block-hover border border-white/50">
+              <div className="p-4">
+                <div className="w-8 h-8 bg-blue-500 rounded-lg mb-2"></div>
+                <div className="w-12 h-2 bg-gray-300 rounded mb-1"></div>
+                <div className="w-8 h-2 bg-gray-300 rounded"></div>
+              </div>
+            </div>
+
+            <div className="absolute top-20 right-20 w-20 h-20 bg-white/70 backdrop-blur-sm rounded-lg shadow-md floating-block-delayed notion-block-hover border border-white/50">
+              <div className="p-3">
+                <div className="w-6 h-6 bg-green-500 rounded-md mb-2"></div>
+                <div className="w-10 h-1.5 bg-gray-300 rounded mb-1"></div>
+                <div className="w-6 h-1.5 bg-gray-300 rounded"></div>
+              </div>
+            </div>
+
+            <div className="absolute bottom-20 left-1/4 w-16 h-16 bg-white/60 backdrop-blur-sm rounded-lg shadow-lg floating-block notion-block-hover border border-white/50">
+              <div className="p-2">
+                <div className="w-4 h-4 bg-purple-500 rounded mb-1"></div>
+                <div className="w-8 h-1 bg-gray-300 rounded mb-1"></div>
+                <div className="w-6 h-1 bg-gray-300 rounded"></div>
+              </div>
+            </div>
+
+            <div className="absolute top-1/3 right-1/3 w-28 h-28 bg-white/50 backdrop-blur-sm rounded-2xl shadow-lg floating-block notion-block-hover border border-white/50">
+              <div className="p-4">
+                <div className="w-10 h-10 bg-orange-500 rounded-lg mb-3"></div>
+                <div className="w-16 h-2 bg-gray-300 rounded mb-1"></div>
+                <div className="w-12 h-2 bg-gray-300 rounded mb-1"></div>
+                <div className="w-8 h-2 bg-gray-300 rounded"></div>
+              </div>
+            </div>
+
+            <div className="absolute bottom-1/3 right-1/4 w-18 h-18 bg-white/60 backdrop-blur-sm rounded-lg shadow-md floating-block-delayed notion-block-hover border border-white/50">
+              <div className="p-3">
+                <div className="w-6 h-6 bg-red-500 rounded-md mb-2"></div>
+                <div className="w-12 h-1.5 bg-gray-300 rounded mb-1"></div>
+                <div className="w-8 h-1.5 bg-gray-300 rounded"></div>
+              </div>
+            </div>
+
+            {/* Three Solid Navigation Squares */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+              {/* Browse Templates Square */}
+              <Link href="/templates" className="group">
+                <div className="bg-black rounded-2xl p-8 shadow-2xl notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-3xl">
+                  <div className="w-16 h-16 bg-white rounded-xl mb-6 flex items-center justify-center">
+                    <svg className="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-3">تصفح القوالب</h3>
+                  <p className="text-gray-300 leading-relaxed">
+                    اكتشف آلاف القوالب الجاهزة للعمل والدراسة والحياة اليومية
+                  </p>
+                  <div className="mt-4 flex items-center text-white group-hover:translate-x-1 transition-transform duration-300">
+                    <span className="text-sm font-medium">ابدأ الآن</span>
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </div>
+                </div>
+              </Link>
+
+              {/* Categories Square */}
+              <Link href="/categories" className="group">
+                <div className="bg-white rounded-2xl p-8 shadow-2xl notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-3xl border-2 border-gray-100">
+                  <div className="w-16 h-16 bg-gray-900 rounded-xl mb-6 flex items-center justify-center">
+                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-bold text-bw-black mb-3">التصنيفات</h3>
+                  <p className="text-bw-gray leading-relaxed">
+                    تصفح حسب الفئة - العمل، الدراسة، الأعمال، والصحة
+                  </p>
+                  <div className="mt-4 flex items-center text-bw-black group-hover:translate-x-1 transition-transform duration-300">
+                    <span className="text-sm font-medium">استكشف</span>
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </div>
+                </div>
+              </Link>
+
+              {/* Blog/About Square */}
+              <Link href="/blog" className="group">
+                <div className="bg-gradient-to-br from-gray-800 to-black rounded-2xl p-8 shadow-2xl notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-3xl">
+                  <div className="w-16 h-16 bg-white rounded-xl mb-6 flex items-center justify-center">
+                    <svg className="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-3">المدونة</h3>
+                  <p className="text-gray-300 leading-relaxed">
+                    نصائح وتوجيهات لاستخدام نوتيون وأفضل الممارسات
+                  </p>
+                  <div className="mt-4 flex items-center text-white group-hover:translate-x-1 transition-transform duration-300">
+                    <span className="text-sm font-medium">اقرأ المزيد</span>
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </div>
+                </div>
+              </Link>
             </div>
           </div>
         </div>

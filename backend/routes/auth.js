@@ -271,7 +271,7 @@ router.get('/google/callback',
     console.log('Headers:', req.headers);
     next();
   },
-  passport.authenticate('google', { 
+  passport.authenticate('google', {
     session: false,
     failureRedirect: 'https://notion-arabs.vercel.app/auth/callback?success=false&error=passport_auth_failed'
   }),
@@ -279,7 +279,7 @@ router.get('/google/callback',
     try {
       console.log('Passport authentication successful');
       console.log('User from passport:', req.user);
-      
+
       if (!req.user) {
         console.error('No user from Google OAuth after passport authentication');
         const frontendUrl = process.env.FRONTEND_URL || 'https://notion-arabs.vercel.app';

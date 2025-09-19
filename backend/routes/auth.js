@@ -250,26 +250,30 @@ router.get('/debug', (req, res) => {
 router.get('/test-callback', async (req, res) => {
   try {
     console.log('Test callback simulation started');
-
+    
     // Check database connection
     const mongoose = require('mongoose');
     console.log('Database state:', mongoose.connection.readyState);
-
+    console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
+    console.log('MONGODB_URI format check:', process.env.MONGODB_URI?.startsWith('mongodb'));
+    
     // Test User model
     const User = require('../models/User');
     console.log('User model loaded successfully');
-
+    
     // Test JWT generation
     const jwt = require('jsonwebtoken');
     const testToken = jwt.sign({ userId: 'test123' }, process.env.JWT_SECRET, { expiresIn: '7d' });
     console.log('JWT generation test successful');
-
+    
     res.json({
       success: true,
       message: 'All systems working',
       database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
       jwt: 'working',
-      userModel: 'loaded'
+      userModel: 'loaded',
+      mongoUriExists: !!process.env.MONGODB_URI,
+      mongoUriFormat: process.env.MONGODB_URI?.startsWith('mongodb') ? 'correct' : 'incorrect'
     });
   } catch (error) {
     console.error('Test callback error:', error);

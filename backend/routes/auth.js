@@ -282,7 +282,7 @@ router.get('/google/callback', async (req, res) => {
   try {
     console.log('Google OAuth callback received');
     console.log('Query params:', req.query);
-    
+
     // Check if we have the required parameters
     if (!req.query.code) {
       console.error('No authorization code received');

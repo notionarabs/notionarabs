@@ -13,7 +13,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
       console.log('Google OAuth strategy called');
       console.log('Profile:', profile);
       console.log('Profile emails:', profile.emails);
-      
+
       if (!profile.emails || !profile.emails[0]) {
         console.error('No email in Google profile');
         return done(new Error('No email found in Google profile'), null);

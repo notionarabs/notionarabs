@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Enhanced Black & White Color System */
+@layer utilities {
+  /* Backgrounds */
+  .bg-bw-white {
+    background-color: #ffffff; /* pure white */
+  }
+
+  .bg-bw-light {
+    background-color: #fafafa; /* softer than #f5f5f5 */
+  }
+
+  .border-bw-gray {
+    border-color: #e0e0e0;
+  }
+
+  .bg-bw-gray {
+    background-color: #f0f0f0; /* balanced neutral */
+  }
+
+  /* Text Colors */
+  .text-bw-black {
+    color: #111111; /* not harsh black */
+  }
+
+  .text-bw-dark {
+    color: #222222; /* for headings */
+  }
+
+  .text-bw-gray {
+    color: #555555; /* softer gray */
+  }
+
+  .text-bw-lightgray {
+    color: #888888; /* for metadata */
+  }
+
+  /* Gradients */
+  .bg-gradient-bw {
+    background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 50%, #f0f0f0 100%);
+  }
+
+  .text-gradient-bw {
+    background: linear-gradient(135deg, #111111, #555555);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Buttons */
+  .btn-bw-primary {
+    background-color: #111111;
+    color: #ffffff;
+    transition: all 0.3s ease;
+  }
+  .btn-bw-primary:hover {
+    background-color: #333333;
+  }
+
+  .btn-bw-outline {
+    background-color: transparent;
+    color: #111111;
+    border: 1px solid #111111;
+    transition: all 0.3s ease;
+  }
+  .btn-bw-outline:hover {
+    background-color: #111111;
+    color: #ffffff;
+  }
+
+  /* Optional Accent (Gold) */
+  .text-accent-gold {
+    color: #f59e0b;
+  }
+  .bg-accent-gold {
+    background-color: #f59e0b;
+    color: #ffffff;
+  }
+  .bg-accent-gold:hover {
+    background-color: #d97706;
+  }
+}

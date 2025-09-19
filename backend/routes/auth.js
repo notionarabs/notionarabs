@@ -244,6 +244,43 @@ router.get('/debug', (req, res) => {
   });
 });
 
+// @route   GET /api/auth/test-callback
+// @desc    Test callback simulation
+// @access  Public
+router.get('/test-callback', async (req, res) => {
+  try {
+    console.log('Test callback simulation started');
+    
+    // Check database connection
+    const mongoose = require('mongoose');
+    console.log('Database state:', mongoose.connection.readyState);
+    
+    // Test User model
+    const User = require('../models/User');
+    console.log('User model loaded successfully');
+    
+    // Test JWT generation
+    const jwt = require('jsonwebtoken');
+    const testToken = jwt.sign({ userId: 'test123' }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    console.log('JWT generation test successful');
+    
+    res.json({
+      success: true,
+      message: 'All systems working',
+      database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+      jwt: 'working',
+      userModel: 'loaded'
+    });
+  } catch (error) {
+    console.error('Test callback error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Test failed',
+      error: error.message
+    });
+  }
+});
+
 // @route   GET /api/auth/google
 // @desc    Google OAuth login
 // @access  Public

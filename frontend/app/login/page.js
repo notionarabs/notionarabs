@@ -147,7 +147,10 @@ export default function LoginPage() {
           {/* Social Login Buttons */}
           <div className="space-y-3">
             <a
-              href={`${process.env.NEXT_PUBLIC_API_URL || 'https://notion-arabs.onrender.com/api'}/auth/google`}
+              href={`${process.env.NEXT_PUBLIC_API_URL || 
+                (typeof window !== 'undefined' && window.location.hostname === 'localhost' 
+                  ? 'http://localhost:5000/api' 
+                  : 'https://notion-arabs.onrender.com/api')}/auth/google`}
               className="w-full py-3 px-4 border border-gray-300 rounded-lg font-medium text-bw-black hover:bg-gray-50 transition-colors flex items-center justify-center"
             >
               <svg className="w-5 h-5 ml-2" viewBox="0 0 24 24">

@@ -258,11 +258,11 @@ router.get('/google/callback',
       const token = generateToken(user._id);
 
       // Redirect to frontend with token
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      const frontendUrl = process.env.FRONTEND_URL || 'https://notion-arabs.vercel.app';
       res.redirect(`${frontendUrl}/auth/callback?token=${token}&success=true`);
     } catch (error) {
       console.error('Google OAuth callback error:', error);
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      const frontendUrl = process.env.FRONTEND_URL || 'https://notion-arabs.vercel.app';
       res.redirect(`${frontendUrl}/auth/callback?success=false&error=authentication_failed`);
     }
   }

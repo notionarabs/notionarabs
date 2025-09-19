@@ -5,12 +5,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '../contexts/AuthContext';
 
+// Sample data - in production, this would come from an API
 const featuredTemplates = [
   {
     title: "مخطط الدراسة",
     creator: "علي حسن",
-    imgSrc:
-      "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop&crop=center",
+    imgSrc: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop&crop=center",
     tag: "شائع",
     price: "25 ريال",
     rating: 4.8,
@@ -20,8 +20,7 @@ const featuredTemplates = [
   {
     title: "لوحة تحكم الشركة الناشئة",
     creator: "سارة محمد",
-    imgSrc:
-      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop&crop=center",
+    imgSrc: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop&crop=center",
     tag: "جديد",
     price: "45 ريال",
     rating: 4.9,
@@ -31,8 +30,7 @@ const featuredTemplates = [
   {
     title: "المذكرة الشخصية",
     creator: "أحمد ياسر",
-    imgSrc:
-      "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=400&h=300&fit=crop&crop=center",
+    imgSrc: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=400&h=300&fit=crop&crop=center",
     tag: "مجاني",
     price: "مجاني",
     rating: 4.7,
@@ -42,8 +40,7 @@ const featuredTemplates = [
   {
     title: "مدير المهام",
     creator: "منى خالد",
-    imgSrc:
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop&crop=center",
+    imgSrc: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop&crop=center",
     tag: "رائج",
     price: "35 ريال",
     rating: 4.6,
@@ -53,96 +50,24 @@ const featuredTemplates = [
 ];
 
 const categories = [
-  {
-    name: "العمل",
-    count: 120,
-    imgSrc:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop&crop=center",
-  },
-  {
-    name: "الدراسة",
-    count: 95,
-    imgSrc:
-      "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=200&fit=crop&crop=center",
-  },
-  {
-    name: "الأعمال",
-    count: 70,
-    imgSrc:
-      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=300&h=200&fit=crop&crop=center",
-  },
-  {
-    name: "الحياة",
-    count: 80,
-    imgSrc:
-      "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=300&h=200&fit=crop&crop=center",
-  },
-  {
-    name: "الشخصي",
-    count: 65,
-    imgSrc:
-      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop&crop=center",
-  },
-  {
-    name: "الصحة",
-    count: 50,
-    imgSrc:
-      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=200&fit=crop&crop=center",
-  },
+  { name: "العمل", count: 120, imgSrc: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop&crop=center" },
+  { name: "الدراسة", count: 95, imgSrc: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=200&fit=crop&crop=center" },
+  { name: "الأعمال", count: 70, imgSrc: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=300&h=200&fit=crop&crop=center" },
+  { name: "الحياة", count: 80, imgSrc: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=300&h=200&fit=crop&crop=center" },
+  { name: "الشخصي", count: 65, imgSrc: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop&crop=center" },
+  { name: "الصحة", count: 50, imgSrc: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=200&fit=crop&crop=center" },
 ];
 
 const creators = [
-  {
-    name: "ليلى أحمد",
-    templates: 20,
-    bio: "قوالب الإنتاجية",
-    imgSrc:
-      "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
-    rating: 4.9,
-    earnings: "15,000 ريال",
-  },
-  {
-    name: "عمر خالد",
-    templates: 15,
-    bio: "إعدادات الدراسة والبحث",
-    imgSrc:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    rating: 4.8,
-    earnings: "12,500 ريال",
-  },
-  {
-    name: "فاطمة نور",
-    templates: 25,
-    bio: "لوحات العمل والأعمال",
-    imgSrc:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-    rating: 4.7,
-    earnings: "18,200 ريال",
-  },
+  { name: "ليلى أحمد", templates: 20, bio: "قوالب الإنتاجية", imgSrc: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face", rating: 4.9, earnings: "15,000 ريال" },
+  { name: "عمر خالد", templates: 15, bio: "إعدادات الدراسة والبحث", imgSrc: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face", rating: 4.8, earnings: "12,500 ريال" },
+  { name: "فاطمة نور", templates: 25, bio: "لوحات العمل والأعمال", imgSrc: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face", rating: 4.7, earnings: "18,200 ريال" },
 ];
 
 const testimonials = [
-  {
-    name: "محمد العلي",
-    role: "مطور ويب",
-    content: "قوالب عرب نوشن ساعدتني في تنظيم مشاريعي بشكل احترافي. التصميم رائع والاستخدام سهل جداً!",
-    rating: 5,
-    imgSrc: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-  },
-  {
-    name: "نورا السعيد",
-    role: "طالبة جامعية",
-    content: "أفضل منصة للقوالب العربية! وفرت علي ساعات من التصميم وأصبحت دراستي أكثر تنظيماً.",
-    rating: 5,
-    imgSrc: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face",
-  },
-  {
-    name: "أحمد المطيري",
-    role: "رائد أعمال",
-    content: "قوالب إدارة المشاريع ساعدتني في تطوير شركتي الناشئة. أنصح بها بشدة!",
-    rating: 5,
-    imgSrc: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
-  },
+  { name: "محمد العلي", role: "مطور ويب", content: "قوالب عرب نوشن ساعدتني في تنظيم مشاريعي بشكل احترافي. التصميم رائع والاستخدام سهل جداً!", rating: 5, imgSrc: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" },
+  { name: "نورا السعيد", role: "طالبة جامعية", content: "أفضل منصة للقوالب العربية! وفرت علي ساعات من التصميم وأصبحت دراستي أكثر تنظيماً.", rating: 5, imgSrc: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face" },
+  { name: "أحمد المطيري", role: "رائد أعمال", content: "قوالب إدارة المشاريع ساعدتني في تطوير شركتي الناشئة. أنصح بها بشدة!", rating: 5, imgSrc: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" },
 ];
 
 export default function HomePage() {

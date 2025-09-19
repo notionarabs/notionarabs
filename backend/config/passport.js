@@ -10,17 +10,12 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     callbackURL: process.env.GOOGLE_CALLBACK_URL || 'https://notion-arabs.onrender.com/api/auth/google/callback'
   }, async (accessToken, refreshToken, profile, done) => {
     try {
-      console.log('Google OAuth strategy called');
-      console.log('Profile:', profile);
-      console.log('Profile emails:', profile.emails);
-
       if (!profile.emails || !profile.emails[0]) {
         console.error('No email in Google profile');
         return done(new Error('No email found in Google profile'), null);
       }
 
       const email = profile.emails[0].value;
-      console.log('Looking for user with email:', email);
 
       // Check database connection
       const mongoose = require('mongoose');
@@ -31,19 +26,16 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
 
       // Check if user already exists
       let user = await User.findOne({ email: email });
-      console.log('User found:', !!user);
 
       if (user) {
         // User exists, update Google ID if not set
         if (!user.googleId) {
           user.googleId = profile.id;
           await user.save();
-          console.log('Updated user with Google ID');
         }
         return done(null, user);
       } else {
         // Create new user
-        console.log('Creating new user');
         user = new User({
           googleId: profile.id,
           name: profile.displayName,
@@ -53,13 +45,10 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
         });
 
         await user.save();
-        console.log('New user created successfully');
         return done(null, user);
       }
     } catch (error) {
       console.error('Google OAuth strategy error:', error);
-      console.error('Error message:', error.message);
-      console.error('Error stack:', error.stack);
       return done(error, null);
     }
   }));

@@ -230,6 +230,20 @@ router.put('/profile', auth, [
   }
 });
 
+// @route   GET /api/auth/debug
+// @desc    Debug endpoint to check environment variables
+// @access  Public
+router.get('/debug', (req, res) => {
+  res.json({
+    GOOGLE_CLIENT_ID: !!process.env.GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET: !!process.env.GOOGLE_CLIENT_SECRET,
+    JWT_SECRET: !!process.env.JWT_SECRET,
+    MONGODB_URI: !!process.env.MONGODB_URI,
+    FRONTEND_URL: process.env.FRONTEND_URL,
+    NODE_ENV: process.env.NODE_ENV
+  });
+});
+
 // @route   GET /api/auth/google
 // @desc    Google OAuth login
 // @access  Public

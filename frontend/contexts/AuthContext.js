@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
     if (cachedUser && cacheTimestamp) {
       const now = Date.now();
       const timeSinceCache = now - parseInt(cacheTimestamp);
-      
+
       if (timeSinceCache < cacheExpiry) {
         // Use cached data immediately, no loading needed
         console.log('AuthContext: Using cached data immediately');

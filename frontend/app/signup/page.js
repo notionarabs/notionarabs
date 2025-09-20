@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function SignupPage() {
@@ -83,24 +84,33 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-bw flex items-center justify-center px-4" dir="rtl">
-      <div className="max-w-md w-full">
+    <div className="min-h-screen bg-gradient-to-br from-secondary-50 to-accent-500 flex items-center justify-center px-4 py-8" dir="rtl">
+      <div className="max-w-md w-full my-8">
         {/* Header */}
-        <div className="text-center mb-8">
-          <Link href="/" className="text-2xl font-bold text-gradient-bw mb-4 inline-block">
-            عرب نوشن
+        <div className="text-center mb-10">
+          <Link href="/" className="flex items-center justify-center mb-6">
+            <Image
+              src="/NavLogoImageLight.png"
+              alt="عرب نوشن"
+              width={120}
+              height={40}
+              className="h-12 w-auto"
+              quality={100}
+              priority
+              unoptimized
+            />
           </Link>
-          <h1 className="text-3xl font-bold text-bw-black mb-2">انضم إلى مجتمعنا</h1>
-          <p className="text-bw-gray">أنشئ حسابك وابدأ رحلتك معنا</p>
+          <h1 className="text-3xl font-bold text-accent-500 mb-3">انضم إلى مجتمعنا</h1>
+          <p className="text-accent-600">أنشئ حسابك وابدأ رحلتك معنا</p>
         </div>
 
         {/* Signup Form */}
-        <div className="bg-bw-white rounded-2xl shadow-xl p-8 border border-gray-100">
+        <div className="bg-white rounded-2xl shadow-xl p-10 border border-primary-200">
           {!showVerificationMessage ? (
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Name Field */}
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-bw-black mb-2">
+                <label htmlFor="name" className="block text-sm font-medium text-accent-500 mb-2">
                   الاسم الكامل
                 </label>
                 <input
@@ -110,14 +120,14 @@ export default function SignupPage() {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-colors"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
                   placeholder="أدخل اسمك الكامل"
                 />
               </div>
 
               {/* Email Field */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-bw-black mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-accent-500 mb-2">
                   البريد الإلكتروني
                 </label>
                 <input
@@ -127,7 +137,7 @@ export default function SignupPage() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-colors"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
                   placeholder="أدخل بريدك الإلكتروني"
                   dir="ltr"
                 />
@@ -135,7 +145,7 @@ export default function SignupPage() {
 
               {/* Password Field */}
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-bw-black mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-accent-500 mb-2">
                   كلمة المرور
                 </label>
                 <input
@@ -145,7 +155,7 @@ export default function SignupPage() {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-colors"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
                   placeholder="أدخل كلمة المرور (6 أحرف على الأقل)"
                   dir="ltr"
                 />
@@ -153,7 +163,7 @@ export default function SignupPage() {
 
               {/* Confirm Password Field */}
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-bw-black mb-2">
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-accent-500 mb-2">
                   تأكيد كلمة المرور
                 </label>
                 <input
@@ -163,7 +173,7 @@ export default function SignupPage() {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent transition-colors"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
                   placeholder="أعد إدخال كلمة المرور"
                   dir="ltr"
                 />
@@ -176,15 +186,15 @@ export default function SignupPage() {
                   id="terms"
                   checked={agreedToTerms}
                   onChange={(e) => setAgreedToTerms(e.target.checked)}
-                  className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black mt-1"
+                  className="w-4 h-4 text-primary-500 border-gray-300 rounded focus:ring-primary-500 mt-1"
                 />
-                <label htmlFor="terms" className="mr-2 text-sm text-bw-gray">
+                <label htmlFor="terms" className="mr-2 text-sm text-accent-600">
                   أوافق على{' '}
-                  <a href="/terms" className="text-black hover:text-gray-700 transition-colors">
+                  <a href="/terms" className="text-primary-500 hover:text-primary-600 transition-colors">
                     الشروط والأحكام
                   </a>
                   {' '}و{' '}
-                  <a href="/privacy" className="text-black hover:text-gray-700 transition-colors">
+                  <a href="/privacy" className="text-primary-500 hover:text-primary-600 transition-colors">
                     سياسة الخصوصية
                   </a>
                 </label>
@@ -242,7 +252,7 @@ export default function SignupPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 px-4 btn-bw-primary rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="w-full py-3 px-4 bg-primary-500 hover:bg-primary-600 text-white rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {loading ? (
                   <div className="flex items-center justify-center">
@@ -269,7 +279,7 @@ export default function SignupPage() {
                     <div className="w-full border-t border-gray-300"></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-bw-white text-bw-gray">أو</span>
+                    <span className="px-2 bg-white text-accent-600">أو</span>
                   </div>
                 </div>
               </div>
@@ -278,7 +288,7 @@ export default function SignupPage() {
               <div className="space-y-3">
                 <a
                   href={`${process.env.NODE_ENV === 'production' ? 'https://notion-arabs.onrender.com/api' : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api')}/auth/google`}
-                  className="w-full py-3 px-4 border border-gray-300 rounded-lg font-medium text-bw-black hover:bg-gray-50 transition-colors flex items-center justify-center"
+                  className="w-full py-3 px-4 border border-gray-300 rounded-lg font-medium text-accent-500 hover:bg-gray-50 transition-colors flex items-center justify-center"
                 >
                   <svg className="w-5 h-5 ml-2" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -292,9 +302,9 @@ export default function SignupPage() {
 
               {/* Login Link */}
               <div className="mt-6 text-center">
-                <p className="text-bw-gray">
+                <p className="text-accent-600">
                   لديك حساب بالفعل؟{' '}
-                  <Link href="/login" className="text-black font-semibold hover:text-gray-700 transition-colors">
+                  <Link href="/login" className="text-primary-500 font-semibold hover:text-primary-600 transition-colors">
                     تسجيل الدخول
                   </Link>
                 </p>
@@ -304,8 +314,8 @@ export default function SignupPage() {
         </div>
 
         {/* Back to Home */}
-        <div className="text-center mt-6">
-          <Link href="/" className="text-bw-gray hover:text-bw-black transition-colors flex items-center justify-center">
+        <div className="text-center mt-10">
+          <Link href="/" className="text-accent-600 hover:text-accent-500 transition-colors flex items-center justify-center">
             <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>

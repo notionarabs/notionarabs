@@ -1,10 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useAuth } from '../../contexts/AuthContext';
-import ThemeToggle from '../../components/ThemeToggle';
 
 const helpCategories = [
   {
@@ -110,11 +106,9 @@ const popularArticles = [
 ];
 
 export default function HelpPage() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [expandedFaq, setExpandedFaq] = useState(null);
-  const { user, isAuthenticated, logout } = useAuth();
 
   const toggleFaq = (index) => {
     setExpandedFaq(expandedFaq === index ? null : index);

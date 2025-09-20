@@ -1,10 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useAuth } from '../../contexts/AuthContext';
-import ThemeToggle from '../../components/ThemeToggle';
 
 const pricingPlans = [
   {
@@ -129,9 +125,7 @@ const features = [
 ];
 
 export default function PricingPage() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [billingPeriod, setBillingPeriod] = useState('monthly');
-  const { user, isAuthenticated, logout } = useAuth();
 
   const toggleBillingPeriod = () => {
     setBillingPeriod(billingPeriod === 'monthly' ? 'yearly' : 'monthly');

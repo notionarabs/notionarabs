@@ -1,10 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useAuth } from '../../contexts/AuthContext';
-import ThemeToggle from '../../components/ThemeToggle';
 
 const features = [
   {
@@ -106,8 +101,6 @@ const integrations = [
 ];
 
 export default function FeaturesPage() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, isAuthenticated, logout } = useAuth();
 
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">

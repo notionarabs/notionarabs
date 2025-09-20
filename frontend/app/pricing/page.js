@@ -341,8 +341,8 @@ export default function PricingPage() {
                 <Link
                   href={plan.ctaLink}
                   className={`w-full block text-center py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${plan.popular
-                      ? 'btn-primary'
-                      : 'btn-outline'
+                    ? 'btn-primary'
+                    : 'btn-outline'
                     }`}
                 >
                   {plan.cta}

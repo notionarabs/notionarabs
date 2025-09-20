@@ -17,9 +17,9 @@ export default function Navigation({ activePage = '' }) {
           <Image
             src="/NavLogoLight.svg"
             alt="عرب نوشن"
-            width={240}
-            height={80}
-            className="h-12 w-auto"
+            width={180}
+            height={60}
+            className="h-12 w-auto min-w-[180px]"
             quality={100}
             priority
             unoptimized

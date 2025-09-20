@@ -26,25 +26,46 @@ export const AuthProvider = ({ children }) => {
   const router = useRouter();
 
   useEffect(() => {
-    checkAuthStatus();
-  }, []);
+    // Only run once on mount
+    const timeoutId = setTimeout(() => {
+      console.warn('AuthContext: Timeout reached, forcing loading to false');
+      setLoading(false);
+    }, 5000); // 5 second timeout
+
+    checkAuthStatus().finally(() => {
+      clearTimeout(timeoutId);
+    });
+
+    return () => clearTimeout(timeoutId);
+  }, []); // Empty dependency array - only run once
 
   const checkAuthStatus = async () => {
     try {
       const token = Cookies.get('authToken');
       console.log('AuthContext: checkAuthStatus - token:', token ? 'exists' : 'not found');
+
       if (token) {
         // Set the token in axios headers
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-        // Verify token with backend
-        const response = await api.get('/auth/me');
-        console.log('AuthContext: checkAuthStatus - user data:', response.data.user);
-        setUser(response.data.user);
+        try {
+          // Verify token with backend
+          const response = await api.get('/auth/me');
+          console.log('AuthContext: checkAuthStatus - user data:', response.data.user);
+          setUser(response.data.user);
+        } catch (apiError) {
+          console.error('Auth API call failed:', apiError);
+          // Clear invalid token
+          Cookies.remove('authToken');
+          delete api.defaults.headers.common['Authorization'];
+        }
+      } else {
+        // No token, user is not authenticated
+        console.log('AuthContext: No token found, user not authenticated');
       }
     } catch (error) {
       console.error('Auth check failed:', error);
-      // Clear invalid token
+      // Clear any invalid token
       Cookies.remove('authToken');
       delete api.defaults.headers.common['Authorization'];
     } finally {

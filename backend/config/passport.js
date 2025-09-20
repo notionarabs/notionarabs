@@ -28,9 +28,17 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
       let user = await User.findOne({ email: email });
 
       if (user) {
-        // User exists, update Google ID if not set
+        // User exists, update Google ID and profile picture if not set
+        let needsUpdate = false;
         if (!user.googleId) {
           user.googleId = profile.id;
+          needsUpdate = true;
+        }
+        if (!user.profilePicture && profile.photos && profile.photos[0]) {
+          user.profilePicture = profile.photos[0].value;
+          needsUpdate = true;
+        }
+        if (needsUpdate) {
           await user.save();
         }
         return done(null, user);
@@ -41,6 +49,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
           name: profile.displayName,
           email: email,
           password: 'google-oauth-user', // Dummy password for Google users
+          profilePicture: profile.photos && profile.photos[0] ? profile.photos[0].value : null,
           isActive: true
         });
 

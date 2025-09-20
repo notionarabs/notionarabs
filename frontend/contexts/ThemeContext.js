@@ -5,7 +5,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState('light'); // Default to light mode
   const [mounted, setMounted] = useState(false);
 
   // Load theme from localStorage on mount
@@ -15,17 +15,22 @@ export function ThemeProvider({ children }) {
 
     const savedTheme = localStorage.getItem('theme');
     const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    const initialTheme = savedTheme || systemTheme;
+    const initialTheme = savedTheme || systemTheme; // Default to system theme
+
+    // Check if the theme is already applied by the script
+    const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+
+    // Only update if there's a mismatch
+    if (currentTheme !== initialTheme) {
+      if (initialTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
 
     setTheme(initialTheme);
     setMounted(true);
-
-    // Apply theme to document
-    if (initialTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
   }, []);
 
   // Listen for system theme changes
@@ -68,7 +73,7 @@ export function ThemeProvider({ children }) {
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, mounted }}>
       {!mounted ? (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">{children}</div>
+        <div className="min-h-screen bg-white dark:bg-gray-900" suppressHydrationWarning>{children}</div>
       ) : (
         children
       )}

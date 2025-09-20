@@ -39,47 +39,49 @@ export default function Navigation({ activePage = '' }) {
           {/* Theme Toggle */}
           <ThemeToggle />
 
-          {loading ? (
-            <div className="flex items-center gap-4">
-              {/* Loading skeleton for user info */}
-              <div className="w-20 h-6 bg-white/20 rounded animate-pulse"></div>
-              <div className="w-10 h-10 rounded-full bg-white/20 animate-pulse"></div>
-            </div>
-          ) : isAuthenticated ? (
-            <div className="flex items-center gap-4">
-              <span className="text-gray-300 dark:text-dark-text-tertiary">مرحباً، {user?.name}</span>
+          {/* Reserve consistent space to prevent layout shifts */}
+          <div className="flex items-center gap-4 min-w-[200px] justify-end">
+            {loading ? (
+              <>
+                {/* Loading skeleton for user info */}
+                <div className="w-20 h-6 bg-white/20 rounded animate-pulse"></div>
+                <div className="w-10 h-10 rounded-full bg-white/20 animate-pulse"></div>
+              </>
+            ) : isAuthenticated ? (
+              <>
+                <span className="text-gray-300 dark:text-dark-text-tertiary">مرحباً، {user?.name}</span>
 
-              {/* Profile Picture Link */}
-              <Link href="/profile" className="flex items-center">
-                {user?.profilePicture ? (
-                  <Image
-                    src={user.profilePicture}
-                    alt={`صورة ${user.name}`}
-                    width={40}
-                    height={40}
-                    className="w-10 h-10 rounded-full border-2 border-white/20 hover:border-white/40 transition-all duration-200 cursor-pointer hover:scale-105"
-                    quality={100}
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-all duration-200 cursor-pointer hover:scale-105 border-2 border-white/20 hover:border-white/40">
-                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                    </svg>
-                  </div>
-                )}
-              </Link>
-
-            </div>
-          ) : (
-            <div className="flex items-center gap-3">
-              <Link href="/login" className="text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors py-2 px-3">
-                تسجيل الدخول
-              </Link>
-              <Link href="/signup" className="btn-primary">
-                إنشاء حساب
-              </Link>
-            </div>
-          )}
+                {/* Profile Picture Link */}
+                <Link href="/profile" className="flex items-center">
+                  {user?.profilePicture ? (
+                    <Image
+                      src={user.profilePicture}
+                      alt={`صورة ${user.name}`}
+                      width={40}
+                      height={40}
+                      className="w-10 h-10 rounded-full border-2 border-white/20 hover:border-white/40 transition-all duration-200 cursor-pointer hover:scale-105"
+                      quality={100}
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-all duration-200 cursor-pointer hover:scale-105 border-2 border-white/20 hover:border-white/40">
+                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                      </svg>
+                    </div>
+                  )}
+                </Link>
+              </>
+            ) : (
+              <div className="flex items-center gap-3">
+                <Link href="/login" className="text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors py-2 px-3">
+                  تسجيل الدخول
+                </Link>
+                <Link href="/signup" className="btn-primary">
+                  إنشاء حساب
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Mobile Menu Button */}
@@ -118,7 +120,7 @@ export default function Navigation({ activePage = '' }) {
             </nav>
 
             {/* Mobile Auth Section */}
-            <div className="border-t border-gray-600 dark:border-dark-card-border pt-6">
+            <div className="border-t border-gray-600 dark:border-dark-card-border pt-6 min-h-[120px]">
               {loading ? (
                 <div className="space-y-3">
                   <div className="px-4 py-3 bg-white/5 dark:bg-dark-tertiary rounded-xl">

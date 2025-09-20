@@ -33,10 +33,30 @@ export const AuthProvider = ({ children }) => {
       return;
     }
 
+    // Check if we have cached data first to minimize loading time
+    const cachedUser = localStorage.getItem('user');
+    const cacheTimestamp = localStorage.getItem('userCacheTimestamp');
+    const cacheExpiry = 5 * 60 * 1000; // 5 minutes
+
+    if (cachedUser && cacheTimestamp) {
+      const now = Date.now();
+      const timeSinceCache = now - parseInt(cacheTimestamp);
+      
+      if (timeSinceCache < cacheExpiry) {
+        // Use cached data immediately, no loading needed
+        console.log('AuthContext: Using cached data immediately');
+        const userData = JSON.parse(cachedUser);
+        setUser(userData);
+        setLoading(false);
+        setHasCheckedAuth(true);
+        return;
+      }
+    }
+
     const timeoutId = setTimeout(() => {
       console.warn('AuthContext: Timeout reached, forcing loading to false');
       setLoading(false);
-    }, 3000); // Reduced to 3 seconds
+    }, 2000); // Reduced to 2 seconds for faster UX
 
     checkAuthStatus().finally(() => {
       clearTimeout(timeoutId);

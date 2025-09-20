@@ -1,10 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useAuth } from '../../contexts/AuthContext';
-import ThemeToggle from '../../components/ThemeToggle';
 import { formatDate } from '../../lib/dateUtils';
 
 const jobOpenings = [
@@ -151,10 +147,8 @@ const companyValues = [
 ];
 
 export default function CareersPage() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState('all');
   const [filteredJobs, setFilteredJobs] = useState(jobOpenings);
-  const { user, isAuthenticated, logout } = useAuth();
 
   // Filter jobs by department
   useEffect(() => {

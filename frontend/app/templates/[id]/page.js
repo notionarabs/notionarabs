@@ -11,74 +11,48 @@ const template = {
   title: "مخطط الدراسة الشامل",
   creator: {
     name: "علي حسن",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-    rating: 4.8,
-    templates: 20,
-    followers: 1200
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face"
   },
-  images: [
-    "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&h=600&fit=crop&crop=center",
-    "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop&crop=center",
-    "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop&crop=center"
-  ],
-  price: "25 ريال",
-  isFree: false,
-  rating: 4.8,
-  downloads: 1200,
-  category: "الدراسة",
-  tags: ["دراسة", "تنظيم", "مخطط", "إنتاجية"],
-  description: "قالب شامل ومتقدم لتنظيم الدراسة والمذاكرة. يتضمن جداول زمنية، تتبع التقدم، قوائم المهام، وملاحظات منظمة. مثالي للطلاب والباحثين.",
+  price: 25,
+  originalPrice: 35,
+  description: "قالب شامل ومتقدم لتنظيم الدراسة والمذاكرة بكفاءة عالية. يتضمن جداول زمنية، تتبع التقدم، وأدوات تحليل الأداء.",
+  longDescription: "هذا القالب مصمم خصيصاً للطلاب والدارسين الذين يريدون تنظيم دراستهم بطريقة علمية وفعالة. يحتوي على أكثر من 20 صفحة من الأدوات والجداول المختلفة التي تساعدك في:",
   features: [
-    "جداول زمنية قابلة للتخصيص",
-    "تتبع التقدم والدرجات",
-    "قوائم مهام للمواد الدراسية",
-    "ملاحظات منظمة ومفهرسة",
-    "تقويم للامتحانات والمواعيد",
-    "قوالب للبحوث والمشاريع",
-    "إحصائيات الأداء",
-    "تذكيرات ومواعيد"
+    "جدول زمني مرن للدراسة",
+    "تتبع التقدم اليومي والأسبوعي",
+    "أدوات تحليل الأداء",
+    "قوالب للامتحانات والاختبارات",
+    "نظام تذكيرات ذكي",
+    "تقارير إحصائية مفصلة"
   ],
-  requirements: [
-    "حساب نوتيون (مجاني أو مدفوع)",
-    "متصفح حديث (Chrome, Firefox, Safari)",
-    "اتصال بالإنترنت للتحميل"
-  ],
-  compatibility: [
-    "نوتيون للويب",
-    "نوتيون للجوال (iOS/Android)",
-    "نوتيون لسطح المكتب"
-  ],
-  lastUpdated: "2024-01-15",
-  version: "2.1",
-  fileSize: "2.5 MB"
+  category: "التعليم",
+  tags: ["دراسة", "تعليم", "إنتاجية", "تنظيم"],
+  rating: 4.8,
+  reviews: 156,
+  downloads: 2100,
+  imgSrc: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop&crop=center"
 };
 
 const relatedTemplates = [
   {
     id: 2,
-    title: "مدير المهام المتقدم",
-    creator: "منى خالد",
-    price: "35 ريال",
-    rating: 4.6,
-    downloads: 1500,
-    imgSrc: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop&crop=center"
+    title: "منظم المشاريع الشخصية",
+    creator: "سارة أحمد",
+    price: 20,
+    imgSrc: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop&crop=center"
   },
   {
     id: 3,
-    title: "مخطط البحث الأكاديمي",
-    creator: "عمر خالد",
-    price: "30 ريال",
-    rating: 4.7,
-    downloads: 980,
-    imgSrc: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop&crop=center"
+    title: "مخطط الميزانية الشهري",
+    creator: "محمد علي",
+    price: 15,
+    imgSrc: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop&crop=center"
   },
   {
     id: 4,
-    title: "منظم المشاريع",
-    creator: "فاطمة نور",
-    price: "40 ريال",
-    rating: 4.9,
-    downloads: 2100,
+    title: "منظم الروتين اليومي",
+    creator: "فاطمة حسن",
+    price: 18,
     imgSrc: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop&crop=center"
   }
 ];
@@ -107,480 +81,325 @@ export default function TemplateDetailPage() {
 
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+
       {/* Template Details */}
       <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
-        <Link href="/" className="flex items-center">
-          <Image
-            src="/NavLogoLight.svg"
-            alt="عرب نوشن"
-            width={240}
-            height={80}
-            className="h-12 w-auto"
-            quality={100}
-            priority
-            unoptimized
-          />
-        </Link>
-
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex gap-1 lg:gap-2 xl:gap-3">
-          <a href="/templates" className="nav-link nav-link-active">القوالب</a>
-          <a href="/creators" className="nav-link">المبدعين</a>
-          <a href="/blog" className="nav-link">المدونة</a>
-          <a href="/about" className="nav-link">من نحن</a>
-        </nav>
-
-        {/* Auth Buttons / User Menu */}
-        <div className="hidden md:flex items-center gap-2 lg:gap-3 xl:gap-4">
-          {isAuthenticated ? (
-            <div className="flex items-center gap-4">
-              <span className="text-gray-300 dark:text-dark-text-tertiary">مرحباً، {user?.name}</span>
-              <Link href="/profile" className="text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors py-2 px-3">
-                الملف الشخصي
-              </Link>
-              <button
-                onClick={logout}
-                className="text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors py-2 px-3"
-              >
-                تسجيل الخروج
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-3">
-              <Link href="/login" className="text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors py-2 px-3">
-                تسجيل الدخول
-              </Link>
-              <Link href="/signup" className="btn-primary">
-                إنشاء حساب
-              </Link>
-            </div>
-          )}
-        </div>
-
-        {/* Mobile Menu Button */}
-        <div className="md:hidden flex items-center gap-2">
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="p-3 transition-all duration-300 border border-gray-600 dark:border-dark-card-border rounded-xl hover:bg-white/10 dark:hover:bg-dark-tertiary hover:border-gray-500 dark:hover:border-dark-text-tertiary flex-shrink-0"
-            aria-label="فتح القائمة"
-          >
-            <svg className="w-5 h-5 text-gray-300 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </header>
-
-      {/* Mobile Menu */ }
-  {
-    isMenuOpen && (
-      <div className="md:hidden bg-accent-500 dark:bg-dark-secondary border-b border-gray-700 dark:border-dark-card-border shadow-large dark:shadow-dark-large backdrop-blur-sm transition-colors duration-300">
-        <div className="container-custom py-6 space-y-6">
-          <nav className="space-y-2">
-            <a href="/templates" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">القوالب</a>
-            <a href="/creators" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">المبدعين</a>
-            <a href="/blog" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">المدونة</a>
-            <a href="/about" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">من نحن</a>
-          </nav>
-
-          {/* Mobile Auth Section */}
-          <div className="border-t border-gray-600 dark:border-dark-card-border pt-6">
-            {isAuthenticated ? (
-              <div className="space-y-3">
-                <div className="px-4 py-3 text-gray-300 dark:text-dark-text-tertiary bg-white/5 dark:bg-dark-tertiary rounded-xl">
-                  مرحباً، {user?.name}
-                </div>
-                <a href="/profile" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
-                  الملف الشخصي
-                </a>
-                <button
-                  onClick={logout}
-                  className="block w-full text-right py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
-                >
-                  تسجيل الخروج
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <Link href="/login" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
-                  تسجيل الدخول
-                </Link>
-                <Link href="/signup" className="block py-3 px-4 btn-primary text-center">
-                  إنشاء حساب
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  {/* Breadcrumb */ }
-  <section className="bg-white dark:bg-dark-secondary transition-colors duration-300 py-4">
-    <div className="container-custom">
-      <nav className="flex items-center space-x-2 text-sm">
-        <Link href="/" className="text-accent-500 dark:text-dark-text-primary hover:text-primary-500 dark:hover:text-orange-500">
-          الرئيسية
-        </Link>
-        <span className="text-accent-400 dark:text-dark-text-quaternary">/</span>
-        <Link href="/templates" className="text-accent-500 dark:text-dark-text-primary hover:text-primary-500 dark:hover:text-orange-500">
-          القوالب
-        </Link>
-        <span className="text-accent-400 dark:text-dark-text-quaternary">/</span>
-        <span className="text-accent-400 dark:text-dark-text-quaternary">{template.title}</span>
-      </nav>
-    </div>
-  </section>
-
-  {/* Template Details */ }
-  <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
-    <div className="container-custom">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Images */}
-        <div>
-          <div className="mb-4">
-            <Image
-              src={template.images[selectedImage]}
-              alt={template.title}
-              width={800}
-              height={600}
-              className="w-full h-96 object-cover rounded-xl"
-            />
-          </div>
-
-          {/* Thumbnail Images */}
-          <div className="grid grid-cols-3 gap-4">
-            {template.images.map((image, index) => (
-              <button
-                key={index}
-                onClick={() => setSelectedImage(index)}
-                className={`relative h-24 rounded-lg overflow-hidden ${selectedImage === index ? 'ring-2 ring-primary-500 dark:ring-orange-500' : ''
-                  }`}
-              >
+        <div className="container-custom">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Images */}
+            <div>
+              <div className="mb-4">
                 <Image
-                  src={image}
-                  alt={`${template.title} - ${index + 1}`}
-                  width={200}
-                  height={150}
-                  className="w-full h-full object-cover"
+                  src={template.imgSrc}
+                  alt={template.title}
+                  width={600}
+                  height={400}
+                  className="w-full h-80 object-cover rounded-xl"
+                  quality={100}
                 />
-              </button>
-            ))}
-          </div>
-        </div>
+              </div>
 
-        {/* Template Info */}
-        <div>
-          <div className="mb-6">
-            <h1 className="heading-1 mb-4">{template.title}</h1>
-            <div className="flex items-center gap-4 mb-4">
-              <div className="flex items-center gap-2">
+              {/* Thumbnail Images */}
+              <div className="grid grid-cols-4 gap-2">
+                {[1, 2, 3, 4].map((index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImage(index)}
+                    className={`relative overflow-hidden rounded-lg transition-all duration-200 ${selectedImage === index ? 'ring-2 ring-orange-500' : 'hover:opacity-80'
+                      }`}
+                  >
+                    <Image
+                      src={template.imgSrc}
+                      alt={`${template.title} - ${index}`}
+                      width={150}
+                      height={100}
+                      className="w-full h-20 object-cover"
+                      quality={100}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Template Info */}
+            <div>
+              {/* Breadcrumb */}
+              <nav className="flex items-center gap-2 text-sm text-accent-600 dark:text-dark-text-secondary mb-4">
+                <Link href="/templates" className="hover:text-accent-700 dark:hover:text-dark-text-primary transition-colors">
+                  القوالب
+                </Link>
+                <span className="text-accent-400 dark:text-dark-text-quaternary">/</span>
+                <span className="text-accent-400 dark:text-dark-text-quaternary">{template.category}</span>
+                <span className="text-accent-400 dark:text-dark-text-quaternary">/</span>
+                <span className="text-accent-400 dark:text-dark-text-quaternary">{template.title}</span>
+              </nav>
+
+              <h1 className="heading-1 mb-4">{template.title}</h1>
+
+              {/* Creator Info */}
+              <div className="flex items-center gap-3 mb-4">
                 <Image
                   src={template.creator.avatar}
                   alt={template.creator.name}
                   width={40}
                   height={40}
-                  className="w-10 h-10 rounded-full object-cover"
+                  className="w-10 h-10 rounded-full"
+                  quality={100}
                 />
                 <div>
-                  <p className="font-semibold text-accent-500 dark:text-dark-text-primary">
+                  <p className="text-sm text-accent-600 dark:text-dark-text-secondary">بواسطة</p>
+                  <Link
+                    href={`/creators/${template.creator.name.replace(/\s+/g, '-')}`}
+                    className="font-medium text-accent-700 dark:text-dark-text-primary hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
+                  >
                     {template.creator.name}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <StarRating rating={template.creator.rating} />
-                    <span className="text-sm text-accent-600 dark:text-dark-text-secondary">
-                      ({template.creator.templates} قالب)
-                    </span>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Rating and Reviews */}
+              <div className="flex items-center gap-4 mb-6">
+                <StarRating rating={template.rating} />
+                <span className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                  ({template.reviews} تقييم)
+                </span>
+                <span className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                  {template.downloads.toLocaleString()} تحميل
+                </span>
+              </div>
+
+              {/* Price */}
+              <div className="flex items-center gap-3 mb-6">
+                <span className="text-3xl font-bold text-orange-600 dark:text-orange-400">
+                  ${template.price}
+                </span>
+                {template.originalPrice && (
+                  <span className="text-lg text-accent-500 dark:text-dark-text-tertiary line-through">
+                    ${template.originalPrice}
+                  </span>
+                )}
+                {template.originalPrice && (
+                  <span className="bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-2 py-1 rounded-md text-sm font-medium">
+                    خصم {Math.round((1 - template.price / template.originalPrice) * 100)}%
+                  </span>
+                )}
+              </div>
+
+              {/* Purchase Button */}
+              <button
+                onClick={() => setIsPurchased(true)}
+                className={`w-full py-3 px-6 rounded-xl font-medium transition-all duration-200 mb-6 ${isPurchased
+                    ? 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'
+                    : 'bg-orange-500 hover:bg-orange-600 text-white'
+                  }`}
+              >
+                {isPurchased ? 'تم الشراء ✓' : 'شراء الآن'}
+              </button>
+
+              {/* Description */}
+              <div className="mb-6">
+                <h3 className="font-semibold text-accent-700 dark:text-dark-text-primary mb-2">الوصف</h3>
+                <p className="text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                  {template.description}
+                </p>
+              </div>
+
+              {/* Tags */}
+              <div className="flex flex-wrap gap-2">
+                {template.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="px-3 py-1 bg-accent-100 dark:bg-dark-tertiary text-accent-700 dark:text-dark-text-secondary rounded-full text-sm"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Description and Features */}
+      <section className="section-padding bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
+        <div className="container-custom">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            {/* Long Description */}
+            <div className="lg:col-span-2">
+              <h2 className="heading-2 mb-6">تفاصيل القالب</h2>
+              <div className="prose prose-accent dark:prose-dark max-w-none">
+                <p className="text-accent-600 dark:text-dark-text-secondary leading-relaxed mb-6">
+                  {template.longDescription}
+                </p>
+
+                <ul className="space-y-3">
+                  {template.features.map((feature, index) => (
+                    <li key={index} className="flex items-start gap-3">
+                      <svg className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-accent-600 dark:text-dark-text-secondary">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Template Stats */}
+            <div className="lg:col-span-1">
+              <div className="bg-white dark:bg-dark-secondary rounded-xl p-6 shadow-medium dark:shadow-dark-medium">
+                <h3 className="font-semibold text-accent-700 dark:text-dark-text-primary mb-4">إحصائيات القالب</h3>
+
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-accent-600 dark:text-dark-text-secondary">التقييم</span>
+                    <div className="flex items-center gap-2">
+                      <StarRating rating={template.rating} />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-accent-600 dark:text-dark-text-secondary">عدد التقييمات</span>
+                    <span className="font-medium text-accent-700 dark:text-dark-text-primary">{template.reviews}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-accent-600 dark:text-dark-text-secondary">التحميلات</span>
+                    <span className="font-medium text-accent-700 dark:text-dark-text-primary">{template.downloads.toLocaleString()}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-accent-600 dark:text-dark-text-secondary">الفئة</span>
+                    <span className="font-medium text-accent-700 dark:text-dark-text-primary">{template.category}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-accent-600 dark:text-dark-text-secondary">تاريخ الإنشاء</span>
+                    <span className="font-medium text-accent-700 dark:text-dark-text-primary">{formatDate(new Date())}</span>
                   </div>
                 </div>
               </div>
             </div>
-
-            <div className="flex items-center gap-6 mb-6">
-              <div className="flex items-center gap-2">
-                <StarRating rating={template.rating} />
-                <span className="text-sm text-accent-600 dark:text-dark-text-secondary">
-                  ({template.downloads} تحميل)
-                </span>
-              </div>
-              <span className="px-3 py-1 bg-primary-100 dark:bg-orange-500/20 text-primary-800 dark:text-orange-300 text-sm rounded-full">
-                {template.category}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-4 mb-6">
-              <div className="text-3xl font-bold text-primary-500 dark:text-orange-500">
-                {template.price}
-              </div>
-              <div className="text-sm text-accent-600 dark:text-dark-text-secondary">
-                آخر تحديث: {formatDate(template.lastUpdated)}
-              </div>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="space-y-4 mb-8">
-            {isPurchased ? (
-              <button className="w-full btn-primary text-lg py-4">
-                تحميل القالب
-              </button>
-            ) : (
-              <button className="w-full btn-primary text-lg py-4">
-                شراء القالب - {template.price}
-              </button>
-            )}
-
-            <div className="grid grid-cols-2 gap-3">
-              <button className="btn-outline">
-                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-                إضافة للمفضلة
-              </button>
-              <button className="btn-outline">
-                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-                </svg>
-                مشاركة
-              </button>
-            </div>
-          </div>
-
-          {/* Tags */}
-          <div className="mb-8">
-            <h3 className="font-semibold text-accent-500 dark:text-dark-text-primary mb-3">العلامات</h3>
-            <div className="flex flex-wrap gap-2">
-              {template.tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 bg-gray-100 dark:bg-dark-tertiary text-gray-600 dark:text-dark-text-secondary text-sm rounded-full"
-                >
-                  #{tag}
-                </span>
-              ))}
-            </div>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
+      </section>
 
-  {/* Description and Features */ }
-  <section className="section-padding bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
-    <div className="container-custom">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        <div className="lg:col-span-2">
-          <h2 className="heading-2 mb-6">وصف القالب</h2>
-          <p className="body-large text-accent-600 dark:text-dark-text-secondary mb-8">
-            {template.description}
-          </p>
+      {/* Related Templates */}
+      <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
+        <div className="container-custom">
+          <h2 className="heading-2 mb-8">قوالب مشابهة</h2>
 
-          <h3 className="heading-3 mb-4">المميزات الرئيسية</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-            {template.features.map((feature, index) => (
-              <div key={index} className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-accent-600 dark:text-dark-text-secondary">{feature}</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {relatedTemplates.map((relatedTemplate) => (
+              <div key={relatedTemplate.id} className="bg-white dark:bg-dark-primary rounded-xl shadow-medium dark:shadow-dark-medium overflow-hidden transition-all duration-200 hover:shadow-large dark:hover:shadow-dark-large hover:-translate-y-1">
+                <Link href={`/templates/${relatedTemplate.id}`}>
+                  <div className="relative">
+                    <Image
+                      src={relatedTemplate.imgSrc}
+                      alt={relatedTemplate.title}
+                      width={400}
+                      height={250}
+                      className="w-full h-48 object-cover"
+                      quality={100}
+                    />
+                    <div className="absolute top-3 left-3 bg-orange-500 text-white px-2 py-1 rounded-md text-sm font-medium">
+                      ${relatedTemplate.price}
+                    </div>
+                  </div>
+
+                  <div className="p-4">
+                    <h3 className="font-semibold text-accent-700 dark:text-dark-text-primary mb-2 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+                      {relatedTemplate.title}
+                    </h3>
+                    <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                      بواسطة {relatedTemplate.creator}
+                    </p>
+                  </div>
+                </Link>
               </div>
             ))}
           </div>
-
-          <h3 className="heading-3 mb-4">متطلبات الاستخدام</h3>
-          <ul className="space-y-2 mb-8">
-            {template.requirements.map((req, index) => (
-              <li key={index} className="flex items-start gap-3 text-accent-600 dark:text-dark-text-secondary">
-                <svg className="w-4 h-4 text-blue-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {req}
-              </li>
-            ))}
-          </ul>
-
-          <h3 className="heading-3 mb-4">التوافق</h3>
-          <ul className="space-y-2">
-            {template.compatibility.map((comp, index) => (
-              <li key={index} className="flex items-start gap-3 text-accent-600 dark:text-dark-text-secondary">
-                <svg className="w-4 h-4 text-green-500 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                {comp}
-              </li>
-            ))}
-          </ul>
         </div>
+      </section>
 
-        <div>
-          <div className="card p-6 mb-6">
-            <h3 className="font-semibold text-accent-500 dark:text-dark-text-primary mb-4">معلومات القالب</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-accent-600 dark:text-dark-text-secondary">الإصدار</span>
-                <span className="font-medium">{template.version}</span>
+      {/* Footer */}
+      <footer className="bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary transition-colors duration-300">
+        <div className="container-custom section-padding">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+            <div className="lg:col-span-1">
+              <div className="flex items-center mb-4">
+                <Image
+                  src="/NavLogoLight.svg"
+                  alt="عرب نوشن"
+                  width={60}
+                  height={60}
+                  className="h-12 w-auto"
+                  quality={100}
+                  unoptimized
+                />
               </div>
-              <div className="flex justify-between">
-                <span className="text-accent-600 dark:text-dark-text-secondary">حجم الملف</span>
-                <span className="font-medium">{template.fileSize}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-accent-600 dark:text-dark-text-secondary">آخر تحديث</span>
-                <span className="font-medium">{formatDate(template.lastUpdated)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-accent-600 dark:text-dark-text-secondary">التقييم</span>
-                <div className="flex items-center gap-1">
-                  <StarRating rating={template.rating} />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="card p-6">
-            <h3 className="font-semibold text-accent-500 dark:text-dark-text-primary mb-4">المبدع</h3>
-            <div className="flex items-center gap-3 mb-4">
-              <Image
-                src={template.creator.avatar}
-                alt={template.creator.name}
-                width={50}
-                height={50}
-                className="w-12 h-12 rounded-full object-cover"
-              />
-              <div>
-                <h4 className="font-semibold text-accent-500 dark:text-dark-text-primary">
-                  {template.creator.name}
-                </h4>
-                <div className="flex items-center gap-2">
-                  <StarRating rating={template.creator.rating} />
-                  <span className="text-sm text-accent-600 dark:text-dark-text-secondary">
-                    ({template.creator.templates} قالب)
-                  </span>
-                </div>
-              </div>
-            </div>
-            <button className="w-full btn-outline">
-              عرض الملف الشخصي
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  {/* Related Templates */ }
-  <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
-    <div className="container-custom">
-      <h2 className="heading-2 mb-8">قوالب مشابهة</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {relatedTemplates.map((template) => (
-          <div key={template.id} className="card-interactive overflow-hidden">
-            <div className="relative h-48 bg-gray-200 overflow-hidden">
-              <Image
-                src={template.imgSrc}
-                alt={template.title}
-                width={400}
-                height={300}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-            </div>
-            <div className="p-6">
-              <h3 className="font-bold text-lg text-accent-500 dark:text-dark-text-primary mb-2">
-                {template.title}
-              </h3>
-              <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-3">
-                بواسطة {template.creator}
+              <p className="text-gray-400 dark:text-dark-text-tertiary text-sm leading-relaxed">
+                منصة متخصصة في قوالب نوتيون باللغة العربية، نساعدك على تنظيم حياتك وإنجاز أهدافك بكفاءة أكبر.
               </p>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <StarRating rating={template.rating} />
-                  <span className="text-sm text-accent-600 dark:text-dark-text-secondary">
-                    ({template.downloads})
-                  </span>
-                </div>
-                <div className="text-lg font-bold text-primary-500 dark:text-orange-500">
-                  {template.price}
-                </div>
-              </div>
-              <button className="w-full btn-primary">
-                عرض التفاصيل
-              </button>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-4">القوالب</h4>
+              <ul className="space-y-2">
+                <li><a href="/templates" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">جميع القوالب</a></li>
+                <li><a href="/templates/education" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">التعليم</a></li>
+                <li><a href="/templates/productivity" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">الإنتاجية</a></li>
+                <li><a href="/templates/business" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">الأعمال</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-4">المنصة</h4>
+              <ul className="space-y-2">
+                <li><a href="/about" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">من نحن</a></li>
+                <li><a href="/creators" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">المبدعين</a></li>
+                <li><a href="/blog" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">المدونة</a></li>
+                <li><a href="/contact" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">تواصل معنا</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-4">الدعم</h4>
+              <ul className="space-y-2">
+                <li><a href="/help" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">مركز المساعدة</a></li>
+                <li><a href="/terms" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">شروط الاستخدام</a></li>
+                <li><a href="/privacy" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">سياسة الخصوصية</a></li>
+                <li><a href="/cookies" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">ملفات تعريف الارتباط</a></li>
+              </ul>
             </div>
           </div>
-        ))}
-      </div>
-    </div>
-  </section>
 
-  {/* Footer */ }
-  <footer className="bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary transition-colors duration-300">
-    <div className="container-custom section-padding">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-        <div className="lg:col-span-1">
-          <div className="flex items-center mb-4">
-            <Image
-              src="/NavLogoLight.svg"
-              alt="عرب نوشن"
-              width={60}
-              height={40}
-              className="h-10 w-auto"
-              quality={100}
-              priority
-              unoptimized
-            />
-          </div>
-          <p className="body-medium text-gray-400 dark:text-dark-text-tertiary mb-6">
-            منصتك العربية الأولى لبيع وشراء قوالب نوتيون المبتكرة. انضم إلى مجتمع المبدعين العرب.
-          </p>
-        </div>
-
-        <div>
-          <h4 className="font-bold mb-6 text-lg text-white dark:text-dark-text-primary">المنتج</h4>
-          <ul className="space-y-3">
-            <li><a href="/templates" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">القوالب</a></li>
-            <li><a href="/creators" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المبدعين</a></li>
-            <li><a href="/pricing" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الأسعار</a></li>
-            <li><a href="/features" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المميزات</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 className="font-bold mb-6 text-lg text-white dark:text-dark-text-primary">الشركة</h4>
-          <ul className="space-y-3">
-            <li><a href="/about" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">من نحن</a></li>
-            <li><a href="/blog" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المدونة</a></li>
-            <li><a href="/careers" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الوظائف</a></li>
-            <li><a href="/press" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الصحافة</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 className="font-bold mb-6 text-lg text-white dark:text-dark-text-primary">الدعم</h4>
-          <ul className="space-y-3">
-            <li><a href="/help" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">مركز المساعدة</a></li>
-            <li><a href="/contact" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">اتصل بنا</a></li>
-            <li><a href="/privacy" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الخصوصية</a></li>
-            <li><a href="/terms" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الشروط</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <div className="border-t border-gray-700 dark:border-dark-card-border pt-8">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-400 dark:text-dark-text-tertiary text-sm">
-            © {new Date().getFullYear()} عرب نوشن. جميع الحقوق محفوظة.
-          </p>
-          <div className="flex gap-6 mt-4 md:mt-0">
-            <a href="/privacy" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-sm transition-colors">سياسة الخصوصية</a>
-            <a href="/terms" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-sm transition-colors">شروط الاستخدام</a>
-            <a href="/cookies" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-sm transition-colors">ملفات تعريف الارتباط</a>
+          <div className="border-t border-gray-600 dark:border-dark-card-border pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <p className="text-gray-400 dark:text-dark-text-tertiary text-sm">
+                © 2024 عرب نوشن. جميع الحقوق محفوظة.
+              </p>
+              <div className="flex items-center gap-4 mt-4 md:mt-0">
+                <a href="#" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
+                  </svg>
+                </a>
+                <a href="#" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z" />
+                  </svg>
+                </a>
+                <a href="#" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.347-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.746-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001.012.001z" />
+                  </svg>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-  </footer>
-    </main >
+      </footer>
+    </main>
   );
 }

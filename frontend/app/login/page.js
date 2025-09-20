@@ -65,16 +65,16 @@ export default function LoginPage() {
               unoptimized
             />
           </Link>
-          <h1 className="text-3xl font-bold text-accent-500 mb-3">مرحباً بعودتك</h1>
-          <p className="text-accent-600">سجل دخولك للوصول إلى حسابك</p>
+          <h1 className="heading-2 mb-3">مرحباً بعودتك</h1>
+          <p className="body-large">سجل دخولك للوصول إلى حسابك</p>
         </div>
 
         {/* Login Form */}
-        <div className="bg-white rounded-2xl shadow-xl p-10 border border-primary-200">
+        <div className="card p-10 border-primary-200">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-accent-500 mb-2">
+            <div className="form-group">
+              <label htmlFor="email" className="form-label">
                 البريد الإلكتروني
               </label>
               <input
@@ -84,16 +84,16 @@ export default function LoginPage() {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                className="form-input"
                 placeholder="أدخل بريدك الإلكتروني"
                 dir="ltr"
               />
             </div>
 
             {/* Password Field */}
-            <div>
+            <div className="form-group">
               <div className="flex justify-between items-center mb-2">
-                <label htmlFor="password" className="block text-sm font-medium text-accent-500">
+                <label htmlFor="password" className="form-label mb-0">
                   كلمة المرور
                 </label>
                 <Link
@@ -110,7 +110,7 @@ export default function LoginPage() {
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                className="form-input"
                 placeholder="أدخل كلمة المرور"
                 dir="ltr"
               />
@@ -118,14 +118,14 @@ export default function LoginPage() {
 
             {/* Error Message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded-xl text-sm">
                 {error}
               </div>
             )}
 
             {/* Email Verification Options */}
             {showVerificationOptions && (
-              <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-xl text-sm">
                 <p className="font-medium mb-2">الحساب غير مفعل</p>
                 <p className="mb-3">يجب تأكيد بريدك الإلكتروني أولاً لتفعيل الحساب.</p>
                 <p className="mb-3">تحقق من بريدك الإلكتروني للحصول على رابط التأكيد.</p>
@@ -150,7 +150,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-4 bg-primary-500 hover:bg-primary-600 text-white rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="w-full btn-primary text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               {loading ? (
                 <div className="flex items-center justify-center">
@@ -182,7 +182,7 @@ export default function LoginPage() {
           <div className="space-y-3">
             <a
               href={`${process.env.NODE_ENV === 'production' ? 'https://notion-arabs.onrender.com/api' : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api')}/auth/google`}
-              className="w-full py-3 px-4 border border-gray-300 rounded-lg font-medium text-accent-500 hover:bg-gray-50 transition-colors flex items-center justify-center"
+              className="w-full btn-secondary flex items-center justify-center"
             >
               <svg className="w-5 h-5 ml-2" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -196,7 +196,7 @@ export default function LoginPage() {
 
           {/* Sign Up Link */}
           <div className="mt-6 text-center">
-            <p className="text-accent-600">
+            <p className="body-medium">
               ليس لديك حساب؟{' '}
               <Link href="/signup" className="text-primary-500 font-semibold hover:text-primary-600 transition-colors">
                 إنشاء حساب جديد
@@ -207,7 +207,7 @@ export default function LoginPage() {
 
         {/* Back to Home */}
         <div className="text-center mt-10">
-          <Link href="/" className="text-accent-600 hover:text-accent-500 transition-colors flex items-center justify-center">
+          <Link href="/" className="body-medium hover:text-accent-500 transition-colors flex items-center justify-center">
             <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>

@@ -101,101 +101,103 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-secondary-50 text-accent-500" dir="rtl">
       {/* Enhanced Header */}
-      <header className="flex justify-between items-center px-4 md:px-6 py-4 border-b border-gray-700 bg-accent-500 sticky top-0 z-50 shadow-sm">
-        <Link href="/" className="flex items-center">
-          <Image
-            src="/NavLogoLight.svg"
-            alt="عرب نوشن"
-            width={240}
-            height={80}
-            className="h-12 w-auto"
-            quality={100}
-            priority
-            unoptimized
-          />
-        </Link>
+      <header className="w-full bg-accent-500 sticky top-0 z-50 shadow-medium backdrop-blur-sm bg-accent-500/95">
+        <div className="container-custom flex justify-between items-center py-4">
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/NavLogoLight.svg"
+              alt="عرب نوشن"
+              width={240}
+              height={80}
+              className="h-12 w-auto"
+              quality={100}
+              priority
+              unoptimized
+            />
+          </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden lg:flex gap-8 text-sm font-medium">
-          <a href="/templates" className="text-gray-300 hover:text-white transition-colors py-2 px-3">القوالب</a>
-          <a href="/categories" className="text-gray-300 hover:text-white transition-colors py-2 px-3">التصنيفات</a>
-          <a href="/blog" className="text-gray-300 hover:text-white transition-colors py-2 px-3">المدونة</a>
-          <a href="/about" className="text-gray-300 hover:text-white transition-colors py-2 px-3">من نحن</a>
-        </nav>
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex gap-1 lg:gap-2 xl:gap-3">
+            <a href="/templates" className="nav-link">القوالب</a>
+            <a href="/categories" className="nav-link">التصنيفات</a>
+            <a href="/blog" className="nav-link">المدونة</a>
+            <a href="/about" className="nav-link">من نحن</a>
+          </nav>
 
-        {/* Auth Buttons / User Menu */}
-        <div className="hidden lg:flex items-center gap-4">
-          {isAuthenticated ? (
-            <div className="flex items-center gap-4">
-              <span className="text-gray-300">مرحباً، {user?.name}</span>
-              <Link href="/profile" className="text-gray-300 hover:text-white transition-colors py-2 px-3">
-                الملف الشخصي
-              </Link>
-              <button
-                onClick={logout}
-                className="text-gray-300 hover:text-white transition-colors py-2 px-3"
-              >
-                تسجيل الخروج
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-3">
-              <Link href="/login" className="text-gray-300 hover:text-white transition-colors py-2 px-3">
-                تسجيل الدخول
-              </Link>
-              <Link href="/signup" className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105">
-                إنشاء حساب
-              </Link>
-            </div>
-          )}
+          {/* Auth Buttons / User Menu */}
+          <div className="hidden md:flex items-center gap-2 lg:gap-3 xl:gap-4">
+            {isAuthenticated ? (
+              <div className="flex items-center gap-4">
+                <span className="text-gray-300">مرحباً، {user?.name}</span>
+                <Link href="/profile" className="text-gray-300 hover:text-white transition-colors py-2 px-3">
+                  الملف الشخصي
+                </Link>
+                <button
+                  onClick={logout}
+                  className="text-gray-300 hover:text-white transition-colors py-2 px-3"
+                >
+                  تسجيل الخروج
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <Link href="/login" className="text-gray-300 hover:text-white transition-colors py-2 px-3">
+                  تسجيل الدخول
+                </Link>
+                <Link href="/signup" className="btn-primary">
+                  إنشاء حساب
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="md:hidden p-3 transition-all duration-300 border border-gray-600 rounded-xl hover:bg-white/10 hover:border-gray-500 flex-shrink-0"
+            aria-label="فتح القائمة"
+          >
+            <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+            </svg>
+          </button>
         </div>
-
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="md:hidden p-3 transition-colors border border-gray-600"
-          aria-label="فتح القائمة"
-        >
-          <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
-          </svg>
-        </button>
       </header>
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-accent-500 border-b border-gray-700 shadow-lg">
-          <div className="px-4 py-6 space-y-6">
-            <nav className="space-y-1">
-              <a href="/templates" className="block py-3 px-4 text-gray-300 hover:text-white transition-colors">القوالب</a>
-              <a href="/categories" className="block py-3 px-4 text-gray-300 hover:text-white transition-colors">التصنيفات</a>
-              <a href="/blog" className="block py-3 px-4 text-gray-300 hover:text-white transition-colors">المدونة</a>
-              <a href="/about" className="block py-3 px-4 text-gray-300 hover:text-white transition-colors">من نحن</a>
+        <div className="md:hidden bg-accent-500 border-b border-gray-700 shadow-large backdrop-blur-sm">
+          <div className="container-custom py-6 space-y-6">
+            <nav className="space-y-2">
+              <a href="/templates" className="block py-3 px-4 text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-xl">القوالب</a>
+              <a href="/categories" className="block py-3 px-4 text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-xl">التصنيفات</a>
+              <a href="/blog" className="block py-3 px-4 text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-xl">المدونة</a>
+              <a href="/about" className="block py-3 px-4 text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-xl">من نحن</a>
             </nav>
 
             {/* Mobile Auth Section */}
             <div className="border-t border-gray-600 pt-6">
               {isAuthenticated ? (
                 <div className="space-y-3">
-                  <div className="px-4 py-2 text-gray-300">
+                  <div className="px-4 py-3 text-gray-300 bg-white/5 rounded-xl">
                     مرحباً، {user?.name}
                   </div>
-                  <a href="/profile" className="block py-3 px-4 text-gray-300 hover:text-white transition-colors">
+                  <a href="/profile" className="block py-3 px-4 text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-xl">
                     الملف الشخصي
                   </a>
                   <button
                     onClick={logout}
-                    className="block w-full text-right py-3 px-4 text-gray-300 hover:text-white transition-colors"
+                    className="block w-full text-right py-3 px-4 text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-xl"
                   >
                     تسجيل الخروج
                   </button>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <Link href="/login" className="block py-3 px-4 text-gray-300 hover:text-white transition-colors">
+                  <Link href="/login" className="block py-3 px-4 text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-xl">
                     تسجيل الدخول
                   </Link>
-                  <Link href="/signup" className="block py-3 px-4 bg-primary-500 hover:bg-primary-600 text-white rounded-lg font-medium text-center">
+                  <Link href="/signup" className="block py-3 px-4 btn-primary text-center">
                     إنشاء حساب
                   </Link>
                 </div>
@@ -227,7 +229,7 @@ export default function HomePage() {
           }}></div>
         </div>
 
-        <div className="max-w-7xl mx-auto relative">
+        <div className="container-custom relative">
           {/* Full Width Content Layout */}
           <div className="text-center mb-12">
             {/* النصوص */}
@@ -237,11 +239,11 @@ export default function HomePage() {
                 أكثر من 10,000 قالب متاح
               </div>
 
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-6 text-accent-500 text-reveal-delayed">
+              <h1 className="heading-1 mb-6 text-reveal-delayed">
                 منصتك العربية لبيع وشراء قوالب نوتيون
               </h1>
 
-              <p className="text-xl md:text-2xl text-accent-700 mb-8 leading-relaxed max-w-3xl mx-auto text-reveal-delayed-2">
+              <p className="body-large text-accent-700 mb-8 max-w-3xl mx-auto text-reveal-delayed-2">
                 انضم إلى مجتمع عربي متنامٍ من المبدعين، وابدأ رحلتك مع آلاف
                 القوالب المصممة للعمل، الدراسة، والحياة اليومية.
               </p>
@@ -250,7 +252,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12 text-reveal-delayed-3">
                 <a
                   href="/templates"
-                  className="px-10 py-5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white font-semibold text-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl notion-block-hover"
+                  className="btn-primary text-xl px-10 py-5 shadow-large hover:shadow-glow notion-block-hover"
                 >
                   تصفح القوالب
                   <svg className="inline-block mr-2 w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -259,7 +261,7 @@ export default function HomePage() {
                 </a>
                 <a
                   href="/templates"
-                  className="px-10 py-5 rounded-xl bg-white/90 backdrop-blur-sm text-accent-500 border border-primary-200 font-semibold text-xl transition-all duration-300 transform hover:scale-105 notion-block-hover shadow-lg hover:shadow-xl hover:bg-primary-50"
+                  className="btn-secondary text-xl px-10 py-5 bg-white/90 backdrop-blur-sm border-primary-200 notion-block-hover shadow-lg hover:shadow-xl hover:bg-primary-50"
                 >
                   بيع قوالبك
                 </a>
@@ -267,21 +269,21 @@ export default function HomePage() {
 
               {/* Enhanced Stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-primary-200 notion-block-hover stats-counter">
+                <div className="card-featured p-6 stats-counter">
                   <div className="text-3xl font-bold text-primary-500 mb-2">1,200+</div>
-                  <div className="text-sm text-accent-600">قالب جاهز</div>
+                  <div className="body-small">قالب جاهز</div>
                 </div>
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-primary-200 notion-block-hover stats-counter">
+                <div className="card-featured p-6 stats-counter">
                   <div className="text-3xl font-bold text-accent-500 mb-2">500+</div>
-                  <div className="text-sm text-accent-600">مبدع عربي</div>
+                  <div className="body-small">مبدع عربي</div>
                 </div>
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-primary-200 notion-block-hover stats-counter">
+                <div className="card-featured p-6 stats-counter">
                   <div className="text-3xl font-bold text-primary-500 mb-2">50K+</div>
-                  <div className="text-sm text-accent-600">تحميل شهري</div>
+                  <div className="body-small">تحميل شهري</div>
                 </div>
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-primary-200 notion-block-hover stats-counter">
+                <div className="card-featured p-6 stats-counter">
                   <div className="text-3xl font-bold text-accent-500 mb-2">4.9</div>
-                  <div className="text-sm text-accent-600">تقييم المستخدمين</div>
+                  <div className="body-small">تقييم المستخدمين</div>
                 </div>
               </div>
             </div>
@@ -332,17 +334,17 @@ export default function HomePage() {
             </div>
 
             {/* Three Solid Navigation Squares */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
               {/* Browse Templates Square */}
               <Link href="/templates" className="group">
-                <div className="bg-accent-500 rounded-2xl p-8 shadow-2xl notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-3xl">
+                <div className="bg-accent-500 rounded-3xl p-8 shadow-large notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-glow">
                   <div className="w-16 h-16 bg-white rounded-xl mb-6 flex items-center justify-center">
                     <svg className="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-3">تصفح القوالب</h3>
-                  <p className="text-gray-300 leading-relaxed">
+                  <h3 className="heading-3 text-white mb-3">تصفح القوالب</h3>
+                  <p className="body-medium text-gray-300">
                     اكتشف آلاف القوالب الجاهزة للعمل والدراسة والحياة اليومية
                   </p>
                   <div className="mt-4 flex items-center text-white group-hover:translate-x-1 transition-transform duration-300">
@@ -356,14 +358,14 @@ export default function HomePage() {
 
               {/* Categories Square */}
               <Link href="/categories" className="group">
-                <div className="bg-white rounded-2xl p-8 shadow-2xl notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-3xl border-2 border-primary-200">
+                <div className="card-featured p-8 notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-glow">
                   <div className="w-16 h-16 bg-primary-500 rounded-xl mb-6 flex items-center justify-center">
                     <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold text-accent-500 mb-3">التصنيفات</h3>
-                  <p className="text-accent-600 leading-relaxed">
+                  <h3 className="heading-3 mb-3">التصنيفات</h3>
+                  <p className="body-medium">
                     تصفح حسب الفئة - العمل، الدراسة، الأعمال، والصحة
                   </p>
                   <div className="mt-4 flex items-center text-accent-500 group-hover:translate-x-1 transition-transform duration-300">
@@ -377,14 +379,14 @@ export default function HomePage() {
 
               {/* Blog/About Square */}
               <Link href="/blog" className="group">
-                <div className="bg-gradient-to-br from-accent-500 to-accent-600 rounded-2xl p-8 shadow-2xl notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-3xl">
+                <div className="bg-gradient-to-br from-accent-500 to-accent-600 rounded-3xl p-8 shadow-large notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-glow">
                   <div className="w-16 h-16 bg-primary-500 rounded-xl mb-6 flex items-center justify-center">
                     <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-3">المدونة</h3>
-                  <p className="text-gray-200 leading-relaxed">
+                  <h3 className="heading-3 text-white mb-3">المدونة</h3>
+                  <p className="body-medium text-gray-200">
                     نصائح وتوجيهات لاستخدام نوتيون وأفضل الممارسات
                   </p>
                   <div className="mt-4 flex items-center text-white group-hover:translate-x-1 transition-transform duration-300">
@@ -401,16 +403,16 @@ export default function HomePage() {
       </section>
 
       {/* Enhanced Featured Templates */}
-      <section className="px-4 md:px-6 lg:px-12 py-16 md:py-20 bg-white">
-        <div className="max-w-7xl mx-auto">
+      <section className="section-padding bg-white">
+        <div className="container-custom">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-12">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-accent-500 mb-4">القوالب المميزة</h2>
-              <p className="text-lg text-accent-600">اكتشف أفضل القوالب المصممة من قبل مجتمعنا العربي</p>
+              <h2 className="heading-2 mb-4">القوالب المميزة</h2>
+              <p className="body-large">اكتشف أفضل القوالب المصممة من قبل مجتمعنا العربي</p>
             </div>
             <a
               href="/templates"
-              className="mt-4 md:mt-0 inline-flex items-center px-6 py-3 btn-bw-outline rounded-lg transition-colors"
+              className="mt-4 md:mt-0 btn-outline inline-flex items-center"
             >
               عرض الكل
               <svg className="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -423,7 +425,7 @@ export default function HomePage() {
             {featuredTemplates.map((t, idx) => (
               <div
                 key={idx}
-                className="group bg-bw-white border rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
+                className="group card-interactive overflow-hidden"
               >
                 <div className="relative h-48 bg-gray-200 overflow-hidden">
                   <Image
@@ -441,11 +443,11 @@ export default function HomePage() {
                     <StarRating rating={t.rating} />
                   </div>
                 </div>
-                <div className="p-5">
+                <div className="p-6">
                   <h3 className="font-bold text-lg text-accent-500 mb-2 group-hover:text-accent-600 transition-colors">
                     {t.title}
                   </h3>
-                  <p className="text-sm text-accent-600 mb-3">بواسطة {t.creator}</p>
+                  <p className="body-small mb-3">بواسطة {t.creator}</p>
 
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
@@ -458,7 +460,7 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  <button className="w-full py-2 px-4 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors font-medium">
+                  <button className="w-full btn-primary py-2 px-4 text-base">
                     عرض التفاصيل
                   </button>
                 </div>
@@ -469,17 +471,17 @@ export default function HomePage() {
       </section>
 
       {/* Enhanced Categories */}
-      <section className="px-4 md:px-6 lg:px-12 py-16 md:py-20 bg-white">
-        <div className="max-w-7xl mx-auto">
+      <section className="section-padding bg-secondary-50">
+        <div className="container-custom">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-accent-500 mb-4">تصفح حسب التصنيف</h2>
-            <p className="text-lg text-accent-600">اختر التصنيف المناسب لاحتياجاتك</p>
+            <h2 className="heading-2 mb-4">تصفح حسب التصنيف</h2>
+            <p className="body-large">اختر التصنيف المناسب لاحتياجاتك</p>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
             {categories.map((c, idx) => (
               <a href={`/categories/${c.name.toLowerCase()}`} key={idx} className="group">
-                <div className="bg-bw-white border-2 border-gray-100 rounded-xl overflow-hidden hover:border-black hover:shadow-lg transition-all duration-300 transform group-hover:-translate-y-1">
+                <div className="card-interactive border-2 border-gray-100 overflow-hidden hover:border-accent-300 hover:shadow-large transition-all duration-300 transform group-hover:-translate-y-2">
                   <div className="h-24 md:h-28 overflow-hidden relative">
                     <Image
                       src={c.imgSrc}
@@ -490,11 +492,11 @@ export default function HomePage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                   </div>
-                  <div className="p-3 md:p-4 text-center">
-                    <h3 className="font-bold text-accent-500 group-hover:text-accent-600 transition-colors mb-1">
+                  <div className="p-4 md:p-6 text-center">
+                    <h3 className="font-bold text-accent-500 group-hover:text-accent-600 transition-colors mb-2">
                       {c.name}
                     </h3>
-                    <p className="text-sm text-accent-600">{c.count} قالب</p>
+                    <p className="body-small">{c.count} قالب</p>
                   </div>
                 </div>
               </a>
@@ -504,18 +506,18 @@ export default function HomePage() {
       </section>
 
       {/* Enhanced Featured Creators */}
-      <section className="px-4 md:px-6 lg:px-12 py-16 md:py-20 bg-white">
-        <div className="max-w-7xl mx-auto">
+      <section className="section-padding bg-white">
+        <div className="container-custom">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-accent-500 mb-4">المبدعين المميزين</h2>
-            <p className="text-lg text-accent-600">تعرف على أفضل المبدعين في مجتمعنا</p>
+            <h2 className="heading-2 mb-4">المبدعين المميزين</h2>
+            <p className="body-large">تعرف على أفضل المبدعين في مجتمعنا</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {creators.map((cr, idx) => (
               <div
                 key={idx}
-                className="group bg-bw-white border rounded-xl p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
+                className="group card-interactive p-8"
               >
                 <div className="flex items-center gap-4 mb-4">
                   <div className="relative">
@@ -551,7 +553,7 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <button className="w-full mt-4 py-2 px-4 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors font-medium">
+                <button className="w-full mt-6 btn-primary">
                   عرض الملف الشخصي
                 </button>
               </div>
@@ -561,24 +563,24 @@ export default function HomePage() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="px-4 md:px-6 lg:px-12 py-16 md:py-20 bg-white">
-        <div className="max-w-7xl mx-auto">
+      <section className="section-padding bg-secondary-50">
+        <div className="container-custom">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-accent-500 mb-4">آراء عملائنا</h2>
-            <p className="text-lg text-accent-600">ماذا يقول عملاؤنا عن منصتنا</p>
+            <h2 className="heading-2 mb-4">آراء عملائنا</h2>
+            <p className="body-large">ماذا يقول عملاؤنا عن منصتنا</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {testimonials.map((testimonial, idx) => (
               <div
                 key={idx}
-                className="bg-white border border-primary-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300"
+                className="card p-8 hover:shadow-large transition-all duration-300"
               >
                 <div className="flex items-center gap-1 mb-4">
                   <StarRating rating={testimonial.rating} />
                 </div>
 
-                <blockquote className="text-gray-700 mb-6 leading-relaxed">
+                <blockquote className="body-medium text-accent-700 mb-6">
                   "{testimonial.content}"
                 </blockquote>
 
@@ -602,12 +604,12 @@ export default function HomePage() {
       </section>
 
       {/* Newsletter Signup */}
-      <section className="px-4 md:px-6 lg:px-12 py-16 md:py-20 bg-accent-500">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+      <section className="section-padding bg-accent-500">
+        <div className="container-custom max-w-4xl text-center">
+          <h2 className="heading-2 text-white mb-4">
             ابق على اطلاع بأحدث القوالب
           </h2>
-          <p className="text-xl text-gray-300 mb-8">
+          <p className="body-large text-gray-300 mb-8">
             اشترك في نشرتنا البريدية واحصل على إشعارات بالقوالب الجديدة والعروض الخاصة
           </p>
 
@@ -615,9 +617,9 @@ export default function HomePage() {
             <input
               type="email"
               placeholder="أدخل بريدك الإلكتروني"
-              className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-white/50 focus:outline-none"
+              className="form-input flex-1 border-0 bg-white/90 backdrop-blur-sm focus:ring-white/50 text-accent-700"
             />
-            <button className="px-8 py-3 bg-primary-500 hover:bg-primary-600 text-white font-semibold rounded-lg transition-colors">
+            <button className="btn-primary px-8 py-3">
               اشترك الآن
             </button>
           </div>
@@ -629,22 +631,22 @@ export default function HomePage() {
       </section>
 
       {/* Enhanced Call-to-Action Banner */}
-      <section className="px-4 md:px-6 lg:px-12 py-16 md:py-20">
-        <div className="max-w-6xl mx-auto">
+      <section className="section-padding">
+        <div className="container-custom max-w-6xl">
           <div className="bg-accent-500 text-white rounded-2xl p-8 md:p-12 text-center relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-primary-500/20 to-accent-600/20"></div>
             <div className="relative z-10">
-              <h2 className="text-3xl md:text-5xl font-extrabold mb-6 text-white">
+              <h2 className="heading-1 text-white mb-6">
                 ابدأ بيع قوالبك اليوم!
               </h2>
-              <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+              <p className="body-large text-gray-300 mb-8 max-w-2xl mx-auto">
                 انضم إلى آلاف المبدعين العرب وابدأ في كسب المال من قوالبك المبتكرة
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <a
                   href="/templates"
-                  className="px-8 py-4 bg-primary-500 hover:bg-primary-600 text-white text-lg font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
+                  className="btn-primary text-lg px-8 py-4 shadow-large hover:shadow-glow"
                 >
                   كن مبدعاً
                   <svg className="inline-block mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -653,7 +655,7 @@ export default function HomePage() {
                 </a>
                 <a
                   href="/templates"
-                  className="px-8 py-4 bg-primary-500 hover:bg-primary-600 text-white text-lg font-semibold rounded-xl transition-all duration-300"
+                  className="btn-primary text-lg px-8 py-4"
                 >
                   تصفح القوالب
                 </a>
@@ -686,7 +688,7 @@ export default function HomePage() {
 
       {/* Enhanced Footer */}
       <footer className="bg-accent-500 text-white">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-12 py-16">
+        <div className="container-custom section-padding">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
             <div className="lg:col-span-1">
               <div className="flex items-center mb-4">
@@ -701,21 +703,21 @@ export default function HomePage() {
                   unoptimized
                 />
               </div>
-              <p className="text-gray-400 mb-6 leading-relaxed">
+              <p className="body-medium text-gray-400 mb-6">
                 منصتك العربية الأولى لبيع وشراء قوالب نوتيون المبتكرة. انضم إلى مجتمع المبدعين العرب.
               </p>
               <div className="flex gap-4">
-                <a href="#" className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center hover:bg-primary-500 hover:text-white transition-colors">
+                <a href="#" className="w-12 h-12 bg-gray-700 rounded-xl flex items-center justify-center hover:bg-primary-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
                   </svg>
                 </a>
-                <a href="#" className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center hover:bg-primary-500 hover:text-white transition-colors">
+                <a href="#" className="w-12 h-12 bg-gray-700 rounded-xl flex items-center justify-center hover:bg-primary-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.746-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001.012.001z" />
                   </svg>
                 </a>
-                <a href="#" className="w-10 h-10 bg-gray-700 rounded-lg flex items-center justify-center hover:bg-primary-500 hover:text-white transition-colors">
+                <a href="#" className="w-12 h-12 bg-gray-700 rounded-xl flex items-center justify-center hover:bg-primary-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                   </svg>
@@ -724,7 +726,7 @@ export default function HomePage() {
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4 text-lg">المنتج</h4>
+              <h4 className="font-bold mb-6 text-lg text-white">المنتج</h4>
               <ul className="space-y-3">
                 <li><a href="/templates" className="text-gray-400 hover:text-white transition-colors">القوالب</a></li>
                 <li><a href="/categories" className="text-gray-400 hover:text-white transition-colors">التصنيفات</a></li>
@@ -734,7 +736,7 @@ export default function HomePage() {
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4 text-lg">الشركة</h4>
+              <h4 className="font-bold mb-6 text-lg text-white">الشركة</h4>
               <ul className="space-y-3">
                 <li><a href="/about" className="text-gray-400 hover:text-white transition-colors">من نحن</a></li>
                 <li><a href="/blog" className="text-gray-400 hover:text-white transition-colors">المدونة</a></li>
@@ -744,7 +746,7 @@ export default function HomePage() {
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4 text-lg">الدعم</h4>
+              <h4 className="font-bold mb-6 text-lg text-white">الدعم</h4>
               <ul className="space-y-3">
                 <li><a href="/help" className="text-gray-400 hover:text-white transition-colors">مركز المساعدة</a></li>
                 <li><a href="/contact" className="text-gray-400 hover:text-white transition-colors">اتصل بنا</a></li>

@@ -107,8 +107,7 @@ export default function TemplateDetailPage() {
 
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
-      {/* Header */}
-      <header className="w-full bg-accent-500 dark:bg-dark-secondary sticky top-0 z-50 shadow-medium dark:shadow-dark-medium backdrop-blur-sm bg-accent-500/95 dark:bg-dark-secondary/95 transition-colors duration-300">
+      {/* Template Details */}
         <div className="container-custom flex justify-between items-center py-4">
           <Link href="/" className="flex items-center">
             <Image

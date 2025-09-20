@@ -189,8 +189,8 @@ export default function TemplateDetailPage() {
               <button
                 onClick={() => setIsPurchased(true)}
                 className={`w-full py-3 px-6 rounded-xl font-medium transition-all duration-200 mb-6 ${isPurchased
-                    ? 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'
-                    : 'bg-orange-500 hover:bg-orange-600 text-white'
+                  ? 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'
+                  : 'bg-orange-500 hover:bg-orange-600 text-white'
                   }`}
               >
                 {isPurchased ? 'تم الشراء ✓' : 'شراء الآن'}

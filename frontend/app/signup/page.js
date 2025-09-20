@@ -84,7 +84,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-secondary-50 to-accent-500 flex items-center justify-center px-4 py-8" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary flex items-center justify-center px-4 py-8" dir="rtl">
       <div className="max-w-md w-full my-8">
         {/* Header */}
         <div className="text-center mb-10">
@@ -188,7 +188,7 @@ export default function SignupPage() {
                   onChange={(e) => setAgreedToTerms(e.target.checked)}
                   className="w-4 h-4 text-primary-500 border-gray-300 rounded focus:ring-primary-500 mt-1"
                 />
-                <label htmlFor="terms" className="mr-2 text-sm text-accent-600">
+                <label htmlFor="terms" className="mr-2 text-sm text-accent-600 dark:text-dark-text-secondary">
                   أوافق على{' '}
                   <a href="/terms" className="text-primary-500 hover:text-primary-600 transition-colors">
                     الشروط والأحكام
@@ -279,7 +279,7 @@ export default function SignupPage() {
                     <div className="w-full border-t border-gray-300"></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-accent-600">أو</span>
+                    <span className="px-2 bg-white dark:bg-dark-card-bg text-accent-600 dark:text-dark-text-secondary">أو</span>
                   </div>
                 </div>
               </div>

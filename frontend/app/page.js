@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '../contexts/AuthContext';
+import ThemeToggle from '../components/ThemeToggle';
 
 // Sample data - in production, this would come from an API
 const featuredTemplates = [
@@ -84,14 +85,14 @@ export default function HomePage() {
         {[...Array(5)].map((_, i) => (
           <svg
             key={i}
-            className={`w-4 h-4 ${i < Math.floor(rating) ? 'text-black' : 'text-gray-300'}`}
+            className={`w-4 h-4 ${i < Math.floor(rating) ? 'text-black dark:text-orange-500' : 'text-gray-300 dark:text-gray-600'}`}
             fill="currentColor"
             viewBox="0 0 20 20"
           >
             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
           </svg>
         ))}
-        <span className="text-sm text-accent-600 mr-1">{rating}</span>
+        <span className="text-sm text-accent-600 dark:text-dark-text-secondary mr-1">{rating}</span>
       </div>
     );
   };
@@ -99,9 +100,9 @@ export default function HomePage() {
 
 
   return (
-    <main className="min-h-screen bg-secondary-50 text-accent-500" dir="rtl">
+    <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
       {/* Enhanced Header */}
-      <header className="w-full bg-accent-500 sticky top-0 z-50 shadow-medium backdrop-blur-sm bg-accent-500/95">
+      <header className="w-full bg-accent-500 dark:bg-dark-secondary sticky top-0 z-50 shadow-medium dark:shadow-dark-medium backdrop-blur-sm bg-accent-500/95 dark:bg-dark-secondary/95 transition-colors duration-300">
         <div className="container-custom flex justify-between items-center py-4">
           <Link href="/" className="flex items-center">
             <Image
@@ -126,22 +127,25 @@ export default function HomePage() {
 
           {/* Auth Buttons / User Menu */}
           <div className="hidden md:flex items-center gap-2 lg:gap-3 xl:gap-4">
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
             {isAuthenticated ? (
               <div className="flex items-center gap-4">
-                <span className="text-gray-300">مرحباً، {user?.name}</span>
-                <Link href="/profile" className="text-gray-300 hover:text-white transition-colors py-2 px-3">
+                <span className="text-gray-300 dark:text-dark-text-tertiary">مرحباً، {user?.name}</span>
+                <Link href="/profile" className="text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors py-2 px-3">
                   الملف الشخصي
                 </Link>
                 <button
                   onClick={logout}
-                  className="text-gray-300 hover:text-white transition-colors py-2 px-3"
+                  className="text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors py-2 px-3"
                 >
                   تسجيل الخروج
                 </button>
               </div>
             ) : (
               <div className="flex items-center gap-3">
-                <Link href="/login" className="text-gray-300 hover:text-white transition-colors py-2 px-3">
+                <Link href="/login" className="text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors py-2 px-3">
                   تسجيل الدخول
                 </Link>
                 <Link href="/signup" className="btn-primary">
@@ -152,49 +156,52 @@ export default function HomePage() {
           </div>
 
           {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-3 transition-all duration-300 border border-gray-600 rounded-xl hover:bg-white/10 hover:border-gray-500 flex-shrink-0"
-            aria-label="فتح القائمة"
-          >
-            <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
-            </svg>
-          </button>
+          <div className="md:hidden flex items-center gap-2">
+            <ThemeToggle />
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-3 transition-all duration-300 border border-gray-600 dark:border-dark-card-border rounded-xl hover:bg-white/10 dark:hover:bg-dark-tertiary hover:border-gray-500 dark:hover:border-dark-text-tertiary flex-shrink-0"
+              aria-label="فتح القائمة"
+            >
+              <svg className="w-5 h-5 text-gray-300 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+              </svg>
+            </button>
+          </div>
         </div>
       </header>
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-accent-500 border-b border-gray-700 shadow-large backdrop-blur-sm">
+        <div className="md:hidden bg-accent-500 dark:bg-dark-secondary border-b border-gray-700 dark:border-dark-card-border shadow-large dark:shadow-dark-large backdrop-blur-sm transition-colors duration-300">
           <div className="container-custom py-6 space-y-6">
             <nav className="space-y-2">
-              <a href="/templates" className="block py-3 px-4 text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-xl">القوالب</a>
-              <a href="/categories" className="block py-3 px-4 text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-xl">التصنيفات</a>
-              <a href="/blog" className="block py-3 px-4 text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-xl">المدونة</a>
-              <a href="/about" className="block py-3 px-4 text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-xl">من نحن</a>
+              <a href="/templates" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">القوالب</a>
+              <a href="/categories" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">التصنيفات</a>
+              <a href="/blog" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">المدونة</a>
+              <a href="/about" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">من نحن</a>
             </nav>
 
             {/* Mobile Auth Section */}
-            <div className="border-t border-gray-600 pt-6">
+            <div className="border-t border-gray-600 dark:border-dark-card-border pt-6">
               {isAuthenticated ? (
                 <div className="space-y-3">
-                  <div className="px-4 py-3 text-gray-300 bg-white/5 rounded-xl">
+                  <div className="px-4 py-3 text-gray-300 dark:text-dark-text-tertiary bg-white/5 dark:bg-dark-tertiary rounded-xl">
                     مرحباً، {user?.name}
                   </div>
-                  <a href="/profile" className="block py-3 px-4 text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-xl">
+                  <a href="/profile" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
                     الملف الشخصي
                   </a>
                   <button
                     onClick={logout}
-                    className="block w-full text-right py-3 px-4 text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-xl"
+                    className="block w-full text-right py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
                   >
                     تسجيل الخروج
                   </button>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <Link href="/login" className="block py-3 px-4 text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-xl">
+                  <Link href="/login" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
                     تسجيل الدخول
                   </Link>
                   <Link href="/signup" className="block py-3 px-4 btn-primary text-center">
@@ -208,22 +215,22 @@ export default function HomePage() {
       )}
 
       {/* Enhanced Hero Section with Notion-inspired Animations */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-secondary-50 to-accent-500 px-4 md:px-6 lg:px-12 py-16 md:py-24">
+      <section className="relative overflow-hidden bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary px-4 md:px-6 lg:px-12 py-16 md:py-24 transition-colors duration-300">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           {/* Floating Notion-style Blocks */}
-          <div className="absolute top-20 left-10 w-16 h-16 bg-white/60 rounded-lg shadow-lg floating-block notion-block-hover"></div>
-          <div className="absolute top-40 right-20 w-12 h-12 bg-gray-100/70 rounded-md shadow-md floating-block-delayed notion-block-hover"></div>
-          <div className="absolute bottom-32 left-1/4 w-20 h-20 bg-white/50 rounded-xl shadow-lg floating-block notion-block-hover"></div>
-          <div className="absolute top-1/3 right-1/3 w-14 h-14 bg-gray-50/80 rounded-lg shadow-md floating-block-delayed notion-block-hover"></div>
-          <div className="absolute bottom-20 right-10 w-18 h-18 bg-white/40 rounded-2xl shadow-lg floating-block notion-block-hover"></div>
+          <div className="absolute top-20 left-10 w-16 h-16 bg-white/60 dark:bg-dark-tertiary/60 rounded-lg shadow-lg dark:shadow-dark-medium floating-block notion-block-hover"></div>
+          <div className="absolute top-40 right-20 w-12 h-12 bg-gray-100/70 dark:bg-dark-quaternary/70 rounded-md shadow-md dark:shadow-dark-soft floating-block-delayed notion-block-hover"></div>
+          <div className="absolute bottom-32 left-1/4 w-20 h-20 bg-white/50 dark:bg-dark-tertiary/50 rounded-xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover"></div>
+          <div className="absolute top-1/3 right-1/3 w-14 h-14 bg-gray-50/80 dark:bg-dark-quaternary/80 rounded-lg shadow-md dark:shadow-dark-soft floating-block-delayed notion-block-hover"></div>
+          <div className="absolute bottom-20 right-10 w-18 h-18 bg-white/40 dark:bg-dark-tertiary/40 rounded-2xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover"></div>
 
           {/* Gradient Orbs */}
-          <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-r from-blue-100/30 to-purple-100/30 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-l from-gray-100/40 to-black/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-r from-blue-100/30 to-purple-100/30 dark:from-orange-500/10 dark:to-orange-600/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-l from-gray-100/40 to-black/20 dark:from-dark-tertiary/20 dark:to-dark-primary/40 rounded-full blur-3xl animate-pulse"></div>
 
           {/* Subtle Grid Pattern */}
-          <div className="absolute inset-0 opacity-[0.02]" style={{
+          <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.05]" style={{
             backgroundImage: `radial-gradient(circle at 1px 1px, rgba(0,0,0,0.3) 1px, transparent 0)`,
             backgroundSize: '20px 20px'
           }}></div>
@@ -234,8 +241,8 @@ export default function HomePage() {
           <div className="text-center mb-12">
             {/* النصوص */}
             <div className="max-w-4xl mx-auto">
-              <div className="inline-flex items-center px-4 py-2 bg-white/90 backdrop-blur-sm text-accent-500 rounded-full text-sm font-medium mb-6 text-reveal shadow-lg border border-primary-200">
-                <span className="w-2 h-2 bg-primary-500 rounded-full ml-2 pulse-glow"></span>
+              <div className="inline-flex items-center px-4 py-2 bg-white/90 dark:bg-dark-tertiary/90 backdrop-blur-sm text-accent-500 dark:text-dark-text-primary rounded-full text-sm font-medium mb-6 text-reveal shadow-lg dark:shadow-dark-medium border border-primary-200 dark:border-orange-500/30 transition-colors duration-300">
+                <span className="w-2 h-2 bg-primary-500 dark:bg-orange-500 rounded-full ml-2 pulse-glow"></span>
                 أكثر من 10,000 قالب متاح
               </div>
 
@@ -243,7 +250,7 @@ export default function HomePage() {
                 منصتك العربية لبيع وشراء قوالب نوتيون
               </h1>
 
-              <p className="body-large text-accent-700 mb-8 max-w-3xl mx-auto text-reveal-delayed-2">
+              <p className="body-large text-accent-700 dark:text-dark-text-secondary mb-8 max-w-3xl mx-auto text-reveal-delayed-2">
                 انضم إلى مجتمع عربي متنامٍ من المبدعين، وابدأ رحلتك مع آلاف
                 القوالب المصممة للعمل، الدراسة، والحياة اليومية.
               </p>
@@ -261,7 +268,7 @@ export default function HomePage() {
                 </a>
                 <a
                   href="/templates"
-                  className="btn-secondary text-xl px-10 py-5 bg-white/90 backdrop-blur-sm border-primary-200 notion-block-hover shadow-lg hover:shadow-xl hover:bg-primary-50"
+                  className="btn-secondary text-xl px-10 py-5 bg-white/90 dark:bg-dark-tertiary/90 backdrop-blur-sm border-primary-200 dark:border-orange-500/30 notion-block-hover shadow-lg dark:shadow-dark-medium hover:shadow-xl dark:hover:shadow-dark-large hover:bg-primary-50 dark:hover:bg-dark-quaternary transition-colors duration-300"
                 >
                   بيع قوالبك
                 </a>
@@ -270,19 +277,19 @@ export default function HomePage() {
               {/* Enhanced Stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
                 <div className="card-featured p-6 stats-counter">
-                  <div className="text-3xl font-bold text-primary-500 mb-2">1,200+</div>
+                  <div className="text-3xl font-bold text-primary-500 dark:text-orange-500 mb-2">1,200+</div>
                   <div className="body-small">قالب جاهز</div>
                 </div>
                 <div className="card-featured p-6 stats-counter">
-                  <div className="text-3xl font-bold text-accent-500 mb-2">500+</div>
+                  <div className="text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">500+</div>
                   <div className="body-small">مبدع عربي</div>
                 </div>
                 <div className="card-featured p-6 stats-counter">
-                  <div className="text-3xl font-bold text-primary-500 mb-2">50K+</div>
+                  <div className="text-3xl font-bold text-primary-500 dark:text-orange-500 mb-2">50K+</div>
                   <div className="body-small">تحميل شهري</div>
                 </div>
                 <div className="card-featured p-6 stats-counter">
-                  <div className="text-3xl font-bold text-accent-500 mb-2">4.9</div>
+                  <div className="text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">4.9</div>
                   <div className="body-small">تقييم المستخدمين</div>
                 </div>
               </div>
@@ -292,44 +299,44 @@ export default function HomePage() {
           {/* Full Width Interactive Demo Section */}
           <div className="relative">
             {/* Floating UI Elements - More strategically placed */}
-            <div className="absolute top-0 left-10 w-24 h-24 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg floating-block notion-block-hover border border-white/50">
+            <div className="absolute top-0 left-10 w-24 h-24 bg-white/80 dark:bg-dark-tertiary/80 backdrop-blur-sm rounded-xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover border border-white/50 dark:border-dark-card-border/50">
               <div className="p-4">
                 <div className="w-8 h-8 bg-blue-500 rounded-lg mb-2"></div>
-                <div className="w-12 h-2 bg-gray-300 rounded mb-1"></div>
-                <div className="w-8 h-2 bg-gray-300 rounded"></div>
+                <div className="w-12 h-2 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
+                <div className="w-8 h-2 bg-gray-300 dark:bg-dark-text-quaternary rounded"></div>
               </div>
             </div>
 
-            <div className="absolute top-20 right-20 w-20 h-20 bg-white/70 backdrop-blur-sm rounded-lg shadow-md floating-block-delayed notion-block-hover border border-white/50">
+            <div className="absolute top-20 right-20 w-20 h-20 bg-white/70 dark:bg-dark-tertiary/70 backdrop-blur-sm rounded-lg shadow-md dark:shadow-dark-soft floating-block-delayed notion-block-hover border border-white/50 dark:border-dark-card-border/50">
               <div className="p-3">
                 <div className="w-6 h-6 bg-green-500 rounded-md mb-2"></div>
-                <div className="w-10 h-1.5 bg-gray-300 rounded mb-1"></div>
-                <div className="w-6 h-1.5 bg-gray-300 rounded"></div>
+                <div className="w-10 h-1.5 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
+                <div className="w-6 h-1.5 bg-gray-300 dark:bg-dark-text-quaternary rounded"></div>
               </div>
             </div>
 
-            <div className="absolute bottom-20 left-1/4 w-16 h-16 bg-white/60 backdrop-blur-sm rounded-lg shadow-lg floating-block notion-block-hover border border-white/50">
+            <div className="absolute bottom-20 left-1/4 w-16 h-16 bg-white/60 dark:bg-dark-tertiary/60 backdrop-blur-sm rounded-lg shadow-lg dark:shadow-dark-medium floating-block notion-block-hover border border-white/50 dark:border-dark-card-border/50">
               <div className="p-2">
                 <div className="w-4 h-4 bg-purple-500 rounded mb-1"></div>
-                <div className="w-8 h-1 bg-gray-300 rounded mb-1"></div>
-                <div className="w-6 h-1 bg-gray-300 rounded"></div>
+                <div className="w-8 h-1 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
+                <div className="w-6 h-1 bg-gray-300 dark:bg-dark-text-quaternary rounded"></div>
               </div>
             </div>
 
-            <div className="absolute top-1/3 right-1/3 w-28 h-28 bg-white/50 backdrop-blur-sm rounded-2xl shadow-lg floating-block notion-block-hover border border-white/50">
+            <div className="absolute top-1/3 right-1/3 w-28 h-28 bg-white/50 dark:bg-dark-tertiary/50 backdrop-blur-sm rounded-2xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover border border-white/50 dark:border-dark-card-border/50">
               <div className="p-4">
                 <div className="w-10 h-10 bg-orange-500 rounded-lg mb-3"></div>
-                <div className="w-16 h-2 bg-gray-300 rounded mb-1"></div>
-                <div className="w-12 h-2 bg-gray-300 rounded mb-1"></div>
-                <div className="w-8 h-2 bg-gray-300 rounded"></div>
+                <div className="w-16 h-2 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
+                <div className="w-12 h-2 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
+                <div className="w-8 h-2 bg-gray-300 dark:bg-dark-text-quaternary rounded"></div>
               </div>
             </div>
 
-            <div className="absolute bottom-1/3 right-1/4 w-18 h-18 bg-white/60 backdrop-blur-sm rounded-lg shadow-md floating-block-delayed notion-block-hover border border-white/50">
+            <div className="absolute bottom-1/3 right-1/4 w-18 h-18 bg-white/60 dark:bg-dark-tertiary/60 backdrop-blur-sm rounded-lg shadow-md dark:shadow-dark-soft floating-block-delayed notion-block-hover border border-white/50 dark:border-dark-card-border/50">
               <div className="p-3">
                 <div className="w-6 h-6 bg-red-500 rounded-md mb-2"></div>
-                <div className="w-12 h-1.5 bg-gray-300 rounded mb-1"></div>
-                <div className="w-8 h-1.5 bg-gray-300 rounded"></div>
+                <div className="w-12 h-1.5 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
+                <div className="w-8 h-1.5 bg-gray-300 dark:bg-dark-text-quaternary rounded"></div>
               </div>
             </div>
 
@@ -337,17 +344,17 @@ export default function HomePage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
               {/* Browse Templates Square */}
               <Link href="/templates" className="group">
-                <div className="bg-accent-500 rounded-3xl p-8 shadow-large notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-glow">
-                  <div className="w-16 h-16 bg-white rounded-xl mb-6 flex items-center justify-center">
-                    <svg className="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="bg-accent-500 dark:bg-dark-secondary rounded-3xl p-8 shadow-large dark:shadow-dark-large notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-glow dark:group-hover:shadow-dark-glow">
+                  <div className="w-16 h-16 bg-white dark:bg-dark-tertiary rounded-xl mb-6 flex items-center justify-center">
+                    <svg className="w-8 h-8 text-black dark:text-dark-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                   </div>
-                  <h3 className="heading-3 text-white mb-3">تصفح القوالب</h3>
-                  <p className="body-medium text-gray-300">
+                  <h3 className="heading-3 text-white dark:text-dark-text-primary mb-3">تصفح القوالب</h3>
+                  <p className="body-medium text-gray-300 dark:text-dark-text-secondary">
                     اكتشف آلاف القوالب الجاهزة للعمل والدراسة والحياة اليومية
                   </p>
-                  <div className="mt-4 flex items-center text-white group-hover:translate-x-1 transition-transform duration-300">
+                  <div className="mt-4 flex items-center text-white dark:text-dark-text-primary group-hover:translate-x-1 transition-transform duration-300">
                     <span className="text-sm font-medium">ابدأ الآن</span>
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
@@ -358,8 +365,8 @@ export default function HomePage() {
 
               {/* Categories Square */}
               <Link href="/categories" className="group">
-                <div className="card-featured p-8 notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-glow">
-                  <div className="w-16 h-16 bg-primary-500 rounded-xl mb-6 flex items-center justify-center">
+                <div className="card-featured p-8 notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-glow dark:group-hover:shadow-dark-glow">
+                  <div className="w-16 h-16 bg-primary-500 dark:bg-orange-500 rounded-xl mb-6 flex items-center justify-center">
                     <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
@@ -368,7 +375,7 @@ export default function HomePage() {
                   <p className="body-medium">
                     تصفح حسب الفئة - العمل، الدراسة، الأعمال، والصحة
                   </p>
-                  <div className="mt-4 flex items-center text-accent-500 group-hover:translate-x-1 transition-transform duration-300">
+                  <div className="mt-4 flex items-center text-accent-500 dark:text-orange-500 group-hover:translate-x-1 transition-transform duration-300">
                     <span className="text-sm font-medium">استكشف</span>
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
@@ -379,17 +386,17 @@ export default function HomePage() {
 
               {/* Blog/About Square */}
               <Link href="/blog" className="group">
-                <div className="bg-gradient-to-br from-accent-500 to-accent-600 rounded-3xl p-8 shadow-large notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-glow">
-                  <div className="w-16 h-16 bg-primary-500 rounded-xl mb-6 flex items-center justify-center">
+                <div className="bg-gradient-to-br from-accent-500 to-accent-600 dark:from-dark-secondary dark:to-dark-tertiary rounded-3xl p-8 shadow-large dark:shadow-dark-large notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-glow dark:group-hover:shadow-dark-glow">
+                  <div className="w-16 h-16 bg-primary-500 dark:bg-orange-500 rounded-xl mb-6 flex items-center justify-center">
                     <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                     </svg>
                   </div>
-                  <h3 className="heading-3 text-white mb-3">المدونة</h3>
-                  <p className="body-medium text-gray-200">
+                  <h3 className="heading-3 text-white dark:text-dark-text-primary mb-3">المدونة</h3>
+                  <p className="body-medium text-gray-200 dark:text-dark-text-secondary">
                     نصائح وتوجيهات لاستخدام نوتيون وأفضل الممارسات
                   </p>
-                  <div className="mt-4 flex items-center text-white group-hover:translate-x-1 transition-transform duration-300">
+                  <div className="mt-4 flex items-center text-white dark:text-dark-text-primary group-hover:translate-x-1 transition-transform duration-300">
                     <span className="text-sm font-medium">اقرأ المزيد</span>
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
@@ -403,7 +410,7 @@ export default function HomePage() {
       </section>
 
       {/* Enhanced Featured Templates */}
-      <section className="section-padding bg-white">
+      <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
         <div className="container-custom">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-12">
             <div>
@@ -444,7 +451,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="font-bold text-lg text-accent-500 mb-2 group-hover:text-accent-600 transition-colors">
+                  <h3 className="font-bold text-lg text-accent-500 dark:text-dark-text-primary mb-2 group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
                     {t.title}
                   </h3>
                   <p className="body-small mb-3">بواسطة {t.creator}</p>
@@ -452,9 +459,9 @@ export default function HomePage() {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <StarRating rating={t.rating} />
-                      <span className="text-sm text-accent-600">({t.downloads})</span>
+                      <span className="text-sm text-accent-600 dark:text-dark-text-secondary">({t.downloads})</span>
                     </div>
-                    <div className={`text-lg font-bold ${t.isFree ? 'text-accent-600' : 'text-primary-500'
+                    <div className={`text-lg font-bold ${t.isFree ? 'text-accent-600 dark:text-dark-text-secondary' : 'text-primary-500'
                       }`}>
                       {t.price}
                     </div>
@@ -471,7 +478,7 @@ export default function HomePage() {
       </section>
 
       {/* Enhanced Categories */}
-      <section className="section-padding bg-secondary-50">
+      <section className="section-padding bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
         <div className="container-custom">
           <div className="text-center mb-12">
             <h2 className="heading-2 mb-4">تصفح حسب التصنيف</h2>
@@ -493,7 +500,7 @@ export default function HomePage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                   </div>
                   <div className="p-4 md:p-6 text-center">
-                    <h3 className="font-bold text-accent-500 group-hover:text-accent-600 transition-colors mb-2">
+                    <h3 className="font-bold text-accent-500 dark:text-dark-text-primary group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors mb-2">
                       {c.name}
                     </h3>
                     <p className="body-small">{c.count} قالب</p>
@@ -506,7 +513,7 @@ export default function HomePage() {
       </section>
 
       {/* Enhanced Featured Creators */}
-      <section className="section-padding bg-white">
+      <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
         <div className="container-custom">
           <div className="text-center mb-12">
             <h2 className="heading-2 mb-4">المبدعين المميزين</h2>
@@ -531,25 +538,25 @@ export default function HomePage() {
                     <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white"></div>
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-lg text-accent-500 group-hover:text-accent-600 transition-colors">
+                    <h3 className="font-bold text-lg text-accent-500 dark:text-dark-text-primary group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
                       {cr.name}
                     </h3>
-                    <p className="text-sm text-accent-600">{cr.bio}</p>
+                    <p className="text-sm text-accent-600 dark:text-dark-text-secondary">{cr.bio}</p>
                   </div>
                 </div>
 
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-accent-600">القوالب</span>
-                    <span className="font-semibold text-accent-500">{cr.templates}</span>
+                    <span className="text-sm text-accent-600 dark:text-dark-text-secondary">القوالب</span>
+                    <span className="font-semibold text-accent-500 dark:text-dark-text-primary">{cr.templates}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-accent-600">التقييم</span>
+                    <span className="text-sm text-accent-600 dark:text-dark-text-secondary">التقييم</span>
                     <StarRating rating={cr.rating} />
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-accent-600">الأرباح</span>
-                    <span className="font-semibold text-accent-600">{cr.earnings}</span>
+                    <span className="text-sm text-accent-600 dark:text-dark-text-secondary">الأرباح</span>
+                    <span className="font-semibold text-accent-600 dark:text-dark-text-secondary">{cr.earnings}</span>
                   </div>
                 </div>
 
@@ -563,7 +570,7 @@ export default function HomePage() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="section-padding bg-secondary-50">
+      <section className="section-padding bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
         <div className="container-custom">
           <div className="text-center mb-12">
             <h2 className="heading-2 mb-4">آراء عملائنا</h2>
@@ -593,8 +600,8 @@ export default function HomePage() {
                     className="w-10 h-10 rounded-full object-cover"
                   />
                   <div>
-                    <h4 className="font-semibold text-accent-500">{testimonial.name}</h4>
-                    <p className="text-sm text-accent-600">{testimonial.role}</p>
+                    <h4 className="font-semibold text-accent-500 dark:text-dark-text-primary">{testimonial.name}</h4>
+                    <p className="text-sm text-accent-600 dark:text-dark-text-secondary">{testimonial.role}</p>
                   </div>
                 </div>
               </div>
@@ -604,12 +611,12 @@ export default function HomePage() {
       </section>
 
       {/* Newsletter Signup */}
-      <section className="section-padding bg-accent-500">
+      <section className="section-padding bg-accent-500 dark:bg-dark-secondary transition-colors duration-300">
         <div className="container-custom max-w-4xl text-center">
-          <h2 className="heading-2 text-white mb-4">
+          <h2 className="heading-2 text-white dark:text-dark-text-primary mb-4">
             ابق على اطلاع بأحدث القوالب
           </h2>
-          <p className="body-large text-gray-300 mb-8">
+          <p className="body-large text-gray-300 dark:text-dark-text-secondary mb-8">
             اشترك في نشرتنا البريدية واحصل على إشعارات بالقوالب الجديدة والعروض الخاصة
           </p>
 
@@ -617,14 +624,14 @@ export default function HomePage() {
             <input
               type="email"
               placeholder="أدخل بريدك الإلكتروني"
-              className="form-input flex-1 border-0 bg-white/90 backdrop-blur-sm focus:ring-white/50 text-accent-700"
+              className="form-input flex-1 border-0 bg-white/90 dark:bg-dark-tertiary/90 backdrop-blur-sm focus:ring-white/50 dark:focus:ring-orange-500/50 text-accent-700 dark:text-dark-text-primary"
             />
             <button className="btn-primary px-8 py-3">
               اشترك الآن
             </button>
           </div>
 
-          <p className="text-sm text-gray-400 mt-4">
+          <p className="text-sm text-gray-400 dark:text-dark-text-quaternary mt-4">
             يمكنك إلغاء الاشتراك في أي وقت. نحن نحترم خصوصيتك.
           </p>
         </div>
@@ -633,13 +640,13 @@ export default function HomePage() {
       {/* Enhanced Call-to-Action Banner */}
       <section className="section-padding">
         <div className="container-custom max-w-6xl">
-          <div className="bg-accent-500 text-white rounded-2xl p-8 md:p-12 text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary-500/20 to-accent-600/20"></div>
+          <div className="bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary rounded-2xl p-8 md:p-12 text-center relative overflow-hidden transition-colors duration-300">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary-500/20 to-accent-600/20 dark:from-orange-500/20 dark:to-orange-600/20"></div>
             <div className="relative z-10">
-              <h2 className="heading-1 text-white mb-6">
+              <h2 className="heading-1 text-white dark:text-dark-text-primary mb-6">
                 ابدأ بيع قوالبك اليوم!
               </h2>
-              <p className="body-large text-gray-300 mb-8 max-w-2xl mx-auto">
+              <p className="body-large text-gray-300 dark:text-dark-text-secondary mb-8 max-w-2xl mx-auto">
                 انضم إلى آلاف المبدعين العرب وابدأ في كسب المال من قوالبك المبتكرة
               </p>
 
@@ -661,21 +668,21 @@ export default function HomePage() {
                 </a>
               </div>
 
-              <div className="mt-8 flex flex-wrap justify-center gap-6 text-sm text-gray-300">
+              <div className="mt-8 flex flex-wrap justify-center gap-6 text-sm text-gray-300 dark:text-dark-text-tertiary">
                 <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5 text-white dark:text-dark-text-primary" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
                   <span>بدون رسوم إعداد</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5 text-white dark:text-dark-text-primary" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
                   <span>دفع آمن وسريع</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5 text-white dark:text-dark-text-primary" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
                   <span>دعم فني 24/7</span>
@@ -687,7 +694,7 @@ export default function HomePage() {
       </section>
 
       {/* Enhanced Footer */}
-      <footer className="bg-accent-500 text-white">
+      <footer className="bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary transition-colors duration-300">
         <div className="container-custom section-padding">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
             <div className="lg:col-span-1">
@@ -703,21 +710,21 @@ export default function HomePage() {
                   unoptimized
                 />
               </div>
-              <p className="body-medium text-gray-400 mb-6">
+              <p className="body-medium text-gray-400 dark:text-dark-text-tertiary mb-6">
                 منصتك العربية الأولى لبيع وشراء قوالب نوتيون المبتكرة. انضم إلى مجتمع المبدعين العرب.
               </p>
               <div className="flex gap-4">
-                <a href="#" className="w-12 h-12 bg-gray-700 rounded-xl flex items-center justify-center hover:bg-primary-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft">
+                <a href="#" className="w-12 h-12 bg-gray-700 dark:bg-dark-tertiary rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
                   </svg>
                 </a>
-                <a href="#" className="w-12 h-12 bg-gray-700 rounded-xl flex items-center justify-center hover:bg-primary-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft">
+                <a href="#" className="w-12 h-12 bg-gray-700 dark:bg-dark-tertiary rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.746-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001.012.001z" />
                   </svg>
                 </a>
-                <a href="#" className="w-12 h-12 bg-gray-700 rounded-xl flex items-center justify-center hover:bg-primary-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft">
+                <a href="#" className="w-12 h-12 bg-gray-700 dark:bg-dark-tertiary rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                   </svg>
@@ -726,45 +733,45 @@ export default function HomePage() {
             </div>
 
             <div>
-              <h4 className="font-bold mb-6 text-lg text-white">المنتج</h4>
+              <h4 className="font-bold mb-6 text-lg text-white dark:text-dark-text-primary">المنتج</h4>
               <ul className="space-y-3">
-                <li><a href="/templates" className="text-gray-400 hover:text-white transition-colors">القوالب</a></li>
-                <li><a href="/categories" className="text-gray-400 hover:text-white transition-colors">التصنيفات</a></li>
-                <li><a href="/pricing" className="text-gray-400 hover:text-white transition-colors">الأسعار</a></li>
-                <li><a href="/features" className="text-gray-400 hover:text-white transition-colors">المميزات</a></li>
+                <li><a href="/templates" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">القوالب</a></li>
+                <li><a href="/categories" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">التصنيفات</a></li>
+                <li><a href="/pricing" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الأسعار</a></li>
+                <li><a href="/features" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المميزات</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-bold mb-6 text-lg text-white">الشركة</h4>
+              <h4 className="font-bold mb-6 text-lg text-white dark:text-dark-text-primary">الشركة</h4>
               <ul className="space-y-3">
-                <li><a href="/about" className="text-gray-400 hover:text-white transition-colors">من نحن</a></li>
-                <li><a href="/blog" className="text-gray-400 hover:text-white transition-colors">المدونة</a></li>
-                <li><a href="/careers" className="text-gray-400 hover:text-white transition-colors">الوظائف</a></li>
-                <li><a href="/press" className="text-gray-400 hover:text-white transition-colors">الصحافة</a></li>
+                <li><a href="/about" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">من نحن</a></li>
+                <li><a href="/blog" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المدونة</a></li>
+                <li><a href="/careers" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الوظائف</a></li>
+                <li><a href="/press" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الصحافة</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-bold mb-6 text-lg text-white">الدعم</h4>
+              <h4 className="font-bold mb-6 text-lg text-white dark:text-dark-text-primary">الدعم</h4>
               <ul className="space-y-3">
-                <li><a href="/help" className="text-gray-400 hover:text-white transition-colors">مركز المساعدة</a></li>
-                <li><a href="/contact" className="text-gray-400 hover:text-white transition-colors">اتصل بنا</a></li>
-                <li><a href="/privacy" className="text-gray-400 hover:text-white transition-colors">الخصوصية</a></li>
-                <li><a href="/terms" className="text-gray-400 hover:text-white transition-colors">الشروط</a></li>
+                <li><a href="/help" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">مركز المساعدة</a></li>
+                <li><a href="/contact" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">اتصل بنا</a></li>
+                <li><a href="/privacy" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الخصوصية</a></li>
+                <li><a href="/terms" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الشروط</a></li>
               </ul>
             </div>
           </div>
 
-          <div className="border-t border-gray-700 pt-8">
+          <div className="border-t border-gray-700 dark:border-dark-card-border pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
-              <p className="text-gray-400 text-sm">
+              <p className="text-gray-400 dark:text-dark-text-tertiary text-sm">
                 © {new Date().getFullYear()} عرب نوشن. جميع الحقوق محفوظة.
               </p>
               <div className="flex gap-6 mt-4 md:mt-0">
-                <a href="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">سياسة الخصوصية</a>
-                <a href="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">شروط الاستخدام</a>
-                <a href="/cookies" className="text-gray-400 hover:text-white text-sm transition-colors">ملفات تعريف الارتباط</a>
+                <a href="/privacy" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-sm transition-colors">سياسة الخصوصية</a>
+                <a href="/terms" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-sm transition-colors">شروط الاستخدام</a>
+                <a href="/cookies" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-sm transition-colors">ملفات تعريف الارتباط</a>
               </div>
             </div>
           </div>

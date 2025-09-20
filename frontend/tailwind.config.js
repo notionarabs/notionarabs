@@ -5,6 +5,7 @@ module.exports = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       fontFamily: {
@@ -95,6 +96,29 @@ module.exports = {
           800: '#c62828',
           900: '#b71c1c',
         },
+        // Dark mode specific colors
+        dark: {
+          primary: '#0a0a0a',
+          secondary: '#111111',
+          tertiary: '#1a1a1a',
+          quaternary: '#222222',
+          text: {
+            primary: '#ffffff',
+            secondary: '#e5e5e5',
+            tertiary: '#a0a0a0',
+            quaternary: '#666666',
+          },
+          card: {
+            bg: '#1a1a1a',
+            border: '#333333',
+            hover: '#222222',
+          },
+          input: {
+            bg: '#111111',
+            border: '#333333',
+            focus: '#475787',
+          },
+        },
       },
       spacing: {
         '18': '4.5rem',
@@ -111,6 +135,11 @@ module.exports = {
         'medium': '0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
         'large': '0 10px 40px -10px rgba(0, 0, 0, 0.15), 0 2px 10px -2px rgba(0, 0, 0, 0.05)',
         'glow': '0 0 20px rgba(245, 99, 30, 0.3)',
+        // Dark mode shadows
+        'dark-soft': '0 2px 15px -3px rgba(0, 0, 0, 0.3), 0 10px 20px -2px rgba(0, 0, 0, 0.2)',
+        'dark-medium': '0 4px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2)',
+        'dark-large': '0 10px 40px -10px rgba(0, 0, 0, 0.5), 0 2px 10px -2px rgba(0, 0, 0, 0.3)',
+        'dark-glow': '0 0 20px rgba(255, 122, 61, 0.4)',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',

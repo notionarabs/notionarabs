@@ -1,5 +1,6 @@
 import './globals.css'
 import { AuthProvider } from '../contexts/AuthContext'
+import { ThemeProvider } from '../contexts/ThemeContext'
 
 export const metadata = {
   title: 'Notion Arabs - قوالب نوتيون باللغة العربية',
@@ -15,10 +16,12 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
         <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-tajawal" suppressHydrationWarning={true}>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+      <body className="font-tajawal transition-colors duration-300" suppressHydrationWarning={true}>
+        <ThemeProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

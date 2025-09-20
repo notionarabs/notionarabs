@@ -6,6 +6,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   body {
@@ -13,6 +14,17 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Dark mode base styles */
+  .dark {
+    color-scheme: dark;
+  }
+
+  .dark body {
+    background-color: #0a0a0a;
+    color: #e5e5e5;
   }
 }
 
@@ -22,16 +34,32 @@
     @apply bg-primary-500 hover:bg-primary-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 shadow-soft hover:shadow-medium;
   }
 
+  .dark .btn-primary {
+    @apply bg-orange-500 hover:bg-orange-600 shadow-dark-soft hover:shadow-dark-medium;
+  }
+
   .btn-secondary {
     @apply bg-white hover:bg-gray-50 text-accent-500 border border-gray-300 hover:border-accent-300 font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 shadow-soft hover:shadow-medium;
+  }
+
+  .dark .btn-secondary {
+    @apply bg-dark-tertiary hover:bg-dark-quaternary text-dark-text-primary border-dark-card-border hover:border-accent-400 shadow-dark-soft hover:shadow-dark-medium;
   }
 
   .btn-outline {
     @apply bg-transparent hover:bg-primary-500 text-primary-500 hover:text-white border-2 border-primary-500 font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
   }
 
+  .dark .btn-outline {
+    @apply hover:bg-orange-500 text-orange-500 border-orange-500 hover:text-white;
+  }
+
   .btn-ghost {
     @apply bg-transparent hover:bg-gray-100 text-accent-500 hover:text-accent-700 font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+  }
+
+  .dark .btn-ghost {
+    @apply hover:bg-dark-tertiary text-dark-text-secondary hover:text-dark-text-primary;
   }
 
   /* Enhanced Card System */
@@ -39,12 +67,24 @@
     @apply bg-white rounded-2xl shadow-soft border border-gray-200 transition-all duration-300 hover:shadow-medium hover:-translate-y-1;
   }
 
+  .dark .card {
+    @apply bg-dark-card-bg border-dark-card-border shadow-dark-soft hover:shadow-dark-medium;
+  }
+
   .card-interactive {
     @apply card cursor-pointer hover:shadow-large hover:-translate-y-2;
   }
 
+  .dark .card-interactive {
+    @apply hover:shadow-dark-large hover:bg-dark-card-hover;
+  }
+
   .card-featured {
     @apply bg-white rounded-2xl shadow-large border-2 border-primary-200 hover:border-primary-300 transition-all duration-300 hover:shadow-glow hover:-translate-y-2;
+  }
+
+  .dark .card-featured {
+    @apply bg-dark-card-bg border-orange-500/30 hover:border-orange-500/50 shadow-dark-large hover:shadow-dark-glow;
   }
 
   /* Enhanced Form Elements */
@@ -52,12 +92,24 @@
     @apply w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-white text-accent-700 placeholder-gray-400;
   }
 
+  .dark .form-input {
+    @apply bg-dark-input-bg border-dark-input-border text-dark-text-primary placeholder-dark-text-quaternary focus:ring-orange-500 focus:border-orange-500;
+  }
+
   .form-label {
     @apply block text-sm font-semibold text-accent-700 mb-2;
   }
 
+  .dark .form-label {
+    @apply text-dark-text-primary;
+  }
+
   .form-error {
     @apply text-error-600 text-sm mt-1;
+  }
+
+  .dark .form-error {
+    @apply text-red-400;
   }
 
   .form-group {
@@ -69,24 +121,48 @@
     @apply text-4xl md:text-5xl lg:text-6xl font-bold text-accent-500 leading-tight;
   }
 
+  .dark .heading-1 {
+    @apply text-dark-text-primary;
+  }
+
   .heading-2 {
     @apply text-3xl md:text-4xl font-bold text-accent-500 leading-tight;
+  }
+
+  .dark .heading-2 {
+    @apply text-dark-text-primary;
   }
 
   .heading-3 {
     @apply text-2xl md:text-3xl font-bold text-accent-500 leading-tight;
   }
 
+  .dark .heading-3 {
+    @apply text-dark-text-primary;
+  }
+
   .body-large {
     @apply text-lg text-accent-600 leading-relaxed;
+  }
+
+  .dark .body-large {
+    @apply text-dark-text-secondary;
   }
 
   .body-medium {
     @apply text-base text-accent-600 leading-relaxed;
   }
 
+  .dark .body-medium {
+    @apply text-dark-text-secondary;
+  }
+
   .body-small {
     @apply text-sm text-accent-500 leading-relaxed;
+  }
+
+  .dark .body-small {
+    @apply text-dark-text-secondary;
   }
 
   /* Enhanced Navigation */
@@ -94,8 +170,16 @@
     @apply text-gray-300 hover:text-white transition-colors duration-200 py-2 px-3 rounded-lg hover:bg-white/10 whitespace-nowrap;
   }
 
+  .dark .nav-link {
+    @apply text-dark-text-tertiary hover:text-dark-text-primary hover:bg-dark-tertiary;
+  }
+
   .nav-link-active {
     @apply text-white bg-white/20;
+  }
+
+  .dark .nav-link-active {
+    @apply text-dark-text-primary bg-dark-tertiary;
   }
 
   /* Enhanced Layout Utilities */

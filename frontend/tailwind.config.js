@@ -146,6 +146,16 @@ module.exports = {
         'slide-up': 'slideUp 0.5s ease-out',
         'scale-in': 'scaleIn 0.3s ease-out',
       },
+      scrollBehavior: {
+        'smooth': 'smooth',
+        'auto': 'auto',
+      },
+      scrollPadding: {
+        'top': '2rem',
+        'bottom': '2rem',
+        'left': '1rem',
+        'right': '1rem',
+      },
     },
   },
   plugins: [],

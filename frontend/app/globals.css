@@ -6,6 +6,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 2rem;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
@@ -15,6 +16,104 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transition: background-color 0.3s ease, color 0.3s ease;
+    overflow-x: hidden;
+  }
+
+  /* Enhanced smooth scrolling for all elements */
+  * {
+    scroll-behavior: smooth;
+  }
+
+  /* Smooth scrolling for specific scroll containers */
+  .smooth-scroll {
+    scroll-behavior: smooth;
+    scroll-padding-top: 2rem;
+  }
+
+  /* Custom scrollbar styling for better UX */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #f5631e 0%, #e55a1b 100%);
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(245, 99, 30, 0.2);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #e55a1b 0%, #d15118 100%);
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(245, 99, 30, 0.3);
+  }
+
+  ::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(135deg, #d15118 0%, #bd4815 100%);
+    transform: scale(0.95);
+  }
+
+  /* Dark mode scrollbar */
+  .dark ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #ff7a3d 0%, #f5631e 100%);
+    box-shadow: 0 2px 4px rgba(255, 122, 61, 0.3);
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #f5631e 0%, #e55a1b 100%);
+    box-shadow: 0 4px 8px rgba(255, 122, 61, 0.4);
+  }
+
+  .dark ::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(135deg, #e55a1b 0%, #d15118 100%);
+  }
+
+  /* Firefox scrollbar styling */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #f5631e transparent;
+  }
+
+  .dark * {
+    scrollbar-color: #ff7a3d transparent;
+  }
+
+  /* Smooth scrollbar animations */
+  ::-webkit-scrollbar-thumb {
+    animation: scrollbarPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes scrollbarPulse {
+    0%,
+    100% {
+      box-shadow: 0 2px 4px rgba(245, 99, 30, 0.2);
+    }
+    50% {
+      box-shadow: 0 2px 8px rgba(245, 99, 30, 0.4);
+    }
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    animation: scrollbarPulseDark 3s ease-in-out infinite;
+  }
+
+  @keyframes scrollbarPulseDark {
+    0%,
+    100% {
+      box-shadow: 0 2px 4px rgba(255, 122, 61, 0.3);
+    }
+    50% {
+      box-shadow: 0 2px 8px rgba(255, 122, 61, 0.5);
+    }
   }
 
   /* Dark mode base styles */
@@ -69,6 +168,41 @@
 
   .dark .card {
     @apply bg-dark-card-bg border-dark-card-border shadow-dark-soft hover:shadow-dark-medium;
+  }
+
+  /* Scrollable card content */
+  .card-scrollable {
+    @apply card;
+    max-height: 400px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #f5631e transparent;
+  }
+
+  .dark .card-scrollable {
+    scrollbar-color: #ff7a3d transparent;
+  }
+
+  .card-scrollable::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .card-scrollable::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 6px;
+  }
+
+  .card-scrollable::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #f5631e 0%, #e55a1b 100%);
+    border-radius: 6px;
+  }
+
+  .dark .card-scrollable::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .dark .card-scrollable::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #ff7a3d 0%, #f5631e 100%);
   }
 
   .card-interactive {
@@ -307,6 +441,102 @@
 
   .stats-counter {
     animation: countUp 2s ease-out forwards 1.5s;
+  }
+
+  /* Enhanced smooth scrolling utilities */
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
+
+  .scroll-auto {
+    scroll-behavior: auto;
+  }
+
+  .scroll-padding-top {
+    scroll-padding-top: 2rem;
+  }
+
+  .scroll-padding-bottom {
+    scroll-padding-bottom: 2rem;
+  }
+
+  .scroll-padding-left {
+    scroll-padding-left: 1rem;
+  }
+
+  .scroll-padding-right {
+    scroll-padding-right: 1rem;
+  }
+
+  /* Smooth scroll to element utility */
+  .scroll-to-element {
+    scroll-margin-top: 2rem;
+  }
+
+  /* Enhanced scroll snap for better UX */
+  .scroll-snap-y {
+    scroll-snap-type: y mandatory;
+  }
+
+  .scroll-snap-start {
+    scroll-snap-align: start;
+  }
+
+  .scroll-snap-center {
+    scroll-snap-align: center;
+  }
+
+  .scroll-snap-end {
+    scroll-snap-align: end;
+  }
+
+  /* Custom scrollbar variants */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-primary {
+    scrollbar-color: #f5631e transparent;
+  }
+
+  .scrollbar-secondary {
+    scrollbar-color: #475787 transparent;
+  }
+
+  .scrollbar-accent {
+    scrollbar-color: #132859 transparent;
+  }
+
+  /* Dark mode scrollbar variants */
+  .dark .scrollbar-primary {
+    scrollbar-color: #ff7a3d transparent;
+  }
+
+  .dark .scrollbar-secondary {
+    scrollbar-color: #7581a5 transparent;
+  }
+
+  .dark .scrollbar-accent {
+    scrollbar-color: #475787 transparent;
+  }
+
+  /* Scrollbar hover effects */
+  .scrollbar-hover-effect:hover::-webkit-scrollbar-thumb {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(245, 99, 30, 0.4);
+  }
+
+  .dark .scrollbar-hover-effect:hover::-webkit-scrollbar-thumb {
+    box-shadow: 0 4px 12px rgba(255, 122, 61, 0.5);
   }
 }
 

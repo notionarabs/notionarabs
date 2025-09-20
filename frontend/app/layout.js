@@ -2,6 +2,7 @@ import './globals.css'
 import { AuthProvider } from '../contexts/AuthContext'
 import { ThemeProvider } from '../contexts/ThemeContext'
 import NavigationWrapper from '../components/NavigationWrapper'
+import { initSmoothScroll } from '../lib/smoothScroll'
 
 export const metadata = {
   title: 'Notion Arabs - قوالب نوتيون باللغة العربية',
@@ -43,8 +44,35 @@ export default function RootLayout({ children }) {
             `,
           }}
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Initialize smooth scrolling
+              document.addEventListener('DOMContentLoaded', function() {
+                // Enable smooth scrolling for all anchor links
+                const anchors = document.querySelectorAll('a[href^="#"]');
+                anchors.forEach(anchor => {
+                  anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    
+                    if (targetElement) {
+                      const offset = 80; // Account for fixed header
+                      const elementPosition = targetElement.offsetTop - offset;
+                      window.scrollTo({
+                        top: elementPosition,
+                        behavior: 'smooth'
+                      });
+                    }
+                  });
+                });
+              });
+            `,
+          }}
+        />
       </head>
-      <body className="font-tajawal transition-colors duration-300" suppressHydrationWarning={true}>
+      <body className="font-tajawal transition-colors duration-300 scrollbar-primary scrollbar-hover-effect" suppressHydrationWarning={true}>
         <ThemeProvider>
           <AuthProvider>
             <NavigationWrapper />

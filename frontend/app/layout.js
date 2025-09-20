@@ -1,7 +1,10 @@
 import './globals.css'
 import { AuthProvider } from '../contexts/AuthContext'
 import { ThemeProvider } from '../contexts/ThemeContext'
+import { LoadingProvider } from '../contexts/LoadingContext'
 import NavigationWrapper from '../components/NavigationWrapper'
+import NavigationHandler from '../components/NavigationHandler'
+import LoadingIndicator from '../components/LoadingIndicator'
 import { initSmoothScroll } from '../lib/smoothScroll'
 
 export const metadata = {
@@ -74,10 +77,14 @@ export default function RootLayout({ children }) {
       </head>
       <body className="font-tajawal transition-colors duration-300 scrollbar-primary scrollbar-hover-effect" suppressHydrationWarning={true}>
         <ThemeProvider>
-          <AuthProvider>
-            <NavigationWrapper />
-            {children}
-          </AuthProvider>
+          <LoadingProvider>
+            <AuthProvider>
+              <NavigationWrapper />
+              <NavigationHandler />
+              <LoadingIndicator />
+              {children}
+            </AuthProvider>
+          </LoadingProvider>
         </ThemeProvider>
       </body>
     </html>

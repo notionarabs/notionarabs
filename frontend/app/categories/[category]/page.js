@@ -1,14 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useAuth } from '../../../contexts/AuthContext';
-import ThemeToggle from '../../../components/ThemeToggle';
 
 export default function CategoryPage({ params }) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, isAuthenticated, logout } = useAuth();
 
   const category = params.category;
   const categoryName = category.charAt(0).toUpperCase() + category.slice(1);

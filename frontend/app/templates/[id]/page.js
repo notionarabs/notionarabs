@@ -1,10 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useAuth } from '../../../contexts/AuthContext';
-import ThemeToggle from '../../../components/ThemeToggle';
 import { formatDate } from '../../../lib/dateUtils';
 
 // This would normally come from API based on the ID
@@ -86,10 +82,8 @@ const relatedTemplates = [
 ];
 
 export default function TemplateDetailPage() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
   const [isPurchased, setIsPurchased] = useState(false);
-  const { user, isAuthenticated, logout } = useAuth();
 
   const StarRating = ({ rating }) => {
     return (

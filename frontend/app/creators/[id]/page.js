@@ -1,10 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useAuth } from '../../../contexts/AuthContext';
-import ThemeToggle from '../../../components/ThemeToggle';
 import { formatDate } from '../../../lib/dateUtils';
 
 // This would normally come from API based on the ID
@@ -128,9 +124,7 @@ const reviews = [
 ];
 
 export default function CreatorProfilePage() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
-  const { user, isAuthenticated, logout } = useAuth();
 
   const StarRating = ({ rating }) => {
     return (

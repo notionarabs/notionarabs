@@ -104,7 +104,7 @@ export default function HomePage() {
       <header className="flex justify-between items-center px-4 md:px-6 py-4 border-b border-gray-700 bg-accent-500 sticky top-0 z-50 shadow-sm">
         <Link href="/" className="flex items-center">
           <Image
-            src="/NavLogoImageLight.png"
+            src="/NavLogoLight.svg"
             alt="عرب نوشن"
             width={240}
             height={80}
@@ -117,10 +117,10 @@ export default function HomePage() {
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex gap-8 text-sm font-medium">
-          <a href="/templates" className="text-gray-300 hover:text-white transition-colors py-2 px-3 rounded-lg hover:bg-gray-700">القوالب</a>
-          <a href="/categories" className="text-gray-300 hover:text-white transition-colors py-2 px-3 rounded-lg hover:bg-gray-700">التصنيفات</a>
-          <a href="/blog" className="text-gray-300 hover:text-white transition-colors py-2 px-3 rounded-lg hover:bg-gray-700">المدونة</a>
-          <a href="/about" className="text-gray-300 hover:text-white transition-colors py-2 px-3 rounded-lg hover:bg-gray-700">من نحن</a>
+          <a href="/templates" className="text-gray-300 hover:text-white transition-colors py-2 px-3">القوالب</a>
+          <a href="/categories" className="text-gray-300 hover:text-white transition-colors py-2 px-3">التصنيفات</a>
+          <a href="/blog" className="text-gray-300 hover:text-white transition-colors py-2 px-3">المدونة</a>
+          <a href="/about" className="text-gray-300 hover:text-white transition-colors py-2 px-3">من نحن</a>
         </nav>
 
         {/* Auth Buttons / User Menu */}
@@ -128,19 +128,19 @@ export default function HomePage() {
           {isAuthenticated ? (
             <div className="flex items-center gap-4">
               <span className="text-gray-300">مرحباً، {user?.name}</span>
-              <Link href="/profile" className="text-gray-300 hover:text-white transition-colors py-2 px-3 rounded-lg hover:bg-gray-700">
+              <Link href="/profile" className="text-gray-300 hover:text-white transition-colors py-2 px-3">
                 الملف الشخصي
               </Link>
               <button
                 onClick={logout}
-                className="text-gray-300 hover:text-white transition-colors py-2 px-3 rounded-lg hover:bg-gray-700"
+                className="text-gray-300 hover:text-white transition-colors py-2 px-3"
               >
                 تسجيل الخروج
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-3">
-              <Link href="/login" className="text-gray-300 hover:text-white transition-colors py-2 px-3 rounded-lg hover:bg-gray-700">
+              <Link href="/login" className="text-gray-300 hover:text-white transition-colors py-2 px-3">
                 تسجيل الدخول
               </Link>
               <Link href="/signup" className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105">
@@ -153,7 +153,7 @@ export default function HomePage() {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="md:hidden p-3 rounded-lg hover:bg-gray-700 transition-colors border border-gray-600"
+          className="md:hidden p-3 transition-colors border border-gray-600"
           aria-label="فتح القائمة"
         >
           <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -167,10 +167,10 @@ export default function HomePage() {
         <div className="md:hidden bg-accent-500 border-b border-gray-700 shadow-lg">
           <div className="px-4 py-6 space-y-6">
             <nav className="space-y-1">
-              <a href="/templates" className="block py-3 px-4 text-gray-300 hover:text-white hover:bg-gray-700 transition-colors rounded-lg">القوالب</a>
-              <a href="/categories" className="block py-3 px-4 text-gray-300 hover:text-white hover:bg-gray-700 transition-colors rounded-lg">التصنيفات</a>
-              <a href="/blog" className="block py-3 px-4 text-gray-300 hover:text-white hover:bg-gray-700 transition-colors rounded-lg">المدونة</a>
-              <a href="/about" className="block py-3 px-4 text-gray-300 hover:text-white hover:bg-gray-700 transition-colors rounded-lg">من نحن</a>
+              <a href="/templates" className="block py-3 px-4 text-gray-300 hover:text-white transition-colors">القوالب</a>
+              <a href="/categories" className="block py-3 px-4 text-gray-300 hover:text-white transition-colors">التصنيفات</a>
+              <a href="/blog" className="block py-3 px-4 text-gray-300 hover:text-white transition-colors">المدونة</a>
+              <a href="/about" className="block py-3 px-4 text-gray-300 hover:text-white transition-colors">من نحن</a>
             </nav>
 
             {/* Mobile Auth Section */}
@@ -180,19 +180,19 @@ export default function HomePage() {
                   <div className="px-4 py-2 text-gray-300">
                     مرحباً، {user?.name}
                   </div>
-                  <a href="/profile" className="block py-3 px-4 text-gray-300 hover:text-white hover:bg-gray-700 transition-colors rounded-lg">
+                  <a href="/profile" className="block py-3 px-4 text-gray-300 hover:text-white transition-colors">
                     الملف الشخصي
                   </a>
                   <button
                     onClick={logout}
-                    className="block w-full text-right py-3 px-4 text-gray-300 hover:text-white hover:bg-gray-700 transition-colors rounded-lg"
+                    className="block w-full text-right py-3 px-4 text-gray-300 hover:text-white transition-colors"
                   >
                     تسجيل الخروج
                   </button>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <Link href="/login" className="block py-3 px-4 text-gray-300 hover:text-white hover:bg-gray-700 transition-colors rounded-lg">
+                  <Link href="/login" className="block py-3 px-4 text-gray-300 hover:text-white transition-colors">
                     تسجيل الدخول
                   </Link>
                   <Link href="/signup" className="block py-3 px-4 bg-primary-500 hover:bg-primary-600 text-white rounded-lg font-medium text-center">
@@ -356,8 +356,8 @@ export default function HomePage() {
 
               {/* Categories Square */}
               <Link href="/categories" className="group">
-                <div className="bg-white rounded-2xl p-8 shadow-2xl notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-3xl border-2 border-gray-100">
-                  <div className="w-16 h-16 bg-gray-900 rounded-xl mb-6 flex items-center justify-center">
+                <div className="bg-white rounded-2xl p-8 shadow-2xl notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-3xl border-2 border-primary-200">
+                  <div className="w-16 h-16 bg-primary-500 rounded-xl mb-6 flex items-center justify-center">
                     <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
@@ -377,14 +377,14 @@ export default function HomePage() {
 
               {/* Blog/About Square */}
               <Link href="/blog" className="group">
-                <div className="bg-gradient-to-br from-gray-800 to-black rounded-2xl p-8 shadow-2xl notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-3xl">
-                  <div className="w-16 h-16 bg-white rounded-xl mb-6 flex items-center justify-center">
-                    <svg className="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="bg-gradient-to-br from-accent-500 to-accent-600 rounded-2xl p-8 shadow-2xl notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-3xl">
+                  <div className="w-16 h-16 bg-primary-500 rounded-xl mb-6 flex items-center justify-center">
+                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                     </svg>
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-3">المدونة</h3>
-                  <p className="text-gray-300 leading-relaxed">
+                  <p className="text-gray-200 leading-relaxed">
                     نصائح وتوجيهات لاستخدام نوتيون وأفضل الممارسات
                   </p>
                   <div className="mt-4 flex items-center text-white group-hover:translate-x-1 transition-transform duration-300">
@@ -691,7 +691,7 @@ export default function HomePage() {
             <div className="lg:col-span-1">
               <div className="flex items-center mb-4">
                 <Image
-                  src="/NavLogoImageLight.png"
+                  src="/NavLogoLight.svg"
                   alt="عرب نوشن"
                   width={60}
                   height={40}

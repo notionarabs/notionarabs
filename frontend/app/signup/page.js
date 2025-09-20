@@ -90,7 +90,7 @@ export default function SignupPage() {
         <div className="text-center mb-10">
           <Link href="/" className="flex items-center justify-center mb-6">
             <Image
-              src="/NavLogoImageLight.png"
+              src="/NavLogoLight.svg"
               alt="عرب نوشن"
               width={120}
               height={40}

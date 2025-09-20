@@ -6,16 +6,18 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 
 export default function ProfilePage() {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, loading, logout } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    // Only redirect if we've finished loading and user is not authenticated
+    if (!loading && !isAuthenticated) {
       router.push('/login');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, loading, router]);
 
-  if (!isAuthenticated) {
+  // Show loading only if we're actually loading and don't have user data
+  if (loading && !user) {
     return (
       <div className="min-h-screen bg-gradient-bw flex items-center justify-center">
         <div className="text-center">
@@ -24,6 +26,11 @@ export default function ProfilePage() {
         </div>
       </div>
     );
+  }
+
+  // If not authenticated and not loading, don't render anything (will redirect)
+  if (!loading && !isAuthenticated) {
+    return null;
   }
 
   return (

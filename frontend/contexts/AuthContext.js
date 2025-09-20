@@ -18,6 +18,7 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
 
   // Debug logging for user state changes
   useEffect(() => {
@@ -26,23 +27,49 @@ export const AuthProvider = ({ children }) => {
   const router = useRouter();
 
   useEffect(() => {
-    // Only run once on mount
+    // Only run once on mount and only if we haven't checked auth yet
+    if (hasCheckedAuth) {
+      setLoading(false);
+      return;
+    }
+
     const timeoutId = setTimeout(() => {
       console.warn('AuthContext: Timeout reached, forcing loading to false');
       setLoading(false);
-    }, 5000); // 5 second timeout
+    }, 3000); // Reduced to 3 seconds
 
     checkAuthStatus().finally(() => {
       clearTimeout(timeoutId);
+      setHasCheckedAuth(true);
+      setLoading(false);
     });
 
     return () => clearTimeout(timeoutId);
-  }, []); // Empty dependency array - only run once
+  }, [hasCheckedAuth]); // Only run when hasCheckedAuth changes
 
   const checkAuthStatus = async () => {
     try {
       const token = Cookies.get('authToken');
       console.log('AuthContext: checkAuthStatus - token:', token ? 'exists' : 'not found');
+
+      // Check if we have cached user data
+      const cachedUser = localStorage.getItem('user');
+      const cacheTimestamp = localStorage.getItem('userCacheTimestamp');
+      const cacheExpiry = 5 * 60 * 1000; // 5 minutes
+
+      if (token && cachedUser && cacheTimestamp) {
+        const now = Date.now();
+        const timeSinceCache = now - parseInt(cacheTimestamp);
+
+        if (timeSinceCache < cacheExpiry) {
+          // Use cached data if it's fresh
+          console.log('AuthContext: Using cached user data');
+          const userData = JSON.parse(cachedUser);
+          setUser(userData);
+          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          return;
+        }
+      }
 
       if (token) {
         // Set the token in axios headers
@@ -52,21 +79,32 @@ export const AuthProvider = ({ children }) => {
           // Verify token with backend
           const response = await api.get('/auth/me');
           console.log('AuthContext: checkAuthStatus - user data:', response.data.user);
-          setUser(response.data.user);
+          const userData = response.data.user;
+          setUser(userData);
+
+          // Cache the user data
+          localStorage.setItem('user', JSON.stringify(userData));
+          localStorage.setItem('userCacheTimestamp', Date.now().toString());
         } catch (apiError) {
           console.error('Auth API call failed:', apiError);
-          // Clear invalid token
+          // Clear invalid token and cache
           Cookies.remove('authToken');
+          localStorage.removeItem('user');
+          localStorage.removeItem('userCacheTimestamp');
           delete api.defaults.headers.common['Authorization'];
         }
       } else {
         // No token, user is not authenticated
         console.log('AuthContext: No token found, user not authenticated');
+        localStorage.removeItem('user');
+        localStorage.removeItem('userCacheTimestamp');
       }
     } catch (error) {
       console.error('Auth check failed:', error);
-      // Clear any invalid token
+      // Clear any invalid token and cache
       Cookies.remove('authToken');
+      localStorage.removeItem('user');
+      localStorage.removeItem('userCacheTimestamp');
       delete api.defaults.headers.common['Authorization'];
     } finally {
       setLoading(false);
@@ -85,6 +123,11 @@ export const AuthProvider = ({ children }) => {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
       setUser(user);
+
+      // Cache the user data
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('userCacheTimestamp', Date.now().toString());
+
       return { success: true };
     } catch (error) {
       console.error('Login failed:', error);
@@ -143,6 +186,11 @@ export const AuthProvider = ({ children }) => {
     Cookies.remove('authToken');
     delete api.defaults.headers.common['Authorization'];
     setUser(null);
+
+    // Clear cached user data
+    localStorage.removeItem('user');
+    localStorage.removeItem('userCacheTimestamp');
+
     router.push('/');
   };
 
@@ -187,6 +235,11 @@ export const AuthProvider = ({ children }) => {
         api.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
 
         setUser(user);
+
+        // Cache the user data
+        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('userCacheTimestamp', Date.now().toString());
+
         console.log('AuthContext: User set successfully');
       } else {
         console.log('AuthContext: No token or user data received');

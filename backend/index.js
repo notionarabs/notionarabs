@@ -13,7 +13,6 @@ const allowedOrigins = [
   'https://notion-arabs.vercel.app',
   'https://www.notion-arabs.vercel.app',
   'https://notion-arabs-git-main-hazemyasserprg.vercel.app',
-  'https://notion-arabs-git-main-hazemyasserprg.vercel.app',
   'https://notion-arabs-hazemyasserprg.vercel.app',
   'http://localhost:3000',
   'http://127.0.0.1:3000'
@@ -91,7 +90,7 @@ app.get('/health', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  
+
   // Handle CORS errors specifically
   if (err.message === 'Not allowed by CORS') {
     return res.status(403).json({
@@ -102,7 +101,7 @@ app.use((err, req, res, next) => {
       environment: process.env.NODE_ENV || 'development'
     });
   }
-  
+
   res.status(500).json({
     success: false,
     message: 'خطأ في الخادم',

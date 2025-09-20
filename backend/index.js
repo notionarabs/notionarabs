@@ -12,24 +12,44 @@ const allowedOrigins = [
   process.env.FRONTEND_URL || 'https://notion-arabs.vercel.app',
   'https://notion-arabs.vercel.app',
   'https://www.notion-arabs.vercel.app',
+  'https://notion-arabs-git-main-hazemyasserprg.vercel.app',
+  'https://notion-arabs-git-main-hazemyasserprg.vercel.app',
+  'https://notion-arabs-hazemyasserprg.vercel.app',
   'http://localhost:3000',
   'http://127.0.0.1:3000'
 ];
 
-app.use(cors({
+// CORS configuration
+const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
+    // Log the origin for debugging
+    console.log('CORS request from origin:', origin);
+
+    // Check if origin is in allowed list
     if (allowedOrigins.indexOf(origin) !== -1) {
+      console.log('CORS: Origin allowed:', origin);
       callback(null, true);
     } else {
-      console.log('CORS blocked origin:', origin);
-      callback(new Error('Not allowed by CORS'));
+      // In production, be more permissive for Vercel domains
+      if (process.env.NODE_ENV === 'production' && origin && origin.includes('vercel.app')) {
+        console.log('CORS: Allowing Vercel domain in production:', origin);
+        callback(null, true);
+      } else {
+        console.log('CORS blocked origin:', origin);
+        callback(new Error('Not allowed by CORS'));
+      }
     }
   },
-  credentials: true
-}));
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200 // For legacy browser support
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Passport middleware
@@ -52,16 +72,41 @@ app.get('/', (req, res) => {
   res.json({
     message: 'Notion Arabs Backend API',
     version: '1.0.0',
-    status: 'running'
+    status: 'running',
+    cors: 'configured',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
+  
+  // Handle CORS errors specifically
+  if (err.message === 'Not allowed by CORS') {
+    return res.status(403).json({
+      success: false,
+      message: 'CORS Error: Origin not allowed',
+      origin: req.get('Origin'),
+      allowedOrigins: allowedOrigins,
+      environment: process.env.NODE_ENV || 'development'
+    });
+  }
+  
   res.status(500).json({
     success: false,
-    message: 'خطأ في الخادم'
+    message: 'خطأ في الخادم',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
 });
 

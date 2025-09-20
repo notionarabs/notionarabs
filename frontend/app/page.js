@@ -74,6 +74,9 @@ export default function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
 
+  // Debug logging
+  console.log('HomePage - isAuthenticated:', isAuthenticated);
+  console.log('HomePage - user:', user);
 
   const StarRating = ({ rating }) => {
     return (

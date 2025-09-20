@@ -11,7 +11,9 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'https://notion-arabs.vercel.app',
   'https://notion-arabs.vercel.app',
-  'https://www.notion-arabs.vercel.app'
+  'https://www.notion-arabs.vercel.app',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000'
 ];
 
 app.use(cors({

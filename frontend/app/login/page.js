@@ -12,8 +12,10 @@ export default function LoginPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showVerificationOptions, setShowVerificationOptions] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
 
-  const { login } = useAuth();
+  const { login, resendVerification } = useAuth();
   const router = useRouter();
 
   const handleChange = (e) => {
@@ -35,6 +37,11 @@ export default function LoginPage() {
       router.push('/');
     } else {
       setError(result.error);
+      // If email verification is required, show additional options
+      if (result.requiresVerification) {
+        setShowVerificationOptions(true);
+        setUserEmail(formData.email);
+      }
     }
 
     setLoading(false);
@@ -75,9 +82,17 @@ export default function LoginPage() {
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-bw-black mb-2">
-                كلمة المرور
-              </label>
+              <div className="flex justify-between items-center mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-bw-black">
+                  كلمة المرور
+                </label>
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-black hover:text-gray-700 transition-colors"
+                >
+                  نسيت كلمة المرور؟
+                </Link>
+              </div>
               <input
                 type="password"
                 id="password"
@@ -98,19 +113,28 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
-                />
-                <span className="mr-2 text-sm text-bw-gray">تذكرني</span>
-              </label>
-              <a href="#" className="text-sm text-black hover:text-gray-700 transition-colors">
-                نسيت كلمة المرور؟
-              </a>
-            </div>
+            {/* Email Verification Options */}
+            {showVerificationOptions && (
+              <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg text-sm">
+                <p className="font-medium mb-2">الحساب غير مفعل</p>
+                <p className="mb-3">يجب تأكيد بريدك الإلكتروني أولاً لتفعيل الحساب.</p>
+                <p className="mb-3">تحقق من بريدك الإلكتروني للحصول على رابط التأكيد.</p>
+                <button
+                  onClick={async () => {
+                    const result = await resendVerification(userEmail);
+                    if (result.success) {
+                      setError('تم إرسال رابط التأكيد إلى بريدك الإلكتروني');
+                    } else {
+                      setError(result.error);
+                    }
+                  }}
+                  className="text-blue-800 underline hover:text-blue-900"
+                >
+                  إعادة إرسال رابط التأكيد
+                </button>
+              </div>
+            )}
+
 
             {/* Submit Button */}
             <button

@@ -26,16 +26,8 @@
     color: #111111; /* not harsh black */
   }
 
-  .text-bw-dark {
-    color: #222222; /* for headings */
-  }
-
   .text-bw-gray {
     color: #555555; /* softer gray */
-  }
-
-  .text-bw-lightgray {
-    color: #888888; /* for metadata */
   }
 
   /* Gradients */
@@ -69,18 +61,6 @@
   .btn-bw-outline:hover {
     background-color: #111111;
     color: #ffffff;
-  }
-
-  /* Optional Accent (Gold) */
-  .text-accent-gold {
-    color: #f59e0b;
-  }
-  .bg-accent-gold {
-    background-color: #f59e0b;
-    color: #ffffff;
-  }
-  .bg-accent-gold:hover {
-    background-color: #d97706;
   }
 
   /* Hero Animation Classes */
@@ -135,12 +115,6 @@
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   }
 
-  .slide-in-right {
-    opacity: 0;
-    transform: translateX(50px);
-    animation: slideInRight 1s ease-out forwards 1.2s;
-  }
-
   .stats-counter {
     animation: countUp 2s ease-out forwards 1.5s;
   }
@@ -190,17 +164,6 @@
   }
   50% {
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
   }
 }
 

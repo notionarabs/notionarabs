@@ -35,7 +35,7 @@ const userSchema = new mongoose.Schema({
   },
   isActive: {
     type: Boolean,
-    default: true
+    default: false // Changed to false - accounts are inactive until email verified
   },
   profilePicture: {
     type: String,
@@ -56,6 +56,26 @@ const userSchema = new mongoose.Schema({
   totalSales: {
     type: Number,
     default: 0
+  },
+  resetToken: {
+    type: String,
+    default: null
+  },
+  resetTokenExpiry: {
+    type: Date,
+    default: null
+  },
+  isEmailVerified: {
+    type: Boolean,
+    default: false
+  },
+  emailVerificationToken: {
+    type: String,
+    default: null
+  },
+  emailVerificationExpiry: {
+    type: Date,
+    default: null
   }
 }, {
   timestamps: true

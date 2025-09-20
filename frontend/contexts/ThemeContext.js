@@ -10,6 +10,9 @@ export function ThemeProvider({ children }) {
 
   // Load theme from localStorage on mount
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+
     const savedTheme = localStorage.getItem('theme');
     const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     const initialTheme = savedTheme || systemTheme;
@@ -27,6 +30,9 @@ export function ThemeProvider({ children }) {
 
   // Listen for system theme changes
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e) => {
       if (!localStorage.getItem('theme')) {
@@ -45,6 +51,9 @@ export function ThemeProvider({ children }) {
   }, []);
 
   const toggleTheme = () => {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);

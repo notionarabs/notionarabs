@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import api from '../../lib/api';
+import { formatDate } from '../../lib/dateUtils';
 
 export default function AdminPage() {
   const [users, setUsers] = useState([]);
@@ -151,12 +152,12 @@ export default function AdminPage() {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-bw-gray">
-                      {new Date(user.createdAt).toLocaleDateString('ar-SA')}
+                      {formatDate(user.createdAt)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.isActive
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
                         }`}>
                         {user.isActive ? 'نشط' : 'غير نشط'}
                       </span>

@@ -1,0 +1,359 @@
+'use client';
+
+import { useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useAuth } from '../../contexts/AuthContext';
+import ThemeToggle from '../../components/ThemeToggle';
+import { formatCurrentDate } from '../../lib/dateUtils';
+
+export default function CookiesPage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
+
+  return (
+    <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+      {/* Header */}
+      <header className="w-full bg-accent-500 dark:bg-dark-secondary sticky top-0 z-50 shadow-medium dark:shadow-dark-medium backdrop-blur-sm bg-accent-500/95 dark:bg-dark-secondary/95 transition-colors duration-300">
+        <div className="container-custom flex justify-between items-center py-4">
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/NavLogoLight.svg"
+              alt="عرب نوشن"
+              width={240}
+              height={80}
+              className="h-12 w-auto"
+              quality={100}
+              priority
+              unoptimized
+            />
+          </Link>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex gap-1 lg:gap-2 xl:gap-3">
+            <a href="/templates" className="nav-link">القوالب</a>
+            <a href="/creators" className="nav-link">المبدعين</a>
+            <a href="/blog" className="nav-link">المدونة</a>
+            <a href="/about" className="nav-link">من نحن</a>
+          </nav>
+
+          {/* Auth Buttons / User Menu */}
+          <div className="hidden md:flex items-center gap-2 lg:gap-3 xl:gap-4">
+            <ThemeToggle />
+            {isAuthenticated ? (
+              <div className="flex items-center gap-4">
+                <span className="text-gray-300 dark:text-dark-text-tertiary">مرحباً، {user?.name}</span>
+                <Link href="/profile" className="text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors py-2 px-3">
+                  الملف الشخصي
+                </Link>
+                <button
+                  onClick={logout}
+                  className="text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors py-2 px-3"
+                >
+                  تسجيل الخروج
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <Link href="/login" className="text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors py-2 px-3">
+                  تسجيل الدخول
+                </Link>
+                <Link href="/signup" className="btn-primary">
+                  إنشاء حساب
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center gap-2">
+            <ThemeToggle />
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-3 transition-all duration-300 border border-gray-600 dark:border-dark-card-border rounded-xl hover:bg-white/10 dark:hover:bg-dark-tertiary hover:border-gray-500 dark:hover:border-dark-text-tertiary flex-shrink-0"
+              aria-label="فتح القائمة"
+            >
+              <svg className="w-5 h-5 text-gray-300 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile Menu */}
+      {isMenuOpen && (
+        <div className="md:hidden bg-accent-500 dark:bg-dark-secondary border-b border-gray-700 dark:border-dark-card-border shadow-large dark:shadow-dark-large backdrop-blur-sm transition-colors duration-300">
+          <div className="container-custom py-6 space-y-6">
+            <nav className="space-y-2">
+              <a href="/templates" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">القوالب</a>
+              <a href="/creators" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">المبدعين</a>
+              <a href="/blog" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">المدونة</a>
+              <a href="/about" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">من نحن</a>
+            </nav>
+
+            {/* Mobile Auth Section */}
+            <div className="border-t border-gray-600 dark:border-dark-card-border pt-6">
+              {isAuthenticated ? (
+                <div className="space-y-3">
+                  <div className="px-4 py-3 text-gray-300 dark:text-dark-text-tertiary bg-white/5 dark:bg-dark-tertiary rounded-xl">
+                    مرحباً، {user?.name}
+                  </div>
+                  <a href="/profile" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+                    الملف الشخصي
+                  </a>
+                  <button
+                    onClick={logout}
+                    className="block w-full text-right py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
+                  >
+                    تسجيل الخروج
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <Link href="/login" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+                    تسجيل الدخول
+                  </Link>
+                  <Link href="/signup" className="block py-3 px-4 btn-primary text-center">
+                    إنشاء حساب
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Content */}
+      <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
+        <div className="container-custom max-w-4xl mx-auto">
+          <div className="mb-12">
+            <h1 className="heading-1 mb-6">سياسة ملفات تعريف الارتباط</h1>
+            <p className="body-large text-accent-700 dark:text-dark-text-secondary">
+              آخر تحديث: {formatCurrentDate()}
+            </p>
+          </div>
+
+          <div className="prose prose-lg max-w-none">
+            <div className="space-y-8">
+              <section>
+                <h2 className="heading-2 mb-4">ما هي ملفات تعريف الارتباط؟</h2>
+                <p className="body-medium text-accent-600 dark:text-dark-text-secondary mb-4">
+                  ملفات تعريف الارتباط (Cookies) هي ملفات نصية صغيرة يتم تخزينها على جهازك عند زيارة موقعنا الإلكتروني.
+                  تساعدنا هذه الملفات في تذكر تفضيلاتك وتحسين تجربتك على المنصة.
+                </p>
+                <p className="body-medium text-accent-600 dark:text-dark-text-secondary">
+                  نستخدم ملفات تعريف الارتباط لجعل موقعنا أكثر سهولة في الاستخدام ولتوفير خدمات مخصصة لك.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="heading-2 mb-4">أنواع ملفات تعريف الارتباط التي نستخدمها</h2>
+
+                <h3 className="heading-3 mb-3">1. ملفات تعريف الارتباط الأساسية</h3>
+                <p className="body-medium text-accent-600 dark:text-dark-text-secondary mb-4">
+                  هذه الملفات ضرورية لعمل الموقع بشكل صحيح. تشمل:
+                </p>
+                <ul className="list-disc list-inside space-y-2 mb-6 text-accent-600 dark:text-dark-text-secondary">
+                  <li>ملفات تسجيل الدخول</li>
+                  <li>ملفات سلة التسوق</li>
+                  <li>ملفات الأمان</li>
+                  <li>ملفات تذكر التفضيلات الأساسية</li>
+                </ul>
+
+                <h3 className="heading-3 mb-3">2. ملفات تعريف الارتباط التحليلية</h3>
+                <p className="body-medium text-accent-600 dark:text-dark-text-secondary mb-4">
+                  تساعدنا في فهم كيفية استخدامك للموقع. تشمل:
+                </p>
+                <ul className="list-disc list-inside space-y-2 mb-6 text-accent-600 dark:text-dark-text-secondary">
+                  <li>إحصائيات الزيارات</li>
+                  <li>الصفحات الأكثر زيارة</li>
+                  <li>مدة الجلسة</li>
+                  <li>مصدر الزيارات</li>
+                </ul>
+
+                <h3 className="heading-3 mb-3">3. ملفات تعريف الارتباط التسويقية</h3>
+                <p className="body-medium text-accent-600 dark:text-dark-text-secondary mb-4">
+                  تستخدم لعرض الإعلانات المناسبة لك. تشمل:
+                </p>
+                <ul className="list-disc list-inside space-y-2 mb-6 text-accent-600 dark:text-dark-text-secondary">
+                  <li>ملفات تتبع الإعلانات</li>
+                  <li>ملفات الشبكات الاجتماعية</li>
+                  <li>ملفات الشركاء التسويقيين</li>
+                  <li>ملفات الإعلانات المستهدفة</li>
+                </ul>
+
+                <h3 className="heading-3 mb-3">4. ملفات تعريف الارتباط الوظيفية</h3>
+                <p className="body-medium text-accent-600 dark:text-dark-text-secondary mb-4">
+                  تحسن وظائف الموقع وتجربة المستخدم. تشمل:
+                </p>
+                <ul className="list-disc list-inside space-y-2 mb-6 text-accent-600 dark:text-dark-text-secondary">
+                  <li>ملفات تذكر التفضيلات</li>
+                  <li>ملفات اللغة والمنطقة</li>
+                  <li>ملفات إعدادات العرض</li>
+                  <li>ملفات التخصيص</li>
+                </ul>
+              </section>
+
+              <section>
+                <h2 className="heading-2 mb-4">مدة الاحتفاظ بملفات تعريف الارتباط</h2>
+                <p className="body-medium text-accent-600 dark:text-dark-text-secondary mb-4">
+                  تختلف مدة الاحتفاظ بملفات تعريف الارتباط حسب نوعها:
+                </p>
+                <ul className="list-disc list-inside space-y-2 mb-6 text-accent-600 dark:text-dark-text-secondary">
+                  <li><strong>ملفات الجلسة:</strong> تُحذف عند إغلاق المتصفح</li>
+                  <li><strong>ملفات دائمة:</strong> تبقى لفترة محددة (عادة 30 يوم إلى سنتين)</li>
+                  <li><strong>ملفات أساسية:</strong> قد تبقى لفترات أطول حسب الحاجة</li>
+                </ul>
+              </section>
+
+              <section>
+                <h2 className="heading-2 mb-4">كيفية التحكم في ملفات تعريف الارتباط</h2>
+
+                <h3 className="heading-3 mb-3">من خلال إعدادات المتصفح</h3>
+                <p className="body-medium text-accent-600 dark:text-dark-text-secondary mb-4">
+                  يمكنك التحكم في ملفات تعريف الارتباط من خلال إعدادات متصفحك:
+                </p>
+                <ul className="list-disc list-inside space-y-2 mb-6 text-accent-600 dark:text-dark-text-secondary">
+                  <li>حذف ملفات تعريف الارتباط الموجودة</li>
+                  <li>منع تخزين ملفات تعريف الارتباط الجديدة</li>
+                  <li>تحديد أنواع ملفات تعريف الارتباط المقبولة</li>
+                  <li>تلقي إشعارات قبل تخزين ملفات تعريف الارتباط</li>
+                </ul>
+
+                <h3 className="heading-3 mb-3">من خلال إعدادات الموقع</h3>
+                <p className="body-medium text-accent-600 dark:text-dark-text-secondary mb-4">
+                  يمكنك أيضاً التحكم في ملفات تعريف الارتباط من خلال إعدادات حسابك على الموقع.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="heading-2 mb-4">ملفات تعريف الارتباط من أطراف ثالثة</h2>
+                <p className="body-medium text-accent-600 dark:text-dark-text-secondary mb-4">
+                  نستخدم خدمات من أطراف ثالثة قد تضع ملفات تعريف الارتباط على جهازك:
+                </p>
+                <ul className="list-disc list-inside space-y-2 mb-6 text-accent-600 dark:text-dark-text-secondary">
+                  <li><strong>Google Analytics:</strong> لتحليل استخدام الموقع</li>
+                  <li><strong>Google Ads:</strong> لعرض الإعلانات المستهدفة</li>
+                  <li><strong>Facebook Pixel:</strong> لتتبع التحويلات</li>
+                  <li><strong>Stripe:</strong> لمعالجة المدفوعات</li>
+                  <li><strong>Cloudflare:</strong> للأمان والأداء</li>
+                </ul>
+              </section>
+
+              <section>
+                <h2 className="heading-2 mb-4">تأثير تعطيل ملفات تعريف الارتباط</h2>
+                <p className="body-medium text-accent-600 dark:text-dark-text-secondary mb-4">
+                  إذا قمت بتعطيل ملفات تعريف الارتباط، فقد تواجه:
+                </p>
+                <ul className="list-disc list-inside space-y-2 mb-6 text-accent-600 dark:text-dark-text-secondary">
+                  <li>عدم القدرة على تسجيل الدخول</li>
+                  <li>فقدان التفضيلات المحفوظة</li>
+                  <li>عدم عمل بعض الميزات بشكل صحيح</li>
+                  <li>ظهور إعلانات غير مناسبة</li>
+                  <li>تدهور تجربة الاستخدام</li>
+                </ul>
+              </section>
+
+              <section>
+                <h2 className="heading-2 mb-4">تحديثات سياسة ملفات تعريف الارتباط</h2>
+                <p className="body-medium text-accent-600 dark:text-dark-text-secondary mb-4">
+                  قد نحدث هذه السياسة من وقت لآخر لتعكس التغييرات في ممارساتنا أو لأسباب تشغيلية أو قانونية أخرى.
+                </p>
+                <p className="body-medium text-accent-600 dark:text-dark-text-secondary">
+                  ننصحك بمراجعة هذه الصفحة بانتظام للاطلاع على أي تحديثات.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="heading-2 mb-4">التواصل معنا</h2>
+                <p className="body-medium text-accent-600 dark:text-dark-text-secondary mb-4">
+                  إذا كان لديك أي أسئلة حول استخدامنا لملفات تعريف الارتباط، يرجى التواصل معنا:
+                </p>
+                <div className="bg-gray-50 dark:bg-dark-tertiary p-6 rounded-xl">
+                  <p className="text-accent-600 dark:text-dark-text-secondary mb-2">
+                    <strong>البريد الإلكتروني:</strong> privacy@notion-arabs.com
+                  </p>
+                  <p className="text-accent-600 dark:text-dark-text-secondary mb-2">
+                    <strong>العنوان:</strong> الرياض، المملكة العربية السعودية
+                  </p>
+                  <p className="text-accent-600 dark:text-dark-text-secondary">
+                    <strong>الهاتف:</strong> +966 11 123 4567
+                  </p>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary transition-colors duration-300">
+        <div className="container-custom section-padding">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+            <div className="lg:col-span-1">
+              <div className="flex items-center mb-4">
+                <Image
+                  src="/NavLogoLight.svg"
+                  alt="عرب نوشن"
+                  width={60}
+                  height={40}
+                  className="h-10 w-auto"
+                  quality={100}
+                  priority
+                  unoptimized
+                />
+              </div>
+              <p className="body-medium text-gray-400 dark:text-dark-text-tertiary mb-6">
+                منصتك العربية الأولى لبيع وشراء قوالب نوتيون المبتكرة. انضم إلى مجتمع المبدعين العرب.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-bold mb-6 text-lg text-white dark:text-dark-text-primary">المنتج</h4>
+              <ul className="space-y-3">
+                <li><a href="/templates" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">القوالب</a></li>
+                <li><a href="/creators" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المبدعين</a></li>
+                <li><a href="/pricing" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الأسعار</a></li>
+                <li><a href="/features" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المميزات</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold mb-6 text-lg text-white dark:text-dark-text-primary">الشركة</h4>
+              <ul className="space-y-3">
+                <li><a href="/about" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">من نحن</a></li>
+                <li><a href="/blog" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المدونة</a></li>
+                <li><a href="/careers" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الوظائف</a></li>
+                <li><a href="/press" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الصحافة</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold mb-6 text-lg text-white dark:text-dark-text-primary">الدعم</h4>
+              <ul className="space-y-3">
+                <li><a href="/help" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">مركز المساعدة</a></li>
+                <li><a href="/contact" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">اتصل بنا</a></li>
+                <li><a href="/privacy" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الخصوصية</a></li>
+                <li><a href="/terms" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الشروط</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-700 dark:border-dark-card-border pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <p className="text-gray-400 dark:text-dark-text-tertiary text-sm">
+                © {new Date().getFullYear()} عرب نوشن. جميع الحقوق محفوظة.
+              </p>
+              <div className="flex gap-6 mt-4 md:mt-0">
+                <a href="/privacy" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-sm transition-colors">سياسة الخصوصية</a>
+                <a href="/terms" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-sm transition-colors">شروط الاستخدام</a>
+                <a href="/cookies" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-sm transition-colors">ملفات تعريف الارتباط</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </main>
+  );
+}

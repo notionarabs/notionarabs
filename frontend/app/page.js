@@ -120,7 +120,7 @@ export default function HomePage() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex gap-1 lg:gap-2 xl:gap-3">
             <a href="/templates" className="nav-link">القوالب</a>
-            <a href="/categories" className="nav-link">التصنيفات</a>
+            <a href="/creators" className="nav-link">المبدعين</a>
             <a href="/blog" className="nav-link">المدونة</a>
             <a href="/about" className="nav-link">من نحن</a>
           </nav>
@@ -177,7 +177,7 @@ export default function HomePage() {
           <div className="container-custom py-6 space-y-6">
             <nav className="space-y-2">
               <a href="/templates" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">القوالب</a>
-              <a href="/categories" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">التصنيفات</a>
+              <a href="/creators" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">المبدعين</a>
               <a href="/blog" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">المدونة</a>
               <a href="/about" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">من نحن</a>
             </nav>
@@ -364,14 +364,15 @@ export default function HomePage() {
               </Link>
 
               {/* Categories Square */}
-              <Link href="/categories" className="group">
+              <Link href="/creators" className="group">
                 <div className="card-featured p-8 notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-glow dark:group-hover:shadow-dark-glow">
                   <div className="w-16 h-16 bg-primary-500 dark:bg-orange-500 rounded-xl mb-6 flex items-center justify-center">
                     <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                   </div>
-                  <h3 className="heading-3 mb-3">التصنيفات</h3>
+
+                  <h3 className="heading-3 mb-3">المبدعين</h3>
                   <p className="body-medium">
                     تصفح حسب الفئة - العمل، الدراسة، الأعمال، والصحة
                   </p>
@@ -736,7 +737,7 @@ export default function HomePage() {
               <h4 className="font-bold mb-6 text-lg text-white dark:text-dark-text-primary">المنتج</h4>
               <ul className="space-y-3">
                 <li><a href="/templates" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">القوالب</a></li>
-                <li><a href="/categories" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">التصنيفات</a></li>
+                <li><a href="/creators" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المبدعين</a></li>
                 <li><a href="/pricing" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الأسعار</a></li>
                 <li><a href="/features" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المميزات</a></li>
               </ul>

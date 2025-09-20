@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../../contexts/AuthContext';
 import Cookies from 'js-cookie';
 
-export default function AuthCallbackPage() {
+function AuthCallbackForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { checkAuthStatus } = useAuth();
@@ -46,5 +46,20 @@ export default function AuthCallbackPage() {
         <p className="text-bw-gray">جاري تسجيل الدخول...</p>
       </div>
     </div>
+  );
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center" dir="rtl">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
+          <p className="text-accent-600 dark:text-dark-text-secondary">جاري التحميل...</p>
+        </div>
+      </div>
+    }>
+      <AuthCallbackForm />
+    </Suspense>
   );
 }

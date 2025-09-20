@@ -1,0 +1,551 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useAuth } from '../../contexts/AuthContext';
+import ThemeToggle from '../../components/ThemeToggle';
+
+// Sample data - in production, this would come from an API
+const creators = [
+  {
+    id: 1,
+    name: "ليلى أحمد",
+    bio: "قوالب الإنتاجية",
+    imgSrc: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
+    rating: 4.9,
+    templates: 20,
+    earnings: "15,000 ريال",
+    followers: 1200,
+    joinDate: "2023-01-15",
+    specialties: ["الإنتاجية", "العمل", "التنظيم"],
+    description: "مصممة قوالب متخصصة في الإنتاجية والتنظيم الشخصي والمهني. خبرة 3 سنوات في تصميم قوالب نوتيون."
+  },
+  {
+    id: 2,
+    name: "عمر خالد",
+    bio: "إعدادات الدراسة والبحث",
+    imgSrc: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+    rating: 4.8,
+    templates: 15,
+    earnings: "12,500 ريال",
+    followers: 980,
+    joinDate: "2023-03-22",
+    specialties: ["الدراسة", "البحث", "الأكاديمي"],
+    description: "خبير في قوالب الدراسة والبحث الأكاديمي. يساعد الطلاب والباحثين في تنظيم دراستهم وأبحاثهم."
+  },
+  {
+    id: 3,
+    name: "فاطمة نور",
+    bio: "لوحات العمل والأعمال",
+    imgSrc: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+    rating: 4.7,
+    templates: 25,
+    earnings: "18,200 ريال",
+    followers: 1500,
+    joinDate: "2022-11-08",
+    specialties: ["الأعمال", "الإدارة", "المشاريع"],
+    description: "مستشارة أعمال ومصممة قوالب متخصصة في إدارة المشاريع والشركات الناشئة."
+  },
+  {
+    id: 4,
+    name: "أحمد المطيري",
+    bio: "قوالب الحياة الشخصية",
+    imgSrc: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+    rating: 4.6,
+    templates: 18,
+    earnings: "9,800 ريال",
+    followers: 750,
+    joinDate: "2023-05-10",
+    specialties: ["الحياة الشخصية", "الصحة", "اللياقة"],
+    description: "مصمم قوالب متخصص في الحياة الشخصية والصحة واللياقة البدنية."
+  },
+  {
+    id: 5,
+    name: "نورا السعيد",
+    bio: "قوالب الإبداع والفن",
+    imgSrc: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
+    rating: 4.9,
+    templates: 22,
+    earnings: "14,600 ريال",
+    followers: 1100,
+    joinDate: "2022-09-12",
+    specialties: ["الإبداع", "الفن", "التصميم"],
+    description: "فنانة ومصممة قوالب متخصصة في الإبداع والفن والتصميم الجرافيكي."
+  },
+  {
+    id: 6,
+    name: "خالد العلي",
+    bio: "قوالب التقنية والبرمجة",
+    imgSrc: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+    rating: 4.8,
+    templates: 16,
+    earnings: "11,300 ريال",
+    followers: 890,
+    joinDate: "2023-02-28",
+    specialties: ["التقنية", "البرمجة", "التطوير"],
+    description: "مطور برمجيات ومصمم قوالب متخصص في التقنية والبرمجة والتطوير."
+  }
+];
+
+const specialties = [
+  { name: "الكل", value: "all" },
+  { name: "الإنتاجية", value: "الإنتاجية" },
+  { name: "الدراسة", value: "الدراسة" },
+  { name: "الأعمال", value: "الأعمال" },
+  { name: "الحياة الشخصية", value: "الحياة الشخصية" },
+  { name: "الإبداع", value: "الإبداع" },
+  { name: "التقنية", value: "التقنية" }
+];
+
+const sortOptions = [
+  { name: "الأكثر شعبية", value: "popular" },
+  { name: "الأحدث", value: "newest" },
+  { name: "الأعلى تقييماً", value: "rating" },
+  { name: "الأكثر قوالب", value: "templates" },
+  { name: "الأعلى ربحاً", value: "earnings" }
+];
+
+export default function CreatorsPage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSpecialty, setSelectedSpecialty] = useState('all');
+  const [sortBy, setSortBy] = useState('popular');
+  const [filteredCreators, setFilteredCreators] = useState(creators);
+  const { user, isAuthenticated, logout } = useAuth();
+
+  const StarRating = ({ rating }) => {
+    return (
+      <div className="flex items-center gap-1">
+        {[...Array(5)].map((_, i) => (
+          <svg
+            key={i}
+            className={`w-4 h-4 ${i < Math.floor(rating) ? 'text-black dark:text-orange-500' : 'text-gray-300 dark:text-gray-600'}`}
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+          </svg>
+        ))}
+        <span className="text-sm text-accent-600 dark:text-dark-text-secondary mr-1">{rating}</span>
+      </div>
+    );
+  };
+
+  // Filter and sort creators
+  useEffect(() => {
+    let filtered = [...creators];
+
+    // Search filter
+    if (searchTerm) {
+      filtered = filtered.filter(creator =>
+        creator.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        creator.bio.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        creator.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        creator.specialties.some(specialty => specialty.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+
+    // Specialty filter
+    if (selectedSpecialty !== 'all') {
+      filtered = filtered.filter(creator => creator.specialties.includes(selectedSpecialty));
+    }
+
+    // Sort
+    switch (sortBy) {
+      case 'popular':
+        filtered.sort((a, b) => b.followers - a.followers);
+        break;
+      case 'newest':
+        filtered.sort((a, b) => new Date(b.joinDate) - new Date(a.joinDate));
+        break;
+      case 'rating':
+        filtered.sort((a, b) => b.rating - a.rating);
+        break;
+      case 'templates':
+        filtered.sort((a, b) => b.templates - a.templates);
+        break;
+      case 'earnings':
+        filtered.sort((a, b) => parseInt(b.earnings.replace(/[^\d]/g, '')) - parseInt(a.earnings.replace(/[^\d]/g, '')));
+        break;
+      default:
+        break;
+    }
+
+    setFilteredCreators(filtered);
+  }, [searchTerm, selectedSpecialty, sortBy]);
+
+  return (
+    <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+      {/* Header */}
+      <header className="w-full bg-accent-500 dark:bg-dark-secondary sticky top-0 z-50 shadow-medium dark:shadow-dark-medium backdrop-blur-sm bg-accent-500/95 dark:bg-dark-secondary/95 transition-colors duration-300">
+        <div className="container-custom flex justify-between items-center py-4">
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/NavLogoLight.svg"
+              alt="عرب نوشن"
+              width={240}
+              height={80}
+              className="h-12 w-auto"
+              quality={100}
+              priority
+              unoptimized
+            />
+          </Link>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex gap-1 lg:gap-2 xl:gap-3">
+            <a href="/templates" className="nav-link">القوالب</a>
+            <a href="/creators" className="nav-link nav-link-active">المبدعين</a>
+            <a href="/blog" className="nav-link">المدونة</a>
+            <a href="/about" className="nav-link">من نحن</a>
+          </nav>
+
+          {/* Auth Buttons / User Menu */}
+          <div className="hidden md:flex items-center gap-2 lg:gap-3 xl:gap-4">
+            <ThemeToggle />
+            {isAuthenticated ? (
+              <div className="flex items-center gap-4">
+                <span className="text-gray-300 dark:text-dark-text-tertiary">مرحباً، {user?.name}</span>
+                <Link href="/profile" className="text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors py-2 px-3">
+                  الملف الشخصي
+                </Link>
+                <button
+                  onClick={logout}
+                  className="text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors py-2 px-3"
+                >
+                  تسجيل الخروج
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <Link href="/login" className="text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors py-2 px-3">
+                  تسجيل الدخول
+                </Link>
+                <Link href="/signup" className="btn-primary">
+                  إنشاء حساب
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center gap-2">
+            <ThemeToggle />
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-3 transition-all duration-300 border border-gray-600 dark:border-dark-card-border rounded-xl hover:bg-white/10 dark:hover:bg-dark-tertiary hover:border-gray-500 dark:hover:border-dark-text-tertiary flex-shrink-0"
+              aria-label="فتح القائمة"
+            >
+              <svg className="w-5 h-5 text-gray-300 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile Menu */}
+      {isMenuOpen && (
+        <div className="md:hidden bg-accent-500 dark:bg-dark-secondary border-b border-gray-700 dark:border-dark-card-border shadow-large dark:shadow-dark-large backdrop-blur-sm transition-colors duration-300">
+          <div className="container-custom py-6 space-y-6">
+            <nav className="space-y-2">
+              <a href="/templates" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">القوالب</a>
+              <a href="/creators" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">المبدعين</a>
+              <a href="/blog" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">المدونة</a>
+              <a href="/about" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">من نحن</a>
+            </nav>
+
+            {/* Mobile Auth Section */}
+            <div className="border-t border-gray-600 dark:border-dark-card-border pt-6">
+              {isAuthenticated ? (
+                <div className="space-y-3">
+                  <div className="px-4 py-3 text-gray-300 dark:text-dark-text-tertiary bg-white/5 dark:bg-dark-tertiary rounded-xl">
+                    مرحباً، {user?.name}
+                  </div>
+                  <a href="/profile" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+                    الملف الشخصي
+                  </a>
+                  <button
+                    onClick={logout}
+                    className="block w-full text-right py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
+                  >
+                    تسجيل الخروج
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <Link href="/login" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+                    تسجيل الدخول
+                  </Link>
+                  <Link href="/signup" className="block py-3 px-4 btn-primary text-center">
+                    إنشاء حساب
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Page Header */}
+      <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
+        <div className="container-custom">
+          <div className="text-center mb-12">
+            <h1 className="heading-1 mb-6">المبدعين المميزين</h1>
+            <p className="body-large text-accent-700 dark:text-dark-text-secondary max-w-3xl mx-auto">
+              تعرف على أفضل المبدعين في مجتمعنا واكتشف قوالبهم المبتكرة
+            </p>
+          </div>
+
+          {/* Search and Filters */}
+          <div className="max-w-4xl mx-auto">
+            {/* Search Bar */}
+            <div className="relative mb-8">
+              <input
+                type="text"
+                placeholder="ابحث عن المبدعين..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full form-input pl-12 pr-4 py-4 text-lg"
+                dir="rtl"
+              />
+              <svg className="absolute right-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-wrap gap-4 mb-8">
+              {/* Specialty Filter */}
+              <div className="flex-1 min-w-48">
+                <select
+                  value={selectedSpecialty}
+                  onChange={(e) => setSelectedSpecialty(e.target.value)}
+                  className="w-full form-input"
+                >
+                  {specialties.map((specialty) => (
+                    <option key={specialty.value} value={specialty.value}>
+                      {specialty.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Sort Filter */}
+              <div className="flex-1 min-w-48">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full form-input"
+                >
+                  {sortOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Results Count */}
+            <div className="flex justify-between items-center mb-6">
+              <p className="text-accent-600 dark:text-dark-text-secondary">
+                عرض {filteredCreators.length} من {creators.length} مبدع
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Creators Grid */}
+      <section className="section-padding bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
+        <div className="container-custom">
+          {filteredCreators.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredCreators.map((creator) => (
+                <div
+                  key={creator.id}
+                  className="group card-interactive p-8"
+                >
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="relative">
+                      <Image
+                        src={creator.imgSrc}
+                        alt={creator.name}
+                        width={80}
+                        height={80}
+                        className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md"
+                      />
+                      <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white"></div>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-xl text-accent-500 dark:text-dark-text-primary group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors mb-1">
+                        {creator.name}
+                      </h3>
+                      <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-2">{creator.bio}</p>
+                      <div className="flex items-center gap-2">
+                        <StarRating rating={creator.rating} />
+                        <span className="text-sm text-accent-600 dark:text-dark-text-secondary">({creator.followers} متابع)</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-accent-600 dark:text-dark-text-secondary mb-6 text-sm leading-relaxed">
+                    {creator.description}
+                  </p>
+
+                  {/* Specialties */}
+                  <div className="mb-6">
+                    <h4 className="text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">التخصصات</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {creator.specialties.map((specialty, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1 bg-primary-100 dark:bg-orange-500/20 text-primary-800 dark:text-orange-300 text-xs rounded-full"
+                        >
+                          {specialty}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Stats */}
+                  <div className="grid grid-cols-3 gap-4 mb-6">
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-accent-500 dark:text-dark-text-primary">{creator.templates}</div>
+                      <div className="text-xs text-accent-600 dark:text-dark-text-secondary">قوالب</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-accent-500 dark:text-dark-text-primary">{creator.followers}</div>
+                      <div className="text-xs text-accent-600 dark:text-dark-text-secondary">متابع</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-accent-500 dark:text-dark-text-primary">{creator.earnings}</div>
+                      <div className="text-xs text-accent-600 dark:text-dark-text-secondary">أرباح</div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <button className="w-full btn-primary">
+                      عرض الملف الشخصي
+                    </button>
+                    <button className="w-full btn-outline">
+                      متابعة
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16">
+              <svg className="w-16 h-16 text-gray-400 dark:text-dark-text-quaternary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <h3 className="text-xl font-semibold text-accent-500 dark:text-dark-text-primary mb-2">لم نجد مبدعين مطابقين</h3>
+              <p className="text-accent-600 dark:text-dark-text-secondary mb-6">جرب تغيير معايير البحث أو الفلاتر</p>
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  setSelectedSpecialty('all');
+                  setSortBy('popular');
+                }}
+                className="btn-primary"
+              >
+                إعادة تعيين الفلاتر
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <section className="section-padding bg-accent-500 dark:bg-dark-secondary transition-colors duration-300">
+        <div className="container-custom text-center">
+          <h2 className="heading-2 text-white dark:text-dark-text-primary mb-4">
+            هل تريد أن تصبح مبدعاً؟
+          </h2>
+          <p className="body-large text-gray-300 dark:text-dark-text-secondary mb-8 max-w-2xl mx-auto">
+            انضم إلى مجتمعنا من المبدعين وابدأ في إنشاء وبيع قوالبك الخاصة
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/signup" className="btn-primary text-lg px-8 py-4">
+              انضم ك مبدع
+            </Link>
+            <Link href="/templates" className="btn-secondary text-lg px-8 py-4 bg-white/90 dark:bg-dark-tertiary/90 backdrop-blur-sm border-primary-200 dark:border-orange-500/30">
+              تصفح القوالب
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary transition-colors duration-300">
+        <div className="container-custom section-padding">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+            <div className="lg:col-span-1">
+              <div className="flex items-center mb-4">
+                <Image
+                  src="/NavLogoLight.svg"
+                  alt="عرب نوشن"
+                  width={60}
+                  height={40}
+                  className="h-10 w-auto"
+                  quality={100}
+                  priority
+                  unoptimized
+                />
+              </div>
+              <p className="body-medium text-gray-400 dark:text-dark-text-tertiary mb-6">
+                منصتك العربية الأولى لبيع وشراء قوالب نوتيون المبتكرة. انضم إلى مجتمع المبدعين العرب.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-bold mb-6 text-lg text-white dark:text-dark-text-primary">المنتج</h4>
+              <ul className="space-y-3">
+                <li><a href="/templates" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">القوالب</a></li>
+                <li><a href="/creators" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المبدعين</a></li>
+                <li><a href="/pricing" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الأسعار</a></li>
+                <li><a href="/features" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المميزات</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold mb-6 text-lg text-white dark:text-dark-text-primary">الشركة</h4>
+              <ul className="space-y-3">
+                <li><a href="/about" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">من نحن</a></li>
+                <li><a href="/blog" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المدونة</a></li>
+                <li><a href="/careers" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الوظائف</a></li>
+                <li><a href="/press" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الصحافة</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold mb-6 text-lg text-white dark:text-dark-text-primary">الدعم</h4>
+              <ul className="space-y-3">
+                <li><a href="/help" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">مركز المساعدة</a></li>
+                <li><a href="/contact" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">اتصل بنا</a></li>
+                <li><a href="/privacy" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الخصوصية</a></li>
+                <li><a href="/terms" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الشروط</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-700 dark:border-dark-card-border pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <p className="text-gray-400 dark:text-dark-text-tertiary text-sm">
+                © {new Date().getFullYear()} عرب نوشن. جميع الحقوق محفوظة.
+              </p>
+              <div className="flex gap-6 mt-4 md:mt-0">
+                <a href="/privacy" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-sm transition-colors">سياسة الخصوصية</a>
+                <a href="/terms" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-sm transition-colors">شروط الاستخدام</a>
+                <a href="/cookies" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-sm transition-colors">ملفات تعريف الارتباط</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </main>
+  );
+}

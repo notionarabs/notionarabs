@@ -17,6 +17,7 @@ export default function SignupPage() {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showVerificationMessage, setShowVerificationMessage] = useState(false);
   const [userEmail, setUserEmail] = useState('');
+  const [verificationToken, setVerificationToken] = useState('');
 
   const { signup } = useAuth();
   const router = useRouter();
@@ -66,6 +67,7 @@ export default function SignupPage() {
         console.log('Account created, showing verification message');
         // Show verification message instead of redirecting immediately
         setUserEmail(formData.email);
+        setVerificationToken(result.verificationToken);
         setShowVerificationMessage(true);
       } else {
         console.log('No verification required or missing token, redirecting to home');
@@ -211,8 +213,8 @@ export default function SignupPage() {
                       <div className="mt-4 space-y-2">
                         <button
                           onClick={() => {
-                            // Redirect to verification page
-                            router.push('/verify-email');
+                            // Redirect to verification page with token
+                            router.push(`/verify-email?token=${verificationToken}&email=${userEmail}`);
                           }}
                           className="w-full py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
                         >

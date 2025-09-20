@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
@@ -15,44 +15,47 @@ export default function VerifyEmailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const handleVerifyEmail = useCallback(async (verificationToken) => {
+    console.log('VerifyEmail: Starting email verification with token:', verificationToken ? 'present' : 'missing');
+    setLoading(true);
+    setError('');
+
+    const result = await verifyEmail(verificationToken);
+    console.log('VerifyEmail: Verification result:', result);
+
+    if (result.success) {
+      console.log('VerifyEmail: Verification successful, setting success state');
+      setSuccess(true);
+      // The redirect will be handled by the useEffect that watches for user authentication
+    } else {
+      console.log('VerifyEmail: Verification failed:', result.error);
+      setError(result.error);
+    }
+
+    setLoading(false);
+  }, [verifyEmail]);
+
   useEffect(() => {
     const tokenFromUrl = searchParams.get('token');
     const emailFromUrl = searchParams.get('email');
 
     if (tokenFromUrl) {
       setToken(tokenFromUrl);
-      // If email is provided, this is coming from signup - auto-verify
-      if (emailFromUrl) {
-        handleVerifyEmail(tokenFromUrl);
-      }
+      // Auto-verify when token is present (either from signup with email or direct link)
+      handleVerifyEmail(tokenFromUrl);
     }
-  }, [searchParams]);
+  }, [searchParams, handleVerifyEmail]);
 
   // Redirect to home page when user is authenticated
   useEffect(() => {
+    console.log('VerifyEmail: Checking redirect conditions:', { success, isAuthenticated, user: !!user });
     if (success && isAuthenticated && user) {
       console.log('VerifyEmail: User is authenticated, redirecting to home page');
       setTimeout(() => {
         router.push('/');
-      }, 1000);
+      }, 2000);
     }
   }, [success, isAuthenticated, user, router]);
-
-  const handleVerifyEmail = async (verificationToken) => {
-    setLoading(true);
-    setError('');
-
-    const result = await verifyEmail(verificationToken);
-
-    if (result.success) {
-      setSuccess(true);
-      // The redirect will be handled by the useEffect that watches for user authentication
-    } else {
-      setError(result.error);
-    }
-
-    setLoading(false);
-  };
 
   const handleResendVerification = async () => {
     setLoading(true);
@@ -100,15 +103,15 @@ export default function VerifyEmailPage() {
               </div>
               <h3 className="text-lg font-medium text-bw-black mb-2">تم تأكيد البريد الإلكتروني بنجاح</h3>
               <p className="text-bw-gray mb-6">
-                تم تأكيد حسابك بنجاح. مرحباً بك في عرب نوشن! سيتم توجيهك إلى الصفحة الرئيسية خلال ثوانٍ قليلة.
+                تم تأكيد حسابك بنجاح. مرحباً بك في عرب نوشن! {isAuthenticated ? 'سيتم توجيهك إلى الصفحة الرئيسية خلال ثوانٍ قليلة.' : 'يرجى النقر على الزر أدناه للانتقال إلى الصفحة الرئيسية.'}
               </p>
               <div className="space-y-3">
-                <Link
-                  href="/"
+                <button
+                  onClick={() => router.push('/')}
                   className="w-full py-3 px-4 btn-bw-primary rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
                 >
                   الذهاب إلى الصفحة الرئيسية
-                </Link>
+                </button>
                 <Link
                   href="/login"
                   className="w-full py-3 px-4 border border-gray-300 rounded-lg font-medium text-bw-black hover:bg-gray-50 transition-colors flex items-center justify-center"

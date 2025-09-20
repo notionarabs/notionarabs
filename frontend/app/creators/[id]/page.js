@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { formatDate } from '../../../lib/dateUtils';
 
 // This would normally come from API based on the ID

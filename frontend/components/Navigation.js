@@ -19,7 +19,7 @@ export default function Navigation({ activePage = '' }) {
             alt="عرب نوشن"
             width={180}
             height={60}
-            className="h-12 w-auto min-w-[180px]"
+            className="h-8 sm:h-10 md:h-12 w-auto"
             quality={100}
             priority
             unoptimized
@@ -28,10 +28,10 @@ export default function Navigation({ activePage = '' }) {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex gap-1 lg:gap-2 xl:gap-3">
-          <a href="/templates" className={`nav-link ${activePage === 'templates' ? 'nav-link-active' : ''}`}>القوالب</a>
-          <a href="/creators" className={`nav-link ${activePage === 'creators' ? 'nav-link-active' : ''}`}>المبدعين</a>
-          <a href="/blog" className={`nav-link ${activePage === 'blog' ? 'nav-link-active' : ''}`}>المدونة</a>
-          <a href="/about" className={`nav-link ${activePage === 'about' ? 'nav-link-active' : ''}`}>من نحن</a>
+          <Link href="/templates" className={`nav-link ${activePage === 'templates' ? 'nav-link-active' : ''}`}>القوالب</Link>
+          <Link href="/creators" className={`nav-link ${activePage === 'creators' ? 'nav-link-active' : ''}`}>المبدعين</Link>
+          <Link href="/blog" className={`nav-link ${activePage === 'blog' ? 'nav-link-active' : ''}`}>المدونة</Link>
+          <Link href="/about" className={`nav-link ${activePage === 'about' ? 'nav-link-active' : ''}`}>من نحن</Link>
         </nav>
 
         {/* Auth Buttons / User Menu */}
@@ -39,8 +39,8 @@ export default function Navigation({ activePage = '' }) {
           {/* Theme Toggle */}
           <ThemeToggle />
 
-          {/* Reserve consistent space to prevent layout shifts */}
-          <div className="flex items-center gap-4 min-w-[200px] justify-end">
+          {/* Auth section */}
+          <div className="flex items-center gap-4 justify-end">
             {loading ? (
               <>
                 {/* Loading skeleton for user info */}
@@ -105,18 +105,18 @@ export default function Navigation({ activePage = '' }) {
           <div className="container-custom py-6 space-y-6">
             {/* Mobile Navigation Links */}
             <nav className="space-y-4">
-              <a href="/templates" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+              <Link href="/templates" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
                 القوالب
-              </a>
-              <a href="/creators" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+              </Link>
+              <Link href="/creators" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
                 المبدعين
-              </a>
-              <a href="/blog" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+              </Link>
+              <Link href="/blog" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
                 المدونة
-              </a>
-              <a href="/about" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+              </Link>
+              <Link href="/about" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
                 من نحن
-              </a>
+              </Link>
             </nav>
 
             {/* Mobile Auth Section */}
@@ -162,12 +162,12 @@ export default function Navigation({ activePage = '' }) {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  <a href="/login" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+                  <Link href="/login" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
                     تسجيل الدخول
-                  </a>
-                  <a href="/signup" className="block py-3 px-4 text-center bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-xl transition-colors duration-200">
+                  </Link>
+                  <Link href="/signup" className="block py-3 px-4 text-center bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-xl transition-colors duration-200">
                     إنشاء حساب
-                  </a>
+                  </Link>
                 </div>
               )}
             </div>

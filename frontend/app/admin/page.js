@@ -75,9 +75,9 @@ export default function AdminPage() {
       {/* Header */}
       <header className="flex justify-between items-center px-4 md:px-6 py-4 border-b border-bw-gray bg-bw-white sticky top-0 z-50 shadow-sm">
         <h1 className="text-2xl font-bold text-gradient-bw">لوحة الإدارة</h1>
-        <a href="/" className="text-bw-gray hover:text-bw-black transition-colors">
+        <Link href="/" className="text-bw-gray hover:text-bw-black transition-colors">
           العودة للصفحة الرئيسية
-        </a>
+        </Link>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">

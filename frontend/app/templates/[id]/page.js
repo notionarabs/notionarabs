@@ -346,30 +346,30 @@ export default function TemplateDetailPage() {
             <div>
               <h4 className="font-semibold mb-4">القوالب</h4>
               <ul className="space-y-2">
-                <li><a href="/templates" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">جميع القوالب</a></li>
-                <li><a href="/templates/education" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">التعليم</a></li>
-                <li><a href="/templates/productivity" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">الإنتاجية</a></li>
-                <li><a href="/templates/business" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">الأعمال</a></li>
+                <li><Link href="/templates" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">جميع القوالب</Link></li>
+                <li><Link href="/templates/education" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">التعليم</Link></li>
+                <li><Link href="/templates/productivity" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">الإنتاجية</Link></li>
+                <li><Link href="/templates/business" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">الأعمال</Link></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-semibold mb-4">المنصة</h4>
               <ul className="space-y-2">
-                <li><a href="/about" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">من نحن</a></li>
-                <li><a href="/creators" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">المبدعين</a></li>
-                <li><a href="/blog" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">المدونة</a></li>
-                <li><a href="/contact" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">تواصل معنا</a></li>
+                <li><Link href="/about" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">من نحن</Link></li>
+                <li><Link href="/creators" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">المبدعين</Link></li>
+                <li><Link href="/blog" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">المدونة</Link></li>
+                <li><Link href="/contact" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">تواصل معنا</Link></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-semibold mb-4">الدعم</h4>
               <ul className="space-y-2">
-                <li><a href="/help" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">مركز المساعدة</a></li>
-                <li><a href="/terms" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">شروط الاستخدام</a></li>
-                <li><a href="/privacy" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">سياسة الخصوصية</a></li>
-                <li><a href="/cookies" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">ملفات تعريف الارتباط</a></li>
+                <li><Link href="/help" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">مركز المساعدة</Link></li>
+                <li><Link href="/terms" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">شروط الاستخدام</Link></li>
+                <li><Link href="/privacy" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">سياسة الخصوصية</Link></li>
+                <li><Link href="/cookies" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors text-sm">ملفات تعريف الارتباط</Link></li>
               </ul>
             </div>
           </div>

@@ -190,13 +190,13 @@ export default function SignupPage() {
                 />
                 <label htmlFor="terms" className="mr-2 text-sm text-accent-600 dark:text-dark-text-secondary">
                   أوافق على{' '}
-                  <a href="/terms" className="text-primary-500 hover:text-primary-600 transition-colors">
+                  <Link href="/terms" className="text-primary-500 hover:text-primary-600 transition-colors">
                     الشروط والأحكام
-                  </a>
+                  </Link>
                   {' '}و{' '}
-                  <a href="/privacy" className="text-primary-500 hover:text-primary-600 transition-colors">
+                  <Link href="/privacy" className="text-primary-500 hover:text-primary-600 transition-colors">
                     سياسة الخصوصية
-                  </a>
+                  </Link>
                 </label>
               </div>
 

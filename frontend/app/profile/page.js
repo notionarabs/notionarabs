@@ -16,7 +16,11 @@ export default function ProfilePage() {
     if (!loading && !isAuthenticated) {
       router.push('/login');
     }
-  }, [isAuthenticated, loading, router]);
+    // Redirect if user is not an approved creator
+    if (!loading && isAuthenticated && user && user.creatorStatus !== 'approved') {
+      router.push('/');
+    }
+  }, [isAuthenticated, loading, user, router]);
 
   // Show loading only if we're actually loading and don't have user data
   if (loading && !user) {
@@ -32,6 +36,11 @@ export default function ProfilePage() {
 
   // If not authenticated and not loading, don't render anything (will redirect)
   if (!loading && !isAuthenticated) {
+    return null;
+  }
+
+  // Redirect if user is not an approved creator
+  if (!loading && isAuthenticated && user && user.creatorStatus !== 'approved') {
     return null;
   }
 

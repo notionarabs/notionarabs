@@ -212,7 +212,9 @@ router.post('/login', [
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        profilePicture: user.profilePicture,
+        creatorStatus: user.creatorStatus
       }
     });
   } catch (error) {
@@ -601,12 +603,170 @@ router.post('/verify-email', [
         name: user.name,
         email: user.email,
         role: user.role,
+        profilePicture: user.profilePicture,
+        creatorStatus: user.creatorStatus,
         isEmailVerified: user.isEmailVerified,
         isActive: user.isActive
       }
     });
   } catch (error) {
     console.error('Email verification error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   POST /api/auth/apply-creator
+// @desc    Apply to become a creator
+// @access  Private
+router.post('/apply-creator', auth, [
+  body('portfolio')
+    .notEmpty()
+    .withMessage('رابط المعرض مطلوب'),
+  body('experience')
+    .notEmpty()
+    .withMessage('وصف الخبرة مطلوب'),
+  body('specialties')
+    .isArray({ min: 1 })
+    .withMessage('يجب اختيار مجال واحد على الأقل'),
+  body('motivation')
+    .notEmpty()
+    .withMessage('سبب الرغبة في الانضمام مطلوب')
+], async (req, res) => {
+  try {
+    // Check validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'بيانات غير صحيحة',
+        errors: errors.array()
+      });
+    }
+
+    const { portfolio, experience, specialties, motivation, phone, socialMedia, availability, expectedEarnings } = req.body;
+
+    // Check if user already has a pending or approved creator status
+    if (req.user.creatorStatus !== 'none') {
+      return res.status(400).json({
+        success: false,
+        message: 'لديك طلب مبدع موجود بالفعل'
+      });
+    }
+
+    // Update user with creator application data
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        creatorStatus: 'pending',
+        // Store additional creator application data (you might want to create a separate CreatorApplication model)
+        portfolio,
+        experience,
+        specialties,
+        motivation,
+        phone,
+        socialMedia,
+        availability,
+        expectedEarnings
+      },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    res.json({
+      success: true,
+      message: 'تم إرسال طلب الانضمام كمبدع بنجاح. سنراجع طلبك وسنعاود التواصل معك خلال 3-5 أيام عمل.',
+      user
+    });
+  } catch (error) {
+    console.error('Creator application error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   POST /api/auth/create-admin
+// @desc    Create admin user (development only)
+// @access  Public (restrict in production)
+router.post('/create-admin', [
+  body('name')
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage('الاسم يجب أن يكون بين 2 و 50 حرف'),
+  body('email')
+    .isEmail()
+    .normalizeEmail()
+    .withMessage('يرجى إدخال بريد إلكتروني صحيح'),
+  body('password')
+    .isLength({ min: 6 })
+    .withMessage('كلمة المرور يجب أن تكون 6 أحرف على الأقل'),
+  body('adminSecret')
+    .equals(process.env.ADMIN_SECRET || 'admin-secret-2024')
+    .withMessage('Admin secret is required')
+], async (req, res) => {
+  try {
+    // Only allow in development
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(403).json({
+        success: false,
+        message: 'Admin creation not allowed in production'
+      });
+    }
+
+    // Check validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'بيانات غير صحيحة',
+        errors: errors.array()
+      });
+    }
+
+    const { name, email, password } = req.body;
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'البريد الإلكتروني مستخدم بالفعل'
+      });
+    }
+
+    // Create admin user
+    const adminUser = new User({
+      name,
+      email,
+      password,
+      role: 'admin',
+      isActive: true,
+      isEmailVerified: true // Skip email verification for admin
+    });
+
+    await adminUser.save();
+
+    // Generate token for automatic login
+    const token = generateToken(adminUser._id);
+
+    res.json({
+      success: true,
+      message: 'تم إنشاء حساب المدير بنجاح',
+      token,
+      user: {
+        id: adminUser._id,
+        name: adminUser.name,
+        email: adminUser.email,
+        role: adminUser.role,
+        profilePicture: adminUser.profilePicture,
+        creatorStatus: adminUser.creatorStatus
+      }
+    });
+  } catch (error) {
+    console.error('Create admin error:', error);
     res.status(500).json({
       success: false,
       message: 'خطأ في الخادم'

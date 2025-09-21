@@ -4,11 +4,14 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import ThemeToggle from './ThemeToggle';
+import UserDropdown from './UserDropdown';
 
 export default function Navigation({ activePage = '' }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading, logout } = useAuth();
+  const { theme } = useTheme();
 
   return (
     <header className="w-full bg-accent-500 dark:bg-dark-secondary sticky top-0 z-50 shadow-medium dark:shadow-dark-medium backdrop-blur-sm bg-accent-500/95 dark:bg-dark-secondary/95 transition-colors duration-300">
@@ -51,25 +54,8 @@ export default function Navigation({ activePage = '' }) {
               <>
                 <span className="text-gray-300 dark:text-dark-text-tertiary">مرحباً، {user?.name}</span>
 
-                {/* Profile Picture Link */}
-                <Link href="/profile" className="flex items-center">
-                  {user?.profilePicture ? (
-                    <Image
-                      src={user.profilePicture}
-                      alt={`صورة ${user.name}`}
-                      width={40}
-                      height={40}
-                      className="w-10 h-10 rounded-full border-2 border-white/20 hover:border-white/40 transition-all duration-200 cursor-pointer hover:scale-105"
-                      quality={100}
-                    />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-all duration-200 cursor-pointer hover:scale-105 border-2 border-white/20 hover:border-white/40">
-                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                      </svg>
-                    </div>
-                  )}
-                </Link>
+                {/* User Dropdown */}
+                <UserDropdown />
               </>
             ) : (
               <div className="flex items-center gap-3">
@@ -139,26 +125,56 @@ export default function Navigation({ activePage = '' }) {
                     <span>مرحباً، {user?.name}</span>
                   </div>
 
-                  {/* Mobile Profile Picture Link */}
-                  <Link href="/profile" className="flex items-center gap-3 py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
-                    {user?.profilePicture ? (
-                      <Image
-                        src={user.profilePicture}
-                        alt={`صورة ${user.name}`}
-                        width={32}
-                        height={32}
-                        className="w-8 h-8 rounded-full border border-white/20"
-                        quality={100}
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                        </svg>
-                      </div>
+                  {/* Mobile User Options */}
+                  <div className="space-y-2">
+                    {/* Theme Toggle Mobile */}
+                    <div className="flex items-center justify-between px-4 py-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+                      <span>الوضع {theme === 'dark' ? 'النهاري' : 'الليلي'}</span>
+                      <ThemeToggle />
+                    </div>
+
+                    {/* Sign in as Creator Mobile */}
+                    <Link href="/creators/apply" className="flex items-center gap-3 py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+                      <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      <span>التسجيل كمبدع</span>
+                    </Link>
+
+                    {/* Profile Link Mobile - Only for approved creators */}
+                    {user?.creatorStatus === 'approved' && (
+                      <Link href="/profile" className="flex items-center gap-3 py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+                        {user?.profilePicture ? (
+                          <Image
+                            src={user.profilePicture}
+                            alt={`صورة ${user.name}`}
+                            width={32}
+                            height={32}
+                            className="w-8 h-8 rounded-full border border-white/20"
+                            quality={100}
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                            <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                            </svg>
+                          </div>
+                        )}
+                        <span>الملف الشخصي</span>
+                      </Link>
                     )}
-                    <span>الملف الشخصي</span>
-                  </Link>
+
+                    {/* Sign Out Mobile */}
+                    <button
+                      onClick={logout}
+                      className="w-full flex items-center gap-3 py-3 px-4 text-red-400 hover:text-red-300 hover:bg-red-900/20 transition-all duration-200 rounded-xl"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                      <span>تسجيل الخروج</span>
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-3">

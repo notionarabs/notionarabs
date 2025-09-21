@@ -70,8 +70,6 @@ const testimonials = [
 ];
 
 export default function HomePage() {
-  // Debug logging
-  console.log('HomePage - Component loaded');
 
   const StarRating = ({ rating }) => {
     return (

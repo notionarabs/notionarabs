@@ -33,6 +33,11 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'admin'],
     default: 'user'
   },
+  creatorStatus: {
+    type: String,
+    enum: ['none', 'pending', 'approved', 'rejected'],
+    default: 'none'
+  },
   isActive: {
     type: Boolean,
     default: false // Changed to false - accounts are inactive until email verified

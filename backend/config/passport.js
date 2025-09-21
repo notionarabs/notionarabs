@@ -35,7 +35,13 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
           needsUpdate = true;
         }
         if (!user.profilePicture && profile.photos && profile.photos[0]) {
-          user.profilePicture = profile.photos[0].value;
+          // Get higher resolution Google profile picture
+          let profilePicUrl = profile.photos[0].value;
+          if (profilePicUrl.includes('googleusercontent.com')) {
+            // Replace size parameter to get higher resolution (s96-c -> s400-c)
+            profilePicUrl = profilePicUrl.replace(/s\d+-c/, 's400-c');
+          }
+          user.profilePicture = profilePicUrl;
           needsUpdate = true;
         }
         if (needsUpdate) {
@@ -44,12 +50,22 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
         return done(null, user);
       } else {
         // Create new user
+        let profilePicUrl = null;
+        if (profile.photos && profile.photos[0]) {
+          profilePicUrl = profile.photos[0].value;
+          // Get higher resolution Google profile picture
+          if (profilePicUrl.includes('googleusercontent.com')) {
+            // Replace size parameter to get higher resolution (s96-c -> s400-c)
+            profilePicUrl = profilePicUrl.replace(/s\d+-c/, 's400-c');
+          }
+        }
+
         user = new User({
           googleId: profile.id,
           name: profile.displayName,
           email: email,
           password: 'google-oauth-user', // Dummy password for Google users
-          profilePicture: profile.photos && profile.photos[0] ? profile.photos[0].value : null,
+          profilePicture: profilePicUrl,
           isActive: true
         });
 

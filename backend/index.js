@@ -24,12 +24,8 @@ const corsOptions = {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
-    // Log the origin for debugging
-    console.log('CORS request from origin:', origin);
-
     // Check if origin is in allowed list
     if (allowedOrigins.indexOf(origin) !== -1) {
-      console.log('CORS: Origin allowed:', origin);
       callback(null, true);
     } else {
       // In production, be more permissive for Vercel domains
@@ -57,8 +53,8 @@ require('./config/passport');
 
 // Database connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/notion-arabs')
-  .then(() => console.log('تم الاتصال بقاعدة البيانات بنجاح'))
-  .catch(err => console.error('خطأ في الاتصال بقاعدة البيانات:', err));
+  .then(() => console.log('✅ Database connected successfully'))
+  .catch(err => console.error('❌ Database connection error:', err));
 
 // Routes
 const authRoutes = require('./routes/auth');
@@ -119,5 +115,5 @@ app.use('*', (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`الخادم يعمل على المنفذ ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });

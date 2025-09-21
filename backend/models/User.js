@@ -81,6 +81,40 @@ const userSchema = new mongoose.Schema({
   emailVerificationExpiry: {
     type: Date,
     default: null
+  },
+  // Creator application fields
+  portfolio: {
+    type: String,
+    default: null
+  },
+  experience: {
+    type: String,
+    default: null
+  },
+  specialties: [{
+    type: String
+  }],
+  motivation: {
+    type: String,
+    default: null
+  },
+  phone: {
+    type: String,
+    default: null
+  },
+  socialMedia: {
+    instagram: { type: String, default: null },
+    twitter: { type: String, default: null },
+    linkedin: { type: String, default: null },
+    website: { type: String, default: null }
+  },
+  availability: {
+    type: String,
+    default: null
+  },
+  expectedEarnings: {
+    type: String,
+    default: null
   }
 }, {
   timestamps: true

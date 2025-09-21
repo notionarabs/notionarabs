@@ -128,22 +128,34 @@ export default function Navigation({ activePage = '' }) {
                     {/* Profile Link Mobile - Only for approved creators */}
                     {user?.creatorStatus === 'approved' && (
                       <Link href="/profile" className="flex items-center gap-3 py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
-                        {user?.profilePicture ? (
-                          <Image
-                            src={user.profilePicture}
-                            alt={`صورة ${user.name}`}
-                            width={32}
-                            height={32}
-                            className="w-8 h-8 rounded-full border border-white/20"
-                            quality={100}
-                          />
-                        ) : (
-                          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                            <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                        <div className="relative">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500 p-0.5 shadow-md">
+                            <div className="w-full h-full rounded-full bg-white dark:bg-dark-secondary">
+                              {user?.profilePicture ? (
+                                <Image
+                                  src={user.profilePicture}
+                                  alt={`صورة ${user.name}`}
+                                  width={32}
+                                  height={32}
+                                  className="w-full h-full rounded-full object-cover"
+                                  quality={100}
+                                />
+                              ) : (
+                                <div className="w-full h-full rounded-full bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 flex items-center justify-center">
+                                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                                  </svg>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          {/* Creator badge */}
+                          <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-sm">
+                            <svg className="w-1.5 h-1.5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                             </svg>
                           </div>
-                        )}
+                        </div>
                         <span>الملف الشخصي</span>
                       </Link>
                     )}

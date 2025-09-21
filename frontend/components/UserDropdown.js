@@ -11,6 +11,7 @@ export default function UserDropdown() {
   const dropdownRef = useRef(null);
   const { user, logout } = useAuth();
 
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -35,24 +36,61 @@ export default function UserDropdown() {
       {/* Profile Picture Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-full transition-all duration-200 hover:scale-105"
+        className={`flex items-center focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-full transition-all duration-200 hover:scale-105 relative ${user?.creatorStatus === 'approved' ? 'p-0.5' : ''
+          }`}
         aria-label="فتح قائمة المستخدم"
       >
-        {user?.profilePicture ? (
-          <Image
-            src={user.profilePicture}
-            alt={`صورة ${user.name}`}
-            width={40}
-            height={40}
-            className="w-10 h-10 rounded-full border-2 border-white/20 hover:border-white/40 transition-all duration-200 cursor-pointer"
-            quality={100}
-          />
-        ) : (
-          <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-all duration-200 cursor-pointer border-2 border-white/20 hover:border-white/40">
-            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-            </svg>
+        {user?.creatorStatus === 'approved' ? (
+          // Premium styling for approved creators
+          <div className="relative">
+            {/* Golden gradient border for approved creators */}
+            <div className="w-11 h-11 rounded-full bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500 p-0.5 shadow-lg">
+              <div className="w-full h-full rounded-full bg-white dark:bg-dark-secondary">
+                {user?.profilePicture ? (
+                  <Image
+                    src={user.profilePicture}
+                    alt={`صورة ${user.name}`}
+                    width={40}
+                    height={40}
+                    className="w-full h-full rounded-full object-cover"
+                    quality={100}
+                  />
+                ) : (
+                  <div className="w-full h-full rounded-full bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 flex items-center justify-center">
+                    <span className="text-sm font-bold text-white">
+                      {user?.name?.charAt(0)?.toUpperCase()}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+            {/* Creator badge */}
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-md">
+              <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+            </div>
           </div>
+        ) : (
+          // Regular styling for non-creators
+          <>
+            {user?.profilePicture ? (
+              <Image
+                src={user.profilePicture}
+                alt={`صورة ${user.name}`}
+                width={40}
+                height={40}
+                className="w-10 h-10 rounded-full border-2 border-white/20 hover:border-white/40 transition-all duration-200 cursor-pointer"
+                quality={100}
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-all duration-200 cursor-pointer border-2 border-white/20 hover:border-white/40">
+                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                </svg>
+              </div>
+            )}
+          </>
         )}
       </button>
 
@@ -62,26 +100,68 @@ export default function UserDropdown() {
           {/* User Info Header */}
           <div className="px-4 py-3 border-b border-gray-200 dark:border-dark-card-border">
             <div className="flex items-center gap-3">
-              {user?.profilePicture ? (
-                <Image
-                  src={user.profilePicture}
-                  alt={`صورة ${user.name}`}
-                  width={32}
-                  height={32}
-                  className="w-8 h-8 rounded-full"
-                  quality={100}
-                />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 flex items-center justify-center">
-                  <span className="text-sm font-bold text-white">
-                    {user?.name?.charAt(0)?.toUpperCase()}
-                  </span>
+              {user?.creatorStatus === 'approved' ? (
+                // Premium styling for approved creators in dropdown
+                <div className="relative">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500 p-0.5 shadow-md">
+                    <div className="w-full h-full rounded-full bg-white dark:bg-dark-secondary">
+                      {user?.profilePicture ? (
+                        <Image
+                          src={user.profilePicture}
+                          alt={`صورة ${user.name}`}
+                          width={32}
+                          height={32}
+                          className="w-full h-full rounded-full object-cover"
+                          quality={100}
+                        />
+                      ) : (
+                        <div className="w-full h-full rounded-full bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 flex items-center justify-center">
+                          <span className="text-xs font-bold text-white">
+                            {user?.name?.charAt(0)?.toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {/* Creator badge in dropdown */}
+                  <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-sm">
+                    <svg className="w-1.5 h-1.5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                  </div>
                 </div>
+              ) : (
+                // Regular styling for non-creators in dropdown
+                <>
+                  {user?.profilePicture ? (
+                    <Image
+                      src={user.profilePicture}
+                      alt={`صورة ${user.name}`}
+                      width={32}
+                      height={32}
+                      className="w-8 h-8 rounded-full"
+                      quality={100}
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 flex items-center justify-center">
+                      <span className="text-sm font-bold text-white">
+                        {user?.name?.charAt(0)?.toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                </>
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 dark:text-dark-text-primary truncate">
-                  {user?.name}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-medium text-gray-900 dark:text-dark-text-primary truncate">
+                    {user?.name}
+                  </p>
+                  {user?.creatorStatus === 'approved' && (
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 dark:from-yellow-900/30 dark:to-amber-900/30 dark:text-yellow-300">
+                      مبدع
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-gray-500 dark:text-dark-text-tertiary truncate">
                   {user?.email}
                 </p>
@@ -136,7 +216,7 @@ export default function UserDropdown() {
                 )}
 
                 {/* No Status - First time application */}
-                {!user?.creatorStatus && (
+                {(!user?.creatorStatus || user?.creatorStatus === '' || user?.creatorStatus === 'none') && (
                   <Link
                     href="/creators/apply"
                     onClick={() => setIsOpen(false)}

@@ -33,7 +33,7 @@ const teamMembers = [
     name: "ليلى أحمد",
     role: "مديرة التسويق",
     bio: "خبيرة في التسويق الرقمي وبناء المجتمعات، ساعدت في نمو العديد من الشركات الناشئة",
-    imgSrc: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=200&h=200&fit=crop&crop=face",
+    imgSrc: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=face",
     linkedin: "#",
     twitter: "#"
   }

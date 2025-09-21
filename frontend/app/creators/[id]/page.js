@@ -105,7 +105,7 @@ const reviews = [
     id: 2,
     user: {
       name: "سارة أحمد",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face"
     },
     rating: 5,
     comment: "تصميم احترافي ومفصل. أنصح به بشدة",

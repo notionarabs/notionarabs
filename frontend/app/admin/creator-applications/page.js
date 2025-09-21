@@ -21,8 +21,11 @@ export default function CreatorApplicationsPage() {
       // User is authenticated but not admin
       setError('ليس لديك صلاحية للوصول إلى لوحة تحكم المدير');
       setLoading(false);
+    } else if (!isAuthenticated) {
+      // Not authenticated - redirect to login
+      router.push('/login');
+      setLoading(false);
     }
-    // If not authenticated, let the loading state handle it
   }, [isAuthenticated, user, router]);
 
   const fetchApplications = async () => {

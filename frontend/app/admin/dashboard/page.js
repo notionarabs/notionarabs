@@ -26,27 +26,10 @@ export default function AdminDashboard() {
       // User is authenticated but not admin
       setError('ليس لديك صلاحية للوصول إلى لوحة تحكم المدير');
       setLoading(false);
-    } else {
-      // Not authenticated - check if we can get user data from localStorage
-      const cachedUser = localStorage.getItem('user');
-      if (cachedUser) {
-        try {
-          const userData = JSON.parse(cachedUser);
-          if (userData.role === 'admin') {
-            setUser(userData);
-            fetchApplications();
-            return;
-          }
-        } catch (e) {
-          console.error('Error parsing cached user data:', e);
-        }
-      }
-      // If no cached admin data, wait a bit for auth to load
-      setTimeout(() => {
-        if (!isAuthenticated) {
-          setLoading(false);
-        }
-      }, 2000);
+    } else if (!isAuthenticated) {
+      // Not authenticated - redirect to login
+      router.push('/login');
+      setLoading(false);
     }
   }, [isAuthenticated, user, router]);
 
@@ -102,7 +85,7 @@ export default function AdminDashboard() {
   });
 
   // Show loading state while checking authentication
-  if (!isAuthenticated && loading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center" dir="rtl">
         <div className="text-center">

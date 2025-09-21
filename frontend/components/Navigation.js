@@ -39,9 +39,6 @@ export default function Navigation({ activePage = '' }) {
 
         {/* Auth Buttons / User Menu */}
         <div className="hidden md:flex items-center gap-2 lg:gap-3 xl:gap-4">
-          {/* Theme Toggle */}
-          <ThemeToggle />
-
           {/* Auth section */}
           <div className="flex items-center gap-4 justify-end">
             {loading ? (
@@ -52,8 +49,6 @@ export default function Navigation({ activePage = '' }) {
               </>
             ) : isAuthenticated ? (
               <>
-                <span className="text-gray-300 dark:text-dark-text-tertiary">مرحباً، {user?.name}</span>
-
                 {/* User Dropdown */}
                 <UserDropdown />
               </>
@@ -72,7 +67,6 @@ export default function Navigation({ activePage = '' }) {
 
         {/* Mobile Menu Button */}
         <div className="md:hidden flex items-center gap-2">
-          <ThemeToggle />
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="p-3 transition-all duration-300 border border-gray-600 dark:border-dark-card-border rounded-xl hover:bg-white/10 dark:hover:bg-dark-tertiary hover:border-gray-500 dark:hover:border-dark-text-tertiary flex-shrink-0"
@@ -121,18 +115,8 @@ export default function Navigation({ activePage = '' }) {
                 </div>
               ) : isAuthenticated ? (
                 <div className="space-y-3">
-                  <div className="flex items-center gap-3 px-4 py-3 text-gray-300 dark:text-dark-text-tertiary bg-white/5 dark:bg-dark-tertiary rounded-xl">
-                    <span>مرحباً، {user?.name}</span>
-                  </div>
-
                   {/* Mobile User Options */}
                   <div className="space-y-2">
-                    {/* Theme Toggle Mobile */}
-                    <div className="flex items-center justify-between px-4 py-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
-                      <span>الوضع {theme === 'dark' ? 'النهاري' : 'الليلي'}</span>
-                      <ThemeToggle />
-                    </div>
-
                     {/* Sign in as Creator Mobile */}
                     <Link href="/creators/apply" className="flex items-center gap-3 py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
                       <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -178,6 +162,12 @@ export default function Navigation({ activePage = '' }) {
                 </div>
               ) : (
                 <div className="space-y-3">
+                  {/* Theme Toggle Mobile for non-authenticated users */}
+                  <div className="flex items-center justify-between px-4 py-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+                    <span>الوضع {theme === 'dark' ? 'النهاري' : 'الليلي'}</span>
+                    <ThemeToggle />
+                  </div>
+
                   <Link href="/login" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
                     تسجيل الدخول
                   </Link>

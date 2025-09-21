@@ -288,6 +288,39 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const refreshUserData = async () => {
+    try {
+      const token = Cookies.get('authToken');
+      if (!token) {
+        console.log('No token found for refresh');
+        return { success: false, error: 'No authentication token' };
+      }
+
+      // Force refresh by clearing cache
+      localStorage.removeItem('user');
+      localStorage.removeItem('userCacheTimestamp');
+
+      // Fetch fresh user data
+      const response = await api.get('/auth/me');
+      const userData = response.data.user;
+
+      setUser(userData);
+
+      // Cache the new user data
+      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('userCacheTimestamp', Date.now().toString());
+
+      console.log('User data refreshed successfully:', userData);
+      return { success: true, user: userData };
+    } catch (error) {
+      console.error('Refresh user data failed:', error);
+      return {
+        success: false,
+        error: error.response?.data?.message || 'فشل في تحديث بيانات المستخدم'
+      };
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -299,6 +332,7 @@ export const AuthProvider = ({ children }) => {
     verifyEmail,
     resendVerification,
     checkAuthStatus,
+    refreshUserData,
     isAuthenticated: !!user
   };
 

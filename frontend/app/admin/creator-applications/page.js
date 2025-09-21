@@ -10,7 +10,7 @@ export default function CreatorApplicationsPage() {
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, refreshUserData } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -63,6 +63,21 @@ export default function CreatorApplicationsPage() {
         [newStatus]: prev[newStatus] + 1,
         pending: prev.pending - (newStatus !== 'pending' ? 1 : 0)
       }));
+
+      // If we're approving a user and they're currently logged in, refresh their data
+      if (newStatus === 'approved') {
+        // Find the approved user
+        const approvedUser = applications.find(app => app.id === userId);
+        if (approvedUser && approvedUser.email === user?.email) {
+          // This is the current user being approved, refresh their data
+          try {
+            await refreshUserData();
+            console.log('User data refreshed after approval');
+          } catch (refreshError) {
+            console.error('Failed to refresh user data after approval:', refreshError);
+          }
+        }
+      }
     } catch (err) {
       setError('فشل في تحديث حالة الطلب');
       console.error('Update status error:', err);

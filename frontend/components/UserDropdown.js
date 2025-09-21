@@ -2,15 +2,14 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useTheme } from '../contexts/ThemeContext';
 import Image from 'next/image';
 import Link from 'next/link';
+import ThemeToggle from './ThemeToggle';
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -29,11 +28,6 @@ export default function UserDropdown() {
   const handleLogout = () => {
     logout();
     setIsOpen(false);
-  };
-
-  const handleThemeToggle = () => {
-    toggleTheme();
-    // Keep dropdown open after theme toggle
   };
 
   return (
@@ -97,28 +91,13 @@ export default function UserDropdown() {
 
           {/* Dropdown Items */}
           <div className="py-2">
-            {/* Theme Switcher */}
-            <button
-              onClick={handleThemeToggle}
-              className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
-            >
-              <div className="flex items-center gap-2">
-                {theme === 'dark' ? (
-                  <svg className="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z" />
-                  </svg>
-                )}
-                <span className="text-sm">
-                  {theme === 'dark' ? 'الوضع النهاري' : 'الوضع الليلي'}
-                </span>
-              </div>
-            </button>
+            {/* Theme Toggle */}
+            <div className="w-full px-4 py-3 text-right flex items-center justify-between text-gray-700 dark:text-dark-text-secondary">
+              <span className="text-sm">الوضع</span>
+              <ThemeToggle />
+            </div>
 
-            {/* Admin: Accepting Requests OR Regular User: Sign in as Creator */}
+            {/* Admin: Accepting Requests OR Regular User: Creator Status */}
             {user?.role === 'admin' ? (
               <Link
                 href="/admin/dashboard"
@@ -131,16 +110,45 @@ export default function UserDropdown() {
                 <span className="text-sm">قبول الطلبات</span>
               </Link>
             ) : (
-              <Link
-                href="/creators/apply"
-                onClick={() => setIsOpen(false)}
-                className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
-              >
-                <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-                <span className="text-sm">التسجيل كمبدع</span>
-              </Link>
+              <>
+                {/* Pending Status */}
+                {user?.creatorStatus === 'pending' && (
+                  <div className="w-full px-4 py-3 text-right flex items-center gap-3 text-amber-600 dark:text-amber-400">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-sm">طلبك قيد المراجعة</span>
+                  </div>
+                )}
+
+                {/* Rejected Status - Allow re-application */}
+                {user?.creatorStatus === 'rejected' && (
+                  <Link
+                    href="/creators/apply"
+                    onClick={() => setIsOpen(false)}
+                    className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
+                  >
+                    <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    <span className="text-sm">إعادة التقديم كمبدع</span>
+                  </Link>
+                )}
+
+                {/* No Status - First time application */}
+                {!user?.creatorStatus && (
+                  <Link
+                    href="/creators/apply"
+                    onClick={() => setIsOpen(false)}
+                    className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
+                  >
+                    <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    <span className="text-sm">التسجيل كمبدع</span>
+                  </Link>
+                )}
+              </>
             )}
 
             {/* Divider */}

@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  outputFileTracingRoot: __dirname,
   images: {
     remotePatterns: [
       {
@@ -16,7 +15,6 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
-    qualities: [25, 50, 75, 100],
   },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NODE_ENV === 'production'

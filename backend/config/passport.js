@@ -44,6 +44,12 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
           user.profilePicture = profilePicUrl;
           needsUpdate = true;
         }
+        // Ensure Google users have verified email
+        if (!user.isEmailVerified) {
+          user.isEmailVerified = true;
+          user.isActive = true;
+          needsUpdate = true;
+        }
         if (needsUpdate) {
           await user.save();
         }
@@ -66,7 +72,8 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
           email: email,
           password: 'google-oauth-user', // Dummy password for Google users
           profilePicture: profilePicUrl,
-          isActive: true
+          isActive: true,
+          isEmailVerified: true // Google users are considered verified since they verified with Google
         });
 
         await user.save();

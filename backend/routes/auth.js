@@ -174,21 +174,21 @@ router.post('/login', [
       });
     }
 
-    // Check if user is active
-    if (!user.isActive) {
+    // Check if email is verified first
+    if (!user.isEmailVerified) {
       return res.status(400).json({
         success: false,
-        message: 'تم تعطيل الحساب'
+        message: 'يرجى تأكيد بريدك الإلكتروني أولاً قبل تسجيل الدخول.',
+        requiresVerification: true,
+        email: user.email
       });
     }
 
-    // Check if account is active
+    // Check if user account is active
     if (!user.isActive) {
       return res.status(400).json({
         success: false,
-        message: 'الحساب غير مفعل. يرجى تأكيد بريدك الإلكتروني أولاً.',
-        requiresVerification: true,
-        email: user.email
+        message: 'تم تعطيل الحساب. يرجى التواصل مع الدعم الفني.'
       });
     }
 

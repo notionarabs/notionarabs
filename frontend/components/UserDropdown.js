@@ -171,111 +171,131 @@ export default function UserDropdown() {
 
           {/* Dropdown Items */}
           <div className="py-2">
-            {/* Profile Link - Only for approved creators (First Priority) */}
-            {user?.creatorStatus === 'approved' && (
+            {/* Account Section */}
+            <div className="space-y-1">
+              {/* Admin Section */}
+              {user?.role === 'admin' ? (
+                <Link
+                  href="/admin/dashboard"
+                  onClick={() => setIsOpen(false)}
+                  className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
+                >
+                  <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span className="text-sm">لوحة الإدارة</span>
+                </Link>
+              ) : (
+                <>
+                  {/* Profile Link - Only for approved creators (non-admin) */}
+                  {user?.creatorStatus === 'approved' && (
+                    <Link
+                      href="/profile"
+                      onClick={() => setIsOpen(false)}
+                      className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
+                    >
+                      <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      <span className="text-sm">الملف الشخصي</span>
+                    </Link>
+                  )}
+
+                  {/* Creator Section for non-admin users */}
+                  <>
+                    {/* Pending Status */}
+                    {user?.creatorStatus === 'pending' && (
+                      <div className="w-full px-4 py-3 text-right flex items-center gap-3 text-amber-600 dark:text-amber-400">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-sm">طلبك قيد المراجعة</span>
+                      </div>
+                    )}
+
+                    {/* Rejected Status - Allow re-application */}
+                    {user?.creatorStatus === 'rejected' && (
+                      <Link
+                        href="/creators/apply"
+                        onClick={() => setIsOpen(false)}
+                        className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
+                      >
+                        <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span className="text-sm">إعادة التقديم كمبدع</span>
+                      </Link>
+                    )}
+
+                    {/* No Status - First time application */}
+                    {(!user?.creatorStatus || user?.creatorStatus === '' || user?.creatorStatus === 'none') && (
+                      <Link
+                        href="/creators/apply"
+                        onClick={() => setIsOpen(false)}
+                        className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
+                      >
+                        <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span className="text-sm">التسجيل كمبدع</span>
+                      </Link>
+                    )}
+                  </>
+                </>
+              )}
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-gray-200 dark:border-dark-card-border my-2"></div>
+
+            {/* General Section */}
+            <div className="space-y-1">
+              {/* Settings Link */}
               <Link
-                href="/profile"
+                href="/settings"
                 onClick={() => setIsOpen(false)}
                 className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
               >
-                <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <span className="text-sm">الملف الشخصي</span>
+                <span className="text-sm">الإعدادات</span>
               </Link>
-            )}
 
-            {/* Admin: Accepting Requests OR Regular User: Creator Status (Second Priority) */}
-            {user?.role === 'admin' ? (
-              <Link
-                href="/admin/dashboard"
-                onClick={() => setIsOpen(false)}
-                className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
-              >
-                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span className="text-sm">قبول الطلبات</span>
-              </Link>
-            ) : (
-              <>
-                {/* Pending Status */}
-                {user?.creatorStatus === 'pending' && (
-                  <div className="w-full px-4 py-3 text-right flex items-center gap-3 text-amber-600 dark:text-amber-400">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span className="text-sm">طلبك قيد المراجعة</span>
-                  </div>
-                )}
+              {/* Orders Link - Only for non-admin users */}
+              {user?.role !== 'admin' && (
+                <Link
+                  href="/orders"
+                  onClick={() => setIsOpen(false)}
+                  className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
+                >
+                  <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span className="text-sm">الطلبات</span>
+                </Link>
+              )}
+            </div>
 
-                {/* Rejected Status - Allow re-application */}
-                {user?.creatorStatus === 'rejected' && (
-                  <Link
-                    href="/creators/apply"
-                    onClick={() => setIsOpen(false)}
-                    className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
-                  >
-                    <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    <span className="text-sm">إعادة التقديم كمبدع</span>
-                  </Link>
-                )}
+            {/* Divider */}
+            <div className="border-t border-gray-200 dark:border-dark-card-border my-2"></div>
 
-                {/* No Status - First time application */}
-                {(!user?.creatorStatus || user?.creatorStatus === '' || user?.creatorStatus === 'none') && (
-                  <Link
-                    href="/creators/apply"
-                    onClick={() => setIsOpen(false)}
-                    className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
-                  >
-                    <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    <span className="text-sm">التسجيل كمبدع</span>
-                  </Link>
-                )}
-              </>
-            )}
-
-            {/* Settings Link */}
-            <Link
-              href="/settings"
-              onClick={() => setIsOpen(false)}
-              className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
-            >
-              <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <span className="text-sm">الإعدادات</span>
-            </Link>
-
-            {/* Orders Link */}
-            <Link
-              href="/orders"
-              onClick={() => setIsOpen(false)}
-              className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
-            >
-              <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <span className="text-sm">الطلبات</span>
-            </Link>
-
-            {/* Sign Out with Theme Toggle */}
-            <div className="px-4 py-3 flex items-center justify-between gap-3">
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200 rounded-lg px-3 py-2 flex-1 text-right"
-              >
-                <span className="text-sm">تسجيل الخروج</span>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-              </button>
-              <ThemeToggle />
+            {/* Actions Section */}
+            <div className="space-y-1">
+              {/* Sign Out with Theme Toggle */}
+              <div className="px-4 py-3 flex items-center justify-between gap-3">
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200 rounded-lg px-3 py-2 flex-1 text-right"
+                >
+                  <span className="text-sm">تسجيل الخروج</span>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                </button>
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         </div>

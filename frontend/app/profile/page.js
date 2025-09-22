@@ -11,7 +11,7 @@ import api from '../../lib/api';
 
 
 export default function ProfilePage() {
-  const { user, isAuthenticated, loading, logout } = useAuth();
+  const { user, isAuthenticated, loading, logout, ensureTokenInHeaders } = useAuth();
   const [templateStats, setTemplateStats] = useState(null);
   const router = useRouter();
 
@@ -33,6 +33,9 @@ export default function ProfilePage() {
 
   const fetchTemplateStats = async () => {
     try {
+      // Ensure token is set in headers before making API call
+      ensureTokenInHeaders();
+
       const response = await api.get('/templates/my-templates');
       const templates = response.data.templates || [];
       const stats = {

@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import api from '../../../lib/api';
 
 export default function CreateTemplatePage() {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading, ensureTokenInHeaders } = useAuth();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -23,6 +23,9 @@ export default function CreateTemplatePage() {
   });
 
   useEffect(() => {
+    // Ensure token is set in headers when component mounts
+    ensureTokenInHeaders();
+
     // Only redirect if we've finished loading and user is not authenticated
     if (!loading && !isAuthenticated) {
       router.push('/login');
@@ -31,7 +34,7 @@ export default function CreateTemplatePage() {
     if (!loading && isAuthenticated && user && user.creatorStatus !== 'approved') {
       router.push('/');
     }
-  }, [isAuthenticated, loading, user, router]);
+  }, [isAuthenticated, loading, user, router, ensureTokenInHeaders]);
 
   // Show loading only if we're actually loading and don't have user data
   if (loading && !user) {
@@ -87,6 +90,13 @@ export default function CreateTemplatePage() {
     setIsSubmitting(true);
 
     try {
+      // Ensure token is set in headers before making API call
+      const hasToken = ensureTokenInHeaders();
+      if (!hasToken) {
+        alert('يجب تسجيل الدخول أولاً');
+        router.push('/login');
+        return;
+      }
       // Client-side validation
       if (!formData.title.trim()) {
         alert('يرجى إدخال عنوان القالب');
@@ -137,8 +147,6 @@ export default function CreateTemplatePage() {
         }
       });
 
-      console.log('Sending template data:', templateData);
-
       const response = await api.post('/templates', templateData);
 
       if (response.data.success) {
@@ -148,7 +156,6 @@ export default function CreateTemplatePage() {
       }
     } catch (error) {
       console.error('Error creating template:', error);
-      console.error('Error response:', error.response?.data);
 
       // Show more specific error message
       const errorMessage = error.response?.data?.message || 'حدث خطأ أثناء إرسال القالب. يرجى المحاولة مرة أخرى.';

@@ -20,10 +20,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
 
-  // Debug logging for user state changes
-  useEffect(() => {
-    console.log('AuthContext: User state changed:', user);
-  }, [user]);
   const router = useRouter();
 
   useEffect(() => {
@@ -44,7 +40,6 @@ export const AuthProvider = ({ children }) => {
 
       if (timeSinceCache < cacheExpiry) {
         // Use cached data immediately, no loading needed
-        console.log('AuthContext: Using cached data immediately');
         const userData = JSON.parse(cachedUser);
         setUser(userData);
         setLoading(false);
@@ -82,7 +77,6 @@ export const AuthProvider = ({ children }) => {
 
         if (timeSinceCache < cacheExpiry) {
           // Use cached data if it's fresh
-          console.log('AuthContext: Using cached user data');
           const userData = JSON.parse(cachedUser);
           setUser(userData);
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -113,7 +107,6 @@ export const AuthProvider = ({ children }) => {
         }
       } else {
         // No token, user is not authenticated
-        console.log('AuthContext: No token found, user not authenticated');
         localStorage.removeItem('user');
         localStorage.removeItem('userCacheTimestamp');
       }
@@ -158,17 +151,12 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (name, email, password) => {
     try {
-      console.log('AuthContext: Starting signup process');
       const response = await api.post('/auth/signup', { name, email, password });
-      console.log('AuthContext: Signup response:', response.data);
-      console.log('AuthContext: Response status:', response.status);
 
       const { requiresVerification, verificationToken, user } = response.data;
-      console.log('AuthContext: Extracted values:', { requiresVerification, verificationToken, user });
 
       // Don't set user or token if verification is required
       if (requiresVerification) {
-        console.log('AuthContext: Verification required, not setting user');
         return {
           success: true,
           requiresVerification: true,
@@ -180,7 +168,6 @@ export const AuthProvider = ({ children }) => {
       // Only set user and token if no verification is required (shouldn't happen with new flow)
       const { token } = response.data;
       if (token) {
-        console.log('AuthContext: No verification required, setting user and token');
         // Store token in cookie
         Cookies.set('authToken', token, { expires: 7 }); // 7 days
 
@@ -245,7 +232,6 @@ export const AuthProvider = ({ children }) => {
 
       // If verification successful and we got a token, log the user in
       if (authToken && user) {
-        console.log('AuthContext: Setting user after email verification:', user);
         // Store token in cookie
         Cookies.set('authToken', authToken, { expires: 7 }); // 7 days
 
@@ -257,10 +243,6 @@ export const AuthProvider = ({ children }) => {
         // Cache the user data
         localStorage.setItem('user', JSON.stringify(user));
         localStorage.setItem('userCacheTimestamp', Date.now().toString());
-
-        console.log('AuthContext: User set successfully');
-      } else {
-        console.log('AuthContext: No token or user data received');
       }
 
       return { success: true, message: response.data.message };
@@ -290,7 +272,6 @@ export const AuthProvider = ({ children }) => {
     try {
       const token = Cookies.get('authToken');
       if (!token) {
-        console.log('No token found for refresh');
         return { success: false, error: 'No authentication token' };
       }
 
@@ -308,7 +289,6 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(userData));
       localStorage.setItem('userCacheTimestamp', Date.now().toString());
 
-      console.log('User data refreshed successfully:', userData);
       return { success: true, user: userData };
     } catch (error) {
       console.error('Refresh user data failed:', error);
@@ -316,6 +296,18 @@ export const AuthProvider = ({ children }) => {
         success: false,
         error: error.response?.data?.message || 'فشل في تحديث بيانات المستخدم'
       };
+    }
+  };
+
+  // Function to ensure token is set in API headers
+  const ensureTokenInHeaders = () => {
+    const token = Cookies.get('authToken');
+    if (token) {
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      return true;
+    } else {
+      delete api.defaults.headers.common['Authorization'];
+      return false;
     }
   };
 
@@ -331,6 +323,7 @@ export const AuthProvider = ({ children }) => {
     resendVerification,
     checkAuthStatus,
     refreshUserData,
+    ensureTokenInHeaders,
     isAuthenticated: !!user
   };
 

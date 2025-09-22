@@ -52,12 +52,6 @@ router.post('/', auth, [
     .withMessage('رابط الصورة غير صحيح')
 ], async (req, res) => {
   try {
-    console.log('=== TEMPLATE CREATION REQUEST ===');
-    console.log('Received template data:', req.body);
-    console.log('User data:', req.user);
-    console.log('User creator status:', req.user.creatorStatus);
-    console.log('Request headers:', req.headers);
-
     // Check if user is an approved creator
     if (req.user.creatorStatus !== 'approved') {
       return res.status(403).json({
@@ -68,7 +62,6 @@ router.post('/', auth, [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log('Validation errors:', errors.array());
       return res.status(400).json({
         success: false,
         message: 'بيانات غير صحيحة',

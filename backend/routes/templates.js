@@ -170,32 +170,27 @@ router.get('/', async (req, res) => {
   }
 });
 
-// @route   GET /api/templates/:id
-// @desc    Get single template by ID
-// @access  Public
-router.get('/:id', async (req, res) => {
+// @route   GET /api/templates/my-templates
+// @desc    Get current user's templates
+// @access  Private (Creator)
+router.get('/my-templates', auth, async (req, res) => {
   try {
-    const template = await Template.findOne({
-      _id: req.params.id,
-      status: 'approved'
-    }).populate('creator', 'name profilePicture bio');
-
-    if (!template) {
-      return res.status(404).json({
+    if (req.user.creatorStatus !== 'approved') {
+      return res.status(403).json({
         success: false,
-        message: 'القالب غير موجود'
+        message: 'يجب أن تكون مبدعاً معتمداً'
       });
     }
 
-    // Increment views
-    await template.incrementViews();
+    const templates = await Template.find({ creator: req.user.id })
+      .sort({ createdAt: -1 });
 
     res.json({
       success: true,
-      template
+      templates
     });
   } catch (error) {
-    console.error('Get template error:', error);
+    console.error('Get my templates error:', error);
     res.status(500).json({
       success: false,
       message: 'خطأ في الخادم'
@@ -232,27 +227,32 @@ router.get('/creator/:creatorId', async (req, res) => {
   }
 });
 
-// @route   GET /api/templates/my-templates
-// @desc    Get current user's templates
-// @access  Private (Creator)
-router.get('/my-templates', auth, async (req, res) => {
+// @route   GET /api/templates/:id
+// @desc    Get single template by ID
+// @access  Public
+router.get('/:id', async (req, res) => {
   try {
-    if (req.user.creatorStatus !== 'approved') {
-      return res.status(403).json({
+    const template = await Template.findOne({
+      _id: req.params.id,
+      status: 'approved'
+    }).populate('creator', 'name profilePicture bio');
+
+    if (!template) {
+      return res.status(404).json({
         success: false,
-        message: 'يجب أن تكون مبدعاً معتمداً'
+        message: 'القالب غير موجود'
       });
     }
 
-    const templates = await Template.find({ creator: req.user.id })
-      .sort({ createdAt: -1 });
+    // Increment views
+    await template.incrementViews();
 
     res.json({
       success: true,
-      templates
+      template
     });
   } catch (error) {
-    console.error('Get my templates error:', error);
+    console.error('Get template error:', error);
     res.status(500).json({
       success: false,
       message: 'خطأ في الخادم'

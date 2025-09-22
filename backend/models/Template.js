@@ -99,6 +99,11 @@ const templateSchema = new mongoose.Schema({
     ref: 'User',
     default: null
   },
+  rejectedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
+  },
   // Template performance metrics
   views: {
     type: Number,
@@ -165,7 +170,7 @@ templateSchema.methods.approve = function (adminId, notes = '') {
 templateSchema.methods.reject = function (adminId, notes = '') {
   this.status = 'rejected';
   this.rejectedAt = new Date();
-  this.approvedBy = adminId;
+  this.rejectedBy = adminId;
   this.adminNotes = notes;
   return this.save();
 };

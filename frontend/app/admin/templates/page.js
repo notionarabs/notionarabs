@@ -14,6 +14,7 @@ export default function AdminTemplatesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [selectedAction, setSelectedAction] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [adminNotes, setAdminNotes] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
@@ -57,19 +58,20 @@ export default function AdminTemplatesPage() {
     }
   };
 
-  const handleStatusChange = (templateId, status) => {
-    setSelectedTemplate(templateId);
+  const handleStatusChange = (template, action) => {
+    setSelectedTemplate(template);
+    setSelectedAction(action);
     setAdminNotes('');
     setShowModal(true);
   };
 
   const confirmStatusChange = async () => {
-    if (!selectedTemplate) return;
+    if (!selectedTemplate || !selectedAction) return;
 
     setActionLoading(true);
     try {
-      await api.put(`/admin/templates/${selectedTemplate}/status`, {
-        status: selectedTemplate.status === 'pending' ? 'approved' : 'rejected',
+      await api.put(`/admin/templates/${selectedTemplate._id}/status`, {
+        status: selectedAction,
         adminNotes
       });
 
@@ -79,6 +81,7 @@ export default function AdminTemplatesPage() {
 
       setShowModal(false);
       setSelectedTemplate(null);
+      setSelectedAction(null);
       setAdminNotes('');
     } catch (error) {
       console.error('Error updating template status:', error);
@@ -281,13 +284,13 @@ export default function AdminTemplatesPage() {
                         {template.status === 'pending' && (
                           <>
                             <button
-                              onClick={() => handleStatusChange(template._id, 'approved')}
+                              onClick={() => handleStatusChange(template, 'approved')}
                               className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
                             >
                               موافقة
                             </button>
                             <button
-                              onClick={() => handleStatusChange(template._id, 'rejected')}
+                              onClick={() => handleStatusChange(template, 'rejected')}
                               className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                             >
                               رفض
@@ -340,12 +343,20 @@ export default function AdminTemplatesPage() {
       </div>
 
       {/* Status Change Modal */}
-      {showModal && (
+      {showModal && selectedTemplate && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-dark-secondary rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-4">
-              تأكيد تغيير الحالة
+              تأكيد {selectedAction === 'approved' ? 'الموافقة على' : 'رفض'} القالب
             </h3>
+            <div className="mb-4 p-3 bg-gray-50 dark:bg-dark-tertiary rounded-lg">
+              <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                <span className="font-medium">القالب:</span> {selectedTemplate.title}
+              </p>
+              <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                <span className="font-medium">المبدع:</span> {selectedTemplate.creator?.name}
+              </p>
+            </div>
             <div className="mb-4">
               <label className="block text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
                 ملاحظات الإدارة (اختياري)
@@ -363,6 +374,7 @@ export default function AdminTemplatesPage() {
                 onClick={() => {
                   setShowModal(false);
                   setSelectedTemplate(null);
+                  setSelectedAction(null);
                   setAdminNotes('');
                 }}
                 className="btn-outline"

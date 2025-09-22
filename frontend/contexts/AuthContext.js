@@ -70,7 +70,6 @@ export const AuthProvider = ({ children }) => {
   const checkAuthStatus = async () => {
     try {
       const token = Cookies.get('authToken');
-      console.log('AuthContext: checkAuthStatus - token:', token ? 'exists' : 'not found');
 
       // Check if we have cached user data
       const cachedUser = localStorage.getItem('user');
@@ -98,7 +97,6 @@ export const AuthProvider = ({ children }) => {
         try {
           // Verify token with backend
           const response = await api.get('/auth/me');
-          console.log('AuthContext: checkAuthStatus - user data:', response.data.user);
           const userData = response.data.user;
           setUser(userData);
 

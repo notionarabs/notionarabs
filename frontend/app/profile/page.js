@@ -1,14 +1,18 @@
 'use client';
 
+
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Navigation from '../../components/Navigation';
+import api from '../../lib/api';
+
 
 export default function ProfilePage() {
   const { user, isAuthenticated, loading, logout } = useAuth();
+  const [templateStats, setTemplateStats] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -20,8 +24,35 @@ export default function ProfilePage() {
     if (!loading && isAuthenticated && user && user.creatorStatus !== 'approved') {
       router.push('/');
     }
+
+    // Fetch template stats if user is approved creator
+    if (!loading && isAuthenticated && user && user.creatorStatus === 'approved') {
+      fetchTemplateStats();
+    }
   }, [isAuthenticated, loading, user, router]);
 
+  const fetchTemplateStats = async () => {
+    try {
+      const response = await api.get('/templates/my-templates');
+      const templates = response.data.templates || [];
+      const stats = {
+        total: templates.length,
+        pending: templates.filter(t => t.status === 'pending').length,
+        approved: templates.filter(t => t.status === 'approved').length,
+        rejected: templates.filter(t => t.status === 'rejected').length
+      };
+      setTemplateStats(stats);
+    } catch (error) {
+      console.error('Error fetching template stats:', error);
+      // Set empty stats on error
+      setTemplateStats({
+        total: 0,
+        pending: 0,
+        approved: 0,
+        rejected: 0
+      });
+    }
+  };
   // Show loading only if we're actually loading and don't have user data
   if (loading && !user) {
     return (
@@ -129,6 +160,61 @@ export default function ProfilePage() {
             <p className="body-large text-accent-600 dark:text-dark-text-secondary">إدارة حسابك واستكشاف المزيد من المميزات</p>
           </div>
 
+          {/* Template Status Overview */}
+          {templateStats && (
+            <div className="card p-6 mb-8">
+              <h2 className="heading-2 mb-6">حالة قوالبك المقدمة</h2>
+              {templateStats.total > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary-500 dark:text-orange-500 mb-1">
+                      {templateStats.total}
+                    </div>
+                    <div className="text-sm text-accent-600 dark:text-dark-text-secondary">إجمالي القوالب</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-yellow-500 mb-1">
+                      {templateStats.pending}
+                    </div>
+                    <div className="text-sm text-accent-600 dark:text-dark-text-secondary">قيد المراجعة</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-500 mb-1">
+                      {templateStats.approved}
+                    </div>
+                    <div className="text-sm text-accent-600 dark:text-dark-text-secondary">موافق عليها</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-red-500 mb-1">
+                      {templateStats.rejected}
+                    </div>
+                    <div className="text-sm text-accent-600 dark:text-dark-text-secondary">مرفوضة</div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-gray-400 dark:text-dark-text-quaternary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
+                    لم تقم بإرسال أي قوالب بعد
+                  </h3>
+                  <p className="text-accent-600 dark:text-dark-text-secondary mb-4">
+                    ابدأ بإنشاء قالبك الأول وشاركه مع العالم
+                  </p>
+                  <button
+                    onClick={() => router.push('/templates/create')}
+                    className="btn-primary"
+                  >
+                    إنشاء قالب جديد
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Link href="/templates" className="group card-interactive p-6">
               <div className="flex items-center gap-4">
@@ -159,6 +245,23 @@ export default function ProfilePage() {
                   <p className="body-medium text-accent-600 dark:text-dark-text-secondary">ابدأ بيع قوالبك المبتكرة</p>
                 </div>
                 <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-green-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </div>
+            </Link>
+
+            <Link href="/profile/templates" className="group card-interactive p-6">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="heading-3 group-hover:text-blue-500 transition-colors mb-2">قوالبك المقدمة</h3>
+                  <p className="body-medium text-accent-600 dark:text-dark-text-secondary">تتبع حالة قوالبك المقدمة</p>
+                </div>
+                <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-blue-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </div>

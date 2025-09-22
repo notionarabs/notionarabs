@@ -1,0 +1,199 @@
+const mongoose = require('mongoose');
+
+const templateSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: [true, 'عنوان القالب مطلوب'],
+    trim: true,
+    maxlength: [100, 'عنوان القالب لا يجب أن يتجاوز 100 حرف']
+  },
+  description: {
+    type: String,
+    required: [true, 'وصف القالب مطلوب'],
+    trim: true,
+    maxlength: [1000, 'وصف القالب لا يجب أن يتجاوز 1000 حرف']
+  },
+  category: {
+    type: String,
+    required: [true, 'فئة القالب مطلوبة'],
+    enum: [
+      'الإنتاجية',
+      'الدراسة',
+      'الأعمال',
+      'الحياة الشخصية',
+      'الإبداع',
+      'التقنية',
+      'الصحة',
+      'المالية',
+      'التنظيم',
+      'التخطيط'
+    ]
+  },
+  price: {
+    type: Number,
+    required: [true, 'سعر القالب مطلوب'],
+    min: [0, 'السعر لا يمكن أن يكون سالباً']
+  },
+  notionLink: {
+    type: String,
+    required: [true, 'رابط نوتيون مطلوب'],
+    trim: true,
+    validate: {
+      validator: function (v) {
+        return /^https?:\/\/.+/.test(v);
+      },
+      message: 'رابط نوتيون غير صحيح'
+    }
+  },
+  features: {
+    type: String,
+    trim: true,
+    maxlength: [2000, 'المميزات لا يجب أن تتجاوز 2000 حرف']
+  },
+  tags: [{
+    type: String,
+    trim: true,
+    maxlength: [50, 'الكلمة المفتاحية لا يجب أن تتجاوز 50 حرف']
+  }],
+  difficulty: {
+    type: String,
+    enum: ['beginner', 'intermediate', 'advanced'],
+    default: 'beginner'
+  },
+  previewImage: {
+    type: String,
+    trim: true,
+    validate: {
+      validator: function (v) {
+        if (!v) return true; // Optional field
+        return /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(v);
+      },
+      message: 'رابط الصورة غير صحيح'
+    }
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending'
+  },
+  creator: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  adminNotes: {
+    type: String,
+    trim: true,
+    maxlength: [500, 'ملاحظات الإدارة لا يجب أن تتجاوز 500 حرف']
+  },
+  approvedAt: {
+    type: Date,
+    default: null
+  },
+  rejectedAt: {
+    type: Date,
+    default: null
+  },
+  approvedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
+  },
+  // Template performance metrics
+  views: {
+    type: Number,
+    default: 0
+  },
+  downloads: {
+    type: Number,
+    default: 0
+  },
+  sales: {
+    type: Number,
+    default: 0
+  },
+  rating: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 5
+  },
+  reviewsCount: {
+    type: Number,
+    default: 0
+  }
+}, {
+  timestamps: true
+});
+
+// Index for better query performance
+templateSchema.index({ status: 1, createdAt: -1 });
+templateSchema.index({ creator: 1, status: 1 });
+templateSchema.index({ category: 1, status: 1 });
+templateSchema.index({ tags: 1 });
+
+// Virtual for difficulty label in Arabic
+templateSchema.virtual('difficultyLabel').get(function () {
+  const labels = {
+    'beginner': 'مبتدئ',
+    'intermediate': 'متوسط',
+    'advanced': 'متقدم'
+  };
+  return labels[this.difficulty] || 'غير محدد';
+});
+
+// Virtual for status label in Arabic
+templateSchema.virtual('statusLabel').get(function () {
+  const labels = {
+    'pending': 'قيد المراجعة',
+    'approved': 'موافق عليه',
+    'rejected': 'مرفوض'
+  };
+  return labels[this.status] || 'غير محدد';
+});
+
+// Method to approve template
+templateSchema.methods.approve = function (adminId, notes = '') {
+  this.status = 'approved';
+  this.approvedAt = new Date();
+  this.approvedBy = adminId;
+  this.adminNotes = notes;
+  return this.save();
+};
+
+// Method to reject template
+templateSchema.methods.reject = function (adminId, notes = '') {
+  this.status = 'rejected';
+  this.rejectedAt = new Date();
+  this.approvedBy = adminId;
+  this.adminNotes = notes;
+  return this.save();
+};
+
+// Method to increment views
+templateSchema.methods.incrementViews = function () {
+  this.views += 1;
+  return this.save();
+};
+
+// Method to increment downloads
+templateSchema.methods.incrementDownloads = function () {
+  this.downloads += 1;
+  return this.save();
+};
+
+// Method to increment sales
+templateSchema.methods.incrementSales = function () {
+  this.sales += 1;
+  return this.save();
+};
+
+// Method to update rating
+templateSchema.methods.updateRating = function (newRating) {
+  const totalRating = (this.rating * this.reviewsCount) + newRating;
+  this.reviewsCount += 1;
+  this.rating = totalRating / this.reviewsCount;
+  return this.save();
+};
+
+module.exports = mongoose.model('Template', templateSchema);

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import api from '../../lib/api';
 import { formatDate } from '../../lib/dateUtils';
 
@@ -103,6 +104,22 @@ export default function AdminPage() {
             </div>
           </div>
         )}
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Link href="/admin/creator-applications" className="bg-bw-white rounded-xl p-6 shadow-sm border hover:shadow-md transition-shadow">
+            <h3 className="text-lg font-semibold text-bw-black mb-2">طلبات المبدعين</h3>
+            <p className="text-bw-gray text-sm">مراجعة طلبات الانضمام ك مبدع</p>
+          </Link>
+          <Link href="/admin/templates" className="bg-bw-white rounded-xl p-6 shadow-sm border hover:shadow-md transition-shadow">
+            <h3 className="text-lg font-semibold text-bw-black mb-2">إدارة القوالب</h3>
+            <p className="text-bw-gray text-sm">مراجعة وموافقة على القوالب</p>
+          </Link>
+          <div className="bg-bw-white rounded-xl p-6 shadow-sm border">
+            <h3 className="text-lg font-semibold text-bw-black mb-2">التقارير</h3>
+            <p className="text-bw-gray text-sm">إحصائيات مفصلة عن المنصة</p>
+          </div>
+        </div>
 
         {/* Users Table */}
         <div className="bg-bw-white rounded-xl shadow-sm border overflow-hidden">

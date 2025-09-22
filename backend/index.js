@@ -59,8 +59,10 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/notion-ar
 // Routes
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
+const templateRoutes = require('./routes/templates');
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/templates', templateRoutes);
 
 // Basic route
 app.get('/', (req, res) => {

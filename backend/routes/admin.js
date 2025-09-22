@@ -1,6 +1,7 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
+const Template = require('../models/Template');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
@@ -209,6 +210,170 @@ router.put('/creator-applications/:userId/status', auth, [
     });
   } catch (error) {
     console.error('Update creator status error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   GET /api/admin/templates
+// @desc    Get all templates for admin review
+// @access  Private (Admin only)
+router.get('/templates', auth, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    const { status, page = 1, limit = 10 } = req.query;
+
+    const filter = {};
+    if (status && status !== 'all') {
+      filter.status = status;
+    }
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const templates = await Template.find(filter)
+      .populate('creator', 'name email profilePicture')
+      .populate('approvedBy', 'name')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const total = await Template.countDocuments(filter);
+
+    res.json({
+      success: true,
+      templates,
+      pagination: {
+        current: parseInt(page),
+        pages: Math.ceil(total / parseInt(limit)),
+        total,
+        limit: parseInt(limit)
+      }
+    });
+  } catch (error) {
+    console.error('Get admin templates error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   PUT /api/admin/templates/:id/status
+// @desc    Approve or reject template
+// @access  Private (Admin only)
+router.put('/templates/:id/status', auth, [
+  body('status')
+    .isIn(['approved', 'rejected'])
+    .withMessage('الحالة يجب أن تكون: approved أو rejected'),
+  body('adminNotes')
+    .optional()
+    .isLength({ max: 500 })
+    .withMessage('ملاحظات الإدارة لا يجب أن تتجاوز 500 حرف')
+], async (req, res) => {
+  try {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'بيانات غير صحيحة',
+        errors: errors.array()
+      });
+    }
+
+    const { status, adminNotes = '' } = req.body;
+    const { id } = req.params;
+
+    const template = await Template.findById(id);
+    if (!template) {
+      return res.status(404).json({
+        success: false,
+        message: 'القالب غير موجود'
+      });
+    }
+
+    if (status === 'approved') {
+      await template.approve(req.user.id, adminNotes);
+    } else {
+      await template.reject(req.user.id, adminNotes);
+    }
+
+    await template.populate('creator', 'name email profilePicture');
+
+    res.json({
+      success: true,
+      message: `تم ${status === 'approved' ? 'الموافقة على' : 'رفض'} القالب بنجاح`,
+      template
+    });
+  } catch (error) {
+    console.error('Update template status error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   GET /api/admin/template-stats
+// @desc    Get template statistics
+// @access  Private (Admin only)
+router.get('/template-stats', auth, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    const totalTemplates = await Template.countDocuments();
+    const pendingTemplates = await Template.countDocuments({ status: 'pending' });
+    const approvedTemplates = await Template.countDocuments({ status: 'approved' });
+    const rejectedTemplates = await Template.countDocuments({ status: 'rejected' });
+
+    const totalViews = await Template.aggregate([
+      { $group: { _id: null, total: { $sum: '$views' } } }
+    ]);
+
+    const totalDownloads = await Template.aggregate([
+      { $group: { _id: null, total: { $sum: '$downloads' } } }
+    ]);
+
+    const totalSales = await Template.aggregate([
+      { $group: { _id: null, total: { $sum: '$sales' } } }
+    ]);
+
+    res.json({
+      success: true,
+      stats: {
+        totalTemplates,
+        pendingTemplates,
+        approvedTemplates,
+        rejectedTemplates,
+        totalViews: totalViews[0]?.total || 0,
+        totalDownloads: totalDownloads[0]?.total || 0,
+        totalSales: totalSales[0]?.total || 0
+      }
+    });
+  } catch (error) {
+    console.error('Get template stats error:', error);
     res.status(500).json({
       success: false,
       message: 'خطأ في الخادم'

@@ -85,8 +85,3 @@ jspm_packages/
 
 # DynamoDB Local files
 .dynamodb/
-
-# Temporary uploads and screenshots
-backend/uploads/screenshots/*.png
-backend/uploads/screenshots/*.jpg
-backend/uploads/screenshots/*.jpeg

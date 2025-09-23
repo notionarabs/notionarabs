@@ -8,6 +8,8 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
+// Trust proxy so req.secure and forwarded headers are accurate behind Render/Vercel proxies
+app.set('trust proxy', 1);
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'https://notion-arabs.vercel.app',
   'https://notion-arabs.vercel.app',

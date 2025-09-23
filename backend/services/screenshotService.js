@@ -101,9 +101,13 @@ class ScreenshotService {
       // Return the full URL for the screenshot
       let baseUrl;
       if (req && req.get('host')) {
-        // Use the request's host information
-        const protocol = req.secure ? 'https' : 'http';
-        baseUrl = `${protocol}://${req.get('host')}`;
+        // Prefer X-Forwarded-Proto/Host when behind a proxy
+        const forwardedProto = req.get('x-forwarded-proto');
+        const forwardedHost = req.get('x-forwarded-host');
+        const host = forwardedHost || req.get('host');
+        // If trust proxy is enabled, req.secure reflects forwarded proto
+        const protocol = forwardedProto || (req.secure ? 'https' : 'http');
+        baseUrl = `${protocol}://${host}`;
       } else {
         // Fallback to environment-based URL
         baseUrl = process.env.BACKEND_URL ||

@@ -1,11 +1,27 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
+const cloudinary = require('cloudinary').v2;
 
 class ScreenshotService {
   constructor() {
     this.screenshotsDir = path.join(__dirname, '..', 'uploads', 'screenshots');
     this.ensureScreenshotsDir();
+    this.setupCloudinary();
+  }
+
+  setupCloudinary() {
+    // Configure Cloudinary if credentials are available
+    if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+      cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET
+      });
+      console.log('✅ Cloudinary configured successfully');
+    } else {
+      console.log('⚠️ Cloudinary credentials not found, using local storage fallback');
+    }
   }
 
   ensureScreenshotsDir() {
@@ -22,6 +38,71 @@ class ScreenshotService {
       .substring(0, 16);
     const timestamp = Date.now();
     return `screenshot_${urlHash}_${timestamp}.png`;
+  }
+
+  async uploadToCloudinary(filepath, filename) {
+    try {
+      console.log('Uploading to Cloudinary:', filename);
+
+      const result = await cloudinary.uploader.upload(filepath, {
+        public_id: `notion-arabs/screenshots/${filename.replace('.png', '')}`,
+        folder: 'notion-arabs/screenshots',
+        resource_type: 'image',
+        transformation: [
+          { width: 1200, height: 800, crop: 'limit', quality: 'auto' },
+          { format: 'auto' }
+        ]
+      });
+
+      console.log('✅ Cloudinary upload successful:', result.secure_url);
+      return {
+        success: true,
+        url: result.secure_url,
+        publicId: result.public_id
+      };
+    } catch (error) {
+      console.error('❌ Cloudinary upload failed:', error.message);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  async getScreenshotUrl(filename, req = null) {
+    // Try Cloudinary first if configured
+    if (process.env.CLOUDINARY_CLOUD_NAME) {
+      const cloudinaryUrl = `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload/notion-arabs/screenshots/${filename.replace('.png', '')}.png`;
+
+      // Test if the image exists on Cloudinary
+      try {
+        const response = await fetch(cloudinaryUrl, { method: 'HEAD' });
+        if (response.ok) {
+          console.log('✅ Using Cloudinary URL:', cloudinaryUrl);
+          return cloudinaryUrl;
+        }
+      } catch (error) {
+        console.log('⚠️ Cloudinary image not found, falling back to local');
+      }
+    }
+
+    // Fallback to local storage
+    let baseUrl;
+    if (req && req.get('host')) {
+      const forwardedProto = req.get('x-forwarded-proto');
+      const forwardedHost = req.get('x-forwarded-host');
+      const host = forwardedHost || req.get('host');
+      const protocol = forwardedProto || (req.secure ? 'https' : 'http');
+      baseUrl = `${protocol}://${host}`;
+    } else {
+      baseUrl = process.env.BACKEND_URL ||
+        (process.env.NODE_ENV === 'production'
+          ? 'https://notion-arabs.onrender.com'
+          : 'http://localhost:5000');
+    }
+
+    const timestamp = Date.now();
+    return `${baseUrl}/uploads/screenshots/${filename}?t=${timestamp}`;
   }
 
   async takeScreenshot(url, req = null) {
@@ -98,29 +179,33 @@ class ScreenshotService {
         throw new Error('Screenshot file was not created');
       }
 
-      // Return the full URL for the screenshot
-      let baseUrl;
-      if (req && req.get('host')) {
-        // Prefer X-Forwarded-Proto/Host when behind a proxy
-        const forwardedProto = req.get('x-forwarded-proto');
-        const forwardedHost = req.get('x-forwarded-host');
-        const host = forwardedHost || req.get('host');
-        // If trust proxy is enabled, req.secure reflects forwarded proto
-        const protocol = forwardedProto || (req.secure ? 'https' : 'http');
-        baseUrl = `${protocol}://${host}`;
+      // Try to upload to Cloudinary first
+      let screenshotUrl;
+      if (process.env.CLOUDINARY_CLOUD_NAME) {
+        const uploadResult = await this.uploadToCloudinary(filepath, filename);
+        if (uploadResult.success) {
+          screenshotUrl = uploadResult.url;
+          console.log('✅ Using Cloudinary URL:', screenshotUrl);
+
+          // Clean up local file after successful upload
+          try {
+            fs.unlinkSync(filepath);
+            console.log('🗑️ Local file cleaned up');
+          } catch (cleanupError) {
+            console.warn('⚠️ Failed to clean up local file:', cleanupError.message);
+          }
+        } else {
+          console.log('⚠️ Cloudinary upload failed, using local storage:', uploadResult.error);
+          screenshotUrl = await this.getScreenshotUrl(filename, req);
+        }
       } else {
-        // Fallback to environment-based URL
-        baseUrl = process.env.BACKEND_URL ||
-          (process.env.NODE_ENV === 'production'
-            ? 'https://notion-arabs.onrender.com'
-            : 'http://localhost:5000');
+        // No Cloudinary configured, use local storage
+        screenshotUrl = await this.getScreenshotUrl(filename, req);
       }
-      const timestamp = Date.now();
-      const screenshotUrl = `${baseUrl}/uploads/screenshots/${filename}?t=${timestamp}`;
 
       console.log(`🔧 Screenshot Service Debug:`);
       console.log(`   NODE_ENV: ${process.env.NODE_ENV || 'undefined'}`);
-      console.log(`   Base URL: ${baseUrl}`);
+      console.log(`   Cloudinary configured: ${!!process.env.CLOUDINARY_CLOUD_NAME}`);
       console.log(`   Screenshot URL: ${screenshotUrl}`);
 
       return {

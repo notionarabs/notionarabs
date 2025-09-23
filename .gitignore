@@ -85,3 +85,8 @@ jspm_packages/
 
 # DynamoDB Local files
 .dynamodb/
+
+# Cloudinary credentials (if stored in .env)
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=

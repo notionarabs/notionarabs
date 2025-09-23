@@ -18,6 +18,8 @@ export default function AdminTemplatesPage() {
   const [showModal, setShowModal] = useState(false);
   const [adminNotes, setAdminNotes] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedTemplateDetails, setSelectedTemplateDetails] = useState(null);
 
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
@@ -63,6 +65,11 @@ export default function AdminTemplatesPage() {
     setSelectedAction(action);
     setAdminNotes('');
     setShowModal(true);
+  };
+
+  const handleViewDetails = (template) => {
+    setSelectedTemplateDetails(template);
+    setShowDetailsModal(true);
   };
 
   const confirmStatusChange = async () => {
@@ -231,7 +238,25 @@ export default function AdminTemplatesPage() {
                 {templates.map((template) => (
                   <tr key={template._id} className="hover:bg-gray-50 dark:hover:bg-dark-tertiary">
                     <td className="px-6 py-4">
-                      <div className="flex items-center">
+                      <div className="flex items-center gap-4">
+                        {/* Preview Image */}
+                        <div className="flex-shrink-0">
+                          {template.previewImage ? (
+                            <img
+                              src={template.previewImage}
+                              alt={`معاينة ${template.title}`}
+                              className="w-16 h-12 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                            />
+                          ) : (
+                            <div className="w-16 h-12 bg-gray-100 dark:bg-dark-tertiary rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center">
+                              <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Template Info */}
                         <div className="flex-1">
                           <div className="text-sm font-medium text-accent-500 dark:text-dark-text-primary">
                             {template.title}
@@ -297,13 +322,19 @@ export default function AdminTemplatesPage() {
                             </button>
                           </>
                         )}
+                        <button
+                          onClick={() => handleViewDetails(template)}
+                          className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                        >
+                          تفاصيل
+                        </button>
                         <a
                           href={template.notionLink}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                          className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
                         >
-                          عرض
+                          نوتيون
                         </a>
                       </div>
                     </td>
@@ -356,6 +387,20 @@ export default function AdminTemplatesPage() {
               <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
                 <span className="font-medium">المبدع:</span> {selectedTemplate.creator?.name}
               </p>
+
+              {/* Preview Image */}
+              {selectedTemplate.previewImage && (
+                <div className="mt-3">
+                  <p className="text-sm font-medium text-accent-600 dark:text-dark-text-secondary mb-2">
+                    صورة المعاينة:
+                  </p>
+                  <img
+                    src={selectedTemplate.previewImage}
+                    alt={`معاينة ${selectedTemplate.title}`}
+                    className="w-full max-w-sm h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                  />
+                </div>
+              )}
             </div>
             <div className="mb-4">
               <label className="block text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
@@ -389,6 +434,175 @@ export default function AdminTemplatesPage() {
               >
                 {actionLoading ? 'جاري المعالجة...' : 'تأكيد'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Template Details Modal */}
+      {showDetailsModal && selectedTemplateDetails && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-dark-secondary rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-semibold text-accent-500 dark:text-dark-text-primary">
+                تفاصيل القالب
+              </h3>
+              <button
+                onClick={() => {
+                  setShowDetailsModal(false);
+                  setSelectedTemplateDetails(null);
+                }}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left Column - Template Info */}
+              <div className="space-y-6">
+                <div className="card p-4">
+                  <h4 className="font-semibold text-accent-500 dark:text-dark-text-primary mb-4">معلومات القالب</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="font-medium text-accent-600 dark:text-dark-text-secondary">العنوان:</span>
+                      <p className="text-accent-500 dark:text-dark-text-primary">{selectedTemplateDetails.title}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-accent-600 dark:text-dark-text-secondary">الوصف:</span>
+                      <p className="text-accent-500 dark:text-dark-text-primary">{selectedTemplateDetails.description}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-accent-600 dark:text-dark-text-secondary">الفئة:</span>
+                      <p className="text-accent-500 dark:text-dark-text-primary">{selectedTemplateDetails.category}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-accent-600 dark:text-dark-text-secondary">السعر:</span>
+                      <p className="text-accent-500 dark:text-dark-text-primary">{selectedTemplateDetails.price} ريال</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-accent-600 dark:text-dark-text-secondary">مستوى الصعوبة:</span>
+                      <div className="mt-1">{getDifficultyBadge(selectedTemplateDetails.difficulty)}</div>
+                    </div>
+                    {selectedTemplateDetails.tags && selectedTemplateDetails.tags.length > 0 && (
+                      <div>
+                        <span className="font-medium text-accent-600 dark:text-dark-text-secondary">الكلمات المفتاحية:</span>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {selectedTemplateDetails.tags.map((tag, index) => (
+                            <span key={index} className="px-2 py-1 bg-gray-100 dark:bg-dark-tertiary text-xs rounded">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="card p-4">
+                  <h4 className="font-semibold text-accent-500 dark:text-dark-text-primary mb-4">معلومات المبدع</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="font-medium text-accent-600 dark:text-dark-text-secondary">الاسم:</span>
+                      <p className="text-accent-500 dark:text-dark-text-primary">{selectedTemplateDetails.creator?.name}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-accent-600 dark:text-dark-text-secondary">البريد الإلكتروني:</span>
+                      <p className="text-accent-500 dark:text-dark-text-primary">{selectedTemplateDetails.creator?.email}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {selectedTemplateDetails.features && (
+                  <div className="card p-4">
+                    <h4 className="font-semibold text-accent-500 dark:text-dark-text-primary mb-4">المميزات</h4>
+                    <p className="text-accent-500 dark:text-dark-text-primary whitespace-pre-line">
+                      {selectedTemplateDetails.features}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Right Column - Preview Image */}
+              <div className="space-y-6">
+                <div className="card p-4">
+                  <h4 className="font-semibold text-accent-500 dark:text-dark-text-primary mb-4">صورة المعاينة</h4>
+                  {selectedTemplateDetails.previewImage ? (
+                    <div className="space-y-4">
+                      <img
+                        src={selectedTemplateDetails.previewImage}
+                        alt={`معاينة ${selectedTemplateDetails.title}`}
+                        className="w-full h-64 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                      />
+                      <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                        تم التقاط هذه الصورة تلقائياً من قالب نوتيون
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="w-full h-64 bg-gray-100 dark:bg-dark-tertiary rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center">
+                      <div className="text-center">
+                        <svg className="w-16 h-16 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p className="text-gray-500 dark:text-gray-400">لا توجد صورة معاينة</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="card p-4">
+                  <h4 className="font-semibold text-accent-500 dark:text-dark-text-primary mb-4">روابط</h4>
+                  <div className="space-y-3">
+                    <a
+                      href={selectedTemplateDetails.notionLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                    >
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd" />
+                      </svg>
+                      عرض قالب نوتيون
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={() => {
+                  setShowDetailsModal(false);
+                  setSelectedTemplateDetails(null);
+                }}
+                className="btn-outline"
+              >
+                إغلاق
+              </button>
+              {selectedTemplateDetails.status === 'pending' && (
+                <>
+                  <button
+                    onClick={() => {
+                      setShowDetailsModal(false);
+                      handleStatusChange(selectedTemplateDetails, 'approved');
+                    }}
+                    className="btn-primary bg-green-600 hover:bg-green-700"
+                  >
+                    موافقة
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowDetailsModal(false);
+                      handleStatusChange(selectedTemplateDetails, 'rejected');
+                    }}
+                    className="btn-primary bg-red-600 hover:bg-red-700"
+                  >
+                    رفض
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

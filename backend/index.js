@@ -47,6 +47,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// Serve static files (screenshots)
+app.use('/uploads', express.static('uploads'));
+
 // Passport middleware
 app.use(passport.initialize());
 require('./config/passport');
@@ -60,9 +63,11 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/notion-ar
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const templateRoutes = require('./routes/templates');
+const screenshotRoutes = require('./routes/screenshot');
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/templates', templateRoutes);
+app.use('/api/screenshot', screenshotRoutes);
 
 // Basic route
 app.get('/', (req, res) => {

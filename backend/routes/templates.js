@@ -48,8 +48,21 @@ router.post('/', auth, [
     .withMessage('مستوى الصعوبة غير صحيح'),
   body('previewImage')
     .optional()
-    .isURL()
-    .withMessage('رابط الصورة غير صحيح')
+    .custom((value) => {
+      // If no value provided, that's fine - screenshot will be captured automatically
+      if (!value) return true;
+
+      try {
+        const url = new URL(value);
+        // Allow http, https protocols
+        if (!['http:', 'https:'].includes(url.protocol)) {
+          throw new Error('Invalid protocol');
+        }
+        return true;
+      } catch (error) {
+        throw new Error('رابط الصورة غير صحيح');
+      }
+    })
 ], async (req, res) => {
   try {
     // Check if user is an approved creator
@@ -62,6 +75,8 @@ router.post('/', auth, [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Template validation errors:', errors.array());
+      console.log('Received data:', req.body);
       return res.status(400).json({
         success: false,
         message: 'بيانات غير صحيحة',
@@ -69,10 +84,28 @@ router.post('/', auth, [
       });
     }
 
+    // If no preview image provided, capture screenshot automatically
+    let previewImageUrl = req.body.previewImage;
+
+    if (!previewImageUrl && req.body.notionLink) {
+      try {
+        const screenshotService = require('../services/screenshotService');
+        const screenshotResult = await screenshotService.takeScreenshot(req.body.notionLink);
+        if (screenshotResult.success) {
+          previewImageUrl = screenshotResult.screenshotUrl;
+          console.log('Auto-captured screenshot for template:', previewImageUrl);
+        }
+      } catch (error) {
+        console.error('Failed to auto-capture screenshot:', error.message);
+        // Continue without screenshot - it's not required
+      }
+    }
+
     const templateData = {
       ...req.body,
       creator: req.user.id,
-      status: 'pending'
+      status: 'pending',
+      previewImage: previewImageUrl
     };
 
     const template = new Template(templateData);

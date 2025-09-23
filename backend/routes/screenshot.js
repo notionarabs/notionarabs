@@ -37,7 +37,7 @@ router.post('/', auth, [
     const { url } = req.body;
 
     // Take screenshot
-    const result = await screenshotService.takeScreenshot(url);
+    const result = await screenshotService.takeScreenshot(url, req);
 
     res.json({
       success: true,

@@ -24,7 +24,7 @@ class ScreenshotService {
     return `screenshot_${urlHash}_${timestamp}.png`;
   }
 
-  async takeScreenshot(url) {
+  async takeScreenshot(url, req = null) {
     console.log(`Starting screenshot capture for URL: ${url}`);
 
     let browser;
@@ -99,7 +99,18 @@ class ScreenshotService {
       }
 
       // Return the full URL for the screenshot
-      const baseUrl = 'http://localhost:5000';
+      let baseUrl;
+      if (req && req.get('host')) {
+        // Use the request's host information
+        const protocol = req.secure ? 'https' : 'http';
+        baseUrl = `${protocol}://${req.get('host')}`;
+      } else {
+        // Fallback to environment-based URL
+        baseUrl = process.env.BACKEND_URL ||
+          (process.env.NODE_ENV === 'production'
+            ? 'https://notion-arabs.onrender.com'
+            : 'http://localhost:5000');
+      }
       const timestamp = Date.now();
       const screenshotUrl = `${baseUrl}/uploads/screenshots/${filename}?t=${timestamp}`;
 

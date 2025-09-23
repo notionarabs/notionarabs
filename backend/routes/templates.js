@@ -90,7 +90,7 @@ router.post('/', auth, [
     if (!previewImageUrl && req.body.notionLink) {
       try {
         const screenshotService = require('../services/screenshotService');
-        const screenshotResult = await screenshotService.takeScreenshot(req.body.notionLink);
+        const screenshotResult = await screenshotService.takeScreenshot(req.body.notionLink, req);
         if (screenshotResult.success) {
           previewImageUrl = screenshotResult.screenshotUrl;
           console.log('Auto-captured screenshot for template:', previewImageUrl);

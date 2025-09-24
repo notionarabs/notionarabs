@@ -3,8 +3,10 @@ services:
     name: notion-arabs-backend
     env: node
     plan: starter
-    buildCommand: cd backend && npm install
+    nodeVersion: 18
+    buildCommand: cd backend && npm ci --production --no-audit --no-fund
     startCommand: cd backend && npm start
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production

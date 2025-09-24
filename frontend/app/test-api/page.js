@@ -26,7 +26,6 @@ export default function TestApiPage() {
         difficulty: 'beginner'
       };
 
-      console.log('Sending template data:', templateData);
       console.log('User data:', user);
       console.log('Is authenticated:', isAuthenticated);
       console.log('Creator status:', user?.creatorStatus);

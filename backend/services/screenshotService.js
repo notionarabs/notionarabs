@@ -18,9 +18,6 @@ class ScreenshotService {
         api_key: process.env.CLOUDINARY_API_KEY,
         api_secret: process.env.CLOUDINARY_API_SECRET
       });
-      console.log('✅ Cloudinary configured successfully');
-    } else {
-      console.log('⚠️ Cloudinary credentials not found, using local storage fallback');
     }
   }
 
@@ -42,8 +39,6 @@ class ScreenshotService {
 
   async uploadToCloudinary(filepath, filename) {
     try {
-      console.log('Uploading to Cloudinary:', filename);
-
       const result = await cloudinary.uploader.upload(filepath, {
         public_id: `notion-arabs/screenshots/${filename.replace('.png', '')}`,
         folder: 'notion-arabs/screenshots',
@@ -54,14 +49,13 @@ class ScreenshotService {
         ]
       });
 
-      console.log('✅ Cloudinary upload successful:', result.secure_url);
       return {
         success: true,
         url: result.secure_url,
         publicId: result.public_id
       };
     } catch (error) {
-      console.error('❌ Cloudinary upload failed:', error.message);
+      console.error('Cloudinary upload failed:', error.message);
       return {
         success: false,
         error: error.message
@@ -78,11 +72,10 @@ class ScreenshotService {
       try {
         const response = await fetch(cloudinaryUrl, { method: 'HEAD' });
         if (response.ok) {
-          console.log('✅ Using Cloudinary URL:', cloudinaryUrl);
           return cloudinaryUrl;
         }
       } catch (error) {
-        console.log('⚠️ Cloudinary image not found, falling back to local');
+        // Fall back to local storage
       }
     }
 
@@ -106,11 +99,9 @@ class ScreenshotService {
   }
 
   async takeScreenshot(url, req = null) {
-    console.log(`Starting screenshot capture for URL: ${url}`);
-
     let browser;
     try {
-      // Launch browser with Windows-compatible options
+      // Production-optimized launch options
       const launchOptions = {
         headless: true,
         args: [
@@ -124,38 +115,78 @@ class ScreenshotService {
           '--disable-features=VizDisplayCompositor',
           '--disable-background-timer-throttling',
           '--disable-backgrounding-occluded-windows',
-          '--disable-renderer-backgrounding'
-        ]
+          '--disable-renderer-backgrounding',
+          '--disable-extensions',
+          '--disable-plugins',
+          '--disable-images', // Disable images to save memory
+          '--disable-javascript', // Disable JS for faster loading
+          '--disable-css',
+          '--disable-fonts',
+          '--memory-pressure-off',
+          '--max_old_space_size=512', // Limit memory usage
+          '--single-process' // Use single process to avoid memory issues
+        ],
+        // Production-specific options
+        timeout: 30000,
+        protocolTimeout: 30000,
+        slowMo: 0
       };
 
-      console.log('Launching browser with options:', launchOptions);
+      // In production, try to use system Chrome if available
+      if (process.env.NODE_ENV === 'production') {
+        // Try common Chrome paths
+        const chromePaths = [
+          '/usr/bin/google-chrome-stable',
+          '/usr/bin/google-chrome',
+          '/usr/bin/chromium-browser',
+          '/usr/bin/chromium',
+          '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+          'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+          'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
+        ];
+
+        for (const chromePath of chromePaths) {
+          try {
+            const fs = require('fs');
+            if (fs.existsSync(chromePath)) {
+              launchOptions.executablePath = chromePath;
+              break;
+            }
+          } catch (e) {
+            // Continue to next path
+          }
+        }
+      }
+
       browser = await puppeteer.launch(launchOptions);
-      console.log('Browser launched successfully');
 
       const page = await browser.newPage();
 
+      // Set viewport for consistent screenshots
+      await page.setViewport({ width: 1200, height: 800 });
+
       // Set user agent to avoid detection
       await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
-      console.log('User agent set, navigating to URL...');
 
-      // Navigate to the URL
+      // Navigate to the URL with more lenient options
       await page.goto(url, {
-        waitUntil: 'networkidle0',
+        waitUntil: 'domcontentloaded',
         timeout: 30000
       });
-      console.log('Page loaded successfully');
 
-      // Wait for dynamic content
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      console.log('Waiting for dynamic content...');
+      // Wait for basic content to load
+      await new Promise(resolve => setTimeout(resolve, 3000));
 
-      // Wait for Notion content
-      await page.waitForSelector('[data-block-id]', { timeout: 10000 });
-      console.log('Notion content detected');
+      // Try to wait for Notion content, but don't fail if not found
+      try {
+        await page.waitForSelector('[data-block-id]', { timeout: 5000 });
+      } catch (error) {
+        // Continue without Notion-specific content detection
+      }
 
       // Simple scroll to get past any header/banner
       await page.evaluate(() => {
-        window.scrollTo(0, 100); // Simple scroll down 100px
+        window.scrollTo(0, 100);
       });
 
       // Wait for scroll to complete
@@ -164,7 +195,6 @@ class ScreenshotService {
       // Generate unique filename
       const filename = this.generateFilename(url);
       const filepath = path.join(this.screenshotsDir, filename);
-      console.log(`Taking screenshot, saving to: ${filepath}`);
 
       // Take a simple viewport screenshot
       await page.screenshot({
@@ -172,7 +202,6 @@ class ScreenshotService {
         fullPage: false,
         type: 'png'
       });
-      console.log('Screenshot captured successfully');
 
       // Verify file was created
       if (!fs.existsSync(filepath)) {
@@ -185,28 +214,20 @@ class ScreenshotService {
         const uploadResult = await this.uploadToCloudinary(filepath, filename);
         if (uploadResult.success) {
           screenshotUrl = uploadResult.url;
-          console.log('✅ Using Cloudinary URL:', screenshotUrl);
 
           // Clean up local file after successful upload
           try {
             fs.unlinkSync(filepath);
-            console.log('🗑️ Local file cleaned up');
           } catch (cleanupError) {
-            console.warn('⚠️ Failed to clean up local file:', cleanupError.message);
+            console.warn('Failed to clean up local file:', cleanupError.message);
           }
         } else {
-          console.log('⚠️ Cloudinary upload failed, using local storage:', uploadResult.error);
           screenshotUrl = await this.getScreenshotUrl(filename, req);
         }
       } else {
         // No Cloudinary configured, use local storage
         screenshotUrl = await this.getScreenshotUrl(filename, req);
       }
-
-      console.log(`🔧 Screenshot Service Debug:`);
-      console.log(`   NODE_ENV: ${process.env.NODE_ENV || 'undefined'}`);
-      console.log(`   Cloudinary configured: ${!!process.env.CLOUDINARY_CLOUD_NAME}`);
-      console.log(`   Screenshot URL: ${screenshotUrl}`);
 
       return {
         success: true,
@@ -215,15 +236,34 @@ class ScreenshotService {
       };
 
     } catch (error) {
-      console.error('Screenshot capture error:', error);
+      console.error('Screenshot capture error:', error.message);
+
+      // Return more specific error information
+      let errorMessage = 'Failed to capture screenshot';
+      if (error.message.includes('Browser closed unexpectedly')) {
+        errorMessage = 'Browser closed unexpectedly - possible memory/resource issue';
+      } else if (error.message.includes('Navigation timeout')) {
+        errorMessage = 'Page took too long to load';
+      } else if (error.message.includes('Cannot reach the website')) {
+        errorMessage = 'Cannot reach the website';
+      } else if (error.message.includes('Invalid URL')) {
+        errorMessage = 'Invalid URL provided';
+      } else if (error.message.includes('ENOENT')) {
+        errorMessage = 'Chrome/Chromium not found - installation issue';
+      }
+
       return {
         success: false,
-        error: error.message
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
       };
     } finally {
       if (browser) {
-        await browser.close();
-        console.log('Browser closed');
+        try {
+          await browser.close();
+        } catch (closeError) {
+          console.error('Error closing browser:', closeError.message);
+        }
       }
     }
   }

@@ -276,7 +276,6 @@ export default function CreatorTemplatesPage() {
                         onClick={() => {
                           if (confirm('هل أنت متأكد من حذف هذا القالب؟')) {
                             // Add delete functionality here
-                            console.log('Delete template:', template._id);
                           }
                         }}
                         className="btn-outline text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-600 dark:hover:bg-red-900/20"
@@ -289,7 +288,6 @@ export default function CreatorTemplatesPage() {
                       <button
                         onClick={() => {
                           // Add edit functionality here
-                          console.log('Edit template:', template._id);
                         }}
                         className="btn-outline"
                       >

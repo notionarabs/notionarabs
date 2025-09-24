@@ -79,6 +79,37 @@ router.post('/', auth, [
   }
 });
 
+// @route   GET /api/screenshot/health
+// @desc    Check screenshot service health
+// @access  Public
+router.get('/health', async (req, res) => {
+  try {
+    // Test if Puppeteer can launch
+    const puppeteer = require('puppeteer');
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+
+    await browser.close();
+
+    res.json({
+      success: true,
+      message: 'Screenshot service is healthy',
+      environment: process.env.NODE_ENV,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Screenshot health check failed:', error);
+    res.status(503).json({
+      success: false,
+      message: 'Screenshot service is not available',
+      error: error.message,
+      environment: process.env.NODE_ENV
+    });
+  }
+});
+
 // @route   GET /api/screenshot/cleanup
 // @desc    Clean up old screenshots (admin only)
 // @access  Private (Admin)

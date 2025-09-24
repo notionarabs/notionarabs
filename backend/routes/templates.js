@@ -75,8 +75,6 @@ router.post('/', auth, [
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log('Template validation errors:', errors.array());
-      console.log('Received data:', req.body);
       return res.status(400).json({
         success: false,
         message: 'بيانات غير صحيحة',
@@ -86,17 +84,20 @@ router.post('/', auth, [
 
     // If no preview image provided, capture screenshot automatically
     let previewImageUrl = req.body.previewImage;
+    let screenshotError = null;
 
     if (!previewImageUrl && req.body.notionLink) {
       try {
         const screenshotService = require('../services/screenshotService');
         const screenshotResult = await screenshotService.takeScreenshot(req.body.notionLink, req);
+
         if (screenshotResult.success) {
           previewImageUrl = screenshotResult.screenshotUrl;
-          console.log('Auto-captured screenshot for template:', previewImageUrl);
+        } else {
+          screenshotError = screenshotResult.error;
         }
       } catch (error) {
-        console.error('Failed to auto-capture screenshot:', error.message);
+        screenshotError = error.message;
         // Continue without screenshot - it's not required
       }
     }
@@ -114,11 +115,27 @@ router.post('/', auth, [
     // Populate creator information
     await template.populate('creator', 'name email profilePicture');
 
-    res.status(201).json({
+    const response = {
       success: true,
       message: 'تم إرسال القالب بنجاح. سيتم مراجعته من قبل الإدارة قريباً.',
       template
-    });
+    };
+
+    // Include screenshot status in response
+    if (screenshotError) {
+      response.screenshotStatus = {
+        success: false,
+        error: screenshotError,
+        message: 'فشل في التقاط صورة المعاينة تلقائياً. يمكنك إضافة صورة يدوياً لاحقاً.'
+      };
+    } else if (previewImageUrl) {
+      response.screenshotStatus = {
+        success: true,
+        message: 'تم التقاط صورة المعاينة بنجاح'
+      };
+    }
+
+    res.status(201).json(response);
   } catch (error) {
     console.error('Create template error:', error);
     res.status(500).json({

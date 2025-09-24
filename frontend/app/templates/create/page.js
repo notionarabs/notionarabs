@@ -106,12 +106,6 @@ export default function CreateTemplatePage() {
 
       if (response.data.success) {
         const screenshotUrl = response.data.data.screenshotUrl;
-        console.log('🔧 Frontend Debug:');
-        console.log('   Screenshot URL received:', screenshotUrl);
-        console.log('   Full response:', response.data);
-        console.log('   Current environment:', process.env.NODE_ENV);
-        console.log('   API URL:', process.env.NEXT_PUBLIC_API_URL);
-
         setScreenshotPreview(screenshotUrl);
 
         // Auto-fill the preview image field
@@ -193,12 +187,21 @@ export default function CreateTemplatePage() {
         }
       });
 
-      console.log('Sending template data:', templateData);
       const response = await api.post('/templates', templateData);
 
       if (response.data.success) {
-        // Show success message
-        alert('تم إرسال القالب بنجاح! سيتم مراجعته من قبل الإدارة قريباً.');
+        // Show success message with screenshot status
+        let successMessage = 'تم إرسال القالب بنجاح! سيتم مراجعته من قبل الإدارة قريباً.';
+
+        if (response.data.screenshotStatus) {
+          if (response.data.screenshotStatus.success) {
+            successMessage += '\n\n✅ تم التقاط صورة المعاينة بنجاح.';
+          } else {
+            successMessage += `\n\n⚠️ ${response.data.screenshotStatus.message}`;
+          }
+        }
+
+        alert(successMessage);
         router.push('/profile');
       }
     } catch (error) {
@@ -382,12 +385,7 @@ export default function CreateTemplatePage() {
                           src={screenshotPreview}
                           alt="صورة المعاينة التلقائية"
                           className="w-full max-w-md h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
-                          onLoad={() => console.log('Image loaded successfully:', screenshotPreview)}
-                          onError={(e) => {
-                            console.error('Image failed to load:', screenshotPreview);
-                            console.error('Error event:', e);
-                            console.error('Current environment:', process.env.NODE_ENV);
-                            console.error('API URL:', process.env.NEXT_PUBLIC_API_URL);
+                          onError={() => {
                             alert(`فشل في تحميل الصورة: ${screenshotPreview}\n\nيرجى المحاولة مرة أخرى.`);
                           }}
                         />

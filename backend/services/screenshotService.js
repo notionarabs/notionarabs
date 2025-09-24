@@ -101,7 +101,7 @@ class ScreenshotService {
   async takeScreenshot(url, req = null) {
     let browser;
     try {
-      // Production-optimized launch options
+      // Windows-optimized launch options
       const launchOptions = {
         headless: true,
         args: [
@@ -118,43 +118,64 @@ class ScreenshotService {
           '--disable-renderer-backgrounding',
           '--disable-extensions',
           '--disable-plugins',
-          '--disable-images', // Disable images to save memory
-          '--disable-javascript', // Disable JS for faster loading
-          '--disable-css',
-          '--disable-fonts',
-          '--memory-pressure-off',
-          '--max_old_space_size=512', // Limit memory usage
-          '--single-process' // Use single process to avoid memory issues
+          '--disable-default-apps',
+          '--disable-sync',
+          '--disable-translate',
+          '--hide-scrollbars',
+          '--mute-audio',
+          '--no-default-browser-check',
+          '--no-pings',
+          '--disable-background-networking',
+          '--disable-component-extensions-with-background-pages',
+          '--disable-ipc-flooding-protection',
+          '--disable-renderer-backgrounding',
+          '--disable-features=TranslateUI,BlinkGenPropertyTrees',
+          '--disable-hang-monitor',
+          '--disable-prompt-on-repost',
+          '--disable-domain-reliability',
+          '--disable-client-side-phishing-detection',
+          '--disable-component-update',
+          '--disable-background-timer-throttling',
+          '--disable-backgrounding-occluded-windows',
+          '--disable-features=TranslateUI,BlinkGenPropertyTrees',
+          '--force-color-profile=srgb',
+          '--metrics-recording-only',
+          '--safebrowsing-disable-auto-update',
+          '--enable-automation',
+          '--password-store=basic',
+          '--use-mock-keychain'
         ],
-        // Production-specific options
-        timeout: 30000,
-        protocolTimeout: 30000,
-        slowMo: 0
+        // Windows-specific options
+        timeout: 45000,
+        protocolTimeout: 45000,
+        slowMo: 100 // Small delay for stability
       };
 
-      // In production, try to use system Chrome if available
-      if (process.env.NODE_ENV === 'production') {
-        // Try common Chrome paths
-        const chromePaths = [
-          '/usr/bin/google-chrome-stable',
-          '/usr/bin/google-chrome',
-          '/usr/bin/chromium-browser',
-          '/usr/bin/chromium',
-          '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-          'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-          'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
-        ];
+      // Try to use system Chrome if available (especially on Windows)
+      const chromePaths = [
+        // Windows paths
+        'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+        'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+        'C:\\Users\\' + process.env.USERNAME + '\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe',
+        // Linux paths
+        '/usr/bin/google-chrome-stable',
+        '/usr/bin/google-chrome',
+        '/usr/bin/chromium-browser',
+        '/usr/bin/chromium',
+        // macOS paths
+        '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+      ];
 
-        for (const chromePath of chromePaths) {
-          try {
-            const fs = require('fs');
-            if (fs.existsSync(chromePath)) {
-              launchOptions.executablePath = chromePath;
-              break;
-            }
-          } catch (e) {
-            // Continue to next path
+      for (const chromePath of chromePaths) {
+        try {
+          const fs = require('fs');
+          if (fs.existsSync(chromePath)) {
+            launchOptions.executablePath = chromePath;
+            console.log('Using Chrome at:', chromePath);
+            break;
           }
+        } catch (e) {
+          // Continue to next path
         }
       }
 
@@ -173,28 +194,42 @@ class ScreenshotService {
       // Set user agent to avoid detection
       await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
 
-      // Navigate to the URL with more lenient options
+      // Navigate to the URL with better options for Notion pages
       await page.goto(url, {
-        waitUntil: 'domcontentloaded',
-        timeout: 30000
+        waitUntil: 'networkidle2', // Wait for network to be idle
+        timeout: 45000
       });
 
       // Wait for basic content to load
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise(resolve => setTimeout(resolve, 5000));
 
       // Try to wait for Notion content, but don't fail if not found
       try {
-        await page.waitForSelector('[data-block-id]', { timeout: 5000 });
+        await page.waitForSelector('[data-block-id]', { timeout: 10000 });
+        console.log('Notion content detected');
       } catch (error) {
-        // Continue without Notion-specific content detection
+        console.log('Notion content not detected, continuing anyway');
+        // Try alternative selectors
+        try {
+          await page.waitForSelector('.notion-page-content', { timeout: 3000 });
+        } catch (e) {
+          // Continue without Notion-specific content detection
+        }
       }
 
-      // Simple scroll to get past any header/banner
+      // Scroll to get past any header/banner and load more content
       await page.evaluate(() => {
-        window.scrollTo(0, 100);
+        window.scrollTo(0, 200);
       });
 
-      // Wait for scroll to complete
+      // Wait for scroll to complete and content to load
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Try to scroll back to top to capture the main content
+      await page.evaluate(() => {
+        window.scrollTo(0, 0);
+      });
+
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Generate unique filename

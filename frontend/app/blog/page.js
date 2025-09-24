@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { formatDate } from '../../lib/dateUtils';
 
-// Sample data - in production, this would come from an API
+// TODO: Replace with actual API call
 const blogPosts = [
   {
     id: 1,

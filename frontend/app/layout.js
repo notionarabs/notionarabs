@@ -2,6 +2,7 @@ import './globals.css'
 import { AuthProvider } from '../contexts/AuthContext'
 import { ThemeProvider } from '../contexts/ThemeContext'
 import { LoadingProvider } from '../contexts/LoadingContext'
+import { ToastProvider } from '../contexts/ToastContext'
 import NavigationWrapper from '../components/NavigationWrapper'
 import NavigationHandler from '../components/NavigationHandler'
 import LoadingIndicator from '../components/LoadingIndicator'
@@ -79,10 +80,12 @@ export default function RootLayout({ children }) {
         <ThemeProvider>
           <LoadingProvider>
             <AuthProvider>
-              <NavigationWrapper />
-              <NavigationHandler />
-              <LoadingIndicator />
-              {children}
+              <ToastProvider>
+                <NavigationWrapper />
+                <NavigationHandler />
+                <LoadingIndicator />
+                {children}
+              </ToastProvider>
             </AuthProvider>
           </LoadingProvider>
         </ThemeProvider>

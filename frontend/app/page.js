@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import api from '../lib/api';
 
-// Sample data - in production, this would come from an API
-const featuredTemplates = [
+// Fallback data for when API fails
+const fallbackTemplates = [
   {
     title: "مخطط الدراسة",
     creator: "علي حسن",
@@ -70,6 +71,31 @@ const testimonials = [
 ];
 
 export default function HomePage() {
+  const [featuredTemplates, setFeaturedTemplates] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch featured templates from API
+  useEffect(() => {
+    const fetchFeaturedTemplates = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get('/templates?limit=4&sortBy=downloads&sortOrder=desc');
+
+        if (response.data.success) {
+          setFeaturedTemplates(response.data.templates || []);
+        } else {
+          setFeaturedTemplates(fallbackTemplates);
+        }
+      } catch (error) {
+        console.error('Error fetching featured templates:', error);
+        setFeaturedTemplates(fallbackTemplates);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeaturedTemplates();
+  }, []);
 
   const StarRating = ({ rating }) => {
     return (
@@ -310,50 +336,75 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredTemplates.map((t, idx) => (
-              <div
-                key={idx}
-                className="group card-interactive overflow-hidden"
-              >
-                <div className="relative h-48 bg-gray-200 overflow-hidden">
-                  <Image
-                    src={t.imgSrc}
-                    alt={t.title}
-                    width={400}
-                    height={300}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                  <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full font-medium bg-primary-100 text-primary-800">
-                    {t.tag}
-                  </span>
-                  <div className="absolute bottom-3 right-3 bg-bw-white/90 backdrop-blur-sm rounded-lg px-2 py-1">
-                    <StarRating rating={t.rating} />
+            {loading ? (
+              // Loading skeleton
+              [...Array(4)].map((_, idx) => (
+                <div key={idx} className="card-interactive overflow-hidden animate-pulse">
+                  <div className="h-48 bg-gray-200 dark:bg-gray-700"></div>
+                  <div className="p-6">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded mb-3 w-3/4"></div>
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                    </div>
+                    <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
                   </div>
                 </div>
-                <div className="p-6">
-                  <h3 className="font-bold text-lg text-accent-500 dark:text-dark-text-primary mb-2 group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
-                    {t.title}
-                  </h3>
-                  <p className="body-small mb-3">بواسطة {t.creator}</p>
-
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <StarRating rating={t.rating} />
-                      <span className="text-sm text-accent-600 dark:text-dark-text-secondary">({t.downloads})</span>
+              ))
+            ) : (
+              featuredTemplates.map((t, idx) => (
+                <Link key={t._id || idx} href={`/templates/${t._id}`}>
+                  <div className="group card-interactive overflow-hidden">
+                    <div className="relative h-48 bg-gray-200 overflow-hidden">
+                      {t.previewImage ? (
+                        <Image
+                          src={t.previewImage}
+                          alt={t.title}
+                          width={400}
+                          height={300}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30">
+                          <svg className="w-12 h-12 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                      <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full font-medium bg-primary-100 text-primary-800">
+                        {t.price === 0 ? 'مجاني' : 'مدفوع'}
+                      </span>
+                      <div className="absolute bottom-3 right-3 bg-bw-white/90 backdrop-blur-sm rounded-lg px-2 py-1">
+                        <StarRating rating={t.rating || 0} />
+                      </div>
                     </div>
-                    <div className={`text-lg font-bold ${t.isFree ? 'text-accent-600 dark:text-dark-text-secondary' : 'text-primary-500'
-                      }`}>
-                      {t.price}
+                    <div className="p-6">
+                      <h3 className="font-bold text-lg text-accent-500 dark:text-dark-text-primary mb-2 group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
+                        {t.title}
+                      </h3>
+                      <p className="body-small mb-3">بواسطة {t.creator?.name || 'مبدع غير معروف'}</p>
+
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <StarRating rating={t.rating || 0} />
+                          <span className="text-sm text-accent-600 dark:text-dark-text-secondary">({t.downloads || 0})</span>
+                        </div>
+                        <div className={`text-lg font-bold ${t.price === 0 ? 'text-accent-600 dark:text-dark-text-secondary' : 'text-primary-500'
+                          }`}>
+                          {t.price === 0 ? 'مجاني' : `${t.price} ريال`}
+                        </div>
+                      </div>
+
+                      <button className="w-full btn-primary py-2 px-4 text-base">
+                        عرض التفاصيل
+                      </button>
                     </div>
                   </div>
-
-                  <button className="w-full btn-primary py-2 px-4 text-base">
-                    عرض التفاصيل
-                  </button>
-                </div>
-              </div>
-            ))}
+                </Link>
+              ))
+            )}
           </div>
         </div>
       </section>

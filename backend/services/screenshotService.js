@@ -55,7 +55,6 @@ class ScreenshotService {
         publicId: result.public_id
       };
     } catch (error) {
-      console.error('Cloudinary upload failed:', error.message);
       return {
         success: false,
         error: error.message
@@ -171,7 +170,6 @@ class ScreenshotService {
           const fs = require('fs');
           if (fs.existsSync(chromePath)) {
             launchOptions.executablePath = chromePath;
-            console.log('Using Chrome at:', chromePath);
             break;
           }
         } catch (e) {
@@ -182,7 +180,6 @@ class ScreenshotService {
       try {
         browser = await puppeteer.launch(launchOptions);
       } catch (launchError) {
-        console.error('Browser launch error:', launchError.message);
         throw new Error(`Browser launch failed: ${launchError.message}`);
       }
 
@@ -206,9 +203,7 @@ class ScreenshotService {
       // Try to wait for Notion content, but don't fail if not found
       try {
         await page.waitForSelector('[data-block-id]', { timeout: 10000 });
-        console.log('Notion content detected');
       } catch (error) {
-        console.log('Notion content not detected, continuing anyway');
         // Try alternative selectors
         try {
           await page.waitForSelector('.notion-page-content', { timeout: 3000 });
@@ -259,7 +254,6 @@ class ScreenshotService {
           try {
             fs.unlinkSync(filepath);
           } catch (cleanupError) {
-            console.warn('Failed to clean up local file:', cleanupError.message);
           }
         } else {
           screenshotUrl = await this.getScreenshotUrl(filename, req);
@@ -276,12 +270,7 @@ class ScreenshotService {
       };
 
     } catch (error) {
-      console.error('Screenshot capture error:', {
-        message: error.message,
-        stack: error.stack,
-        url: url,
-        environment: process.env.NODE_ENV
-      });
+      console.error('Screenshot capture error:', error.message);
 
       // Return more specific error information
       let errorMessage = 'Failed to capture screenshot';
@@ -321,7 +310,6 @@ class ScreenshotService {
         try {
           await browser.close();
         } catch (closeError) {
-          console.error('Error closing browser:', closeError.message);
         }
       }
     }

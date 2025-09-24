@@ -139,7 +139,6 @@ router.get('/cleanup', auth, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Cleanup error:', error);
     res.status(500).json({
       success: false,
       message: 'حدث خطأ أثناء التنظيف'

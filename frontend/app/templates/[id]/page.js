@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { formatDate } from '../../../lib/dateUtils';
 
-// This would normally come from API based on the ID
+// TODO: Replace with actual API call based on the ID
 const template = {
   id: 1,
   title: "مخطط الدراسة الشامل",

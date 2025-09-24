@@ -5,71 +5,30 @@ import { useAuth } from '../../contexts/AuthContext';
 import LoadingIndicator from '../../components/LoadingIndicator';
 
 export default function OrdersPage() {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [orders, setOrders] = useState([]);
   const [filter, setFilter] = useState('all'); // all, pending, completed, cancelled
 
-  // Mock data - replace with actual API calls
-  const mockOrders = [
-    {
-      id: 'ORD-001',
-      date: '2024-01-15',
-      status: 'completed',
-      total: 299.99,
-      items: [
-        {
-          id: 1,
-          name: 'قالب موقع شخصي احترافي',
-          price: 199.99,
-          quantity: 1,
-          image: '/api/placeholder/80/80'
-        },
-        {
-          id: 2,
-          name: 'قالب مدونة عربي',
-          price: 100.00,
-          quantity: 1,
-          image: '/api/placeholder/80/80'
-        }
-      ]
-    },
-    {
-      id: 'ORD-002',
-      date: '2024-01-10',
-      status: 'pending',
-      total: 149.99,
-      items: [
-        {
-          id: 3,
-          name: 'قالب متجر إلكتروني',
-          price: 149.99,
-          quantity: 1,
-          image: '/api/placeholder/80/80'
-        }
-      ]
-    },
-    {
-      id: 'ORD-003',
-      date: '2024-01-05',
-      status: 'cancelled',
-      total: 89.99,
-      items: [
-        {
-          id: 4,
-          name: 'قالب شركة صغيرة',
-          price: 89.99,
-          quantity: 1,
-          image: '/api/placeholder/80/80'
-        }
-      ]
-    }
-  ];
 
   useEffect(() => {
     if (!loading) {
+      // TODO: Implement actual API call to fetch user orders
+      // const fetchOrders = async () => {
+      //   try {
+      //     const response = await api.get('/orders');
+      //     setOrders(response.data.orders || []);
+      //   } catch (error) {
+      //     console.error('Failed to fetch orders:', error);
+      //   } finally {
+      //     setIsLoading(false);
+      //   }
+      // };
+      // fetchOrders();
+
+      // For now, show empty state
+      setOrders([]);
       setIsLoading(false);
-      setOrders(mockOrders);
     }
   }, [loading]);
 

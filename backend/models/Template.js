@@ -134,6 +134,8 @@ const templateSchema = new mongoose.Schema({
 // Index for better query performance
 templateSchema.index({ status: 1, createdAt: -1 });
 templateSchema.index({ creator: 1, status: 1 });
+templateSchema.index({ creator: 1, title: 1 }); // For duplicate title checking
+templateSchema.index({ creator: 1, notionLink: 1 }); // For duplicate link checking
 templateSchema.index({ category: 1, status: 1 });
 templateSchema.index({ tags: 1 });
 

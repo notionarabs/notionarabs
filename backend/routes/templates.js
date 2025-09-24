@@ -73,6 +73,23 @@ router.post('/', auth, [
       });
     }
 
+    // Check for duplicate templates by the same creator
+    const existingTemplate = await Template.findOne({
+      creator: req.user.id,
+      $or: [
+        { title: req.body.title.trim() },
+        { notionLink: req.body.notionLink.trim() }
+      ]
+    });
+
+    if (existingTemplate) {
+      return res.status(409).json({
+        success: false,
+        message: 'يبدو أنك قمت بإرسال قالب مشابه من قبل. يرجى التأكد من أن العنوان ورابط نوتيون مختلفان عن القوالب السابقة.',
+        duplicateField: existingTemplate.title === req.body.title.trim() ? 'title' : 'notionLink'
+      });
+    }
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-// Sample data - in production, this would come from an API
+// TODO: Replace with actual API call
 const creators = [
   {
     id: 1,

@@ -2,16 +2,20 @@
 
 import { useState } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import api from '../../../lib/api';
+import SuccessModal from '../../../components/SuccessModal';
 
 export default function CreateTemplatePage() {
   const { user, isAuthenticated, loading, ensureTokenInHeaders } = useAuth();
+  const { showSuccess, showError, showWarning, showInfo } = useToast();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCapturingScreenshot, setIsCapturingScreenshot] = useState(false);
   const [screenshotPreview, setScreenshotPreview] = useState(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -115,11 +119,9 @@ export default function CreateTemplatePage() {
         }));
       }
     } catch (error) {
-      console.error('Screenshot capture error:', error);
-
       // Show user-friendly error message
       const errorMessage = error.response?.data?.message || 'فشل في التقاط صورة للقالب';
-      alert(`⚠️ ${errorMessage}\n\nيمكنك المتابعة بدون صورة أو إضافة رابط صورة يدوياً.`);
+      showWarning(`${errorMessage}\n\nيمكنك المتابعة بدون صورة أو إضافة رابط صورة يدوياً.`);
     } finally {
       setIsCapturingScreenshot(false);
     }
@@ -133,33 +135,33 @@ export default function CreateTemplatePage() {
       // Ensure token is set in headers before making API call
       const hasToken = ensureTokenInHeaders();
       if (!hasToken) {
-        alert('يجب تسجيل الدخول أولاً');
+        showError('يجب تسجيل الدخول أولاً');
         router.push('/login');
         return;
       }
       // Client-side validation
       if (!formData.title.trim()) {
-        alert('يرجى إدخال عنوان القالب');
+        showError('يرجى إدخال عنوان القالب');
         setIsSubmitting(false);
         return;
       }
       if (!formData.description.trim()) {
-        alert('يرجى إدخال وصف القالب');
+        showError('يرجى إدخال وصف القالب');
         setIsSubmitting(false);
         return;
       }
       if (!formData.category) {
-        alert('يرجى اختيار فئة القالب');
+        showError('يرجى اختيار فئة القالب');
         setIsSubmitting(false);
         return;
       }
       if (!formData.price || isNaN(parseFloat(formData.price))) {
-        alert('يرجى إدخال سعر صحيح للقالب');
+        showError('يرجى إدخال سعر صحيح للقالب');
         setIsSubmitting(false);
         return;
       }
       if (!formData.notionLink.trim()) {
-        alert('يرجى إدخال رابط قالب نوتيون');
+        showError('يرجى إدخال رابط قالب نوتيون');
         setIsSubmitting(false);
         return;
       }
@@ -190,29 +192,55 @@ export default function CreateTemplatePage() {
       const response = await api.post('/templates', templateData);
 
       if (response.data.success) {
-        // Show success message first
-        alert('تم إرسال القالب بنجاح! سيتم مراجعته من قبل الإدارة قريباً.');
-
-        // Show screenshot status in a separate alert if there's an issue
+        // Show screenshot status warning if there's an issue
         if (response.data.screenshotStatus && !response.data.screenshotStatus.success) {
-          alert(`⚠️ ${response.data.screenshotStatus.message}`);
+          showWarning(response.data.screenshotStatus.message);
         }
 
-        router.push('/profile');
+        // Clear all form fields
+        setFormData({
+          title: '',
+          description: '',
+          category: '',
+          price: '',
+          notionLink: '',
+          features: '',
+          tags: '',
+          previewImage: '',
+          difficulty: 'beginner'
+        });
+        setScreenshotPreview(null);
+
+        // Show success modal
+        setShowSuccessModal(true);
       }
     } catch (error) {
       console.error('Error creating template:', error);
 
-      // Show more specific error message
-      let errorMessage = error.response?.data?.message || 'حدث خطأ أثناء إرسال القالب. يرجى المحاولة مرة أخرى.';
+      // Handle duplicate template error specifically
+      if (error.response?.status === 409) {
+        const duplicateField = error.response?.data?.duplicateField;
+        let errorMessage = error.response?.data?.message;
 
-      // If there are validation errors, show them
-      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
-        const validationErrors = error.response.data.errors.map(err => err.msg).join('\n');
-        errorMessage = `أخطاء في البيانات:\n${validationErrors}`;
+        if (duplicateField === 'title') {
+          errorMessage += '\n\nيرجى تغيير عنوان القالب ليصبح مختلفاً عن القوالب السابقة.';
+        } else if (duplicateField === 'notionLink') {
+          errorMessage += '\n\nيرجى التأكد من أن رابط نوتيون مختلف عن القوالب السابقة.';
+        }
+
+        showError(errorMessage);
+      } else {
+        // Show more specific error message for other errors
+        let errorMessage = error.response?.data?.message || 'حدث خطأ أثناء إرسال القالب. يرجى المحاولة مرة أخرى.';
+
+        // If there are validation errors, show them
+        if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+          const validationErrors = error.response.data.errors.map(err => err.msg).join('\n');
+          errorMessage = `أخطاء في البيانات:\n${validationErrors}`;
+        }
+
+        showError(errorMessage);
       }
-
-      alert(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -382,7 +410,7 @@ export default function CreateTemplatePage() {
                           alt="صورة المعاينة التلقائية"
                           className="w-full max-w-md h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
                           onError={() => {
-                            alert(`فشل في تحميل الصورة: ${screenshotPreview}\n\nيرجى المحاولة مرة أخرى.`);
+                            showError(`فشل في تحميل الصورة\n\nيرجى المحاولة مرة أخرى.`);
                           }}
                         />
                         <button
@@ -505,6 +533,16 @@ export default function CreateTemplatePage() {
           </form>
         </div>
       </div>
+
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        onContinue={() => {
+          setShowSuccessModal(false);
+          router.push('/profile');
+        }}
+      />
     </div>
   );
 }

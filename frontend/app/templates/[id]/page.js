@@ -1,12 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { formatDate } from '../../../lib/dateUtils';
+import api from '../../../lib/api';
+import LoadingIndicator from '../../../components/LoadingIndicator';
 
-// TODO: Replace with actual API call based on the ID
-const template = {
+// Fallback data for when API fails
+const fallbackTemplate = {
   id: 1,
   title: "مخطط الدراسة الشامل",
   creator: {
@@ -58,8 +61,50 @@ const relatedTemplates = [
 ];
 
 export default function TemplateDetailPage() {
+  const params = useParams();
+  const templateId = params.id;
+
+  const [template, setTemplate] = useState(null);
+  const [relatedTemplates, setRelatedTemplates] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [isPurchased, setIsPurchased] = useState(false);
+
+  // Fetch template data from API
+  useEffect(() => {
+    const fetchTemplate = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await api.get(`/templates/${templateId}`);
+
+        if (response.data.success) {
+          setTemplate(response.data.template);
+
+          // Fetch related templates from same category
+          const relatedResponse = await api.get(`/templates?category=${response.data.template.category}&limit=3&sortBy=downloads&sortOrder=desc`);
+          if (relatedResponse.data.success) {
+            setRelatedTemplates(relatedResponse.data.templates.filter(t => t._id !== templateId));
+          }
+        } else {
+          setError('القالب غير موجود');
+          setTemplate(fallbackTemplate);
+        }
+      } catch (error) {
+        console.error('Error fetching template:', error);
+        setError('فشل في تحميل القالب');
+        setTemplate(fallbackTemplate);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (templateId) {
+      fetchTemplate();
+    }
+  }, [templateId]);
 
   const StarRating = ({ rating }) => {
     return (
@@ -79,6 +124,40 @@ export default function TemplateDetailPage() {
     );
   };
 
+  // Show loading state
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+        <div className="container-custom py-20">
+          <div className="text-center">
+            <LoadingIndicator />
+            <p className="text-lg text-accent-600 dark:text-dark-text-secondary mt-4">جاري تحميل القالب...</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  // Show error state
+  if (error || !template) {
+    return (
+      <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+        <div className="container-custom py-20">
+          <div className="text-center">
+            <svg className="w-16 h-16 text-red-500 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
+            <h1 className="text-2xl font-bold text-accent-900 dark:text-dark-text-primary mb-2">خطأ في تحميل القالب</h1>
+            <p className="text-accent-600 dark:text-dark-text-secondary mb-6">{error || 'القالب غير موجود'}</p>
+            <Link href="/templates" className="btn-primary">
+              العودة إلى القوالب
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
 
@@ -90,7 +169,7 @@ export default function TemplateDetailPage() {
             <div>
               <div className="mb-4">
                 <Image
-                  src={template.imgSrc}
+                  src={template.previewImage || template.imgSrc || '/placeholder-template.jpg'}
                   alt={template.title}
                   width={600}
                   height={400}
@@ -101,23 +180,35 @@ export default function TemplateDetailPage() {
 
               {/* Thumbnail Images */}
               <div className="grid grid-cols-4 gap-2">
-                {[1, 2, 3, 4].map((index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={`relative overflow-hidden rounded-lg transition-all duration-200 ${selectedImage === index ? 'ring-2 ring-orange-500' : 'hover:opacity-80'
-                      }`}
-                  >
-                    <Image
-                      src={template.imgSrc}
-                      alt={`${template.title} - ${index}`}
-                      width={150}
-                      height={100}
-                      className="w-full h-20 object-cover"
-                      quality={100}
-                    />
-                  </button>
-                ))}
+                {[1, 2, 3, 4].map((index) => {
+                  const imageSrc = template.previewImage || template.imgSrc;
+
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedImage(index)}
+                      className={`relative overflow-hidden rounded-lg transition-all duration-200 ${selectedImage === index ? 'ring-2 ring-orange-500' : 'hover:opacity-80'
+                        }`}
+                    >
+                      {imageSrc && imageSrc.trim() ? (
+                        <Image
+                          src={imageSrc}
+                          alt={`${template.title} - ${index}`}
+                          width={150}
+                          height={100}
+                          className="w-full h-20 object-cover"
+                          quality={100}
+                        />
+                      ) : (
+                        <div className="w-full h-20 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center">
+                          <svg className="w-8 h-8 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -138,47 +229,44 @@ export default function TemplateDetailPage() {
 
               {/* Creator Info */}
               <div className="flex items-center gap-3 mb-4">
-                <Image
-                  src={template.creator.avatar}
-                  alt={template.creator.name}
-                  width={40}
-                  height={40}
-                  className="w-10 h-10 rounded-full"
-                  quality={100}
-                />
+                <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                  <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
+                    {template.creator?.name?.charAt(0) || 'م'}
+                  </span>
+                </div>
                 <div>
                   <p className="text-sm text-accent-600 dark:text-dark-text-secondary">بواسطة</p>
                   <Link
-                    href={`/creators/${template.creator.name.replace(/\s+/g, '-')}`}
+                    href={`/creators/${template.creator?.name?.replace(/\s+/g, '-') || 'unknown'}`}
                     className="font-medium text-accent-700 dark:text-dark-text-primary hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
                   >
-                    {template.creator.name}
+                    {template.creator?.name || 'مبدع غير معروف'}
                   </Link>
                 </div>
               </div>
 
               {/* Rating and Reviews */}
               <div className="flex items-center gap-4 mb-6">
-                <StarRating rating={template.rating} />
+                <StarRating rating={template.rating || 0} />
                 <span className="text-sm text-accent-600 dark:text-dark-text-secondary">
-                  ({template.reviews} تقييم)
+                  ({template.reviews || 0} تقييم)
                 </span>
                 <span className="text-sm text-accent-600 dark:text-dark-text-secondary">
-                  {template.downloads.toLocaleString()} تحميل
+                  {(template.downloads || 0).toLocaleString()} تحميل
                 </span>
               </div>
 
               {/* Price */}
               <div className="flex items-center gap-3 mb-6">
                 <span className="text-3xl font-bold text-orange-600 dark:text-orange-400">
-                  ${template.price}
+                  {template.price === 0 ? 'مجاني' : `${template.price} ريال`}
                 </span>
-                {template.originalPrice && (
+                {template.originalPrice && template.originalPrice > template.price && (
                   <span className="text-lg text-accent-500 dark:text-dark-text-tertiary line-through">
-                    ${template.originalPrice}
+                    {template.originalPrice} ريال
                   </span>
                 )}
-                {template.originalPrice && (
+                {template.originalPrice && template.originalPrice > template.price && (
                   <span className="bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-2 py-1 rounded-md text-sm font-medium">
                     خصم {Math.round((1 - template.price / template.originalPrice) * 100)}%
                   </span>
@@ -193,27 +281,43 @@ export default function TemplateDetailPage() {
                   : 'bg-orange-500 hover:bg-orange-600 text-white'
                   }`}
               >
-                {isPurchased ? 'تم الشراء ✓' : 'شراء الآن'}
+                {isPurchased ? 'تم الشراء ✓' : template.price === 0 ? 'تحميل مجاني' : `شراء الآن - ${template.price} ريال`}
               </button>
 
               {/* Description */}
               <div className="mb-6">
                 <h3 className="font-semibold text-accent-700 dark:text-dark-text-primary mb-2">الوصف</h3>
                 <p className="text-accent-600 dark:text-dark-text-secondary leading-relaxed">
-                  {template.description}
+                  {template.description || 'لا يوجد وصف متاح لهذا القالب.'}
                 </p>
               </div>
 
               {/* Tags */}
               <div className="flex flex-wrap gap-2">
-                {template.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-3 py-1 bg-accent-100 dark:bg-dark-tertiary text-accent-700 dark:text-dark-text-secondary rounded-full text-sm"
-                  >
-                    #{tag}
-                  </span>
-                ))}
+                {template.tags && (() => {
+                  // Convert tags string to array if needed and remove duplicates
+                  const tagsArray = typeof template.tags === 'string'
+                    ? template.tags.split(',').filter(tag => tag.trim())
+                    : Array.isArray(template.tags)
+                      ? template.tags
+                      : [];
+
+                  // Remove duplicates by converting to Set and back to Array
+                  const uniqueTags = [...new Set(tagsArray.map(tag => tag.trim()).filter(tag => tag))];
+
+                  return uniqueTags.length > 0 ? (
+                    uniqueTags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-3 py-1 bg-accent-100 dark:bg-dark-tertiary text-accent-700 dark:text-dark-text-secondary rounded-full text-sm"
+                      >
+                        #{tag}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-accent-500 dark:text-dark-text-tertiary text-sm">لا توجد علامات</span>
+                  );
+                })()}
               </div>
             </div>
           </div>
@@ -229,19 +333,33 @@ export default function TemplateDetailPage() {
               <h2 className="heading-2 mb-6">تفاصيل القالب</h2>
               <div className="prose prose-accent dark:prose-dark max-w-none">
                 <p className="text-accent-600 dark:text-dark-text-secondary leading-relaxed mb-6">
-                  {template.longDescription}
+                  {template.longDescription || template.description || 'لا يوجد وصف مفصل متاح لهذا القالب.'}
                 </p>
 
-                <ul className="space-y-3">
-                  {template.features.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <svg className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      <span className="text-accent-600 dark:text-dark-text-secondary">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
+                {template.features && (() => {
+                  // Convert features string to array if needed and remove duplicates
+                  const featuresArray = typeof template.features === 'string'
+                    ? template.features.split('\n').filter(feature => feature.trim())
+                    : Array.isArray(template.features)
+                      ? template.features
+                      : [];
+
+                  // Remove duplicates by converting to Set and back to Array
+                  const uniqueFeatures = [...new Set(featuresArray.map(feature => feature.trim()).filter(feature => feature))];
+
+                  return uniqueFeatures.length > 0 && (
+                    <ul className="space-y-3">
+                      {uniqueFeatures.map((feature, index) => (
+                        <li key={`${feature}-${index}`} className="flex items-start gap-3">
+                          <svg className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-accent-600 dark:text-dark-text-secondary">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  );
+                })()}
               </div>
             </div>
 
@@ -254,18 +372,18 @@ export default function TemplateDetailPage() {
                   <div className="flex justify-between items-center">
                     <span className="text-accent-600 dark:text-dark-text-secondary">التقييم</span>
                     <div className="flex items-center gap-2">
-                      <StarRating rating={template.rating} />
+                      <StarRating rating={template.rating || 0} />
                     </div>
                   </div>
 
                   <div className="flex justify-between items-center">
                     <span className="text-accent-600 dark:text-dark-text-secondary">عدد التقييمات</span>
-                    <span className="font-medium text-accent-700 dark:text-dark-text-primary">{template.reviews}</span>
+                    <span className="font-medium text-accent-700 dark:text-dark-text-primary">{template.reviews || 0}</span>
                   </div>
 
                   <div className="flex justify-between items-center">
                     <span className="text-accent-600 dark:text-dark-text-secondary">التحميلات</span>
-                    <span className="font-medium text-accent-700 dark:text-dark-text-primary">{template.downloads.toLocaleString()}</span>
+                    <span className="font-medium text-accent-700 dark:text-dark-text-primary">{(template.downloads || 0).toLocaleString()}</span>
                   </div>
 
                   <div className="flex justify-between items-center">
@@ -291,11 +409,11 @@ export default function TemplateDetailPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {relatedTemplates.map((relatedTemplate) => (
-              <div key={relatedTemplate.id} className="bg-white dark:bg-dark-primary rounded-xl shadow-medium dark:shadow-dark-medium overflow-hidden transition-all duration-200 hover:shadow-large dark:hover:shadow-dark-large hover:-translate-y-1">
-                <Link href={`/templates/${relatedTemplate.id}`}>
+              <div key={relatedTemplate._id || relatedTemplate.id} className="bg-white dark:bg-dark-primary rounded-xl shadow-medium dark:shadow-dark-medium overflow-hidden transition-all duration-200 hover:shadow-large dark:hover:shadow-dark-large hover:-translate-y-1">
+                <Link href={`/templates/${relatedTemplate._id || relatedTemplate.id}`}>
                   <div className="relative">
                     <Image
-                      src={relatedTemplate.imgSrc}
+                      src={relatedTemplate.previewImage || relatedTemplate.imgSrc || '/placeholder-template.jpg'}
                       alt={relatedTemplate.title}
                       width={400}
                       height={250}
@@ -303,7 +421,7 @@ export default function TemplateDetailPage() {
                       quality={100}
                     />
                     <div className="absolute top-3 left-3 bg-orange-500 text-white px-2 py-1 rounded-md text-sm font-medium">
-                      ${relatedTemplate.price}
+                      {relatedTemplate.price === 0 ? 'مجاني' : `${relatedTemplate.price} ريال`}
                     </div>
                   </div>
 
@@ -312,7 +430,7 @@ export default function TemplateDetailPage() {
                       {relatedTemplate.title}
                     </h3>
                     <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
-                      بواسطة {relatedTemplate.creator}
+                      بواسطة {relatedTemplate.creator?.name || 'مبدع غير معروف'}
                     </p>
                   </div>
                 </Link>

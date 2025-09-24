@@ -39,11 +39,19 @@ router.post('/', auth, [
     // Take screenshot
     const result = await screenshotService.takeScreenshot(url, req);
 
-    res.json({
-      success: true,
-      message: 'تم التقاط الصورة بنجاح',
-      data: result
-    });
+    if (result.success) {
+      res.json({
+        success: true,
+        message: 'تم التقاط الصورة بنجاح',
+        data: result
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: result.userMessage || result.error || 'فشل في التقاط الصورة',
+        details: process.env.NODE_ENV === 'development' ? result.details : undefined
+      });
+    }
 
   } catch (error) {
     console.error('Screenshot API error:', {

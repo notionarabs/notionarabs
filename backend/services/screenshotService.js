@@ -158,7 +158,12 @@ class ScreenshotService {
         }
       }
 
-      browser = await puppeteer.launch(launchOptions);
+      try {
+        browser = await puppeteer.launch(launchOptions);
+      } catch (launchError) {
+        console.error('Browser launch error:', launchError.message);
+        throw new Error(`Browser launch failed: ${launchError.message}`);
+      }
 
       const page = await browser.newPage();
 
@@ -236,25 +241,44 @@ class ScreenshotService {
       };
 
     } catch (error) {
-      console.error('Screenshot capture error:', error.message);
+      console.error('Screenshot capture error:', {
+        message: error.message,
+        stack: error.stack,
+        url: url,
+        environment: process.env.NODE_ENV
+      });
 
       // Return more specific error information
       let errorMessage = 'Failed to capture screenshot';
+      let userMessage = 'فشل في التقاط صورة المعاينة تلقائياً. يمكنك إضافة صورة يدوياً لاحقاً.';
+
       if (error.message.includes('Browser closed unexpectedly')) {
         errorMessage = 'Browser closed unexpectedly - possible memory/resource issue';
+        userMessage = 'تعذر فتح المتصفح. يرجى المحاولة مرة أخرى أو إضافة صورة يدوياً.';
       } else if (error.message.includes('Navigation timeout')) {
         errorMessage = 'Page took too long to load';
+        userMessage = 'استغرق تحميل الصفحة وقتاً طويلاً. يرجى التحقق من الرابط وإضافة صورة يدوياً.';
       } else if (error.message.includes('Cannot reach the website')) {
         errorMessage = 'Cannot reach the website';
+        userMessage = 'لا يمكن الوصول إلى الموقع. يرجى التحقق من الرابط وإضافة صورة يدوياً.';
       } else if (error.message.includes('Invalid URL')) {
         errorMessage = 'Invalid URL provided';
+        userMessage = 'رابط غير صحيح. يرجى التحقق من الرابط وإضافة صورة يدوياً.';
       } else if (error.message.includes('ENOENT')) {
         errorMessage = 'Chrome/Chromium not found - installation issue';
+        userMessage = 'مشكلة في تثبيت المتصفح. يرجى إضافة صورة يدوياً.';
+      } else if (error.message.includes('Protocol error')) {
+        errorMessage = 'Protocol error - browser communication issue';
+        userMessage = 'مشكلة في الاتصال بالمتصفح. يرجى إضافة صورة يدوياً.';
+      } else if (error.message.includes('Target closed')) {
+        errorMessage = 'Browser target closed unexpectedly';
+        userMessage = 'تم إغلاق المتصفح بشكل غير متوقع. يرجى إضافة صورة يدوياً.';
       }
 
       return {
         success: false,
         error: errorMessage,
+        userMessage: userMessage,
         details: process.env.NODE_ENV === 'development' ? error.message : undefined
       };
     } finally {

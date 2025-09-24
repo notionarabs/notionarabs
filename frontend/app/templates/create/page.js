@@ -190,18 +190,14 @@ export default function CreateTemplatePage() {
       const response = await api.post('/templates', templateData);
 
       if (response.data.success) {
-        // Show success message with screenshot status
-        let successMessage = 'تم إرسال القالب بنجاح! سيتم مراجعته من قبل الإدارة قريباً.';
+        // Show success message first
+        alert('تم إرسال القالب بنجاح! سيتم مراجعته من قبل الإدارة قريباً.');
 
-        if (response.data.screenshotStatus) {
-          if (response.data.screenshotStatus.success) {
-            successMessage += '\n\n✅ تم التقاط صورة المعاينة بنجاح.';
-          } else {
-            successMessage += `\n\n⚠️ ${response.data.screenshotStatus.message}`;
-          }
+        // Show screenshot status in a separate alert if there's an issue
+        if (response.data.screenshotStatus && !response.data.screenshotStatus.success) {
+          alert(`⚠️ ${response.data.screenshotStatus.message}`);
         }
 
-        alert(successMessage);
         router.push('/profile');
       }
     } catch (error) {

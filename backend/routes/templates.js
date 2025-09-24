@@ -94,7 +94,7 @@ router.post('/', auth, [
         if (screenshotResult.success) {
           previewImageUrl = screenshotResult.screenshotUrl;
         } else {
-          screenshotError = screenshotResult.error;
+          screenshotError = screenshotResult.userMessage || screenshotResult.error;
         }
       } catch (error) {
         screenshotError = error.message;

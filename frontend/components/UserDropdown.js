@@ -274,8 +274,7 @@ export default function UserDropdown() {
                           <span className="text-sm">مقالاتي</span>
                         </Link>
 
-                        {/* Divider after creator tools */}
-                        <div className="border-t border-gray-200 dark:border-dark-card-border my-2"></div>
+                        {/* Removed extra divider to prevent double separation */}
                       </>
                     )}
 

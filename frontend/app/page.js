@@ -198,22 +198,22 @@ export default function HomePage() {
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
 
       {/* Enhanced Hero Section with Notion-inspired Animations */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary px-4 md:px-6 lg:px-12 py-16 md:py-24 transition-colors duration-300">
+      <section className="relative overflow-hidden bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary px-4 md:px-6 lg:px-12 py-14 md:py-24 lg:py-28 transition-colors duration-300">
         {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
           {/* Floating Notion-style Blocks */}
-          <div className="absolute top-20 left-10 w-16 h-16 bg-white/60 dark:bg-dark-tertiary/60 rounded-lg shadow-lg dark:shadow-dark-medium floating-block notion-block-hover"></div>
-          <div className="absolute top-40 right-20 w-12 h-12 bg-gray-100/70 dark:bg-dark-quaternary/70 rounded-md shadow-md dark:shadow-dark-soft floating-block-delayed notion-block-hover"></div>
-          <div className="absolute bottom-32 left-1/4 w-20 h-20 bg-white/50 dark:bg-dark-tertiary/50 rounded-xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover"></div>
-          <div className="absolute top-1/3 right-1/3 w-14 h-14 bg-gray-50/80 dark:bg-dark-quaternary/80 rounded-lg shadow-md dark:shadow-dark-soft floating-block-delayed notion-block-hover"></div>
-          <div className="absolute bottom-20 right-10 w-18 h-18 bg-white/40 dark:bg-dark-tertiary/40 rounded-2xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover"></div>
+          <div className="hidden sm:block absolute top-20 left-10 w-16 h-16 bg-white/60 dark:bg-dark-tertiary/60 rounded-lg shadow-lg dark:shadow-dark-medium floating-block notion-block-hover"></div>
+          <div className="hidden sm:block absolute top-40 right-20 w-12 h-12 bg-gray-100/70 dark:bg-dark-quaternary/70 rounded-md shadow-md dark:shadow-dark-soft floating-block-delayed notion-block-hover"></div>
+          <div className="hidden md:block absolute bottom-32 left-1/4 w-20 h-20 bg-white/50 dark:bg-dark-tertiary/50 rounded-xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover"></div>
+          <div className="hidden lg:block absolute top-1/3 right-1/3 w-14 h-14 bg-gray-50/80 dark:bg-dark-quaternary/80 rounded-lg shadow-md dark:shadow-dark-soft floating-block-delayed notion-block-hover"></div>
+          <div className="hidden md:block absolute bottom-20 right-10 w-18 h-18 bg-white/40 dark:bg-dark-tertiary/40 rounded-2xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover"></div>
 
           {/* Gradient Orbs */}
-          <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-r from-blue-100/30 to-purple-100/30 dark:from-orange-500/10 dark:to-orange-600/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-l from-gray-100/40 to-black/20 dark:from-dark-tertiary/20 dark:to-dark-primary/40 rounded-full blur-3xl animate-pulse"></div>
+          <div className="hidden sm:block absolute top-0 left-0 w-96 h-96 bg-gradient-to-r from-blue-100/30 to-purple-100/30 dark:from-orange-500/10 dark:to-orange-600/10 rounded-full blur-3xl motion-safe:animate-pulse"></div>
+          <div className="hidden sm:block absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-l from-gray-100/40 to-black/20 dark:from-dark-tertiary/20 dark:to-dark-primary/40 rounded-full blur-3xl motion-safe:animate-pulse"></div>
 
           {/* Subtle Grid Pattern */}
-          <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.05]" style={{
+          <div className="absolute inset-0 opacity-[0.015] dark:opacity-[0.05]" style={{
             backgroundImage: `radial-gradient(circle at 1px 1px, rgba(0,0,0,0.3) 1px, transparent 0)`,
             backgroundSize: '20px 20px'
           }}></div>
@@ -229,7 +229,7 @@ export default function HomePage() {
                 أكثر من 10,000 قالب متاح
               </div>
 
-              <h1 className="heading-1 mb-6 text-reveal-delayed">
+              <h1 className="heading-1 mb-6 text-reveal-delayed leading-tight tracking-tight">
                 منصتك العربية لبيع وشراء قوالب نوشن
               </h1>
 
@@ -242,7 +242,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12 text-reveal-delayed-3">
                 <Link
                   href="/templates"
-                  className="btn-primary text-xl px-10 py-5 shadow-large hover:shadow-glow notion-block-hover"
+                  className="btn-primary text-lg sm:text-xl px-8 sm:px-10 py-4 sm:py-5 shadow-large hover:shadow-glow notion-block-hover focus-visible:ring-2 focus-visible:ring-primary-400"
                 >
                   تصفح القوالب
                   <svg className="inline-block mr-2 w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -251,7 +251,7 @@ export default function HomePage() {
                 </Link>
                 <Link
                   href="/creators/apply"
-                  className="btn-secondary text-xl px-10 py-5 bg-white/90 dark:bg-dark-tertiary/90 backdrop-blur-sm border-primary-200 dark:border-orange-500/30 notion-block-hover shadow-lg dark:shadow-dark-medium hover:shadow-xl dark:hover:shadow-dark-large hover:bg-primary-50 dark:hover:bg-dark-quaternary transition-colors duration-300"
+                  className="btn-secondary text-lg sm:text-xl px-8 sm:px-10 py-4 sm:py-5 bg-white/90 dark:bg-dark-tertiary/90 backdrop-blur-sm border-primary-200 dark:border-orange-500/30 notion-block-hover shadow-lg dark:shadow-dark-medium hover:shadow-xl dark:hover:shadow-dark-large hover:bg-primary-50 dark:hover:bg-dark-quaternary transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-primary-200 dark:focus-visible:ring-orange-500/40"
                 >
                   بيع قوالبك
                 </Link>
@@ -280,9 +280,9 @@ export default function HomePage() {
           </div>
 
           {/* Full Width Interactive Demo Section */}
-          <div className="relative">
+          <div className="relative" aria-hidden="true">
             {/* Floating UI Elements - More strategically placed */}
-            <div className="absolute top-0 left-10 w-24 h-24 bg-white/80 dark:bg-dark-tertiary/80 backdrop-blur-sm rounded-xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover border border-white/50 dark:border-dark-card-border/50">
+            <div className="hidden lg:block absolute top-0 left-10 w-24 h-24 bg-white/80 dark:bg-dark-tertiary/80 backdrop-blur-sm rounded-xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
               <div className="p-4">
                 <div className="w-8 h-8 bg-blue-500 rounded-lg mb-2"></div>
                 <div className="w-12 h-2 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
@@ -290,7 +290,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="absolute top-20 right-20 w-20 h-20 bg-white/70 dark:bg-dark-tertiary/70 backdrop-blur-sm rounded-lg shadow-md dark:shadow-dark-soft floating-block-delayed notion-block-hover border border-white/50 dark:border-dark-card-border/50">
+            <div className="hidden lg:block absolute top-20 right-20 w-20 h-20 bg-white/70 dark:bg-dark-tertiary/70 backdrop-blur-sm rounded-lg shadow-md dark:shadow-dark-soft floating-block-delayed notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
               <div className="p-3">
                 <div className="w-6 h-6 bg-green-500 rounded-md mb-2"></div>
                 <div className="w-10 h-1.5 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
@@ -298,7 +298,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="absolute bottom-20 left-1/4 w-16 h-16 bg-white/60 dark:bg-dark-tertiary/60 backdrop-blur-sm rounded-lg shadow-lg dark:shadow-dark-medium floating-block notion-block-hover border border-white/50 dark:border-dark-card-border/50">
+            <div className="hidden lg:block absolute bottom-20 left-1/4 w-16 h-16 bg-white/60 dark:bg-dark-tertiary/60 backdrop-blur-sm rounded-lg shadow-lg dark:shadow-dark-medium floating-block notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
               <div className="p-2">
                 <div className="w-4 h-4 bg-purple-500 rounded mb-1"></div>
                 <div className="w-8 h-1 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
@@ -306,7 +306,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="absolute top-1/3 right-1/3 w-28 h-28 bg-white/50 dark:bg-dark-tertiary/50 backdrop-blur-sm rounded-2xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover border border-white/50 dark:border-dark-card-border/50">
+            <div className="hidden xl:block absolute top-1/3 right-1/3 w-28 h-28 bg-white/50 dark:bg-dark-tertiary/50 backdrop-blur-sm rounded-2xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
               <div className="p-4">
                 <div className="w-10 h-10 bg-orange-500 rounded-lg mb-3"></div>
                 <div className="w-16 h-2 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
@@ -315,7 +315,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="absolute bottom-1/3 right-1/4 w-18 h-18 bg-white/60 dark:bg-dark-tertiary/60 backdrop-blur-sm rounded-lg shadow-md dark:shadow-dark-soft floating-block-delayed notion-block-hover border border-white/50 dark:border-dark-card-border/50">
+            <div className="hidden xl:block absolute bottom-1/3 right-1/4 w-18 h-18 bg-white/60 dark:bg-dark-tertiary/60 backdrop-blur-sm rounded-lg shadow-md dark:shadow-dark-soft floating-block-delayed notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
               <div className="p-3">
                 <div className="w-6 h-6 bg-red-500 rounded-md mb-2"></div>
                 <div className="w-12 h-1.5 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
@@ -323,44 +323,47 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Three Solid Navigation Squares */}
+            {/* Three Simple Navigation Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-              {/* Browse Templates Square */}
+              {/* Card 1: Browse Templates */}
               <Link href="/templates" className="group">
-                <div className="bg-accent-500 dark:bg-dark-secondary rounded-3xl p-8 shadow-large dark:shadow-dark-large notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-glow dark:group-hover:shadow-dark-glow">
-                  <div className="w-16 h-16 bg-white dark:bg-dark-tertiary rounded-xl mb-6 flex items-center justify-center">
-                    <svg className="w-8 h-8 text-black dark:text-dark-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="relative bg-gradient-to-br from-primary-500 to-primary-600 dark:from-orange-500 dark:to-orange-600 rounded-2xl p-8 shadow-large dark:shadow-dark-large notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:-translate-y-2 min-h-[300px]">
+                  <div className="w-16 h-16 bg-white/20 rounded-xl mb-6 flex items-center justify-center">
+                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
                   </div>
-                  <h3 className="heading-3 text-white dark:text-dark-text-primary mb-3">تصفح القوالب</h3>
-                  <p className="body-medium text-gray-300 dark:text-dark-text-secondary">
+
+                  <h3 className="text-2xl font-bold text-white mb-4">تصفح القوالب</h3>
+                  <p className="text-orange-100 mb-6 leading-relaxed">
                     اكتشف آلاف القوالب الجاهزة للعمل والدراسة والحياة اليومية
                   </p>
-                  <div className="mt-4 flex items-center text-white dark:text-dark-text-primary group-hover:translate-x-1 transition-transform duration-300">
-                    <span className="text-sm font-medium">ابدأ الآن</span>
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                  <div className="flex items-center text-white group-hover:translate-x-2 transition-transform duration-300">
+                    <span className="font-semibold">ابدأ الآن</span>
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                   </div>
                 </div>
               </Link>
 
-              {/* Categories Square */}
+              {/* Card 2: Creators */}
               <Link href="/creators" className="group">
-                <div className="card-featured p-8 notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-glow dark:group-hover:shadow-dark-glow">
-                  <div className="w-16 h-16 bg-primary-500 dark:bg-orange-500 rounded-xl mb-6 flex items-center justify-center">
+                <div className="relative card-featured p-8 notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:-translate-y-2 min-h-[300px]">
+                  <div className="w-16 h-16 bg-primary-500 rounded-xl mb-6 flex items-center justify-center shadow-soft">
                     <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                   </div>
 
                   <h3 className="heading-3 mb-3">المبدعين</h3>
-                  <p className="body-medium">
+                  <p className="body-medium mb-6">
                     تصفح حسب الفئة - العمل، الدراسة، الأعمال، والصحة
                   </p>
-                  <div className="mt-4 flex items-center text-accent-500 dark:text-orange-500 group-hover:translate-x-1 transition-transform duration-300">
-                    <span className="text-sm font-medium">استكشف</span>
+
+                  <div className="flex items-center text-primary-500 group-hover:translate-x-1 transition-transform duration-300">
+                    <span className="text-sm font-semibold">استكشف</span>
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
@@ -368,21 +371,23 @@ export default function HomePage() {
                 </div>
               </Link>
 
-              {/* Blog/About Square */}
+              {/* Card 3: Blog */}
               <Link href="/blog" className="group">
-                <div className="bg-gradient-to-br from-accent-500 to-accent-600 dark:from-dark-secondary dark:to-dark-tertiary rounded-3xl p-8 shadow-large dark:shadow-dark-large notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:shadow-glow dark:group-hover:shadow-dark-glow">
-                  <div className="w-16 h-16 bg-primary-500 dark:bg-orange-500 rounded-xl mb-6 flex items-center justify-center">
+                <div className="relative bg-gradient-to-br from-secondary-600 to-secondary-700 dark:from-dark-tertiary dark:to-dark-quaternary rounded-2xl p-8 shadow-large dark:shadow-dark-large notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:-translate-y-2 min-h-[300px]">
+                  <div className="w-16 h-16 bg-white/20 rounded-xl mb-6 flex items-center justify-center">
                     <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                     </svg>
                   </div>
-                  <h3 className="heading-3 text-white dark:text-dark-text-primary mb-3">المدونة</h3>
-                  <p className="body-medium text-gray-200 dark:text-dark-text-secondary">
+
+                  <h3 className="text-2xl font-bold text-white mb-4">المدونة</h3>
+                  <p className="text-gray-100 mb-6 leading-relaxed">
                     نصائح وتوجيهات لاستخدام نوشن وأفضل الممارسات
                   </p>
-                  <div className="mt-4 flex items-center text-white dark:text-dark-text-primary group-hover:translate-x-1 transition-transform duration-300">
-                    <span className="text-sm font-medium">اقرأ المزيد</span>
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                  <div className="flex items-center text-white group-hover:translate-x-2 transition-transform duration-300">
+                    <span className="font-semibold">اقرأ المزيد</span>
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                   </div>
@@ -494,11 +499,11 @@ export default function HomePage() {
             <p className="body-large">اختر التصنيف المناسب لاحتياجاتك</p>
           </div>
 
-          <div className="overflow-x-auto overflow-y-visible">
-            <div className="inline-flex gap-4 md:gap-6 min-w-full">
-              {categories.map((c, idx) => (
+          <div>
+            <div className="grid grid-cols-6 gap-4 md:gap-6">
+              {categories.slice(0, 6).map((c, idx) => (
                 <Link href={`/templates?category=${encodeURIComponent(c.name)}`} key={idx} className="group">
-                  <div className="card-interactive border-2 border-gray-100 overflow-hidden hover:border-accent-300 hover:shadow-large transition-all duration-300 min-w-[180px] md:min-w-[200px] translate-y-0 hover:translate-y-0">
+                  <div className="card-interactive border-2 border-gray-100 overflow-hidden hover:border-accent-300 hover:shadow-large transition-all duration-300">
                     <div className="h-24 md:h-28 overflow-hidden relative">
                       <Image
                         src={c.imgSrc}

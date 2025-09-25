@@ -11,6 +11,37 @@ export default function NavigationHandler() {
   useEffect(() => {
     // Set loading to false when pathname changes (page has loaded)
     setLoading(false);
+
+    // Exact pages where we don't want automatic scroll to top (not sub-pages)
+    const noScrollPages = [
+      '/',
+      '/templates',
+      '/creators',
+      '/blog',
+      '/about',
+      '/pricing',
+      '/features',
+      '/help',
+      '/press',
+      '/privacy',
+      '/terms',
+      '/careers',
+      '/contact',
+      '/cookies'
+    ];
+
+    // Check if current page should skip auto-scroll (exact match only)
+    const shouldSkipScroll = noScrollPages.includes(pathname);
+
+    // Only scroll to top if not on main pages
+    if (!shouldSkipScroll) {
+      try {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (e) {
+        // Fallback for environments without smooth behavior support
+        window.scrollTo(0, 0);
+      }
+    }
   }, [pathname, setLoading]);
 
   // Handle browser navigation events

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import api from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 
 // TODO: Replace with actual API call
 const creators = [
@@ -107,6 +108,7 @@ const sortOptions = [
 ];
 
 export default function CreatorsPage() {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState('all');
   const [sortBy, setSortBy] = useState('popular');
@@ -306,7 +308,16 @@ export default function CreatorsPage() {
               {creatorsData.map((creator) => (
                 <div
                   key={creator.id}
-                  className="group card-interactive p-8"
+                  className="group card-interactive p-8 cursor-pointer"
+                  role="link"
+                  tabIndex={0}
+                  onClick={() => router.push(`/creators/${creator.id}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      router.push(`/creators/${creator.id}`);
+                    }
+                  }}
                 >
                   <div className="flex items-center gap-4 mb-6">
                     <div className="relative">
@@ -373,7 +384,7 @@ export default function CreatorsPage() {
                       عرض الملف الشخصي
                     </Link>
                     <button
-                      onClick={() => handleFollow(creator.id)}
+                      onClick={(e) => { e.stopPropagation(); handleFollow(creator.id); }}
                       className={`w-full btn-outline ${followingStates[creator.id] ? 'bg-primary-100 dark:bg-orange-500/20 text-primary-600 dark:text-orange-400' : ''}`}
                     >
                       {followingStates[creator.id] ? 'متابع' : 'متابعة'}

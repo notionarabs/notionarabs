@@ -62,6 +62,24 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  followers: {
+    type: Number,
+    default: 0
+  },
+  following: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  rating: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 5
+  },
+  templateCount: {
+    type: Number,
+    default: 0
+  },
   resetToken: {
     type: String,
     default: null

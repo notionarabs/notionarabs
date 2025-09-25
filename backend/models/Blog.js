@@ -99,7 +99,7 @@ const blogSchema = new mongoose.Schema({
 blogSchema.index({ status: 1, publishedAt: -1 }); // For published blogs
 blogSchema.index({ author: 1, createdAt: -1 }); // For author's blogs
 blogSchema.index({ category: 1, status: 1 }); // For category filtering
-blogSchema.index({ slug: 1 }); // For slug lookup
+// Note: slug index is automatically created by unique: true property
 blogSchema.index({ featured: 1, status: 1 }); // For featured blogs
 blogSchema.index({ tags: 1 }); // For tag search
 

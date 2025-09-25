@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import api from '../../lib/api';
+import { useAuth } from '../../contexts/AuthContext';
 
 // TODO: Replace with actual API call
 const creators = [
@@ -108,7 +110,12 @@ export default function CreatorsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState('all');
   const [sortBy, setSortBy] = useState('popular');
-  const [filteredCreators, setFilteredCreators] = useState(creators);
+  const [creatorsData, setCreatorsData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState(null);
+  const [followingStates, setFollowingStates] = useState({});
+  const { user, isAuthenticated } = useAuth();
 
   const StarRating = ({ rating }) => {
     return (
@@ -128,48 +135,82 @@ export default function CreatorsPage() {
     );
   };
 
-  // Filter and sort creators
+  // Fetch creators from API
   useEffect(() => {
-    let filtered = [...creators];
+    const fetchCreators = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(creator =>
-        creator.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        creator.bio.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        creator.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        creator.specialties.some(specialty => specialty.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-    }
+        const params = new URLSearchParams({
+          page: '1',
+          limit: '50',
+          sortBy: sortBy
+        });
 
-    // Specialty filter
-    if (selectedSpecialty !== 'all') {
-      filtered = filtered.filter(creator => creator.specialties.includes(selectedSpecialty));
-    }
+        if (searchTerm) {
+          params.append('search', searchTerm);
+        }
 
-    // Sort
-    switch (sortBy) {
-      case 'popular':
-        filtered.sort((a, b) => b.followers - a.followers);
-        break;
-      case 'newest':
-        filtered.sort((a, b) => new Date(b.joinDate) - new Date(a.joinDate));
-        break;
-      case 'rating':
-        filtered.sort((a, b) => b.rating - a.rating);
-        break;
-      case 'templates':
-        filtered.sort((a, b) => b.templates - a.templates);
-        break;
-      case 'earnings':
-        filtered.sort((a, b) => parseInt(b.earnings.replace(/[^\d]/g, '')) - parseInt(a.earnings.replace(/[^\d]/g, '')));
-        break;
-      default:
-        break;
-    }
+        if (selectedSpecialty !== 'all') {
+          params.append('specialty', selectedSpecialty);
+        }
 
-    setFilteredCreators(filtered);
+        const response = await api.get(`/creators?${params.toString()}`);
+
+        if (response.data.success) {
+          setCreatorsData(response.data.creators);
+          setPagination(response.data.pagination);
+        } else {
+          setError('فشل في تحميل المبدعين');
+        }
+      } catch (err) {
+        console.error('Error fetching creators:', err);
+        setError('حدث خطأ في تحميل المبدعين');
+        // Fallback to static data if API fails
+        setCreatorsData(creators);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCreators();
   }, [searchTerm, selectedSpecialty, sortBy]);
+
+  // Handle follow/unfollow
+  const handleFollow = async (creatorId) => {
+    if (!isAuthenticated) {
+      // Redirect to login
+      window.location.href = '/login';
+      return;
+    }
+
+    try {
+      const response = await api.post(`/creators/${creatorId}/follow`);
+
+      if (response.data.success) {
+        setFollowingStates(prev => ({
+          ...prev,
+          [creatorId]: response.data.isFollowing
+        }));
+
+        // Update followers count in the creators data
+        setCreatorsData(prev => prev.map(creator => {
+          if (creator.id === creatorId) {
+            return {
+              ...creator,
+              followers: response.data.isFollowing
+                ? creator.followers + 1
+                : creator.followers - 1
+            };
+          }
+          return creator;
+        }));
+      }
+    } catch (error) {
+      console.error('Follow error:', error);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
@@ -236,9 +277,15 @@ export default function CreatorsPage() {
 
             {/* Results Count */}
             <div className="flex justify-between items-center mb-6">
-              <p className="text-accent-600 dark:text-dark-text-secondary">
-                عرض {filteredCreators.length} من {creators.length} مبدع
-              </p>
+              {loading ? (
+                <p className="text-accent-600 dark:text-dark-text-secondary">جاري التحميل...</p>
+              ) : error ? (
+                <p className="text-red-500">{error}</p>
+              ) : (
+                <p className="text-accent-600 dark:text-dark-text-secondary">
+                  عرض {creatorsData.length} من {pagination?.total || creatorsData.length} مبدع
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -247,9 +294,16 @@ export default function CreatorsPage() {
       {/* Creators Grid */}
       <section className="section-padding bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
         <div className="container-custom">
-          {filteredCreators.length > 0 ? (
+          {loading ? (
+            <div className="flex justify-center items-center py-16">
+              <div className="text-center">
+                <div className="loading-spinner mx-auto mb-4"></div>
+                <p className="loading-text">جاري تحميل المبدعين...</p>
+              </div>
+            </div>
+          ) : creatorsData.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredCreators.map((creator) => (
+              {creatorsData.map((creator) => (
                 <div
                   key={creator.id}
                   className="group card-interactive p-8"
@@ -257,7 +311,7 @@ export default function CreatorsPage() {
                   <div className="flex items-center gap-4 mb-6">
                     <div className="relative">
                       <Image
-                        src={creator.imgSrc}
+                        src={creator.profilePicture || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"}
                         alt={creator.name}
                         width={80}
                         height={80}
@@ -269,55 +323,60 @@ export default function CreatorsPage() {
                       <h3 className="font-bold text-xl text-accent-500 dark:text-dark-text-primary group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors mb-1">
                         {creator.name}
                       </h3>
-                      <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-2">{creator.bio}</p>
+                      <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-2">{creator.bio || 'مبدع محتوى'}</p>
                       <div className="flex items-center gap-2">
                         <StarRating rating={creator.rating} />
-                        <span className="text-sm text-accent-600 dark:text-dark-text-secondary">({creator.followers} متابع)</span>
+                        <span className="text-sm text-accent-600 dark:text-dark-text-secondary">({creator.followers || 0} متابع)</span>
                       </div>
                     </div>
                   </div>
 
                   <p className="text-accent-600 dark:text-dark-text-secondary mb-6 text-sm leading-relaxed">
-                    {creator.description}
+                    {creator.bio || 'مبدع محتوى متخصص في إنشاء قوالب مبتكرة'}
                   </p>
 
                   {/* Specialties */}
-                  <div className="mb-6">
-                    <h4 className="text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">التخصصات</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {creator.specialties.map((specialty, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1 bg-primary-100 dark:bg-orange-500/20 text-primary-800 dark:text-orange-300 text-xs rounded-full"
-                        >
-                          {specialty}
-                        </span>
-                      ))}
+                  {creator.specialties && creator.specialties.length > 0 && (
+                    <div className="mb-6">
+                      <h4 className="text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">التخصصات</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {creator.specialties.map((specialty, index) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 bg-primary-100 dark:bg-orange-500/20 text-primary-800 dark:text-orange-300 text-xs rounded-full"
+                          >
+                            {specialty}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Stats */}
                   <div className="grid grid-cols-3 gap-4 mb-6">
                     <div className="text-center">
-                      <div className="text-lg font-bold text-accent-500 dark:text-dark-text-primary">{creator.templates}</div>
+                      <div className="text-lg font-bold text-accent-500 dark:text-dark-text-primary">{creator.templates || 0}</div>
                       <div className="text-xs text-accent-600 dark:text-dark-text-secondary">قوالب</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-lg font-bold text-accent-500 dark:text-dark-text-primary">{creator.followers}</div>
+                      <div className="text-lg font-bold text-accent-500 dark:text-dark-text-primary">{creator.followers || 0}</div>
                       <div className="text-xs text-accent-600 dark:text-dark-text-secondary">متابع</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-lg font-bold text-accent-500 dark:text-dark-text-primary">{creator.earnings}</div>
+                      <div className="text-lg font-bold text-accent-500 dark:text-dark-text-primary">{creator.earnings || 0} ريال</div>
                       <div className="text-xs text-accent-600 dark:text-dark-text-secondary">أرباح</div>
                     </div>
                   </div>
 
                   <div className="space-y-3">
-                    <button className="w-full btn-primary">
+                    <Link href={`/creators/${creator.id}`} className="w-full btn-primary block text-center">
                       عرض الملف الشخصي
-                    </button>
-                    <button className="w-full btn-outline">
-                      متابعة
+                    </Link>
+                    <button
+                      onClick={() => handleFollow(creator.id)}
+                      className={`w-full btn-outline ${followingStates[creator.id] ? 'bg-primary-100 dark:bg-orange-500/20 text-primary-600 dark:text-orange-400' : ''}`}
+                    >
+                      {followingStates[creator.id] ? 'متابع' : 'متابعة'}
                     </button>
                   </div>
                 </div>

@@ -1,36 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
 import { formatDate } from '../../../lib/dateUtils';
+import api from '../../../lib/api';
+import { useAuth } from '../../../contexts/AuthContext';
 
-// This would normally come from API based on the ID
-const creator = {
-  id: 1,
-  name: "علي حسن",
-  bio: "مصمم قوالب متخصص في الإنتاجية والتنظيم الشخصي والمهني",
-  avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face",
-  coverImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=400&fit=crop&crop=center",
-  rating: 4.8,
-  templates: 20,
-  followers: 1200,
-  earnings: "15,000 ريال",
-  joinDate: "2023-01-15",
-  specialties: ["الإنتاجية", "العمل", "التنظيم"],
-  description: "مصمم قوالب متخصص في الإنتاجية والتنظيم الشخصي والمهني. خبرة 3 سنوات في تصميم قوالب نوتيون. أساعد الأفراد والشركات في تنظيم أعمالهم وزيادة إنتاجيتهم من خلال قوالب مخصصة وعملية.",
-  socialLinks: {
-    twitter: "https://twitter.com/ali_hassan",
-    linkedin: "https://linkedin.com/in/ali-hassan",
-    website: "https://alihassan.com"
-  },
-  stats: {
-    totalDownloads: 5000,
-    averageRating: 4.8,
-    responseTime: "ساعتين",
-    completionRate: "98%"
-  }
-};
+// Static data removed - now using dynamic API data
 
 const creatorTemplates = [
   {
@@ -126,7 +104,88 @@ const reviews = [
 ];
 
 export default function CreatorProfilePage() {
+  const [creator, setCreator] = useState(null);
+  const [creatorTemplates, setCreatorTemplates] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
+
+  const params = useParams();
+  const router = useRouter();
+  const { user, isAuthenticated } = useAuth();
+  const creatorId = params.id;
+
+  // Fetch creator data
+  useEffect(() => {
+    const fetchCreatorData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Fetch creator profile
+        const creatorResponse = await api.get(`/creators/${creatorId}`);
+
+        if (creatorResponse.data.success) {
+          const creatorData = creatorResponse.data.creator;
+          setCreator(creatorData);
+          setCreatorTemplates(creatorData.templates || []);
+
+          // Check if current user is following this creator
+          if (isAuthenticated && user) {
+            // You might want to add this to the API response or make a separate call
+            // For now, we'll assume not following initially
+            setIsFollowing(false);
+          }
+        } else {
+          setError('المبدع غير موجود');
+        }
+      } catch (err) {
+        console.error('Error fetching creator:', err);
+        if (err.response?.status === 404) {
+          setError('المبدع غير موجود');
+        } else {
+          setError('حدث خطأ في تحميل بيانات المبدع');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (creatorId) {
+      fetchCreatorData();
+    }
+  }, [creatorId, isAuthenticated, user]);
+
+  // Handle follow/unfollow
+  const handleFollow = async () => {
+    if (!isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+
+    try {
+      setFollowLoading(true);
+      const response = await api.post(`/creators/${creatorId}/follow`);
+
+      if (response.data.success) {
+        setIsFollowing(response.data.isFollowing);
+
+        // Update creator followers count
+        setCreator(prev => ({
+          ...prev,
+          followers: response.data.isFollowing
+            ? prev.followers + 1
+            : prev.followers - 1
+        }));
+      }
+    } catch (error) {
+      console.error('Follow error:', error);
+    } finally {
+      setFollowLoading(false);
+    }
+  };
 
   const StarRating = ({ rating }) => {
     return (
@@ -146,6 +205,52 @@ export default function CreatorProfilePage() {
     );
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center transition-colors duration-300" dir="rtl">
+        <div className="text-center">
+          <div className="loading-spinner mx-auto mb-4"></div>
+          <p className="loading-text">جاري تحميل الملف الشخصي...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center transition-colors duration-300" dir="rtl">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold text-accent-500 dark:text-dark-text-primary mb-2">{error}</h2>
+          <p className="text-accent-600 dark:text-dark-text-secondary mb-6">يرجى المحاولة مرة أخرى لاحقاً</p>
+          <Link href="/creators" className="btn-primary">
+            العودة إلى المبدعين
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // No creator data
+  if (!creator) {
+    return (
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center transition-colors duration-300" dir="rtl">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-accent-500 dark:text-dark-text-primary mb-2">المبدع غير موجود</h2>
+          <Link href="/creators" className="btn-primary">
+            العودة إلى المبدعين
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
 
@@ -155,7 +260,7 @@ export default function CreatorProfilePage() {
           {/* Cover Image */}
           <div className="h-64 md:h-80 relative">
             <Image
-              src={creator.coverImage}
+              src={creator.coverImage || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=400&fit=crop&crop=center"}
               alt={creator.name}
               width={1200}
               height={400}
@@ -169,7 +274,7 @@ export default function CreatorProfilePage() {
             <div className="flex flex-col md:flex-row items-start md:items-end gap-6">
               <div className="relative">
                 <Image
-                  src={creator.avatar}
+                  src={creator.profilePicture || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face"}
                   alt={creator.name}
                   width={150}
                   height={150}
@@ -180,54 +285,58 @@ export default function CreatorProfilePage() {
 
               <div className="flex-1 text-white dark:text-dark-text-primary">
                 <h1 className="heading-1 mb-2">{creator.name}</h1>
-                <p className="body-large mb-4">{creator.bio}</p>
+                <p className="body-large mb-4">{creator.bio || 'مبدع محتوى'}</p>
 
                 <div className="flex flex-wrap items-center gap-6 mb-6">
                   <div className="flex items-center gap-2">
-                    <StarRating rating={creator.rating} />
-                    <span className="text-sm">({creator.templates} قالب)</span>
+                    <StarRating rating={creator.rating || 0} />
+                    <span className="text-sm">({Array.isArray(creator.templates) ? creator.templates.length : 0} قالب)</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
-                    <span className="text-sm">{creator.followers} متابع</span>
+                    <span className="text-sm">{creator.followers || 0} متابع</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                     </svg>
-                    <span className="text-sm">{creator.earnings} أرباح</span>
+                    <span className="text-sm">{creator.earnings || 0} ريال أرباح</span>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-3">
-                  {creator.specialties.map((specialty, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-sm rounded-full"
-                    >
-                      {specialty}
-                    </span>
-                  ))}
-                </div>
+                {creator.specialties && creator.specialties.length > 0 && (
+                  <div className="flex flex-wrap gap-3">
+                    {creator.specialties.map((specialty, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-sm rounded-full"
+                      >
+                        {specialty}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 <button
-                  onClick={() => setIsFollowing(!isFollowing)}
+                  onClick={handleFollow}
+                  disabled={followLoading}
                   className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${isFollowing
                     ? 'bg-gray-200 dark:bg-dark-tertiary text-accent-500 dark:text-dark-text-primary'
                     : 'bg-primary-500 dark:bg-orange-500 text-white hover:bg-primary-600 dark:hover:bg-orange-600'
-                    }`}
+                    } ${followLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  {isFollowing ? 'متابع' : 'متابعة'}
+                  {followLoading ? 'جاري التحميل...' : (isFollowing ? 'متابع' : 'متابعة')}
                 </button>
                 <button className="px-6 py-3 bg-white/20 backdrop-blur-sm text-white rounded-xl font-semibold hover:bg-white/30 transition-all duration-300">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
                   </svg>
                 </button>
+
               </div>
             </div>
           </div>
@@ -240,25 +349,25 @@ export default function CreatorProfilePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="text-center">
               <div className="text-2xl font-bold text-primary-500 dark:text-orange-500 mb-1">
-                {creator.stats.totalDownloads}
+                {creator.stats?.totalDownloads || 0}
               </div>
               <div className="text-sm text-accent-600 dark:text-dark-text-secondary">إجمالي التحميلات</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-primary-500 dark:text-orange-500 mb-1">
-                {creator.stats.averageRating}
+                {creator.stats?.averageRating || 0}
               </div>
               <div className="text-sm text-accent-600 dark:text-dark-text-secondary">متوسط التقييم</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-primary-500 dark:text-orange-500 mb-1">
-                {creator.stats.responseTime}
+                {creator.stats?.responseTime || 'ساعتين'}
               </div>
               <div className="text-sm text-accent-600 dark:text-dark-text-secondary">وقت الاستجابة</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-primary-500 dark:text-orange-500 mb-1">
-                {creator.stats.completionRate}
+                {creator.stats?.completionRate || '98%'}
               </div>
               <div className="text-sm text-accent-600 dark:text-dark-text-secondary">معدل الإنجاز</div>
             </div>
@@ -272,42 +381,44 @@ export default function CreatorProfilePage() {
           <div className="max-w-4xl mx-auto">
             <h2 className="heading-2 mb-6">عن المبدع</h2>
             <p className="body-large text-accent-600 dark:text-dark-text-secondary mb-8">
-              {creator.description}
+              {creator.description || creator.bio || 'مبدع محتوى متخصص في إنشاء قوالب مبتكرة ومفيدة للمجتمع.'}
             </p>
 
             {/* Social Links */}
-            <div className="flex gap-4 mb-8">
-              {creator.socialLinks.twitter && (
-                <a
-                  href={creator.socialLinks.twitter}
-                  className="w-10 h-10 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center hover:bg-primary-500 hover:text-white transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                  </svg>
-                </a>
-              )}
-              {creator.socialLinks.linkedin && (
-                <a
-                  href={creator.socialLinks.linkedin}
-                  className="w-10 h-10 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center hover:bg-primary-500 hover:text-white transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                  </svg>
-                </a>
-              )}
-              {creator.socialLinks.website && (
-                <a
-                  href={creator.socialLinks.website}
-                  className="w-10 h-10 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center hover:bg-primary-500 hover:text-white transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </a>
-              )}
-            </div>
+            {creator.socialMedia && (
+              <div className="flex gap-4 mb-8">
+                {creator.socialMedia.twitter && (
+                  <a
+                    href={creator.socialMedia.twitter}
+                    className="w-10 h-10 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center hover:bg-primary-500 hover:text-white transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
+                    </svg>
+                  </a>
+                )}
+                {creator.socialMedia.linkedin && (
+                  <a
+                    href={creator.socialMedia.linkedin}
+                    className="w-10 h-10 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center hover:bg-primary-500 hover:text-white transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                    </svg>
+                  </a>
+                )}
+                {creator.socialMedia.website && (
+                  <a
+                    href={creator.socialMedia.website}
+                    className="w-10 h-10 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center hover:bg-primary-500 hover:text-white transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -322,44 +433,60 @@ export default function CreatorProfilePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {creatorTemplates.map((template) => (
-              <div key={template.id} className="card-interactive overflow-hidden">
-                <div className="relative h-48 bg-gray-200 overflow-hidden">
-                  <Image
-                    src={template.imgSrc}
-                    alt={template.title}
-                    width={400}
-                    height={300}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                  <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full font-medium bg-primary-100 text-primary-800">
-                    {template.category}
-                  </span>
-                </div>
-                <div className="p-6">
-                  <h3 className="font-bold text-lg text-accent-500 dark:text-dark-text-primary mb-2 group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
-                    {template.title}
-                  </h3>
-
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <StarRating rating={template.rating} />
-                      <span className="text-sm text-accent-600 dark:text-dark-text-secondary">({template.downloads})</span>
-                    </div>
-                    <div className="text-lg font-bold text-primary-500 dark:text-orange-500">
-                      {template.price}
-                    </div>
+          {creatorTemplates.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {creatorTemplates.map((template) => (
+                <div key={template._id || template.id} className="card-interactive overflow-hidden">
+                  <div className="relative h-48 bg-gray-200 overflow-hidden">
+                    <Image
+                      src={template.coverImage || template.imgSrc || "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop&crop=center"}
+                      alt={template.title}
+                      width={400}
+                      height={300}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                    <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full font-medium bg-primary-100 text-primary-800">
+                      {template.category || 'عام'}
+                    </span>
                   </div>
+                  <div className="p-6">
+                    <h3 className="font-bold text-lg text-accent-500 dark:text-dark-text-primary mb-2 group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
+                      {template.title}
+                    </h3>
 
-                  <button className="w-full btn-primary">
-                    عرض التفاصيل
-                  </button>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <StarRating rating={template.rating || 0} />
+                        <span className="text-sm text-accent-600 dark:text-dark-text-secondary">({template.downloads || 0})</span>
+                      </div>
+                      <div className="text-lg font-bold text-primary-500 dark:text-orange-500">
+                        {template.price || 'مجاني'}
+                      </div>
+                    </div>
+
+                    <Link href={`/templates/${template._id || template.id}`} className="w-full btn-primary block text-center">
+                      عرض التفاصيل
+                    </Link>
+                  </div>
                 </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-gray-400 dark:text-dark-text-quaternary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
               </div>
-            ))}
-          </div>
+              <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
+                لا توجد قوالب متاحة حالياً
+              </h3>
+              <p className="text-accent-600 dark:text-dark-text-secondary">
+                لم ينشر هذا المبدع أي قوالب بعد
+              </p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -368,38 +495,54 @@ export default function CreatorProfilePage() {
         <div className="container-custom">
           <h2 className="heading-2 mb-12">آراء العملاء</h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {reviews.map((review) => (
-              <div key={review.id} className="card p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <Image
-                    src={review.user.avatar}
-                    alt={review.user.name}
-                    width={40}
-                    height={40}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                  <div>
-                    <h4 className="font-semibold text-accent-500 dark:text-dark-text-primary">{review.user.name}</h4>
-                    <div className="flex items-center gap-2">
-                      <StarRating rating={review.rating} />
-                      <span className="text-sm text-accent-500 dark:text-dark-text-secondary">
-                        {formatDate(review.date)}
-                      </span>
+          {reviews.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {reviews.map((review) => (
+                <div key={review.id} className="card p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Image
+                      src={review.user.avatar}
+                      alt={review.user.name}
+                      width={40}
+                      height={40}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                    <div>
+                      <h4 className="font-semibold text-accent-500 dark:text-dark-text-primary">{review.user.name}</h4>
+                      <div className="flex items-center gap-2">
+                        <StarRating rating={review.rating} />
+                        <span className="text-sm text-accent-500 dark:text-dark-text-secondary">
+                          {formatDate(review.date)}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <p className="text-accent-600 dark:text-dark-text-secondary mb-3">
-                  "{review.comment}"
-                </p>
+                  <p className="text-accent-600 dark:text-dark-text-secondary mb-3">
+                    "{review.comment}"
+                  </p>
 
-                <div className="text-sm text-accent-500 dark:text-orange-500">
-                  قالب: {review.template}
+                  <div className="text-sm text-accent-500 dark:text-orange-500">
+                    قالب: {review.template}
+                  </div>
                 </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-gray-400 dark:text-dark-text-quaternary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
               </div>
-            ))}
-          </div>
+              <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
+                لا توجد آراء متاحة حالياً
+              </h3>
+              <p className="text-accent-600 dark:text-dark-text-secondary">
+                لم يتم تقييم قوالب هذا المبدع بعد
+              </p>
+            </div>
+          )}
         </div>
       </section>
 

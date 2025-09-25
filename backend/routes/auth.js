@@ -4,10 +4,44 @@ const { body, validationResult } = require('express-validator');
 const passport = require('passport');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const dns = require('dns').promises;
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
+
+// Temporary storage for unverified users (in production, use Redis or database)
+const tempUserStorage = new Map();
+
+// Rate limiting for signup attempts
+const signupAttempts = new Map();
+const MAX_ATTEMPTS = 3;
+const ATTEMPT_WINDOW = 15 * 60 * 1000; // 15 minutes
+
+// Clean up expired tokens every hour
+setInterval(() => {
+  const now = new Date();
+  for (const [token, userData] of tempUserStorage.entries()) {
+    if (userData.emailVerificationExpiry < now) {
+      tempUserStorage.delete(token);
+    }
+  }
+}, 60 * 60 * 1000); // 1 hour
+
+// Function to validate email domain
+const validateEmailDomain = async (email) => {
+  try {
+    const domain = email.split('@')[1];
+    if (!domain) return false;
+
+    // Check MX record for the domain
+    const mxRecords = await dns.resolveMx(domain);
+    return mxRecords && mxRecords.length > 0;
+  } catch (error) {
+    console.log('Email domain validation failed:', error.message);
+    return false;
+  }
+};
 
 // Generate JWT token
 const generateToken = (userId) => {
@@ -56,26 +90,41 @@ router.post('/signup', [
       });
     }
 
+    // Validate email domain - block common fake email domains
+    const blockedDomains = [
+      '10minutemail.com', 'tempmail.org', 'guerrillamail.com', 'mailinator.com',
+      'throwaway.email', 'temp-mail.org', 'sharklasers.com', 'guerrillamailblock.com',
+      'pokemail.net', 'spam4.me', 'bccto.me', 'chacuo.net', 'dispostable.com',
+      'mailnesia.com', 'meltmail.com', 'trashmail.com', 'yopmail.com',
+      'example.com', 'test.com', 'fake.com', 'invalid.com'
+    ];
+
+    const emailDomain = email.split('@')[1]?.toLowerCase();
+    if (blockedDomains.includes(emailDomain)) {
+      return res.status(400).json({
+        success: false,
+        message: 'يرجى استخدام بريد إلكتروني صحيح ومؤكد'
+      });
+    }
+
+    // Validate email domain exists (has MX record)
+    const isDomainValid = await validateEmailDomain(email);
+    if (!isDomainValid) {
+      return res.status(400).json({
+        success: false,
+        message: 'البريد الإلكتروني غير صحيح أو غير موجود'
+      });
+    }
+
     // Generate email verification token
     const emailVerificationToken = crypto.randomBytes(32).toString('hex');
     const emailVerificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-    // Create new user
-    const user = new User({
-      name,
-      email,
-      password,
-      emailVerificationToken,
-      emailVerificationExpiry
-    });
-
-    await user.save();
-
-    // Send verification email
+    // Send verification email first
     try {
       const transporter = createTransporter();
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-      const verificationUrl = `${frontendUrl}/verify-email?token=${emailVerificationToken}`;
+      const verificationUrl = `${frontendUrl}/verify-email?token=${emailVerificationToken}&email=${encodeURIComponent(email)}`;
 
       const mailOptions = {
         from: process.env.EMAIL_USER,
@@ -96,39 +145,33 @@ router.post('/signup', [
         `
       };
 
+      // Try to send the email - this will fail if email doesn't exist
       await transporter.sendMail(mailOptions);
+
+      // Store user data temporarily (not in database yet)
+      tempUserStorage.set(emailVerificationToken, {
+        name,
+        email,
+        password,
+        emailVerificationToken,
+        emailVerificationExpiry,
+        createdAt: new Date()
+      });
 
       res.status(201).json({
         success: true,
-        message: 'تم إنشاء الحساب بنجاح. يرجى التحقق من بريدك الإلكتروني لتأكيد الحساب.',
+        message: 'تم إرسال رابط التأكيد إلى بريدك الإلكتروني. يرجى التحقق من بريدك والضغط على الرابط لتأكيد حسابك.',
         requiresVerification: true,
         verificationToken: emailVerificationToken,
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          isEmailVerified: user.isEmailVerified,
-          isActive: user.isActive
-        }
+        email: email
       });
     } catch (emailError) {
       console.error('Verification email sending error:', emailError);
 
-      // Still create the user but without verification
-      res.status(201).json({
-        success: true,
-        message: 'تم إنشاء الحساب بنجاح، لكن فشل في إرسال بريد التأكيد. يرجى المحاولة لاحقاً.',
-        requiresVerification: true,
-        verificationToken: emailVerificationToken,
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          isEmailVerified: user.isEmailVerified,
-          isActive: user.isActive
-        }
+      res.status(500).json({
+        success: false,
+        message: 'فشل في إرسال بريد التأكيد. يرجى المحاولة مرة أخرى لاحقاً.',
+        errorType: 'EMAIL_SEND_FAILED'
       });
     }
   } catch (error) {
@@ -551,7 +594,7 @@ router.post('/reset-password', [
 });
 
 // @route   POST /api/auth/verify-email
-// @desc    Verify email with token
+// @desc    Verify email with token and create user account
 // @access  Public
 router.post('/verify-email', [
   body('token')
@@ -571,25 +614,51 @@ router.post('/verify-email', [
 
     const { token: verificationToken } = req.body;
 
-    // Find user by verification token
-    const user = await User.findOne({
-      emailVerificationToken: verificationToken,
-      emailVerificationExpiry: { $gt: new Date() }
-    });
+    // Check if token exists in temporary storage
+    const tempUserData = tempUserStorage.get(verificationToken);
 
-    if (!user) {
+    if (!tempUserData) {
       return res.status(400).json({
         success: false,
-        message: 'رمز التأكيد غير صحيح أو منتهي الصلاحية'
+        message: 'رمز التأكيد غير موجود أو منتهي الصلاحية',
+        errorType: 'INVALID_TOKEN'
       });
     }
 
-    // Mark email as verified and activate account
-    user.isEmailVerified = true;
-    user.isActive = true; // Activate the account
-    user.emailVerificationToken = null;
-    user.emailVerificationExpiry = null;
+    // Check if token is expired
+    if (tempUserData.emailVerificationExpiry < new Date()) {
+      // Remove expired token
+      tempUserStorage.delete(verificationToken);
+      return res.status(400).json({
+        success: false,
+        message: 'رمز التأكيد منتهي الصلاحية. يرجى طلب رابط جديد',
+        errorType: 'EXPIRED_TOKEN'
+      });
+    }
+
+    // Check if user already exists in database
+    const existingUser = await User.findOne({ email: tempUserData.email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'البريد الإلكتروني مؤكد بالفعل. يمكنك تسجيل الدخول الآن',
+        errorType: 'ALREADY_VERIFIED'
+      });
+    }
+
+    // Create the actual user account now
+    const user = new User({
+      name: tempUserData.name,
+      email: tempUserData.email,
+      password: tempUserData.password,
+      isEmailVerified: true,
+      isActive: true
+    });
+
     await user.save();
+
+    // Remove from temporary storage
+    tempUserStorage.delete(verificationToken);
 
     // Generate token for automatic login
     const token = generateToken(user._id);

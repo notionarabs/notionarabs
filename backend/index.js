@@ -68,12 +68,14 @@ const templateRoutes = require('./routes/templates');
 const screenshotRoutes = require('./routes/screenshot');
 const blogRoutes = require('./routes/blogs');
 const creatorRoutes = require('./routes/creators');
+const uploadRoutes = require('./routes/upload');
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/templates', templateRoutes);
 app.use('/api/screenshot', screenshotRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/creators', creatorRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Basic route
 app.get('/', (req, res) => {

@@ -19,8 +19,10 @@ export default function SignupPage() {
   const [showVerificationMessage, setShowVerificationMessage] = useState(false);
   const [userEmail, setUserEmail] = useState('');
   const [verificationToken, setVerificationToken] = useState('');
+  const [emailSendFailed, setEmailSendFailed] = useState(false);
+  const [resendingEmail, setResendingEmail] = useState(false);
 
-  const { signup } = useAuth();
+  const { signup, resendVerification } = useAuth();
   const router = useRouter();
 
   const handleChange = (e) => {
@@ -65,11 +67,12 @@ export default function SignupPage() {
 
     if (result.success) {
       if (result.requiresVerification && result.verificationToken) {
-        console.log('Account created, showing verification message');
-        // Show verification message instead of redirecting immediately
+        console.log('Email sent, showing verification message');
+        // Show verification message - no account created yet
         setUserEmail(formData.email);
         setVerificationToken(result.verificationToken);
         setShowVerificationMessage(true);
+        setEmailSendFailed(false);
       } else {
         console.log('No verification required or missing token, redirecting to home');
         console.log('This should not happen with the new flow!');
@@ -77,10 +80,35 @@ export default function SignupPage() {
       }
     } else {
       console.log('Signup failed:', result.error);
-      setError(result.error);
+      if (result.errorType === 'EMAIL_SEND_FAILED') {
+        setEmailSendFailed(true);
+        setError('فشل في إرسال بريد التأكيد. يرجى المحاولة مرة أخرى.');
+      } else {
+        setError(result.error);
+      }
     }
 
     setLoading(false);
+  };
+
+  const handleResendVerification = async () => {
+    if (!userEmail) return;
+
+    setResendingEmail(true);
+    setError('');
+
+    // For resend, we need to call the signup endpoint again with the same data
+    const result = await signup(formData.name, formData.email, formData.password);
+
+    if (result.success) {
+      setEmailSendFailed(false);
+      setShowVerificationMessage(true);
+      setVerificationToken(result.verificationToken);
+    } else {
+      setError(result.error);
+    }
+
+    setResendingEmail(false);
   };
 
   return (
@@ -204,48 +232,20 @@ export default function SignupPage() {
               {error && (
                 <div className="bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded-xl text-sm">
                   {error}
-                </div>
-              )}
-
-              {/* Verification Message */}
-              {showVerificationMessage && (
-                <div className="bg-success-50 border border-success-200 text-success-700 px-4 py-3 rounded-xl text-sm">
-                  <div className="flex items-start">
-                    <svg className="w-5 h-5 text-green-600 mt-0.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <div className="w-full">
-                      <p className="font-medium">تم إنشاء الحساب بنجاح!</p>
-                      <p className="mt-1">تم إرسال رابط تأكيد البريد الإلكتروني إلى {userEmail}</p>
-                      <p className="mt-2">يرجى التحقق من بريدك الإلكتروني والضغط على الرابط لتأكيد حسابك.</p>
-                      <p className="mt-2 text-sm text-green-600">سيتم توجيهك إلى الصفحة الرئيسية بعد تأكيد بريدك الإلكتروني.</p>
-
-                      <div className="mt-4 space-y-2">
-                        <button
-                          onClick={() => {
-                            // Redirect to verification page with token
-                            router.push(`/verify-email?token=${verificationToken}&email=${userEmail}`);
-                          }}
-                          className="w-full py-2 px-4 bg-success-600 text-white rounded-xl hover:bg-success-700 transition-colors text-sm"
-                        >
-                          انتقل إلى صفحة التأكيد
-                        </button>
-
-                        <button
-                          onClick={() => {
-                            setShowVerificationMessage(false);
-                            setFormData({ name: '', email: '', password: '', confirmPassword: '' });
-                            setAgreedToTerms(false);
-                          }}
-                          className="w-full py-2 px-4 border border-success-600 text-success-600 rounded-xl hover:bg-success-50 transition-colors text-sm"
-                        >
-                          إنشاء حساب آخر
-                        </button>
-                      </div>
+                  {emailSendFailed && (
+                    <div className="mt-3">
+                      <button
+                        onClick={handleResendVerification}
+                        disabled={resendingEmail}
+                        className="text-primary-500 hover:text-primary-600 text-sm underline disabled:opacity-50"
+                      >
+                        {resendingEmail ? 'جاري الإرسال...' : 'إعادة إرسال بريد التأكيد'}
+                      </button>
                     </div>
-                  </div>
+                  )}
                 </div>
               )}
+
 
 
               {/* Submit Button */}
@@ -268,6 +268,84 @@ export default function SignupPage() {
               </button>
             </form>
           ) : null}
+
+          {/* Verification Message */}
+          {showVerificationMessage && (
+            <div className="card p-8 border-primary-200">
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h2 className="heading-2 mb-3">تحقق من بريدك الإلكتروني</h2>
+                <p className="body-large text-accent-600 dark:text-dark-text-secondary">
+                  تم إرسال رابط التأكيد إلى بريدك الإلكتروني
+                </p>
+              </div>
+
+              <div className="bg-secondary-50 dark:bg-dark-card-bg border border-secondary-200 dark:border-dark-card-border rounded-xl p-4 mb-6">
+                <p className="body-medium text-center font-mono text-accent-600 dark:text-dark-text-primary">
+                  {userEmail}
+                </p>
+              </div>
+
+              <div className="space-y-4 mb-6">
+                <div className="flex items-start space-x-3 space-x-reverse">
+                  <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-primary-600 text-sm font-bold">1</span>
+                  </div>
+                  <p className="body-medium">افتح بريدك الإلكتروني</p>
+                </div>
+                <div className="flex items-start space-x-3 space-x-reverse">
+                  <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-primary-600 text-sm font-bold">2</span>
+                  </div>
+                  <p className="body-medium">ابحث عن رسالة من "عرب نوشن"</p>
+                </div>
+                <div className="flex items-start space-x-3 space-x-reverse">
+                  <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-primary-600 text-sm font-bold">3</span>
+                  </div>
+                  <p className="body-medium">اضغط على رابط التأكيد</p>
+                </div>
+                <div className="flex items-start space-x-3 space-x-reverse">
+                  <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-primary-600 text-sm font-bold">4</span>
+                  </div>
+                  <p className="body-medium">سيتم إنشاء حسابك تلقائياً</p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <button
+                  onClick={handleResendVerification}
+                  disabled={resendingEmail}
+                  className="w-full btn-outline"
+                >
+                  {resendingEmail ? 'جاري الإرسال...' : 'إعادة إرسال بريد التأكيد'}
+                </button>
+
+                <button
+                  onClick={() => {
+                    setShowVerificationMessage(false);
+                    setFormData({ name: '', email: '', password: '', confirmPassword: '' });
+                    setAgreedToTerms(false);
+                    setEmailSendFailed(false);
+                  }}
+                  className="w-full btn-ghost"
+                >
+                  إنشاء حساب آخر
+                </button>
+              </div>
+
+              <div className="mt-6 p-3 bg-warning-50 dark:bg-dark-card-bg border border-warning-200 dark:border-dark-card-border rounded-xl">
+                <p className="body-small text-warning-700 dark:text-dark-text-secondary text-center">
+                  لا تجد الرسالة؟ تحقق من مجلد الرسائل المهملة (Spam)
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Divider and Social Login - Only show when not in verification mode */}
           {!showVerificationMessage && (

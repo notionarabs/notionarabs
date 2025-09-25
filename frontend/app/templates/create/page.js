@@ -13,8 +13,8 @@ export default function CreateTemplatePage() {
   const { showSuccess, showError, showWarning, showInfo } = useToast();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isCapturingScreenshot, setIsCapturingScreenshot] = useState(false);
-  const [screenshotPreview, setScreenshotPreview] = useState(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -89,41 +89,57 @@ export default function CreateTemplatePage() {
       ...prev,
       [name]: value
     }));
-
-    // Auto-capture screenshot when Notion link is entered
-    if (name === 'notionLink' && value.trim()) {
-      handleScreenshotCapture(value.trim());
-    }
   };
 
-  const handleScreenshotCapture = async (url) => {
-    // Validate if it's a Notion URL
-    if (!url.includes('notion.so')) {
+  const handleImageUpload = async (file) => {
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      showError('يرجى اختيار ملف صورة صالح');
       return;
     }
 
-    setIsCapturingScreenshot(true);
-    setScreenshotPreview(null);
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      showError('حجم الصورة يجب أن يكون أقل من 5 ميجابايت');
+      return;
+    }
+
+    setIsUploadingImage(true);
 
     try {
-      const response = await api.post('/screenshot', { url });
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await api.post('/upload/image', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
       if (response.data.success) {
-        const screenshotUrl = response.data.data.screenshotUrl;
-        setScreenshotPreview(screenshotUrl);
-
-        // Auto-fill the preview image field
+        const imageUrl = response.data.data.imageUrl;
+        setUploadedImage(imageUrl);
         setFormData(prev => ({
           ...prev,
-          previewImage: screenshotUrl
+          previewImage: imageUrl
         }));
+        showSuccess('تم رفع الصورة بنجاح');
       }
     } catch (error) {
-      // Show user-friendly error message
-      const errorMessage = error.response?.data?.message || 'فشل في التقاط صورة للقالب';
-      showWarning(`${errorMessage}\n\nيمكنك المتابعة بدون صورة أو إضافة رابط صورة يدوياً.`);
+      console.error('Error uploading image:', error);
+      const errorMessage = error.response?.data?.message || 'فشل في رفع الصورة';
+      showError(errorMessage);
     } finally {
-      setIsCapturingScreenshot(false);
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      handleImageUpload(file);
     }
   };
 
@@ -165,6 +181,11 @@ export default function CreateTemplatePage() {
         setIsSubmitting(false);
         return;
       }
+      if (!formData.previewImage.trim()) {
+        showError('يرجى رفع لقطة شاشة للصفحة الرئيسية للقالب كصورة مصغرة');
+        setIsSubmitting(false);
+        return;
+      }
 
       // Convert tags string to array
       const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
@@ -192,11 +213,6 @@ export default function CreateTemplatePage() {
       const response = await api.post('/templates', templateData);
 
       if (response.data.success) {
-        // Show screenshot status warning if there's an issue
-        if (response.data.screenshotStatus && !response.data.screenshotStatus.success) {
-          showWarning(response.data.screenshotStatus.message);
-        }
-
         // Clear all form fields
         setFormData({
           title: '',
@@ -209,7 +225,7 @@ export default function CreateTemplatePage() {
           previewImage: '',
           difficulty: 'beginner'
         });
-        setScreenshotPreview(null);
+        setUploadedImage(null);
 
         // Show success modal
         setShowSuccessModal(true);
@@ -247,23 +263,48 @@ export default function CreateTemplatePage() {
   };
 
   return (
-    <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
-      {/* Header */}
-      <div className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300">
-        <div className="container-custom py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="heading-1 mb-2">إنشاء قالب جديد</h1>
-              <p className="body-large text-accent-600 dark:text-dark-text-secondary">
-                أضف قالبك المبتكر وابدأ في كسب المال من إبداعك
-              </p>
+    <div className="min-h-screen bg-gradient-to-br from-secondary-50 via-white to-primary-50/30 dark:from-dark-primary dark:via-dark-secondary dark:to-dark-tertiary transition-colors duration-300" dir="rtl">
+      {/* Enhanced Header */}
+      <div className="bg-white/80 dark:bg-dark-secondary/80 backdrop-blur-sm border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300 shadow-sm">
+        <div className="container-custom py-8">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="flex-1">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 dark:from-orange-500 dark:to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
+                <div>
+                  <h1 className="heading-1 mb-2 bg-gradient-to-r from-primary-600 to-accent-600 dark:from-orange-400 dark:to-orange-300 bg-clip-text text-transparent">
+                    إنشاء قالب جديد
+                  </h1>
+                  <p className="body-large text-accent-600 dark:text-dark-text-secondary">
+                    أضف قالبك المبتكر وابدأ في كسب المال من إبداعك
+                  </p>
+                </div>
+              </div>
+
+              {/* Progress Indicator */}
+              <div className="flex items-center gap-2 text-sm text-accent-600 dark:text-dark-text-secondary">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>املأ النموذج أدناه لإرسال قالبك للمراجعة</span>
+              </div>
             </div>
-            <button
-              onClick={() => router.back()}
-              className="btn-outline"
-            >
-              العودة
-            </button>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => router.push('/profile')}
+                className="btn-outline inline-flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                العودة للبروفايل
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -273,216 +314,364 @@ export default function CreateTemplatePage() {
         <div className="max-w-4xl mx-auto">
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Basic Information */}
-            <div className="card p-8">
-              <h2 className="heading-2 mb-6">المعلومات الأساسية</h2>
+            <div className="card p-8 shadow-xl border-0 bg-white/80 dark:bg-dark-card-bg/80 backdrop-blur-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-8 h-8 bg-primary-500 dark:bg-orange-500 rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h2 className="heading-2 text-primary-600 dark:text-orange-400">المعلومات الأساسية</h2>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
+                  <label className="flex items-center text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
+                    <svg className="w-4 h-4 text-primary-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
                     عنوان القالب *
                   </label>
-                  <input
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    required
-                    className="form-input"
-                    placeholder="مثال: مخطط الدراسة الشامل"
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      name="title"
+                      value={formData.title}
+                      onChange={handleInputChange}
+                      required
+                      className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400"
+                      placeholder="مثال: مخطط الدراسة الشامل"
+                    />
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
+                  <label className="flex items-center text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
+                    <svg className="w-4 h-4 text-primary-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
                     وصف القالب *
                   </label>
-                  <textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    required
-                    rows={4}
-                    className="form-input"
-                    placeholder="اكتب وصفاً مفصلاً عن القالب ومميزاته..."
-                  />
+                  <div className="relative">
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      required
+                      rows={4}
+                      className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400 resize-none"
+                      placeholder="اكتب وصفاً مفصلاً عن القالب ومميزاته..."
+                    />
+                    <div className="absolute right-4 top-4">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
+                  <label className="flex items-center text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
+                    <svg className="w-4 h-4 text-primary-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
                     الفئة *
                   </label>
-                  <select
-                    name="category"
-                    value={formData.category}
-                    onChange={handleInputChange}
-                    required
-                    className="form-input"
-                  >
-                    <option value="">اختر الفئة</option>
-                    {categories.map((category) => (
-                      <option key={category} value={category}>
-                        {category}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select
+                      name="category"
+                      value={formData.category}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400 appearance-none bg-white dark:bg-dark-card-bg cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-orange-500/20"
+                    >
+                      <option value="" disabled className="text-gray-400">اختر الفئة</option>
+                      {categories.map((category) => (
+                        <option key={category} value={category} className="text-gray-900 dark:text-white">
+                          {category}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
+                  <label className="flex items-center text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
+                    <svg className="w-4 h-4 text-primary-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                     مستوى الصعوبة
                   </label>
-                  <select
-                    name="difficulty"
-                    value={formData.difficulty}
-                    onChange={handleInputChange}
-                    className="form-input"
-                  >
-                    {difficulties.map((difficulty) => (
-                      <option key={difficulty.value} value={difficulty.value}>
-                        {difficulty.label}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select
+                      name="difficulty"
+                      value={formData.difficulty}
+                      onChange={handleInputChange}
+                      className="w-full pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400 appearance-none bg-white dark:bg-dark-card-bg cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-orange-500/20"
+                    >
+                      {difficulties.map((difficulty) => (
+                        <option key={difficulty.value} value={difficulty.value} className="text-gray-900 dark:text-white">
+                          {difficulty.label}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Pricing & Link */}
-            <div className="card p-8">
-              <h2 className="heading-2 mb-6">السعر والرابط</h2>
+            <div className="card p-8 shadow-xl border-0 bg-white/80 dark:bg-dark-card-bg/80 backdrop-blur-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                  </svg>
+                </div>
+                <h2 className="heading-2 text-green-600">السعر والرابط</h2>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
+                  <label className="flex items-center text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
+                    <svg className="w-4 h-4 text-green-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                    </svg>
                     السعر (ريال سعودي) *
                   </label>
-                  <input
-                    type="number"
-                    name="price"
-                    value={formData.price}
-                    onChange={handleInputChange}
-                    required
-                    min="0"
-                    step="0.01"
-                    className="form-input"
-                    placeholder="25.00"
-                  />
+                  <div className="relative">
+                    <input
+                      type="number"
+                      name="price"
+                      value={formData.price}
+                      onChange={handleInputChange}
+                      required
+                      min="0"
+                      step="0.01"
+                      className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-green-500 dark:focus:border-green-500 rounded-xl transition-all duration-200 hover:border-green-300 dark:hover:border-green-400"
+                      placeholder="25.00"
+                    />
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                      </svg>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                    أدخل السعر بالريال السعودي
+                  </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
+                  <label className="flex items-center text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
+                    <svg className="w-4 h-4 text-green-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    </svg>
                     رابط قالب نوشن *
                   </label>
-                  <input
-                    type="url"
-                    name="notionLink"
-                    value={formData.notionLink}
-                    onChange={handleInputChange}
-                    required
-                    className="form-input"
-                    placeholder="https://notion.so/your-template-link"
-                  />
-                  <p className="text-sm text-accent-600 dark:text-dark-text-secondary mt-1">
+                  <div className="relative">
+                    <input
+                      type="url"
+                      name="notionLink"
+                      value={formData.notionLink}
+                      onChange={handleInputChange}
+                      required
+                      className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-green-500 dark:focus:border-green-500 rounded-xl transition-all duration-200 hover:border-green-300 dark:hover:border-green-400"
+                      placeholder="https://notion.so/your-template-link"
+                    />
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                      </svg>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                     تأكد من أن الرابط قابل للوصول العام
                   </p>
 
-                  {/* Screenshot Preview */}
-                  {isCapturingScreenshot && (
-                    <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                      <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                        <span className="text-sm">جاري التقاط صورة للقالب...</span>
-                      </div>
-                    </div>
-                  )}
+                  {/* Image Upload */}
+                  <div className="mt-4">
+                    <label className="block text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
+                      <svg className="w-4 h-4 text-green-500 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      لقطة شاشة للقالب (مطلوب) *
+                    </label>
 
-                  {screenshotPreview && (
-                    <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                      <div className="flex items-center gap-2 text-green-700 dark:text-green-300 mb-3">
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                        <span className="text-sm font-medium">تم التقاط صورة المعاينة بنجاح</span>
-                      </div>
-                      <div className="relative">
-                        <img
-                          src={screenshotPreview}
-                          alt="صورة المعاينة التلقائية"
-                          className="w-full max-w-md h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
-                          onError={() => {
-                            showError(`فشل في تحميل الصورة\n\nيرجى المحاولة مرة أخرى.`);
-                          }}
+                    {!uploadedImage ? (
+                      <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center hover:border-green-400 dark:hover:border-green-500 transition-colors duration-200">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          className="hidden"
+                          id="image-upload"
+                          disabled={isUploadingImage}
                         />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setScreenshotPreview(null);
-                            setFormData(prev => ({ ...prev, previewImage: '' }));
-                          }}
-                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors"
-                          title="إزالة الصورة"
+                        <label
+                          htmlFor="image-upload"
+                          className="cursor-pointer flex flex-col items-center gap-3"
                         >
-                          ×
-                        </button>
+                          {isUploadingImage ? (
+                            <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+                              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div>
+                              <span>جاري رفع الصورة...</span>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                                <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                  اضغط لرفع لقطة شاشة للصفحة الرئيسية للقالب
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                  PNG, JPG, GIF حتى 5 ميجابايت - مطلوب كصورة مصغرة
+                                </p>
+                              </div>
+                            </>
+                          )}
+                        </label>
                       </div>
-                      <p className="text-xs text-green-600 dark:text-green-400 mt-2">
-                        هذه الصورة ستكون صورة المعاينة الرسمية للقالب
-                      </p>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
+                        <div className="flex items-center gap-2 text-green-700 dark:text-green-300 mb-3">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-sm font-medium">تم رفع الصورة بنجاح</span>
+                        </div>
+                        <div className="relative">
+                          <img
+                            src={uploadedImage}
+                            alt="صورة المعاينة"
+                            className="w-full max-w-md h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                            onError={() => {
+                              showError('فشل في تحميل الصورة');
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setUploadedImage(null);
+                              setFormData(prev => ({ ...prev, previewImage: '' }));
+                            }}
+                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors"
+                            title="إزالة الصورة"
+                          >
+                            ×
+                          </button>
+                        </div>
+                        <p className="text-xs text-green-600 dark:text-green-400 mt-2">
+                          هذه اللقطة ستكون الصورة المصغرة الرسمية للقالب
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Features & Details */}
-            <div className="card p-8">
-              <h2 className="heading-2 mb-6">المميزات والتفاصيل</h2>
+            <div className="card p-8 shadow-xl border-0 bg-white/80 dark:bg-dark-card-bg/80 backdrop-blur-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <h2 className="heading-2 text-blue-600">المميزات والتفاصيل</h2>
+              </div>
 
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
+                  <label className="flex items-center text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
+                    <svg className="w-4 h-4 text-blue-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                     مميزات القالب
                   </label>
-                  <textarea
-                    name="features"
-                    value={formData.features}
-                    onChange={handleInputChange}
-                    rows={4}
-                    className="form-input"
-                    placeholder="اكتب مميزات القالب، كل ميزة في سطر منفصل..."
-                  />
+                  <div className="relative">
+                    <textarea
+                      name="features"
+                      value={formData.features}
+                      onChange={handleInputChange}
+                      rows={4}
+                      className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-blue-500 dark:focus:border-blue-500 rounded-xl transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-400 resize-none"
+                      placeholder="اكتب مميزات القالب، كل ميزة في سطر منفصل..."
+                    />
+                    <div className="absolute right-4 top-4">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                    اكتب كل ميزة في سطر منفصل لسهولة القراءة
+                  </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
+                  <label className="flex items-center text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
+                    <svg className="w-4 h-4 text-blue-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
                     الكلمات المفتاحية (اختياري)
                   </label>
-                  <input
-                    type="text"
-                    name="tags"
-                    value={formData.tags}
-                    onChange={handleInputChange}
-                    className="form-input"
-                    placeholder="إنتاجية, دراسة, تنظيم (مفصولة بفواصل)"
-                  />
-                  <p className="text-sm text-accent-600 dark:text-dark-text-secondary mt-1">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      name="tags"
+                      value={formData.tags}
+                      onChange={handleInputChange}
+                      className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-blue-500 dark:focus:border-blue-500 rounded-xl transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-400"
+                      placeholder="إنتاجية, دراسة, تنظيم (مفصولة بفواصل)"
+                    />
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                     تساعد الكلمات المفتاحية في العثور على قالبك بسهولة
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
+                  <label className="flex items-center text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
+                    <svg className="w-4 h-4 text-blue-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
                     صورة المعاينة
                   </label>
-                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                    <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300 mb-2">
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+                    <div className="flex items-center gap-3 text-blue-700 dark:text-blue-300 mb-3">
+                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
                       </svg>
-                      <span className="font-medium">سيتم التقاط صورة تلقائياً من قالب نوشن</span>
+                      <span className="font-medium text-lg">رفع صورة المعاينة يدوياً</span>
                     </div>
                     <p className="text-sm text-blue-600 dark:text-blue-400">
-                      عند إدخال رابط قالب نوشن، سيتم التقاط صورة للمعاينة تلقائياً
+                      يمكنك رفع صورة المعاينة يدوياً في قسم السعر والرابط أعلاه
                     </p>
                   </div>
                 </div>
@@ -490,44 +679,74 @@ export default function CreateTemplatePage() {
             </div>
 
             {/* Guidelines */}
-            <div className="card p-8 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-              <h3 className="heading-3 text-blue-800 dark:text-blue-200 mb-4">إرشادات مهمة</h3>
-              <ul className="space-y-2 text-blue-700 dark:text-blue-300">
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-500 mt-1">•</span>
-                  <span>تأكد من أن قالبك أصلي ولا ينتهك حقوق الملكية الفكرية</span>
+            <div className="card p-8 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-2 border-amber-200 dark:border-amber-800 shadow-lg">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="heading-3 text-amber-800 dark:text-amber-200">إرشادات مهمة</h3>
+              </div>
+              <ul className="space-y-4 text-amber-700 dark:text-amber-300">
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-white text-sm font-bold">1</span>
+                  </div>
+                  <span className="text-sm leading-relaxed">تأكد من أن قالبك أصلي ولا ينتهك حقوق الملكية الفكرية</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-500 mt-1">•</span>
-                  <span>رابط نوشن يجب أن يكون قابل للوصول العام</span>
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-white text-sm font-bold">2</span>
+                  </div>
+                  <span className="text-sm leading-relaxed">رابط نوشن يجب أن يكون قابل للوصول العام</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-500 mt-1">•</span>
-                  <span>سيتم مراجعة القالب من قبل الإدارة قبل النشر</span>
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-white text-sm font-bold">3</span>
+                  </div>
+                  <span className="text-sm leading-relaxed">سيتم مراجعة القالب من قبل الإدارة قبل النشر</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-500 mt-1">•</span>
-                  <span>تأكد من دقة المعلومات المقدمة</span>
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-white text-sm font-bold">4</span>
+                  </div>
+                  <span className="text-sm leading-relaxed">تأكد من دقة المعلومات المقدمة</span>
                 </li>
               </ul>
             </div>
 
-            {/* Submit Button */}
-            <div className="flex justify-end gap-4">
+            {/* Submit Buttons */}
+            <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6">
               <button
                 type="button"
-                onClick={() => router.back()}
-                className="btn-outline"
+                onClick={() => router.push('/profile')}
+                className="btn-outline inline-flex items-center justify-center gap-2 px-8 py-4 text-lg"
                 disabled={isSubmitting}
               >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
                 إلغاء
               </button>
               <button
                 type="submit"
-                className="btn-primary"
+                className="btn-primary inline-flex items-center justify-center gap-2 px-8 py-4 text-lg shadow-lg hover:shadow-xl transition-all duration-300"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'جاري الإرسال...' : 'إرسال للمراجعة'}
+                {isSubmitting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    جاري الإرسال...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                    إرسال للمراجعة
+                  </>
+                )}
               </button>
             </div>
           </form>

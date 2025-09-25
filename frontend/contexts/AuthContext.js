@@ -227,6 +227,13 @@ export const AuthProvider = ({ children }) => {
 
   const verifyEmail = async (token) => {
     try {
+      if (!token) {
+        return {
+          success: false,
+          error: 'رمز التأكيد مطلوب'
+        };
+      }
+
       const response = await api.post('/auth/verify-email', { token });
       const { token: authToken, user } = response.data;
 
@@ -245,12 +252,35 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('userCacheTimestamp', Date.now().toString());
       }
 
-      return { success: true, message: response.data.message };
+      return {
+        success: true,
+        message: response.data.message,
+        user: user,
+        token: authToken
+      };
     } catch (error) {
-      console.error('Email verification failed:', error);
+      let errorMessage = 'فشل في تأكيد البريد الإلكتروني';
+      let errorType = 'UNKNOWN_ERROR';
+
+      if (error.response?.status === 400) {
+        const errorData = error.response?.data;
+        errorMessage = errorData?.message || 'رمز التأكيد غير صحيح أو منتهي الصلاحية';
+        errorType = errorData?.errorType || 'INVALID_TOKEN';
+      } else if (error.response?.status === 404) {
+        errorMessage = 'رمز التأكيد غير موجود';
+        errorType = 'NOT_FOUND';
+      } else if (error.response?.status >= 500) {
+        errorMessage = 'خطأ في الخادم، يرجى المحاولة لاحقاً';
+        errorType = 'SERVER_ERROR';
+      } else if (error.code === 'NETWORK_ERROR' || !error.response) {
+        errorMessage = 'خطأ في الاتصال، تأكد من اتصالك بالإنترنت';
+        errorType = 'NETWORK_ERROR';
+      }
+
       return {
         success: false,
-        error: error.response?.data?.message || 'فشل في تأكيد البريد الإلكتروني'
+        error: errorMessage,
+        errorType: errorType
       };
     }
   };

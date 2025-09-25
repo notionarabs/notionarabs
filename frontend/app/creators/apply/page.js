@@ -779,7 +779,7 @@ export default function CreatorApplyPage() {
                         name="availability"
                         value={formData.availability}
                         onChange={handleChange}
-                        className="form-input py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400 appearance-none cursor-pointer"
+                        className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 w-full"
                       >
                         <option value="">اختر متى ستكون متاحاً...</option>
                         <option value="immediately">فوراً</option>
@@ -788,8 +788,9 @@ export default function CreatorApplyPage() {
                         <option value="1-month">خلال شهر</option>
                         <option value="flexible">مرن</option>
                       </select>
+                      {/* Custom dropdown indicator */}
                       <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                       </div>
@@ -808,7 +809,7 @@ export default function CreatorApplyPage() {
                         name="expectedEarnings"
                         value={formData.expectedEarnings}
                         onChange={handleChange}
-                        className="form-input py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400 appearance-none cursor-pointer"
+                        className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 w-full"
                       >
                         <option value="">اختر توقعاتك من الأرباح...</option>
                         <option value="0-1000">0 - 1,000 ريال</option>
@@ -817,8 +818,9 @@ export default function CreatorApplyPage() {
                         <option value="5000-10000">5,000 - 10,000 ريال</option>
                         <option value="10000+">أكثر من 10,000 ريال</option>
                       </select>
+                      {/* Custom dropdown indicator */}
                       <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                       </div>

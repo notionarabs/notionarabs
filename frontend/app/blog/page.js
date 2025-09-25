@@ -209,10 +209,10 @@ export default function BlogPage() {
                 placeholder="ابحث في المقالات..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full form-input pl-12 pr-4 py-4 text-lg"
+                className="w-full form-input pr-12 pl-4 py-4 text-lg"
                 dir="rtl"
               />
-              <svg className="absolute right-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
@@ -240,18 +240,26 @@ export default function BlogPage() {
                 <label htmlFor="sort-by" className="text-sm text-accent-600 dark:text-dark-text-secondary">
                   ترتيب حسب:
                 </label>
-                <select
-                  id="sort-by"
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="form-select text-sm"
-                >
-                  {sortOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    id="sort-by"
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="form-select text-sm cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 min-w-32"
+                  >
+                    {sortOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.name}
+                      </option>
+                    ))}
+                  </select>
+                  {/* Custom dropdown indicator */}
+                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                    <svg className="w-4 h-4 text-accent-400 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

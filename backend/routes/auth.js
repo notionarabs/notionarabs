@@ -5,7 +5,10 @@ const passport = require('passport');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const dns = require('dns').promises;
+const mongoose = require('mongoose');
 const User = require('../models/User');
+const Blog = require('../models/Blog');
+const Template = require('../models/Template');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
@@ -935,6 +938,131 @@ router.post('/resend-verification', [
     res.status(500).json({
       success: false,
       message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   DELETE /api/auth/account
+// @desc    Delete user account and all associated data
+// @access  Private
+router.delete('/account', auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Start a session for transaction
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      // Delete user's blogs
+      await Blog.deleteMany({ author: userId }, { session });
+
+      // Delete user's templates
+      await Template.deleteMany({ creator: userId }, { session });
+
+      // Delete user's profile
+      await User.findByIdAndDelete(userId, { session });
+
+      // Commit the transaction
+      await session.commitTransaction();
+
+      res.json({
+        success: true,
+        message: 'تم حذف حسابك وجميع البيانات المرتبطة به بنجاح'
+      });
+
+    } catch (error) {
+      // Rollback the transaction
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
+
+  } catch (error) {
+    console.error('Delete account error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'حدث خطأ أثناء حذف الحساب. يرجى المحاولة مرة أخرى'
+    });
+  }
+});
+
+// @route   POST /api/auth/change-password
+// @desc    Change user password
+// @access  Private
+router.post('/change-password', auth, [
+  body('currentPassword')
+    .notEmpty()
+    .withMessage('كلمة المرور الحالية مطلوبة'),
+  body('newPassword')
+    .isLength({ min: 6 })
+    .withMessage('كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
+    .withMessage('كلمة المرور الجديدة يجب أن تحتوي على حرف صغير وحرف كبير ورقم واحد على الأقل'),
+  body('confirmPassword')
+    .custom((value, { req }) => {
+      if (value !== req.body.newPassword) {
+        throw new Error('تأكيد كلمة المرور لا يطابق كلمة المرور الجديدة');
+      }
+      return true;
+    })
+], async (req, res) => {
+  try {
+    // Check validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'بيانات غير صحيحة',
+        errors: errors.array()
+      });
+    }
+
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user.id;
+
+    // Find user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'المستخدم غير موجود'
+      });
+    }
+
+    // Check current password
+    const isCurrentPasswordValid = await user.comparePassword(currentPassword);
+    if (!isCurrentPasswordValid) {
+      return res.status(400).json({
+        success: false,
+        message: 'كلمة المرور الحالية غير صحيحة'
+      });
+    }
+
+    // Check if new password is different from current password
+    const isSamePassword = await user.comparePassword(newPassword);
+    if (isSamePassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'كلمة المرور الجديدة يجب أن تكون مختلفة عن كلمة المرور الحالية'
+      });
+    }
+
+    // Update password
+    user.password = newPassword;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'تم تغيير كلمة المرور بنجاح'
+    });
+
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'حدث خطأ أثناء تغيير كلمة المرور. يرجى المحاولة مرة أخرى'
     });
   }
 });

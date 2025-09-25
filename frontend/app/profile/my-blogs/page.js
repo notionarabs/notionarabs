@@ -9,6 +9,7 @@ import api from '../../../lib/api';
 import LoadingIndicator from '../../../components/LoadingIndicator';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useToast } from '../../../contexts/ToastContext';
+import Navigation from '../../../components/Navigation';
 
 const statusConfig = {
   draft: {
@@ -132,6 +133,7 @@ export default function MyBlogsPage() {
 
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+      <Navigation activePage="profile" />
       <div className="container-custom py-8">
         {/* Header */}
         <div className="mb-8">

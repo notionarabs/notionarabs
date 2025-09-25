@@ -5,6 +5,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import api from '../../../lib/api';
 import { formatDate } from '../../../lib/dateUtils';
+import Navigation from '../../../components/Navigation';
 
 export default function CreatorTemplatesPage() {
   const [templates, setTemplates] = useState([]);
@@ -110,6 +111,7 @@ export default function CreatorTemplatesPage() {
 
   return (
     <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
+      <Navigation activePage="profile" />
       {/* Header */}
       <div className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300">
         <div className="container-custom py-6">

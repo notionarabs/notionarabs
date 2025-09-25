@@ -110,7 +110,7 @@ export default function AdminPage() {
         )}
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Link href="/admin/creator-applications" className="card-interactive p-6">
             <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">طلبات المبدعين</h3>
             <p className="text-accent-600 dark:text-dark-text-secondary text-sm">مراجعة طلبات الانضمام ك مبدع</p>
@@ -118,6 +118,10 @@ export default function AdminPage() {
           <Link href="/admin/templates" className="card-interactive p-6">
             <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">إدارة القوالب</h3>
             <p className="text-accent-600 dark:text-dark-text-secondary text-sm">مراجعة وموافقة على القوالب</p>
+          </Link>
+          <Link href="/admin/blogs" className="card-interactive p-6">
+            <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">إدارة المقالات</h3>
+            <p className="text-accent-600 dark:text-dark-text-secondary text-sm">مراجعة وموافقة على المقالات</p>
           </Link>
           <div className="card p-6">
             <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">التقارير</h3>

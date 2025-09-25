@@ -2,6 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const Template = require('../models/Template');
+const Blog = require('../models/Blog');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
@@ -374,6 +375,170 @@ router.get('/template-stats', auth, async (req, res) => {
     });
   } catch (error) {
     console.error('Get template stats error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   GET /api/admin/blogs
+// @desc    Get all blogs for admin review
+// @access  Private (Admin only)
+router.get('/blogs', auth, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    const { status, page = 1, limit = 10 } = req.query;
+
+    const filter = {};
+    if (status && status !== 'all') {
+      filter.status = status;
+    }
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const blogs = await Blog.find(filter)
+      .populate('author', 'name email profilePicture')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const total = await Blog.countDocuments(filter);
+
+    res.json({
+      success: true,
+      blogs,
+      pagination: {
+        current: parseInt(page),
+        pages: Math.ceil(total / parseInt(limit)),
+        total,
+        limit: parseInt(limit)
+      }
+    });
+  } catch (error) {
+    console.error('Get admin blogs error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   PUT /api/admin/blogs/:id/status
+// @desc    Approve or reject blog post
+// @access  Private (Admin only)
+router.put('/blogs/:id/status', auth, [
+  body('status')
+    .isIn(['published', 'rejected'])
+    .withMessage('الحالة يجب أن تكون: published أو rejected'),
+  body('adminNotes')
+    .optional()
+    .isLength({ max: 500 })
+    .withMessage('ملاحظات الإدارة لا يجب أن تتجاوز 500 حرف')
+], async (req, res) => {
+  try {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'بيانات غير صحيحة',
+        errors: errors.array()
+      });
+    }
+
+    const { status, adminNotes = '' } = req.body;
+    const { id } = req.params;
+
+    const blog = await Blog.findById(id);
+    if (!blog) {
+      return res.status(404).json({
+        success: false,
+        message: 'المقال غير موجود'
+      });
+    }
+
+    // Update blog status
+    blog.status = status;
+    if (status === 'published') {
+      blog.publishedAt = Date.now();
+    }
+    if (adminNotes) {
+      blog.adminNotes = adminNotes;
+    }
+
+    await blog.save();
+    await blog.populate('author', 'name email profilePicture');
+
+    res.json({
+      success: true,
+      message: `تم ${status === 'published' ? 'نشر' : 'رفض'} المقال بنجاح`,
+      blog
+    });
+  } catch (error) {
+    console.error('Update blog status error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   GET /api/admin/blog-stats
+// @desc    Get blog statistics
+// @access  Private (Admin only)
+router.get('/blog-stats', auth, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    const totalBlogs = await Blog.countDocuments();
+    const pendingBlogs = await Blog.countDocuments({ status: 'pending' });
+    const publishedBlogs = await Blog.countDocuments({ status: 'published' });
+    const rejectedBlogs = await Blog.countDocuments({ status: 'rejected' });
+    const draftBlogs = await Blog.countDocuments({ status: 'draft' });
+
+    const totalViews = await Blog.aggregate([
+      { $group: { _id: null, total: { $sum: '$views' } } }
+    ]);
+
+    const totalLikes = await Blog.aggregate([
+      { $group: { _id: null, total: { $sum: '$likes' } } }
+    ]);
+
+    res.json({
+      success: true,
+      stats: {
+        totalBlogs,
+        pendingBlogs,
+        publishedBlogs,
+        rejectedBlogs,
+        draftBlogs,
+        totalViews: totalViews[0]?.total || 0,
+        totalLikes: totalLikes[0]?.total || 0
+      }
+    });
+  } catch (error) {
+    console.error('Get blog stats error:', error);
     res.status(500).json({
       success: false,
       message: 'خطأ في الخادم'

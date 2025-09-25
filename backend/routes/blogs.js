@@ -245,6 +245,72 @@ router.get('/featured', async (req, res) => {
   }
 });
 
+// @route   GET /api/blogs/export
+// @desc    Export blog data as CSV
+// @access  Private (Admin or Author)
+router.get('/export', auth, async (req, res) => {
+  try {
+    // Check if user is admin or requesting their own data
+    const isAdmin = req.user.role === 'admin';
+    const authorId = req.query.authorId;
+
+    if (!isAdmin && authorId && authorId !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'غير مصرح لك بتصدير بيانات الآخرين'
+      });
+    }
+
+    // Build query
+    const query = {};
+    if (!isAdmin && !authorId) {
+      query.author = req.user.id; // User can only export their own blogs
+    } else if (authorId) {
+      query.author = authorId;
+    }
+
+    // Get blogs with author information
+    const blogs = await Blog.find(query)
+      .populate('author', 'name email')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Convert to CSV format
+    const csvHeader = 'العنوان,المؤلف,البريد الإلكتروني,الفئة,الحالة,المشاهدات,الإعجابات,تاريخ النشر,تاريخ الإنشاء\n';
+
+    const csvRows = blogs.map(blog => {
+      const title = `"${(blog.title || '').replace(/"/g, '""')}"`;
+      const author = `"${(blog.author?.name || '').replace(/"/g, '""')}"`;
+      const email = `"${(blog.author?.email || '').replace(/"/g, '""')}"`;
+      const category = `"${(blog.category || '').replace(/"/g, '""')}"`;
+      const status = `"${(blog.status || '').replace(/"/g, '""')}"`;
+      const views = blog.views || 0;
+      const likes = blog.likes || 0;
+      const publishedAt = blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString('ar-SA') : '';
+      const createdAt = blog.createdAt ? new Date(blog.createdAt).toLocaleDateString('ar-SA') : '';
+
+      return `${title},${author},${email},${category},${status},${views},${likes},${publishedAt},${createdAt}`;
+    }).join('\n');
+
+    const csvContent = csvHeader + csvRows;
+
+    // Set headers for CSV download
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="blog-data-${new Date().toISOString().split('T')[0]}.csv"`);
+
+    // Add BOM for proper UTF-8 encoding in Excel
+    res.write('\uFEFF');
+    res.end(csvContent);
+
+  } catch (error) {
+    console.error('Export blogs error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في تصدير البيانات'
+    });
+  }
+});
+
 // @route   GET /api/blogs/:slug
 // @desc    Get single blog post by slug
 // @access  Public

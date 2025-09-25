@@ -388,7 +388,7 @@ export default function CreateTemplatePage() {
                       value={formData.category}
                       onChange={handleInputChange}
                       required
-                      className="w-full pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400 appearance-none bg-white dark:bg-dark-card-bg cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-orange-500/20"
+                      className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 w-full"
                     >
                       <option value="" disabled className="text-gray-400">اختر الفئة</option>
                       {categories.map((category) => (
@@ -397,8 +397,9 @@ export default function CreateTemplatePage() {
                         </option>
                       ))}
                     </select>
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {/* Custom dropdown indicator */}
+                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                      <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </div>

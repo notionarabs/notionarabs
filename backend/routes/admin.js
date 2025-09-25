@@ -546,4 +546,61 @@ router.get('/blog-stats', auth, async (req, res) => {
   }
 });
 
+// @route   GET /api/admin/export/users
+// @desc    Export user data as CSV (Admin only)
+// @access  Private (Admin)
+router.get('/export/users', auth, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'غير مصرح لك بتصدير بيانات المستخدمين'
+      });
+    }
+
+    // Get all users
+    const users = await User.find({})
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Convert to CSV format
+    const csvHeader = 'الاسم,البريد الإلكتروني,الدور,حالة المنشئ,مفعل,مصور بالبريد,عدد القوالب,إجمالي الأرباح,إجمالي المبيعات,المتابعون,التقييم,تاريخ الإنشاء\n';
+
+    const csvRows = users.map(user => {
+      const name = `"${(user.name || '').replace(/"/g, '""')}"`;
+      const email = `"${(user.email || '').replace(/"/g, '""')}"`;
+      const role = `"${(user.role || '').replace(/"/g, '""')}"`;
+      const creatorStatus = `"${(user.creatorStatus || '').replace(/"/g, '""')}"`;
+      const isActive = user.isActive ? 'نعم' : 'لا';
+      const isEmailVerified = user.isEmailVerified ? 'نعم' : 'لا';
+      const templatesCount = user.templatesCount || 0;
+      const totalEarnings = user.totalEarnings || 0;
+      const totalSales = user.totalSales || 0;
+      const followers = user.followers || 0;
+      const rating = user.rating || 0;
+      const createdAt = user.createdAt ? new Date(user.createdAt).toLocaleDateString('ar-SA') : '';
+
+      return `${name},${email},${role},${creatorStatus},${isActive},${isEmailVerified},${templatesCount},${totalEarnings},${totalSales},${followers},${rating},${createdAt}`;
+    }).join('\n');
+
+    const csvContent = csvHeader + csvRows;
+
+    // Set headers for CSV download
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="users-data-${new Date().toISOString().split('T')[0]}.csv"`);
+
+    // Add BOM for proper UTF-8 encoding in Excel
+    res.write('\uFEFF');
+    res.end(csvContent);
+
+  } catch (error) {
+    console.error('Export users error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في تصدير البيانات'
+    });
+  }
+});
+
 module.exports = router;

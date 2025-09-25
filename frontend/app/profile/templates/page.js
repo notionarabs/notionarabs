@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import api from '../../../lib/api';
 import { formatDate } from '../../../lib/dateUtils';
 import Navigation from '../../../components/Navigation';
+import ExportButton from '../../../components/ExportButton';
 
 export default function CreatorTemplatesPage() {
   const [templates, setTemplates] = useState([]);
@@ -123,6 +124,11 @@ export default function CreatorTemplatesPage() {
               </p>
             </div>
             <div className="flex gap-3">
+              <ExportButton
+                endpoint="/templates/export"
+                filename={`my-templates-data-${new Date().toISOString().split('T')[0]}.csv`}
+                label="تصدير قوالبى"
+              />
               <button
                 onClick={() => router.push('/templates/create')}
                 className="btn-primary"

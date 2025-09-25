@@ -5,6 +5,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import api from '../../../lib/api';
 import { formatDate } from '../../../lib/dateUtils';
+import ExportButton from '../../../components/ExportButton';
 
 export default function AdminTemplatesPage() {
   const [templates, setTemplates] = useState([]);
@@ -162,12 +163,19 @@ export default function AdminTemplatesPage() {
                 مراجعة وموافقة على القوالب المقدمة من المبدعين
               </p>
             </div>
-            <button
-              onClick={() => router.push('/admin')}
-              className="btn-outline"
-            >
-              العودة للوحة الإدارة
-            </button>
+            <div className="flex gap-3">
+              <ExportButton
+                endpoint="/templates/export"
+                filename={`templates-data-${new Date().toISOString().split('T')[0]}.csv`}
+                label="تصدير القوالب"
+              />
+              <button
+                onClick={() => router.push('/admin')}
+                className="btn-outline"
+              >
+                العودة للوحة الإدارة
+              </button>
+            </div>
           </div>
         </div>
       </div>

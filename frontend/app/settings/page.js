@@ -554,9 +554,6 @@ export default function SettingsPage() {
                     >
                       تغيير كلمة المرور
                     </button>
-                    <button className="w-full btn-outline text-sm py-3">
-                      تصدير البيانات
-                    </button>
                     <button
                       onClick={() => setShowDeleteModal(true)}
                       className="w-full px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 border border-red-200 dark:border-red-800"

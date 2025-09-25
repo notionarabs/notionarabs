@@ -436,4 +436,73 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
+// @route   GET /api/templates/export
+// @desc    Export template data as CSV
+// @access  Private (Admin or Creator)
+router.get('/export', auth, async (req, res) => {
+  try {
+    // Check if user is admin or requesting their own data
+    const isAdmin = req.user.role === 'admin';
+    const creatorId = req.query.creatorId;
+
+    if (!isAdmin && creatorId && creatorId !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: 'غير مصرح لك بتصدير بيانات الآخرين'
+      });
+    }
+
+    // Build query
+    const query = {};
+    if (!isAdmin && !creatorId) {
+      query.creator = req.user.id; // User can only export their own templates
+    } else if (creatorId) {
+      query.creator = creatorId;
+    }
+
+    // Get templates with creator information
+    const templates = await Template.find(query)
+      .populate('creator', 'name email')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Convert to CSV format
+    const csvHeader = 'العنوان,المنشئ,البريد الإلكتروني,الفئة,السعر,الحالة,المشاهدات,التحميلات,المبيعات,التقييم,تاريخ الموافقة,تاريخ الإنشاء\n';
+
+    const csvRows = templates.map(template => {
+      const title = `"${(template.title || '').replace(/"/g, '""')}"`;
+      const creator = `"${(template.creator?.name || '').replace(/"/g, '""')}"`;
+      const email = `"${(template.creator?.email || '').replace(/"/g, '""')}"`;
+      const category = `"${(template.category || '').replace(/"/g, '""')}"`;
+      const price = template.price || 0;
+      const status = `"${(template.status || '').replace(/"/g, '""')}"`;
+      const views = template.views || 0;
+      const downloads = template.downloads || 0;
+      const sales = template.sales || 0;
+      const rating = template.rating || 0;
+      const approvedAt = template.approvedAt ? new Date(template.approvedAt).toLocaleDateString('ar-SA') : '';
+      const createdAt = template.createdAt ? new Date(template.createdAt).toLocaleDateString('ar-SA') : '';
+
+      return `${title},${creator},${email},${category},${price},${status},${views},${downloads},${sales},${rating},${approvedAt},${createdAt}`;
+    }).join('\n');
+
+    const csvContent = csvHeader + csvRows;
+
+    // Set headers for CSV download
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="template-data-${new Date().toISOString().split('T')[0]}.csv"`);
+
+    // Add BOM for proper UTF-8 encoding in Excel
+    res.write('\uFEFF');
+    res.end(csvContent);
+
+  } catch (error) {
+    console.error('Export templates error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في تصدير البيانات'
+    });
+  }
+});
+
 module.exports = router;

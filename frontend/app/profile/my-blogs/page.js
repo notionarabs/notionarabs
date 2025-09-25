@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { formatDate } from '../../../lib/dateUtils';
 import api from '../../../lib/api';
 import LoadingIndicator from '../../../components/LoadingIndicator';
+import ExportButton from '../../../components/ExportButton';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useToast } from '../../../contexts/ToastContext';
 import Navigation from '../../../components/Navigation';
@@ -144,204 +145,211 @@ export default function MyBlogsPage() {
                 تتبع حالة مقالاتك المرسلة والمقبولة
               </p>
             </div>
-            <Link
-              href="/blog/create"
-              className="btn-primary flex items-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              مقال جديد
-            </Link>
-          </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="card-interactive p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-1">إجمالي المقالات</p>
-                <p className="text-2xl font-bold text-accent-900 dark:text-dark-text-primary">
-                  {blogs.length}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="card-interactive p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-1">قيد المراجعة</p>
-                <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
-                  {blogs.filter(blog => blog.status === 'pending').length}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">⏳</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="card-interactive p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-1">منشور</p>
-                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                  {blogs.filter(blog => blog.status === 'published').length}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">✅</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="card-interactive p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-1">مرفوض</p>
-                <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                  {blogs.filter(blog => blog.status === 'rejected').length}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">❌</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Blogs List */}
-        <div className="card-interactive overflow-hidden">
-          {loading ? (
-            <div className="p-8">
-              <LoadingIndicator />
-            </div>
-          ) : error ? (
-            <div className="p-8 text-center">
-              <svg className="w-16 h-16 text-red-400 dark:text-red-500 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-              <h3 className="text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
-                خطأ في تحميل المقالات
-              </h3>
-              <p className="text-accent-600 dark:text-dark-text-secondary mb-4">
-                {error}
-              </p>
-              <button
-                onClick={fetchMyBlogs}
-                className="btn-primary"
+            <div className="flex gap-3">
+              <ExportButton
+                endpoint="/blogs/export"
+                filename={`my-blogs-data-${new Date().toISOString().split('T')[0]}.csv`}
+                label="تصدير مقالاتي"
+              />
+              <Link
+                href="/blog/create"
+                className="btn-primary flex items-center gap-2"
               >
-                إعادة المحاولة
-              </button>
-            </div>
-          ) : blogs.length === 0 ? (
-            <div className="p-8 text-center">
-              <svg className="w-16 h-16 text-accent-400 dark:text-dark-text-quaternary mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-              </svg>
-              <h3 className="text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
-                لا توجد مقالات بعد
-              </h3>
-              <p className="text-accent-600 dark:text-dark-text-secondary mb-6">
-                ابدأ بإنشاء أول مقال لك ومشاركته مع مجتمع نوشن العرب
-              </p>
-              <Link href="/blog/create" className="btn-primary">
-                إنشاء مقال جديد
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                مقال جديد
               </Link>
             </div>
-          ) : (
-            <div className="divide-y divide-gray-200 dark:divide-dark-card-border">
-              {blogs.map((blog) => (
-                <div key={blog._id} className="p-6 hover:bg-gray-50 dark:hover:bg-dark-tertiary/50 transition-colors">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        {getStatusBadge(blog.status)}
-                        <span className="text-sm text-accent-500 dark:text-dark-text-tertiary">
-                          {formatDate(blog.createdAt)}
-                        </span>
-                      </div>
+          </div>
 
-                      <h3 className="text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
-                        {blog.title}
-                      </h3>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="card-interactive p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-1">إجمالي المقالات</p>
+                  <p className="text-2xl font-bold text-accent-900 dark:text-dark-text-primary">
+                    {blogs.length}
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                  <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
 
-                      <p className="text-accent-600 dark:text-dark-text-secondary mb-3 line-clamp-2">
-                        {blog.excerpt}
-                      </p>
+            <div className="card-interactive p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-1">قيد المراجعة</p>
+                  <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+                    {blogs.filter(blog => blog.status === 'pending').length}
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center">
+                  <span className="text-2xl">⏳</span>
+                </div>
+              </div>
+            </div>
 
-                      <div className="flex items-center gap-4 text-sm text-accent-500 dark:text-dark-text-tertiary mb-3">
-                        <span className="px-2 py-1 bg-gray-100 dark:bg-dark-tertiary text-gray-700 dark:text-dark-text-secondary rounded-full text-xs">
-                          {blog.category}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                            <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-                          </svg>
-                          {blog.views || 0} مشاهدة
-                        </span>
-                        {blog.publishedAt && (
+            <div className="card-interactive p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-1">منشور</p>
+                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                    {blogs.filter(blog => blog.status === 'published').length}
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                  <span className="text-2xl">✅</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="card-interactive p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-1">مرفوض</p>
+                  <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+                    {blogs.filter(blog => blog.status === 'rejected').length}
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
+                  <span className="text-2xl">❌</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Blogs List */}
+          <div className="card-interactive overflow-hidden">
+            {loading ? (
+              <div className="p-8">
+                <LoadingIndicator />
+              </div>
+            ) : error ? (
+              <div className="p-8 text-center">
+                <svg className="w-16 h-16 text-red-400 dark:text-red-500 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+                <h3 className="text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
+                  خطأ في تحميل المقالات
+                </h3>
+                <p className="text-accent-600 dark:text-dark-text-secondary mb-4">
+                  {error}
+                </p>
+                <button
+                  onClick={fetchMyBlogs}
+                  className="btn-primary"
+                >
+                  إعادة المحاولة
+                </button>
+              </div>
+            ) : blogs.length === 0 ? (
+              <div className="p-8 text-center">
+                <svg className="w-16 h-16 text-accent-400 dark:text-dark-text-quaternary mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                </svg>
+                <h3 className="text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
+                  لا توجد مقالات بعد
+                </h3>
+                <p className="text-accent-600 dark:text-dark-text-secondary mb-6">
+                  ابدأ بإنشاء أول مقال لك ومشاركته مع مجتمع نوشن العرب
+                </p>
+                <Link href="/blog/create" className="btn-primary">
+                  إنشاء مقال جديد
+                </Link>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-200 dark:divide-dark-card-border">
+                {blogs.map((blog) => (
+                  <div key={blog._id} className="p-6 hover:bg-gray-50 dark:hover:bg-dark-tertiary/50 transition-colors">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-3">
+                          {getStatusBadge(blog.status)}
+                          <span className="text-sm text-accent-500 dark:text-dark-text-tertiary">
+                            {formatDate(blog.createdAt)}
+                          </span>
+                        </div>
+
+                        <h3 className="text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
+                          {blog.title}
+                        </h3>
+
+                        <p className="text-accent-600 dark:text-dark-text-secondary mb-3 line-clamp-2">
+                          {blog.excerpt}
+                        </p>
+
+                        <div className="flex items-center gap-4 text-sm text-accent-500 dark:text-dark-text-tertiary mb-3">
+                          <span className="px-2 py-1 bg-gray-100 dark:bg-dark-tertiary text-gray-700 dark:text-dark-text-secondary rounded-full text-xs">
+                            {blog.category}
+                          </span>
                           <span className="flex items-center gap-1">
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                              <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
                             </svg>
-                            منشور في {formatDate(blog.publishedAt)}
+                            {blog.views || 0} مشاهدة
                           </span>
-                        )}
+                          {blog.publishedAt && (
+                            <span className="flex items-center gap-1">
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                              </svg>
+                              منشور في {formatDate(blog.publishedAt)}
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                          {getStatusMessage(blog.status, blog.adminNotes)}
+                        </p>
                       </div>
 
-                      <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
-                        {getStatusMessage(blog.status, blog.adminNotes)}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-2 ml-4">
-                      {blog.status === 'published' && (
-                        <Link
-                          href={`/blog/${blog.slug}`}
-                          className="btn-outline text-sm"
-                        >
-                          عرض المقال
-                        </Link>
-                      )}
-                      {blog.status === 'draft' && (
-                        <>
+                      <div className="flex items-center gap-2 ml-4">
+                        {blog.status === 'published' && (
+                          <Link
+                            href={`/blog/${blog.slug}`}
+                            className="btn-outline text-sm"
+                          >
+                            عرض المقال
+                          </Link>
+                        )}
+                        {blog.status === 'draft' && (
+                          <>
+                            <Link
+                              href={`/blog/edit/${blog._id}`}
+                              className="btn-outline text-sm"
+                            >
+                              تعديل
+                            </Link>
+                            <button
+                              onClick={() => submitForReview(blog._id)}
+                              className="btn-primary text-sm"
+                            >
+                              إرسال للمراجعة
+                            </button>
+                          </>
+                        )}
+                        {(blog.status === 'rejected' || blog.status === 'pending') && (
                           <Link
                             href={`/blog/edit/${blog._id}`}
                             className="btn-outline text-sm"
                           >
-                            تعديل
+                            تعديل وإعادة الإرسال
                           </Link>
-                          <button
-                            onClick={() => submitForReview(blog._id)}
-                            className="btn-primary text-sm"
-                          >
-                            إرسال للمراجعة
-                          </button>
-                        </>
-                      )}
-                      {(blog.status === 'rejected' || blog.status === 'pending') && (
-                        <Link
-                          href={`/blog/edit/${blog._id}`}
-                          className="btn-outline text-sm"
-                        >
-                          تعديل وإعادة الإرسال
-                        </Link>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </main>

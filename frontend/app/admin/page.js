@@ -7,6 +7,7 @@ import Link from 'next/link';
 import api from '../../lib/api';
 import { formatDate } from '../../lib/dateUtils';
 import { useTheme } from '../../contexts/ThemeContext';
+import ExportButton from '../../components/ExportButton';
 
 export default function AdminPage() {
   const [users, setUsers] = useState([]);
@@ -79,9 +80,16 @@ export default function AdminPage() {
       <header className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border sticky top-0 z-50 shadow-medium dark:shadow-dark-medium backdrop-blur-sm bg-white/95 dark:bg-dark-secondary/95 transition-colors duration-300">
         <div className="container-custom flex justify-between items-center py-4">
           <h1 className="heading-2">لوحة الإدارة</h1>
-          <Link href="/" className="nav-link">
-            العودة للصفحة الرئيسية
-          </Link>
+          <div className="flex gap-3">
+            <ExportButton
+              endpoint="/admin/export/users"
+              filename={`users-data-${new Date().toISOString().split('T')[0]}.csv`}
+              label="تصدير المستخدمين"
+            />
+            <Link href="/" className="nav-link">
+              العودة للصفحة الرئيسية
+            </Link>
+          </div>
         </div>
       </header>
 

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import api from '../../../lib/api';
 
 export default function CreatorApplicationsPage() {

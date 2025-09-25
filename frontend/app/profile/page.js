@@ -20,8 +20,8 @@ export default function ProfilePage() {
     if (!loading && !isAuthenticated) {
       router.push('/login');
     }
-    // Redirect if user is not an approved creator
-    if (!loading && isAuthenticated && user && user.creatorStatus !== 'approved') {
+    // Redirect if user is not an approved creator and not pending
+    if (!loading && isAuthenticated && user && user.creatorStatus !== 'approved' && user.creatorStatus !== 'pending') {
       router.push('/');
     }
 
@@ -73,8 +73,42 @@ export default function ProfilePage() {
     return null;
   }
 
-  // Redirect if user is not an approved creator
-  if (!loading && isAuthenticated && user && user.creatorStatus !== 'approved') {
+  // Show pending status if user has pending creator application
+  if (!loading && isAuthenticated && user && user.creatorStatus === 'pending') {
+    return (
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
+        <Navigation activePage="profile" />
+        <div className="container-custom py-16">
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="card p-8">
+              <div className="w-20 h-20 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h1 className="heading-1 text-yellow-600 dark:text-yellow-400 mb-4">
+                طلبك قيد المراجعة
+              </h1>
+              <p className="body-large text-accent-600 dark:text-dark-text-secondary mb-8">
+                تم استلام طلبك للانضمام كمبدع وهو قيد المراجعة حالياً. سنعاود التواصل معك خلال 3-5 أيام عمل.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/" className="btn-primary">
+                  العودة للرئيسية
+                </Link>
+                <Link href="/creators" className="btn-secondary">
+                  تصفح المبدعين
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect if user is not an approved creator and not pending
+  if (!loading && isAuthenticated && user && user.creatorStatus !== 'approved' && user.creatorStatus !== 'pending') {
     return null;
   }
 

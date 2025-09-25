@@ -36,15 +36,18 @@ export default function UserDropdown() {
       {/* Profile Picture Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-full transition-all duration-200 hover:scale-105 relative ${user?.creatorStatus === 'approved' ? 'p-0.5' : ''
+        className={`flex items-center focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-full transition-all duration-200 hover:scale-105 relative ${(user?.creatorStatus === 'approved' || user?.creatorStatus === 'pending') ? 'p-0.5' : ''
           }`}
         aria-label="فتح قائمة المستخدم"
       >
-        {user?.creatorStatus === 'approved' ? (
-          // Premium styling for approved creators
+        {(user?.creatorStatus === 'approved' || user?.creatorStatus === 'pending') ? (
+          // Premium styling for approved creators and pending applications
           <div className="relative">
-            {/* Golden gradient border for approved creators */}
-            <div className="w-11 h-11 rounded-full bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500 p-0.5 shadow-lg">
+            {/* Gradient border for approved creators and pending applications */}
+            <div className={`w-11 h-11 rounded-full p-0.5 shadow-lg ${user?.creatorStatus === 'approved'
+              ? 'bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500'
+              : 'bg-gradient-to-r from-yellow-500 to-orange-500'
+              }`}>
               <div className="w-full h-full rounded-full bg-white dark:bg-dark-secondary">
                 {user?.profilePicture ? (
                   <Image
@@ -65,10 +68,19 @@ export default function UserDropdown() {
               </div>
             </div>
             {/* Creator badge */}
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-md">
-              <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-              </svg>
+            <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center shadow-md ${user?.creatorStatus === 'approved'
+              ? 'bg-gradient-to-r from-yellow-400 to-amber-500'
+              : 'bg-gradient-to-r from-yellow-500 to-orange-500'
+              }`}>
+              {user?.creatorStatus === 'approved' ? (
+                <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+              ) : (
+                <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              )}
             </div>
           </div>
         ) : (
@@ -100,10 +112,13 @@ export default function UserDropdown() {
           {/* User Info Header */}
           <div className="px-4 py-3 border-b border-gray-200 dark:border-dark-card-border">
             <div className="flex items-center gap-3">
-              {user?.creatorStatus === 'approved' ? (
-                // Premium styling for approved creators in dropdown
+              {(user?.creatorStatus === 'approved' || user?.creatorStatus === 'pending') ? (
+                // Premium styling for approved creators and pending applications in dropdown
                 <div className="relative">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500 p-0.5 shadow-md">
+                  <div className={`w-9 h-9 rounded-full p-0.5 shadow-md ${user?.creatorStatus === 'approved'
+                    ? 'bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500'
+                    : 'bg-gradient-to-r from-yellow-500 to-orange-500'
+                    }`}>
                     <div className="w-full h-full rounded-full bg-white dark:bg-dark-secondary">
                       {user?.profilePicture ? (
                         <Image
@@ -124,10 +139,19 @@ export default function UserDropdown() {
                     </div>
                   </div>
                   {/* Creator badge in dropdown */}
-                  <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-sm">
-                    <svg className="w-1.5 h-1.5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
+                  <div className={`absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full flex items-center justify-center shadow-sm ${user?.creatorStatus === 'approved'
+                    ? 'bg-gradient-to-r from-yellow-400 to-amber-500'
+                    : 'bg-gradient-to-r from-yellow-500 to-orange-500'
+                    }`}>
+                    {user?.creatorStatus === 'approved' ? (
+                      <svg className="w-1.5 h-1.5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      </svg>
+                    ) : (
+                      <svg className="w-1.5 h-1.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    )}
                   </div>
                 </div>
               ) : (
@@ -211,8 +235,8 @@ export default function UserDropdown() {
                 </>
               ) : (
                 <>
-                  {/* Profile Link - Only for approved creators (non-admin) */}
-                  {user?.creatorStatus === 'approved' && (
+                  {/* Profile Link - For approved creators and pending applications (non-admin) */}
+                  {(user?.creatorStatus === 'approved' || user?.creatorStatus === 'pending') && (
                     <Link
                       href="/profile"
                       onClick={() => setIsOpen(false)}

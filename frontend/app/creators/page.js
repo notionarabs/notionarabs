@@ -302,10 +302,6 @@ export default function CreatorsPage() {
                       <div className="text-lg font-bold text-accent-500 dark:text-dark-text-primary">{creator.followers || 0}</div>
                       <div className="text-xs text-accent-600 dark:text-dark-text-secondary">متابع</div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-accent-500 dark:text-dark-text-primary">{creator.earnings || 0} ريال</div>
-                      <div className="text-xs text-accent-600 dark:text-dark-text-secondary">أرباح</div>
-                    </div>
                   </div>
 
                   <div className="space-y-3">

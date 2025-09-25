@@ -568,10 +568,6 @@ export default function HomePage() {
                       <span className="text-sm text-accent-600 dark:text-dark-text-secondary">التقييم</span>
                       <StarRating rating={cr.rating} />
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-accent-600 dark:text-dark-text-secondary">الأرباح</span>
-                      <span className="font-semibold text-accent-600 dark:text-dark-text-secondary">{cr.earnings || '—'}</span>
-                    </div>
                   </div>
 
                   <div className="w-full mt-6 btn-primary text-center">عرض الملف الشخصي</div>

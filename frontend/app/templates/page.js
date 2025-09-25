@@ -161,9 +161,9 @@ export default function TemplatesPage() {
       <div className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300">
         <div className="container-custom py-12">
           <div className="text-center">
-            <h1 className="heading-1 mb-4">قوالب نوتيون</h1>
+            <h1 className="heading-1 mb-4">قوالب نوشن</h1>
             <p className="body-large text-accent-600 dark:text-dark-text-secondary max-w-2xl mx-auto">
-              اكتشف مجموعة متنوعة من قوالب نوتيون المصممة خصيصاً للمستخدمين العرب.
+              اكتشف مجموعة متنوعة من قوالب نوشن المصممة خصيصاً للمستخدمين العرب.
               قوالب احترافية لتنظيم عملك وحياتك الشخصية
             </p>
           </div>

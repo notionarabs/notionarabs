@@ -13,7 +13,7 @@ router.post('/', auth, [
     .isURL()
     .withMessage('رابط غير صحيح')
     .matches(/^https:\/\/(www\.)?notion\.so\//)
-    .withMessage('يجب أن يكون الرابط من موقع نوتيون')
+    .withMessage('يجب أن يكون الرابط من موقع نوشن')
 ], async (req, res) => {
   try {
     // Check validation errors

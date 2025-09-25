@@ -153,7 +153,7 @@ export default function HomePage() {
               </div>
 
               <h1 className="heading-1 mb-6 text-reveal-delayed">
-                منصتك العربية لبيع وشراء قوالب نوتيون
+                منصتك العربية لبيع وشراء قوالب نوشن
               </h1>
 
               <p className="body-large text-accent-700 dark:text-dark-text-secondary mb-8 max-w-3xl mx-auto text-reveal-delayed-2">
@@ -301,7 +301,7 @@ export default function HomePage() {
                   </div>
                   <h3 className="heading-3 text-white dark:text-dark-text-primary mb-3">المدونة</h3>
                   <p className="body-medium text-gray-200 dark:text-dark-text-secondary">
-                    نصائح وتوجيهات لاستخدام نوتيون وأفضل الممارسات
+                    نصائح وتوجيهات لاستخدام نوشن وأفضل الممارسات
                   </p>
                   <div className="mt-4 flex items-center text-white dark:text-dark-text-primary group-hover:translate-x-1 transition-transform duration-300">
                     <span className="text-sm font-medium">اقرأ المزيد</span>
@@ -643,7 +643,7 @@ export default function HomePage() {
                 />
               </div>
               <p className="body-medium text-gray-400 dark:text-dark-text-tertiary mb-6">
-                منصتك العربية الأولى لبيع وشراء قوالب نوتيون المبتكرة. انضم إلى مجتمع المبدعين العرب.
+                منصتك العربية الأولى لبيع وشراء قوالب نوشن المبتكرة. انضم إلى مجتمع المبدعين العرب.
               </p>
               <div className="flex gap-4">
                 <Link href="#" className="w-12 h-12 bg-gray-700 dark:bg-dark-tertiary rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft">

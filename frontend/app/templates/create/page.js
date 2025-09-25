@@ -161,7 +161,7 @@ export default function CreateTemplatePage() {
         return;
       }
       if (!formData.notionLink.trim()) {
-        showError('يرجى إدخال رابط قالب نوتيون');
+        showError('يرجى إدخال رابط قالب نوشن');
         setIsSubmitting(false);
         return;
       }
@@ -225,7 +225,7 @@ export default function CreateTemplatePage() {
         if (duplicateField === 'title') {
           errorMessage += '\n\nيرجى تغيير عنوان القالب ليصبح مختلفاً عن القوالب السابقة.';
         } else if (duplicateField === 'notionLink') {
-          errorMessage += '\n\nيرجى التأكد من أن رابط نوتيون مختلف عن القوالب السابقة.';
+          errorMessage += '\n\nيرجى التأكد من أن رابط نوشن مختلف عن القوالب السابقة.';
         }
 
         showError(errorMessage);
@@ -371,7 +371,7 @@ export default function CreateTemplatePage() {
 
                 <div>
                   <label className="block text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
-                    رابط قالب نوتيون *
+                    رابط قالب نوشن *
                   </label>
                   <input
                     type="url"
@@ -479,10 +479,10 @@ export default function CreateTemplatePage() {
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
                       </svg>
-                      <span className="font-medium">سيتم التقاط صورة تلقائياً من قالب نوتيون</span>
+                      <span className="font-medium">سيتم التقاط صورة تلقائياً من قالب نوشن</span>
                     </div>
                     <p className="text-sm text-blue-600 dark:text-blue-400">
-                      عند إدخال رابط قالب نوتيون، سيتم التقاط صورة للمعاينة تلقائياً
+                      عند إدخال رابط قالب نوشن، سيتم التقاط صورة للمعاينة تلقائياً
                     </p>
                   </div>
                 </div>
@@ -499,7 +499,7 @@ export default function CreateTemplatePage() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-blue-500 mt-1">•</span>
-                  <span>رابط نوتيون يجب أن يكون قابل للوصول العام</span>
+                  <span>رابط نوشن يجب أن يكون قابل للوصول العام</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-blue-500 mt-1">•</span>

@@ -82,8 +82,8 @@ const stats = [
 
 const integrations = [
   {
-    name: "نوتيون",
-    description: "تكامل كامل مع منصة نوتيون",
+    name: "نوشن",
+    description: "تكامل كامل مع منصة نوشن",
     icon: "📝"
   },
   {
@@ -230,7 +230,7 @@ export default function FeaturesPage() {
                 </div>
                 <h3 className="heading-3 mb-4">استخدم وخصص</h3>
                 <p className="text-accent-600 dark:text-dark-text-secondary">
-                  حمّل القالب وخصصه حسب احتياجاتك في نوتيون
+                  حمّل القالب وخصصه حسب احتياجاتك في نوشن
                 </p>
               </div>
             </div>
@@ -276,7 +276,7 @@ export default function FeaturesPage() {
                 />
               </div>
               <p className="body-medium text-gray-400 dark:text-dark-text-tertiary mb-6">
-                منصتك العربية الأولى لبيع وشراء قوالب نوتيون المبتكرة. انضم إلى مجتمع المبدعين العرب.
+                منصتك العربية الأولى لبيع وشراء قوالب نوشن المبتكرة. انضم إلى مجتمع المبدعين العرب.
               </p>
             </div>
 

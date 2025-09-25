@@ -392,7 +392,7 @@ export default function CreatorApplyPage() {
               انضم إلى مجتمع المبدعين
             </h1>
             <p className="body-large text-accent-600 dark:text-dark-text-secondary max-w-2xl mx-auto">
-              شارك مواهبك مع العالم وابدأ في إنشاء وبيع قوالب نوتيون احترافية
+              شارك مواهبك مع العالم وابدأ في إنشاء وبيع قوالب نوشن احترافية
             </p>
           </div>
 

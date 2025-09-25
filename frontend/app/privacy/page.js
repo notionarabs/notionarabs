@@ -184,7 +184,7 @@ export default function PrivacyPage() {
                 />
               </div>
               <p className="body-medium text-gray-400 dark:text-dark-text-tertiary mb-6">
-                منصتك العربية الأولى لبيع وشراء قوالب نوتيون المبتكرة. انضم إلى مجتمع المبدعين العرب.
+                منصتك العربية الأولى لبيع وشراء قوالب نوشن المبتكرة. انضم إلى مجتمع المبدعين العرب.
               </p>
             </div>
 

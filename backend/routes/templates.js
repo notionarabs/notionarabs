@@ -41,7 +41,7 @@ router.post('/', auth, [
     .withMessage('السعر لا يمكن أن يكون سالباً'),
   body('notionLink')
     .isURL()
-    .withMessage('رابط نوتيون غير صحيح'),
+    .withMessage('رابط نوشن غير صحيح'),
   body('difficulty')
     .optional()
     .isIn(['beginner', 'intermediate', 'advanced'])
@@ -85,7 +85,7 @@ router.post('/', auth, [
     if (existingTemplate) {
       return res.status(409).json({
         success: false,
-        message: 'يبدو أنك قمت بإرسال قالب مشابه من قبل. يرجى التأكد من أن العنوان ورابط نوتيون مختلفان عن القوالب السابقة.',
+        message: 'يبدو أنك قمت بإرسال قالب مشابه من قبل. يرجى التأكد من أن العنوان ورابط نوشن مختلفان عن القوالب السابقة.',
         duplicateField: existingTemplate.title === req.body.title.trim() ? 'title' : 'notionLink'
       });
     }
@@ -341,7 +341,7 @@ router.put('/:id', auth, [
   body('notionLink')
     .optional()
     .isURL()
-    .withMessage('رابط نوتيون غير صحيح')
+    .withMessage('رابط نوشن غير صحيح')
 ], async (req, res) => {
   try {
     if (req.user.creatorStatus !== 'approved') {

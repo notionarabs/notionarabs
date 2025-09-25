@@ -457,7 +457,7 @@ export default function TemplateDetailPage() {
                 />
               </div>
               <p className="text-gray-400 dark:text-dark-text-tertiary text-sm leading-relaxed">
-                منصة متخصصة في قوالب نوتيون باللغة العربية، نساعدك على تنظيم حياتك وإنجاز أهدافك بكفاءة أكبر.
+                منصة متخصصة في قوالب نوشن باللغة العربية، نساعدك على تنظيم حياتك وإنجاز أهدافك بكفاءة أكبر.
               </p>
             </div>
 

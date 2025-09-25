@@ -9,8 +9,8 @@ import LoadingIndicator from '../components/LoadingIndicator'
 import { initSmoothScroll } from '../lib/smoothScroll'
 
 export const metadata = {
-  title: 'Notion Arabs - قوالب نوتيون باللغة العربية',
-  description: 'اكتشف وبيع قوالب نوتيون باللغة العربية - منصة مخصصة للمبدعين والمشترين العرب',
+  title: 'Notion Arabs - قوالب نوشن باللغة العربية',
+  description: 'اكتشف وبيع قوالب نوشن باللغة العربية - منصة مخصصة للمبدعين والمشترين العرب',
 }
 
 export default function RootLayout({ children }) {

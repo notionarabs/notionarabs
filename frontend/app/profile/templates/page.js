@@ -268,7 +268,7 @@ export default function CreatorTemplatesPage() {
                       rel="noopener noreferrer"
                       className="btn-outline text-center"
                     >
-                      عرض في نوتيون
+                      عرض في نوشن
                     </a>
 
                     {template.status === 'pending' && (

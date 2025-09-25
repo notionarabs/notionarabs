@@ -275,10 +275,10 @@ export default function EditBlogPage() {
                 value={formData.tags}
                 onChange={handleInputChange}
                 className="form-input"
-                placeholder="نوتيون, إنتاجية, تنظيم (افصل بينها بفاصلة)"
+                placeholder="نوشن, إنتاجية, تنظيم (افصل بينها بفاصلة)"
               />
               <p className="text-xs text-accent-400 dark:text-dark-text-tertiary mt-1">
-                افصل بين العلامات بفاصلة (مثال: نوتيون, إنتاجية, تنظيم)
+                افصل بين العلامات بفاصلة (مثال: نوشن, إنتاجية, تنظيم)
               </p>
             </div>
 

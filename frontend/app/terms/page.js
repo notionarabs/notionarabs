@@ -38,9 +38,9 @@ export default function TermsPage() {
                   عرب نوشن هي منصة إلكترونية تتيح للمستخدمين:
                 </p>
                 <ul className="list-disc list-inside space-y-2 mb-6 text-accent-600 dark:text-dark-text-secondary">
-                  <li>تصفح وشراء قوالب نوتيون</li>
-                  <li>رفع وبيع قوالب نوتيون (للمبدعين)</li>
-                  <li>الوصول إلى موارد تعليمية حول نوتيون</li>
+                  <li>تصفح وشراء قوالب نوشن</li>
+                  <li>رفع وبيع قوالب نوشن (للمبدعين)</li>
+                  <li>الوصول إلى موارد تعليمية حول نوشن</li>
                   <li>التفاعل مع مجتمع المستخدمين</li>
                 </ul>
               </section>
@@ -103,7 +103,7 @@ export default function TermsPage() {
                   جميع حقوق الملكية الفكرية للمنصة محفوظة. لا يجوز نسخ أو توزيع أو تعديل أي جزء من المنصة دون إذن كتابي.
                 </p>
 
-                <h3 className="heading-3 mb-3">5.3 قوالب نوتيون</h3>
+                <h3 className="heading-3 mb-3">5.3 قوالب نوشن</h3>
                 <p className="body-medium text-accent-600 dark:text-dark-text-secondary mb-4">
                   القوالب المباعة على المنصة مملوكة للمبدعين. عند شراء قالب، تحصل على رخصة للاستخدام الشخصي والتجاري.
                 </p>
@@ -210,7 +210,7 @@ export default function TermsPage() {
                 />
               </div>
               <p className="body-medium text-gray-400 dark:text-dark-text-tertiary mb-6">
-                منصتك العربية الأولى لبيع وشراء قوالب نوتيون المبتكرة. انضم إلى مجتمع المبدعين العرب.
+                منصتك العربية الأولى لبيع وشراء قوالب نوشن المبتكرة. انضم إلى مجتمع المبدعين العرب.
               </p>
             </div>
 

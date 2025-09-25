@@ -12,35 +12,35 @@ import { useToast } from '../../contexts/ToastContext';
 const fallbackBlogPosts = [
   {
     id: 1,
-    title: "10 نصائح لاستخدام نوتيون بكفاءة أكبر",
-    excerpt: "اكتشف أفضل الطرق لتنظيم عملك وحياتك باستخدام نوتيون",
-    content: "نوتيون هو أداة قوية لتنظيم المعلومات، ولكن هناك طرق لاستخدامه بكفاءة أكبر...",
+    title: "10 نصائح لاستخدام نوشن بكفاءة أكبر",
+    excerpt: "اكتشف أفضل الطرق لتنظيم عملك وحياتك باستخدام نوشن",
+    content: "نوشن هو أداة قوية لتنظيم المعلومات، ولكن هناك طرق لاستخدامه بكفاءة أكبر...",
     author: "أحمد المطيري",
     authorImg: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
     publishDate: "2024-01-15",
     readTime: "5 دقائق",
     category: "نصائح",
-    tags: ["نوتيون", "الإنتاجية", "التنظيم"],
+    tags: ["نوشن", "الإنتاجية", "التنظيم"],
     featured: true,
     imgSrc: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=800&h=400&fit=crop&crop=center"
   },
   {
     id: 2,
-    title: "كيفية إنشاء قوالب نوتيون احترافية",
-    excerpt: "دليل شامل لتصميم قوالب نوتيون جذابة ومفيدة",
-    content: "إنشاء قوالب نوتيون احترافية يتطلب فهم عميق للمنصة وتصميم تجربة المستخدم...",
+    title: "كيفية إنشاء قوالب نوشن احترافية",
+    excerpt: "دليل شامل لتصميم قوالب نوشن جذابة ومفيدة",
+    content: "إنشاء قوالب نوشن احترافية يتطلب فهم عميق للمنصة وتصميم تجربة المستخدم...",
     author: "فاطمة نور",
     authorImg: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
     publishDate: "2024-01-12",
     readTime: "8 دقائق",
     category: "تصميم",
-    tags: ["قوالب", "تصميم", "نوتيون"],
+    tags: ["قوالب", "تصميم", "نوشن"],
     featured: false,
     imgSrc: "https://images.unsplash.com/photo-1558655146-d09347e92766?w=800&h=400&fit=crop&crop=center"
   },
   {
     id: 3,
-    title: "أفضل قوالب نوتيون للطلاب",
+    title: "أفضل قوالب نوشن للطلاب",
     excerpt: "مجموعة مختارة من القوالب التي تساعد الطلاب في تنظيم دراستهم",
     content: "الطلاب يحتاجون إلى تنظيم ممتاز لإدارة وقتهم ودراستهم، وهذه القوالب ستساعدهم...",
     author: "عمر خالد",
@@ -54,23 +54,23 @@ const fallbackBlogPosts = [
   },
   {
     id: 4,
-    title: "نظام إدارة المشاريع بنوتيون",
-    excerpt: "كيفية استخدام نوتيون لإدارة مشاريعك بكفاءة عالية",
-    content: "نوتيون يوفر أدوات قوية لإدارة المشاريع، من التخطيط إلى التنفيذ والمتابعة...",
+    title: "نظام إدارة المشاريع بنوشن",
+    excerpt: "كيفية استخدام نوشن لإدارة مشاريعك بكفاءة عالية",
+    content: "نوشن يوفر أدوات قوية لإدارة المشاريع، من التخطيط إلى التنفيذ والمتابعة...",
     author: "نورا أحمد",
     authorImg: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face",
     publishDate: "2024-01-08",
     readTime: "7 دقائق",
     category: "الأعمال",
-    tags: ["مشاريع", "إدارة", "نوتيون"],
+    tags: ["مشاريع", "إدارة", "نوشن"],
     featured: false,
     imgSrc: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=400&fit=crop&crop=center"
   },
   {
     id: 5,
-    title: "تحسين الإنتاجية مع نوتيون",
-    excerpt: "نصائح عملية لزيادة إنتاجيتك اليومية باستخدام نوتيون",
-    content: "الإنتاجية هي مفتاح النجاح، ونوتيون يمكن أن يكون أداة رائعة لتحسينها...",
+    title: "تحسين الإنتاجية مع نوشن",
+    excerpt: "نصائح عملية لزيادة إنتاجيتك اليومية باستخدام نوشن",
+    content: "الإنتاجية هي مفتاح النجاح، ونوشن يمكن أن يكون أداة رائعة لتحسينها...",
     author: "خالد محمد",
     authorImg: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
     publishDate: "2024-01-05",
@@ -82,7 +82,7 @@ const fallbackBlogPosts = [
   },
   {
     id: 6,
-    title: "قوالب نوتيون للمطورين",
+    title: "قوالب نوشن للمطورين",
     excerpt: "قوالب متخصصة للمطورين والمبرمجين لتنظيم مشاريعهم",
     content: "المطورون يحتاجون إلى تنظيم خاص لمشاريعهم، وهذه القوالب ستساعدهم...",
     author: "سارة التقنية",
@@ -184,9 +184,9 @@ export default function BlogPage() {
       {/* Page Header */}
       <section className="relative bg-gradient-to-br from-primary-500 to-primary-700 dark:from-dark-secondary dark:to-dark-tertiary text-white py-20 md:py-24 overflow-hidden">
         <div className="container-custom text-center relative z-10">
-          <h1 className="heading-1 text-white mb-4">مدونة نوتيون العرب</h1>
+          <h1 className="heading-1 text-white mb-4">مدونة نوشن العرب</h1>
           <p className="body-large text-primary-100 dark:text-dark-text-secondary max-w-2xl mx-auto mb-8">
-            اكتشف أحدث النصائح والحيل لاستخدام نوتيون بكفاءة أكبر. مقالات متخصصة للمبدعين العرب.
+            اكتشف أحدث النصائح والحيل لاستخدام نوشن بكفاءة أكبر. مقالات متخصصة للمبدعين العرب.
           </p>
         </div>
         {/* Background shapes */}
@@ -474,7 +474,7 @@ export default function BlogPage() {
             اشترك في نشرتنا البريدية
           </h2>
           <p className="body-large text-gray-300 dark:text-dark-text-secondary mb-8">
-            احصل على أحدث المقالات والنصائح حول نوتيون والإنتاجية مباشرة في بريدك الإلكتروني
+            احصل على أحدث المقالات والنصائح حول نوشن والإنتاجية مباشرة في بريدك الإلكتروني
           </p>
 
           <div className="max-w-md mx-auto">

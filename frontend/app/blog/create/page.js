@@ -142,7 +142,7 @@ export default function CreateBlogPage() {
         <div className="container-custom text-center">
           <h1 className="heading-1 text-white mb-4">إنشاء مقال جديد</h1>
           <p className="body-large text-primary-100 dark:text-dark-text-secondary max-w-2xl mx-auto">
-            شارك معرفتك وخبرتك مع مجتمع نوتيون العرب من خلال إنشاء مقال مفيد ومفيد
+            شارك معرفتك وخبرتك مع مجتمع نوشن العرب من خلال إنشاء مقال مفيد ومفيد
           </p>
         </div>
       </section>
@@ -264,7 +264,7 @@ export default function CreateBlogPage() {
                   value={formData.tags}
                   onChange={handleInputChange}
                   className="form-input"
-                  placeholder="اكتب العلامات مفصولة بفواصل (مثال: نوتيون، إنتاجية، تنظيم)"
+                  placeholder="اكتب العلامات مفصولة بفواصل (مثال: نوشن، إنتاجية، تنظيم)"
                 />
                 <p className="text-xs text-accent-500 dark:text-dark-text-tertiary mt-1">
                   اكتب العلامات مفصولة بفواصل
@@ -327,7 +327,7 @@ export default function CreateBlogPage() {
           router.push('/blog');
         }}
         title="تم إرسال المقال للمراجعة! ⏳"
-        message="شكراً لك على مشاركة مقالك مع مجتمع نوتيون العرب. مقالك الآن في حالة 'قيد المراجعة' وسيتم مراجعته من قبل فريقنا المتخصص خلال 24-48 ساعة. سيتم إشعارك بالنتيجة عبر البريد الإلكتروني."
+        message="شكراً لك على مشاركة مقالك مع مجتمع نوشن العرب. مقالك الآن في حالة 'قيد المراجعة' وسيتم مراجعته من قبل فريقنا المتخصص خلال 24-48 ساعة. سيتم إشعارك بالنتيجة عبر البريد الإلكتروني."
         continueButtonText="الذهاب للمدونة"
       />
     </div>

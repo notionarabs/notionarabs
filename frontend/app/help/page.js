@@ -22,7 +22,7 @@ const helpCategories = [
     icon: "📄",
     articles: [
       { title: "كيفية تحميل القوالب", slug: "download-templates" },
-      { title: "استخدام القوالب في نوتيون", slug: "use-templates-notion" },
+      { title: "استخدام القوالب في نوشن", slug: "use-templates-notion" },
       { title: "تخصيص القوالب", slug: "customize-templates" },
       { title: "حل مشاكل القوالب", slug: "troubleshoot-templates" }
     ]
@@ -102,7 +102,7 @@ const faqs = [
 
 const popularArticles = [
   { title: "دليل المبتدئين الشامل", category: "البدء", readTime: "10 دقائق" },
-  { title: "كيفية تخصيص قوالب نوتيون", category: "القوالب", readTime: "5 دقائق" },
+  { title: "كيفية تخصيص قوالب نوشن", category: "القوالب", readTime: "5 دقائق" },
   { title: "أفضل الممارسات لرفع القوالب", category: "المبدعين", readTime: "8 دقائق" },
   { title: "حل مشاكل التحميل الشائعة", category: "المشاكل التقنية", readTime: "3 دقائق" }
 ];
@@ -280,7 +280,7 @@ export default function HelpPage() {
                 />
               </div>
               <p className="body-medium text-gray-400 dark:text-dark-text-tertiary mb-6">
-                منصتك العربية الأولى لبيع وشراء قوالب نوتيون المبتكرة. انضم إلى مجتمع المبدعين العرب.
+                منصتك العربية الأولى لبيع وشراء قوالب نوشن المبتكرة. انضم إلى مجتمع المبدعين العرب.
               </p>
             </div>
 

@@ -36,13 +36,13 @@ const templateSchema = new mongoose.Schema({
   },
   notionLink: {
     type: String,
-    required: [true, 'رابط نوتيون مطلوب'],
+    required: [true, 'رابط نوشن مطلوب'],
     trim: true,
     validate: {
       validator: function (v) {
         return /^https?:\/\/.+/.test(v);
       },
-      message: 'رابط نوتيون غير صحيح'
+      message: 'رابط نوشن غير صحيح'
     }
   },
   features: {

@@ -46,7 +46,7 @@ const SuccessModal = ({ isOpen, onClose, onContinue }) => {
           </h3>
 
           <p className="text-gray-600 dark:text-dark-text-secondary mb-6 leading-relaxed">
-            شكراً لك على مشاركة قالبك المبتكر مع مجتمع نوتيون العرب.
+            شكراً لك على مشاركة قالبك المبتكر مع مجتمع نوشن العرب.
             سيتم مراجعة القالب من قبل فريقنا المتخصص وسيتم إشعارك بالنتيجة قريباً.
           </p>
 

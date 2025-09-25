@@ -248,7 +248,7 @@ export default function MyBlogsPage() {
                 لا توجد مقالات بعد
               </h3>
               <p className="text-accent-600 dark:text-dark-text-secondary mb-6">
-                ابدأ بإنشاء أول مقال لك ومشاركته مع مجتمع نوتيون العرب
+                ابدأ بإنشاء أول مقال لك ومشاركته مع مجتمع نوشن العرب
               </p>
               <Link href="/blog/create" className="btn-primary">
                 إنشاء مقال جديد

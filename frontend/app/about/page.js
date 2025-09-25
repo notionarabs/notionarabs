@@ -80,7 +80,7 @@ export default function AboutPage() {
           <div className="text-center mb-16">
             <h1 className="heading-1 mb-6">من نحن</h1>
             <p className="body-large text-accent-700 dark:text-dark-text-secondary max-w-4xl mx-auto">
-              عرب نوشن هي منصة عربية متخصصة في بيع وشراء قوالب نوتيون المبتكرة.
+              عرب نوشن هي منصة عربية متخصصة في بيع وشراء قوالب نوشن المبتكرة.
               نحن نؤمن بقوة التنظيم والإنتاجية في تحسين حياة الناس، ونسعى لجعل هذه الأدوات
               متاحة ومفهومة للجمهور العربي.
             </p>
@@ -109,12 +109,12 @@ export default function AboutPage() {
                 <h2 className="heading-2 mb-6">مهمتنا</h2>
                 <p className="body-large text-accent-600 dark:text-dark-text-secondary mb-6">
                   مهمتنا هي تمكين المبدعين العرب من مشاركة معرفتهم وخبراتهم من خلال
-                  قوالب نوتيون عالية الجودة، ومساعدة المستخدمين في العثور على الحلول
+                  قوالب نوشن عالية الجودة، ومساعدة المستخدمين في العثور على الحلول
                   المناسبة لاحتياجاتهم التنظيمية والإنتاجية.
                 </p>
                 <p className="body-medium text-accent-600 dark:text-dark-text-secondary">
                   نؤمن أن التنظيم والإنتاجية يجب أن يكونا متاحين للجميع، بغض النظر عن
-                  الخلفية التقنية أو مستوى الخبرة. لذلك نعمل على جعل قوالب نوتيون
+                  الخلفية التقنية أو مستوى الخبرة. لذلك نعمل على جعل قوالب نوشن
                   سهلة الفهم والاستخدام للجمهور العربي.
                 </p>
               </div>
@@ -219,12 +219,12 @@ export default function AboutPage() {
                 <h2 className="heading-2 mb-6">قصتنا</h2>
                 <p className="body-large text-accent-600 dark:text-dark-text-secondary mb-6">
                   بدأت عرب نوشن كفكرة بسيطة عندما لاحظنا الحاجة الماسة في السوق العربي
-                  لمنصة متخصصة في قوالب نوتيون باللغة العربية.
+                  لمنصة متخصصة في قوالب نوشن باللغة العربية.
                 </p>
                 <p className="body-medium text-accent-600 dark:text-dark-text-secondary mb-6">
                   بعد سنوات من العمل في مجال التقنية والإنتاجية، أدركنا أن هناك فجوة
                   كبيرة بين الأدوات المتاحة باللغة الإنجليزية واحتياجات المستخدمين العرب.
-                  لذلك قررنا إنشاء منصة تجمع بين أفضل قوالب نوتيون مع الترجمة والتوطين
+                  لذلك قررنا إنشاء منصة تجمع بين أفضل قوالب نوشن مع الترجمة والتوطين
                   المناسب للثقافة العربية.
                 </p>
                 <p className="body-medium text-accent-600 dark:text-dark-text-secondary">
@@ -276,7 +276,7 @@ export default function AboutPage() {
                 />
               </div>
               <p className="body-medium text-gray-400 dark:text-dark-text-tertiary mb-6">
-                منصتك العربية الأولى لبيع وشراء قوالب نوتيون المبتكرة. انضم إلى مجتمع المبدعين العرب.
+                منصتك العربية الأولى لبيع وشراء قوالب نوشن المبتكرة. انضم إلى مجتمع المبدعين العرب.
               </p>
             </div>
 

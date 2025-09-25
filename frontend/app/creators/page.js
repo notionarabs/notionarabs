@@ -7,87 +7,6 @@ import api from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 
-// TODO: Replace with actual API call
-const creators = [
-  {
-    id: 1,
-    name: "ليلى أحمد",
-    bio: "قوالب الإنتاجية",
-    imgSrc: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-    rating: 4.9,
-    templates: 20,
-    earnings: "15,000 ريال",
-    followers: 1200,
-    joinDate: "2023-01-15",
-    specialties: ["الإنتاجية", "العمل", "التنظيم"],
-    description: "مصممة قوالب متخصصة في الإنتاجية والتنظيم الشخصي والمهني. خبرة 3 سنوات في تصميم قوالب نوشن."
-  },
-  {
-    id: 2,
-    name: "عمر خالد",
-    bio: "إعدادات الدراسة والبحث",
-    imgSrc: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    rating: 4.8,
-    templates: 15,
-    earnings: "12,500 ريال",
-    followers: 980,
-    joinDate: "2023-03-22",
-    specialties: ["الدراسة", "البحث", "الأكاديمي"],
-    description: "خبير في قوالب الدراسة والبحث الأكاديمي. يساعد الطلاب والباحثين في تنظيم دراستهم وأبحاثهم."
-  },
-  {
-    id: 3,
-    name: "فاطمة نور",
-    bio: "لوحات العمل والأعمال",
-    imgSrc: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-    rating: 4.7,
-    templates: 25,
-    earnings: "18,200 ريال",
-    followers: 1500,
-    joinDate: "2022-11-08",
-    specialties: ["الأعمال", "الإدارة", "المشاريع"],
-    description: "مستشارة أعمال ومصممة قوالب متخصصة في إدارة المشاريع والشركات الناشئة."
-  },
-  {
-    id: 4,
-    name: "أحمد المطيري",
-    bio: "قوالب الحياة الشخصية",
-    imgSrc: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-    rating: 4.6,
-    templates: 18,
-    earnings: "9,800 ريال",
-    followers: 750,
-    joinDate: "2023-05-10",
-    specialties: ["الحياة الشخصية", "الصحة", "اللياقة"],
-    description: "مصمم قوالب متخصص في الحياة الشخصية والصحة واللياقة البدنية."
-  },
-  {
-    id: 5,
-    name: "نورا السعيد",
-    bio: "قوالب الإبداع والفن",
-    imgSrc: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-    rating: 4.9,
-    templates: 22,
-    earnings: "14,600 ريال",
-    followers: 1100,
-    joinDate: "2022-09-12",
-    specialties: ["الإبداع", "الفن", "التصميم"],
-    description: "فنانة ومصممة قوالب متخصصة في الإبداع والفن والتصميم الجرافيكي."
-  },
-  {
-    id: 6,
-    name: "خالد العلي",
-    bio: "قوالب التقنية والبرمجة",
-    imgSrc: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    rating: 4.8,
-    templates: 16,
-    earnings: "11,300 ريال",
-    followers: 890,
-    joinDate: "2023-02-28",
-    specialties: ["التقنية", "البرمجة", "التطوير"],
-    description: "مطور برمجيات ومصمم قوالب متخصص في التقنية والبرمجة والتطوير."
-  }
-];
 
 const specialties = [
   { name: "الكل", value: "all" },
@@ -169,8 +88,6 @@ export default function CreatorsPage() {
       } catch (err) {
         console.error('Error fetching creators:', err);
         setError('حدث خطأ في تحميل المبدعين');
-        // Fallback to static data if API fails
-        setCreatorsData(creators);
       } finally {
         setLoading(false);
       }

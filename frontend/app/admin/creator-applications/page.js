@@ -72,7 +72,6 @@ export default function CreatorApplicationsPage() {
           // This is the current user being approved, refresh their data
           try {
             await refreshUserData();
-            console.log('User data refreshed after approval');
           } catch (refreshError) {
             console.error('Failed to refresh user data after approval:', refreshError);
           }

@@ -272,9 +272,7 @@ export default function CreateBlogPage() {
       });
 
 
-      console.log('Submitting blog data:', blogData);
       const response = await api.post('/blogs', blogData);
-      console.log('Blog creation response:', response.data);
 
       if (response.data.success) {
         showSuccess(response.data.message);

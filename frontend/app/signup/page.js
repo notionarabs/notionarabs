@@ -61,25 +61,17 @@ export default function SignupPage() {
 
     const result = await signup(formData.name, formData.email, formData.password);
 
-    console.log('Signup result:', result);
-    console.log('requiresVerification:', result.requiresVerification);
-    console.log('verificationToken:', result.verificationToken);
-
     if (result.success) {
       if (result.requiresVerification && result.verificationToken) {
-        console.log('Email sent, showing verification message');
         // Show verification message - no account created yet
         setUserEmail(formData.email);
         setVerificationToken(result.verificationToken);
         setShowVerificationMessage(true);
         setEmailSendFailed(false);
       } else {
-        console.log('No verification required or missing token, redirecting to home');
-        console.log('This should not happen with the new flow!');
         router.push('/');
       }
     } else {
-      console.log('Signup failed:', result.error);
       if (result.errorType === 'EMAIL_SEND_FAILED') {
         setEmailSendFailed(true);
         setError('فشل في إرسال بريد التأكيد. يرجى المحاولة مرة أخرى.');

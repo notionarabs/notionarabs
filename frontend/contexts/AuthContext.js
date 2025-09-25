@@ -49,7 +49,6 @@ export const AuthProvider = ({ children }) => {
     }
 
     const timeoutId = setTimeout(() => {
-      console.warn('AuthContext: Timeout reached, forcing loading to false');
       setLoading(false);
     }, 2000); // Reduced to 2 seconds for faster UX
 

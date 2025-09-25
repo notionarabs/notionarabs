@@ -257,9 +257,7 @@ export default function EditBlogPage() {
         }
       });
 
-      console.log('Updating blog data:', blogData);
       const response = await api.put(`/blogs/${blogId}`, blogData);
-      console.log('Blog update response:', response.data);
 
       if (response.data.success) {
         showSuccess(response.data.message || 'تم تحديث المقال بنجاح!');

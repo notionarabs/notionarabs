@@ -120,8 +120,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 handler
-app.use('*', (req, res) => {
+// 404 handler - catch all routes that don't match any defined routes
+app.use((req, res) => {
   res.status(404).json({
     success: false,
     message: 'الصفحة غير موجودة'

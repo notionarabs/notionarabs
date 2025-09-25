@@ -50,13 +50,35 @@ const fallbackTemplates = [
 ];
 
 const categories = [
-  { name: "العمل", count: 120, imgSrc: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop&crop=center" },
-  { name: "الدراسة", count: 95, imgSrc: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=200&fit=crop&crop=center" },
-  { name: "الأعمال", count: 70, imgSrc: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=300&h=200&fit=crop&crop=center" },
-  { name: "الحياة", count: 80, imgSrc: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=300&h=200&fit=crop&crop=center" },
-  { name: "الشخصي", count: 65, imgSrc: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop&crop=center" },
-  { name: "الصحة", count: 50, imgSrc: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=200&fit=crop&crop=center" },
+  { name: "الإنتاجية", count: 0, imgSrc: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=300&h=200&fit=crop&crop=center" },
+  { name: "الدراسة", count: 0, imgSrc: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=200&fit=crop&crop=center" },
+  { name: "الأعمال", count: 0, imgSrc: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=300&h=200&fit=crop&crop=center" },
+  { name: "الحياة الشخصية", count: 0, imgSrc: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=300&h=200&fit=crop&crop=center" },
+  { name: "الإبداع", count: 0, imgSrc: "https://images.unsplash.com/photo-1496317899792-9d7dbcd928a1?w=300&h=200&fit=crop&crop=center" },
+  { name: "التقنية", count: 0, imgSrc: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&h=200&fit=crop&crop=center" },
+  { name: "الصحة", count: 0, imgSrc: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=200&fit=crop&crop=center" },
+  { name: "المالية", count: 0, imgSrc: "https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=300&h=200&fit=crop&crop=center" },
+  { name: "التنظيم", count: 0, imgSrc: "https://images.unsplash.com/photo-1518085250887-2f903c200fee?w=300&h=200&fit=crop&crop=center" },
+  { name: "التخطيط", count: 0, imgSrc: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=300&h=200&fit=crop&crop=center" },
 ];
+
+// Map Arabic category names to English slugs for URLs
+const categorySlugMap = {
+  'الإنتاجية': 'productivity',
+  'الدراسة': 'study',
+  'الأعمال': 'business',
+  'الحياة الشخصية': 'personal',
+  'الإبداع': 'creativity',
+  'التقنية': 'technology',
+  'الصحة': 'health',
+  'المالية': 'finance',
+  'التنظيم': 'organization',
+  'التخطيط': 'planning',
+  // Fallbacks for simpler labels used in this grid
+  'العمل': 'work',
+  'الحياة': 'life',
+  'الشخصي': 'personal'
+};
 
 const creators = [
   { name: "ليلى أحمد", templates: 20, bio: "قوالب الإنتاجية", imgSrc: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face", rating: 4.9, earnings: "15,000 ريال" },
@@ -73,6 +95,9 @@ const testimonials = [
 export default function HomePage() {
   const [featuredTemplates, setFeaturedTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({ templates: 0, creators: 0 });
+  const [topCreators, setTopCreators] = useState([]);
+  const [categoryTotals, setCategoryTotals] = useState({});
 
   // Fetch featured templates from API
   useEffect(() => {
@@ -95,6 +120,58 @@ export default function HomePage() {
     };
 
     fetchFeaturedTemplates();
+  }, []);
+
+  // Fetch homepage aggregates (totals, top creators, category counts)
+  useEffect(() => {
+    const fetchHomepageData = async () => {
+      try {
+        const categoriesArabic = [
+          'الإنتاجية',
+          'الدراسة',
+          'الأعمال',
+          'الحياة الشخصية',
+          'الإبداع',
+          'التقنية',
+          'الصحة',
+          'المالية',
+          'التنظيم',
+          'التخطيط'
+        ];
+
+        const templatesCountReq = api.get('/templates?limit=1');
+        const creatorsReq = api.get('/creators?limit=3&sortBy=popular');
+        const categoryCountReqs = categoriesArabic.map((name) =>
+          api
+            .get(`/templates?category=${encodeURIComponent(name)}&limit=1`)
+            .then((res) => ({ name, total: res?.data?.pagination?.total || 0 }))
+            .catch(() => ({ name, total: 0 }))
+        );
+
+        const [templatesRes, creatorsRes, categoryTotalsArr] = await Promise.all([
+          templatesCountReq,
+          creatorsReq,
+          Promise.all(categoryCountReqs)
+        ]);
+
+        const totalTemplates = templatesRes?.data?.pagination?.total || 0;
+        const totalCreators = creatorsRes?.data?.pagination?.total || 0;
+        setStats({ templates: totalTemplates, creators: totalCreators });
+
+        const creatorsList = creatorsRes?.data?.creators || [];
+        setTopCreators(creatorsList);
+
+        const totalsMap = {};
+        categoryTotalsArr.forEach(({ name, total }) => {
+          totalsMap[name] = total;
+        });
+        setCategoryTotals(totalsMap);
+      } catch (error) {
+        console.error('Error fetching homepage aggregates:', error);
+      }
+    };
+
+    fetchHomepageData();
   }, []);
 
   const StarRating = ({ rating }) => {
@@ -173,7 +250,7 @@ export default function HomePage() {
                   </svg>
                 </Link>
                 <Link
-                  href="/templates"
+                  href="/creators/apply"
                   className="btn-secondary text-xl px-10 py-5 bg-white/90 dark:bg-dark-tertiary/90 backdrop-blur-sm border-primary-200 dark:border-orange-500/30 notion-block-hover shadow-lg dark:shadow-dark-medium hover:shadow-xl dark:hover:shadow-dark-large hover:bg-primary-50 dark:hover:bg-dark-quaternary transition-colors duration-300"
                 >
                   بيع قوالبك
@@ -183,20 +260,20 @@ export default function HomePage() {
               {/* Enhanced Stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
                 <div className="card-featured p-6 stats-counter">
-                  <div className="text-3xl font-bold text-primary-500 dark:text-orange-500 mb-2">1,200+</div>
+                  <div className="text-3xl font-bold text-primary-500 dark:text-orange-500 mb-2">{stats.templates}</div>
                   <div className="body-small">قالب جاهز</div>
                 </div>
                 <div className="card-featured p-6 stats-counter">
-                  <div className="text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">500+</div>
+                  <div className="text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">{stats.creators}</div>
                   <div className="body-small">مبدع عربي</div>
                 </div>
                 <div className="card-featured p-6 stats-counter">
-                  <div className="text-3xl font-bold text-primary-500 dark:text-orange-500 mb-2">50K+</div>
-                  <div className="body-small">تحميل شهري</div>
+                  <div className="text-3xl font-bold text-primary-500 dark:text-orange-500 mb-2">{new Date().getFullYear()}</div>
+                  <div className="body-small">سنة الإطلاق</div>
                 </div>
                 <div className="card-featured p-6 stats-counter">
-                  <div className="text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">4.9</div>
-                  <div className="body-small">تقييم المستخدمين</div>
+                  <div className="text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">+{Math.max(1, Math.min(stats.templates, 999))}</div>
+                  <div className="body-small">تحديثات هذا العام</div>
                 </div>
               </div>
             </div>
@@ -417,29 +494,31 @@ export default function HomePage() {
             <p className="body-large">اختر التصنيف المناسب لاحتياجاتك</p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
-            {categories.map((c, idx) => (
-              <Link href={`/categories/${c.name.toLowerCase()}`} key={idx} className="group">
-                <div className="card-interactive border-2 border-gray-100 overflow-hidden hover:border-accent-300 hover:shadow-large transition-all duration-300 transform group-hover:-translate-y-2">
-                  <div className="h-24 md:h-28 overflow-hidden relative">
-                    <Image
-                      src={c.imgSrc}
-                      alt={c.name}
-                      width={300}
-                      height={200}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+          <div className="overflow-x-auto overflow-y-visible">
+            <div className="inline-flex gap-4 md:gap-6 min-w-full">
+              {categories.map((c, idx) => (
+                <Link href={`/templates?category=${encodeURIComponent(c.name)}`} key={idx} className="group">
+                  <div className="card-interactive border-2 border-gray-100 overflow-hidden hover:border-accent-300 hover:shadow-large transition-all duration-300 min-w-[180px] md:min-w-[200px] translate-y-0 hover:translate-y-0">
+                    <div className="h-24 md:h-28 overflow-hidden relative">
+                      <Image
+                        src={c.imgSrc}
+                        alt={c.name}
+                        width={300}
+                        height={200}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                    </div>
+                    <div className="p-4 md:p-6 text-center">
+                      <h3 className="font-bold text-accent-500 dark:text-dark-text-primary group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors mb-2">
+                        {c.name}
+                      </h3>
+                      <p className="body-small">{c.count} قالب</p>
+                    </div>
                   </div>
-                  <div className="p-4 md:p-6 text-center">
-                    <h3 className="font-bold text-accent-500 dark:text-dark-text-primary group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors mb-2">
-                      {c.name}
-                    </h3>
-                    <p className="body-small">{c.count} قالب</p>
-                  </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -453,49 +532,46 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {creators.map((cr, idx) => (
-              <div
-                key={idx}
-                className="group card-interactive p-8"
-              >
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="relative">
-                    <Image
-                      src={cr.imgSrc}
-                      alt={cr.name}
-                      width={60}
-                      height={60}
-                      className="w-15 h-15 rounded-full object-cover border-2 border-white shadow-md"
-                    />
-                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white"></div>
+            {(topCreators.length ? topCreators : creators).map((cr, idx) => (
+              <Link href={`/creators/${cr.id || cr._id || idx}`} key={cr.id || idx} className="group">
+                <div className="card-interactive p-8">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="relative">
+                      <Image
+                        src={cr.imgSrc || cr.profilePicture || 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'}
+                        alt={cr.name}
+                        width={60}
+                        height={60}
+                        className="w-15 h-15 rounded-full object-cover border-2 border-white shadow-md"
+                      />
+                      <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white"></div>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg text-accent-500 dark:text-dark-text-primary group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
+                        {cr.name}
+                      </h3>
+                      <p className="text-sm text-accent-600 dark:text-dark-text-secondary">{cr.bio}</p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-lg text-accent-500 dark:text-dark-text-primary group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
-                      {cr.name}
-                    </h3>
-                    <p className="text-sm text-accent-600 dark:text-dark-text-secondary">{cr.bio}</p>
-                  </div>
-                </div>
 
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-accent-600 dark:text-dark-text-secondary">القوالب</span>
-                    <span className="font-semibold text-accent-500 dark:text-dark-text-primary">{cr.templates}</span>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-accent-600 dark:text-dark-text-secondary">القوالب</span>
+                      <span className="font-semibold text-accent-500 dark:text-dark-text-primary">{cr.templates}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-accent-600 dark:text-dark-text-secondary">التقييم</span>
+                      <StarRating rating={cr.rating} />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-accent-600 dark:text-dark-text-secondary">الأرباح</span>
+                      <span className="font-semibold text-accent-600 dark:text-dark-text-secondary">{cr.earnings || '—'}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-accent-600 dark:text-dark-text-secondary">التقييم</span>
-                    <StarRating rating={cr.rating} />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-accent-600 dark:text-dark-text-secondary">الأرباح</span>
-                    <span className="font-semibold text-accent-600 dark:text-dark-text-secondary">{cr.earnings}</span>
-                  </div>
-                </div>
 
-                <button className="w-full mt-6 btn-primary">
-                  عرض الملف الشخصي
-                </button>
-              </div>
+                  <div className="w-full mt-6 btn-primary text-center">عرض الملف الشخصي</div>
+                </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -584,7 +660,7 @@ export default function HomePage() {
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Link
-                  href="/templates"
+                  href="/creators/apply"
                   className="btn-primary text-lg px-8 py-4 shadow-large hover:shadow-glow"
                 >
                   كن مبدعاً

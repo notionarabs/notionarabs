@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 
-const SuccessModal = ({ isOpen, onClose, onContinue }) => {
+const SuccessModal = ({ isOpen, onClose, onContinue, title, message, continueButtonText }) => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -42,12 +42,11 @@ const SuccessModal = ({ isOpen, onClose, onContinue }) => {
 
           {/* Success Message */}
           <h3 className="text-2xl font-bold text-gray-900 dark:text-dark-text-primary mb-3">
-            تم إرسال القالب بنجاح! 🎉
+            {title || 'تم إرسال القالب بنجاح! 🎉'}
           </h3>
 
           <p className="text-gray-600 dark:text-dark-text-secondary mb-6 leading-relaxed">
-            شكراً لك على مشاركة قالبك المبتكر مع مجتمع نوشن العرب.
-            سيتم مراجعة القالب واللقطة المرفقة من قبل فريقنا المتخصص وسيتم إشعارك بالنتيجة قريباً.
+            {message || 'شكراً لك على مشاركة قالبك المبتكر مع مجتمع نوشن العرب. سيتم مراجعة القالب واللقطة المرفقة من قبل فريقنا المتخصص وسيتم إشعارك بالنتيجة قريباً.'}
           </p>
 
           {/* Additional Info */}
@@ -81,7 +80,7 @@ const SuccessModal = ({ isOpen, onClose, onContinue }) => {
               onClick={onContinue}
               className="px-6 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors shadow-lg hover:shadow-xl transform hover:scale-105"
             >
-              الذهاب للملف الشخصي
+              {continueButtonText || 'الذهاب للملف الشخصي'}
             </button>
           </div>
         </div>

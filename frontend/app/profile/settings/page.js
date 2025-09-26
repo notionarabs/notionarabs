@@ -215,7 +215,7 @@ export default function ProfileSettingsPage() {
 
   const isValidSocialMediaUrl = (url) => {
     if (!isValidUrl(url)) return false;
-    
+
     const urlLower = url.toLowerCase();
     const validDomains = [
       'twitter.com', 'x.com',
@@ -231,7 +231,7 @@ export default function ProfileSettingsPage() {
       'behance.net',
       'dribbble.com'
     ];
-    
+
     return validDomains.some(domain => urlLower.includes(domain));
   };
 

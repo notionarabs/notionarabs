@@ -33,13 +33,11 @@ export default function ProfileSettingsPage() {
       instagram: '',
       youtube: ''
     },
-    profileVisibility: 'public',
     showEmail: false,
     showPhone: false,
     allowMessages: true,
     showTemplateCount: true,
-    showJoinDate: true,
-    customMessage: ''
+    showJoinDate: true
   });
 
   useEffect(() => {
@@ -516,22 +514,6 @@ export default function ProfileSettingsPage() {
                 </div>
               </div>
 
-              {/* Custom Message */}
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-3">
-                  رسالة مخصصة
-                </label>
-                <textarea
-                  value={profileSettings.customMessage}
-                  onChange={(e) => handleInputChange('customMessage', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-tertiary transition-colors duration-200 resize-none"
-                  rows={3}
-                  placeholder="رسالة ترحيبية تظهر في ملفك الشخصي..."
-                />
-                <p className="text-xs text-gray-500 dark:text-dark-text-tertiary mt-2">
-                  {profileSettings.customMessage.length}/200 حرف
-                </p>
-              </div>
             </div>
 
             {/* Social Links */}
@@ -765,62 +747,6 @@ export default function ProfileSettingsPage() {
               </div>
             </div>
 
-            {/* Profile Visibility */}
-            <div className="card p-8 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                </div>
-                <h2 className="heading-2 text-primary-600 dark:text-orange-400">رؤية الملف الشخصي</h2>
-              </div>
-
-              <div className="space-y-3">
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="profileVisibility"
-                    value="public"
-                    checked={profileSettings.profileVisibility === 'public'}
-                    onChange={(e) => handleInputChange('profileVisibility', e.target.value)}
-                    className="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 focus:ring-primary-500 dark:focus:ring-orange-500 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                  />
-                  <span className="mr-3 text-sm font-medium text-gray-700 dark:text-dark-text-primary">
-                    عام - مرئي للجميع
-                  </span>
-                </label>
-
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="profileVisibility"
-                    value="followers"
-                    checked={profileSettings.profileVisibility === 'followers'}
-                    onChange={(e) => handleInputChange('profileVisibility', e.target.value)}
-                    className="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 focus:ring-primary-500 dark:focus:ring-orange-500 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                  />
-                  <span className="mr-3 text-sm font-medium text-gray-700 dark:text-dark-text-primary">
-                    للمتابعين فقط
-                  </span>
-                </label>
-
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="profileVisibility"
-                    value="private"
-                    checked={profileSettings.profileVisibility === 'private'}
-                    onChange={(e) => handleInputChange('profileVisibility', e.target.value)}
-                    className="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 focus:ring-primary-500 dark:focus:ring-orange-500 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                  />
-                  <span className="mr-3 text-sm font-medium text-gray-700 dark:text-dark-text-primary">
-                    خاص - مرئي لك فقط
-                  </span>
-                </label>
-              </div>
-            </div>
           </div>
         </div>
 

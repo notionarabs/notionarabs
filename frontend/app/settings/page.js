@@ -149,7 +149,7 @@ export default function SettingsPage() {
         data: error.response?.data,
         message: error.message
       });
-      
+
       const errorMessage = error.response?.data?.message || 'حدث خطأ أثناء حذف الحساب';
       showError(errorMessage);
     } finally {

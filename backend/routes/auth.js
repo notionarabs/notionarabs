@@ -1011,7 +1011,7 @@ router.delete('/account', auth, async (req, res) => {
       error: error.message,
       stack: error.stack
     });
-    
+
     res.status(500).json({
       success: false,
       message: 'حدث خطأ أثناء حذف الحساب. يرجى المحاولة مرة أخرى'
@@ -1025,9 +1025,9 @@ router.delete('/account', auth, async (req, res) => {
 router.get('/verify-deletion/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
-    
+
     const user = await User.findById(userId);
-    
+
     res.json({
       success: true,
       exists: !!user,

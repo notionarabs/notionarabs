@@ -138,6 +138,9 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('userCacheTimestamp', Date.now().toString());
 
+      // Set loading to false after successful login
+      setLoading(false);
+
       return { success: true };
     } catch (error) {
       console.error('Login failed:', error);
@@ -249,6 +252,9 @@ export const AuthProvider = ({ children }) => {
         // Cache the user data
         localStorage.setItem('user', JSON.stringify(user));
         localStorage.setItem('userCacheTimestamp', Date.now().toString());
+
+        // Set loading to false after successful verification
+        setLoading(false);
       }
 
       return {

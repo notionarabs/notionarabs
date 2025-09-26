@@ -127,6 +127,22 @@ export default function SettingsPage() {
     try {
       setIsDeleting(true);
       console.log('Starting account deletion process...');
+      
+      // Debug: Check if token is set
+      const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('authToken='))
+        ?.split('=')[1];
+      console.log('Auth token present:', !!token);
+      console.log('API headers:', api.defaults.headers.common);
+
+      // Ensure token is set in headers
+      if (token) {
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        console.log('Token set in headers:', api.defaults.headers.common['Authorization']);
+      } else {
+        throw new Error('No authentication token found');
+      }
 
       const response = await api.delete('/auth/account');
 

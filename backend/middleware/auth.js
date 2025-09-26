@@ -32,6 +32,7 @@ const auth = async (req, res, next) => {
 
     if (!user) {
       console.log('Auth middleware - User not found:', decoded.userId);
+      console.log('Auth middleware - Available users in DB:', await User.find({}, '_id email').limit(5));
       return res.status(401).json({
         success: false,
         message: 'رمز المصادقة غير صحيح'

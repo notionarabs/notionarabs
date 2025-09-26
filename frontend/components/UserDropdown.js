@@ -302,15 +302,6 @@ export default function UserDropdown() {
                       </>
                     )}
 
-                    {/* Pending Status */}
-                    {user?.creatorStatus === 'pending' && (
-                      <div className="w-full px-4 py-3 text-right flex items-center gap-3 text-amber-600 dark:text-amber-400">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span className="text-sm">طلبك قيد المراجعة</span>
-                      </div>
-                    )}
 
                   </>
                 </>
@@ -356,6 +347,16 @@ export default function UserDropdown() {
             {/* Creator Application Section */}
             {user?.role !== 'admin' && (
               <div className="space-y-1">
+                {/* Pending Status */}
+                {user?.creatorStatus === 'pending' && (
+                  <div className="w-full px-4 py-3 text-right flex items-center gap-3 text-amber-600 dark:text-amber-400">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-sm">طلبك قيد المراجعة</span>
+                  </div>
+                )}
+
                 {/* Rejected Status - Allow re-application */}
                 {user?.creatorStatus === 'rejected' && (
                   <Link

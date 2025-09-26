@@ -132,6 +132,7 @@ router.get('/creator-applications', auth, async (req, res) => {
       email: user.email,
       creatorStatus: user.creatorStatus,
       appliedAt: user.createdAt,
+      requestedName: user.requestedName,
       portfolio: user.portfolio,
       experience: user.experience,
       specialties: user.specialties,
@@ -191,9 +192,27 @@ router.put('/creator-applications/:userId/status', auth, [
     const { status } = req.body;
     const { userId } = req.params;
 
+    // Get the user first to check for requested name change
+    const userToUpdate = await User.findById(userId);
+    if (!userToUpdate) {
+      return res.status(404).json({
+        success: false,
+        message: 'المستخدم غير موجود'
+      });
+    }
+
+    // Prepare update data
+    const updateData = { creatorStatus: status };
+
+    // If approving and user has a requested name change, update the name
+    if (status === 'approved' && userToUpdate.requestedName) {
+      updateData.name = userToUpdate.requestedName;
+      updateData.requestedName = null; // Clear the requested name after applying it
+    }
+
     const user = await User.findByIdAndUpdate(
       userId,
-      { creatorStatus: status },
+      updateData,
       { new: true, runValidators: true }
     ).select('-password');
 

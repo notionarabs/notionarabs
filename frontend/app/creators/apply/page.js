@@ -36,8 +36,10 @@ export default function CreatorApplyPage() {
   const [customSpecialty, setCustomSpecialty] = useState('');
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
+  const [isSpecialtyDropdownOpen, setIsSpecialtyDropdownOpen] = useState(false);
   const [phoneError, setPhoneError] = useState('');
   const countryDropdownRef = useRef(null);
+  const specialtyDropdownRef = useRef(null);
   const { user, isAuthenticated, checkAuthStatus } = useAuth();
   const router = useRouter();
 
@@ -52,17 +54,35 @@ export default function CreatorApplyPage() {
     }
   }, [isAuthenticated, user]);
 
-  // Close country dropdown when clicking outside
+  // Close dropdowns when clicking outside or pressing escape
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Close country dropdown
       if (countryDropdownRef.current && !countryDropdownRef.current.contains(event.target)) {
         setIsCountryDropdownOpen(false);
       }
+
+      // Close specialty dropdown
+      if (specialtyDropdownRef.current && !specialtyDropdownRef.current.contains(event.target)) {
+        setIsSpecialtyDropdownOpen(false);
+      }
     };
 
+    const handleEscapeKey = (event) => {
+      if (event.key === 'Escape') {
+        setIsCountryDropdownOpen(false);
+        setIsSpecialtyDropdownOpen(false);
+      }
+    };
+
+    // Add event listeners
     document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscapeKey);
+
+    // Cleanup function
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscapeKey);
     };
   }, []);
 
@@ -343,25 +363,27 @@ export default function CreatorApplyPage() {
       if (value === 'أخرى') {
         setShowCustomInput(checked);
         if (!checked) {
+          // Remove custom specialty from specialties array when unchecking "أخرى"
           setCustomSpecialty('');
+          setFormData(prev => ({
+            ...prev,
+            specialties: prev.specialties.filter(item =>
+              item !== 'أخرى' && item !== customSpecialty.trim()
+            )
+          }));
         }
-      }
-      setFormData(prev => ({
-        ...prev,
-        specialties: checked
-          ? [...prev.specialties, value]
-          : prev.specialties.filter(item => item !== value)
-      }));
-    } else if (name === 'customSpecialty') {
-      setCustomSpecialty(value);
-      if (value.trim()) {
+      } else {
         setFormData(prev => ({
           ...prev,
-          specialties: prev.specialties.includes('أخرى')
-            ? [...prev.specialties.filter(item => item !== 'أخرى'), value.trim()]
-            : [...prev.specialties, value.trim()]
+          specialties: checked
+            ? [...prev.specialties, value]
+            : prev.specialties.filter(item => item !== value)
         }));
       }
+    } else if (name === 'customSpecialty') {
+      setCustomSpecialty(value);
+      // Only update specialties when the user finishes typing (on blur or when they stop typing)
+      // This prevents adding partial words as specialties
     } else {
       // Handle phone number input with restrictions
       if (name === 'phone') {
@@ -409,6 +431,52 @@ export default function CreatorApplyPage() {
       } else {
         setPhoneError('رقم الهاتف غير صحيح');
       }
+    }
+  };
+
+  const handleCustomSpecialtyBlur = () => {
+    if (customSpecialty.trim()) {
+      const trimmedSpecialty = customSpecialty.trim();
+
+      // Split by comma and clean up each specialty
+      const specialties = trimmedSpecialty
+        .split(',')
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+
+      setFormData(prev => {
+        // Remove any existing custom specialties and 'أخرى' from the array
+        const filteredSpecialties = prev.specialties.filter(item =>
+          item !== 'أخرى' && !specialties.includes(item)
+        );
+
+        // Add the new custom specialties
+        return {
+          ...prev,
+          specialties: [...filteredSpecialties, ...specialties]
+        };
+      });
+    }
+  };
+
+  const handleCustomSpecialtyKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleCustomSpecialtyBlur();
+    }
+  };
+
+  const handleSpecialtySelect = (specialty) => {
+    if (specialty === 'أخرى') {
+      setShowCustomInput(true);
+      setIsSpecialtyDropdownOpen(false);
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        specialties: prev.specialties.includes(specialty)
+          ? prev.specialties.filter(item => item !== specialty)
+          : [...prev.specialties, specialty]
+      }));
     }
   };
 
@@ -816,6 +884,7 @@ export default function CreatorApplyPage() {
 
       // Send application data to backend
       const response = await api.post('/auth/apply-creator', {
+        name: formData.name,
         portfolio: formData.portfolio,
         experience: formData.experience,
         specialties: formData.specialties,
@@ -861,9 +930,6 @@ export default function CreatorApplyPage() {
                 unoptimized
               />
             </Link>
-            <Link href="/" className="text-white hover:text-gray-300 transition-colors">
-              العودة للرئيسية
-            </Link>
           </div>
         </nav>
 
@@ -883,9 +949,6 @@ export default function CreatorApplyPage() {
                 تم استلام طلبك للانضمام كمبدع وهو قيد المراجعة حالياً. سنعاود التواصل معك خلال 3-5 أيام عمل.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/" className="btn-primary">
-                  العودة للرئيسية
-                </Link>
                 <Link href="/creators" className="btn-secondary">
                   تصفح المبدعين
                 </Link>
@@ -954,27 +1017,6 @@ export default function CreatorApplyPage() {
   if (user?.creatorStatus === 'rejected') {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
-        {/* Navigation */}
-        <nav className="bg-accent-500 dark:bg-dark-secondary shadow-medium dark:shadow-dark-medium">
-          <div className="container-custom flex justify-between items-center py-4">
-            <Link href="/" className="flex items-center">
-              <Image
-                src="/NavLogoLight.svg"
-                alt="عرب نوشن"
-                width={180}
-                height={60}
-                className="h-8 sm:h-10 md:h-12 w-auto"
-                quality={100}
-                priority
-                unoptimized
-              />
-            </Link>
-            <Link href="/" className="text-white hover:text-gray-300 transition-colors">
-              العودة للرئيسية
-            </Link>
-          </div>
-        </nav>
-
         {/* Rejected Status */}
         <div className="container-custom py-16">
           <div className="max-w-2xl mx-auto text-center">
@@ -991,9 +1033,6 @@ export default function CreatorApplyPage() {
                 نأسف، لم يتم قبول طلبك للانضمام كمبدع في هذا الوقت. يمكنك المحاولة مرة أخرى في المستقبل.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/" className="btn-primary">
-                  العودة للرئيسية
-                </Link>
                 <Link href="/creators" className="btn-secondary">
                   تصفح المبدعين
                 </Link>
@@ -1008,27 +1047,6 @@ export default function CreatorApplyPage() {
   if (success) {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
-        {/* Navigation */}
-        <nav className="bg-accent-500 dark:bg-dark-secondary shadow-medium dark:shadow-dark-medium">
-          <div className="container-custom flex justify-between items-center py-4">
-            <Link href="/" className="flex items-center">
-              <Image
-                src="/NavLogoLight.svg"
-                alt="عرب نوشن"
-                width={180}
-                height={60}
-                className="h-8 sm:h-10 md:h-12 w-auto"
-                quality={100}
-                priority
-                unoptimized
-              />
-            </Link>
-            <Link href="/" className="text-white hover:text-gray-300 transition-colors">
-              العودة للرئيسية
-            </Link>
-          </div>
-        </nav>
-
         {/* Success Message */}
         <div className="container-custom py-16">
           <div className="max-w-2xl mx-auto text-center">
@@ -1045,9 +1063,6 @@ export default function CreatorApplyPage() {
                 شكراً لك على اهتمامك بالانضمام إلى مجتمع المبدعين. سنراجع طلبك وسنعاود التواصل معك خلال 3-5 أيام عمل.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/" className="btn-primary">
-                  العودة للرئيسية
-                </Link>
                 <Link href="/creators" className="btn-secondary">
                   تصفح المبدعين
                 </Link>
@@ -1348,39 +1363,74 @@ export default function CreatorApplyPage() {
                     المجالات التي تختص بها *
                   </label>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">اختر المجالات التي تبرع فيها (يمكنك اختيار أكثر من مجال)</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {specialtyOptions.map((specialty) => (
-                      <label key={specialty} className={`group relative flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 hover:shadow-md ${formData.specialties.includes(specialty)
-                        ? 'bg-primary-50 dark:bg-orange-900/20 border-primary-300 dark:border-orange-500/50 shadow-sm'
-                        : 'bg-gray-50 dark:bg-dark-tertiary border-transparent hover:border-primary-200 dark:hover:border-orange-500/30'
-                        }`}>
-                        <input
-                          type="checkbox"
-                          name="specialties"
-                          value={specialty}
-                          checked={formData.specialties.includes(specialty)}
-                          onChange={handleChange}
-                          className="sr-only"
-                        />
-                        <div className={`w-5 h-5 rounded-lg border-2 ml-4 flex items-center justify-center transition-all duration-200 ${formData.specialties.includes(specialty)
-                          ? 'bg-primary-500 border-primary-500 text-white'
-                          : 'border-gray-300 dark:border-gray-600 group-hover:border-primary-400'
-                          }`}>
-                          {formData.specialties.includes(specialty) && (
-                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                          )}
-                        </div>
-                        <span className={`text-sm font-medium transition-colors duration-200 ${formData.specialties.includes(specialty)
-                          ? 'text-primary-700 dark:text-orange-300'
-                          : 'text-gray-700 dark:text-dark-text-secondary group-hover:text-primary-600 dark:group-hover:text-orange-400'
-                          }`}>
-                          {specialty}
-                        </span>
-                      </label>
-                    ))}
+
+                  {/* Specialty Dropdown */}
+                  <div className="relative" ref={specialtyDropdownRef}>
+                    <button
+                      type="button"
+                      onClick={() => setIsSpecialtyDropdownOpen(!isSpecialtyDropdownOpen)}
+                      className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 w-full pr-4 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border rounded-xl appearance-none text-right flex items-center justify-between"
+                    >
+                      <span className="flex-1 text-right">
+                        {formData.specialties.length > 0
+                          ? formData.specialties.join('، ')
+                          : 'اختر المجالات التي تختص بها'
+                        }
+                      </span>
+                      <svg className="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+
+                    {/* Dropdown Options */}
+                    {isSpecialtyDropdownOpen && (
+                      <div className="absolute z-50 w-full mt-1 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                        {specialtyOptions.map((specialty) => (
+                          <button
+                            key={specialty}
+                            type="button"
+                            onClick={() => handleSpecialtySelect(specialty)}
+                            className={`w-full px-4 py-3 text-right flex items-center justify-between gap-3 hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200 first:rounded-t-xl last:rounded-b-xl ${formData.specialties.includes(specialty)
+                              ? 'bg-primary-50 dark:bg-orange-900/20 text-primary-700 dark:text-orange-300'
+                              : 'text-gray-700 dark:text-dark-text-secondary'
+                              }`}
+                          >
+                            <span className="text-sm font-medium flex-1 text-right">
+                              {specialty}
+                            </span>
+                            {formData.specialties.includes(specialty) && (
+                              <svg className="w-4 h-4 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
+
+                  {/* Selected Specialties Display */}
+                  {formData.specialties.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {formData.specialties.map((specialty) => (
+                        <span
+                          key={specialty}
+                          className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 dark:bg-orange-900/30 text-primary-800 dark:text-orange-300"
+                        >
+                          {specialty}
+                          <button
+                            type="button"
+                            onClick={() => handleSpecialtySelect(specialty)}
+                            className="mr-2 text-primary-600 dark:text-orange-400 hover:text-primary-800 dark:hover:text-orange-200"
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
 
                   {/* Custom Specialty Input */}
                   {showCustomInput && (
@@ -1396,10 +1446,12 @@ export default function CreatorApplyPage() {
                         name="customSpecialty"
                         value={customSpecialty}
                         onChange={handleChange}
+                        onBlur={handleCustomSpecialtyBlur}
+                        onKeyDown={handleCustomSpecialtyKeyDown}
                         className="form-input pr-4 pl-4 py-3 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400 w-full"
-                        placeholder="مثال: التصميم المعماري، الطب، الهندسة..."
+                        placeholder="مثال: التصميم المعماري، الطب، الهندسة (يمكنك إضافة عدة تخصصات مفصولة بفاصلة)"
                       />
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">اكتب المجال الذي تبرع فيه إذا لم يكن موجوداً في القائمة أعلاه</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">اكتب المجال الذي تبرع فيه إذا لم يكن موجوداً في القائمة أعلاه. يمكنك إضافة عدة تخصصات مفصولة بفاصلة (مثل: الطب، الهندسة، التصميم)</p>
                     </div>
                   )}
 

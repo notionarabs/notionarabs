@@ -718,7 +718,7 @@ router.post('/apply-creator', auth, [
       });
     }
 
-    const { portfolio, experience, specialties, motivation, phone, socialMedia, availability, expectedEarnings } = req.body;
+    const { name, portfolio, experience, specialties, motivation, phone, socialMedia, availability, expectedEarnings } = req.body;
 
     // Check if user already has a pending or approved creator status
     if (req.user.creatorStatus !== 'none') {
@@ -728,21 +728,29 @@ router.post('/apply-creator', auth, [
       });
     }
 
+    // Check if user wants to change their name
+    const updateData = {
+      creatorStatus: 'pending',
+      // Store additional creator application data (you might want to create a separate CreatorApplication model)
+      portfolio,
+      experience,
+      specialties,
+      motivation,
+      phone,
+      socialMedia,
+      availability,
+      expectedEarnings
+    };
+
+    // If name is provided and different from current name, store it as requested name
+    if (name && name.trim() !== req.user.name) {
+      updateData.requestedName = name.trim();
+    }
+
     // Update user with creator application data
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      {
-        creatorStatus: 'pending',
-        // Store additional creator application data (you might want to create a separate CreatorApplication model)
-        portfolio,
-        experience,
-        specialties,
-        motivation,
-        phone,
-        socialMedia,
-        availability,
-        expectedEarnings
-      },
+      updateData,
       { new: true, runValidators: true }
     ).select('-password');
 

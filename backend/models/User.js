@@ -101,6 +101,12 @@ const userSchema = new mongoose.Schema({
     default: null
   },
   // Creator application fields
+  requestedName: {
+    type: String,
+    default: null,
+    trim: true,
+    maxlength: [50, 'الاسم المطلوب لا يجب أن يتجاوز 50 حرف']
+  },
   portfolio: {
     type: String,
     default: null

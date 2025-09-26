@@ -16,19 +16,31 @@ function AuthCallbackForm() {
       const success = searchParams.get('success');
       const error = searchParams.get('error');
 
-      if (success === 'true' && token) {
-        // Store the token
-        Cookies.set('authToken', token, { expires: 7 });
+      console.log('Callback params:', { token, success, error });
 
-        // Set token in axios headers
-        const api = (await import('../../../lib/api')).default;
-        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      // If we have a token, proceed with authentication regardless of success parameter
+      if (token) {
+        try {
+          // Store the token
+          Cookies.set('authToken', token, { expires: 7 });
 
-        // Check auth status to update context
-        await checkAuthStatus();
+          // Set token in axios headers
+          const api = (await import('../../../lib/api')).default;
+          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-        // Redirect to home page
-        router.push('/');
+          // Check auth status to update context
+          await checkAuthStatus();
+
+          // Redirect to home page
+          router.push('/');
+        } catch (error) {
+          console.error('Auth setup error:', error);
+          router.push('/login?error=auth_setup_failed');
+        }
+      } else if (success === 'true') {
+        // Handle case where success=true but no token (shouldn't happen)
+        console.error('Success=true but no token provided');
+        router.push('/login?error=no_token');
       } else {
         // Handle error
         console.error('Google OAuth error:', error);

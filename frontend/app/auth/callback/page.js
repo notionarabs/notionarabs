@@ -23,7 +23,7 @@ function AuthCallbackForm() {
       if (token) {
         try {
           console.log('Setting up authentication...');
-          
+
           // Store the token
           Cookies.set('authToken', token, { expires: 7 });
           console.log('Token stored in cookie');
@@ -36,10 +36,10 @@ function AuthCallbackForm() {
           // Check auth status to update context with timeout
           console.log('Checking auth status...');
           const authPromise = checkAuthStatus();
-          const timeoutPromise = new Promise((_, reject) => 
+          const timeoutPromise = new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Auth check timeout')), 10000)
           );
-          
+
           await Promise.race([authPromise, timeoutPromise]);
           console.log('Auth status checked successfully');
 
@@ -52,7 +52,7 @@ function AuthCallbackForm() {
         } catch (error) {
           console.error('Auth setup error:', error);
           setError(error.message || 'Authentication setup failed');
-          
+
           // Redirect to login with error after a delay
           setTimeout(() => {
             router.push('/login?error=auth_setup_failed');

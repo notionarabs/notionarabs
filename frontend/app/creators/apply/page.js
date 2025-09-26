@@ -882,6 +882,26 @@ export default function CreatorApplyPage() {
       // Import API function
       const api = (await import('../../../lib/api')).default;
 
+      // Check if we have a token and set it in API headers
+      const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('authToken='))
+        ?.split('=')[1];
+      
+      console.log('Creator application - Token from cookie:', token ? 'Found' : 'Not found');
+      
+      if (token) {
+        // Ensure token is set in API headers
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        console.log('Creator application - Token set in API headers');
+      } else {
+        console.error('Creator application - No token found, cannot proceed');
+        setError('لم يتم العثور على رمز المصادقة. يرجى تسجيل الدخول مرة أخرى.');
+        return;
+      }
+      
+      console.log('Creator application - API headers after setting token:', api.defaults.headers.common);
+
       // Send application data to backend
       const response = await api.post('/auth/apply-creator', {
         name: formData.name,

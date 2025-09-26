@@ -695,8 +695,9 @@ router.post('/verify-email', [
 // @access  Private
 router.post('/apply-creator', auth, [
   body('portfolio')
-    .notEmpty()
-    .withMessage('رابط المعرض مطلوب'),
+    .optional()
+    .isURL()
+    .withMessage('رابط المعرض غير صحيح'),
   body('experience')
     .notEmpty()
     .withMessage('وصف الخبرة مطلوب'),
@@ -711,6 +712,7 @@ router.post('/apply-creator', auth, [
     // Check validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Creator application validation errors:', errors.array());
       return res.status(400).json({
         success: false,
         message: 'بيانات غير صحيحة',

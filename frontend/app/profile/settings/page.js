@@ -184,7 +184,7 @@ export default function ProfileSettingsPage() {
   const addSocialLink = () => {
     setProfileSettings(prev => ({
       ...prev,
-      socialLinks: [...prev.socialLinks, { platform: '', url: '' }]
+      socialLinks: [...prev.socialLinks, { url: '' }]
     }));
   };
 
@@ -195,11 +195,11 @@ export default function ProfileSettingsPage() {
     }));
   };
 
-  const updateSocialLink = (index, field, value) => {
+  const updateSocialLink = (index, value) => {
     setProfileSettings(prev => ({
       ...prev,
       socialLinks: prev.socialLinks.map((link, i) => 
-        i === index ? { ...link, [field]: value } : link
+        i === index ? { url: value } : link
       )
     }));
   };
@@ -533,34 +533,7 @@ export default function ProfileSettingsPage() {
                   <div key={index} className="flex gap-4 items-end">
                     <div className="flex-1">
                       <label className="block text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-3">
-                        منصة التواصل
-                      </label>
-                      <select
-                        value={link.platform}
-                        onChange={(e) => updateSocialLink(index, 'platform', e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary transition-colors duration-200"
-                      >
-                        <option value="">اختر المنصة</option>
-                        <option value="website">الموقع الإلكتروني</option>
-                        <option value="twitter">تويتر</option>
-                        <option value="linkedin">لينكد إن</option>
-                        <option value="instagram">إنستغرام</option>
-                        <option value="youtube">يوتيوب</option>
-                        <option value="facebook">فيسبوك</option>
-                        <option value="tiktok">تيك توك</option>
-                        <option value="snapchat">سناب شات</option>
-                        <option value="telegram">تيليجرام</option>
-                        <option value="discord">ديسكورد</option>
-                        <option value="github">جيت هاب</option>
-                        <option value="behance">بيهانس</option>
-                        <option value="dribbble">دريببل</option>
-                        <option value="other">أخرى</option>
-                      </select>
-                    </div>
-                    
-                    <div className="flex-2">
-                      <label className="block text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-3">
-                        الرابط
+                        رابط التواصل الاجتماعي
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -570,8 +543,8 @@ export default function ProfileSettingsPage() {
                         </div>
                         <input
                           type="url"
-                          value={link.url}
-                          onChange={(e) => updateSocialLink(index, 'url', e.target.value)}
+                          value={link.url || ''}
+                          onChange={(e) => updateSocialLink(index, e.target.value)}
                           className="w-full pl-4 pr-10 py-3 border border-gray-300 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-tertiary transition-colors duration-200"
                           placeholder="https://example.com"
                         />
@@ -590,7 +563,7 @@ export default function ProfileSettingsPage() {
                     </button>
                   </div>
                 ))}
-                
+
                 {/* Add Social Link Button */}
                 <button
                   type="button"

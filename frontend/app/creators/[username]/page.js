@@ -261,7 +261,7 @@ export default function PublicProfilePage() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
           </div>
         ) : (
-          <div className="absolute inset-0 bg-black"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-500 via-accent-500 to-primary-600 dark:bg-black dark:from-black dark:via-black dark:to-black"></div>
         )}
 
         <div className="container-custom relative z-10">

@@ -110,7 +110,7 @@ export default function UserDropdown() {
       {isOpen && (
         <div className="absolute left-0 mt-2 w-64 bg-white dark:bg-dark-secondary rounded-xl shadow-large dark:shadow-dark-large border border-gray-200 dark:border-dark-card-border py-2 z-50">
           {/* User Info Header */}
-          <div className="px-4 py-3 border-b border-gray-200 dark:border-dark-card-border">
+          <div className="px-4 py-3">
             <div className="flex items-center gap-3">
               {(user?.creatorStatus === 'approved' || user?.creatorStatus === 'pending') ? (
                 // Premium styling for approved creators and pending applications in dropdown
@@ -312,33 +312,6 @@ export default function UserDropdown() {
                       </div>
                     )}
 
-                    {/* Rejected Status - Allow re-application */}
-                    {user?.creatorStatus === 'rejected' && (
-                      <Link
-                        href="/creators/apply"
-                        onClick={() => setIsOpen(false)}
-                        className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
-                      >
-                        <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        <span className="text-sm">إعادة التقديم كمبدع</span>
-                      </Link>
-                    )}
-
-                    {/* No Status - First time application */}
-                    {(!user?.creatorStatus || user?.creatorStatus === '' || user?.creatorStatus === 'none') && (
-                      <Link
-                        href="/creators/apply"
-                        onClick={() => setIsOpen(false)}
-                        className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
-                      >
-                        <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        <span className="text-sm">التسجيل كمبدع</span>
-                      </Link>
-                    )}
                   </>
                 </>
               )}
@@ -376,6 +349,42 @@ export default function UserDropdown() {
                 </Link>
               )}
             </div>
+
+            {/* Divider */}
+            <div className="border-t border-gray-200 dark:border-dark-card-border my-2"></div>
+
+            {/* Creator Application Section */}
+            {user?.role !== 'admin' && (
+              <div className="space-y-1">
+                {/* Rejected Status - Allow re-application */}
+                {user?.creatorStatus === 'rejected' && (
+                  <Link
+                    href="/creators/apply"
+                    onClick={() => setIsOpen(false)}
+                    className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
+                  >
+                    <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    <span className="text-sm">إعادة التقديم كمبدع</span>
+                  </Link>
+                )}
+
+                {/* No Status - First time application */}
+                {(!user?.creatorStatus || user?.creatorStatus === '' || user?.creatorStatus === 'none') && (
+                  <Link
+                    href="/creators/apply"
+                    onClick={() => setIsOpen(false)}
+                    className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
+                  >
+                    <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    <span className="text-sm">التسجيل كمبدع</span>
+                  </Link>
+                )}
+              </div>
+            )}
 
             {/* Divider */}
             <div className="border-t border-gray-200 dark:border-dark-card-border my-2"></div>

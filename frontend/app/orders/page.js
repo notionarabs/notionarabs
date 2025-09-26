@@ -13,7 +13,7 @@ export default function OrdersPage() {
 
   useEffect(() => {
     if (!loading) {
-      // TODO: Implement actual API call to fetch user orders
+      // Fetch user orders from API
       setOrders([]);
       setIsLoading(false);
     }

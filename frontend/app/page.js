@@ -112,7 +112,6 @@ export default function HomePage() {
           setFeaturedTemplates(fallbackTemplates);
         }
       } catch (error) {
-        console.error('Error fetching featured templates:', error);
         setFeaturedTemplates(fallbackTemplates);
       } finally {
         setLoading(false);
@@ -167,7 +166,6 @@ export default function HomePage() {
         });
         setCategoryTotals(totalsMap);
       } catch (error) {
-        console.error('Error fetching homepage aggregates:', error);
       }
     };
 

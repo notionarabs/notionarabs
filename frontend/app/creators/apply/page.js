@@ -888,19 +888,13 @@ export default function CreatorApplyPage() {
         .find(row => row.startsWith('authToken='))
         ?.split('=')[1];
 
-      console.log('Creator application - Token from cookie:', token ? 'Found' : 'Not found');
-
       if (token) {
         // Ensure token is set in API headers
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        console.log('Creator application - Token set in API headers');
       } else {
-        console.error('Creator application - No token found, cannot proceed');
         setError('لم يتم العثور على رمز المصادقة. يرجى تسجيل الدخول مرة أخرى.');
         return;
       }
-
-      console.log('Creator application - API headers after setting token:', api.defaults.headers.common);
 
       // Send application data to backend
       const response = await api.post('/auth/apply-creator', {
@@ -924,13 +918,9 @@ export default function CreatorApplyPage() {
         setError(response.data.message || 'حدث خطأ أثناء إرسال الطلب');
       }
     } catch (err) {
-      console.error('Creator application error:', err);
-      console.error('Error response:', err.response?.data);
-
       // Handle validation errors specifically
       if (err.response?.status === 400 && err.response?.data?.errors) {
         const validationErrors = err.response.data.errors;
-        console.error('Validation errors:', validationErrors);
 
         // Show the first validation error
         const firstError = validationErrors[0];

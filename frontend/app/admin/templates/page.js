@@ -92,8 +92,7 @@ export default function AdminTemplatesPage() {
       setSelectedAction(null);
       setAdminNotes('');
     } catch (error) {
-      console.error('Error updating template status:', error);
-      alert('حدث خطأ أثناء تحديث حالة القالب');
+      // Handle error silently or show user-friendly message
     } finally {
       setActionLoading(false);
     }

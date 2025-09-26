@@ -41,7 +41,6 @@ const validateEmailDomain = async (email) => {
     const mxRecords = await dns.resolveMx(domain);
     return mxRecords && mxRecords.length > 0;
   } catch (error) {
-    console.log('Email domain validation failed:', error.message);
     return false;
   }
 };
@@ -720,7 +719,6 @@ router.post('/apply-creator', auth, [
     // Check validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log('Creator application validation errors:', errors.array());
       return res.status(400).json({
         success: false,
         message: 'بيانات غير صحيحة',
@@ -729,18 +727,6 @@ router.post('/apply-creator', auth, [
     }
 
     const { name, portfolio, experience, specialties, motivation, phone, socialMedia, availability, expectedEarnings } = req.body;
-
-    console.log('Creator application data received:', {
-      name,
-      portfolio,
-      experience: experience ? 'Provided' : 'Missing',
-      specialties: specialties?.length || 0,
-      motivation: motivation ? 'Provided' : 'Missing',
-      phone,
-      socialMedia,
-      availability,
-      expectedEarnings
-    });
 
     // Check if user already has a pending or approved creator status
     if (req.user.creatorStatus !== 'none') {
@@ -988,27 +974,21 @@ router.delete('/account', auth, async (req, res) => {
     session.startTransaction();
 
     try {
-      // Log deletion steps
-      console.log(`Starting deletion process for user: ${userId}`);
 
       // Delete user's blogs
-      const deletedBlogs = await Blog.deleteMany({ author: userId }, { session });
-      console.log(`Deleted ${deletedBlogs.deletedCount} blogs for user: ${userId}`);
+      await Blog.deleteMany({ author: userId }, { session });
 
       // Delete user's templates
-      const deletedTemplates = await Template.deleteMany({ creator: userId }, { session });
-      console.log(`Deleted ${deletedTemplates.deletedCount} templates for user: ${userId}`);
+      await Template.deleteMany({ creator: userId }, { session });
 
       // Delete user's profile
       const deletedUser = await User.findByIdAndDelete(userId, { session });
       if (!deletedUser) {
         throw new Error(`User with ID ${userId} not found for deletion`);
       }
-      console.log(`Deleted user profile: ${userId}`);
 
       // Commit the transaction
       await session.commitTransaction();
-      console.log(`Successfully deleted account for user: ${userId}`);
 
       res.json({
         success: true,

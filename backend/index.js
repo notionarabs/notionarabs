@@ -32,10 +32,8 @@ const corsOptions = {
     } else {
       // In production, be more permissive for Vercel domains
       if (process.env.NODE_ENV === 'production' && origin && origin.includes('vercel.app')) {
-        console.log('CORS: Allowing Vercel domain in production:', origin);
         callback(null, true);
       } else {
-        console.log('CORS blocked origin:', origin);
         callback(new Error('Not allowed by CORS'));
       }
     }

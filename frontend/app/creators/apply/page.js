@@ -887,9 +887,9 @@ export default function CreatorApplyPage() {
         .split('; ')
         .find(row => row.startsWith('authToken='))
         ?.split('=')[1];
-      
+
       console.log('Creator application - Token from cookie:', token ? 'Found' : 'Not found');
-      
+
       if (token) {
         // Ensure token is set in API headers
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -899,7 +899,7 @@ export default function CreatorApplyPage() {
         setError('لم يتم العثور على رمز المصادقة. يرجى تسجيل الدخول مرة أخرى.');
         return;
       }
-      
+
       console.log('Creator application - API headers after setting token:', api.defaults.headers.common);
 
       // Send application data to backend
@@ -925,7 +925,19 @@ export default function CreatorApplyPage() {
       }
     } catch (err) {
       console.error('Creator application error:', err);
-      setError(err.response?.data?.message || 'حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى.');
+      console.error('Error response:', err.response?.data);
+
+      // Handle validation errors specifically
+      if (err.response?.status === 400 && err.response?.data?.errors) {
+        const validationErrors = err.response.data.errors;
+        console.error('Validation errors:', validationErrors);
+
+        // Show the first validation error
+        const firstError = validationErrors[0];
+        setError(firstError.msg || 'بيانات غير صحيحة');
+      } else {
+        setError(err.response?.data?.message || 'حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى.');
+      }
     }
 
     setLoading(false);

@@ -696,7 +696,11 @@ router.post('/verify-email', [
 router.post('/apply-creator', auth, [
   body('portfolio')
     .optional()
-    .isURL()
+    .custom((value) => {
+      if (!value || value.trim() === '') return true; // Allow empty values
+      // Basic URL validation - just check if it starts with http/https
+      return value.startsWith('http://') || value.startsWith('https://');
+    })
     .withMessage('رابط المعرض غير صحيح'),
   body('experience')
     .notEmpty()
@@ -721,6 +725,18 @@ router.post('/apply-creator', auth, [
     }
 
     const { name, portfolio, experience, specialties, motivation, phone, socialMedia, availability, expectedEarnings } = req.body;
+
+    console.log('Creator application data received:', {
+      name,
+      portfolio,
+      experience: experience ? 'Provided' : 'Missing',
+      specialties: specialties?.length || 0,
+      motivation: motivation ? 'Provided' : 'Missing',
+      phone,
+      socialMedia,
+      availability,
+      expectedEarnings
+    });
 
     // Check if user already has a pending or approved creator status
     if (req.user.creatorStatus !== 'none') {

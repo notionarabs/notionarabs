@@ -694,6 +694,10 @@ router.post('/verify-email', [
 // @desc    Apply to become a creator
 // @access  Private
 router.post('/apply-creator', auth, [
+  body('name')
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage('الاسم يجب أن يكون بين 2 و 50 حرف'),
   body('portfolio')
     .optional()
     .custom((value) => {

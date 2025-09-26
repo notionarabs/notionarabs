@@ -328,12 +328,14 @@ export default function PublicProfilePage() {
 
               {/* Stats Grid */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-                <div className="text-center bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                  <div className="text-3xl font-bold text-white mb-1">
-                    {creator.templateCount || creatorTemplates.length || 0}
+                {creator.showTemplateCount !== false && (
+                  <div className="text-center bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                    <div className="text-3xl font-bold text-white mb-1">
+                      {creator.templateCount || creatorTemplates.length || 0}
+                    </div>
+                    <div className="text-sm text-white/80">قوالب</div>
                   </div>
-                  <div className="text-sm text-white/80">قوالب</div>
-                </div>
+                )}
                 <div className="text-center bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                   <div className="text-3xl font-bold text-white mb-1">
                     {creator.followers || 0}
@@ -346,12 +348,14 @@ export default function PublicProfilePage() {
                   </div>
                   <div className="text-sm text-white/80">تقييم</div>
                 </div>
-                <div className="text-center bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-                  <div className="text-3xl font-bold text-white mb-1">
-                    {creator.showJoinDate ? new Date(creator.createdAt).getFullYear() : '2024'}
+                {creator.showJoinDate !== false && (
+                  <div className="text-center bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                    <div className="text-3xl font-bold text-white mb-1">
+                      {creator.createdAt ? new Date(creator.createdAt).getFullYear() : '2024'}
+                    </div>
+                    <div className="text-sm text-white/80">سنة الانضمام</div>
                   </div>
-                  <div className="text-sm text-white/80">سنة الانضمام</div>
-                </div>
+                )}
               </div>
 
               {/* Contact Info */}
@@ -380,7 +384,7 @@ export default function PublicProfilePage() {
 
       {/* Social Links Section */}
       {creator.socialLinks && Array.isArray(creator.socialLinks) && creator.socialLinks.length > 0 && (
-        <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
+        <section id="social-links" className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
           <div className="container-custom">
             <h2 className="heading-2 mb-8 text-center">روابط التواصل</h2>
             <div className="flex flex-wrap justify-center gap-4">
@@ -412,6 +416,42 @@ export default function PublicProfilePage() {
                   </a>
                 );
               })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Contact Creator Section */}
+      {creator.allowMessages !== false && (
+        <section className="section-padding bg-gradient-to-r from-primary-50 to-accent-50 dark:from-dark-secondary dark:to-dark-primary transition-colors duration-300">
+          <div className="container-custom">
+            <div className="text-center max-w-2xl mx-auto">
+              <h2 className="heading-2 mb-4">تواصل مع المبدع</h2>
+              <p className="body-large text-accent-600 dark:text-dark-text-secondary mb-8">
+                هل لديك سؤال أو تريد التعاون مع {creator.displayName || creator.name}؟ تواصل معه مباشرة
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link
+                  href={`/contact?creator=${creator.id}`}
+                  className="btn-primary"
+                >
+                  <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                  إرسال رسالة
+                </Link>
+                {creator.socialLinks && Array.isArray(creator.socialLinks) && creator.socialLinks.length > 0 && (
+                  <Link
+                    href="#social-links"
+                    className="btn-secondary"
+                  >
+                    <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    </svg>
+                    روابط التواصل
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         </section>

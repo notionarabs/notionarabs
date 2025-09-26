@@ -118,9 +118,9 @@ export default function CreatorTemplatesPage() {
         <div className="container-custom py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="heading-1 mb-2">قوالبك المقدمة</h1>
+              <h1 className="heading-1 mb-2">قوالبي</h1>
               <p className="body-large text-accent-600 dark:text-dark-text-secondary">
-                تتبع حالة قوالبك المقدمة ومراجعة تفاصيلها
+                تتبع حالة قوالبي ومراجعة تفاصيلها
               </p>
             </div>
             <div className="flex gap-3">

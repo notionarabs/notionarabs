@@ -20,7 +20,7 @@ export default function SettingsPage() {
     notifications: true,
     emailUpdates: true,
     language: 'ar',
-    timezone: 'Asia/Riyadh',
+    timezone: 'Africa/Cairo',
     profileVisibility: 'public'
   });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -521,9 +521,9 @@ export default function SettingsPage() {
                             onChange={(e) => handleSettingChange('timezone', e.target.value)}
                             className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 min-w-40 pr-10"
                           >
+                            <option value="Africa/Cairo">القاهرة (GMT+2)</option>
                             <option value="Asia/Riyadh">الرياض (GMT+3)</option>
                             <option value="Asia/Dubai">دبي (GMT+4)</option>
-                            <option value="Africa/Cairo">القاهرة (GMT+2)</option>
                             <option value="Europe/London">لندن (GMT+0)</option>
                           </select>
                           {/* Custom dropdown indicator */}

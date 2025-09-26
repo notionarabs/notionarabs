@@ -341,6 +341,157 @@ router.put('/profile', auth, [
   }
 });
 
+// @route   GET /api/auth/profile/settings
+// @desc    Get user profile settings
+// @access  Private
+router.get('/profile/settings', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('-password');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'المستخدم غير موجود'
+      });
+    }
+
+    // Return profile settings
+    const profileSettings = {
+      displayName: user.displayName || user.name,
+      bio: user.bio || '',
+      profilePicture: user.profilePicture || '',
+      socialLinks: user.socialLinks || {
+        website: '',
+        twitter: '',
+        linkedin: '',
+        instagram: '',
+        youtube: ''
+      },
+      profileVisibility: user.profileVisibility || 'public',
+      showEmail: user.showEmail || false,
+      showPhone: user.showPhone || false,
+      allowMessages: user.allowMessages !== false, // default true
+      showTemplateCount: user.showTemplateCount !== false, // default true
+      showJoinDate: user.showJoinDate !== false, // default true
+      customMessage: user.customMessage || ''
+    };
+
+    res.json({
+      success: true,
+      data: profileSettings
+    });
+  } catch (error) {
+    console.error('Get profile settings error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   PUT /api/auth/profile/settings
+// @desc    Update user profile settings
+// @access  Private
+router.put('/profile/settings', auth, [
+  body('displayName')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 50 })
+    .withMessage('الاسم المعروض يجب أن يكون بين 2 و 50 حرف'),
+  body('bio')
+    .optional()
+    .trim()
+    .isLength({ max: 500 })
+    .withMessage('النبذة الشخصية لا يجب أن تتجاوز 500 حرف'),
+  body('customMessage')
+    .optional()
+    .trim()
+    .isLength({ max: 200 })
+    .withMessage('الرسالة المخصصة لا يجب أن تتجاوز 200 حرف'),
+  body('socialLinks.website')
+    .optional()
+    .isURL()
+    .withMessage('رابط الموقع الإلكتروني غير صحيح'),
+  body('socialLinks.twitter')
+    .optional()
+    .matches(/^@?[A-Za-z0-9_]+$/)
+    .withMessage('اسم مستخدم تويتر غير صحيح'),
+  body('socialLinks.linkedin')
+    .optional()
+    .isURL()
+    .withMessage('رابط لينكد إن غير صحيح'),
+  body('socialLinks.instagram')
+    .optional()
+    .matches(/^@?[A-Za-z0-9_.]+$/)
+    .withMessage('اسم مستخدم إنستغرام غير صحيح'),
+  body('socialLinks.youtube')
+    .optional()
+    .isURL()
+    .withMessage('رابط يوتيوب غير صحيح'),
+  body('profileVisibility')
+    .optional()
+    .isIn(['public', 'followers', 'private'])
+    .withMessage('نوع الرؤية غير صحيح')
+], async (req, res) => {
+  try {
+    // Check validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'بيانات غير صحيحة',
+        errors: errors.array()
+      });
+    }
+
+    const {
+      displayName,
+      bio,
+      profilePicture,
+      socialLinks,
+      profileVisibility,
+      showEmail,
+      showPhone,
+      allowMessages,
+      showTemplateCount,
+      showJoinDate,
+      customMessage
+    } = req.body;
+
+    const updateData = {};
+
+    if (displayName !== undefined) updateData.displayName = displayName;
+    if (bio !== undefined) updateData.bio = bio;
+    if (profilePicture !== undefined) updateData.profilePicture = profilePicture;
+    if (socialLinks !== undefined) updateData.socialLinks = socialLinks;
+    if (profileVisibility !== undefined) updateData.profileVisibility = profileVisibility;
+    if (showEmail !== undefined) updateData.showEmail = showEmail;
+    if (showPhone !== undefined) updateData.showPhone = showPhone;
+    if (allowMessages !== undefined) updateData.allowMessages = allowMessages;
+    if (showTemplateCount !== undefined) updateData.showTemplateCount = showTemplateCount;
+    if (showJoinDate !== undefined) updateData.showJoinDate = showJoinDate;
+    if (customMessage !== undefined) updateData.customMessage = customMessage;
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      updateData,
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    res.json({
+      success: true,
+      message: 'تم حفظ إعدادات الملف الشخصي بنجاح',
+      user
+    });
+  } catch (error) {
+    console.error('Update profile settings error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
 
 // @route   GET /api/auth/google
 // @desc    Google OAuth login

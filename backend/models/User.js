@@ -139,6 +139,50 @@ const userSchema = new mongoose.Schema({
   expectedEarnings: {
     type: String,
     default: null
+  },
+  // Profile settings fields
+  displayName: {
+    type: String,
+    default: null,
+    trim: true,
+    maxlength: [50, 'الاسم المعروض لا يجب أن يتجاوز 50 حرف']
+  },
+  socialLinks: {
+    website: { type: String, default: '' },
+    twitter: { type: String, default: '' },
+    linkedin: { type: String, default: '' },
+    instagram: { type: String, default: '' },
+    youtube: { type: String, default: '' }
+  },
+  profileVisibility: {
+    type: String,
+    enum: ['public', 'followers', 'private'],
+    default: 'public'
+  },
+  showEmail: {
+    type: Boolean,
+    default: false
+  },
+  showPhone: {
+    type: Boolean,
+    default: false
+  },
+  allowMessages: {
+    type: Boolean,
+    default: true
+  },
+  showTemplateCount: {
+    type: Boolean,
+    default: true
+  },
+  showJoinDate: {
+    type: Boolean,
+    default: true
+  },
+  customMessage: {
+    type: String,
+    default: '',
+    maxlength: [200, 'الرسالة المخصصة لا يجب أن تتجاوز 200 حرف']
   }
 }, {
   timestamps: true

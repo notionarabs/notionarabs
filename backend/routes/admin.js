@@ -8,7 +8,7 @@ const auth = require('../middleware/auth');
 const router = express.Router();
 
 // @route   GET /api/admin/users
-// @desc    Get all users (Admin only)
+// @desc    Get all users with filtering and sorting (Admin only)
 // @access  Private (Admin)
 router.get('/users', auth, async (req, res) => {
   try {
@@ -20,7 +20,40 @@ router.get('/users', auth, async (req, res) => {
       });
     }
 
-    const users = await User.find({}).select('-password').sort({ createdAt: -1 });
+    const { search, role, status, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+
+    // Build filter object
+    const filter = {};
+
+    // Search filter (name or email)
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    // Role filter
+    if (role && role !== 'all') {
+      filter.role = role;
+    }
+
+    // Status filter
+    if (status && status !== 'all') {
+      if (status === 'active') {
+        filter.isActive = true;
+      } else if (status === 'inactive') {
+        filter.isActive = false;
+      }
+    }
+
+    // Build sort object
+    const sort = {};
+    sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
+
+    const users = await User.find(filter)
+      .select('-password')
+      .sort(sort);
 
     res.json({
       success: true,

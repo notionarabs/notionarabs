@@ -43,7 +43,7 @@ export default function AdminPage() {
 
     fetchUsers();
     fetchStats();
-  }, [isAuthenticated, user, router, authLoading, searchTerm, filterRole, filterStatus, sortBy, sortOrder]);
+  }, [isAuthenticated, user, router, authLoading]);
 
   const fetchUsers = async () => {
     try {

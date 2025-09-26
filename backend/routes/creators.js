@@ -5,6 +5,7 @@ const auth = require('../middleware/auth');
 
 const router = express.Router();
 
+
 // @route   GET /api/creators
 // @desc    Get all approved creators with their stats
 // @access  Public
@@ -63,7 +64,7 @@ router.get('/', async (req, res) => {
 
     // Get creators with pagination
     const creators = await User.find(query)
-      .select('name bio profilePicture specialties rating followers createdAt templateCount totalEarnings')
+      .select('name username displayName bio profilePicture specialties rating followers createdAt templateCount totalEarnings')
       .sort(sort)
       .skip(skip)
       .limit(limit)
@@ -127,18 +128,27 @@ router.get('/', async (req, res) => {
 // @desc    Get single creator by ID with detailed stats
 // @access  Public
 router.get('/:id', async (req, res) => {
+
   try {
     const { id } = req.params;
 
-    // Try to find by ID first, then by username
-    let creator = await User.findOne({
-      _id: id,
-      creatorStatus: 'approved',
-      isActive: true,
-      isEmailVerified: true
-    }).select('-password -emailVerificationToken -resetToken');
+    // Check if id is a valid ObjectId
+    const mongoose = require('mongoose');
+    const isValidObjectId = mongoose.Types.ObjectId.isValid(id);
 
-    // If not found by ID, try by username
+    let creator = null;
+
+    if (isValidObjectId) {
+      // Try to find by ID first
+      creator = await User.findOne({
+        _id: id,
+        creatorStatus: 'approved',
+        isActive: true,
+        isEmailVerified: true
+      }).select('-password -emailVerificationToken -resetToken');
+    }
+
+    // If not found by ID or id is not a valid ObjectId, try by username
     if (!creator) {
       creator = await User.findOne({
         $or: [
@@ -151,6 +161,7 @@ router.get('/:id', async (req, res) => {
         isEmailVerified: true
       }).select('-password -emailVerificationToken -resetToken');
     }
+
     if (!creator) {
       return res.status(404).json({
         success: false,
@@ -167,43 +178,66 @@ router.get('/:id', async (req, res) => {
     }
 
     // Get creator's templates
-    const templates = await Template.find({
-      creator: creator._id,
-      status: 'approved'
-    })
-      .select('title price rating downloads category coverImage')
-      .sort({ createdAt: -1 })
-      .limit(6)
-      .lean();
+    let templates = [];
+    try {
+      templates = await Template.find({
+        creator: creator._id,
+        status: 'approved'
+      })
+        .select('title price rating downloads category coverImage')
+        .sort({ createdAt: -1 })
+        .limit(6)
+        .lean();
+    } catch (templateError) {
+      console.error('Error fetching templates:', templateError);
+      // Continue without templates if there's an error
+    }
 
     // Get detailed stats
-    const stats = await Template.aggregate([
-      { $match: { creator: creator._id, status: 'approved' } },
-      {
-        $group: {
-          _id: null,
-          totalTemplates: { $sum: 1 },
-          totalDownloads: { $sum: '$downloads' },
-          averageRating: { $avg: '$rating' },
-          totalRevenue: { $sum: { $multiply: ['$price', '$downloads'] } }
-        }
-      }
-    ]);
-
-    const creatorStats = stats[0] || {
+    let creatorStats = {
       totalTemplates: 0,
       totalDownloads: 0,
       averageRating: 0,
       totalRevenue: 0
     };
 
+    try {
+      const stats = await Template.aggregate([
+        { $match: { creator: creator._id, status: 'approved' } },
+        {
+          $group: {
+            _id: null,
+            totalTemplates: { $sum: 1 },
+            totalDownloads: { $sum: { $ifNull: ['$downloads', 0] } },
+            averageRating: { $avg: { $ifNull: ['$rating', 0] } },
+            totalRevenue: {
+              $sum: {
+                $multiply: [
+                  { $ifNull: ['$price', 0] },
+                  { $ifNull: ['$downloads', 0] }
+                ]
+              }
+            }
+          }
+        }
+      ]);
+
+      creatorStats = stats[0] || creatorStats;
+    } catch (statsError) {
+      console.error('Error fetching creator stats:', statsError);
+      // Use default stats if there's an error
+    }
+
     res.json({
       success: true,
       creator: {
         id: creator._id,
         name: creator.name,
+        username: creator.username,
+        displayName: creator.displayName,
         bio: creator.bio,
         profilePicture: creator.profilePicture,
+        socialLinks: creator.socialLinks,
         specialties: creator.specialties || [],
         rating: creatorStats.averageRating || creator.rating || 0,
         followers: creator.followers || 0,
@@ -219,11 +253,15 @@ router.get('/:id', async (req, res) => {
       }
     });
 
+
   } catch (error) {
     console.error('Get creator error:', error);
+    console.error('Error details:', error.message);
+    console.error('Stack trace:', error.stack);
     res.status(500).json({
       success: false,
-      message: 'خطأ في الخادم'
+      message: 'خطأ في الخادم',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
@@ -294,5 +332,6 @@ router.post('/:id/follow', auth, async (req, res) => {
     });
   }
 });
+
 
 module.exports = router;

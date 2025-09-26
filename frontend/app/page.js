@@ -536,7 +536,7 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {(topCreators.length ? topCreators : creators).map((cr, idx) => (
-              <Link href={`/creators/${cr.id || cr._id || idx}`} key={cr.id || idx} className="group">
+              <Link href={`/creators/${cr.username || cr.displayName || cr.name || cr.id || cr._id || idx}`} key={cr.id || idx} className="group">
                 <div className="card-interactive p-8">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="relative">

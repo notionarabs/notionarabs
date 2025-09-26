@@ -235,18 +235,10 @@ export default function CreatorsPage() {
           ) : creatorsData.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {creatorsData.map((creator) => (
-                <div
+                <Link
                   key={creator.id}
-                  className="group card-interactive p-8 cursor-pointer"
-                  role="link"
-                  tabIndex={0}
-                  onClick={() => router.push(`/creators/${creator.id}`)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      router.push(`/creators/${creator.id}`);
-                    }
-                  }}
+                  href={`/creators/${creator.username || creator.displayName || creator.name || creator.id}`}
+                  className="group card-interactive p-8 block"
                 >
                   <div className="flex items-center gap-4 mb-6">
                     <div className="relative">
@@ -305,9 +297,16 @@ export default function CreatorsPage() {
                   </div>
 
                   <div className="space-y-3">
-                    <Link href={`/creators/${creator.id}`} className="w-full btn-primary block text-center">
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        router.push(`/creators/${creator.username || creator.displayName || creator.name || creator.id}`);
+                      }}
+                      className="w-full btn-primary block text-center"
+                    >
                       عرض الملف الشخصي
-                    </Link>
+                    </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleFollow(creator.id); }}
                       className={`w-full btn-outline ${followingStates[creator.id] ? 'bg-primary-100 dark:bg-orange-500/20 text-primary-600 dark:text-orange-400' : ''}`}
@@ -315,7 +314,7 @@ export default function CreatorsPage() {
                       {followingStates[creator.id] ? 'متابع' : 'متابعة'}
                     </button>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           ) : (

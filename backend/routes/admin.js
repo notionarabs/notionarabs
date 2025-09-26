@@ -293,7 +293,7 @@ router.get('/templates', auth, async (req, res) => {
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     const templates = await Template.find(filter)
-      .populate('creator', 'name email profilePicture')
+      .populate('creator', 'name username displayName email profilePicture')
       .populate('approvedBy', 'name')
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -367,7 +367,7 @@ router.put('/templates/:id/status', auth, [
       await template.reject(req.user._id, adminNotes);
     }
 
-    await template.populate('creator', 'name email profilePicture');
+    await template.populate('creator', 'name username displayName email profilePicture');
 
     res.json({
       success: true,

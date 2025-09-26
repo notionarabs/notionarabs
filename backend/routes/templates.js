@@ -130,7 +130,7 @@ router.post('/', auth, [
     await template.save();
 
     // Populate creator information
-    await template.populate('creator', 'name email profilePicture');
+    await template.populate('creator', 'name username displayName email profilePicture');
 
     const response = {
       success: true,
@@ -204,7 +204,7 @@ router.get('/', async (req, res) => {
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     const templates = await Template.find(filter)
-      .populate('creator', 'name profilePicture')
+      .populate('creator', 'name username displayName profilePicture')
       .sort(sort)
       .skip(skip)
       .limit(parseInt(limit));
@@ -271,7 +271,7 @@ router.get('/creator/:creatorId', async (req, res) => {
     }
 
     const templates = await Template.find(filter)
-      .populate('creator', 'name profilePicture')
+      .populate('creator', 'name username displayName profilePicture')
       .sort({ createdAt: -1 });
 
     res.json({
@@ -295,7 +295,7 @@ router.get('/:id', async (req, res) => {
     const template = await Template.findOne({
       _id: req.params.id,
       status: 'approved'
-    }).populate('creator', 'name profilePicture bio');
+    }).populate('creator', 'name username displayName profilePicture bio');
 
     if (!template) {
       return res.status(404).json({
@@ -462,7 +462,7 @@ router.get('/export', auth, async (req, res) => {
 
     // Get templates with creator information
     const templates = await Template.find(query)
-      .populate('creator', 'name email')
+      .populate('creator', 'name username displayName email')
       .sort({ createdAt: -1 })
       .lean();
 

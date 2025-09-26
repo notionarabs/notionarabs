@@ -57,20 +57,23 @@ export default function ProfileSettingsPage() {
     try {
       ensureTokenInHeaders();
       const response = await api.get('/auth/profile/settings');
-      if (response.data) {
+      console.log('Profile settings response:', response.data);
+      if (response.data && response.data.success) {
+        const profileData = response.data.data;
+        console.log('Profile data:', profileData);
         setProfileSettings(prev => ({
           ...prev,
-          ...response.data,
-          username: response.data.username || user.username || '',
-          displayName: response.data.displayName || user.name || '',
-          bio: response.data.bio || '',
-          profilePicture: response.data.profilePicture || user.profilePicture || '',
+          ...profileData,
+          username: profileData.username || user?.username || '',
+          displayName: profileData.displayName || user?.name || '',
+          bio: profileData.bio || '',
+          profilePicture: profileData.profilePicture || user?.profilePicture || '',
           socialLinks: {
-            website: response.data.socialLinks?.website || '',
-            twitter: response.data.socialLinks?.twitter || '',
-            linkedin: response.data.socialLinks?.linkedin || '',
-            instagram: response.data.socialLinks?.instagram || '',
-            youtube: response.data.socialLinks?.youtube || ''
+            website: profileData.socialLinks?.website || '',
+            twitter: profileData.socialLinks?.twitter || '',
+            linkedin: profileData.socialLinks?.linkedin || '',
+            instagram: profileData.socialLinks?.instagram || '',
+            youtube: profileData.socialLinks?.youtube || ''
           }
         }));
       }
@@ -79,9 +82,17 @@ export default function ProfileSettingsPage() {
       // Initialize with user data if API fails
       setProfileSettings(prev => ({
         ...prev,
-        displayName: user.name || '',
-        bio: user.bio || '',
-        profilePicture: user.profilePicture || ''
+        username: user?.username || '',
+        displayName: user?.name || '',
+        bio: user?.bio || '',
+        profilePicture: user?.profilePicture || '',
+        socialLinks: {
+          website: user?.socialLinks?.website || '',
+          twitter: user?.socialLinks?.twitter || '',
+          linkedin: user?.socialLinks?.linkedin || '',
+          instagram: user?.socialLinks?.instagram || '',
+          youtube: user?.socialLinks?.youtube || ''
+        }
       }));
     } finally {
       setIsLoading(false);

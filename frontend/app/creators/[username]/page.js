@@ -28,7 +28,17 @@ export default function PublicProfilePage() {
       setCreator(response.data.creator);
     } catch (error) {
       console.error('Error fetching creator profile:', error);
-      setError('المبدع غير موجود');
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      console.error('Username being requested:', username);
+
+      if (error.response?.status === 500) {
+        setError('خطأ في الخادم - يرجى المحاولة لاحقاً');
+      } else if (error.response?.status === 404) {
+        setError('المبدع غير موجود');
+      } else {
+        setError('حدث خطأ في تحميل بيانات المبدع');
+      }
     } finally {
       setLoading(false);
     }

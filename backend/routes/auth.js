@@ -377,6 +377,7 @@ router.get('/profile/settings', auth, async (req, res) => {
       customMessage: user.customMessage || ''
     };
 
+    console.log('Returning profile settings:', profileSettings);
     res.json({
       success: true,
       data: profileSettings

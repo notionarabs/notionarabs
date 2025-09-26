@@ -54,6 +54,30 @@ export default function CreatorApplyPage() {
     }
   }, [isAuthenticated, user]);
 
+  // Monitor user creatorStatus changes to update UI
+  useEffect(() => {
+    if (user?.creatorStatus === 'pending' && success) {
+      // If user status is pending and we just submitted successfully, 
+      // the pending state will be shown by the conditional render below
+      setSuccess(false); // Reset success state since we're showing pending
+    }
+  }, [user?.creatorStatus, success]);
+
+  // Auto-refresh user data when on pending page to check for status updates
+  useEffect(() => {
+    if (user?.creatorStatus === 'pending') {
+      const interval = setInterval(async () => {
+        try {
+          await checkAuthStatus();
+        } catch (error) {
+          console.error('Failed to refresh user status:', error);
+        }
+      }, 30000); // Check every 30 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [user?.creatorStatus, checkAuthStatus]);
+
   // Close dropdowns when clicking outside or pressing escape
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -953,6 +977,21 @@ export default function CreatorApplyPage() {
                 تم استلام طلبك للانضمام كمبدع وهو قيد المراجعة حالياً. سنعاود التواصل معك خلال 3-5 أيام عمل.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button
+                  onClick={async () => {
+                    try {
+                      await checkAuthStatus();
+                    } catch (error) {
+                      console.error('Failed to refresh status:', error);
+                    }
+                  }}
+                  className="btn-secondary flex items-center justify-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  تحديث الحالة
+                </button>
                 <Link href="/creators" className="btn-secondary">
                   تصفح المبدعين
                 </Link>
@@ -1048,7 +1087,8 @@ export default function CreatorApplyPage() {
     );
   }
 
-  if (success) {
+  // Show success state only if user doesn't have a pending status yet
+  if (success && user?.creatorStatus !== 'pending') {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
         {/* Success Message */}

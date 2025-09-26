@@ -127,6 +127,12 @@ export default function ProfileSettingsPage() {
       return;
     }
 
+    // If the username is the same as current user's username, it's valid
+    if (username === user?.username) {
+      setUsernameValidation({ isValid: true, message: 'اسم المستخدم الحالي', isChecking: false });
+      return;
+    }
+
     const validation = validateUsername(username);
     if (!validation.isValid) {
       setUsernameValidation({ ...validation, isChecking: false });

@@ -963,7 +963,7 @@ router.post('/resend-verification', [
 // @access  Private
 router.delete('/account', auth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const userEmail = req.user.email;
     const isGoogleUser = !!req.user.googleId;
 
@@ -1007,7 +1007,7 @@ router.delete('/account', auth, async (req, res) => {
   } catch (error) {
     console.error('Delete account error:', error);
     console.error('Error details:', {
-      userId: req.user?.id,
+      userId: req.user?._id,
       userEmail: req.user?.email,
       isGoogleUser: !!req.user?.googleId,
       error: error.message,
@@ -1077,7 +1077,7 @@ router.post('/change-password', auth, [
     }
 
     const { currentPassword, newPassword } = req.body;
-    const userId = req.user.id;
+    const userId = req.user._id;
 
     // Find user
     const user = await User.findById(userId);

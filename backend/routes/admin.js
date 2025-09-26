@@ -329,9 +329,9 @@ router.put('/templates/:id/status', auth, [
     }
 
     if (status === 'approved') {
-      await template.approve(req.user.id, adminNotes);
+      await template.approve(req.user._id, adminNotes);
     } else {
-      await template.reject(req.user.id, adminNotes);
+      await template.reject(req.user._id, adminNotes);
     }
 
     await template.populate('creator', 'name email profilePicture');

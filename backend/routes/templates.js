@@ -75,7 +75,7 @@ router.post('/', auth, [
 
     // Check for duplicate templates by the same creator
     const existingTemplate = await Template.findOne({
-      creator: req.user.id,
+      creator: req.user._id,
       $or: [
         { title: req.body.title.trim() },
         { notionLink: req.body.notionLink.trim() }
@@ -121,7 +121,7 @@ router.post('/', auth, [
 
     const templateData = {
       ...req.body,
-      creator: req.user.id,
+      creator: req.user._id,
       status: 'pending',
       previewImage: previewImageUrl
     };
@@ -242,7 +242,7 @@ router.get('/my-templates', auth, async (req, res) => {
       });
     }
 
-    const templates = await Template.find({ creator: req.user.id })
+    const templates = await Template.find({ creator: req.user._id })
       .sort({ createdAt: -1 });
 
     res.json({
@@ -445,7 +445,7 @@ router.get('/export', auth, async (req, res) => {
     const isAdmin = req.user.role === 'admin';
     const creatorId = req.query.creatorId;
 
-    if (!isAdmin && creatorId && creatorId !== req.user.id) {
+    if (!isAdmin && creatorId && creatorId !== req.user._id) {
       return res.status(403).json({
         success: false,
         message: 'غير مصرح لك بتصدير بيانات الآخرين'
@@ -455,7 +455,7 @@ router.get('/export', auth, async (req, res) => {
     // Build query
     const query = {};
     if (!isAdmin && !creatorId) {
-      query.creator = req.user.id; // User can only export their own templates
+      query.creator = req.user._id; // User can only export their own templates
     } else if (creatorId) {
       query.creator = creatorId;
     }

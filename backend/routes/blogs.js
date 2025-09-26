@@ -60,7 +60,7 @@ router.post('/', auth, [
 ], async (req, res) => {
   try {
     // Check if user is authenticated
-    if (!req.user || !req.user.id) {
+    if (!req.user || !req.user._id) {
       return res.status(401).json({
         success: false,
         message: 'غير مصرح لك بإنشاء مقالات'
@@ -80,7 +80,7 @@ router.post('/', auth, [
 
     // Check for duplicate title by same author
     const existingBlog = await Blog.findOne({
-      author: req.user.id,
+      author: req.user._id,
       title: title.trim()
     });
 
@@ -99,7 +99,7 @@ router.post('/', auth, [
       title: title.trim(),
       excerpt: excerpt.trim(),
       content: content.trim(),
-      author: req.user.id,
+      author: req.user._id,
       category,
       tags: tags || [],
       featuredImage: featuredImage || undefined,
@@ -141,7 +141,7 @@ router.post('/', auth, [
     console.error('Error details:', {
       message: error.message,
       stack: error.stack,
-      user: req.user ? req.user.id : 'No user',
+      user: req.user ? req.user._id : 'No user',
       body: req.body
     });
     res.status(500).json({
@@ -254,7 +254,7 @@ router.get('/export', auth, async (req, res) => {
     const isAdmin = req.user.role === 'admin';
     const authorId = req.query.authorId;
 
-    if (!isAdmin && authorId && authorId !== req.user.id) {
+    if (!isAdmin && authorId && authorId !== req.user._id) {
       return res.status(403).json({
         success: false,
         message: 'غير مصرح لك بتصدير بيانات الآخرين'
@@ -264,7 +264,7 @@ router.get('/export', auth, async (req, res) => {
     // Build query
     const query = {};
     if (!isAdmin && !authorId) {
-      query.author = req.user.id; // User can only export their own blogs
+      query.author = req.user._id; // User can only export their own blogs
     } else if (authorId) {
       query.author = authorId;
     }
@@ -411,7 +411,7 @@ router.get('/user/my-blogs', auth, async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const status = req.query.status;
 
-    const query = { author: req.user.id };
+    const query = { author: req.user._id };
 
     if (status) {
       query.status = status;
@@ -462,7 +462,7 @@ router.get('/by-id/:id', auth, async (req, res) => {
     }
 
     // Check if user is the author or admin
-    if (blog.author._id.toString() !== req.user.id && req.user.role !== 'admin') {
+    if (blog.author._id.toString() !== req.user._id && req.user.role !== 'admin') {
       return res.status(403).json({ success: false, message: 'غير مصرح لك بالوصول لهذا المقال' });
     }
 
@@ -543,7 +543,7 @@ router.put('/:id', auth, [
     }
 
     // Check if user is the author or admin
-    if (blog.author.toString() !== req.user.id && req.user.role !== 'admin') {
+    if (blog.author.toString() !== req.user._id && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'غير مصرح لك بتعديل هذا المقال'
@@ -596,7 +596,7 @@ router.delete('/:id', auth, async (req, res) => {
     }
 
     // Check if user is the author or admin
-    if (blog.author.toString() !== req.user.id && req.user.role !== 'admin') {
+    if (blog.author.toString() !== req.user._id && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'غير مصرح لك بحذف هذا المقال'

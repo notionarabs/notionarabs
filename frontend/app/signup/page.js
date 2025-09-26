@@ -31,25 +31,25 @@ export default function SignupPage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     setFormData({
       ...formData,
       [name]: value
     });
-    
+
     setError(''); // Clear error when user types
-    
+
     // Handle username validation
     if (name === 'username') {
       setUsernameError('');
       setUsernameAvailable(null);
-      
+
       // Validate username format
       if (value && !/^[a-zA-Z0-9_]{3,20}$/.test(value)) {
         setUsernameError('اسم المستخدم يجب أن يكون 3-20 حرف وأرقام وشرطة سفلية فقط');
         return;
       }
-      
+
       // Check availability if username is valid
       if (value && /^[a-zA-Z0-9_]{3,20}$/.test(value)) {
         checkUsernameAvailability(value);
@@ -59,10 +59,10 @@ export default function SignupPage() {
 
   const checkUsernameAvailability = async (username) => {
     if (!username || username.length < 3) return;
-    
+
     setIsCheckingUsername(true);
     setUsernameError('');
-    
+
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/check-username`, {
         method: 'POST',
@@ -71,9 +71,9 @@ export default function SignupPage() {
         },
         body: JSON.stringify({ username }),
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setUsernameAvailable(data.available);
         if (!data.available) {

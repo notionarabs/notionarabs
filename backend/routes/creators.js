@@ -242,6 +242,7 @@ router.get('/:id', async (req, res) => {
         email: creator.email, // Include email in response
         bio: creator.bio,
         profilePicture: creator.profilePicture,
+        backgroundImage: creator.backgroundImage, // Include background image
         socialLinks: creator.socialLinks,
         specialties: creator.specialties || [],
         rating: creatorStats.averageRating || creator.rating || 0,

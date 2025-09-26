@@ -26,6 +26,7 @@ export default function ProfileSettingsPage() {
     displayName: '',
     bio: '',
     profilePicture: '',
+    backgroundImage: '',
     socialLinks: [],
     showEmail: false,
     showPhone: false,
@@ -65,6 +66,7 @@ export default function ProfileSettingsPage() {
           displayName: profileData.displayName || user?.name || '',
           bio: profileData.bio || '',
           profilePicture: profileData.profilePicture || user?.profilePicture || '',
+          backgroundImage: profileData.backgroundImage || user?.backgroundImage || '',
           socialLinks: Array.isArray(profileData.socialLinks) ? profileData.socialLinks : []
         }));
       }
@@ -77,6 +79,7 @@ export default function ProfileSettingsPage() {
         displayName: user?.name || '',
         bio: user?.bio || '',
         profilePicture: user?.profilePicture || '',
+        backgroundImage: user?.backgroundImage || '',
         socialLinks: Array.isArray(user?.socialLinks) ? user.socialLinks : []
       }));
     } finally {
@@ -341,7 +344,7 @@ export default function ProfileSettingsPage() {
     }
   }, [profileSettings.username, user?.username]);
 
-  const handleImageUpload = async (event) => {
+  const handleImageUpload = async (event, type = 'profilePicture') => {
     const file = event.target.files[0];
     if (!file) return;
 
@@ -351,12 +354,12 @@ export default function ProfileSettingsPage() {
     }
 
     const formData = new FormData();
-    formData.append('profilePicture', file);
+    formData.append(type, file);
 
     try {
       setIsSaving(true);
       ensureTokenInHeaders();
-      const response = await api.post('/upload/profile-picture', formData, {
+      const response = await api.post(`/upload/${type}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -364,9 +367,9 @@ export default function ProfileSettingsPage() {
 
       setProfileSettings(prev => ({
         ...prev,
-        profilePicture: response.data.url
+        [type]: response.data.url
       }));
-      showSuccess('تم تحديث صورة الملف الشخصي بنجاح');
+      showSuccess(`تم تحديث ${type === 'profilePicture' ? 'صورة الملف الشخصي' : 'صورة الخلفية'} بنجاح`);
     } catch (error) {
       console.error('Error uploading image:', error);
       showError('حدث خطأ في رفع الصورة');
@@ -516,7 +519,7 @@ export default function ProfileSettingsPage() {
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={handleImageUpload}
+                      onChange={(e) => handleImageUpload(e, 'profilePicture')}
                       className="hidden"
                       id="profile-picture-upload"
                     />
@@ -531,6 +534,59 @@ export default function ProfileSettingsPage() {
                     </label>
                     <p className="text-sm text-gray-500 dark:text-dark-text-tertiary mt-2">
                       الحد الأقصى 5 ميجابايت • PNG, JPG, GIF
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Background Image */}
+              <div className="mb-8">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-4">
+                  صورة الخلفية
+                </label>
+                <div className="flex items-center gap-6 p-6 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
+                  <div className="relative group">
+                    {profileSettings.backgroundImage ? (
+                      <Image
+                        src={profileSettings.backgroundImage}
+                        alt="صورة الخلفية"
+                        width={200}
+                        height={120}
+                        className="w-48 h-28 rounded-2xl object-cover border-4 border-white dark:border-dark-secondary shadow-lg group-hover:scale-105 transition-transform duration-200"
+                      />
+                    ) : (
+                      <div className="w-48 h-28 rounded-2xl bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
+                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    )}
+                    <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-primary-500 dark:bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleImageUpload(e, 'backgroundImage')}
+                      className="hidden"
+                      id="background-image-upload"
+                    />
+                    <label
+                      htmlFor="background-image-upload"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500 dark:bg-orange-500 text-white rounded-lg hover:bg-primary-600 dark:hover:bg-orange-600 transition-colors duration-200 cursor-pointer font-medium"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      {isSaving ? 'جاري الرفع...' : 'تغيير صورة الخلفية'}
+                    </label>
+                    <p className="text-sm text-gray-500 dark:text-dark-text-tertiary mt-2">
+                      الحد الأقصى 5 ميجابايت • PNG, JPG, GIF • الأبعاد الموصى بها: 1200x600 بكسل
                     </p>
                   </div>
                 </div>

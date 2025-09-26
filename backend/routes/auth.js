@@ -483,6 +483,7 @@ router.get('/profile/settings', auth, async (req, res) => {
       displayName: user.displayName || user.name,
       bio: user.bio || '',
       profilePicture: user.profilePicture || '',
+      backgroundImage: user.backgroundImage || '', // Include background image
       socialLinks: user.socialLinks || {
         website: '',
         twitter: '',
@@ -619,6 +620,7 @@ router.put('/profile/settings', auth, [
       displayName,
       bio,
       profilePicture,
+      backgroundImage,
       socialLinks,
       profileVisibility,
       showEmail,
@@ -648,6 +650,7 @@ router.put('/profile/settings', auth, [
     if (displayName !== undefined) updateData.displayName = displayName;
     if (bio !== undefined) updateData.bio = bio;
     if (profilePicture !== undefined) updateData.profilePicture = profilePicture;
+    if (backgroundImage !== undefined) updateData.backgroundImage = backgroundImage;
     if (socialLinks !== undefined) updateData.socialLinks = socialLinks;
     if (profileVisibility !== undefined) updateData.profileVisibility = profileVisibility;
     if (showEmail !== undefined) updateData.showEmail = showEmail;

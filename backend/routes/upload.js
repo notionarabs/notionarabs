@@ -218,4 +218,77 @@ router.post('/profile-picture', auth, upload.single('profilePicture'), async (re
   }
 });
 
+// Upload background image endpoint
+router.post('/backgroundImage', auth, upload.single('backgroundImage'), async (req, res) => {
+  try {
+    // Check if file was uploaded
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'لم يتم رفع أي ملف'
+      });
+    }
+
+    // Validate file size
+    if (req.file.size > 5 * 1024 * 1024) {
+      return res.status(400).json({
+        success: false,
+        message: 'حجم الملف يجب أن يكون أقل من 5 ميجابايت'
+      });
+    }
+
+    // Upload to Cloudinary with background image specific settings
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        {
+          resource_type: 'auto',
+          folder: 'notion-arabs/background-images',
+          transformation: [
+            { width: 1200, height: 600, crop: 'fill', gravity: 'center' },
+            { quality: 'auto' },
+            { fetch_format: 'auto' }
+          ]
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      ).end(req.file.buffer);
+    });
+
+    // Return success response
+    res.json({
+      success: true,
+      message: 'تم رفع صورة الخلفية بنجاح',
+      url: result.secure_url,
+      publicId: result.public_id
+    });
+
+  } catch (error) {
+    console.error('Background image upload error:', error);
+
+    // Handle specific Cloudinary errors
+    if (error.message && error.message.includes('Only image files are allowed')) {
+      return res.status(400).json({
+        success: false,
+        message: 'يرجى رفع ملف صورة صالح (PNG, JPG, GIF)'
+      });
+    }
+
+    if (error.message && error.message.includes('File too large')) {
+      return res.status(400).json({
+        success: false,
+        message: 'حجم الملف كبير جداً. الحد الأقصى 5 ميجابايت'
+      });
+    }
+
+    // Generic error response
+    res.status(500).json({
+      success: false,
+      message: 'حدث خطأ أثناء رفع صورة الخلفية',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
 module.exports = router;

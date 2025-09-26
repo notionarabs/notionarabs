@@ -54,6 +54,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  backgroundImage: {
+    type: String,
+    default: null
+  },
   bio: {
     type: String,
     maxlength: [500, 'النبذة الشخصية لا يجب أن تتجاوز 500 حرف']

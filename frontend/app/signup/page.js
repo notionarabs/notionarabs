@@ -9,7 +9,6 @@ import { useAuth } from '../../contexts/AuthContext';
 export default function SignupPage() {
   const [formData, setFormData] = useState({
     name: '',
-    username: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -22,9 +21,6 @@ export default function SignupPage() {
   const [verificationToken, setVerificationToken] = useState('');
   const [emailSendFailed, setEmailSendFailed] = useState(false);
   const [resendingEmail, setResendingEmail] = useState(false);
-  const [usernameError, setUsernameError] = useState('');
-  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
-  const [usernameAvailable, setUsernameAvailable] = useState(null);
 
   const { signup, resendVerification } = useAuth();
   const router = useRouter();
@@ -38,81 +34,32 @@ export default function SignupPage() {
     });
 
     setError(''); // Clear error when user types
-
-    // Handle username validation
-    if (name === 'username') {
-      setUsernameError('');
-      setUsernameAvailable(null);
-
-      // Validate username format
-      if (value && !/^[a-zA-Z0-9_]{3,20}$/.test(value)) {
-        setUsernameError('اسم المستخدم يجب أن يكون 3-20 حرف وأرقام وشرطة سفلية فقط');
-        return;
-      }
-
-      // Check availability if username is valid
-      if (value && /^[a-zA-Z0-9_]{3,20}$/.test(value)) {
-        checkUsernameAvailability(value);
-      }
-    }
   };
 
-  const checkUsernameAvailability = async (username) => {
-    if (!username || username.length < 3) return;
-
-    setIsCheckingUsername(true);
-    setUsernameError('');
-
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/check-username`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setUsernameAvailable(data.available);
-        if (!data.available) {
-          setUsernameError('اسم المستخدم مستخدم بالفعل');
-        }
-      } else {
-        setUsernameError('خطأ في التحقق من اسم المستخدم');
-      }
-    } catch (error) {
-      console.error('Error checking username:', error);
-      setUsernameError('خطأ في التحقق من اسم المستخدم');
-    } finally {
-      setIsCheckingUsername(false);
-    }
-  };
 
   const validateForm = () => {
-    if (!formData.username) {
-      setError('اسم المستخدم مطلوب');
+    if (!formData.name.trim()) {
+      setError('الاسم مطلوب');
       return false;
     }
-    if (!/^[a-zA-Z0-9_]{3,20}$/.test(formData.username)) {
-      setError('اسم المستخدم يجب أن يكون 3-20 حرف وأرقام وشرطة سفلية فقط');
+    if (!formData.email.trim()) {
+      setError('البريد الإلكتروني مطلوب');
       return false;
     }
-    if (usernameAvailable === false) {
-      setError('اسم المستخدم مستخدم بالفعل');
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      setError('يرجى إدخال بريد إلكتروني صحيح');
       return false;
     }
-    if (isCheckingUsername) {
-      setError('جاري التحقق من اسم المستخدم...');
-      return false;
-    }
-    if (formData.password !== formData.confirmPassword) {
-      setError('كلمات المرور غير متطابقة');
+    if (!formData.password) {
+      setError('كلمة المرور مطلوبة');
       return false;
     }
     if (formData.password.length < 6) {
       setError('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+      return false;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setError('كلمات المرور غير متطابقة');
       return false;
     }
     if (!agreedToTerms) {
@@ -132,7 +79,7 @@ export default function SignupPage() {
     setLoading(true);
     setError('');
 
-    const result = await signup(formData.name, formData.username, formData.email, formData.password);
+    const result = await signup(formData.name, formData.email, formData.password);
 
     if (result.success) {
       if (result.requiresVerification && result.verificationToken) {
@@ -163,7 +110,7 @@ export default function SignupPage() {
     setError('');
 
     // For resend, we need to call the signup endpoint again with the same data
-    const result = await signup(formData.name, formData.username, formData.email, formData.password);
+    const result = await signup(formData.name, formData.email, formData.password);
 
     if (result.success) {
       setEmailSendFailed(false);
@@ -218,49 +165,6 @@ export default function SignupPage() {
                 />
               </div>
 
-              {/* Username Field */}
-              <div className="form-group">
-                <label htmlFor="username" className="form-label">
-                  اسم المستخدم
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    value={formData.username}
-                    onChange={handleChange}
-                    required
-                    className={`form-input ${usernameError ? 'border-error-500' : usernameAvailable ? 'border-green-500' : ''}`}
-                    placeholder="أدخل اسم المستخدم (3-20 حرف وأرقام وشرطة سفلية)"
-                    dir="ltr"
-                  />
-                  {isCheckingUsername && (
-                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                      <svg className="animate-spin h-4 w-4 text-primary-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                    </div>
-                  )}
-                  {usernameAvailable === true && !isCheckingUsername && (
-                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                      <svg className="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                  )}
-                </div>
-                {usernameError && (
-                  <p className="mt-1 text-sm text-error-600">{usernameError}</p>
-                )}
-                {usernameAvailable === true && !isCheckingUsername && (
-                  <p className="mt-1 text-sm text-green-600">اسم المستخدم متاح</p>
-                )}
-                <p className="mt-1 text-xs text-accent-600 dark:text-dark-text-secondary">
-                  سيظهر في ملفك الشخصي: /creators/{formData.username || 'username'}
-                </p>
-              </div>
 
               {/* Email Field */}
               <div className="form-group">
@@ -438,11 +342,9 @@ export default function SignupPage() {
                 <button
                   onClick={() => {
                     setShowVerificationMessage(false);
-                    setFormData({ name: '', username: '', email: '', password: '', confirmPassword: '' });
+                    setFormData({ name: '', email: '', password: '', confirmPassword: '' });
                     setAgreedToTerms(false);
                     setEmailSendFailed(false);
-                    setUsernameError('');
-                    setUsernameAvailable(null);
                   }}
                   className="w-full btn-ghost"
                 >

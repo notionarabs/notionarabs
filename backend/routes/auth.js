@@ -106,6 +106,7 @@ router.post('/signup', [
     .isLength({ min: 2, max: 50 })
     .withMessage('الاسم يجب أن يكون بين 2 و 50 حرف'),
   body('username')
+    .optional()
     .trim()
     .isLength({ min: 3, max: 20 })
     .withMessage('اسم المستخدم يجب أن يكون بين 3 و 20 حرف')
@@ -141,15 +142,17 @@ router.post('/signup', [
       });
     }
 
-    // Check if username already exists
-    const existingUserByUsername = await User.findOne({
-      username: username.toLowerCase()
-    });
-    if (existingUserByUsername) {
-      return res.status(400).json({
-        success: false,
-        message: 'اسم المستخدم مستخدم بالفعل'
+    // Check if username already exists (only if username is provided)
+    if (username) {
+      const existingUserByUsername = await User.findOne({
+        username: username.toLowerCase()
       });
+      if (existingUserByUsername) {
+        return res.status(400).json({
+          success: false,
+          message: 'اسم المستخدم مستخدم بالفعل'
+        });
+      }
     }
 
     // Validate email domain - block common fake email domains
@@ -213,7 +216,7 @@ router.post('/signup', [
       // Store user data temporarily (not in database yet)
       tempUserStorage.set(emailVerificationToken, {
         name,
-        username: username.toLowerCase(),
+        username: username ? username.toLowerCase() : null,
         email,
         password,
         emailVerificationToken,

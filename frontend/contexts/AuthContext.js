@@ -150,9 +150,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signup = async (name, username, email, password) => {
+  const signup = async (name, email, password) => {
     try {
-      const response = await api.post('/auth/signup', { name, username, email, password });
+      const response = await api.post('/auth/signup', { name, email, password });
 
       const { requiresVerification, verificationToken, user } = response.data;
 

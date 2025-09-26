@@ -127,7 +127,7 @@ export default function SettingsPage() {
     try {
       setIsDeleting(true);
       console.log('Starting account deletion process...');
-      
+
       // Debug: Check if token is set
       const token = document.cookie
         .split('; ')

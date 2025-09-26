@@ -915,24 +915,6 @@ export default function CreatorApplyPage() {
   if (user?.creatorStatus === 'pending') {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
-        {/* Navigation */}
-        <nav className="bg-accent-500 dark:bg-dark-secondary shadow-medium dark:shadow-dark-medium">
-          <div className="container-custom flex justify-between items-center py-4">
-            <Link href="/" className="flex items-center">
-              <Image
-                src="/NavLogoLight.svg"
-                alt="عرب نوشن"
-                width={180}
-                height={60}
-                className="h-8 sm:h-10 md:h-12 w-auto"
-                quality={100}
-                priority
-                unoptimized
-              />
-            </Link>
-          </div>
-        </nav>
-
         {/* Pending Status */}
         <div className="container-custom py-16">
           <div className="max-w-2xl mx-auto text-center">

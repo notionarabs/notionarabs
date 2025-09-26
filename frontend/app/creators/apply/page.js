@@ -461,19 +461,13 @@ export default function CreatorApplyPage() {
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
-                        className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-xl transition-all duration-200 cursor-not-allowed"
+                        className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400"
                         placeholder="أدخل اسمك الكامل"
                         required
-                        disabled={isAuthenticated}
                       />
                       <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
                         <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                      </div>
-                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
-                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
                       </div>
                     </div>
@@ -481,7 +475,7 @@ export default function CreatorApplyPage() {
                       <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      هذا الحقل مملوء تلقائياً من حسابك ولا يمكن تعديله
+                      يمكنك تعديل اسمك إذا كان مختلفاً عن الاسم المسجل في حسابك
                     </p>
                   </div>
 

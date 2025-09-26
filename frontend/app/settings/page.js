@@ -126,19 +126,30 @@ export default function SettingsPage() {
 
     try {
       setIsDeleting(true);
+      console.log('Starting account deletion process...');
 
       const response = await api.delete('/auth/account');
 
       if (response.data.success) {
+        console.log('Account deletion successful');
         showSuccess('تم حذف حسابك بنجاح');
         setShowDeleteModal(false);
 
-        // Logout user and redirect to home
-        await logout();
-        router.push('/');
+        // Small delay to show success message
+        setTimeout(async () => {
+          // Logout user and redirect to home
+          await logout();
+          router.push('/');
+        }, 1000);
       }
     } catch (error) {
       console.error('Delete account error:', error);
+      console.error('Error details:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+      });
+      
       const errorMessage = error.response?.data?.message || 'حدث خطأ أثناء حذف الحساب';
       showError(errorMessage);
     } finally {

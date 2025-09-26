@@ -956,23 +956,37 @@ router.post('/resend-verification', [
 router.delete('/account', auth, async (req, res) => {
   try {
     const userId = req.user.id;
+    const userEmail = req.user.email;
+    const isGoogleUser = !!req.user.googleId;
+
+    console.log(`Account deletion request for user: ${userId}, email: ${userEmail}, Google user: ${isGoogleUser}`);
 
     // Start a session for transaction
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
+      // Log deletion steps
+      console.log(`Starting deletion process for user: ${userId}`);
+
       // Delete user's blogs
-      await Blog.deleteMany({ author: userId }, { session });
+      const deletedBlogs = await Blog.deleteMany({ author: userId }, { session });
+      console.log(`Deleted ${deletedBlogs.deletedCount} blogs for user: ${userId}`);
 
       // Delete user's templates
-      await Template.deleteMany({ creator: userId }, { session });
+      const deletedTemplates = await Template.deleteMany({ creator: userId }, { session });
+      console.log(`Deleted ${deletedTemplates.deletedCount} templates for user: ${userId}`);
 
       // Delete user's profile
-      await User.findByIdAndDelete(userId, { session });
+      const deletedUser = await User.findByIdAndDelete(userId, { session });
+      if (!deletedUser) {
+        throw new Error(`User with ID ${userId} not found for deletion`);
+      }
+      console.log(`Deleted user profile: ${userId}`);
 
       // Commit the transaction
       await session.commitTransaction();
+      console.log(`Successfully deleted account for user: ${userId}`);
 
       res.json({
         success: true,
@@ -981,6 +995,7 @@ router.delete('/account', auth, async (req, res) => {
 
     } catch (error) {
       // Rollback the transaction
+      console.error(`Transaction error for user ${userId}:`, error);
       await session.abortTransaction();
       throw error;
     } finally {
@@ -989,9 +1004,41 @@ router.delete('/account', auth, async (req, res) => {
 
   } catch (error) {
     console.error('Delete account error:', error);
+    console.error('Error details:', {
+      userId: req.user?.id,
+      userEmail: req.user?.email,
+      isGoogleUser: !!req.user?.googleId,
+      error: error.message,
+      stack: error.stack
+    });
+    
     res.status(500).json({
       success: false,
       message: 'حدث خطأ أثناء حذف الحساب. يرجى المحاولة مرة أخرى'
+    });
+  }
+});
+
+// @route   GET /api/auth/verify-deletion/:userId
+// @desc    Verify if user account was deleted (for debugging)
+// @access  Public (for debugging purposes)
+router.get('/verify-deletion/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    const user = await User.findById(userId);
+    
+    res.json({
+      success: true,
+      exists: !!user,
+      userId: userId,
+      message: user ? 'User still exists' : 'User successfully deleted'
+    });
+  } catch (error) {
+    console.error('Verify deletion error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error checking user deletion status'
     });
   }
 });

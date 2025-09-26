@@ -16,6 +16,11 @@ export default function ProfileSettingsPage() {
   const { showSuccess, showError } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [usernameValidation, setUsernameValidation] = useState({
+    isValid: true,
+    message: '',
+    isChecking: false
+  });
   const [profileSettings, setProfileSettings] = useState({
     username: '',
     displayName: '',
@@ -99,6 +104,79 @@ export default function ProfileSettingsPage() {
     }
   };
 
+  // Username validation function
+  const validateUsername = (username) => {
+    const errors = [];
+
+    if (!username || username.trim() === '') {
+      errors.push('اسم المستخدم مطلوب');
+    } else {
+      if (username.length < 3) {
+        errors.push('اسم المستخدم يجب أن يكون 3 أحرف على الأقل');
+      }
+      if (username.length > 20) {
+        errors.push('اسم المستخدم يجب أن يكون أقل من 20 حرف');
+      }
+      if (!/^[a-z0-9_]+$/.test(username)) {
+        errors.push('اسم المستخدم يجب أن يحتوي على أحرف صغيرة وأرقام وشرطة سفلية فقط');
+      }
+      if (username.startsWith('_') || username.endsWith('_')) {
+        errors.push('اسم المستخدم لا يمكن أن يبدأ أو ينتهي بشرطة سفلية');
+      }
+      if (username.includes('__')) {
+        errors.push('اسم المستخدم لا يمكن أن يحتوي على شرطتين سفليتين متتاليتين');
+      }
+      // Check for reserved usernames
+      const reservedUsernames = ['admin', 'api', 'www', 'mail', 'ftp', 'root', 'support', 'help', 'contact', 'about', 'terms', 'privacy', 'login', 'signup', 'register', 'dashboard', 'profile', 'settings', 'account', 'user', 'users', 'creator', 'creators', 'template', 'templates', 'blog', 'news', 'home', 'index', 'main', 'app', 'site', 'web', 'online', 'service', 'services'];
+      if (reservedUsernames.includes(username.toLowerCase())) {
+        errors.push('هذا الاسم محجوز ولا يمكن استخدامه');
+      }
+    }
+
+    return {
+      isValid: errors.length === 0,
+      message: errors[0] || '',
+      errors: errors
+    };
+  };
+
+  // Check username availability
+  const checkUsernameAvailability = async (username) => {
+    if (!username || username.trim() === '') {
+      setUsernameValidation({ isValid: true, message: '', isChecking: false });
+      return;
+    }
+
+    const validation = validateUsername(username);
+    if (!validation.isValid) {
+      setUsernameValidation({ ...validation, isChecking: false });
+      return;
+    }
+
+    try {
+      setUsernameValidation(prev => ({ ...prev, isChecking: true }));
+      ensureTokenInHeaders();
+      const response = await api.get(`/auth/check-username/${username}`);
+
+      if (response.data.success) {
+        if (response.data.available) {
+          setUsernameValidation({ isValid: true, message: 'اسم المستخدم متاح', isChecking: false });
+        } else {
+          setUsernameValidation({ isValid: false, message: 'اسم المستخدم غير متاح', isChecking: false });
+        }
+      } else {
+        setUsernameValidation({ isValid: false, message: 'خطأ في التحقق من اسم المستخدم', isChecking: false });
+      }
+    } catch (error) {
+      console.error('Error checking username:', error);
+      if (error.response?.status === 409) {
+        setUsernameValidation({ isValid: false, message: 'اسم المستخدم غير متاح', isChecking: false });
+      } else {
+        setUsernameValidation({ isValid: false, message: 'خطأ في التحقق من اسم المستخدم', isChecking: false });
+      }
+    }
+  };
+
   const handleInputChange = (field, value) => {
     if (field.includes('.')) {
       const [parent, child] = field.split('.');
@@ -114,8 +192,27 @@ export default function ProfileSettingsPage() {
         ...prev,
         [field]: value
       }));
+
+      // Handle username validation
+      if (field === 'username') {
+        const validation = validateUsername(value);
+        setUsernameValidation({ ...validation, isChecking: false });
+      }
     }
   };
+
+  // Debounced username availability check
+  useEffect(() => {
+    if (profileSettings.username && profileSettings.username !== user?.username) {
+      const validation = validateUsername(profileSettings.username);
+      if (validation.isValid) {
+        const timeoutId = setTimeout(() => {
+          checkUsernameAvailability(profileSettings.username);
+        }, 500);
+        return () => clearTimeout(timeoutId);
+      }
+    }
+  }, [profileSettings.username, user?.username]);
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
@@ -155,6 +252,34 @@ export default function ProfileSettingsPage() {
     try {
       setIsSaving(true);
       ensureTokenInHeaders();
+
+      // Validate username before saving
+      if (profileSettings.username && profileSettings.username !== user?.username) {
+        const validation = validateUsername(profileSettings.username);
+        if (!validation.isValid) {
+          showError(validation.message);
+          setIsSaving(false);
+          return;
+        }
+
+        // Check availability one more time
+        try {
+          const response = await api.get(`/auth/check-username/${profileSettings.username}`);
+          if (!response.data.success || !response.data.available) {
+            showError('اسم المستخدم غير متاح');
+            setIsSaving(false);
+            return;
+          }
+        } catch (error) {
+          if (error.response?.status === 409) {
+            showError('اسم المستخدم غير متاح');
+          } else {
+            showError('خطأ في التحقق من اسم المستخدم');
+          }
+          setIsSaving(false);
+          return;
+        }
+      }
 
       // Clean up empty social links
       const cleanedSettings = {
@@ -299,13 +424,60 @@ export default function ProfileSettingsPage() {
                     type="text"
                     value={profileSettings.username}
                     onChange={(e) => handleInputChange('username', e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
-                    className="w-full pl-4 pr-8 py-3 border border-gray-300 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-tertiary transition-colors duration-200"
+                    className={`w-full pl-4 pr-8 py-3 border rounded-xl focus:ring-2 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-tertiary transition-colors duration-200 ${usernameValidation.isValid
+                      ? 'border-gray-300 dark:border-dark-card-border focus:ring-primary-500 dark:focus:ring-orange-500'
+                      : 'border-red-500 dark:border-red-400 focus:ring-red-500 dark:focus:ring-red-400'
+                      }`}
                     placeholder="username"
                   />
+                  {/* Loading indicator */}
+                  {usernameValidation.isChecking && (
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-500 dark:border-orange-500"></div>
+                    </div>
+                  )}
+                  {/* Success/Error indicator */}
+                  {!usernameValidation.isChecking && profileSettings.username && (
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      {usernameValidation.isValid ? (
+                        <svg className="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <svg className="h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      )}
+                    </div>
+                  )}
                 </div>
+
+                {/* Validation message */}
+                {usernameValidation.message && (
+                  <p className={`text-xs mt-2 ${usernameValidation.isValid
+                    ? 'text-green-600 dark:text-green-400'
+                    : 'text-red-600 dark:text-red-400'
+                    }`}>
+                    {usernameValidation.message}
+                  </p>
+                )}
+
+                {/* URL preview */}
                 <p className="text-xs text-gray-500 dark:text-dark-text-tertiary mt-2">
-                  سيتم استخدام هذا الاسم في رابط ملفك الشخصي: /creators/{profileSettings.username || 'username'}
+                  سيتم استخدام هذا الاسم في رابط ملفك الشخصي: /creators/{profileSettings.username || profileSettings.email?.split('@')[0] || 'username'}
                 </p>
+
+                {/* Username requirements */}
+                <div className="mt-3 p-3 bg-gray-50 dark:bg-dark-secondary rounded-lg">
+                  <p className="text-xs font-medium text-gray-700 dark:text-dark-text-primary mb-2">متطلبات اسم المستخدم:</p>
+                  <ul className="text-xs text-gray-600 dark:text-dark-text-secondary space-y-1">
+                    <li>• يجب أن يكون بين 3-20 حرف</li>
+                    <li>• أحرف صغيرة وأرقام وشرطة سفلية فقط</li>
+                    <li>• لا يمكن أن يبدأ أو ينتهي بشرطة سفلية</li>
+                    <li>• لا يمكن أن يحتوي على شرطتين سفليتين متتاليتين</li>
+                    <li>• يجب أن يكون فريداً وغير محجوز</li>
+                  </ul>
+                </div>
               </div>
 
               {/* Display Name */}

@@ -100,6 +100,64 @@ router.post('/check-username', [
   }
 });
 
+// @route   GET /api/auth/check-username/:username
+// @desc    Check if username is available (GET version)
+// @access  Public
+router.get('/check-username/:username', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const lowerUsername = username.toLowerCase();
+
+    // Basic validation
+    if (!lowerUsername || lowerUsername.length < 3 || lowerUsername.length > 20) {
+      return res.status(400).json({
+        success: false,
+        message: 'اسم المستخدم يجب أن يكون بين 3 و 20 حرف'
+      });
+    }
+
+    if (!/^[a-z0-9_]+$/.test(lowerUsername)) {
+      return res.status(400).json({
+        success: false,
+        message: 'اسم المستخدم يجب أن يحتوي على أحرف صغيرة وأرقام وشرطة سفلية فقط'
+      });
+    }
+
+    // Check for reserved usernames
+    const reservedUsernames = ['admin', 'api', 'www', 'mail', 'ftp', 'root', 'support', 'help', 'contact', 'about', 'terms', 'privacy', 'login', 'signup', 'register', 'dashboard', 'profile', 'settings', 'account', 'user', 'users', 'creator', 'creators', 'template', 'templates', 'blog', 'news', 'home', 'index', 'main', 'app', 'site', 'web', 'online', 'service', 'services'];
+    if (reservedUsernames.includes(lowerUsername)) {
+      return res.status(409).json({
+        success: false,
+        message: 'هذا الاسم محجوز ولا يمكن استخدامه'
+      });
+    }
+
+    // Check if username exists
+    const existingUser = await User.findOne({
+      username: lowerUsername
+    });
+
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        message: 'اسم المستخدم غير متاح'
+      });
+    }
+
+    return res.json({
+      success: true,
+      available: true,
+      username: lowerUsername
+    });
+  } catch (error) {
+    console.error('Check username error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
 router.post('/signup', [
   body('name')
     .trim()

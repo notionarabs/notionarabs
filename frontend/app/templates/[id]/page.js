@@ -237,7 +237,7 @@ export default function TemplateDetailPage() {
                 <div>
                   <p className="text-sm text-accent-600 dark:text-dark-text-secondary">بواسطة</p>
                   <Link
-                    href={`/creators/${template.creator?.username || template.creator?.displayName || template.creator?.name || 'unknown'}`}
+                    href={`/creators/${template.creator?.username || template.creator?.email?.split('@')[0] || template.creator?.displayName || template.creator?.name || 'unknown'}`}
                     className="font-medium text-accent-700 dark:text-dark-text-primary hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
                   >
                     {template.creator?.name || 'مبدع غير معروف'}

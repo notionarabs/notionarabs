@@ -64,7 +64,7 @@ router.get('/', async (req, res) => {
 
     // Get creators with pagination
     const creators = await User.find(query)
-      .select('name username displayName bio profilePicture specialties rating followers createdAt templateCount totalEarnings')
+      .select('name username displayName email bio profilePicture specialties rating followers createdAt templateCount totalEarnings')
       .sort(sort)
       .skip(skip)
       .limit(limit)
@@ -94,6 +94,8 @@ router.get('/', async (req, res) => {
         return {
           ...creator,
           id: creator._id,
+          username: creator.username || creator.email?.split('@')[0], // Use email username part as fallback
+          displayName: creator.displayName || creator.name, // Use name as fallback for displayName
           templates: stats.totalTemplates,
           downloads: stats.totalDownloads,
           rating: stats.averageRating || creator.rating || 0,
@@ -148,13 +150,15 @@ router.get('/:id', async (req, res) => {
       }).select('-password -emailVerificationToken -resetToken');
     }
 
-    // If not found by ID or id is not a valid ObjectId, try by username
+    // If not found by ID or id is not a valid ObjectId, try by username, name, displayName, or email username part
     if (!creator) {
       creator = await User.findOne({
         $or: [
           { username: id.toLowerCase() },
           { name: id },
-          { displayName: id }
+          { displayName: id },
+          { email: id.toLowerCase() + '@' }, // Search for email starting with the id
+          { email: { $regex: `^${id.toLowerCase()}@`, $options: 'i' } } // More precise email username search
         ],
         creatorStatus: 'approved',
         isActive: true,
@@ -233,8 +237,9 @@ router.get('/:id', async (req, res) => {
       creator: {
         id: creator._id,
         name: creator.name,
-        username: creator.username,
-        displayName: creator.displayName,
+        username: creator.username || creator.email?.split('@')[0], // Use email username part as fallback
+        displayName: creator.displayName || creator.name, // Use name as fallback for displayName
+        email: creator.email, // Include email in response
         bio: creator.bio,
         profilePicture: creator.profilePicture,
         socialLinks: creator.socialLinks,

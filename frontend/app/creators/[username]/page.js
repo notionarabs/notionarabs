@@ -112,6 +112,12 @@ export default function PublicProfilePage() {
                 <h1 className="heading-1 text-primary-600 dark:text-orange-400">
                   {creator.displayName || creator.name}
                 </h1>
+                {/* Show email if username is not custom */}
+                {creator.username === creator.email?.split('@')[0] && (
+                  <span className="text-sm text-gray-500 dark:text-dark-text-tertiary">
+                    ({creator.email})
+                  </span>
+                )}
                 {creator.creatorStatus === 'approved' && (
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 dark:from-yellow-900/30 dark:to-amber-900/30 dark:text-yellow-300">
                     مبدع معتمد

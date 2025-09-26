@@ -237,7 +237,7 @@ export default function CreatorsPage() {
               {creatorsData.map((creator) => (
                 <Link
                   key={creator.id}
-                  href={`/creators/${creator.username || creator.displayName || creator.name || creator.id}`}
+                  href={`/creators/${creator.username || creator.email?.split('@')[0] || creator.displayName || creator.name || creator.id}`}
                   className="group card-interactive p-8 block"
                 >
                   <div className="flex items-center gap-4 mb-6">
@@ -301,7 +301,7 @@ export default function CreatorsPage() {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        router.push(`/creators/${creator.username || creator.displayName || creator.name || creator.id}`);
+                        router.push(`/creators/${creator.username || creator.email?.split('@')[0] || creator.displayName || creator.name || creator.id}`);
                       }}
                       className="w-full btn-primary block text-center"
                     >

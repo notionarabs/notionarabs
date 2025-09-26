@@ -11,6 +11,8 @@ export default function PublicProfilePage() {
   const params = useParams();
   const username = params.username;
   const [creator, setCreator] = useState(null);
+  const [creatorTemplates, setCreatorTemplates] = useState([]);
+  const [creatorBlogs, setCreatorBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -26,6 +28,26 @@ export default function PublicProfilePage() {
       // The backend now handles both username and ID lookups in the same route
       const response = await api.get(`/creators/${username}`);
       setCreator(response.data.creator);
+
+      // Fetch creator's templates
+      try {
+        const templatesResponse = await api.get(`/templates?creator=${response.data.creator.id}&limit=12`);
+        if (templatesResponse.data.success) {
+          setCreatorTemplates(templatesResponse.data.templates);
+        }
+      } catch (templatesError) {
+        console.log('No templates found for creator');
+      }
+
+      // Fetch creator's blogs
+      try {
+        const blogsResponse = await api.get(`/blogs/author/${response.data.creator.id}?limit=6`);
+        if (blogsResponse.data.success) {
+          setCreatorBlogs(blogsResponse.data.blogs);
+        }
+      } catch (blogsError) {
+        console.log('No blogs found for creator');
+      }
     } catch (error) {
       console.error('Error fetching creator profile:', error);
       console.error('Error response:', error.response?.data);
@@ -44,22 +66,40 @@ export default function PublicProfilePage() {
     }
   };
 
+  const StarRating = ({ rating }) => {
+    return (
+      <div className="flex items-center gap-1">
+        {[...Array(5)].map((_, i) => (
+          <svg
+            key={i}
+            className={`w-4 h-4 ${i < Math.floor(rating) ? 'text-black dark:text-orange-500' : 'text-gray-300 dark:text-gray-600'}`}
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+          </svg>
+        ))}
+        <span className="text-sm text-accent-600 dark:text-dark-text-secondary mr-1">{rating}</span>
+      </div>
+    );
+  };
+
   if (loading) {
     return <LoadingIndicator />;
   }
 
   if (error || !creator) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-dark-primary transition-colors duration-300">
-        <div className="container-custom py-8">
+      <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+        <div className="container-custom py-20">
           <div className="text-center">
-            <div className="w-24 h-24 bg-gray-200 dark:bg-dark-secondary rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-24 h-24 bg-gray-200 dark:bg-dark-secondary rounded-full flex items-center justify-center mx-auto mb-6">
               <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
               </svg>
             </div>
             <h1 className="heading-1 mb-4">المبدع غير موجود</h1>
-            <p className="body-large text-gray-600 dark:text-dark-text-secondary mb-8">
+            <p className="body-large text-accent-600 dark:text-dark-text-secondary mb-8">
               لم نتمكن من العثور على المبدع المطلوب
             </p>
             <Link
@@ -70,36 +110,56 @@ export default function PublicProfilePage() {
             </Link>
           </div>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-primary transition-colors duration-300">
-      <div className="container-custom py-8">
-        {/* Profile Header */}
-        <div className="card p-8 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl shadow-sm mb-8">
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+    <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+
+      {/* Hero Profile Section */}
+      <section className="relative min-h-[500px] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-dark-primary dark:via-dark-secondary dark:to-dark-primary overflow-hidden">
+        {/* Background Image Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-black/60 dark:from-black/80 dark:via-black/60 dark:to-black/80"></div>
+
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          backgroundSize: '60px 60px'
+        }}></div>
+
+        <div className="container-custom relative z-10">
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-2 text-sm text-white/80 pt-8 pb-4">
+            <Link href="/creators" className="hover:text-white transition-colors">
+              المبدعين
+            </Link>
+            <span className="text-white/60">/</span>
+            <span className="text-white/60">{creator.displayName || creator.name}</span>
+          </nav>
+
+          {/* Profile Content */}
+          <div className="flex flex-col lg:flex-row items-start lg:items-end gap-8 pb-16">
             {/* Profile Picture */}
             <div className="relative">
               {creator.profilePicture ? (
                 <Image
                   src={creator.profilePicture}
                   alt={`صورة ${creator.displayName || creator.name}`}
-                  width={120}
-                  height={120}
-                  className="w-30 h-30 rounded-2xl object-cover border-4 border-white dark:border-dark-secondary shadow-lg"
+                  width={180}
+                  height={180}
+                  className="w-45 h-45 rounded-3xl object-cover border-4 border-white/20 shadow-2xl backdrop-blur-sm"
                 />
               ) : (
-                <div className="w-30 h-30 rounded-2xl bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 flex items-center justify-center shadow-lg">
-                  <span className="text-4xl font-bold text-white">
+                <div className="w-45 h-45 rounded-3xl bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 flex items-center justify-center shadow-2xl border-4 border-white/20 backdrop-blur-sm">
+                  <span className="text-6xl font-bold text-white">
                     {(creator.displayName || creator.name)?.charAt(0)?.toUpperCase()}
                   </span>
                 </div>
               )}
               {creator.creatorStatus === 'approved' && (
-                <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-lg">
-                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <div className="absolute -top-3 -right-3 w-12 h-12 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-xl border-4 border-white/20 backdrop-blur-sm">
+                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                   </svg>
                 </div>
@@ -107,19 +167,16 @@ export default function PublicProfilePage() {
             </div>
 
             {/* Profile Info */}
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="heading-1 text-primary-600 dark:text-orange-400">
+            <div className="flex-1 text-white">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
+                <h1 className="text-4xl md:text-5xl font-bold text-white">
                   {creator.displayName || creator.name}
                 </h1>
-                {/* Show email if username is not custom */}
-                {creator.username === creator.email?.split('@')[0] && (
-                  <span className="text-sm text-gray-500 dark:text-dark-text-tertiary">
-                    ({creator.email})
-                  </span>
-                )}
                 {creator.creatorStatus === 'approved' && (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 dark:from-yellow-900/30 dark:to-amber-900/30 dark:text-yellow-300">
+                  <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-yellow-400/20 to-amber-500/20 text-yellow-300 border border-yellow-400/30 backdrop-blur-sm">
+                    <svg className="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
                     مبدع معتمد
                   </span>
                 )}
@@ -127,87 +184,89 @@ export default function PublicProfilePage() {
 
               {/* Bio */}
               {creator.bio && (
-                <p className="body-large text-gray-700 dark:text-dark-text-secondary mb-4">
+                <p className="text-lg text-white/90 mb-6 leading-relaxed max-w-2xl">
                   {creator.bio}
                 </p>
               )}
 
               {/* Custom Message */}
               {creator.customMessage && (
-                <div className="bg-primary-50 dark:bg-orange-900/20 border border-primary-200 dark:border-orange-500/20 rounded-xl p-4 mb-4">
-                  <p className="text-primary-700 dark:text-orange-300 font-medium">
+                <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 mb-8 max-w-2xl">
+                  <p className="text-white font-medium text-lg">
                     "{creator.customMessage}"
                   </p>
                 </div>
               )}
 
-              {/* Stats */}
-              <div className="flex items-center gap-6 text-sm text-gray-600 dark:text-dark-text-tertiary">
-                {creator.showTemplateCount && (
-                  <div className="flex items-center gap-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                <div className="text-center bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                  <div className="text-3xl font-bold text-white mb-1">
+                    {creator.templateCount || creatorTemplates.length || 0}
+                  </div>
+                  <div className="text-sm text-white/80">قوالب</div>
+                </div>
+                <div className="text-center bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                  <div className="text-3xl font-bold text-white mb-1">
+                    {creator.followers || 0}
+                  </div>
+                  <div className="text-sm text-white/80">متابع</div>
+                </div>
+                <div className="text-center bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                  <div className="text-3xl font-bold text-white mb-1">
+                    {creator.rating ? creator.rating.toFixed(1) : '0.0'}
+                  </div>
+                  <div className="text-sm text-white/80">تقييم</div>
+                </div>
+                <div className="text-center bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                  <div className="text-3xl font-bold text-white mb-1">
+                    {creator.showJoinDate ? new Date(creator.createdAt).getFullYear() : '2024'}
+                  </div>
+                  <div className="text-sm text-white/80">سنة الانضمام</div>
+                </div>
+              </div>
+
+              {/* Contact Info */}
+              <div className="flex flex-wrap gap-6">
+                {creator.showEmail && creator.email && (
+                  <div className="flex items-center gap-3 text-white/90 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
-                    <span>{creator.templateCount || 0} قالب</span>
+                    <span className="text-sm">{creator.email}</span>
                   </div>
                 )}
-                {creator.showJoinDate && (
-                  <div className="flex items-center gap-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                {creator.showPhone && creator.phone && (
+                  <div className="flex items-center gap-3 text-white/90 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
-                    <span>انضم {new Date(creator.createdAt).toLocaleDateString('ar-SA')}</span>
-                  </div>
-                )}
-                {creator.rating > 0 && (
-                  <div className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                    <span>{creator.rating.toFixed(1)} تقييم</span>
+                    <span className="text-sm">{creator.phone}</span>
                   </div>
                 )}
               </div>
             </div>
-
-            {/* Contact Info */}
-            <div className="flex flex-col gap-3">
-              {creator.showEmail && creator.email && (
-                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-dark-text-tertiary">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  <span>{creator.email}</span>
-                </div>
-              )}
-              {creator.showPhone && creator.phone && (
-                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-dark-text-tertiary">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0  24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
-                  <span>{creator.phone}</span>
-                </div>
-              )}
-            </div>
           </div>
         </div>
+      </section>
 
-        {/* Social Links */}
-        {creator.socialLinks && Object.values(creator.socialLinks).some(link => link) && (
-          <div className="card p-6 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl shadow-sm mb-8">
-            <h2 className="heading-2 mb-6 text-primary-600 dark:text-orange-400">روابط التواصل</h2>
-            <div className="flex flex-wrap gap-4">
+      {/* Social Links Section */}
+      {creator.socialLinks && Object.values(creator.socialLinks).some(link => link) && (
+        <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
+          <div className="container-custom">
+            <h2 className="heading-2 mb-8 text-center">روابط التواصل</h2>
+            <div className="flex flex-wrap justify-center gap-4">
               {creator.socialLinks.website && (
                 <a
                   href={creator.socialLinks.website.startsWith('http') ? creator.socialLinks.website : `https://${creator.socialLinks.website}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-dark-primary rounded-lg hover:bg-gray-200 dark:hover:bg-dark-tertiary transition-colors duration-200"
+                  className="flex items-center gap-3 px-6 py-3 bg-gray-100 dark:bg-dark-tertiary rounded-xl hover:bg-gray-200 dark:hover:bg-dark-quaternary transition-all duration-200 hover:scale-105 shadow-soft hover:shadow-medium"
                 >
-                  <svg className="w-4 h-4 text-gray-600 dark:text-dark-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-gray-600 dark:text-dark-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9" />
                   </svg>
-                  <span className="text-sm font-medium">الموقع الإلكتروني</span>
+                  <span className="font-medium">الموقع الإلكتروني</span>
                 </a>
               )}
               {creator.socialLinks.twitter && (
@@ -215,12 +274,12 @@ export default function PublicProfilePage() {
                   href={`https://twitter.com/${creator.socialLinks.twitter.replace('@', '')}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/30 transition-colors duration-200"
+                  className="flex items-center gap-3 px-6 py-3 bg-blue-100 dark:bg-blue-900/20 rounded-xl hover:bg-blue-200 dark:hover:bg-blue-900/30 transition-all duration-200 hover:scale-105 shadow-soft hover:shadow-medium"
                 >
-                  <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
                   </svg>
-                  <span className="text-sm font-medium">تويتر</span>
+                  <span className="font-medium">تويتر</span>
                 </a>
               )}
               {creator.socialLinks.linkedin && (
@@ -228,12 +287,12 @@ export default function PublicProfilePage() {
                   href={creator.socialLinks.linkedin.startsWith('http') ? creator.socialLinks.linkedin : `https://${creator.socialLinks.linkedin}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/30 transition-colors duration-200"
+                  className="flex items-center gap-3 px-6 py-3 bg-blue-100 dark:bg-blue-900/20 rounded-xl hover:bg-blue-200 dark:hover:bg-blue-900/30 transition-all duration-200 hover:scale-105 shadow-soft hover:shadow-medium"
                 >
-                  <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                   </svg>
-                  <span className="text-sm font-medium">لينكد إن</span>
+                  <span className="font-medium">لينكد إن</span>
                 </a>
               )}
               {creator.socialLinks.instagram && (
@@ -241,12 +300,12 @@ export default function PublicProfilePage() {
                   href={`https://instagram.com/${creator.socialLinks.instagram.replace('@', '')}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 bg-pink-100 dark:bg-pink-900/20 rounded-lg hover:bg-pink-200 dark:hover:bg-pink-900/30 transition-colors duration-200"
+                  className="flex items-center gap-3 px-6 py-3 bg-pink-100 dark:bg-pink-900/20 rounded-xl hover:bg-pink-200 dark:hover:bg-pink-900/30 transition-all duration-200 hover:scale-105 shadow-soft hover:shadow-medium"
                 >
-                  <svg className="w-4 h-4 text-pink-500" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-pink-500" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.62 5.367 11.987 11.988 11.987s11.987-5.367 11.987-11.987C24.014 5.367 18.647.001 12.017.001zM8.449 16.988c-1.297 0-2.448-.49-3.323-1.297C4.198 14.895 3.708 13.744 3.708 12.447s.49-2.448 1.297-3.323c.875-.807 2.026-1.297 3.323-1.297s2.448.49 3.323 1.297c.807.875 1.297 2.026 1.297 3.323s-.49 2.448-1.297 3.323c-.875.807-2.026 1.297-3.323 1.297zm7.718-1.297c-.875.807-2.026 1.297-3.323 1.297s-2.448-.49-3.323-1.297c-.807-.875-1.297-2.026-1.297-3.323s.49-2.448 1.297-3.323c.875-.807 2.026-1.297 3.323-1.297s2.448.49 3.323 1.297c.807.875 1.297 2.026 1.297 3.323s-.49 2.448-1.297 3.323z" />
                   </svg>
-                  <span className="text-sm font-medium">إنستغرام</span>
+                  <span className="font-medium">إنستغرام</span>
                 </a>
               )}
               {creator.socialLinks.youtube && (
@@ -254,34 +313,301 @@ export default function PublicProfilePage() {
                   href={creator.socialLinks.youtube.startsWith('http') ? creator.socialLinks.youtube : `https://${creator.socialLinks.youtube}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 bg-red-100 dark:bg-red-900/20 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/30 transition-colors duration-200"
+                  className="flex items-center gap-3 px-6 py-3 bg-red-100 dark:bg-red-900/20 rounded-xl hover:bg-red-200 dark:hover:bg-red-900/30 transition-all duration-200 hover:scale-105 shadow-soft hover:shadow-medium"
                 >
-                  <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                   </svg>
-                  <span className="text-sm font-medium">يوتيوب</span>
+                  <span className="font-medium">يوتيوب</span>
                 </a>
               )}
             </div>
           </div>
-        )}
+        </section>
+      )}
 
-        {/* Templates Section */}
-        <div className="card p-6 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl shadow-sm">
-          <h2 className="heading-2 mb-6 text-primary-600 dark:text-orange-400">قوالب {creator.displayName || creator.name}</h2>
-          <div className="text-center py-12">
-            <div className="w-16 h-16 bg-gray-100 dark:bg-dark-primary rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+      {/* Templates Section */}
+      <section className="section-padding bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
+        <div className="container-custom">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-12">
+            <div>
+              <h2 className="heading-2 mb-4">قوالب {creator.displayName || creator.name}</h2>
+              <p className="body-large text-accent-600 dark:text-dark-text-secondary">
+                اكتشف القوالب المبتكرة من هذا المبدع
+              </p>
             </div>
-            <h3 className="heading-3 mb-2 text-gray-600 dark:text-dark-text-secondary">لا توجد قوالب متاحة</h3>
-            <p className="text-gray-500 dark:text-dark-text-tertiary">
-              لم ينشر {creator.displayName || creator.name} أي قوالب بعد
-            </p>
+            {creatorTemplates.length > 0 && (
+              <Link
+                href={`/templates?creator=${creator.id}`}
+                className="mt-4 md:mt-0 btn-outline inline-flex items-center"
+              >
+                عرض جميع القوالب
+                <svg className="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
+            )}
+          </div>
+
+          {creatorTemplates.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {creatorTemplates.slice(0, 8).map((template) => (
+                <Link key={template._id || template.id} href={`/templates/${template._id || template.id}`}>
+                  <div className="group card-interactive overflow-hidden">
+                    <div className="relative h-48 bg-gray-200 overflow-hidden">
+                      {template.previewImage ? (
+                        <Image
+                          src={template.previewImage}
+                          alt={template.title}
+                          width={400}
+                          height={300}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30">
+                          <svg className="w-12 h-12 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                      <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full font-medium bg-primary-100 text-primary-800">
+                        {template.price === 0 ? 'مجاني' : 'مدفوع'}
+                      </span>
+                      <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1">
+                        <StarRating rating={template.rating || 0} />
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <h3 className="font-bold text-lg text-accent-500 dark:text-dark-text-primary mb-2 group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
+                        {template.title}
+                      </h3>
+                      <p className="body-small mb-3">بواسطة {creator.displayName || creator.name}</p>
+
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <StarRating rating={template.rating || 0} />
+                          <span className="text-sm text-accent-600 dark:text-dark-text-secondary">({template.downloads || 0})</span>
+                        </div>
+                        <div className={`text-lg font-bold ${template.price === 0 ? 'text-accent-600 dark:text-dark-text-secondary' : 'text-primary-500'}`}>
+                          {template.price === 0 ? 'مجاني' : `${template.price} ريال`}
+                        </div>
+                      </div>
+
+                      <button className="w-full btn-primary py-2 px-4 text-base">
+                        عرض التفاصيل
+                      </button>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16">
+              <div className="w-20 h-20 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h3 className="heading-3 mb-4 text-accent-500 dark:text-dark-text-primary">لا توجد قوالب متاحة</h3>
+              <p className="body-large text-accent-600 dark:text-dark-text-secondary mb-8">
+                لم ينشر {creator.displayName || creator.name} أي قوالب بعد
+              </p>
+              <Link href="/templates" className="btn-primary">
+                تصفح القوالب الأخرى
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Blogs Section */}
+      <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
+        <div className="container-custom">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-12">
+            <div>
+              <h2 className="heading-2 mb-4">مقالات {creator.displayName || creator.name}</h2>
+              <p className="body-large text-accent-600 dark:text-dark-text-secondary">
+                اكتشف المقالات والنصائح من هذا المبدع
+              </p>
+            </div>
+            {creatorBlogs.length > 0 && (
+              <Link
+                href={`/blog?author=${creator.id}`}
+                className="mt-4 md:mt-0 btn-outline inline-flex items-center"
+              >
+                عرض جميع المقالات
+                <svg className="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
+            )}
+          </div>
+
+          {creatorBlogs.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {creatorBlogs.slice(0, 6).map((blog) => (
+                <Link key={blog._id || blog.id} href={`/blog/${blog.slug}`}>
+                  <article className="group card-interactive overflow-hidden">
+                    <div className="relative h-48 bg-gray-200 overflow-hidden">
+                      {blog.featuredImage ? (
+                        <Image
+                          src={blog.featuredImage}
+                          alt={blog.title}
+                          width={400}
+                          height={300}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30">
+                          <svg className="w-12 h-12 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                      <div className="absolute top-3 right-3">
+                        <span className="px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium text-accent-700">
+                          {blog.category}
+                        </span>
+                      </div>
+                      <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1">
+                        <span className="text-xs text-accent-600 dark:text-dark-text-secondary">
+                          {blog.readTime || '5 دقائق'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <h3 className="font-bold text-lg text-accent-500 dark:text-dark-text-primary mb-3 group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors line-clamp-2">
+                        {blog.title}
+                      </h3>
+                      <p className="body-small text-accent-600 dark:text-dark-text-secondary mb-4 line-clamp-3">
+                        {blog.excerpt}
+                      </p>
+
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4 text-accent-500 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <span className="text-sm text-accent-600 dark:text-dark-text-secondary">{blog.views || 0}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4 text-accent-500 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                          </svg>
+                          <span className="text-sm text-accent-600 dark:text-dark-text-secondary">{blog.likes || 0}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                            <span className="text-xs font-medium text-primary-600 dark:text-primary-400">
+                              {creator.displayName || creator.name?.charAt(0) || 'م'}
+                            </span>
+                          </div>
+                          <span className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                            {creator.displayName || creator.name}
+                          </span>
+                        </div>
+                        <span className="text-xs text-accent-500 dark:text-dark-text-tertiary">
+                          {new Date(blog.publishedAt).toLocaleDateString('ar-SA')}
+                        </span>
+                      </div>
+                    </div>
+                  </article>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16">
+              <div className="w-20 h-20 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                </svg>
+              </div>
+              <h3 className="heading-3 mb-4 text-accent-500 dark:text-dark-text-primary">لا توجد مقالات متاحة</h3>
+              <p className="body-large text-accent-600 dark:text-dark-text-secondary mb-8">
+                لم ينشر {creator.displayName || creator.name} أي مقالات بعد
+              </p>
+              <Link href="/blog" className="btn-primary">
+                تصفح المقالات الأخرى
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
+
+
+      {/* Footer */}
+      <footer className="bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary transition-colors duration-300">
+        <div className="container-custom section-padding">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+            <div className="lg:col-span-1">
+              <div className="flex items-center mb-4">
+                <Image
+                  src="/NavLogoLight.svg"
+                  alt="عرب نوشن"
+                  width={60}
+                  height={40}
+                  className="h-10 w-auto"
+                  quality={100}
+                  priority
+                  unoptimized
+                />
+              </div>
+              <p className="body-medium text-gray-400 dark:text-dark-text-tertiary mb-6">
+                منصتك العربية الأولى لبيع وشراء قوالب نوشن المبتكرة. انضم إلى مجتمع المبدعين العرب.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-bold mb-6 text-lg text-white dark:text-dark-text-primary">المنتج</h4>
+              <ul className="space-y-3">
+                <li><Link href="/templates" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">القوالب</Link></li>
+                <li><Link href="/creators" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المبدعين</Link></li>
+                <li><Link href="/pricing" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الأسعار</Link></li>
+                <li><Link href="/features" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المميزات</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold mb-6 text-lg text-white dark:text-dark-text-primary">الشركة</h4>
+              <ul className="space-y-3">
+                <li><Link href="/about" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">من نحن</Link></li>
+                <li><Link href="/blog" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المدونة</Link></li>
+                <li><Link href="/careers" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الوظائف</Link></li>
+                <li><Link href="/press" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الصحافة</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-bold mb-6 text-lg text-white dark:text-dark-text-primary">الدعم</h4>
+              <ul className="space-y-3">
+                <li><Link href="/help" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">مركز المساعدة</Link></li>
+                <li><Link href="/contact" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">اتصل بنا</Link></li>
+                <li><Link href="/privacy" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الخصوصية</Link></li>
+                <li><Link href="/terms" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الشروط</Link></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-700 dark:border-dark-card-border pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <p className="text-gray-400 dark:text-dark-text-tertiary text-sm">
+                © {new Date().getFullYear()} عرب نوشن. جميع الحقوق محفوظة.
+              </p>
+              <div className="flex gap-6 mt-4 md:mt-0">
+                <Link href="/privacy" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-sm transition-colors">سياسة الخصوصية</Link>
+                <Link href="/terms" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-sm transition-colors">شروط الاستخدام</Link>
+                <Link href="/cookies" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-sm transition-colors">ملفات تعريف الارتباط</Link>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      </footer>
+    </main>
   );
 }

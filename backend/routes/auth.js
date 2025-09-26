@@ -57,11 +57,60 @@ const generateToken = (userId) => {
 // @route   POST /api/auth/signup
 // @desc    Register a new user
 // @access  Public
+// @route   POST /api/auth/check-username
+// @desc    Check if username is available
+// @access  Public
+router.post('/check-username', [
+  body('username')
+    .trim()
+    .isLength({ min: 3, max: 20 })
+    .withMessage('اسم المستخدم يجب أن يكون بين 3 و 20 حرف')
+    .matches(/^[a-zA-Z0-9_]+$/)
+    .withMessage('اسم المستخدم يجب أن يحتوي على أحرف وأرقام وشرطة سفلية فقط')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'اسم المستخدم غير صحيح',
+        errors: errors.array()
+      });
+    }
+
+    const { username } = req.body;
+    const lowerUsername = username.toLowerCase();
+
+    // Check if username exists
+    const existingUser = await User.findOne({
+      username: lowerUsername
+    });
+
+    return res.json({
+      success: true,
+      available: !existingUser,
+      username: lowerUsername
+    });
+  } catch (error) {
+    console.error('Check username error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
 router.post('/signup', [
   body('name')
     .trim()
     .isLength({ min: 2, max: 50 })
     .withMessage('الاسم يجب أن يكون بين 2 و 50 حرف'),
+  body('username')
+    .trim()
+    .isLength({ min: 3, max: 20 })
+    .withMessage('اسم المستخدم يجب أن يكون بين 3 و 20 حرف')
+    .matches(/^[a-zA-Z0-9_]+$/)
+    .withMessage('اسم المستخدم يجب أن يحتوي على أحرف وأرقام وشرطة سفلية فقط'),
   body('email')
     .isEmail()
     .normalizeEmail()
@@ -81,14 +130,25 @@ router.post('/signup', [
       });
     }
 
-    const { name, email, password } = req.body;
+    const { name, username, email, password } = req.body;
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    // Check if user already exists by email
+    const existingUserByEmail = await User.findOne({ email });
+    if (existingUserByEmail) {
       return res.status(400).json({
         success: false,
         message: 'البريد الإلكتروني مستخدم بالفعل'
+      });
+    }
+
+    // Check if username already exists
+    const existingUserByUsername = await User.findOne({
+      username: username.toLowerCase()
+    });
+    if (existingUserByUsername) {
+      return res.status(400).json({
+        success: false,
+        message: 'اسم المستخدم مستخدم بالفعل'
       });
     }
 
@@ -153,6 +213,7 @@ router.post('/signup', [
       // Store user data temporarily (not in database yet)
       tempUserStorage.set(emailVerificationToken, {
         name,
+        username: username.toLowerCase(),
         email,
         password,
         emailVerificationToken,
@@ -865,6 +926,7 @@ router.post('/verify-email', [
     // Create the actual user account now
     const user = new User({
       name: tempUserData.name,
+      username: tempUserData.username,
       email: tempUserData.email,
       password: tempUserData.password,
       isEmailVerified: true,
@@ -886,6 +948,7 @@ router.post('/verify-email', [
       user: {
         id: user._id,
         name: user.name,
+        username: user.username,
         email: user.email,
         role: user.role,
         profilePicture: user.profilePicture,

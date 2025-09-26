@@ -9,7 +9,7 @@ import ThemeToggle from './ThemeToggle';
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUserData } = useAuth();
 
 
   // Close dropdown when clicking outside
@@ -348,6 +348,21 @@ export default function UserDropdown() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <span className="text-sm">طلبك قيد المراجعة</span>
+                    <button
+                      onClick={async () => {
+                        try {
+                          await refreshUserData();
+                        } catch (error) {
+                          console.error('Failed to refresh status:', error);
+                        }
+                      }}
+                      className="ml-auto p-1 hover:bg-amber-100 dark:hover:bg-amber-900/20 rounded transition-colors duration-200"
+                      title="تحديث الحالة"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </button>
                   </div>
                 )}
 

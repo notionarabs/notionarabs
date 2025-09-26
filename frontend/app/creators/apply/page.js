@@ -40,7 +40,7 @@ export default function CreatorApplyPage() {
   const [phoneError, setPhoneError] = useState('');
   const countryDropdownRef = useRef(null);
   const specialtyDropdownRef = useRef(null);
-  const { user, isAuthenticated, checkAuthStatus } = useAuth();
+  const { user, isAuthenticated, checkAuthStatus, refreshUserData } = useAuth();
   const router = useRouter();
 
   // Pre-fill form with user data if authenticated
@@ -936,7 +936,7 @@ export default function CreatorApplyPage() {
 
       if (response.data.success) {
         // Update the user data in AuthContext with the new creatorStatus
-        await checkAuthStatus(); // Refresh user data
+        await refreshUserData(); // Force refresh user data to get updated creatorStatus
         setSuccess(true);
       } else {
         setError(response.data.message || 'حدث خطأ أثناء إرسال الطلب');

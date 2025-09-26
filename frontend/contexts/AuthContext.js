@@ -61,6 +61,7 @@ export const AuthProvider = ({ children }) => {
     return () => clearTimeout(timeoutId);
   }, [hasCheckedAuth]); // Only run when hasCheckedAuth changes
 
+
   const checkAuthStatus = async () => {
     try {
       const token = Cookies.get('authToken');
@@ -327,6 +328,39 @@ export const AuthProvider = ({ children }) => {
       };
     }
   };
+
+  // Periodic status check for pending users
+  useEffect(() => {
+    if (!user || user.creatorStatus !== 'pending') return;
+
+    const interval = setInterval(async () => {
+      try {
+        await refreshUserData();
+      } catch (error) {
+        console.error('Failed to refresh user status:', error);
+      }
+    }, 30000); // Check every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [user?.creatorStatus, refreshUserData]);
+
+  // Check status when page becomes visible (user switches tabs back)
+  useEffect(() => {
+    if (!user || user.creatorStatus !== 'pending') return;
+
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible') {
+        try {
+          await refreshUserData();
+        } catch (error) {
+          console.error('Failed to refresh user status on visibility change:', error);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [user?.creatorStatus, refreshUserData]);
 
   // Function to ensure token is set in API headers
   const ensureTokenInHeaders = () => {

@@ -363,20 +363,33 @@ export default function CreatorApplyPage() {
         }));
       }
     } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: type === 'checkbox' ? checked : value
-      }));
+      // Handle phone number input with restrictions
+      if (name === 'phone') {
+        // Only allow numbers, spaces, hyphens, parentheses, and plus signs
+        const phoneRegex = /^[0-9\s\-\(\)\+]*$/;
+        if (phoneRegex.test(value) || value === '') {
+          setFormData(prev => ({
+            ...prev,
+            [name]: value
+          }));
 
-      // Real-time phone validation
-      if (name === 'phone' && value.trim()) {
-        if (validatePhoneNumber(value, formData.countryCode)) {
-          setPhoneError('');
-        } else {
-          setPhoneError('رقم الهاتف غير صحيح');
+          // Real-time phone validation
+          if (value.trim()) {
+            if (validatePhoneNumber(value, formData.countryCode)) {
+              setPhoneError('');
+            } else {
+              setPhoneError('رقم الهاتف غير صحيح');
+            }
+          } else {
+            setPhoneError('');
+          }
         }
-      } else if (name === 'phone' && !value.trim()) {
-        setPhoneError('');
+        // If invalid characters, don't update the state
+      } else {
+        setFormData(prev => ({
+          ...prev,
+          [name]: type === 'checkbox' ? checked : value
+        }));
       }
     }
     setError('');
@@ -396,6 +409,28 @@ export default function CreatorApplyPage() {
       } else {
         setPhoneError('رقم الهاتف غير صحيح');
       }
+    }
+  };
+
+  const handlePhoneKeyDown = (e) => {
+    // Allow: backspace, delete, tab, escape, enter, home, end, left, right, up, down
+    if ([8, 9, 27, 13, 46, 35, 36, 37, 38, 39, 40].indexOf(e.keyCode) !== -1 ||
+      // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+      (e.keyCode === 65 && e.ctrlKey === true) ||
+      (e.keyCode === 67 && e.ctrlKey === true) ||
+      (e.keyCode === 86 && e.ctrlKey === true) ||
+      (e.keyCode === 88 && e.ctrlKey === true)) {
+      return;
+    }
+    // Ensure that it is a number, space, hyphen, parenthesis, or plus sign and stop the keypress
+    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) &&
+      (e.keyCode < 96 || e.keyCode > 105) &&
+      e.keyCode !== 32 && // space
+      e.keyCode !== 189 && // hyphen
+      e.keyCode !== 187 && // plus
+      e.keyCode !== 219 && // left parenthesis
+      e.keyCode !== 221) { // right parenthesis
+      e.preventDefault();
     }
   };
 
@@ -741,10 +776,11 @@ export default function CreatorApplyPage() {
       setError('رقم الهاتف غير صحيح. يرجى إدخال رقم هاتف صحيح');
       return false;
     }
-    if (!formData.portfolio.trim()) {
-      setError('رابط المعرض مطلوب');
-      return false;
-    }
+    // Portfolio field is now optional
+    // if (!formData.portfolio.trim()) {
+    //   setError('رابط المعرض مطلوب');
+    //   return false;
+    // }
     if (!formData.experience.trim()) {
       setError('وصف الخبرة مطلوب');
       return false;
@@ -1173,6 +1209,7 @@ export default function CreatorApplyPage() {
                           name="phone"
                           value={formData.phone}
                           onChange={handleChange}
+                          onKeyDown={handlePhoneKeyDown}
                           className={`form-input pr-12 pl-4 py-4 text-lg border-2 rounded-xl transition-all duration-200 w-full ${phoneError
                             ? 'border-red-500 dark:border-red-500 focus:border-red-500 dark:focus:border-red-500'
                             : 'border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 hover:border-primary-300 dark:hover:border-orange-400'
@@ -1264,7 +1301,7 @@ export default function CreatorApplyPage() {
                     <svg className="w-4 h-4 text-primary-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
-                    رابط المعرض أو الأعمال السابقة *
+                    رابط المعرض أو الأعمال السابقة
                   </label>
                   <div className="relative">
                     <input
@@ -1273,8 +1310,7 @@ export default function CreatorApplyPage() {
                       value={formData.portfolio}
                       onChange={handleChange}
                       className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400"
-                      placeholder="https://example.com/portfolio"
-                      required
+                      placeholder="https://example.com/portfolio (اختياري)"
                     />
                     <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
                       <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1282,7 +1318,7 @@ export default function CreatorApplyPage() {
                       </svg>
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">يمكنك مشاركة رابط Behance، Dribbble، أو أي منصة أخرى تعرض أعمالك</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">يمكنك مشاركة موقعك الشخصي أو أي منصة أخرى تعرض أعمالك</p>
                 </div>
 
                 <div className="space-y-2">
@@ -1311,9 +1347,13 @@ export default function CreatorApplyPage() {
                     </svg>
                     المجالات التي تختص بها *
                   </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">اختر المجالات التي تبرع فيها (يمكنك اختيار أكثر من مجال)</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {specialtyOptions.map((specialty) => (
-                      <label key={specialty} className="group relative flex items-center p-4 bg-gray-50 dark:bg-dark-tertiary rounded-xl border-2 border-transparent hover:border-primary-200 dark:hover:border-orange-500/30 cursor-pointer transition-all duration-200 hover:shadow-md">
+                      <label key={specialty} className={`group relative flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 hover:shadow-md ${formData.specialties.includes(specialty)
+                        ? 'bg-primary-50 dark:bg-orange-900/20 border-primary-300 dark:border-orange-500/50 shadow-sm'
+                        : 'bg-gray-50 dark:bg-dark-tertiary border-transparent hover:border-primary-200 dark:hover:border-orange-500/30'
+                        }`}>
                         <input
                           type="checkbox"
                           name="specialties"
@@ -1363,7 +1403,6 @@ export default function CreatorApplyPage() {
                     </div>
                   )}
 
-                  <p className="text-xs text-gray-500 dark:text-gray-400">اختر المجالات التي تبرع فيها (يمكنك اختيار أكثر من مجال)</p>
                 </div>
 
                 <div className="space-y-2">
@@ -1472,81 +1511,6 @@ export default function CreatorApplyPage() {
                 <p className="text-xs text-gray-500 dark:text-gray-400 text-center">شاركنا روابطك على وسائل التواصل الاجتماعي لنتعرف عليك أكثر</p>
               </div>
 
-              {/* Additional Information */}
-              <div className="space-y-8">
-                <div className="flex items-center space-x-3 space-x-reverse mb-6">
-                  <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
-                    <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <h2 className="heading-3 text-primary-600 dark:text-orange-400">
-                    معلومات إضافية
-                  </h2>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-2">
-                    <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-3">
-                      <svg className="w-4 h-4 text-primary-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      متى ستكون متاحاً للعمل؟
-                    </label>
-                    <div className="relative">
-                      <select
-                        name="availability"
-                        value={formData.availability}
-                        onChange={handleChange}
-                        className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 w-full"
-                      >
-                        <option value="">اختر متى ستكون متاحاً...</option>
-                        <option value="immediately">فوراً</option>
-                        <option value="1-week">خلال أسبوع</option>
-                        <option value="2-weeks">خلال أسبوعين</option>
-                        <option value="1-month">خلال شهر</option>
-                        <option value="flexible">مرن</option>
-                      </select>
-                      {/* Custom dropdown indicator */}
-                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                        <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-3">
-                      <svg className="w-4 h-4 text-primary-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                      </svg>
-                      ما هي توقعاتك من الأرباح الشهرية؟
-                    </label>
-                    <div className="relative">
-                      <select
-                        name="expectedEarnings"
-                        value={formData.expectedEarnings}
-                        onChange={handleChange}
-                        className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 w-full"
-                      >
-                        <option value="">اختر توقعاتك من الأرباح...</option>
-                        <option value="0-1000">0 - 1,000 ريال</option>
-                        <option value="1000-3000">1,000 - 3,000 ريال</option>
-                        <option value="3000-5000">3,000 - 5,000 ريال</option>
-                        <option value="5000-10000">5,000 - 10,000 ريال</option>
-                        <option value="10000+">أكثر من 10,000 ريال</option>
-                      </select>
-                      {/* Custom dropdown indicator */}
-                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                        <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
               {/* Terms and Conditions */}
               <div className="space-y-6">

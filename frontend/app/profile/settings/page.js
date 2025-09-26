@@ -198,7 +198,7 @@ export default function ProfileSettingsPage() {
   const updateSocialLink = (index, value) => {
     setProfileSettings(prev => ({
       ...prev,
-      socialLinks: prev.socialLinks.map((link, i) => 
+      socialLinks: prev.socialLinks.map((link, i) =>
         i === index ? { url: value } : link
       )
     }));
@@ -206,9 +206,9 @@ export default function ProfileSettingsPage() {
 
   const detectPlatform = (url) => {
     if (!url) return null;
-    
+
     const urlLower = url.toLowerCase();
-    
+
     if (urlLower.includes('twitter.com') || urlLower.includes('x.com')) {
       return { name: 'twitter', icon: 'twitter', color: 'text-blue-400' };
     }
@@ -245,7 +245,7 @@ export default function ProfileSettingsPage() {
     if (urlLower.includes('dribbble.com')) {
       return { name: 'dribbble', icon: 'dribbble', color: 'text-pink-500' };
     }
-    
+
     return { name: 'website', icon: 'website', color: 'text-gray-400' };
   };
 
@@ -287,7 +287,7 @@ export default function ProfileSettingsPage() {
         </svg>
       )
     };
-    
+
     return icons[platform] || icons.website;
   };
 
@@ -644,19 +644,8 @@ export default function ProfileSettingsPage() {
                             placeholder="https://example.com"
                           />
                         </div>
-                        {platform && (
-                          <div className="mt-2 text-xs text-gray-500 dark:text-dark-text-tertiary">
-                            تم اكتشاف: {platform.name === 'twitter' ? 'تويتر' : 
-                                       platform.name === 'instagram' ? 'إنستغرام' :
-                                       platform.name === 'linkedin' ? 'لينكد إن' :
-                                       platform.name === 'youtube' ? 'يوتيوب' :
-                                       platform.name === 'facebook' ? 'فيسبوك' :
-                                       platform.name === 'github' ? 'جيت هاب' :
-                                       platform.name === 'website' ? 'موقع إلكتروني' : platform.name}
-                          </div>
-                        )}
                       </div>
-                      
+
                       <button
                         type="button"
                         onClick={() => removeSocialLink(index)}

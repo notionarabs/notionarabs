@@ -235,6 +235,11 @@ export default function UserDropdown() {
                 </>
               ) : (
                 <>
+                  {/* Divider above profile for creators */}
+                  {(user?.creatorStatus === 'approved' || user?.creatorStatus === 'pending') && (
+                    <div className="border-t border-gray-200 dark:border-dark-card-border my-2"></div>
+                  )}
+                  
                   {/* Profile Link - For approved creators and pending applications (non-admin) */}
                   {(user?.creatorStatus === 'approved' || user?.creatorStatus === 'pending') && (
                     <Link

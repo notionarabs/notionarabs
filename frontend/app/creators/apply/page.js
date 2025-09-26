@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -34,7 +34,7 @@ export default function CreatorApplyPage() {
   const router = useRouter();
 
   // Pre-fill form with user data if authenticated
-  useState(() => {
+  useEffect(() => {
     if (isAuthenticated && user) {
       setFormData(prev => ({
         ...prev,

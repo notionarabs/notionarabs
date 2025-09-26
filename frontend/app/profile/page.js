@@ -419,7 +419,7 @@ export default function ProfilePage() {
               )}
 
               {/* Settings Button - For all users */}
-              <Link href="/settings" className="group card-interactive p-4">
+              <Link href="/profile/settings" className="group card-interactive p-4">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-gray-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -428,28 +428,12 @@ export default function ProfilePage() {
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-semibold text-accent-500 dark:text-dark-text-primary group-hover:text-gray-500 transition-colors">الإعدادات</h4>
-                    <p className="text-sm text-accent-600 dark:text-dark-text-secondary">إدارة إعدادات حسابك</p>
+                    <h4 className="font-semibold text-accent-500 dark:text-dark-text-primary group-hover:text-gray-500 transition-colors">إعدادات الملف الشخصي</h4>
+                    <p className="text-sm text-accent-600 dark:text-dark-text-secondary">إدارة كيفية ظهور ملفك الشخصي</p>
                   </div>
                 </div>
               </Link>
 
-              {/* Profile Settings Button - Only for approved creators */}
-              {user?.creatorStatus === 'approved' && (
-                <Link href="/profile/settings" className="group card-interactive p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-indigo-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-accent-500 dark:text-dark-text-primary group-hover:text-indigo-500 transition-colors">إعدادات الملف الشخصي</h4>
-                      <p className="text-sm text-accent-600 dark:text-dark-text-secondary">إدارة كيفية ظهور ملفك الشخصي</p>
-                    </div>
-                  </div>
-                </Link>
-              )}
 
               {/* Orders Button - Only for non-admin users */}
               {user?.role !== 'admin' && (

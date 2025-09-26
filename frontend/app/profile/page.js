@@ -6,8 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import Navigation from '../../components/Navigation';
 import api from '../../lib/api';
+import Navigation from '../../components/Navigation';
 
 
 export default function ProfilePage() {

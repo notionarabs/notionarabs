@@ -195,9 +195,6 @@ export default function UserDropdown() {
 
           {/* Dropdown Items */}
           <div className="py-2">
-            {/* Divider */}
-            <div className="border-t border-gray-200 dark:border-dark-card-border my-2"></div>
-
             {/* Account Section */}
             <div className="space-y-1">
               {/* Admin Section */}
@@ -268,6 +265,10 @@ export default function UserDropdown() {
                 </>
               ) : (
                 <>
+                  {/* Divider above Profile Link - Only for approved creators */}
+                  {user?.creatorStatus === 'approved' && (
+                    <div className="border-t border-gray-200 dark:border-dark-card-border my-2"></div>
+                  )}
 
                   {/* Profile Link - For approved creators and pending applications (non-admin) */}
                   {(user?.creatorStatus === 'approved' || user?.creatorStatus === 'pending') && (
@@ -304,9 +305,11 @@ export default function UserDropdown() {
                 </svg>
                 <span className="text-sm">الإعدادات</span>
               </Link>
+            </div>
 
-              {/* Orders Link - Only for non-admin users */}
-              {user?.role !== 'admin' && (
+            {/* Orders Section - Only for normal users */}
+            {user?.role !== 'admin' && (
+              <div className="space-y-1">
                 <Link
                   href="/orders"
                   onClick={() => setIsOpen(false)}
@@ -317,9 +320,13 @@ export default function UserDropdown() {
                   </svg>
                   <span className="text-sm">طلباتي</span>
                 </Link>
-              )}
-            </div>
+              </div>
+            )}
 
+            {/* Divider - Between my orders and join as creator (not for approved creators) */}
+            {user?.role !== 'admin' && user?.creatorStatus !== 'approved' && (
+              <div className="border-t border-gray-200 dark:border-dark-card-border my-2"></div>
+            )}
 
             {/* Creator Application Section */}
             {user?.role !== 'admin' && (

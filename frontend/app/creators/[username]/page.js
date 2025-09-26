@@ -139,7 +139,7 @@ export default function PublicProfilePage() {
           </nav>
 
           {/* Profile Content */}
-          <div className="flex flex-col lg:flex-row items-start lg:items-end gap-8 pb-16">
+          <div className="flex flex-col lg:flex-row items-start lg:items-start gap-8 pb-16 pt-8">
             {/* Profile Picture */}
             <div className="relative">
               {creator.profilePicture ? (

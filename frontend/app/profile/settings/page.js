@@ -26,13 +26,7 @@ export default function ProfileSettingsPage() {
     displayName: '',
     bio: '',
     profilePicture: '',
-    socialLinks: {
-      website: '',
-      twitter: '',
-      linkedin: '',
-      instagram: '',
-      youtube: ''
-    },
+    socialLinks: [],
     showEmail: false,
     showPhone: false,
     allowMessages: true,
@@ -71,13 +65,7 @@ export default function ProfileSettingsPage() {
           displayName: profileData.displayName || user?.name || '',
           bio: profileData.bio || '',
           profilePicture: profileData.profilePicture || user?.profilePicture || '',
-          socialLinks: {
-            website: profileData.socialLinks?.website || '',
-            twitter: profileData.socialLinks?.twitter || '',
-            linkedin: profileData.socialLinks?.linkedin || '',
-            instagram: profileData.socialLinks?.instagram || '',
-            youtube: profileData.socialLinks?.youtube || ''
-          }
+          socialLinks: Array.isArray(profileData.socialLinks) ? profileData.socialLinks : []
         }));
       }
     } catch (error) {
@@ -89,13 +77,7 @@ export default function ProfileSettingsPage() {
         displayName: user?.name || '',
         bio: user?.bio || '',
         profilePicture: user?.profilePicture || '',
-        socialLinks: {
-          website: user?.socialLinks?.website || '',
-          twitter: user?.socialLinks?.twitter || '',
-          linkedin: user?.socialLinks?.linkedin || '',
-          instagram: user?.socialLinks?.instagram || '',
-          youtube: user?.socialLinks?.youtube || ''
-        }
+        socialLinks: Array.isArray(user?.socialLinks) ? user.socialLinks : []
       }));
     } finally {
       setIsLoading(false);
@@ -199,6 +181,29 @@ export default function ProfileSettingsPage() {
     }
   };
 
+  const addSocialLink = () => {
+    setProfileSettings(prev => ({
+      ...prev,
+      socialLinks: [...prev.socialLinks, { platform: '', url: '' }]
+    }));
+  };
+
+  const removeSocialLink = (index) => {
+    setProfileSettings(prev => ({
+      ...prev,
+      socialLinks: prev.socialLinks.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateSocialLink = (index, field, value) => {
+    setProfileSettings(prev => ({
+      ...prev,
+      socialLinks: prev.socialLinks.map((link, i) => 
+        i === index ? { ...link, [field]: value } : link
+      )
+    }));
+  };
+
   // Debounced username availability check
   useEffect(() => {
     if (profileSettings.username && profileSettings.username !== user?.username) {
@@ -282,12 +287,7 @@ export default function ProfileSettingsPage() {
       // Clean up empty social links
       const cleanedSettings = {
         ...profileSettings,
-        socialLinks: Object.fromEntries(
-          Object.entries(profileSettings.socialLinks).map(([key, value]) => [
-            key,
-            value && value.trim() ? value.trim() : ''
-          ])
-        )
+        socialLinks: (profileSettings.socialLinks || []).filter(link => link.url && link.url.trim())
       };
 
       await api.put('/auth/profile/settings', cleanedSettings);
@@ -527,106 +527,81 @@ export default function ProfileSettingsPage() {
                 <h2 className="heading-2 text-primary-600 dark:text-orange-400">روابط التواصل الاجتماعي</h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-3">
-                    الموقع الإلكتروني
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9" />
-                      </svg>
+              <div className="space-y-6">
+                {/* Social Links List */}
+                {(profileSettings.socialLinks || []).map((link, index) => (
+                  <div key={index} className="flex gap-4 items-end">
+                    <div className="flex-1">
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-3">
+                        منصة التواصل
+                      </label>
+                      <select
+                        value={link.platform}
+                        onChange={(e) => updateSocialLink(index, 'platform', e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary transition-colors duration-200"
+                      >
+                        <option value="">اختر المنصة</option>
+                        <option value="website">الموقع الإلكتروني</option>
+                        <option value="twitter">تويتر</option>
+                        <option value="linkedin">لينكد إن</option>
+                        <option value="instagram">إنستغرام</option>
+                        <option value="youtube">يوتيوب</option>
+                        <option value="facebook">فيسبوك</option>
+                        <option value="tiktok">تيك توك</option>
+                        <option value="snapchat">سناب شات</option>
+                        <option value="telegram">تيليجرام</option>
+                        <option value="discord">ديسكورد</option>
+                        <option value="github">جيت هاب</option>
+                        <option value="behance">بيهانس</option>
+                        <option value="dribbble">دريببل</option>
+                        <option value="other">أخرى</option>
+                      </select>
                     </div>
-                    <input
-                      type="url"
-                      value={profileSettings.socialLinks.website}
-                      onChange={(e) => handleInputChange('socialLinks.website', e.target.value)}
-                      className="w-full pl-4 pr-10 py-3 border border-gray-300 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-tertiary transition-colors duration-200"
-                      placeholder="https://example.com"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-3">
-                    تويتر
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <svg className="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                      </svg>
+                    
+                    <div className="flex-2">
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-3">
+                        الرابط
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                          </svg>
+                        </div>
+                        <input
+                          type="url"
+                          value={link.url}
+                          onChange={(e) => updateSocialLink(index, 'url', e.target.value)}
+                          className="w-full pl-4 pr-10 py-3 border border-gray-300 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-tertiary transition-colors duration-200"
+                          placeholder="https://example.com"
+                        />
+                      </div>
                     </div>
-                    <input
-                      type="text"
-                      value={profileSettings.socialLinks.twitter}
-                      onChange={(e) => handleInputChange('socialLinks.twitter', e.target.value)}
-                      className="w-full pl-4 pr-10 py-3 border border-gray-300 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-tertiary transition-colors duration-200"
-                      placeholder="@username"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-3">
-                    لينكد إن
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                    
+                    <button
+                      type="button"
+                      onClick={() => removeSocialLink(index)}
+                      className="p-3 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors duration-200"
+                      title="حذف الرابط"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
-                    </div>
-                    <input
-                      type="text"
-                      value={profileSettings.socialLinks.linkedin}
-                      onChange={(e) => handleInputChange('socialLinks.linkedin', e.target.value)}
-                      className="w-full pl-4 pr-10 py-3 border border-gray-300 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-tertiary transition-colors duration-200"
-                      placeholder="linkedin.com/in/username"
-                    />
+                    </button>
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-3">
-                    إنستغرام
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <svg className="w-5 h-5 text-pink-500" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.62 5.367 11.987 11.988 11.987s11.987-5.367 11.987-11.987C24.014 5.367 18.647.001 12.017.001zM8.449 16.988c-1.297 0-2.448-.49-3.323-1.297C4.198 14.895 3.708 13.744 3.708 12.447s.49-2.448 1.297-3.323c.875-.807 2.026-1.297 3.323-1.297s2.448.49 3.323 1.297c.807.875 1.297 2.026 1.297 3.323s-.49 2.448-1.297 3.323c-.875.807-2.026 1.297-3.323 1.297zm7.718-1.297c-.875.807-2.026 1.297-3.323 1.297s-2.448-.49-3.323-1.297c-.807-.875-1.297-2.026-1.297-3.323s.49-2.448 1.297-3.323c.875-.807 2.026-1.297 3.323-1.297s2.448.49 3.323 1.297c.807.875 1.297 2.026 1.297 3.323s-.49 2.448-1.297 3.323z" />
-                      </svg>
-                    </div>
-                    <input
-                      type="text"
-                      value={profileSettings.socialLinks.instagram}
-                      onChange={(e) => handleInputChange('socialLinks.instagram', e.target.value)}
-                      className="w-full pl-4 pr-10 py-3 border border-gray-300 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-tertiary transition-colors duration-200"
-                      placeholder="@username"
-                    />
-                  </div>
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-3">
-                    يوتيوب
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                      </svg>
-                    </div>
-                    <input
-                      type="text"
-                      value={profileSettings.socialLinks.youtube}
-                      onChange={(e) => handleInputChange('socialLinks.youtube', e.target.value)}
-                      className="w-full pl-4 pr-10 py-3 border border-gray-300 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-tertiary transition-colors duration-200"
-                      placeholder="youtube.com/c/channelname"
-                    />
-                  </div>
-                </div>
+                ))}
+                
+                {/* Add Social Link Button */}
+                <button
+                  type="button"
+                  onClick={addSocialLink}
+                  className="w-full flex items-center justify-center gap-3 py-4 px-6 border-2 border-dashed border-gray-300 dark:border-dark-card-border rounded-xl text-gray-600 dark:text-dark-text-secondary hover:border-primary-500 dark:hover:border-orange-500 hover:text-primary-600 dark:hover:text-orange-400 hover:bg-primary-50 dark:hover:bg-orange-900/20 transition-all duration-200 group"
+                >
+                  <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  <span className="font-medium">إضافة رابط تواصل اجتماعي</span>
+                </button>
               </div>
             </div>
           </div>

@@ -198,7 +198,7 @@ export default function ProfileSettingsPage() {
   const updateSocialLink = (index, value) => {
     setProfileSettings(prev => ({
       ...prev,
-      socialLinks: prev.socialLinks.map((link, i) => 
+      socialLinks: prev.socialLinks.map((link, i) =>
         i === index ? { url: value } : link
       )
     }));
@@ -211,6 +211,28 @@ export default function ProfileSettingsPage() {
     } catch (_) {
       return false;
     }
+  };
+
+  const isValidSocialMediaUrl = (url) => {
+    if (!isValidUrl(url)) return false;
+    
+    const urlLower = url.toLowerCase();
+    const validDomains = [
+      'twitter.com', 'x.com',
+      'instagram.com',
+      'linkedin.com',
+      'youtube.com', 'youtu.be',
+      'facebook.com',
+      'tiktok.com',
+      'snapchat.com',
+      'telegram.org', 't.me',
+      'discord.com', 'discord.gg',
+      'github.com',
+      'behance.net',
+      'dribbble.com'
+    ];
+    
+    return validDomains.some(domain => urlLower.includes(domain));
   };
 
   const detectPlatform = (url) => {
@@ -385,7 +407,7 @@ export default function ProfileSettingsPage() {
         ...profileSettings,
         socialLinks: (profileSettings.socialLinks || []).filter(link => {
           if (!link.url || !link.url.trim()) return false;
-          return isValidUrl(link.url);
+          return isValidSocialMediaUrl(link.url);
         })
       };
 
@@ -630,9 +652,9 @@ export default function ProfileSettingsPage() {
                 {/* Social Links List */}
                 {(profileSettings.socialLinks || []).map((link, index) => {
                   const platform = detectPlatform(link.url);
-                  const isValid = !link.url || isValidUrl(link.url);
+                  const isValid = !link.url || isValidSocialMediaUrl(link.url);
                   const hasError = link.url && !isValid;
-                  
+
                   return (
                     <div key={index} className="flex gap-4 items-start">
                       <div className="flex-1">
@@ -656,11 +678,10 @@ export default function ProfileSettingsPage() {
                             type="url"
                             value={link.url || ''}
                             onChange={(e) => updateSocialLink(index, e.target.value)}
-                            className={`w-full pl-4 pr-10 py-3 border rounded-xl focus:ring-2 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-tertiary transition-colors duration-200 ${
-                              hasError 
-                                ? 'border-red-500 focus:ring-red-500 dark:focus:ring-red-500' 
-                                : 'border-gray-300 dark:border-dark-card-border focus:ring-primary-500 dark:focus:ring-orange-500'
-                            }`}
+                            className={`w-full pl-4 pr-10 py-3 border rounded-xl focus:ring-2 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-tertiary transition-colors duration-200 ${hasError
+                              ? 'border-red-500 focus:ring-red-500 dark:focus:ring-red-500'
+                              : 'border-gray-300 dark:border-dark-card-border focus:ring-primary-500 dark:focus:ring-orange-500'
+                              }`}
                             placeholder="https://example.com"
                           />
                         </div>
@@ -669,11 +690,11 @@ export default function ProfileSettingsPage() {
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            يرجى إدخال رابط صحيح (يجب أن يبدأ بـ http:// أو https://)
+                            يرجى إدخال رابط منصة تواصل اجتماعي صحيحة (تويتر، إنستغرام، لينكد إن، يوتيوب، إلخ)
                           </div>
                         )}
                       </div>
-                      
+
                       <button
                         type="button"
                         onClick={() => removeSocialLink(index)}

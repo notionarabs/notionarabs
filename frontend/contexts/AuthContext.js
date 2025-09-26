@@ -63,7 +63,9 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = async () => {
     try {
+      console.log('checkAuthStatus: Starting auth check...');
       const token = Cookies.get('authToken');
+      console.log('checkAuthStatus: Token found:', !!token);
 
       // Check if we have cached user data
       const cachedUser = localStorage.getItem('user');
@@ -75,6 +77,7 @@ export const AuthProvider = ({ children }) => {
         const timeSinceCache = now - parseInt(cacheTimestamp);
 
         if (timeSinceCache < cacheExpiry) {
+          console.log('checkAuthStatus: Using cached user data');
           // Use cached data if it's fresh
           const userData = JSON.parse(cachedUser);
           setUser(userData);
@@ -84,39 +87,46 @@ export const AuthProvider = ({ children }) => {
       }
 
       if (token) {
+        console.log('checkAuthStatus: Verifying token with backend...');
         // Set the token in axios headers
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
         try {
           // Verify token with backend
           const response = await api.get('/auth/me');
+          console.log('checkAuthStatus: Backend response received:', response.data);
           const userData = response.data.user;
           setUser(userData);
 
           // Cache the user data
           localStorage.setItem('user', JSON.stringify(userData));
           localStorage.setItem('userCacheTimestamp', Date.now().toString());
+          console.log('checkAuthStatus: User data cached successfully');
         } catch (apiError) {
-          console.error('Auth API call failed:', apiError);
+          console.error('checkAuthStatus: Auth API call failed:', apiError);
           // Clear invalid token and cache
           Cookies.remove('authToken');
           localStorage.removeItem('user');
           localStorage.removeItem('userCacheTimestamp');
           delete api.defaults.headers.common['Authorization'];
+          throw apiError; // Re-throw to be caught by callback
         }
       } else {
+        console.log('checkAuthStatus: No token found, clearing cache');
         // No token, user is not authenticated
         localStorage.removeItem('user');
         localStorage.removeItem('userCacheTimestamp');
       }
     } catch (error) {
-      console.error('Auth check failed:', error);
+      console.error('checkAuthStatus: Auth check failed:', error);
       // Clear any invalid token and cache
       Cookies.remove('authToken');
       localStorage.removeItem('user');
       localStorage.removeItem('userCacheTimestamp');
       delete api.defaults.headers.common['Authorization'];
+      throw error; // Re-throw to be caught by callback
     } finally {
+      console.log('checkAuthStatus: Setting loading to false');
       setLoading(false);
     }
   };

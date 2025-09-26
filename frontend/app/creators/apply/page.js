@@ -11,7 +11,7 @@ export default function CreatorApplyPage() {
     name: '',
     email: '',
     phone: '',
-    countryCode: '+966', // Default to Saudi Arabia
+    countryCode: '+20', // Default to Egypt
     portfolio: '',
     experience: '',
     specialties: [],
@@ -61,6 +61,7 @@ export default function CreatorApplyPage() {
   ];
 
   const countryOptions = [
+    { name: 'مصر', code: '+20', flag: '🇪🇬' },
     { name: 'السعودية', code: '+966', flag: '🇸🇦' },
     { name: 'الإمارات العربية المتحدة', code: '+971', flag: '🇦🇪' },
     { name: 'الكويت', code: '+965', flag: '🇰🇼' },
@@ -71,7 +72,6 @@ export default function CreatorApplyPage() {
     { name: 'لبنان', code: '+961', flag: '🇱🇧' },
     { name: 'سوريا', code: '+963', flag: '🇸🇾' },
     { name: 'العراق', code: '+964', flag: '🇮🇶' },
-    { name: 'مصر', code: '+20', flag: '🇪🇬' },
     { name: 'المغرب', code: '+212', flag: '🇲🇦' },
     { name: 'الجزائر', code: '+213', flag: '🇩🇿' },
     { name: 'تونس', code: '+216', flag: '🇹🇳' },

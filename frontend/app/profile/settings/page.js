@@ -619,11 +619,8 @@ export default function ProfileSettingsPage() {
                 {(profileSettings.socialLinks || []).map((link, index) => {
                   const platform = detectPlatform(link.url);
                   return (
-                    <div key={index} className="flex gap-4 items-end">
+                    <div key={index} className="flex gap-4 items-center">
                       <div className="flex-1">
-                        <label className="block text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-3">
-                          رابط التواصل الاجتماعي
-                        </label>
                         <div className="relative">
                           <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                             {platform ? (
@@ -645,7 +642,7 @@ export default function ProfileSettingsPage() {
                           />
                         </div>
                       </div>
-
+                      
                       <button
                         type="button"
                         onClick={() => removeSocialLink(index)}

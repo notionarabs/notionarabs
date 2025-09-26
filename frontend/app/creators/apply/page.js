@@ -11,6 +11,7 @@ export default function CreatorApplyPage() {
     name: '',
     email: '',
     phone: '',
+    countryCode: '+966', // Default to Saudi Arabia
     portfolio: '',
     experience: '',
     specialties: [],
@@ -57,6 +58,69 @@ export default function CreatorApplyPage() {
     'التمويل والمحاسبة',
     'الموارد البشرية',
     'التعليم والتدريب'
+  ];
+
+  const countryOptions = [
+    { name: 'السعودية', code: '+966', flag: '🇸🇦' },
+    { name: 'الإمارات العربية المتحدة', code: '+971', flag: '🇦🇪' },
+    { name: 'الكويت', code: '+965', flag: '🇰🇼' },
+    { name: 'قطر', code: '+974', flag: '🇶🇦' },
+    { name: 'البحرين', code: '+973', flag: '🇧🇭' },
+    { name: 'عُمان', code: '+968', flag: '🇴🇲' },
+    { name: 'الأردن', code: '+962', flag: '🇯🇴' },
+    { name: 'لبنان', code: '+961', flag: '🇱🇧' },
+    { name: 'سوريا', code: '+963', flag: '🇸🇾' },
+    { name: 'العراق', code: '+964', flag: '🇮🇶' },
+    { name: 'مصر', code: '+20', flag: '🇪🇬' },
+    { name: 'المغرب', code: '+212', flag: '🇲🇦' },
+    { name: 'الجزائر', code: '+213', flag: '🇩🇿' },
+    { name: 'تونس', code: '+216', flag: '🇹🇳' },
+    { name: 'ليبيا', code: '+218', flag: '🇱🇾' },
+    { name: 'السودان', code: '+249', flag: '🇸🇩' },
+    { name: 'اليمن', code: '+967', flag: '🇾🇪' },
+    { name: 'فلسطين', code: '+970', flag: '🇵🇸' },
+    { name: 'تركيا', code: '+90', flag: '🇹🇷' },
+    { name: 'إيران', code: '+98', flag: '🇮🇷' },
+    { name: 'باكستان', code: '+92', flag: '🇵🇰' },
+    { name: 'الهند', code: '+91', flag: '🇮🇳' },
+    { name: 'بنجلاديش', code: '+880', flag: '🇧🇩' },
+    { name: 'أفغانستان', code: '+93', flag: '🇦🇫' },
+    { name: 'الولايات المتحدة', code: '+1', flag: '🇺🇸' },
+    { name: 'كندا', code: '+1', flag: '🇨🇦' },
+    { name: 'المملكة المتحدة', code: '+44', flag: '🇬🇧' },
+    { name: 'فرنسا', code: '+33', flag: '🇫🇷' },
+    { name: 'ألمانيا', code: '+49', flag: '🇩🇪' },
+    { name: 'إيطاليا', code: '+39', flag: '🇮🇹' },
+    { name: 'إسبانيا', code: '+34', flag: '🇪🇸' },
+    { name: 'هولندا', code: '+31', flag: '🇳🇱' },
+    { name: 'بلجيكا', code: '+32', flag: '🇧🇪' },
+    { name: 'سويسرا', code: '+41', flag: '🇨🇭' },
+    { name: 'النمسا', code: '+43', flag: '🇦🇹' },
+    { name: 'السويد', code: '+46', flag: '🇸🇪' },
+    { name: 'النرويج', code: '+47', flag: '🇳🇴' },
+    { name: 'الدنمارك', code: '+45', flag: '🇩🇰' },
+    { name: 'فنلندا', code: '+358', flag: '🇫🇮' },
+    { name: 'روسيا', code: '+7', flag: '🇷🇺' },
+    { name: 'الصين', code: '+86', flag: '🇨🇳' },
+    { name: 'اليابان', code: '+81', flag: '🇯🇵' },
+    { name: 'كوريا الجنوبية', code: '+82', flag: '🇰🇷' },
+    { name: 'سنغافورة', code: '+65', flag: '🇸🇬' },
+    { name: 'ماليزيا', code: '+60', flag: '🇲🇾' },
+    { name: 'إندونيسيا', code: '+62', flag: '🇮🇩' },
+    { name: 'تايلاند', code: '+66', flag: '🇹🇭' },
+    { name: 'الفلبين', code: '+63', flag: '🇵🇭' },
+    { name: 'فيتنام', code: '+84', flag: '🇻🇳' },
+    { name: 'أستراليا', code: '+61', flag: '🇦🇺' },
+    { name: 'نيوزيلندا', code: '+64', flag: '🇳🇿' },
+    { name: 'جنوب أفريقيا', code: '+27', flag: '🇿🇦' },
+    { name: 'نيجيريا', code: '+234', flag: '🇳🇬' },
+    { name: 'كينيا', code: '+254', flag: '🇰🇪' },
+    { name: 'غانا', code: '+233', flag: '🇬🇭' },
+    { name: 'البرازيل', code: '+55', flag: '🇧🇷' },
+    { name: 'الأرجنتين', code: '+54', flag: '🇦🇷' },
+    { name: 'تشيلي', code: '+56', flag: '🇨🇱' },
+    { name: 'كولومبيا', code: '+57', flag: '🇨🇴' },
+    { name: 'المكسيك', code: '+52', flag: '🇲🇽' }
   ];
 
   const handleChange = (e) => {
@@ -143,7 +207,8 @@ export default function CreatorApplyPage() {
         experience: formData.experience,
         specialties: formData.specialties,
         motivation: formData.motivation,
-        phone: formData.phone,
+        phone: `${formData.countryCode}${formData.phone}`,
+        countryCode: formData.countryCode,
         socialMedia: formData.socialMedia,
         availability: formData.availability,
         expectedEarnings: formData.expectedEarnings
@@ -523,22 +588,49 @@ export default function CreatorApplyPage() {
                       </svg>
                       رقم الهاتف *
                     </label>
-                    <div className="relative">
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400"
-                        placeholder="+966 50 123 4567"
-                        required
-                      />
-                      <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                        </svg>
+                    <div className="flex gap-3">
+                      {/* Phone Number Input */}
+                      <div className="relative flex-1">
+                        <input
+                          type="tel"
+                          name="phone"
+                          value={formData.phone}
+                          onChange={handleChange}
+                          className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400 w-full"
+                          placeholder="50 123 4567"
+                          required
+                        />
+                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                          </svg>
+                        </div>
+                      </div>
+
+                      {/* Country Code Dropdown */}
+                      <div className="relative w-48">
+                        <select
+                          name="countryCode"
+                          value={formData.countryCode}
+                          onChange={handleChange}
+                          className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 w-full pr-12 pl-12 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border rounded-xl appearance-none"
+                          required
+                        >
+                          {countryOptions.map((country, index) => (
+                            <option key={`${country.code}-${country.name}-${index}`} value={country.code}>
+                              {country.name} ({country.code})
+                            </option>
+                          ))}
+                        </select>
+                        {/* Custom dropdown indicator */}
+                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                          <svg className="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
                       </div>
                     </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">اختر رمز البلد وأدخل رقم هاتفك بدون رمز البلد</p>
                   </div>
                 </div>
               </div>

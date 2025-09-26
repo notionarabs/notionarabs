@@ -357,6 +357,7 @@ router.get('/profile/settings', auth, async (req, res) => {
 
     // Return profile settings
     const profileSettings = {
+      username: user.username || '',
       displayName: user.displayName || user.name,
       bio: user.bio || '',
       profilePicture: user.profilePicture || '',
@@ -393,6 +394,19 @@ router.get('/profile/settings', auth, async (req, res) => {
 // @desc    Update user profile settings
 // @access  Private
 router.put('/profile/settings', auth, [
+  body('username')
+    .optional()
+    .trim()
+    .custom((value) => {
+      if (!value) return true; // Allow empty username
+      if (value.length < 3 || value.length > 20) {
+        throw new Error('اسم المستخدم يجب أن يكون بين 3 و 20 حرف');
+      }
+      if (!/^[a-zA-Z0-9_]+$/.test(value)) {
+        throw new Error('اسم المستخدم يجب أن يحتوي على أحرف وأرقام وشرطة سفلية فقط');
+      }
+      return true;
+    }),
   body('displayName')
     .optional()
     .trim()
@@ -410,23 +424,55 @@ router.put('/profile/settings', auth, [
     .withMessage('الرسالة المخصصة لا يجب أن تتجاوز 200 حرف'),
   body('socialLinks.website')
     .optional()
-    .isURL()
+    .custom((value) => {
+      if (!value) return true;
+      if (value.startsWith('http://') || value.startsWith('https://')) {
+        return true;
+      }
+      return false;
+    })
     .withMessage('رابط الموقع الإلكتروني غير صحيح'),
   body('socialLinks.twitter')
     .optional()
-    .matches(/^@?[A-Za-z0-9_]+$/)
+    .custom((value) => {
+      if (!value) return true;
+      // Allow @username or full URL
+      if (value.startsWith('@') || value.startsWith('http')) {
+        return true;
+      }
+      return false;
+    })
     .withMessage('اسم مستخدم تويتر غير صحيح'),
   body('socialLinks.linkedin')
     .optional()
-    .isURL()
+    .custom((value) => {
+      if (!value) return true;
+      if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('linkedin.com/')) {
+        return true;
+      }
+      return false;
+    })
     .withMessage('رابط لينكد إن غير صحيح'),
   body('socialLinks.instagram')
     .optional()
-    .matches(/^@?[A-Za-z0-9_.]+$/)
+    .custom((value) => {
+      if (!value) return true;
+      // Allow @username or full URL
+      if (value.startsWith('@') || value.startsWith('http')) {
+        return true;
+      }
+      return false;
+    })
     .withMessage('اسم مستخدم إنستغرام غير صحيح'),
   body('socialLinks.youtube')
     .optional()
-    .isURL()
+    .custom((value) => {
+      if (!value) return true;
+      if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('youtube.com/')) {
+        return true;
+      }
+      return false;
+    })
     .withMessage('رابط يوتيوب غير صحيح'),
   body('profileVisibility')
     .optional()
@@ -437,6 +483,7 @@ router.put('/profile/settings', auth, [
     // Check validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Profile settings validation errors:', errors.array());
       return res.status(400).json({
         success: false,
         message: 'بيانات غير صحيحة',
@@ -445,6 +492,7 @@ router.put('/profile/settings', auth, [
     }
 
     const {
+      username,
       displayName,
       bio,
       profilePicture,
@@ -460,6 +508,20 @@ router.put('/profile/settings', auth, [
 
     const updateData = {};
 
+    if (username !== undefined) {
+      // Check if username is already taken
+      const existingUser = await User.findOne({
+        username: username.toLowerCase(),
+        _id: { $ne: req.user._id }
+      });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: 'اسم المستخدم مستخدم بالفعل'
+        });
+      }
+      updateData.username = username.toLowerCase();
+    }
     if (displayName !== undefined) updateData.displayName = displayName;
     if (bio !== undefined) updateData.bio = bio;
     if (profilePicture !== undefined) updateData.profilePicture = profilePicture;

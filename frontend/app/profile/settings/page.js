@@ -17,6 +17,7 @@ export default function ProfileSettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [profileSettings, setProfileSettings] = useState({
+    username: '',
     displayName: '',
     bio: '',
     profilePicture: '',
@@ -60,6 +61,7 @@ export default function ProfileSettingsPage() {
         setProfileSettings(prev => ({
           ...prev,
           ...response.data,
+          username: response.data.username || user.username || '',
           displayName: response.data.displayName || user.name || '',
           bio: response.data.bio || '',
           profilePicture: response.data.profilePicture || user.profilePicture || '',
@@ -142,11 +144,32 @@ export default function ProfileSettingsPage() {
     try {
       setIsSaving(true);
       ensureTokenInHeaders();
-      await api.put('/auth/profile/settings', profileSettings);
+
+      // Clean up empty social links
+      const cleanedSettings = {
+        ...profileSettings,
+        socialLinks: Object.fromEntries(
+          Object.entries(profileSettings.socialLinks).map(([key, value]) => [
+            key,
+            value && value.trim() ? value.trim() : ''
+          ])
+        )
+      };
+
+      await api.put('/auth/profile/settings', cleanedSettings);
       showSuccess('تم حفظ إعدادات الملف الشخصي بنجاح');
     } catch (error) {
       console.error('Error saving profile settings:', error);
-      showError('حدث خطأ في حفظ الإعدادات');
+
+      if (error.response?.data?.errors) {
+        // Show specific validation errors
+        const firstError = error.response.data.errors[0];
+        showError(firstError.msg || 'حدث خطأ في حفظ الإعدادات');
+      } else if (error.response?.data?.message) {
+        showError(error.response.data.message);
+      } else {
+        showError('حدث خطأ في حفظ الإعدادات');
+      }
     } finally {
       setIsSaving(false);
     }
@@ -250,6 +273,28 @@ export default function ProfileSettingsPage() {
                     </p>
                   </div>
                 </div>
+              </div>
+
+              {/* Username */}
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-3">
+                  اسم المستخدم
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <span className="text-gray-500 dark:text-dark-text-tertiary text-sm">@</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={profileSettings.username}
+                    onChange={(e) => handleInputChange('username', e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                    className="w-full pl-4 pr-8 py-3 border border-gray-300 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-tertiary transition-colors duration-200"
+                    placeholder="username"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 dark:text-dark-text-tertiary mt-2">
+                  سيتم استخدام هذا الاسم في رابط ملفك الشخصي: /creators/{profileSettings.username || 'username'}
+                </p>
               </div>
 
               {/* Display Name */}

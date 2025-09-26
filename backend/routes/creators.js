@@ -128,17 +128,41 @@ router.get('/', async (req, res) => {
 // @access  Public
 router.get('/:id', async (req, res) => {
   try {
-    const creator = await User.findOne({
-      _id: req.params.id,
+    const { id } = req.params;
+
+    // Try to find by ID first, then by username
+    let creator = await User.findOne({
+      _id: id,
       creatorStatus: 'approved',
       isActive: true,
       isEmailVerified: true
     }).select('-password -emailVerificationToken -resetToken');
 
+    // If not found by ID, try by username
+    if (!creator) {
+      creator = await User.findOne({
+        $or: [
+          { username: id.toLowerCase() },
+          { name: id },
+          { displayName: id }
+        ],
+        creatorStatus: 'approved',
+        isActive: true,
+        isEmailVerified: true
+      }).select('-password -emailVerificationToken -resetToken');
+    }
     if (!creator) {
       return res.status(404).json({
         success: false,
         message: 'المبدع غير موجود'
+      });
+    }
+
+    // Check profile visibility
+    if (creator.profileVisibility === 'private') {
+      return res.status(403).json({
+        success: false,
+        message: 'هذا الملف الشخصي خاص'
       });
     }
 

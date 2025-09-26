@@ -8,6 +8,14 @@ const userSchema = new mongoose.Schema({
     trim: true,
     maxlength: [50, 'الاسم لا يجب أن يتجاوز 50 حرف']
   },
+  username: {
+    type: String,
+    unique: true,
+    sparse: true,
+    trim: true,
+    lowercase: true,
+    match: [/^[a-zA-Z0-9_]+$/, 'اسم المستخدم يجب أن يحتوي على أحرف وأرقام وشرطة سفلية فقط']
+  },
   email: {
     type: String,
     required: [true, 'البريد الإلكتروني مطلوب'],

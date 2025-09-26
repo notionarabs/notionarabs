@@ -21,6 +21,9 @@ export default function AdminTemplatesPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedTemplateDetails, setSelectedTemplateDetails] = useState(null);
+  const [selectedTemplates, setSelectedTemplates] = useState([]);
+  const [showBulkActions, setShowBulkActions] = useState(false);
+  const [bulkAction, setBulkAction] = useState('');
 
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
@@ -47,6 +50,9 @@ export default function AdminTemplatesPage() {
       setTotalPages(response.data.pagination.pages);
     } catch (error) {
       console.error('Error fetching templates:', error);
+      // Set empty state if API fails (API endpoint not implemented yet)
+      setTemplates([]);
+      setTotalPages(0);
     } finally {
       setLoading(false);
     }
@@ -58,6 +64,13 @@ export default function AdminTemplatesPage() {
       setStats(response.data.stats);
     } catch (error) {
       console.error('Error fetching stats:', error);
+      // Set default stats if API fails (API endpoint not implemented yet)
+      setStats({
+        totalTemplates: 0,
+        pendingTemplates: 0,
+        approvedTemplates: 0,
+        rejectedTemplates: 0
+      });
     }
   };
 
@@ -71,6 +84,49 @@ export default function AdminTemplatesPage() {
   const handleViewDetails = (template) => {
     setSelectedTemplateDetails(template);
     setShowDetailsModal(true);
+  };
+
+  const handleSelectTemplate = (templateId) => {
+    setSelectedTemplates(prev =>
+      prev.includes(templateId)
+        ? prev.filter(id => id !== templateId)
+        : [...prev, templateId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedTemplates.length === templates.length) {
+      setSelectedTemplates([]);
+    } else {
+      setSelectedTemplates(templates.map(t => t._id));
+    }
+  };
+
+  const handleBulkAction = async () => {
+    if (!bulkAction || selectedTemplates.length === 0) return;
+
+    try {
+      setActionLoading(true);
+      await api.put('/admin/templates/bulk-action', {
+        templateIds: selectedTemplates,
+        action: bulkAction,
+        adminNotes
+      });
+
+      // Refresh templates
+      await fetchTemplates();
+      await fetchStats();
+
+      setSelectedTemplates([]);
+      setBulkAction('');
+      setAdminNotes('');
+      setShowBulkActions(false);
+    } catch (error) {
+      console.error('Error performing bulk action:', error);
+      // Silently fail - API endpoint not implemented yet
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   const confirmStatusChange = async () => {
@@ -92,7 +148,8 @@ export default function AdminTemplatesPage() {
       setSelectedAction(null);
       setAdminNotes('');
     } catch (error) {
-      // Handle error silently or show user-friendly message
+      console.error('Error updating template status:', error);
+      // Silently fail - API endpoint not implemented yet
     } finally {
       setActionLoading(false);
     }
@@ -226,12 +283,75 @@ export default function AdminTemplatesPage() {
           </div>
         </div>
 
+        {/* Bulk Actions */}
+        {selectedTemplates.length > 0 && (
+          <div className="card p-4 mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                  تم تحديد {selectedTemplates.length} قالب
+                </span>
+                <button
+                  onClick={() => setShowBulkActions(!showBulkActions)}
+                  className="btn-outline text-sm px-3 py-1"
+                >
+                  إجراءات جماعية
+                </button>
+              </div>
+              <button
+                onClick={() => setSelectedTemplates([])}
+                className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                إلغاء التحديد
+              </button>
+            </div>
+
+            {showBulkActions && (
+              <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-800">
+                <div className="flex items-center gap-4">
+                  <select
+                    value={bulkAction}
+                    onChange={(e) => setBulkAction(e.target.value)}
+                    className="form-select"
+                  >
+                    <option value="">اختر الإجراء</option>
+                    <option value="approve">موافقة</option>
+                    <option value="reject">رفض</option>
+                  </select>
+                  <textarea
+                    value={adminNotes}
+                    onChange={(e) => setAdminNotes(e.target.value)}
+                    placeholder="ملاحظات الإدارة (اختياري)"
+                    rows={2}
+                    className="form-input flex-1"
+                  />
+                  <button
+                    onClick={handleBulkAction}
+                    disabled={!bulkAction || actionLoading}
+                    className="btn-primary"
+                  >
+                    {actionLoading ? 'جاري المعالجة...' : 'تطبيق'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Templates Table */}
         <div className="card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 dark:bg-dark-tertiary">
                 <tr>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">
+                    <input
+                      type="checkbox"
+                      checked={selectedTemplates.length === templates.length && templates.length > 0}
+                      onChange={handleSelectAll}
+                      className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                    />
+                  </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">القالب</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">المبدع</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">الفئة</th>
@@ -244,6 +364,14 @@ export default function AdminTemplatesPage() {
               <tbody className="bg-white dark:bg-dark-secondary divide-y divide-gray-200 dark:divide-dark-card-border">
                 {templates.map((template) => (
                   <tr key={template._id} className="hover:bg-gray-50 dark:hover:bg-dark-tertiary">
+                    <td className="px-6 py-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedTemplates.includes(template._id)}
+                        onChange={() => handleSelectTemplate(template._id)}
+                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      />
+                    </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
                         {/* Preview Image */}

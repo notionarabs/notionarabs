@@ -23,12 +23,6 @@ export const AuthProvider = ({ children }) => {
   const router = useRouter();
 
   useEffect(() => {
-    // Only run once on mount and only if we haven't checked auth yet
-    if (hasCheckedAuth) {
-      setLoading(false);
-      return;
-    }
-
     // Check if we have cached data first to minimize loading time
     const cachedUser = localStorage.getItem('user');
     const cacheTimestamp = localStorage.getItem('userCacheTimestamp');
@@ -48,17 +42,22 @@ export const AuthProvider = ({ children }) => {
       }
     }
 
-    const timeoutId = setTimeout(() => {
-      setLoading(false);
-    }, 2000); // Reduced to 2 seconds for faster UX
+    // If we haven't checked auth yet, do it now
+    if (!hasCheckedAuth) {
+      const timeoutId = setTimeout(() => {
+        setLoading(false);
+      }, 2000); // Reduced to 2 seconds for faster UX
 
-    checkAuthStatus().finally(() => {
-      clearTimeout(timeoutId);
-      setHasCheckedAuth(true);
-      setLoading(false);
-    });
+      checkAuthStatus().finally(() => {
+        clearTimeout(timeoutId);
+        setHasCheckedAuth(true);
+        setLoading(false);
+      });
 
-    return () => clearTimeout(timeoutId);
+      return () => clearTimeout(timeoutId);
+    } else {
+      setLoading(false);
+    }
   }, [hasCheckedAuth]); // Only run when hasCheckedAuth changes
 
 
@@ -361,6 +360,62 @@ export const AuthProvider = ({ children }) => {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [user?.creatorStatus, refreshUserData]);
+
+  // Re-check authentication when page becomes visible (for browser back navigation)
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible' && !loading) {
+        const token = Cookies.get('authToken');
+        if (token && !user) {
+          // We have a token but no user, re-check authentication
+          try {
+            await checkAuthStatus();
+          } catch (error) {
+            console.error('Failed to re-check auth on visibility change:', error);
+          }
+        }
+      }
+    };
+
+    const handleFocus = async () => {
+      if (!loading) {
+        const token = Cookies.get('authToken');
+        if (token && !user) {
+          // We have a token but no user, re-check authentication
+          try {
+            await checkAuthStatus();
+          } catch (error) {
+            console.error('Failed to re-check auth on focus:', error);
+          }
+        }
+      }
+    };
+
+    const handlePageShow = async () => {
+      // This handles browser back/forward navigation
+      if (!loading) {
+        const token = Cookies.get('authToken');
+        if (token && !user) {
+          // We have a token but no user, re-check authentication
+          try {
+            await checkAuthStatus();
+          } catch (error) {
+            console.error('Failed to re-check auth on page show:', error);
+          }
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('pageshow', handlePageShow);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('pageshow', handlePageShow);
+    };
+  }, [loading, user]);
 
   // Function to ensure token is set in API headers
   const ensureTokenInHeaders = () => {

@@ -10,6 +10,7 @@ function AuthCallbackForm() {
   const searchParams = useSearchParams();
   const { checkAuthStatus } = useAuth();
   const [error, setError] = useState(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -45,8 +46,12 @@ function AuthCallbackForm() {
 
           // Small delay to ensure context is updated
           setTimeout(() => {
-            console.log('Redirecting to home page...');
-            router.push('/');
+            if (!isRedirecting) {
+              console.log('Redirecting to home page...');
+              setIsRedirecting(true);
+              // Use window.location for more reliable redirect
+              window.location.href = '/';
+            }
           }, 500);
 
         } catch (error) {
@@ -55,7 +60,10 @@ function AuthCallbackForm() {
 
           // Redirect to login with error after a delay
           setTimeout(() => {
-            router.push('/login?error=auth_setup_failed');
+            if (!isRedirecting) {
+              setIsRedirecting(true);
+              window.location.href = '/login?error=auth_setup_failed';
+            }
           }, 2000);
         }
       } else if (success === 'true') {
@@ -63,14 +71,20 @@ function AuthCallbackForm() {
         console.error('Success=true but no token provided');
         setError('No authentication token provided');
         setTimeout(() => {
-          router.push('/login?error=no_token');
+          if (!isRedirecting) {
+            setIsRedirecting(true);
+            window.location.href = '/login?error=no_token';
+          }
         }, 2000);
       } else {
         // Handle error
         console.error('Google OAuth error:', error);
         setError(error || 'Google authentication failed');
         setTimeout(() => {
-          router.push('/login?error=google_auth_failed');
+          if (!isRedirecting) {
+            setIsRedirecting(true);
+            window.location.href = '/login?error=google_auth_failed';
+          }
         }, 2000);
       }
     };

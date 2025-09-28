@@ -9,6 +9,7 @@ import LoadingIndicator from '../../../components/LoadingIndicator';
 import Navigation from '../../../components/Navigation';
 import Image from 'next/image';
 import api from '../../../lib/api';
+import axios from 'axios';
 
 export default function ProfileSettingsPage() {
   const router = useRouter();
@@ -130,39 +131,60 @@ export default function ProfileSettingsPage() {
       return;
     }
 
-    // If the username is the same as current user's username, it's valid
-    if (username === user?.username) {
-      setUsernameValidation({ isValid: true, message: 'اسم المستخدم الحالي', isChecking: false });
-      return;
-    }
-
     const validation = validateUsername(username);
     if (!validation.isValid) {
+      console.log('Frontend validation failed:', validation.errors);
       setUsernameValidation({ ...validation, isChecking: false });
       return;
     }
 
+    // If the username is the same as current user's username, it's valid
+    if (username.toLowerCase() === user?.username?.toLowerCase()) {
+      setUsernameValidation({ isValid: true, message: 'اسم المستخدم الحالي', isChecking: false });
+      return;
+    }
+
+    console.log('Making API call for username:', username);
+
     try {
       setUsernameValidation(prev => ({ ...prev, isChecking: true }));
       ensureTokenInHeaders();
-      const response = await api.get(`/auth/check-username/${username}`);
 
-      if (response.data.success) {
-        if (response.data.available) {
-          setUsernameValidation({ isValid: true, message: 'اسم المستخدم متاح', isChecking: false });
-        } else {
-          setUsernameValidation({ isValid: false, message: 'اسم المستخدم غير متاح', isChecking: false });
-        }
+      // Create a clean axios instance without interceptors for username checking
+      const API_BASE_URL = process.env.NODE_ENV === 'production'
+        ? 'https://notion-arabs.onrender.com/api'
+        : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api');
+
+      const cleanAxios = axios.create({
+        baseURL: API_BASE_URL,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(api.defaults.headers.common['Authorization'] && {
+            'Authorization': api.defaults.headers.common['Authorization']
+          })
+        },
+        validateStatus: (status) => status < 500 // Accept all status codes below 500
+      });
+
+      const response = await cleanAxios.get(`/auth/check-username/${username}`);
+
+      if (response.status === 200) {
+        // Username is available
+        setUsernameValidation({ isValid: true, message: 'اسم المستخدم متاح', isChecking: false });
+      } else if (response.status === 409) {
+        // Username is not available (already taken or reserved)
+        const errorMessage = response.data?.message || 'اسم المستخدم غير متاح';
+        setUsernameValidation({ isValid: false, message: errorMessage, isChecking: false });
+      } else if (response.status === 400) {
+        // Handle validation errors from backend
+        const errorMessage = response.data?.message || 'اسم المستخدم غير صحيح';
+        setUsernameValidation({ isValid: false, message: errorMessage, isChecking: false });
       } else {
         setUsernameValidation({ isValid: false, message: 'خطأ في التحقق من اسم المستخدم', isChecking: false });
       }
     } catch (error) {
       console.error('Error checking username:', error);
-      if (error.response?.status === 409) {
-        setUsernameValidation({ isValid: false, message: 'اسم المستخدم غير متاح', isChecking: false });
-      } else {
-        setUsernameValidation({ isValid: false, message: 'خطأ في التحقق من اسم المستخدم', isChecking: false });
-      }
+      setUsernameValidation({ isValid: false, message: 'خطأ في التحقق من اسم المستخدم', isChecking: false });
     }
   };
 
@@ -185,7 +207,21 @@ export default function ProfileSettingsPage() {
       // Handle username validation
       if (field === 'username') {
         const validation = validateUsername(value);
-        setUsernameValidation({ ...validation, isChecking: false });
+
+        // If it's the same as current username, it's valid
+        if (value.toLowerCase() === user?.username?.toLowerCase()) {
+          setUsernameValidation({
+            isValid: true,
+            message: 'اسم المستخدم الحالي',
+            isChecking: false
+          });
+        } else {
+          // Only set as checking if validation passes and it's not empty
+          setUsernameValidation({
+            ...validation,
+            isChecking: validation.isValid && value.trim() !== ''
+          });
+        }
       }
     }
   };
@@ -333,13 +369,33 @@ export default function ProfileSettingsPage() {
 
   // Debounced username availability check
   useEffect(() => {
-    if (profileSettings.username && profileSettings.username !== user?.username) {
+    if (profileSettings.username) {
+      console.log('Username changed to:', profileSettings.username);
+
+      // If it's the same as current username, it's valid
+      if (profileSettings.username.toLowerCase() === user?.username?.toLowerCase()) {
+        setUsernameValidation({
+          isValid: true,
+          message: 'اسم المستخدم الحالي',
+          isChecking: false
+        });
+        return;
+      }
+
       const validation = validateUsername(profileSettings.username);
+      console.log('Validation result:', validation);
+
       if (validation.isValid) {
+        // Only make API call if username passes all frontend validation
+        console.log('Username is valid, setting timeout for API call');
         const timeoutId = setTimeout(() => {
           checkUsernameAvailability(profileSettings.username);
         }, 500);
         return () => clearTimeout(timeoutId);
+      } else {
+        // If validation fails, clear any checking state
+        console.log('Username validation failed, clearing checking state');
+        setUsernameValidation(prev => ({ ...prev, isChecking: false }));
       }
     }
   }, [profileSettings.username, user?.username]);
@@ -384,7 +440,7 @@ export default function ProfileSettingsPage() {
       ensureTokenInHeaders();
 
       // Validate username before saving
-      if (profileSettings.username && profileSettings.username !== user?.username) {
+      if (profileSettings.username && profileSettings.username.toLowerCase() !== user?.username?.toLowerCase()) {
         const validation = validateUsername(profileSettings.username);
         if (!validation.isValid) {
           showError(validation.message);
@@ -394,18 +450,43 @@ export default function ProfileSettingsPage() {
 
         // Check availability one more time
         try {
-          const response = await api.get(`/auth/check-username/${profileSettings.username}`);
-          if (!response.data.success || !response.data.available) {
-            showError('اسم المستخدم غير متاح');
+          const API_BASE_URL = process.env.NODE_ENV === 'production'
+            ? 'https://notion-arabs.onrender.com/api'
+            : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api');
+
+          const cleanAxios = axios.create({
+            baseURL: API_BASE_URL,
+            headers: {
+              'Content-Type': 'application/json',
+              ...(api.defaults.headers.common['Authorization'] && {
+                'Authorization': api.defaults.headers.common['Authorization']
+              })
+            },
+            validateStatus: (status) => status < 500 // Accept all status codes below 500
+          });
+
+          const response = await cleanAxios.get(`/auth/check-username/${profileSettings.username}`);
+
+          if (response.status === 200) {
+            // Username is available, continue with save
+          } else if (response.status === 409) {
+            const errorMessage = response.data?.message || 'اسم المستخدم غير متاح';
+            showError(errorMessage);
+            setIsSaving(false);
+            return;
+          } else if (response.status === 400) {
+            const errorMessage = response.data?.message || 'اسم المستخدم غير صحيح';
+            showError(errorMessage);
+            setIsSaving(false);
+            return;
+          } else {
+            showError('خطأ في التحقق من اسم المستخدم');
             setIsSaving(false);
             return;
           }
         } catch (error) {
-          if (error.response?.status === 409) {
-            showError('اسم المستخدم غير متاح');
-          } else {
-            showError('خطأ في التحقق من اسم المستخدم');
-          }
+          console.error('Error checking username during save:', error);
+          showError('خطأ في التحقق من اسم المستخدم');
           setIsSaving(false);
           return;
         }

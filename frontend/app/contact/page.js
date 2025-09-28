@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import api from '../../lib/api';
 
 const contactMethods = [
   {
@@ -51,6 +53,9 @@ const faqs = [
 ];
 
 export default function ContactPage() {
+  const searchParams = useSearchParams();
+  const creatorId = searchParams.get('creator');
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -60,6 +65,36 @@ export default function ContactPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
+  const [creator, setCreator] = useState(null);
+  const [loadingCreator, setLoadingCreator] = useState(false);
+
+  // Fetch creator data when creatorId is provided
+  useEffect(() => {
+    if (creatorId) {
+      fetchCreatorData();
+    }
+  }, [creatorId]);
+
+  const fetchCreatorData = async () => {
+    try {
+      setLoadingCreator(true);
+      const response = await api.get(`/creators/${creatorId}`);
+      if (response.data.success) {
+        setCreator(response.data.creator);
+        // Pre-fill subject for creator contact
+        setFormData(prev => ({
+          ...prev,
+          subject: `استفسار حول قوالب ${response.data.creator.displayName || response.data.creator.name}`,
+          category: 'creator'
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching creator:', error);
+      setCreator(null);
+    } finally {
+      setLoadingCreator(false);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -72,18 +107,40 @@ export default function ContactPage() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    setTimeout(() => {
+    try {
+      // Prepare form data with creator information
+      const submissionData = {
+        ...formData,
+        creatorId: creatorId || null,
+        creatorName: creator ? (creator.displayName || creator.name) : null
+      };
+
+      // Add creator context to message if contacting a creator
+      if (creator) {
+        submissionData.message = `المرسل: ${submissionData.name}\nالبريد الإلكتروني: ${submissionData.email}\n\nالمبدع المستهدف: ${creator.displayName || creator.name}\nمعرف المبدع: ${creatorId}\n\nالرسالة:\n${submissionData.message}`;
+      }
+
+      // TODO: Replace with actual API call when backend endpoint is ready
+      // const response = await api.post('/contact', submissionData);
+
+      // Simulate form submission
+      setTimeout(() => {
+        setIsSubmitting(false);
+        setSubmitStatus('success');
+        setFormData({
+          name: '',
+          email: '',
+          subject: '',
+          message: '',
+          category: creator ? 'creator' : 'general'
+        });
+      }, 2000);
+    } catch (error) {
+      console.error('Error submitting contact form:', error);
       setIsSubmitting(false);
-      setSubmitStatus('success');
-      setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        message: '',
-        category: 'general'
-      });
-    }, 2000);
+      setSubmitStatus('error');
+    }
+
   };
 
   return (
@@ -93,11 +150,85 @@ export default function ContactPage() {
       <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
         <div className="container-custom">
           <div className="text-center mb-16">
-            <h1 className="heading-1 mb-6">تواصل معنا</h1>
+            <h1 className="heading-1 mb-6">
+              {creator ? `تواصل مع ${creator.displayName || creator.name}` : 'تواصل معنا'}
+            </h1>
             <p className="body-large text-accent-700 dark:text-dark-text-secondary max-w-3xl mx-auto">
-              نحن هنا لمساعدتك! تواصل معنا لأي استفسار أو مساعدة تحتاجها
+              {creator
+                ? `تواصل مع ${creator.displayName || creator.name} للاستفسار عن قوالبه أو التعاون معه`
+                : 'نحن هنا لمساعدتك! تواصل معنا لأي استفسار أو مساعدة تحتاجها'
+              }
             </p>
           </div>
+
+          {/* Creator Information Section */}
+          {loadingCreator && (
+            <div className="card p-8 mb-12 bg-gradient-to-r from-primary-50 to-orange-50 dark:from-dark-tertiary dark:to-dark-primary border border-primary-200 dark:border-orange-500/30">
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 dark:border-orange-500"></div>
+                <span className="mr-3 text-accent-600 dark:text-dark-text-secondary">جاري تحميل معلومات المبدع...</span>
+              </div>
+            </div>
+          )}
+
+          {creator && (
+            <div className="card p-8 mb-12 bg-gradient-to-r from-primary-50 to-orange-50 dark:from-dark-tertiary dark:to-dark-primary border border-primary-200 dark:border-orange-500/30">
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                <div className="flex-shrink-0">
+                  {creator.avatar ? (
+                    <Image
+                      src={creator.avatar}
+                      alt={creator.displayName || creator.name}
+                      width={80}
+                      height={80}
+                      className="rounded-full object-cover border-4 border-white dark:border-dark-secondary shadow-lg"
+                      quality={100}
+                    />
+                  ) : (
+                    <div className="w-20 h-20 rounded-full bg-primary-500 dark:bg-orange-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                      {(creator.displayName || creator.name).charAt(0)}
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 text-center md:text-right">
+                  <h2 className="heading-3 text-accent-500 dark:text-dark-text-primary mb-2">
+                    {creator.displayName || creator.name}
+                  </h2>
+                  {creator.bio && (
+                    <p className="text-accent-600 dark:text-dark-text-secondary mb-3">
+                      {creator.bio}
+                    </p>
+                  )}
+                  <div className="flex flex-wrap justify-center md:justify-end gap-4 text-sm">
+                    {creator.templateCount > 0 && (
+                      <span className="bg-primary-100 dark:bg-orange-500/20 text-primary-700 dark:text-orange-300 px-3 py-1 rounded-full">
+                        {creator.templateCount} قالب
+                      </span>
+                    )}
+                    {creator.verified && (
+                      <span className="bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-300 px-3 py-1 rounded-full flex items-center gap-1">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        مبدع موثق
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-4 text-center md:text-right">
+                    <Link
+                      href={`/creators/${creator.username}`}
+                      className="text-primary-600 dark:text-orange-400 hover:text-primary-700 dark:hover:text-orange-300 font-medium text-sm hover:underline flex items-center justify-center md:justify-end gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                      عرض صفحة المبدع
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Contact Form */}
@@ -110,7 +241,21 @@ export default function ContactPage() {
                     <svg className="w-5 h-5 text-green-600 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.
+                    {creator
+                      ? `تم إرسال رسالتك إلى ${creator.displayName || creator.name} بنجاح! سنتواصل معك قريباً.`
+                      : 'تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.'
+                    }
+                  </div>
+                </div>
+              )}
+
+              {submitStatus === 'error' && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm mb-6">
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-red-600 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.
                   </div>
                 </div>
               )}
@@ -167,6 +312,7 @@ export default function ContactPage() {
                     <option value="billing">الفوترة والدفع</option>
                     <option value="partnership">شراكة</option>
                     <option value="feedback">ملاحظات ومقترحات</option>
+                    <option value="creator">تواصل مع مبدع</option>
                   </select>
                 </div>
 

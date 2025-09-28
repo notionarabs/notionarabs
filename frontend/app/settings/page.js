@@ -4,16 +4,13 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
-import { useTheme } from '../../contexts/ThemeContext';
 import { useToast } from '../../contexts/ToastContext';
 import LoadingIndicator from '../../components/LoadingIndicator';
-import ThemeToggle from '../../components/ThemeToggle';
 import api from '../../lib/api';
 
 export default function SettingsPage() {
   const router = useRouter();
   const { user, isAuthenticated, loading, logout } = useAuth();
-  const { theme } = useTheme();
   const { showSuccess, showError, showWarning } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [settings, setSettings] = useState({
@@ -218,88 +215,6 @@ export default function SettingsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Main Settings */}
               <div className="lg:col-span-2 space-y-6">
-                {/* Profile Settings */}
-                <div className="card-interactive p-8 group hover:shadow-lg transition-all duration-300">
-                  <div className="flex items-center gap-4 mb-8">
-                    <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 dark:from-primary-600 dark:to-primary-700 rounded-2xl flex items-center justify-center shadow-lg">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h2 className="heading-3 mb-2">إعدادات الملف الشخصي</h2>
-                      <p className="body-medium text-accent-600 dark:text-dark-text-secondary">
-                        إدارة إعدادات ملفك الشخصي وخصوصيتك
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-6">
-                    {/* Profile Visibility Setting */}
-                    <div className="bg-gray-50 dark:bg-dark-tertiary/50 rounded-xl p-6 border border-gray-200 dark:border-dark-card-border">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                              <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                              </svg>
-                            </div>
-                            <div>
-                              <label className="text-sm font-semibold text-accent-700 dark:text-dark-text-primary">
-                                رؤية الملف الشخصي
-                              </label>
-                              <p className="text-xs text-accent-500 dark:text-dark-text-tertiary mt-1">
-                                تحكم في من يمكنه رؤية ملفك الشخصي
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="relative">
-                          <select
-                            value={settings.profileVisibility}
-                            onChange={(e) => handleSettingChange('profileVisibility', e.target.value)}
-                            className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 min-w-40 pr-10"
-                          >
-                            <option value="public">عام</option>
-                            <option value="private">خاص</option>
-                            <option value="friends">الأصدقاء فقط</option>
-                          </select>
-                          {/* Custom dropdown indicator */}
-                          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                            <svg className="w-4 h-4 text-accent-400 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                            </svg>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Profile Information Preview */}
-                    <div className="bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 rounded-xl p-6 border border-primary-200 dark:border-primary-800/30">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-primary-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                          {user?.name?.charAt(0) || 'م'}
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-accent-700 dark:text-dark-text-primary">
-                            {user?.name || 'المستخدم'}
-                          </h3>
-                          <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
-                            {user?.email || 'user@example.com'}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300">
-                            {settings.profileVisibility === 'public' ? 'عام' :
-                              settings.profileVisibility === 'private' ? 'خاص' : 'الأصدقاء فقط'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
 
                 {/* Notification Settings */}
                 <div className="card-interactive p-8">
@@ -541,26 +456,6 @@ export default function SettingsPage() {
 
               {/* Sidebar */}
               <div className="space-y-6">
-                {/* Theme Settings */}
-                <div className="card-interactive p-6">
-                  <h2 className="heading-3 mb-6 flex items-center gap-3">
-                    <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                      </svg>
-                    </div>
-                    المظهر
-                  </h2>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-700 dark:text-dark-text-secondary">
-                        الوضع الحالي: {theme === 'dark' ? 'الليلي' : 'النهاري'}
-                      </p>
-                    </div>
-                    <ThemeToggle />
-                  </div>
-                </div>
 
                 {/* Account Actions */}
                 <div className="card-interactive p-6">

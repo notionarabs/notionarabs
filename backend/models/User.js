@@ -159,13 +159,9 @@ const userSchema = new mongoose.Schema({
     trim: true,
     maxlength: [50, 'الاسم المعروض لا يجب أن يتجاوز 50 حرف']
   },
-  socialLinks: {
-    website: { type: String, default: '' },
-    twitter: { type: String, default: '' },
-    linkedin: { type: String, default: '' },
-    instagram: { type: String, default: '' },
-    youtube: { type: String, default: '' }
-  },
+  socialLinks: [{
+    url: { type: String, default: '' }
+  }],
   profileVisibility: {
     type: String,
     enum: ['public', 'followers', 'private'],

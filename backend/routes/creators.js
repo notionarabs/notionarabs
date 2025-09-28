@@ -239,15 +239,23 @@ router.get('/:id', async (req, res) => {
         name: creator.name,
         username: creator.username || creator.email?.split('@')[0], // Use email username part as fallback
         displayName: creator.displayName || creator.name, // Use name as fallback for displayName
-        email: creator.email, // Include email in response
+        email: creator.showEmail ? creator.email : null, // Only include email if showEmail is true
+        phone: creator.showPhone ? creator.phone : null, // Only include phone if showPhone is true
         bio: creator.bio,
         profilePicture: creator.profilePicture,
         backgroundImage: creator.backgroundImage, // Include background image
-        socialLinks: creator.socialLinks,
+        socialLinks: creator.socialLinks || [],
         specialties: creator.specialties || [],
         rating: creatorStats.averageRating || creator.rating || 0,
         followers: creator.followers || 0,
-        joinDate: creator.createdAt,
+        templateCount: creator.showTemplateCount !== false ? (creatorStats.totalTemplates || creator.templateCount || 0) : null, // Only show if allowed
+        joinDate: creator.showJoinDate ? creator.createdAt : null, // Only include join date if showJoinDate is true
+        createdAt: creator.createdAt, // Always include for internal use
+        allowMessages: creator.allowMessages !== false, // Default to true if not set
+        showEmail: creator.showEmail,
+        showPhone: creator.showPhone,
+        showTemplateCount: creator.showTemplateCount !== false,
+        showJoinDate: creator.showJoinDate !== false,
         description: creator.bio,
         stats: {
           totalDownloads: creatorStats.totalDownloads,

@@ -67,6 +67,7 @@ const screenshotRoutes = require('./routes/screenshot');
 const blogRoutes = require('./routes/blogs');
 const creatorRoutes = require('./routes/creators');
 const uploadRoutes = require('./routes/upload');
+const contactRoutes = require('./routes/contact');
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/templates', templateRoutes);
@@ -74,6 +75,7 @@ app.use('/api/screenshot', screenshotRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/creators', creatorRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Basic route
 app.get('/', (req, res) => {

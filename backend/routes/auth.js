@@ -132,10 +132,22 @@ router.get('/check-username/:username', async (req, res) => {
       });
     }
 
-    // Check if username exists
-    const existingUser = await User.findOne({
-      username: lowerUsername
-    });
+    // Check if username exists (exclude current user if they're authenticated)
+    const query = { username: lowerUsername };
+
+    // If user is authenticated (has Authorization header), exclude their own username
+    if (req.headers.authorization) {
+      try {
+        const token = req.headers.authorization.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        query._id = { $ne: decoded.id };
+      } catch (tokenError) {
+        // If token is invalid, continue without excluding any user
+        console.log('Invalid token in username check:', tokenError.message);
+      }
+    }
+
+    const existingUser = await User.findOne(query);
 
     if (existingUser) {
       return res.status(409).json({

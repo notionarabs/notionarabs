@@ -1,8 +1,24 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
+const nodemailer = require('nodemailer');
 const User = require('../models/User');
 
 const router = express.Router();
+
+// Email configuration
+const createTransporter = () => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    throw new Error('Email configuration missing. Please set EMAIL_USER and EMAIL_PASS environment variables.');
+  }
+
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+};
 
 // Test endpoint to verify route is working
 router.get('/test', (req, res) => {
@@ -27,12 +43,12 @@ router.post('/creator', [
     .withMessage('يرجى إدخال بريد إلكتروني صحيح'),
   body('subject')
     .trim()
-    .isLength({ min: 5, max: 100 })
-    .withMessage('الموضوع يجب أن يكون بين 5 و 100 حرف'),
+    .isLength({ min: 1, max: 100 })
+    .withMessage('الموضوع يجب أن يكون بين 1 و 100 حرف'),
   body('message')
     .trim()
-    .isLength({ min: 10, max: 1000 })
-    .withMessage('الرسالة يجب أن تكون بين 10 و 1000 حرف'),
+    .isLength({ min: 1, max: 1000 })
+    .withMessage('الرسالة يجب أن تكون بين 1 و 1000 حرف'),
   body('creatorId')
     .isMongoId()
     .withMessage('معرف المبدع غير صحيح')
@@ -81,13 +97,95 @@ router.post('/creator', [
     console.log('Message:', message);
     console.log('========================');
 
-    // TODO: Implement email sending when email configuration is ready
-    // For now, messages are logged to console for testing
+    // Check if email configuration is available
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.warn('Email configuration missing. Message logged but not sent via email.');
+      console.log('To enable email sending, set EMAIL_USER and EMAIL_PASS environment variables.');
 
-    res.json({
-      success: true,
-      message: 'تم إرسال رسالتك بنجاح للمبدع (اختبار - سيتم إرسالها عند تفعيل البريد الإلكتروني)'
-    });
+      // Return success but with a note that email wasn't sent
+      res.json({
+        success: true,
+        message: 'تم استلام رسالتك بنجاح (لم يتم إرسالها بالبريد الإلكتروني - تحتاج إعداد البريد الإلكتروني)'
+      });
+      return;
+    }
+
+    // Send email to creator
+    try {
+      const transporter = createTransporter();
+
+      // Verify transporter connection
+      await transporter.verify();
+
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: creator.email,
+        subject: `رسالة جديدة من ${name} - ${subject}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
+            <h2 style="color: #333; text-align: center;">رسالة جديدة من موقع عرب نوشن</h2>
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #495057; margin-bottom: 15px;">تفاصيل الرسالة:</h3>
+              <p><strong>المرسل:</strong> ${name}</p>
+              <p><strong>البريد الإلكتروني:</strong> <a href="mailto:${email}" style="color: #007bff;">${email}</a></p>
+              <p><strong>الموضوع:</strong> ${subject}</p>
+            </div>
+            <div style="background-color: #ffffff; padding: 20px; border: 1px solid #dee2e6; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #495057; margin-bottom: 15px;">محتوى الرسالة:</h3>
+              <p style="line-height: 1.6; color: #333;">${message.replace(/\n/g, '<br>')}</p>
+            </div>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="mailto:${email}" style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">الرد على الرسالة</a>
+            </div>
+            <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+            <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
+          </div>
+        `
+      };
+
+      await transporter.sendMail(mailOptions);
+
+      // Also send a copy to the sender for confirmation
+      const confirmationMailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: `تأكيد إرسال رسالتك إلى ${creator.displayName || creator.name}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
+            <h2 style="color: #333; text-align: center;">تم إرسال رسالتك بنجاح!</h2>
+            <p>مرحباً ${name}،</p>
+            <p>تم إرسال رسالتك إلى <strong>${creator.displayName || creator.name}</strong> بنجاح.</p>
+            <div style="background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p><strong>تفاصيل الرسالة المرسلة:</strong></p>
+              <p><strong>الموضوع:</strong> ${subject}</p>
+              <p><strong>المبدع:</strong> ${creator.displayName || creator.name}</p>
+            </div>
+            <p>سنتواصل معك قريباً عبر البريد الإلكتروني إذا كان هناك رد من المبدع.</p>
+            <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+            <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
+          </div>
+        `
+      };
+
+      await transporter.sendMail(confirmationMailOptions);
+
+      res.json({
+        success: true,
+        message: 'تم إرسال رسالتك بنجاح للمبدع'
+      });
+
+    } catch (emailError) {
+      console.error('Email sending error:', emailError);
+      console.error('Email error details:', {
+        message: emailError.message,
+        code: emailError.code,
+        stack: emailError.stack
+      });
+      res.status(500).json({
+        success: false,
+        message: 'تم استلام رسالتك لكن حدث خطأ في إرسالها للمبدع. سنتواصل معك قريباً.'
+      });
+    }
 
   } catch (error) {
     console.error('Contact creator error:', error);
@@ -117,12 +215,12 @@ router.post('/general', [
     .withMessage('يرجى إدخال بريد إلكتروني صحيح'),
   body('subject')
     .trim()
-    .isLength({ min: 5, max: 100 })
-    .withMessage('الموضوع يجب أن يكون بين 5 و 100 حرف'),
+    .isLength({ min: 1, max: 100 })
+    .withMessage('الموضوع يجب أن يكون بين 1 و 100 حرف'),
   body('message')
     .trim()
-    .isLength({ min: 10, max: 1000 })
-    .withMessage('الرسالة يجب أن تكون بين 10 و 1000 حرف')
+    .isLength({ min: 1, max: 1000 })
+    .withMessage('الرسالة يجب أن تكون بين 1 و 1000 حرف')
 ], async (req, res) => {
   try {
     // Check validation errors
@@ -144,13 +242,88 @@ router.post('/general', [
     console.log('Message:', message);
     console.log('================================');
 
-    // TODO: Implement email sending when email configuration is ready
-    // For now, messages are logged to console for testing
+    // Check if email configuration is available
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.warn('Email configuration missing. Message logged but not sent via email.');
+      console.log('To enable email sending, set EMAIL_USER and EMAIL_PASS environment variables.');
 
-    res.json({
-      success: true,
-      message: 'تم إرسال رسالتك بنجاح (اختبار - سيتم إرسالها عند تفعيل البريد الإلكتروني)'
-    });
+      // Return success but with a note that email wasn't sent
+      res.json({
+        success: true,
+        message: 'تم استلام رسالتك بنجاح (لم يتم إرسالها بالبريد الإلكتروني - تحتاج إعداد البريد الإلكتروني)'
+      });
+      return;
+    }
+
+    // Send email to support team
+    try {
+      const transporter = createTransporter();
+
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: process.env.SUPPORT_EMAIL || process.env.EMAIL_USER, // Use support email or fallback to main email
+        subject: `رسالة جديدة من موقع عرب نوشن - ${subject}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
+            <h2 style="color: #333; text-align: center;">رسالة جديدة من موقع عرب نوشن</h2>
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #495057; margin-bottom: 15px;">تفاصيل الرسالة:</h3>
+              <p><strong>المرسل:</strong> ${name}</p>
+              <p><strong>البريد الإلكتروني:</strong> <a href="mailto:${email}" style="color: #007bff;">${email}</a></p>
+              <p><strong>الموضوع:</strong> ${subject}</p>
+              <p><strong>نوع الاستفسار:</strong> ${req.body.category || 'عام'}</p>
+            </div>
+            <div style="background-color: #ffffff; padding: 20px; border: 1px solid #dee2e6; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #495057; margin-bottom: 15px;">محتوى الرسالة:</h3>
+              <p style="line-height: 1.6; color: #333;">${message.replace(/\n/g, '<br>')}</p>
+            </div>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="mailto:${email}" style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">الرد على الرسالة</a>
+            </div>
+            <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+            <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
+          </div>
+        `
+      };
+
+      await transporter.sendMail(mailOptions);
+
+      // Send confirmation to the sender
+      const confirmationMailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: `تأكيد استلام رسالتك - عرب نوشن`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
+            <h2 style="color: #333; text-align: center;">تم استلام رسالتك بنجاح!</h2>
+            <p>مرحباً ${name}،</p>
+            <p>شكراً لتواصلك معنا. تم استلام رسالتك وسنرد عليك خلال 24 ساعة.</p>
+            <div style="background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p><strong>تفاصيل الرسالة المرسلة:</strong></p>
+              <p><strong>الموضوع:</strong> ${subject}</p>
+              <p><strong>نوع الاستفسار:</strong> ${req.body.category || 'عام'}</p>
+            </div>
+            <p>إذا كان لديك أي استفسارات أخرى، لا تتردد في التواصل معنا.</p>
+            <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+            <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
+          </div>
+        `
+      };
+
+      await transporter.sendMail(confirmationMailOptions);
+
+      res.json({
+        success: true,
+        message: 'تم إرسال رسالتك بنجاح وسنرد عليك قريباً'
+      });
+
+    } catch (emailError) {
+      console.error('Email sending error:', emailError);
+      res.status(500).json({
+        success: false,
+        message: 'تم استلام رسالتك لكن حدث خطأ في إرسالها. سنتواصل معك قريباً.'
+      });
+    }
 
   } catch (error) {
     console.error('General contact error:', error);

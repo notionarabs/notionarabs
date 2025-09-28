@@ -120,11 +120,11 @@ function ContactForm() {
         submissionData.message = `المرسل: ${submissionData.name}\nالبريد الإلكتروني: ${submissionData.email}\n\nالمبدع المستهدف: ${creator.displayName || creator.name}\nمعرف المبدع: ${creatorId}\n\nالرسالة:\n${submissionData.message}`;
       }
 
-      // TODO: Replace with actual API call when backend endpoint is ready
-      // const response = await api.post('/contact', submissionData);
+      // Send the actual API request
+      const endpoint = creator ? '/contact/creator' : '/contact/general';
+      const response = await api.post(endpoint, submissionData);
 
-      // Simulate form submission
-      setTimeout(() => {
+      if (response.data.success) {
         setIsSubmitting(false);
         setSubmitStatus('success');
         setFormData({
@@ -134,11 +134,19 @@ function ContactForm() {
           message: '',
           category: creator ? 'creator' : 'general'
         });
-      }, 2000);
+      } else {
+        throw new Error(response.data.message || 'فشل في إرسال الرسالة');
+      }
     } catch (error) {
       console.error('Error submitting contact form:', error);
+      console.error('Error response:', error.response?.data);
       setIsSubmitting(false);
       setSubmitStatus('error');
+
+      // Log validation errors if they exist
+      if (error.response?.data?.errors) {
+        console.error('Validation errors:', error.response.data.errors);
+      }
     }
 
   };

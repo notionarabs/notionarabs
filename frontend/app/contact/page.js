@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -52,7 +52,7 @@ const faqs = [
   }
 ];
 
-export default function ContactPage() {
+function ContactForm() {
   const searchParams = useSearchParams();
   const creatorId = searchParams.get('creator');
 
@@ -536,5 +536,24 @@ export default function ContactPage() {
         </div>
       </footer>
     </main>
+  );
+}
+
+export default function ContactPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+        <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
+          <div className="container-custom">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 dark:border-orange-500 mx-auto"></div>
+              <p className="mt-4 text-accent-600 dark:text-dark-text-secondary">جاري التحميل...</p>
+            </div>
+          </div>
+        </section>
+      </main>
+    }>
+      <ContactForm />
+    </Suspense>
   );
 }

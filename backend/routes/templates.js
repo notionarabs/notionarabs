@@ -3,6 +3,7 @@ const { body, validationResult } = require('express-validator');
 const Template = require('../models/Template');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const { generateTemplateSlug } = require('../utils/slugGenerator');
 
 const router = express.Router();
 
@@ -119,11 +120,24 @@ router.post('/', auth, [
       }
     }
 
+    // Generate unique slug for the template
+    const slugExists = async (slug, excludeId = null) => {
+      const query = { slug };
+      if (excludeId) {
+        query._id = { $ne: excludeId };
+      }
+      const existingTemplate = await Template.findOne(query);
+      return !!existingTemplate;
+    };
+
+    const slug = await generateTemplateSlug(req.body.title, slugExists);
+
     const templateData = {
       ...req.body,
       creator: req.user._id,
       status: 'pending',
-      previewImage: previewImageUrl
+      previewImage: previewImageUrl,
+      slug
     };
 
     const template = new Template(templateData);
@@ -287,15 +301,26 @@ router.get('/creator/:creatorId', async (req, res) => {
   }
 });
 
-// @route   GET /api/templates/:id
-// @desc    Get single template by ID
+// @route   GET /api/templates/:identifier
+// @desc    Get single template by ID or slug
 // @access  Public
-router.get('/:id', async (req, res) => {
+router.get('/:identifier', async (req, res) => {
   try {
-    const template = await Template.findOne({
-      _id: req.params.id,
+    const { identifier } = req.params;
+
+    // Try to find by slug first, then by ID
+    let template = await Template.findOne({
+      slug: identifier,
       status: 'approved'
     }).populate('creator', 'name username displayName profilePicture bio');
+
+    // If not found by slug, try by ID
+    if (!template) {
+      template = await Template.findOne({
+        _id: identifier,
+        status: 'approved'
+      }).populate('creator', 'name username displayName profilePicture bio');
+    }
 
     if (!template) {
       return res.status(404).json({

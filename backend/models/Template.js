@@ -7,6 +7,14 @@ const templateSchema = new mongoose.Schema({
     trim: true,
     maxlength: [100, 'عنوان القالب لا يجب أن يتجاوز 100 حرف']
   },
+  slug: {
+    type: String,
+    unique: true,
+    sparse: true, // Allows multiple null values
+    trim: true,
+    lowercase: true,
+    required: false // Make optional for existing templates
+  },
   description: {
     type: String,
     required: [true, 'وصف القالب مطلوب'],
@@ -131,11 +139,37 @@ const templateSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Pre-save hook to generate slug if not provided
+templateSchema.pre('save', async function (next) {
+  if (!this.slug && this.title) {
+    try {
+      const { generateTemplateSlug } = require('../utils/slugGenerator');
+
+      const slugExists = async (slug, excludeId = null) => {
+        const query = { slug };
+        if (excludeId) {
+          query._id = { $ne: excludeId };
+        }
+        const existingTemplate = await Template.findOne(query);
+        return !!existingTemplate;
+      };
+
+      this.slug = await generateTemplateSlug(this.title, slugExists, this._id);
+    } catch (error) {
+      console.error('Error generating slug:', error);
+      // Fallback to ID-based slug if generation fails
+      this.slug = `template-${this._id}`;
+    }
+  }
+  next();
+});
+
 // Index for better query performance
 templateSchema.index({ status: 1, createdAt: -1 });
 templateSchema.index({ creator: 1, status: 1 });
 templateSchema.index({ creator: 1, title: 1 }); // For duplicate title checking
-templateSchema.index({ creator: 1, notionLink: 1 }); // For duplicate link checking
+templateSchema.index({ creator: 1, notionLink: 1 });
+// Slug index is already defined in the schema field definition
 templateSchema.index({ category: 1, status: 1 });
 templateSchema.index({ tags: 1 });
 

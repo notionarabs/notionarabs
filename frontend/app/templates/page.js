@@ -280,7 +280,7 @@ export default function TemplatesPage() {
           ) : templates.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {templates.map((template) => (
-                <Link key={template._id} href={`/templates/${template._id}`}>
+                <Link key={template._id} href={`/templates/${template.slug || template._id}`}>
                   <div className="card p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group">
                     {/* Template Image */}
                     <div className="relative h-48 bg-gray-200 dark:bg-gray-700 overflow-hidden rounded-lg mb-4">

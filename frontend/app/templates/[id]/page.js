@@ -62,7 +62,7 @@ const relatedTemplates = [
 
 export default function TemplateDetailPage() {
   const params = useParams();
-  const templateId = params.id;
+  const templateIdentifier = params.id; // This can be either ID or slug
 
   const [template, setTemplate] = useState(null);
   const [relatedTemplates, setRelatedTemplates] = useState([]);
@@ -78,7 +78,7 @@ export default function TemplateDetailPage() {
         setLoading(true);
         setError(null);
 
-        const response = await api.get(`/templates/${templateId}`);
+        const response = await api.get(`/templates/${templateIdentifier}`);
 
         if (response.data.success) {
           setTemplate(response.data.template);
@@ -86,7 +86,7 @@ export default function TemplateDetailPage() {
           // Fetch related templates from same category
           const relatedResponse = await api.get(`/templates?category=${response.data.template.category}&limit=3&sortBy=downloads&sortOrder=desc`);
           if (relatedResponse.data.success) {
-            setRelatedTemplates(relatedResponse.data.templates.filter(t => t._id !== templateId));
+            setRelatedTemplates(relatedResponse.data.templates.filter(t => (t.slug || t._id) !== templateIdentifier));
           }
         } else {
           setError('القالب غير موجود');
@@ -101,10 +101,10 @@ export default function TemplateDetailPage() {
       }
     };
 
-    if (templateId) {
+    if (templateIdentifier) {
       fetchTemplate();
     }
-  }, [templateId]);
+  }, [templateIdentifier]);
 
   const StarRating = ({ rating }) => {
     return (
@@ -410,7 +410,7 @@ export default function TemplateDetailPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {relatedTemplates.map((relatedTemplate) => (
               <div key={relatedTemplate._id || relatedTemplate.id} className="bg-white dark:bg-dark-primary rounded-xl shadow-medium dark:shadow-dark-medium overflow-hidden transition-all duration-200 hover:shadow-large dark:hover:shadow-dark-large hover:-translate-y-1">
-                <Link href={`/templates/${relatedTemplate._id || relatedTemplate.id}`}>
+                <Link href={`/templates/${relatedTemplate.slug || relatedTemplate._id || relatedTemplate.id}`}>
                   <div className="relative">
                     <Image
                       src={relatedTemplate.previewImage || relatedTemplate.imgSrc || '/placeholder-template.jpg'}

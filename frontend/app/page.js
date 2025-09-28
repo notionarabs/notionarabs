@@ -434,7 +434,7 @@ export default function HomePage() {
               ))
             ) : (
               featuredTemplates.map((t, idx) => (
-                <Link key={t._id || idx} href={`/templates/${t._id}`}>
+                <Link key={t._id || idx} href={`/templates/${t.slug || t._id}`}>
                   <div className="group card-interactive overflow-hidden">
                     <div className="relative h-48 bg-gray-200 overflow-hidden">
                       {t.previewImage ? (

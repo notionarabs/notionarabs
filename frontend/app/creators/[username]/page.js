@@ -432,7 +432,7 @@ export default function PublicProfilePage() {
           {creatorTemplates.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {creatorTemplates.map((template) => (
-                <Link key={template._id || template.id} href={`/templates/${template._id || template.id}`}>
+                <Link key={template._id || template.id} href={`/templates/${template.slug || template._id || template.id}`}>
                   <div className="card-interactive overflow-hidden">
                     <div className="relative h-48 bg-gray-200 dark:bg-gray-700 overflow-hidden">
                       {template.previewImage ? (

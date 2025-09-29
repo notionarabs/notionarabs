@@ -94,7 +94,7 @@ router.get('/health', async (req, res) => {
   try {
     // Basic health check without launching browser
     const puppeteer = require('puppeteer');
-    
+
     // Check if Puppeteer is available
     if (!puppeteer) {
       throw new Error('Puppeteer not available');

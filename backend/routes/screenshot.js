@@ -13,12 +13,19 @@ router.post('/', auth, [
     .isURL()
     .withMessage('رابط غير صحيح')
     .matches(/^https:\/\/(www\.)?notion\.so\//)
-    .withMessage('يجب أن يكون الرابط من موقع نوشن')
+    .withMessage('يجب أن يكون الرابط من موقع نوشن (مثال: https://notion.so/your-page)')
 ], async (req, res) => {
   try {
+    console.log('Screenshot request received:', {
+      url: req.body.url,
+      userId: req.user?.id,
+      userCreatorStatus: req.user?.creatorStatus
+    });
+
     // Check validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Validation errors:', errors.array());
       return res.status(400).json({
         success: false,
         message: 'بيانات غير صحيحة',
@@ -28,16 +35,24 @@ router.post('/', auth, [
 
     // Check if user is an approved creator
     if (req.user.creatorStatus !== 'approved') {
+      console.log('User creator status check failed:', {
+        userId: req.user.id,
+        creatorStatus: req.user.creatorStatus,
+        required: 'approved'
+      });
       return res.status(403).json({
         success: false,
-        message: 'غير مصرح لك بالوصول إلى هذه الميزة'
+        message: 'غير مصرح لك بالوصول إلى هذه الميزة. يجب أن تكون منشئ معتمد لاستخدام هذه الميزة.',
+        userMessage: 'يجب أن تكون منشئ معتمد لاستخدام ميزة التقاط الصور التلقائية. يمكنك التقديم لتصبح منشئ معتمد من صفحة الملف الشخصي.'
       });
     }
 
     const { url } = req.body;
 
     // Take screenshot
+    console.log('Calling screenshot service with URL:', url);
     const result = await screenshotService.takeScreenshot(url, req);
+    console.log('Screenshot service result:', result);
 
     if (result.success) {
       res.json({
@@ -46,6 +61,7 @@ router.post('/', auth, [
         data: result
       });
     } else {
+      console.log('Screenshot service failed:', result);
       res.status(400).json({
         success: false,
         message: result.userMessage || result.error || 'فشل في التقاط الصورة',
@@ -82,6 +98,72 @@ router.post('/', auth, [
     res.status(statusCode).json({
       success: false,
       message: message,
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// @route   POST /api/screenshot/test
+// @desc    Test screenshot service without creator status requirement
+// @access  Private (for testing)
+router.post('/test', auth, [
+  body('url')
+    .isURL()
+    .withMessage('رابط غير صحيح')
+    .matches(/^https:\/\/(www\.)?notion\.so\//)
+    .withMessage('يجب أن يكون الرابط من موقع نوشن (مثال: https://notion.so/your-page)')
+], async (req, res) => {
+  try {
+    console.log('Test screenshot request received:', {
+      url: req.body.url,
+      userId: req.user?.id,
+      userCreatorStatus: req.user?.creatorStatus
+    });
+
+    // Check validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      console.log('Validation errors:', errors.array());
+      return res.status(400).json({
+        success: false,
+        message: 'بيانات غير صحيحة',
+        errors: errors.array()
+      });
+    }
+
+    const { url } = req.body;
+
+    // Take screenshot (bypassing creator status check for testing)
+    console.log('Calling screenshot service with URL:', url);
+    const result = await screenshotService.takeScreenshot(url, req);
+    console.log('Screenshot service result:', result);
+
+    if (result.success) {
+      res.json({
+        success: true,
+        message: 'تم التقاط الصورة بنجاح',
+        data: result
+      });
+    } else {
+      console.log('Screenshot service failed:', result);
+      res.status(400).json({
+        success: false,
+        message: result.userMessage || result.error || 'فشل في التقاط الصورة',
+        details: process.env.NODE_ENV === 'development' ? result.details : undefined
+      });
+    }
+
+  } catch (error) {
+    console.error('Test screenshot API error:', {
+      message: error.message,
+      stack: error.stack,
+      url: req.body.url,
+      userId: req.user?.id
+    });
+
+    res.status(500).json({
+      success: false,
+      message: 'حدث خطأ أثناء التقاط الصورة',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }

@@ -101,21 +101,17 @@ class ScreenshotService {
   async takeScreenshot(url, req = null) {
     let browser;
     try {
-      // Windows-optimized launch options
+      // Production-optimized launch options
       const launchOptions = {
         headless: true,
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage',
-          '--disable-accelerated-2d-canvas',
-          '--no-first-run',
           '--disable-gpu',
           '--disable-web-security',
           '--disable-features=VizDisplayCompositor',
-          '--disable-background-timer-throttling',
-          '--disable-backgrounding-occluded-windows',
-          '--disable-renderer-backgrounding',
+          '--no-first-run',
           '--disable-extensions',
           '--disable-plugins',
           '--disable-default-apps',
@@ -124,7 +120,6 @@ class ScreenshotService {
           '--hide-scrollbars',
           '--mute-audio',
           '--no-default-browser-check',
-          '--no-pings',
           '--disable-background-networking',
           '--disable-component-extensions-with-background-pages',
           '--disable-ipc-flooding-protection',
@@ -135,33 +130,32 @@ class ScreenshotService {
           '--disable-domain-reliability',
           '--disable-client-side-phishing-detection',
           '--disable-component-update',
-          '--disable-background-timer-throttling',
-          '--disable-backgrounding-occluded-windows',
-          '--disable-features=TranslateUI,BlinkGenPropertyTrees',
           '--force-color-profile=srgb',
-          '--metrics-recording-only',
-          '--safebrowsing-disable-auto-update',
           '--enable-automation',
           '--password-store=basic',
-          '--use-mock-keychain'
+          '--use-mock-keychain',
+          // Production-specific optimizations
+          '--memory-pressure-off',
+          '--max_old_space_size=512',
+          '--disable-background-timer-throttling',
+          '--disable-backgrounding-occluded-windows',
+          '--disable-renderer-backgrounding'
         ],
-        // Windows-specific options
-        timeout: 45000,
-        protocolTimeout: 45000,
-        slowMo: 100 // Small delay for stability
+        timeout: process.env.NODE_ENV === 'production' ? 45000 : 30000,
+        protocolTimeout: process.env.NODE_ENV === 'production' ? 45000 : 30000
       };
 
-      // Try to use system Chrome if available (especially on Windows)
+      // Try to use system Chrome if available
       const chromePaths = [
-        // Windows paths
-        'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-        'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-        'C:\\Users\\' + process.env.USERNAME + '\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe',
-        // Linux paths
+        // Production/Linux paths first (for Render.com)
         '/usr/bin/google-chrome-stable',
         '/usr/bin/google-chrome',
         '/usr/bin/chromium-browser',
         '/usr/bin/chromium',
+        // Windows paths
+        'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+        'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+        'C:\\Users\\' + process.env.USERNAME + '\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe',
         // macOS paths
         '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
       ];
@@ -179,8 +173,11 @@ class ScreenshotService {
       }
 
       try {
+        console.log('Attempting to launch browser with options:', JSON.stringify(launchOptions, null, 2));
         browser = await puppeteer.launch(launchOptions);
+        console.log('Browser launched successfully');
       } catch (launchError) {
+        console.error('Browser launch failed:', launchError);
         throw new Error(`Browser launch failed: ${launchError.message}`);
       }
 

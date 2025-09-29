@@ -7,6 +7,9 @@ import { useParams } from 'next/navigation';
 import { formatDate } from '../../../lib/dateUtils';
 import api from '../../../lib/api';
 import LoadingIndicator from '../../../components/LoadingIndicator';
+import RatingSystem from '../../../components/RatingSystem';
+import StarRating from '../../../components/StarRating';
+import { useAuth } from '../../../contexts/AuthContext';
 
 // Fallback data for when API fails
 const fallbackTemplate = {
@@ -62,6 +65,7 @@ const relatedTemplates = [
 export default function TemplateDetailPage() {
   const params = useParams();
   const templateIdentifier = params.id; // This can be either ID or slug
+  const { isAuthenticated } = useAuth();
 
   const [template, setTemplate] = useState(null);
   const [relatedTemplates, setRelatedTemplates] = useState([]);
@@ -69,6 +73,32 @@ export default function TemplateDetailPage() {
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [isDownloaded, setIsDownloaded] = useState(false);
+  const [isImageLoading, setIsImageLoading] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [userRating, setUserRating] = useState(null);
+  const [templateRatings, setTemplateRatings] = useState([]);
+  const [showAllReviews, setShowAllReviews] = useState(false);
+
+  // Load ratings for the template
+  const loadRatings = async (templateId) => {
+    try {
+      // Load user's rating if authenticated
+      if (isAuthenticated) {
+        const userRatingResponse = await api.get(`/ratings/user/template/${templateId}`);
+        if (userRatingResponse.data.success) {
+          setUserRating(userRatingResponse.data.rating);
+        }
+      }
+
+      // Load all ratings for the template
+      const ratingsResponse = await api.get(`/ratings/template/${templateId}?limit=5`);
+      if (ratingsResponse.data.success) {
+        setTemplateRatings(ratingsResponse.data.ratings);
+      }
+    } catch (error) {
+      console.log('Error loading ratings:', error);
+    }
+  };
 
   // Fetch template data from API
   useEffect(() => {
@@ -81,6 +111,9 @@ export default function TemplateDetailPage() {
 
         if (response.data.success) {
           setTemplate(response.data.template);
+
+          // Load ratings
+          await loadRatings(response.data.template._id);
 
           // Fetch related templates from same category
           const relatedResponse = await api.get(`/templates?category=${response.data.template.category}&limit=3&sortBy=downloads&sortOrder=desc`);
@@ -103,7 +136,7 @@ export default function TemplateDetailPage() {
     if (templateIdentifier) {
       fetchTemplate();
     }
-  }, [templateIdentifier]);
+  }, [templateIdentifier, isAuthenticated]);
 
   const StarRating = ({ rating }) => {
     return (
@@ -121,6 +154,44 @@ export default function TemplateDetailPage() {
         <span className="text-sm text-accent-600 dark:text-dark-text-secondary mr-1">{rating}</span>
       </div>
     );
+  };
+
+  // Handle template download
+  const handleDownload = async () => {
+    if (!template) return;
+
+    setIsDownloading(true);
+
+    try {
+      // Open the Notion template link in a new tab
+      window.open(template.notionLink, '_blank');
+
+      // Track download (optional - you can implement analytics here)
+      await api.post(`/templates/${template._id}/download`, {
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        referrer: window.location.href
+      }).catch(error => {
+        // Don't show error to user if tracking fails
+        console.log('Download tracking failed:', error);
+      });
+
+      // Show success state
+      setIsDownloaded(true);
+
+      // Reset download state after 8 seconds
+      setTimeout(() => {
+        setIsDownloaded(false);
+      }, 8000);
+
+    } catch (error) {
+      console.error('Download error:', error);
+      // Could add a toast notification here instead of alert
+      // For now, just reset the state
+      setIsDownloaded(false);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   // Show loading state
@@ -163,36 +234,56 @@ export default function TemplateDetailPage() {
       {/* Template Details */}
       <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
         <div className="container-custom">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
             {/* Images */}
-            <div>
+            <div className="lg:col-span-3">
               <div className="mb-4">
-                <Image
-                  src={template.previewImage || template.imgSrc || '/placeholder-template.jpg'}
-                  alt={template.title}
-                  width={600}
-                  height={400}
-                  className="w-full h-80 object-cover rounded-xl"
-                  quality={100}
-                />
+                <div className="w-full h-96 bg-white dark:bg-gray-900 rounded-xl flex items-center justify-center overflow-hidden relative">
+                  {/* Loading Overlay */}
+                  {isImageLoading && (
+                    <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 flex items-center justify-center z-10">
+                      <div className="loading-spinner"></div>
+                    </div>
+                  )}
+
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Image
+                      key={`${selectedImage}-${template.previewImages?.[selectedImage] || template.previewImage}`}
+                      src={
+                        template.previewImages && template.previewImages.length > selectedImage
+                          ? template.previewImages[selectedImage]
+                          : template.previewImage || template.imgSrc || '/placeholder-template.jpg'
+                      }
+                      alt={template.title}
+                      width={2400}
+                      height={1800}
+                      className="w-full h-full object-contain animate-fade-in"
+                      quality={100}
+                    />
+                  </div>
+                </div>
               </div>
 
-              {/* Thumbnail Images */}
-              <div className="grid grid-cols-4 gap-2">
-                {[1, 2, 3, 4].map((index) => {
-                  const imageSrc = template.previewImage || template.imgSrc;
-
-                  return (
+              {/* Thumbnail Images - Only show if we have multiple images */}
+              {template.previewImages && template.previewImages.length > 1 ? (
+                <div className="grid grid-cols-4 gap-2">
+                  {template.previewImages.map((imageSrc, index) => (
                     <button
                       key={index}
-                      onClick={() => setSelectedImage(index)}
-                      className={`relative overflow-hidden rounded-lg transition-all duration-200 ${selectedImage === index ? 'ring-2 ring-orange-500' : 'hover:opacity-80'
+                      onClick={() => {
+                        setIsImageLoading(true);
+                        setSelectedImage(index);
+                        setTimeout(() => setIsImageLoading(false), 300);
+                      }}
+                      className={`relative overflow-hidden rounded-lg transition-all duration-300 transform ${selectedImage === index
+                        ? 'ring-2 ring-orange-500 scale-105 shadow-lg'
+                        : 'hover:opacity-80 hover:scale-102 hover:shadow-md'
                         }`}
                     >
                       {imageSrc && imageSrc.trim() ? (
                         <Image
                           src={imageSrc}
-                          alt={`${template.title} - ${index}`}
+                          alt={`${template.title} - ${index + 1}`}
                           width={150}
                           height={100}
                           className="w-full h-20 object-cover"
@@ -206,13 +297,23 @@ export default function TemplateDetailPage() {
                         </div>
                       )}
                     </button>
-                  );
-                })}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                /* Single image - show image info instead of thumbnails */
+                <div className="text-center py-4">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent-100 dark:bg-dark-tertiary rounded-lg">
+                    <svg className="w-5 h-5 text-accent-600 dark:text-dark-text-secondary" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-sm text-accent-600 dark:text-dark-text-secondary">معاينة واحدة متاحة</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Template Info */}
-            <div>
+            <div className="lg:col-span-2">
               {/* Breadcrumb */}
               <nav className="flex items-center gap-2 text-sm text-accent-600 dark:text-dark-text-secondary mb-4">
                 <Link href="/templates" className="hover:text-accent-700 dark:hover:text-dark-text-primary transition-colors">
@@ -228,10 +329,28 @@ export default function TemplateDetailPage() {
 
               {/* Creator Info */}
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-                  <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
-                    {template.creator?.name?.charAt(0) || 'م'}
-                  </span>
+                <div className="w-10 h-10 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                  {template.creator?.profilePicture ? (
+                    <Image
+                      src={template.creator.profilePicture}
+                      alt={template.creator?.name || 'مبدع'}
+                      width={40}
+                      height={40}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        // Fallback to initial letter if image fails to load
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+
+                  {/* Fallback avatar with initial letter */}
+                  <div className={`w-full h-full flex items-center justify-center ${template.creator?.profilePicture ? 'hidden' : 'flex'} bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30`}>
+                    <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
+                      {template.creator?.name?.charAt(0)?.toUpperCase() || 'م'}
+                    </span>
+                  </div>
                 </div>
                 <div>
                   <p className="text-sm text-accent-600 dark:text-dark-text-secondary">بواسطة</p>
@@ -255,6 +374,39 @@ export default function TemplateDetailPage() {
                 </span>
               </div>
 
+              {/* Interactive Rating System */}
+              <div className="mb-6 p-4 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
+                <h3 className="text-lg font-semibold text-accent-700 dark:text-dark-text-primary mb-3">
+                  قيم هذا القالب
+                </h3>
+                <RatingSystem
+                  targetType="template"
+                  targetId={template._id}
+                  initialRating={template.rating || 0}
+                  initialUserRating={userRating}
+                  onRatingChange={(data) => {
+                    // Update template rating
+                    setTemplate(prev => ({
+                      ...prev,
+                      rating: data.averageRating,
+                      reviewsCount: data.totalRatings
+                    }));
+                    // Reload ratings
+                    loadRatings(template._id);
+                  }}
+                  className="mb-3"
+                  size="large"
+                />
+                {!isAuthenticated && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <Link href="/login" className="text-blue-600 dark:text-blue-400 hover:underline">
+                      سجل الدخول
+                    </Link>
+                    {' '}لتتمكن من تقييم القوالب
+                  </p>
+                )}
+              </div>
+
               {/* Price - All templates are now free */}
               <div className="flex items-center gap-3 mb-6">
                 <span className="text-3xl font-bold text-green-600 dark:text-green-400">
@@ -267,18 +419,62 @@ export default function TemplateDetailPage() {
 
               {/* Download Button */}
               <button
-                onClick={() => {
-                  setIsDownloaded(true);
-                  // Here you can add actual download functionality
-                  console.log('Downloading template:', template.title);
-                }}
+                onClick={handleDownload}
+                disabled={isDownloading}
                 className={`w-full py-3 px-6 rounded-xl font-medium transition-all duration-200 mb-6 ${isDownloaded
                   ? 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'
-                  : 'bg-green-500 hover:bg-green-600 text-white'
+                  : isDownloading
+                    ? 'bg-green-400 text-white cursor-not-allowed'
+                    : 'bg-green-500 hover:bg-green-600 text-white'
                   }`}
               >
-                {isDownloaded ? 'تم التحميل ✓' : 'تحميل مجاني'}
+                {isDownloaded ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    تم فتح القالب في تبويب جديد
+                  </span>
+                ) : isDownloading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    جاري التحميل...
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                    تحميل مجاني
+                  </span>
+                )}
               </button>
+
+              {/* Download Instructions */}
+              {isDownloaded && (
+                <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+                        كيفية استخدام القالب
+                      </h4>
+                      <p className="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
+                        تم فتح القالب في تبويب جديد. يمكنك الآن:
+                      </p>
+                      <ul className="text-sm text-blue-700 dark:text-blue-300 mt-2 space-y-1">
+                        <li>• نسخ القالب إلى مساحة العمل الخاصة بك في Notion</li>
+                        <li>• تخصيص القالب حسب احتياجاتك</li>
+                        <li>• مشاركة القالب مع فريقك</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Description */}
               <div className="mb-6">
@@ -397,6 +593,56 @@ export default function TemplateDetailPage() {
           </div>
         </div>
       </section>
+
+      {/* Reviews Section */}
+      {templateRatings.length > 0 && (
+        <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
+          <div className="container-custom">
+            <h2 className="heading-2 mb-8">تقييمات المستخدمين</h2>
+
+            <div className="grid gap-6">
+              {templateRatings.slice(0, showAllReviews ? templateRatings.length : 3).map((rating, index) => (
+                <div key={rating._id || index} className="p-6 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center flex-shrink-0">
+                      <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
+                        {rating.user?.name?.charAt(0)?.toUpperCase() || 'م'}
+                      </span>
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="font-medium text-accent-700 dark:text-dark-text-primary">
+                          {rating.user?.name || 'مستخدم'}
+                        </span>
+                        <StarRating rating={rating.rating} size="small" showNumber={false} />
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                          {new Date(rating.createdAt).toLocaleDateString('ar-SA')}
+                        </span>
+                      </div>
+                      {rating.review && (
+                        <p className="text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                          {rating.review}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {templateRatings.length > 3 && (
+                <div className="text-center">
+                  <button
+                    onClick={() => setShowAllReviews(!showAllReviews)}
+                    className="px-6 py-3 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-xl hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-colors duration-200"
+                  >
+                    {showAllReviews ? 'عرض أقل' : `عرض جميع التقييمات (${templateRatings.length})`}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Related Templates */}
       <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">

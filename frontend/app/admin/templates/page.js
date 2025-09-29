@@ -430,8 +430,8 @@ export default function AdminTemplatesPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-accent-600 dark:text-dark-text-secondary">
                       {template.category}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-accent-500 dark:text-dark-text-primary">
-                      {template.price} ريال
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600 dark:text-green-400">
+                      مجاني
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {getStatusBadge(template.status)}
@@ -615,7 +615,7 @@ export default function AdminTemplatesPage() {
                     </div>
                     <div>
                       <span className="font-medium text-accent-600 dark:text-dark-text-secondary">السعر:</span>
-                      <p className="text-accent-500 dark:text-dark-text-primary">{selectedTemplateDetails.price} ريال</p>
+                      <p className="text-green-600 dark:text-green-400">مجاني</p>
                     </div>
                     <div>
                       <span className="font-medium text-accent-600 dark:text-dark-text-secondary">مستوى الصعوبة:</span>

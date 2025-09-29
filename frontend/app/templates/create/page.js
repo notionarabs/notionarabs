@@ -16,6 +16,7 @@ export default function CreateTemplatePage() {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isGeneratingScreenshot, setIsGeneratingScreenshot] = useState(false);
   const [uploadedImage, setUploadedImage] = useState(null);
+  const [uploadedImages, setUploadedImages] = useState([]);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -25,6 +26,7 @@ export default function CreateTemplatePage() {
     features: '',
     tags: '',
     previewImage: '',
+    previewImages: [],
     difficulty: 'beginner'
   });
 
@@ -194,6 +196,74 @@ export default function CreateTemplatePage() {
     }
   };
 
+  // Handle multiple image uploads
+  const handleMultipleFileChange = async (e) => {
+    const files = Array.from(e.target.files);
+
+    if (files.length === 0) return;
+
+    // Validate all files
+    for (const file of files) {
+      if (!file.type.startsWith('image/')) {
+        showError(`الملف ${file.name} ليس صورة صالحة`);
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        showError(`الملف ${file.name} كبير جداً (أكثر من 10 ميجابايت)`);
+        return;
+      }
+    }
+
+    setIsUploadingImage(true);
+
+    try {
+      const uploadPromises = files.map(async (file) => {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const response = await api.post('/upload/image', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        if (response.data.success) {
+          return response.data.data.imageUrl;
+        }
+        throw new Error('فشل في رفع الصورة');
+      });
+
+      const uploadedUrls = await Promise.all(uploadPromises);
+
+      setUploadedImages(prev => [...prev, ...uploadedUrls]);
+      setFormData(prev => ({
+        ...prev,
+        previewImages: [...prev.previewImages, ...uploadedUrls]
+      }));
+
+      showSuccess(`تم رفع ${uploadedUrls.length} صورة بنجاح`);
+
+      // Clear the input
+      e.target.value = '';
+
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      const errorMessage = error.response?.data?.message || 'فشل في رفع الصور';
+      showError(errorMessage);
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  // Remove image from multiple images
+  const removeMultipleImage = (index) => {
+    setUploadedImages(prev => prev.filter((_, i) => i !== index));
+    setFormData(prev => ({
+      ...prev,
+      previewImages: prev.previewImages.filter((_, i) => i !== index)
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -246,7 +316,8 @@ export default function CreateTemplatePage() {
         difficulty: formData.difficulty,
         tags: tagsArray.length > 0 ? tagsArray : undefined,
         features: formData.features.trim() || undefined,
-        previewImage: formData.previewImage || undefined // Only set if screenshot was captured
+        previewImage: formData.previewImage || undefined, // Only set if screenshot was captured
+        previewImages: formData.previewImages.length > 0 ? formData.previewImages : undefined
       };
 
       // Remove undefined values
@@ -268,9 +339,11 @@ export default function CreateTemplatePage() {
           features: '',
           tags: '',
           previewImage: '',
+          previewImages: [],
           difficulty: 'beginner'
         });
         setUploadedImage(null);
+        setUploadedImages([]);
 
         // Show success modal
         setShowSuccessModal(true);
@@ -671,6 +744,115 @@ export default function CreateTemplatePage() {
                     </div>
                   )}
                 </div>
+              </div>
+            </div>
+
+            {/* Multiple Images Upload Section */}
+            <div className="bg-white dark:bg-dark-secondary rounded-xl p-6 shadow-sm border border-gray-200 dark:border-dark-card-border">
+              <div className="flex items-center gap-2 mb-4">
+                <svg className="w-5 h-5 text-accent-600 dark:text-dark-text-secondary" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                </svg>
+                <h3 className="text-lg font-semibold text-accent-700 dark:text-dark-text-primary">
+                  صور إضافية للقالب (اختياري)
+                </h3>
+              </div>
+
+              <div className="mb-4">
+                <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-3">
+                  يمكنك إضافة صور إضافية لعرض جوانب مختلفة من القالب. هذه الصور ستظهر في صفحة تفاصيل القالب.
+                </p>
+
+                {!uploadedImages.length ? (
+                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center hover:border-blue-400 dark:hover:border-blue-500 transition-colors duration-200">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleMultipleFileChange}
+                      className="hidden"
+                      id="multiple-image-upload"
+                      disabled={isUploadingImage}
+                    />
+                    <label
+                      htmlFor="multiple-image-upload"
+                      className="cursor-pointer flex flex-col items-center gap-3"
+                    >
+                      {isUploadingImage ? (
+                        <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                          <div className="loading-spinner"></div>
+                          <span>جاري رفع الصور...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                            <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                              اضغط لرفع صور إضافية للقالب
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                              يمكنك اختيار عدة صور مرة واحدة - PNG, JPG, GIF حتى 10 ميجابايت
+                            </p>
+                          </div>
+                        </>
+                      )}
+                    </label>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {uploadedImages.map((imageUrl, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={imageUrl}
+                            alt={`معاينة ${index + 1}`}
+                            className="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                            onError={() => {
+                              showError('فشل في تحميل الصورة');
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeMultipleImage(index)}
+                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                            title="إزالة الصورة"
+                          >
+                            ×
+                          </button>
+                          <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                            {index + 1}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Add more images button */}
+                    <div className="text-center">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleMultipleFileChange}
+                        className="hidden"
+                        id="add-more-images"
+                        disabled={isUploadingImage}
+                      />
+                      <label
+                        htmlFor="add-more-images"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors cursor-pointer text-sm"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        إضافة صور أخرى
+                      </label>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

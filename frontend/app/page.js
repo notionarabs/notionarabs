@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import api from '../lib/api';
+import FollowButton from '../components/FollowButton';
 
 // Fallback data for when API fails
 const fallbackTemplates = [
@@ -12,20 +13,20 @@ const fallbackTemplates = [
     creator: "علي حسن",
     imgSrc: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop&crop=center",
     tag: "شائع",
-    price: "25 ريال",
+    price: "مجاني",
     rating: 4.8,
     downloads: 1200,
-    isFree: false,
+    isFree: true,
   },
   {
     title: "لوحة تحكم الشركة الناشئة",
     creator: "سارة محمد",
     imgSrc: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop&crop=center",
     tag: "جديد",
-    price: "45 ريال",
+    price: "مجاني",
     rating: 4.9,
     downloads: 890,
-    isFree: false,
+    isFree: true,
   },
   {
     title: "المذكرة الشخصية",
@@ -42,10 +43,10 @@ const fallbackTemplates = [
     creator: "منى خالد",
     imgSrc: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop&crop=center",
     tag: "رائج",
-    price: "35 ريال",
+    price: "مجاني",
     rating: 4.6,
     downloads: 1500,
-    isFree: false,
+    isFree: true,
   },
 ];
 
@@ -453,8 +454,8 @@ export default function HomePage() {
                         </div>
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                      <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full font-medium bg-primary-100 text-primary-800">
-                        {t.price === 0 ? 'مجاني' : 'مدفوع'}
+                      <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full font-medium bg-green-500 text-white">
+                        مجاني
                       </span>
                       <div className="absolute bottom-3 right-3 bg-bw-white/90 backdrop-blur-sm rounded-lg px-2 py-1">
                         <StarRating rating={t.rating || 0} />
@@ -471,9 +472,8 @@ export default function HomePage() {
                           <StarRating rating={t.rating || 0} />
                           <span className="text-sm text-accent-600 dark:text-dark-text-secondary">({t.downloads || 0})</span>
                         </div>
-                        <div className={`text-lg font-bold ${t.price === 0 ? 'text-accent-600 dark:text-dark-text-secondary' : 'text-primary-500'
-                          }`}>
-                          {t.price === 0 ? 'مجاني' : `${t.price} ريال`}
+                        <div className="text-lg font-bold text-green-600 dark:text-green-400">
+                          مجاني
                         </div>
                       </div>
 
@@ -536,7 +536,7 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {(topCreators.length ? topCreators : creators).map((cr, idx) => (
-              <Link href={`/creators/${cr.username || cr.email?.split('@')[0] || cr.displayName || cr.name || cr.id || cr._id || idx}`} key={cr.id || idx} className="group">
+              <div key={cr.id || idx} className="group">
                 <div className="card-interactive p-8">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="relative">
@@ -568,9 +568,23 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  <div className="w-full mt-6 btn-primary text-center">عرض الملف الشخصي</div>
+                  <div className="space-y-3 mt-6">
+                    <Link
+                      href={`/creators/${cr.username || cr.email?.split('@')[0] || cr.displayName || cr.name || cr.id || cr._id || idx}`}
+                      className="w-full btn-primary text-center block"
+                    >
+                      عرض الملف الشخصي
+                    </Link>
+                    <FollowButton
+                      creatorId={cr.id || cr._id}
+                      creatorName={cr.name}
+                      className="w-full"
+                      size="small"
+                      showText={true}
+                    />
+                  </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </div>

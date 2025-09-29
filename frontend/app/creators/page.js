@@ -6,6 +6,7 @@ import Link from 'next/link';
 import api from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import FollowButton from '../../components/FollowButton';
 
 
 const specialties = [
@@ -35,7 +36,6 @@ export default function CreatorsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState(null);
-  const [followingStates, setFollowingStates] = useState({});
   const { user, isAuthenticated } = useAuth();
 
   const StarRating = ({ rating }) => {
@@ -96,40 +96,8 @@ export default function CreatorsPage() {
     fetchCreators();
   }, [searchTerm, selectedSpecialty, sortBy]);
 
-  // Handle follow/unfollow
-  const handleFollow = async (creatorId) => {
-    if (!isAuthenticated) {
-      // Redirect to login
-      window.location.href = '/login';
-      return;
-    }
 
-    try {
-      const response = await api.post(`/creators/${creatorId}/follow`);
 
-      if (response.data.success) {
-        setFollowingStates(prev => ({
-          ...prev,
-          [creatorId]: response.data.isFollowing
-        }));
-
-        // Update followers count in the creators data
-        setCreatorsData(prev => prev.map(creator => {
-          if (creator.id === creatorId) {
-            return {
-              ...creator,
-              followers: response.data.isFollowing
-                ? creator.followers + 1
-                : creator.followers - 1
-            };
-          }
-          return creator;
-        }));
-      }
-    } catch (error) {
-      console.error('Follow error:', error);
-    }
-  };
 
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
@@ -307,12 +275,24 @@ export default function CreatorsPage() {
                     >
                       عرض الملف الشخصي
                     </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleFollow(creator.id); }}
-                      className={`w-full btn-outline ${followingStates[creator.id] ? 'bg-primary-100 dark:bg-orange-500/20 text-primary-600 dark:text-orange-400' : ''}`}
-                    >
-                      {followingStates[creator.id] ? 'متابع' : 'متابعة'}
-                    </button>
+                    <FollowButton
+                      creatorId={creator.id}
+                      creatorName={creator.name}
+                      onFollowChange={(isFollowing) => {
+                        // Update followers count
+                        setCreatorsData(prev => prev.map(c => {
+                          if (c.id === creator.id) {
+                            return {
+                              ...c,
+                              followers: isFollowing ? c.followers + 1 : c.followers - 1
+                            };
+                          }
+                          return c;
+                        }));
+                      }}
+                      className="w-full"
+                      showText={true}
+                    />
                   </div>
                 </Link>
               ))}

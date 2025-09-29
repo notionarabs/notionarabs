@@ -6,10 +6,15 @@ import Image from 'next/image';
 import Link from 'next/link';
 import LoadingIndicator from '../../../components/LoadingIndicator';
 import api from '../../../lib/api';
+import { useAuth } from '../../../contexts/AuthContext';
+import FollowButton from '../../../components/FollowButton';
+import RatingSystem from '../../../components/RatingSystem';
+import StarRating from '../../../components/StarRating';
 
 export default function PublicProfilePage() {
   const params = useParams();
   const username = params.username;
+  const { user, isAuthenticated } = useAuth();
   const [creator, setCreator] = useState(null);
   const [creatorTemplates, setCreatorTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,12 +28,44 @@ export default function PublicProfilePage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
+  const [userRating, setUserRating] = useState(null);
+  const [creatorRatings, setCreatorRatings] = useState([]);
+  const [showAllReviews, setShowAllReviews] = useState(false);
 
   useEffect(() => {
     if (username) {
       fetchCreatorProfile();
     }
   }, [username]);
+
+  useEffect(() => {
+    if (creator && isAuthenticated) {
+      loadCreatorRatings();
+    }
+  }, [creator, isAuthenticated]);
+
+  // Load ratings for the creator
+  const loadCreatorRatings = async () => {
+    if (!creator) return;
+
+    try {
+      // Load user's rating if authenticated
+      if (isAuthenticated) {
+        const userRatingResponse = await api.get(`/ratings/user/creator/${creator.id}`);
+        if (userRatingResponse.data.success) {
+          setUserRating(userRatingResponse.data.rating);
+        }
+      }
+
+      // Load all ratings for the creator
+      const ratingsResponse = await api.get(`/ratings/creator/${creator.id}?limit=5`);
+      if (ratingsResponse.data.success) {
+        setCreatorRatings(ratingsResponse.data.ratings);
+      }
+    } catch (error) {
+      console.log('Error loading creator ratings:', error);
+    }
+  };
 
   const fetchCreatorProfile = async () => {
     try {
@@ -44,6 +81,7 @@ export default function PublicProfilePage() {
         }
       } catch (templatesError) {
         console.log('No templates found for creator');
+        setCreatorTemplates([]);
       }
     } catch (error) {
       console.error('Error fetching creator profile:', error);
@@ -59,6 +97,7 @@ export default function PublicProfilePage() {
       setLoading(false);
     }
   };
+
 
   const StarRating = ({ rating }) => {
     return (
@@ -310,9 +349,25 @@ export default function PublicProfilePage() {
                 </p>
               )}
 
-              {/* Contact Button */}
-              {creator.allowMessages && (
-                <div className="mt-8">
+              {/* Action Buttons */}
+              <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                {/* Follow Button */}
+                <FollowButton
+                  creatorId={creator.id}
+                  creatorName={creator.displayName || creator.name}
+                  onFollowChange={(isFollowing) => {
+                    setCreator(prev => ({
+                      ...prev,
+                      followers: prev.followers + (isFollowing ? 1 : -1)
+                    }));
+                  }}
+                  className="shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  size="large"
+                  showText={true}
+                />
+
+                {/* Contact Button */}
+                {creator.allowMessages && (
                   <button
                     onClick={() => setShowMessageModal(true)}
                     className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-accent-600 dark:hover:from-orange-600 dark:hover:to-orange-700 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:focus:ring-orange-300 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
@@ -322,8 +377,8 @@ export default function PublicProfilePage() {
                     </svg>
                     إرسال رسالة
                   </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             {/* Right Column - Stats, Contact Info, Social Links */}
@@ -347,6 +402,40 @@ export default function PublicProfilePage() {
                   <div className="body-small">تقييم</div>
                 </div>
               </div>
+
+              {/* Rating System */}
+              {user && user.id !== creator.id && (
+                <div className="card p-6">
+                  <h3 className="text-lg font-semibold text-accent-700 dark:text-dark-text-primary mb-4">
+                    قيم هذا المبدع
+                  </h3>
+                  <RatingSystem
+                    targetType="creator"
+                    targetId={creator.id}
+                    initialRating={creator.rating || 0}
+                    initialUserRating={userRating}
+                    onRatingChange={(data) => {
+                      // Update creator rating
+                      setCreator(prev => ({
+                        ...prev,
+                        rating: data.averageRating
+                      }));
+                      // Reload ratings
+                      loadCreatorRatings();
+                    }}
+                    className="mb-3"
+                    size="default"
+                  />
+                  {!isAuthenticated && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <Link href="/login" className="text-blue-600 dark:text-blue-400 hover:underline">
+                        سجل الدخول
+                      </Link>
+                      {' '}لتتمكن من تقييم المبدعين
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Contact Information */}
               <div className="space-y-4">
@@ -458,8 +547,8 @@ export default function PublicProfilePage() {
                         </div>
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                      <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full font-medium bg-primary-100 text-primary-800 dark:bg-orange-500 dark:text-white">
-                        {template.price === 0 ? 'مجاني' : 'مدفوع'}
+                      <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full font-medium bg-green-500 text-white">
+                        مجاني
                       </span>
                       <div className="absolute bottom-3 right-3 bg-white/90 dark:bg-dark-tertiary/90 backdrop-blur-sm rounded-lg px-2 py-1">
                         <StarRating rating={template.rating || 0} />
@@ -471,8 +560,8 @@ export default function PublicProfilePage() {
                       </h3>
                       <div className="flex items-center justify-between mb-4">
                         <StarRating rating={template.rating || 0} />
-                        <span className="text-lg font-bold text-primary-500 dark:text-orange-500">
-                          {template.price === 0 ? 'مجاني' : `${template.price} ريال`}
+                        <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                          مجاني
                         </span>
                       </div>
                       <button className="w-full btn-primary py-2 px-4 text-base">
@@ -501,6 +590,56 @@ export default function PublicProfilePage() {
           )}
         </div>
       </section>
+
+      {/* Reviews Section */}
+      {creatorRatings.length > 0 && (
+        <section className="section-padding bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
+          <div className="container-custom">
+            <h2 className="heading-2 mb-8">تقييمات المبدع</h2>
+
+            <div className="grid gap-6">
+              {creatorRatings.slice(0, showAllReviews ? creatorRatings.length : 3).map((rating, index) => (
+                <div key={rating._id || index} className="p-6 bg-white dark:bg-dark-secondary rounded-xl border border-gray-200 dark:border-dark-card-border shadow-sm">
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center flex-shrink-0">
+                      <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
+                        {rating.user?.name?.charAt(0)?.toUpperCase() || 'م'}
+                      </span>
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="font-medium text-accent-700 dark:text-dark-text-primary">
+                          {rating.user?.name || 'مستخدم'}
+                        </span>
+                        <StarRating rating={rating.rating} size="small" showNumber={false} />
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                          {new Date(rating.createdAt).toLocaleDateString('ar-SA')}
+                        </span>
+                      </div>
+                      {rating.review && (
+                        <p className="text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                          {rating.review}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {creatorRatings.length > 3 && (
+                <div className="text-center">
+                  <button
+                    onClick={() => setShowAllReviews(!showAllReviews)}
+                    className="px-6 py-3 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-xl hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-colors duration-200"
+                  >
+                    {showAllReviews ? 'عرض أقل' : `عرض جميع التقييمات (${creatorRatings.length})`}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Footer */}
       <footer className="bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary transition-colors duration-300">

@@ -219,8 +219,8 @@ export default function CreatorTemplatesPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-accent-600 dark:text-dark-text-secondary">السعر:</span>
-                        <span className="text-sm font-medium text-accent-500 dark:text-dark-text-primary">
-                          {template.price} ريال
+                        <span className="text-sm font-medium text-green-600 dark:text-green-400">
+                          مجاني
                         </span>
                       </div>
                       <div className="flex items-center gap-2">

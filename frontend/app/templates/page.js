@@ -251,7 +251,7 @@ export default function TemplatesPage() {
 
       {/* Templates Grid */}
       <section className="section-padding bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
-        <div className="container-custom">
+        <div className="container-custom max-w-[1600px] mx-auto">
           {/* Error Message */}
           {error && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
@@ -265,7 +265,7 @@ export default function TemplatesPage() {
           )}
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(8)].map((_, index) => (
                 <div key={index} className="card p-6 animate-pulse">
                   <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg mb-4"></div>
@@ -279,19 +279,19 @@ export default function TemplatesPage() {
               ))}
             </div>
           ) : templates.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {templates.map((template) => (
                 <Link key={template._id} href={`/templates/${template.slug || template._id}`}>
                   <div className="card p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group">
                     {/* Template Image */}
-                    <div className="relative h-48 bg-gray-200 dark:bg-gray-700 overflow-hidden rounded-lg mb-4">
+                    <div className="relative aspect-[4/3] bg-gray-700 overflow-hidden rounded-lg mb-4">
                       {template.previewImage ? (
                         <Image
                           src={template.previewImage}
                           alt={template.title}
                           width={400}
                           height={300}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          className="w-full h-full object-contain bg-white dark:bg-dark-secondary group-hover:scale-105 transition-transform duration-500"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30">
@@ -303,15 +303,9 @@ export default function TemplatesPage() {
 
                       {/* Price Tag */}
                       <div className="absolute top-3 left-3">
-                        {template.price === 0 ? (
-                          <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-                            مجاني
-                          </span>
-                        ) : (
-                          <span className="bg-primary-600 text-white px-2 py-1 rounded-full text-xs font-medium">
-                            {template.price} ريال
-                          </span>
-                        )}
+                        <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                          مجاني
+                        </span>
                       </div>
                     </div>
 

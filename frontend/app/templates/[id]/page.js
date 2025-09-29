@@ -7,6 +7,7 @@ import { useParams } from 'next/navigation';
 import { formatDate } from '../../../lib/dateUtils';
 import api from '../../../lib/api';
 import LoadingIndicator from '../../../components/LoadingIndicator';
+import PaymentModal from '../../../components/PaymentModal';
 
 // Fallback data for when API fails
 const fallbackTemplate = {
@@ -70,6 +71,7 @@ export default function TemplateDetailPage() {
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [isPurchased, setIsPurchased] = useState(false);
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
 
   // Fetch template data from API
   useEffect(() => {
@@ -275,7 +277,13 @@ export default function TemplateDetailPage() {
 
               {/* Purchase Button */}
               <button
-                onClick={() => setIsPurchased(true)}
+                onClick={() => {
+                  if (template.price === 0) {
+                    setIsPurchased(true);
+                  } else {
+                    setIsPaymentOpen(true);
+                  }
+                }}
                 className={`w-full py-3 px-6 rounded-xl font-medium transition-all duration-200 mb-6 ${isPurchased
                   ? 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'
                   : 'bg-orange-500 hover:bg-orange-600 text-white'
@@ -283,6 +291,21 @@ export default function TemplateDetailPage() {
               >
                 {isPurchased ? 'تم الشراء ✓' : template.price === 0 ? 'تحميل مجاني' : `شراء الآن - ${template.price} ريال`}
               </button>
+
+              {/* Payment Modal */}
+              <PaymentModal
+                isOpen={isPaymentOpen}
+                onClose={() => setIsPaymentOpen(false)}
+                template={{
+                  _id: template._id || template.id,
+                  title: template.title,
+                  price: template.price
+                }}
+                onSuccess={() => {
+                  setIsPaymentOpen(false);
+                  setIsPurchased(true);
+                }}
+              />
 
               {/* Description */}
               <div className="mb-6">

@@ -30,6 +30,7 @@ export default function NavigationWrapper() {
 
   // Determine active page based on pathname
   const getActivePage = () => {
+    if (pathname === '/') return 'home';
     if (pathname.startsWith('/templates')) return 'templates';
     if (pathname.startsWith('/creators')) return 'creators';
     if (pathname.startsWith('/blog')) return 'blog';

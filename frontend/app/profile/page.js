@@ -129,7 +129,16 @@ export default function ProfilePage() {
         </div>
 
         {/* Profile Header Card */}
-        <div className="card p-8 mb-8 shadow-xl border-0 bg-white/80 dark:bg-dark-card-bg/80 backdrop-blur-sm">
+        <div className="card p-8 mb-8 shadow-xl border-0 bg-white/80 dark:bg-dark-card-bg/80 backdrop-blur-sm relative">
+          {/* Settings Icon - Top Left */}
+          <Link href="/profile/settings" className="absolute top-4 left-4 p-2 rounded-xl bg-gray-100 dark:bg-dark-tertiary hover:bg-gray-200 dark:hover:bg-dark-primary transition-colors duration-200 group">
+            <svg className="w-5 h-5 text-gray-600 dark:text-dark-text-secondary group-hover:text-primary-500 dark:group-hover:text-orange-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span className="sr-only">إعدادات الملف الشخصي</span>
+          </Link>
+
           <div className="flex flex-col md:flex-row items-center gap-8">
             {/* Profile Picture Section */}
             <div className="relative">
@@ -466,6 +475,41 @@ export default function ProfilePage() {
                     </svg>
                   </div>
                 </Link>
+
+                {/* Blog Action Cards */}
+                <Link href="/blog/create" className="group card-interactive p-6 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="heading-3 group-hover:text-indigo-500 transition-colors mb-2">كتابة مقال جديد</h3>
+                      <p className="body-medium text-accent-600 dark:text-dark-text-secondary">شارك معرفتك مع المجتمع</p>
+                    </div>
+                    <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-indigo-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </div>
+                </Link>
+
+                <Link href="/profile/my-blogs" className="group card-interactive p-6 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="heading-3 group-hover:text-orange-500 transition-colors mb-2">مقالاتي</h3>
+                      <p className="body-medium text-accent-600 dark:text-dark-text-secondary">إدارة مقالاتك المنشورة</p>
+                    </div>
+                    <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-orange-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </div>
+                </Link>
               </>
             ) : (
               <>
@@ -506,122 +550,6 @@ export default function ProfilePage() {
             )}
           </div>
 
-          {/* Additional Profile Actions */}
-          <div className="mt-8">
-            <div className="text-center mb-8">
-              <h3 className="heading-3 mb-2 text-primary-600 dark:text-orange-400">إجراءات إضافية</h3>
-              <p className="text-sm text-accent-600 dark:text-dark-text-secondary">إدارة حسابك واستكشاف المزيد من المميزات</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-
-              {/* Write Blog Button - Only for approved creators */}
-              {user?.creatorStatus === 'approved' && (
-                <Link href="/blog/create" className="group card-interactive p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-indigo-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-accent-500 dark:text-dark-text-primary group-hover:text-indigo-500 transition-colors">كتابة مقال جديد</h4>
-                      <p className="text-sm text-accent-600 dark:text-dark-text-secondary">شارك معرفتك مع المجتمع</p>
-                    </div>
-                  </div>
-                </Link>
-              )}
-
-              {/* My Blogs Button - Only for approved creators */}
-              {user?.creatorStatus === 'approved' && (
-                <Link href="/profile/my-blogs" className="group card-interactive p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-accent-500 dark:text-dark-text-primary group-hover:text-orange-500 transition-colors">مقالاتي</h4>
-                      <p className="text-sm text-accent-600 dark:text-dark-text-secondary">إدارة مقالاتك المنشورة</p>
-                    </div>
-                  </div>
-                </Link>
-              )}
-
-              {/* Settings Button - For all users */}
-              <Link href="/profile/settings" className="group card-interactive p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gray-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-accent-500 dark:text-dark-text-primary group-hover:text-gray-500 transition-colors">إعدادات الملف الشخصي</h4>
-                    <p className="text-sm text-accent-600 dark:text-dark-text-secondary">إدارة كيفية ظهور ملفك الشخصي</p>
-                  </div>
-                </div>
-              </Link>
-
-
-              {/* Orders Button - Only for non-admin users */}
-              {user?.role !== 'admin' && (
-                <Link href="/orders" className="group card-interactive p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-accent-500 dark:text-dark-text-primary group-hover:text-purple-500 transition-colors">الطلبات</h4>
-                      <p className="text-sm text-accent-600 dark:text-dark-text-secondary">عرض تاريخ طلباتك</p>
-                    </div>
-                  </div>
-                </Link>
-              )}
-
-              {/* Creator Application Button - For non-creators or rejected creators */}
-              {(!user?.creatorStatus || user?.creatorStatus === '' || user?.creatorStatus === 'none' || user?.creatorStatus === 'rejected') && (
-                <Link href="/creators/apply" className="group card-interactive p-4 border-2 border-purple-200 dark:border-purple-800 hover:border-purple-300 dark:hover:border-purple-700">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-purple-600 dark:text-purple-400 group-hover:text-purple-700 dark:group-hover:text-purple-300 transition-colors">
-                        {user?.creatorStatus === 'rejected' ? 'إعادة التقديم كمبدع' : 'التسجيل كمبدع'}
-                      </h4>
-                      <p className="text-sm text-purple-500 dark:text-purple-400">
-                        {user?.creatorStatus === 'rejected' ? 'إعادة تقديم طلبك' : 'ابدأ رحلتك كمبدع'}
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-              )}
-
-              {/* Pending Status Message */}
-              {user?.creatorStatus === 'pending' && (
-                <div className="card p-4 border-2 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-amber-700 dark:text-amber-300">طلبك قيد المراجعة</h4>
-                      <p className="text-sm text-amber-600 dark:text-amber-400">نحن نراجع طلبك للانضمام كمبدع</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-            </div>
-          </div>
         </div>
       </div>
     </div>

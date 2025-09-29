@@ -1,0 +1,17 @@
+# Payment Gateway Environment Variables
+# Copy these to your .env file and fill in your actual values
+
+# Tap Payments (GCC Countries: UAE, Saudi Arabia, Kuwait, Bahrain, Qatar, Oman)
+TAP_PAYMENTS_API_KEY=your_tap_payments_api_key
+TAP_PAYMENTS_BASE_URL=https://api.tap.company/v2
+TAP_PAYMENTS_MERCHANT_ID=your_tap_payments_merchant_id
+
+# (Removed) Paymob and HyperPay configs no longer required
+
+# PayPal (Global Fallback for all other Arab countries)
+PAYPAL_CLIENT_ID=your_paypal_client_id
+PAYPAL_CLIENT_SECRET=your_paypal_client_secret
+PAYPAL_BASE_URL=https://api-m.sandbox.paypal.com
+
+# Additional required variables
+BACKEND_URL=http://localhost:5000

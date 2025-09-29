@@ -122,6 +122,13 @@ router.get('/stats', auth, async (req, res) => {
     const regularUsers = await User.countDocuments({ googleId: { $exists: false } });
     const activeUsers = await User.countDocuments({ isActive: true });
 
+    // Additional stats used by frontend admin home
+    const pendingApplications = await User.countDocuments({ creatorStatus: 'pending' });
+    const totalTemplates = await Template.countDocuments();
+    const pendingTemplates = await Template.countDocuments({ status: 'pending' });
+    const totalBlogs = await Blog.countDocuments();
+    const pendingBlogs = await Blog.countDocuments({ status: 'pending' });
+
     res.json({
       success: true,
       stats: {
@@ -129,7 +136,12 @@ router.get('/stats', auth, async (req, res) => {
         googleUsers,
         regularUsers,
         activeUsers,
-        googleUsersPercentage: Math.round((googleUsers / totalUsers) * 100)
+        googleUsersPercentage: totalUsers === 0 ? 0 : Math.round((googleUsers / totalUsers) * 100),
+        pendingApplications,
+        pendingTemplates,
+        pendingBlogs,
+        totalTemplates,
+        totalBlogs
       }
     });
   } catch (error) {
@@ -656,3 +668,68 @@ router.get('/export/users', auth, async (req, res) => {
 });
 
 module.exports = router;
+
+// Admin notifications placeholder routes (no persistence yet)
+// @route   GET /api/admin/notifications
+// @desc    Get admin notifications (placeholder returns empty list)
+// @access  Private (Admin)
+router.get('/notifications', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    // Placeholder empty response structure expected by frontend
+    res.json({
+      success: true,
+      notifications: [],
+      unreadCount: 0
+    });
+  } catch (error) {
+    console.error('Get admin notifications error:', error);
+    res.status(500).json({ success: false, message: 'خطأ في الخادم' });
+  }
+});
+
+// @route   PUT /api/admin/notifications/:id/read
+// @desc    Mark a notification as read (placeholder no-op)
+// @access  Private (Admin)
+router.put('/notifications/:id/read', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    // Placeholder success
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Mark notification read error:', error);
+    res.status(500).json({ success: false, message: 'خطأ في الخادم' });
+  }
+});
+
+// @route   PUT /api/admin/notifications/read-all
+// @desc    Mark all notifications as read (placeholder no-op)
+// @access  Private (Admin)
+router.put('/notifications/read-all', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    // Placeholder success
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Mark all notifications read error:', error);
+    res.status(500).json({ success: false, message: 'خطأ في الخادم' });
+  }
+});

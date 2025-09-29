@@ -30,7 +30,10 @@ export default function Navigation({ activePage = '' }) {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex gap-1 lg:gap-2 xl:gap-3">
+        <nav className="hidden md:flex gap-1 lg:gap-2 xl:gap-3 items-center">
+          <div className={`transition-all duration-300 ease-in-out overflow-hidden flex items-center ${activePage !== 'home' ? 'max-w-24 opacity-100' : 'max-w-0 opacity-0'}`}>
+            <Link href="/" className="nav-link whitespace-nowrap">الرئيسية</Link>
+          </div>
           <Link href="/templates" className={`nav-link ${activePage === 'templates' ? 'nav-link-active' : ''}`}>القوالب</Link>
           <Link href="/creators" className={`nav-link ${activePage === 'creators' ? 'nav-link-active' : ''}`}>المبدعين</Link>
           <Link href="/blog" className={`nav-link ${activePage === 'blog' ? 'nav-link-active' : ''}`}>المدونة</Link>
@@ -85,6 +88,11 @@ export default function Navigation({ activePage = '' }) {
           <div className="container-custom py-6 space-y-6">
             {/* Mobile Navigation Links */}
             <nav className="space-y-4">
+              <div className={`transition-all duration-300 ease-in-out overflow-hidden ${activePage !== 'home' ? 'max-h-16 opacity-100' : 'max-h-0 opacity-0'}`}>
+                <Link href="/" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+                  الرئيسية
+                </Link>
+              </div>
               <Link href="/templates" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
                 القوالب
               </Link>

@@ -46,7 +46,7 @@ const corsOptions = {
   optionsSuccessStatus: 200 // For legacy browser support
 };
 
-// Apply CORS middleware
+// Apply CORS middleware  
 app.use(cors(corsOptions));
 
 // Additional CORS headers for preflight requests

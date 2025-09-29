@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import LoadingIndicator from '../../components/LoadingIndicator';
+import LoadingIndicator from '../../../components/LoadingIndicator';
 
 export default function PaymentCallback() {
   const searchParams = useSearchParams();

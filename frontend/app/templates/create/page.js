@@ -145,6 +145,13 @@ export default function CreateTemplatePage() {
       return;
     }
 
+    // Validate URL format first
+    const notionRegex = /^https:\/\/([a-zA-Z0-9-]+\.)?notion\.(so|site)/;
+    if (!notionRegex.test(formData.notionLink)) {
+      showError('يرجى إدخال رابط صحيح من موقع نوشن (مثال: https://notion.so/your-page أو https://yoursite.notion.site/your-page)');
+      return;
+    }
+
     setIsGeneratingScreenshot(true);
     try {
       const response = await api.post('/screenshot', {
@@ -163,7 +170,18 @@ export default function CreateTemplatePage() {
       }
     } catch (error) {
       console.error('Screenshot generation error:', error);
-      showError(error.response?.data?.message || 'فشل في إنشاء لقطة الشاشة. يمكنك إضافة صورة يدوياً');
+
+      // Check if it's a validation error or server error
+      if (error.response?.status === 400) {
+        const errorMessage = error.response?.data?.message;
+        if (errorMessage && errorMessage.includes('رابط غير صحيح')) {
+          showError('يرجى إدخال رابط صحيح من موقع نوشن (مثال: https://notion.so/your-page أو https://yoursite.notion.site/your-page)');
+        } else {
+          showWarning('خدمة التقاط الصور التلقائية غير متاحة حالياً. يرجى إضافة صورة يدوياً باستخدام الزر أدناه.');
+        }
+      } else {
+        showWarning('خدمة التقاط الصور التلقائية غير متاحة حالياً. يرجى إضافة صورة يدوياً باستخدام الزر أدناه.');
+      }
     } finally {
       setIsGeneratingScreenshot(false);
     }
@@ -545,6 +563,9 @@ export default function CreateTemplatePage() {
                             </>
                           )}
                         </button>
+                        <div className="text-xs text-gray-500 mt-1">
+                          💡 إذا لم تعمل الخدمة، يمكنك إضافة صورة يدوياً أدناه
+                        </div>
                       </div>
                       <p className="text-xs text-blue-600 dark:text-blue-300 mt-2">
                         سيتم التقاط لقطة شاشة تلقائياً من صفحة النوتن الخاصة بك

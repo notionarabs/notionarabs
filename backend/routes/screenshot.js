@@ -12,7 +12,7 @@ router.post('/', auth, [
   body('url')
     .isURL()
     .withMessage('رابط غير صحيح')
-    .matches(/^https:\/\/(www\.)?notion\.so/)
+    .matches(/^https:\/\/([a-zA-Z0-9-]+\.)?notion\.(so|site)/)
     .withMessage('يجب أن يكون الرابط من موقع نوشن (مثال: https://notion.so/your-page)')
 ], async (req, res) => {
   try {
@@ -117,7 +117,7 @@ router.post('/test', auth, [
   body('url')
     .isURL()
     .withMessage('رابط غير صحيح')
-    .matches(/^https:\/\/(www\.)?notion\.so/)
+    .matches(/^https:\/\/([a-zA-Z0-9-]+\.)?notion\.(so|site)/)
     .withMessage('يجب أن يكون الرابط من موقع نوشن (مثال: https://notion.so/your-page)')
 ], async (req, res) => {
   try {
@@ -183,7 +183,7 @@ router.post('/debug', [
   body('url')
     .isURL()
     .withMessage('رابط غير صحيح')
-    .matches(/^https:\/\/(www\.)?notion\.so/)
+    .matches(/^https:\/\/([a-zA-Z0-9-]+\.)?notion\.(so|site)/)
     .withMessage('يجب أن يكون الرابط من موقع نوشن (مثال: https://notion.so/your-page)')
 ], async (req, res) => {
   try {

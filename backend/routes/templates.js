@@ -60,6 +60,30 @@ router.post('/', auth, [
       } catch (error) {
         throw new Error('رابط الصورة غير صحيح');
       }
+    }),
+  body('previewImages')
+    .optional()
+    .isArray()
+    .withMessage('صور المعاينة يجب أن تكون مصفوفة')
+    .custom((value) => {
+      if (!Array.isArray(value)) return true; // Let isArray handle this
+
+      // Validate each image URL in the array
+      for (const imageUrl of value) {
+        if (typeof imageUrl !== 'string') {
+          throw new Error('كل رابط صورة يجب أن يكون نص');
+        }
+
+        try {
+          const url = new URL(imageUrl);
+          if (!['http:', 'https:'].includes(url.protocol)) {
+            throw new Error('Invalid protocol');
+          }
+        } catch (error) {
+          throw new Error('رابط صورة غير صحيح: ' + imageUrl);
+        }
+      }
+      return true;
     })
 ], async (req, res) => {
   try {
@@ -182,6 +206,7 @@ router.get('/', async (req, res) => {
       category,
       difficulty,
       search,
+      creator,
       sortBy = 'createdAt',
       sortOrder = 'desc',
       page = 1,
@@ -197,6 +222,10 @@ router.get('/', async (req, res) => {
 
     if (difficulty && difficulty !== 'all') {
       filter.difficulty = difficulty;
+    }
+
+    if (creator) {
+      filter.creator = creator;
     }
 
     if (search) {
@@ -354,12 +383,6 @@ router.put('/:id', auth, [
     .optional()
     .isLength({ max: 1000 })
     .withMessage('وصف القالب لا يجب أن يتجاوز 1000 حرف'),
-  body('price')
-    .optional()
-    .isNumeric()
-    .withMessage('السعر يجب أن يكون رقماً')
-    .isFloat({ min: 0 })
-    .withMessage('السعر لا يمكن أن يكون سالباً'),
   body('notionLink')
     .optional()
     .isURL()
@@ -496,7 +519,7 @@ router.get('/export', auth, async (req, res) => {
       const creator = `"${(template.creator?.name || '').replace(/"/g, '""')}"`;
       const email = `"${(template.creator?.email || '').replace(/"/g, '""')}"`;
       const category = `"${(template.category || '').replace(/"/g, '""')}"`;
-      const price = template.price || 0;
+      const price = 'مجاني'; // All templates are now free
       const status = `"${(template.status || '').replace(/"/g, '""')}"`;
       const views = template.views || 0;
       const downloads = template.downloads || 0;
@@ -523,6 +546,50 @@ router.get('/export', auth, async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'خطأ في تصدير البيانات'
+    });
+  }
+});
+
+// @route   POST /api/templates/:id/download
+// @desc    Track template download
+// @access  Public
+router.post('/:id/download', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { timestamp, userAgent, referrer } = req.body;
+
+    // Find the template
+    const template = await Template.findById(id);
+    if (!template) {
+      return res.status(404).json({
+        success: false,
+        message: 'القالب غير موجود'
+      });
+    }
+
+    // Increment download count
+    template.downloads = (template.downloads || 0) + 1;
+    await template.save();
+
+    // Log download for analytics (optional)
+    console.log(`Template downloaded: ${template.title} (${template._id})`, {
+      timestamp,
+      userAgent,
+      referrer,
+      downloadCount: template.downloads
+    });
+
+    res.json({
+      success: true,
+      message: 'تم تسجيل التحميل بنجاح',
+      downloadCount: template.downloads
+    });
+
+  } catch (error) {
+    console.error('Download tracking error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'فشل في تسجيل التحميل'
     });
   }
 });

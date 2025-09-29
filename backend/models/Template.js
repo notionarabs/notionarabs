@@ -76,6 +76,16 @@ const templateSchema = new mongoose.Schema({
       message: 'رابط الصورة غير صحيح'
     }
   },
+  previewImages: [{
+    type: String,
+    trim: true,
+    validate: {
+      validator: function (v) {
+        return /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(v);
+      },
+      message: 'رابط الصورة غير صحيح'
+    }
+  }],
   status: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],

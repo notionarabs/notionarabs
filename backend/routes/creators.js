@@ -280,6 +280,31 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// @route   GET /api/creators/:id/follow-status
+// @desc    Check if current user is following a creator
+// @access  Private
+router.get('/:id/follow-status', auth, async (req, res) => {
+  try {
+    const creatorId = req.params.id;
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+    const isFollowing = user.following && user.following.includes(creatorId);
+
+    res.json({
+      success: true,
+      isFollowing: !!isFollowing
+    });
+
+  } catch (error) {
+    console.error('Follow status check error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
 // @route   POST /api/creators/:id/follow
 // @desc    Follow/Unfollow a creator
 // @access  Private

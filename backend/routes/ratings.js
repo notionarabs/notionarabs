@@ -1,0 +1,281 @@
+const express = require('express');
+const { body, validationResult } = require('express-validator');
+const Rating = require('../models/Rating');
+const Template = require('../models/Template');
+const User = require('../models/User');
+const auth = require('../middleware/auth');
+
+const router = express.Router();
+
+// @route   POST /api/ratings
+// @desc    Submit a rating for a template or creator
+// @access  Private
+router.post('/', auth, [
+  body('targetType')
+    .isIn(['template', 'creator'])
+    .withMessage('نوع الهدف يجب أن يكون template أو creator'),
+  body('targetId')
+    .isMongoId()
+    .withMessage('معرف الهدف غير صحيح'),
+  body('rating')
+    .isInt({ min: 1, max: 5 })
+    .withMessage('التقييم يجب أن يكون رقماً بين 1 و 5'),
+  body('review')
+    .optional()
+    .isLength({ max: 500 })
+    .withMessage('التعليق لا يجب أن يتجاوز 500 حرف')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'بيانات غير صحيحة',
+        errors: errors.array()
+      });
+    }
+
+    const { targetType, targetId, rating, review } = req.body;
+    const userId = req.user._id;
+
+    // Check if target exists
+    let target;
+    if (targetType === 'template') {
+      target = await Template.findById(targetId);
+    } else if (targetType === 'creator') {
+      target = await User.findById(targetId);
+    }
+
+    if (!target) {
+      return res.status(404).json({
+        success: false,
+        message: targetType === 'template' ? 'القالب غير موجود' : 'المبدع غير موجود'
+      });
+    }
+
+    // Check if user is trying to rate themselves (for creators)
+    if (targetType === 'creator' && targetId === userId.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: 'لا يمكنك تقييم نفسك'
+      });
+    }
+
+    // Check if user already rated this target
+    const existingRating = await Rating.findOne({
+      user: userId,
+      targetType,
+      targetId
+    });
+
+    let savedRating;
+    if (existingRating) {
+      // Update existing rating
+      existingRating.rating = rating;
+      existingRating.review = review || '';
+      savedRating = await existingRating.save();
+    } else {
+      // Create new rating
+      savedRating = new Rating({
+        user: userId,
+        targetType,
+        targetId,
+        rating,
+        review: review || ''
+      });
+      await savedRating.save();
+    }
+
+    // Update target's average rating
+    const { averageRating, totalRatings } = await Rating.getAverageRating(targetType, targetId);
+
+    if (targetType === 'template') {
+      await Template.findByIdAndUpdate(targetId, {
+        rating: averageRating,
+        reviewsCount: totalRatings
+      });
+    } else if (targetType === 'creator') {
+      await User.findByIdAndUpdate(targetId, {
+        rating: averageRating
+      });
+    }
+
+    res.json({
+      success: true,
+      message: existingRating ? 'تم تحديث التقييم بنجاح' : 'تم إضافة التقييم بنجاح',
+      rating: savedRating,
+      averageRating,
+      totalRatings
+    });
+
+  } catch (error) {
+    console.error('Rating submission error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   GET /api/ratings/:targetType/:targetId
+// @desc    Get ratings for a specific template or creator
+// @access  Public
+router.get('/:targetType/:targetId', async (req, res) => {
+  try {
+    const { targetType, targetId } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    // Validate targetType
+    if (!['template', 'creator'].includes(targetType)) {
+      return res.status(400).json({
+        success: false,
+        message: 'نوع الهدف غير صحيح'
+      });
+    }
+
+    // Check if target exists
+    let target;
+    if (targetType === 'template') {
+      target = await Template.findById(targetId);
+    } else if (targetType === 'creator') {
+      target = await User.findById(targetId);
+    }
+
+    if (!target) {
+      return res.status(404).json({
+        success: false,
+        message: targetType === 'template' ? 'القالب غير موجود' : 'المبدع غير موجود'
+      });
+    }
+
+    // Get average rating and total count
+    const { averageRating, totalRatings } = await Rating.getAverageRating(targetType, targetId);
+
+    // Get paginated ratings
+    const skip = (page - 1) * limit;
+    const ratings = await Rating.find({
+      targetType,
+      targetId,
+      isPublic: true
+    })
+      .populate('user', 'name username displayName profilePicture')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    res.json({
+      success: true,
+      averageRating,
+      totalRatings,
+      ratings,
+      pagination: {
+        current: page,
+        pages: Math.ceil(totalRatings / limit),
+        total: totalRatings,
+        limit
+      }
+    });
+
+  } catch (error) {
+    console.error('Get ratings error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   GET /api/ratings/user/:targetType/:targetId
+// @desc    Get user's rating for a specific template or creator
+// @access  Private
+router.get('/user/:targetType/:targetId', auth, async (req, res) => {
+  try {
+    const { targetType, targetId } = req.params;
+    const userId = req.user._id;
+
+    // Validate targetType
+    if (!['template', 'creator'].includes(targetType)) {
+      return res.status(400).json({
+        success: false,
+        message: 'نوع الهدف غير صحيح'
+      });
+    }
+
+    const rating = await Rating.getUserRating(userId, targetType, targetId);
+
+    res.json({
+      success: true,
+      rating
+    });
+
+  } catch (error) {
+    console.error('Get user rating error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   DELETE /api/ratings/:targetType/:targetId
+// @desc    Delete user's rating for a specific template or creator
+// @access  Private
+router.delete('/:targetType/:targetId', auth, async (req, res) => {
+  try {
+    const { targetType, targetId } = req.params;
+    const userId = req.user._id;
+
+    // Validate targetType
+    if (!['template', 'creator'].includes(targetType)) {
+      return res.status(400).json({
+        success: false,
+        message: 'نوع الهدف غير صحيح'
+      });
+    }
+
+    // Find and delete the rating
+    const rating = await Rating.findOneAndDelete({
+      user: userId,
+      targetType,
+      targetId
+    });
+
+    if (!rating) {
+      return res.status(404).json({
+        success: false,
+        message: 'التقييم غير موجود'
+      });
+    }
+
+    // Update target's average rating
+    const { averageRating, totalRatings } = await Rating.getAverageRating(targetType, targetId);
+
+    if (targetType === 'template') {
+      await Template.findByIdAndUpdate(targetId, {
+        rating: averageRating,
+        reviewsCount: totalRatings
+      });
+    } else if (targetType === 'creator') {
+      await User.findByIdAndUpdate(targetId, {
+        rating: averageRating
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'تم حذف التقييم بنجاح',
+      averageRating,
+      totalRatings
+    });
+
+  } catch (error) {
+    console.error('Delete rating error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+module.exports = router;

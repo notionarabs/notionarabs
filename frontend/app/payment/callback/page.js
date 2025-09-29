@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import LoadingIndicator from '../../../components/LoadingIndicator';
 
-export default function PaymentCallback() {
+function PaymentCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [status, setStatus] = useState('processing');
@@ -203,5 +203,25 @@ export default function PaymentCallback() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function PaymentCallback() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-primary flex items-center justify-center p-4" dir="rtl">
+        <div className="max-w-md w-full bg-white dark:bg-dark-secondary rounded-xl shadow-xl p-8 text-center">
+          <LoadingIndicator size="lg" />
+          <h1 className="text-2xl font-bold mb-4 text-blue-600 dark:text-blue-400">
+            جاري التحميل...
+          </h1>
+          <p className="text-gray-600 dark:text-dark-text-secondary">
+            جاري تحميل صفحة الدفع...
+          </p>
+        </div>
+      </div>
+    }>
+      <PaymentCallbackContent />
+    </Suspense>
   );
 }

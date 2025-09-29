@@ -66,14 +66,7 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  totalEarnings: {
-    type: Number,
-    default: 0
-  },
-  totalSales: {
-    type: Number,
-    default: 0
-  },
+  // Payment-related fields removed - all templates are free
   followers: {
     type: Number,
     default: 0
@@ -148,10 +141,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null
   },
-  expectedEarnings: {
-    type: String,
-    default: null
-  },
+  // Expected earnings field removed - all templates are free
   // Profile settings fields
   displayName: {
     type: String,

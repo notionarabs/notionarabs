@@ -43,25 +43,5 @@ api.interceptors.response.use(
   }
 );
 
-// Payment API functions
-export const paymentAPI = {
-  // Create payment intent
-  createPaymentIntent: (paymentData) => api.post('/payments/create-intent', paymentData),
-
-  // Confirm payment
-  confirmPayment: (paymentId, gatewayData) => api.post('/payments/confirm', { paymentId, gatewayData }),
-
-  // Get payment history
-  getPaymentHistory: (page = 1, limit = 10) => api.get(`/payments/history?page=${page}&limit=${limit}`),
-
-  // Get creator earnings
-  getCreatorEarnings: () => api.get('/payments/earnings'),
-
-  // Process payout request
-  processPayout: (amount) => api.post('/payments/payout', { amount }),
-
-  // Get supported countries
-  getSupportedCountries: () => api.get('/payments/supported-countries')
-};
 
 export default api;

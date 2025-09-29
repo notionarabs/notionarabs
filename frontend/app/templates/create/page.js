@@ -14,13 +14,13 @@ export default function CreateTemplatePage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isGeneratingScreenshot, setIsGeneratingScreenshot] = useState(false);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     category: '',
-    price: '',
     notionLink: '',
     features: '',
     tags: '',
@@ -74,7 +74,8 @@ export default function CreateTemplatePage() {
     'الصحة',
     'المالية',
     'التنظيم',
-    'التخطيط'
+    'التخطيط',
+    'ديني'
   ];
 
   const difficulties = [
@@ -106,6 +107,8 @@ export default function CreateTemplatePage() {
       return;
     }
 
+    // No dimension validation - accept any image resolution
+
     setIsUploadingImage(true);
 
     try {
@@ -133,6 +136,36 @@ export default function CreateTemplatePage() {
       showError(errorMessage);
     } finally {
       setIsUploadingImage(false);
+    }
+  };
+
+  const generateScreenshot = async () => {
+    if (!formData.notionLink) {
+      showError('يرجى إدخال رابط النوتن أولاً');
+      return;
+    }
+
+    setIsGeneratingScreenshot(true);
+    try {
+      const response = await api.post('/screenshot', {
+        url: formData.notionLink
+      });
+
+      if (response.data.success) {
+        setUploadedImage(response.data.data.screenshotUrl);
+        setFormData(prev => ({
+          ...prev,
+          previewImage: response.data.data.screenshotUrl
+        }));
+        showSuccess('تم إنشاء لقطة الشاشة تلقائياً!');
+      } else {
+        showError(response.data.message || 'فشل في إنشاء لقطة الشاشة');
+      }
+    } catch (error) {
+      console.error('Screenshot generation error:', error);
+      showError(error.response?.data?.message || 'فشل في إنشاء لقطة الشاشة. يمكنك إضافة صورة يدوياً');
+    } finally {
+      setIsGeneratingScreenshot(false);
     }
   };
 
@@ -171,11 +204,7 @@ export default function CreateTemplatePage() {
         setIsSubmitting(false);
         return;
       }
-      if (!formData.price || isNaN(parseFloat(formData.price))) {
-        showError('يرجى إدخال سعر صحيح للقالب');
-        setIsSubmitting(false);
-        return;
-      }
+      // Price validation removed - all templates are free
       if (!formData.notionLink.trim()) {
         showError('يرجى إدخال رابط قالب نوشن');
         setIsSubmitting(false);
@@ -195,7 +224,6 @@ export default function CreateTemplatePage() {
         title: formData.title.trim(),
         description: formData.description.trim(),
         category: formData.category,
-        price: parseFloat(formData.price),
         notionLink: formData.notionLink.trim(),
         difficulty: formData.difficulty,
         tags: tagsArray.length > 0 ? tagsArray : undefined,
@@ -218,7 +246,6 @@ export default function CreateTemplatePage() {
           title: '',
           description: '',
           category: '',
-          price: '',
           notionLink: '',
           features: '',
           tags: '',
@@ -280,7 +307,7 @@ export default function CreateTemplatePage() {
                     إنشاء قالب جديد
                   </h1>
                   <p className="body-large text-accent-600 dark:text-dark-text-secondary">
-                    أضف قالبك المبتكر وابدأ في كسب المال من إبداعك
+                    أضف قالبك المبتكر وشاركه مع المجتمع العربي
                   </p>
                 </div>
               </div>
@@ -437,48 +464,18 @@ export default function CreateTemplatePage() {
               </div>
             </div>
 
-            {/* Pricing & Link */}
+            {/* Link & Image */}
             <div className="card p-8 shadow-xl border-0 bg-white/80 dark:bg-dark-card-bg/80 backdrop-blur-sm">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
                   <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                   </svg>
                 </div>
-                <h2 className="heading-2 text-green-600">السعر والرابط</h2>
+                <h2 className="heading-2 text-green-600">الرابط والصورة</h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="flex items-center text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
-                    <svg className="w-4 h-4 text-green-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                    </svg>
-                    السعر (ريال سعودي) *
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      name="price"
-                      value={formData.price}
-                      onChange={handleInputChange}
-                      required
-                      min="0"
-                      step="0.01"
-                      className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-green-500 dark:focus:border-green-500 rounded-xl transition-all duration-200 hover:border-green-300 dark:hover:border-green-400"
-                      placeholder="25.00"
-                    />
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                      </svg>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                    أدخل السعر بالريال السعودي
-                  </p>
-                </div>
-
+              <div className="grid grid-cols-1 gap-6">
                 <div>
                   <label className="flex items-center text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
                     <svg className="w-4 h-4 text-green-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -505,89 +502,153 @@ export default function CreateTemplatePage() {
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                     تأكد من أن الرابط قابل للوصول العام
                   </p>
+                </div>
 
+                <div>
                   {/* Image Upload */}
-                  <div className="mt-4">
-                    <label className="block text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
-                      <svg className="w-4 h-4 text-green-500 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      لقطة شاشة للقالب (مطلوب) *
-                    </label>
+                  <label className="block text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
+                    <svg className="w-4 h-4 text-green-500 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    لقطة شاشة للقالب (مطلوب) *
+                  </label>
 
-                    {!uploadedImage ? (
-                      <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center hover:border-green-400 dark:hover:border-green-500 transition-colors duration-200">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleFileChange}
-                          className="hidden"
-                          id="image-upload"
-                          disabled={isUploadingImage}
-                        />
-                        <label
-                          htmlFor="image-upload"
-                          className="cursor-pointer flex flex-col items-center gap-3"
+                  {/* Automatic Screenshot Generation */}
+                  {formData.notionLink && !uploadedImage && (
+                    <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                          <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                            إنشاء لقطة شاشة تلقائياً من رابط النوتن
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={generateScreenshot}
+                          disabled={isGeneratingScreenshot}
+                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2"
                         >
-                          {isUploadingImage ? (
-                            <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div>
-                              <span>جاري رفع الصورة...</span>
-                            </div>
+                          {isGeneratingScreenshot ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                              جاري الإنشاء...
+                            </>
                           ) : (
                             <>
-                              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                                <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                </svg>
-                              </div>
-                              <div>
-                                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                  اضغط لرفع لقطة شاشة للصفحة الرئيسية للقالب
-                                </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                  PNG, JPG, GIF حتى 5 ميجابايت - مطلوب كصورة مصغرة
-                                </p>
-                              </div>
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              إنشاء تلقائي
                             </>
                           )}
-                        </label>
+                        </button>
                       </div>
-                    ) : (
-                      <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
-                        <div className="flex items-center gap-2 text-green-700 dark:text-green-300 mb-3">
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                          </svg>
-                          <span className="text-sm font-medium">تم رفع الصورة بنجاح</span>
-                        </div>
-                        <div className="relative">
-                          <img
-                            src={uploadedImage}
-                            alt="صورة المعاينة"
-                            className="w-full max-w-md h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
-                            onError={() => {
-                              showError('فشل في تحميل الصورة');
-                            }}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setUploadedImage(null);
-                              setFormData(prev => ({ ...prev, previewImage: '' }));
-                            }}
-                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors"
-                            title="إزالة الصورة"
-                          >
-                            ×
-                          </button>
-                        </div>
-                        <p className="text-xs text-green-600 dark:text-green-400 mt-2">
-                          هذه اللقطة ستكون الصورة المصغرة الرسمية للقالب
+                      <p className="text-xs text-blue-600 dark:text-blue-300 mt-2">
+                        سيتم التقاط لقطة شاشة تلقائياً من صفحة النوتن الخاصة بك
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Manual Upload Option */}
+                  {!uploadedImage && (
+                    <div className="text-center my-4">
+                      <div className="flex items-center">
+                        <div className="flex-1 border-t border-gray-300 dark:border-gray-600"></div>
+                        <span className="px-4 text-sm text-gray-500 dark:text-gray-400">أو</span>
+                        <div className="flex-1 border-t border-gray-300 dark:border-gray-600"></div>
+                      </div>
+                    </div>
+                  )}
+
+                  {!uploadedImage ? (
+                    <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center hover:border-green-400 dark:hover:border-green-500 transition-colors duration-200">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="hidden"
+                        id="image-upload"
+                        disabled={isUploadingImage}
+                      />
+                      <label
+                        htmlFor="image-upload"
+                        className="cursor-pointer flex flex-col items-center gap-3"
+                      >
+                        {isUploadingImage ? (
+                          <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div>
+                            <span>جاري رفع الصورة...</span>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                              <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                              </svg>
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                اضغط لرفع لقطة شاشة للصفحة الرئيسية للقالب
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                PNG, JPG, GIF حتى 5 ميجابايت - مطلوب كصورة مصغرة
+                              </p>
+                              <p className="text-xs text-green-600 dark:text-green-400 mt-1 font-medium">
+                                يجب أن تكون الصورة بقياس 400×300 بكسل
+                              </p>
+                            </div>
+                          </>
+                        )}
+                      </label>
+                    </div>
+                  ) : (
+                    <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
+                      <div className="flex items-center gap-2 text-green-700 dark:text-green-300 mb-3">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        <span className="text-sm font-medium">تم رفع الصورة بنجاح</span>
+                      </div>
+                      <div className="relative">
+                        <img
+                          src={uploadedImage}
+                          alt="صورة المعاينة"
+                          className="w-full max-w-md h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                          onError={() => {
+                            showError('فشل في تحميل الصورة');
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUploadedImage(null);
+                            setFormData(prev => ({ ...prev, previewImage: '' }));
+                          }}
+                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors"
+                          title="إزالة الصورة"
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <p className="text-xs text-green-600 dark:text-green-400 mt-2">
+                        هذه اللقطة ستكون الصورة المصغرة الرسمية للقالب
+                      </p>
+                      <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                        <p className="text-xs text-blue-700 dark:text-blue-300 font-medium mb-1">
+                          💡 نصائح لتحسين الصورة:
                         </p>
+                        <ul className="text-xs text-blue-600 dark:text-blue-400 space-y-1">
+                          <li>• تأكد من وضوح النص والعناصر في الصورة</li>
+                          <li>• اختر لقطة شاشة تعرض أفضل ما في القالب</li>
+                          <li>• استخدم دقة عالية للحصول على أفضل جودة</li>
+                          <li>• تجنب الصور الضبابية أو غير الواضحة</li>
+                        </ul>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -673,7 +734,7 @@ export default function CreateTemplatePage() {
                       <span className="font-medium text-lg">رفع صورة المعاينة يدوياً</span>
                     </div>
                     <p className="text-sm text-blue-600 dark:text-blue-400">
-                      يمكنك رفع صورة المعاينة يدوياً في قسم السعر والرابط أعلاه
+                      يمكنك رفع صورة المعاينة يدوياً في قسم الرابط والصورة أعلاه
                     </p>
                   </div>
                 </div>

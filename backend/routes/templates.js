@@ -32,14 +32,11 @@ router.post('/', auth, [
       'الصحة',
       'المالية',
       'التنظيم',
-      'التخطيط'
+      'التخطيط',
+      'ديني'
     ])
     .withMessage('فئة القالب غير صحيحة'),
-  body('price')
-    .isNumeric()
-    .withMessage('السعر يجب أن يكون رقماً')
-    .isFloat({ min: 0 })
-    .withMessage('السعر لا يمكن أن يكون سالباً'),
+  // Price validation removed - all templates are free
   body('notionLink')
     .isURL()
     .withMessage('رابط نوشن غير صحيح'),

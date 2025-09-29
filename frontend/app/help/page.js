@@ -13,7 +13,7 @@ const helpCategories = [
       { title: "كيفية إنشاء حساب جديد", slug: "create-account" },
       { title: "دليل المستخدم الأول", slug: "first-time-guide" },
       { title: "كيفية تصفح القوالب", slug: "browse-templates" },
-      { title: "فهم أنواع الاشتراكات", slug: "subscription-types" }
+      { title: "الاستخدام المجاني", slug: "free-usage" }
     ]
   },
   {
@@ -29,24 +29,24 @@ const helpCategories = [
   },
   {
     title: "المبدعين",
-    description: "للمبدعين والبائعين",
+    description: "للمبدعين والمساهمين",
     icon: "👨‍💻",
     articles: [
-      { title: "كيفية رفع قالب للبيع", slug: "upload-template" },
+      { title: "كيفية رفع قالب للمشاركة", slug: "upload-template" },
       { title: "إرشادات جودة القوالب", slug: "template-quality-guidelines" },
-      { title: "إدارة المبيعات والأرباح", slug: "manage-sales-earnings" },
+      { title: "إدارة قوالبك", slug: "manage-templates" },
       { title: "تسويق قوالبك", slug: "market-templates" }
     ]
   },
   {
-    title: "الدفع والفواتير",
-    description: "معلومات الدفع والاشتراك",
-    icon: "💳",
+    title: "المنصة المجانية",
+    description: "معلومات عن المنصة المجانية",
+    icon: "🎉",
     articles: [
-      { title: "طرق الدفع المتاحة", slug: "payment-methods" },
-      { title: "كيفية إلغاء الاشتراك", slug: "cancel-subscription" },
-      { title: "طلب استرداد", slug: "request-refund" },
-      { title: "فهم الفواتير", slug: "understand-billing" }
+      { title: "لماذا المنصة مجانية؟", slug: "why-free" },
+      { title: "كيفية الاستفادة من القوالب", slug: "how-to-benefit" },
+      { title: "المجتمع والمشاركة", slug: "community-sharing" },
+      { title: "المبادئ والقيم", slug: "principles-values" }
     ]
   },
   {
@@ -67,7 +67,7 @@ const helpCategories = [
     articles: [
       { title: "مشاكل في تسجيل الدخول", slug: "login-issues" },
       { title: "مشاكل في التحميل", slug: "download-issues" },
-      { title: "مشاكل في الدفع", slug: "payment-issues" },
+      { title: "مشاكل في الوصول", slug: "access-issues" },
       { title: "مشاكل في التطبيق", slug: "app-issues" }
     ]
   }
@@ -83,16 +83,16 @@ const faqs = [
     answer: "نعم، جميع القوالب تأتي مع رخصة للاستخدام التجاري. يمكنك استخدامها في مشاريعك الشخصية والتجارية."
   },
   {
-    question: "كيف يمكنني رفع قالب للبيع؟",
-    answer: "تحتاج أولاً إلى إنشاء حساب مبدع، ثم يمكنك رفع قوالبك من خلال لوحة التحكم. تأكد من اتباع إرشادات الجودة."
+    question: "كيف يمكنني رفع قالب للمشاركة؟",
+    answer: "تحتاج أولاً إلى إنشاء حساب مبدع، ثم يمكنك رفع قوالبك للمشاركة مع المجتمع من خلال لوحة التحكم. تأكد من اتباع إرشادات الجودة."
   },
   {
-    question: "متى أحصل على أرباحي من بيع القوالب؟",
-    answer: "يتم تحويل الأرباح إلى حسابك المصرفي في نهاية كل شهر، بشرط أن يكون المبلغ أكثر من 50 ريال."
+    question: "لماذا المنصة مجانية؟",
+    answer: "نؤمن بمشاركة المعرفة والمحتوى العربي مجاناً. نريد أن نتيح للجميع الوصول إلى قوالب نوشن المفيدة دون حواجز مالية."
   },
   {
-    question: "هل يمكنني إلغاء الاشتراك في أي وقت؟",
-    answer: "نعم، يمكنك إلغاء اشتراكك في أي وقت من إعدادات الحساب. ستحتفظ بجميع القوالب المحملة حتى نهاية فترة الاشتراك."
+    question: "هل يمكنني المساهمة في المنصة؟",
+    answer: "نعم! يمكنك رفع قوالبك الخاصة للمشاركة مع المجتمع، أو مساعدتنا في تحسين المنصة من خلال اقتراحاتك."
   },
   {
     question: "كيف يمكنني الحصول على دعم فني؟",

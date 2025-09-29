@@ -7,7 +7,6 @@ import { useParams } from 'next/navigation';
 import { formatDate } from '../../../lib/dateUtils';
 import api from '../../../lib/api';
 import LoadingIndicator from '../../../components/LoadingIndicator';
-import PaymentModal from '../../../components/PaymentModal';
 
 // Fallback data for when API fails
 const fallbackTemplate = {
@@ -17,8 +16,7 @@ const fallbackTemplate = {
     name: "علي حسن",
     avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face"
   },
-  price: 25,
-  originalPrice: 35,
+  price: 0,
   description: "قالب شامل ومتقدم لتنظيم الدراسة والمذاكرة بكفاءة عالية. يتضمن جداول زمنية، تتبع التقدم، وأدوات تحليل الأداء.",
   longDescription: "هذا القالب مصمم خصيصاً للطلاب والدارسين الذين يريدون تنظيم دراستهم بطريقة علمية وفعالة. يحتوي على أكثر من 20 صفحة من الأدوات والجداول المختلفة التي تساعدك في:",
   features: [
@@ -42,21 +40,21 @@ const relatedTemplates = [
     id: 2,
     title: "منظم المشاريع الشخصية",
     creator: "سارة أحمد",
-    price: 20,
+    price: 0,
     imgSrc: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop&crop=center"
   },
   {
     id: 3,
     title: "مخطط الميزانية الشهري",
     creator: "محمد علي",
-    price: 15,
+    price: 0,
     imgSrc: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop&crop=center"
   },
   {
     id: 4,
     title: "منظم الروتين اليومي",
     creator: "فاطمة حسن",
-    price: 18,
+    price: 0,
     imgSrc: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop&crop=center"
   }
 ];
@@ -70,8 +68,7 @@ export default function TemplateDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [isPurchased, setIsPurchased] = useState(false);
-  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [isDownloaded, setIsDownloaded] = useState(false);
 
   // Fetch template data from API
   useEffect(() => {
@@ -258,54 +255,30 @@ export default function TemplateDetailPage() {
                 </span>
               </div>
 
-              {/* Price */}
+              {/* Price - All templates are now free */}
               <div className="flex items-center gap-3 mb-6">
-                <span className="text-3xl font-bold text-orange-600 dark:text-orange-400">
-                  {template.price === 0 ? 'مجاني' : `${template.price} ريال`}
+                <span className="text-3xl font-bold text-green-600 dark:text-green-400">
+                  مجاني
                 </span>
-                {template.originalPrice && template.originalPrice > template.price && (
-                  <span className="text-lg text-accent-500 dark:text-dark-text-tertiary line-through">
-                    {template.originalPrice} ريال
-                  </span>
-                )}
-                {template.originalPrice && template.originalPrice > template.price && (
-                  <span className="bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-2 py-1 rounded-md text-sm font-medium">
-                    خصم {Math.round((1 - template.price / template.originalPrice) * 100)}%
-                  </span>
-                )}
+                <span className="bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 px-3 py-1 rounded-md text-sm font-medium">
+                  جميع القوالب مجانية
+                </span>
               </div>
 
-              {/* Purchase Button */}
+              {/* Download Button */}
               <button
                 onClick={() => {
-                  if (template.price === 0) {
-                    setIsPurchased(true);
-                  } else {
-                    setIsPaymentOpen(true);
-                  }
+                  setIsDownloaded(true);
+                  // Here you can add actual download functionality
+                  console.log('Downloading template:', template.title);
                 }}
-                className={`w-full py-3 px-6 rounded-xl font-medium transition-all duration-200 mb-6 ${isPurchased
+                className={`w-full py-3 px-6 rounded-xl font-medium transition-all duration-200 mb-6 ${isDownloaded
                   ? 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'
-                  : 'bg-orange-500 hover:bg-orange-600 text-white'
+                  : 'bg-green-500 hover:bg-green-600 text-white'
                   }`}
               >
-                {isPurchased ? 'تم الشراء ✓' : template.price === 0 ? 'تحميل مجاني' : `شراء الآن - ${template.price} ريال`}
+                {isDownloaded ? 'تم التحميل ✓' : 'تحميل مجاني'}
               </button>
-
-              {/* Payment Modal */}
-              <PaymentModal
-                isOpen={isPaymentOpen}
-                onClose={() => setIsPaymentOpen(false)}
-                template={{
-                  _id: template._id || template.id,
-                  title: template.title,
-                  price: template.price
-                }}
-                onSuccess={() => {
-                  setIsPaymentOpen(false);
-                  setIsPurchased(true);
-                }}
-              />
 
               {/* Description */}
               <div className="mb-6">
@@ -443,8 +416,8 @@ export default function TemplateDetailPage() {
                       className="w-full h-48 object-cover"
                       quality={100}
                     />
-                    <div className="absolute top-3 left-3 bg-orange-500 text-white px-2 py-1 rounded-md text-sm font-medium">
-                      {relatedTemplate.price === 0 ? 'مجاني' : `${relatedTemplate.price} ريال`}
+                    <div className="absolute top-3 left-3 bg-green-500 text-white px-2 py-1 rounded-md text-sm font-medium">
+                      مجاني
                     </div>
                   </div>
 

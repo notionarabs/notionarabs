@@ -34,14 +34,11 @@ const templateSchema = new mongoose.Schema({
       'الصحة',
       'المالية',
       'التنظيم',
-      'التخطيط'
+      'التخطيط',
+      'ديني'
     ]
   },
-  price: {
-    type: Number,
-    required: [true, 'سعر القالب مطلوب'],
-    min: [0, 'السعر لا يمكن أن يكون سالباً']
-  },
+  // All templates are now free - price field removed
   notionLink: {
     type: String,
     required: [true, 'رابط نوشن مطلوب'],
@@ -121,10 +118,7 @@ const templateSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  sales: {
-    type: Number,
-    default: 0
-  },
+  // Sales field removed - all templates are free
   rating: {
     type: Number,
     default: 0,
@@ -223,11 +217,7 @@ templateSchema.methods.incrementDownloads = function () {
   return this.save();
 };
 
-// Method to increment sales
-templateSchema.methods.incrementSales = function () {
-  this.sales += 1;
-  return this.save();
-};
+// Sales method removed - all templates are free
 
 // Method to update rating
 templateSchema.methods.updateRating = function (newRating) {

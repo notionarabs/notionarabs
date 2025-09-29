@@ -13,7 +13,7 @@ const fallbackTemplates = [
     title: "مخطط الدراسة",
     creator: { name: "علي حسن" },
     previewImage: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop&crop=center",
-    price: 25,
+    price: 0,
     rating: 4.8,
     downloads: 1200,
     category: "الدراسة",
@@ -24,7 +24,7 @@ const fallbackTemplates = [
     title: "لوحة تحكم الشركة الناشئة",
     creator: { name: "سارة محمد" },
     previewImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop&crop=center",
-    price: 45,
+    price: 0,
     rating: 4.9,
     downloads: 890,
     category: "الأعمال",
@@ -43,7 +43,8 @@ const categories = [
   { name: "الصحة", value: "الصحة" },
   { name: "المالية", value: "المالية" },
   { name: "التنظيم", value: "التنظيم" },
-  { name: "التخطيط", value: "التخطيط" }
+  { name: "التخطيط", value: "التخطيط" },
+  { name: "ديني", value: "ديني" }
 ];
 
 const sortOptions = [

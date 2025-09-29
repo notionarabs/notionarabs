@@ -2,6 +2,7 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
 const cloudinary = require('cloudinary').v2;
+const fallbackScreenshotService = require('./fallbackScreenshotService');
 
 class ScreenshotService {
   constructor() {
@@ -297,6 +298,18 @@ class ScreenshotService {
       } else if (error.message.includes('Target closed')) {
         errorMessage = 'Browser target closed unexpectedly';
         userMessage = 'تم إغلاق المتصفح بشكل غير متوقع. يرجى إضافة صورة يدوياً.';
+      }
+
+      // Try fallback service if Puppeteer fails
+      console.log('Attempting fallback screenshot service...');
+      try {
+        const fallbackResult = await fallbackScreenshotService.takeScreenshot(url);
+        if (fallbackResult.success) {
+          console.log('Fallback screenshot service succeeded');
+          return fallbackResult;
+        }
+      } catch (fallbackError) {
+        console.error('Fallback screenshot service also failed:', fallbackError.message);
       }
 
       return {

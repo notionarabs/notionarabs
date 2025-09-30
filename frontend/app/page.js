@@ -219,22 +219,25 @@ export default function HomePage() {
         </div>
 
         <div className="container-custom relative">
+
           {/* Full Width Content Layout */}
           <div className="text-center mb-12">
             {/* النصوص */}
             <div className="max-w-4xl mx-auto">
               <div className="inline-flex items-center px-4 py-2 bg-white/90 dark:bg-dark-tertiary/90 backdrop-blur-sm text-accent-500 dark:text-dark-text-primary rounded-full text-sm font-medium mb-6 text-reveal shadow-lg dark:shadow-dark-medium border border-primary-200 dark:border-orange-500/30 transition-colors duration-300">
                 <span className="w-2 h-2 bg-primary-500 dark:bg-orange-500 rounded-full ml-2 pulse-glow"></span>
-                أكثر من 10,000 قالب متاح
+                قوالب عربية عالية الجودة
+                <span className="mr-2 text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 px-2 py-1 rounded-full">
+                  💳 دفع قريباً
+                </span>
               </div>
 
               <h1 className="heading-1 mb-6 text-reveal-delayed leading-tight tracking-tight">
-                منصتك العربية لبيع وشراء قوالب نوشن
+                المنصة العربية الأولى لقوالب نوشن
               </h1>
 
               <p className="body-large text-accent-700 dark:text-dark-text-secondary mb-8 max-w-3xl mx-auto text-reveal-delayed-2">
-                انضم إلى مجتمع عربي متنامٍ من المبدعين، وابدأ رحلتك مع آلاف
-                القوالب المصممة للعمل، الدراسة، والحياة اليومية.
+                اكتشف قوالب نوشن عربية عالية الجودة مصممة للعمل والدراسة والتنظيم الشخصي. انضم لمجتمع المبدعين العرب وابدأ رحلتك نحو الإنتاجية.
               </p>
 
               {/* CTAs */}
@@ -243,7 +246,7 @@ export default function HomePage() {
                   href="/templates"
                   className="btn-primary text-lg sm:text-xl px-8 sm:px-10 py-4 sm:py-5 shadow-large hover:shadow-glow notion-block-hover focus-visible:ring-2 focus-visible:ring-primary-400"
                 >
-                  تصفح القوالب
+                  استكشف القوالب
                   <svg className="inline-block mr-2 w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
@@ -252,19 +255,20 @@ export default function HomePage() {
                   href="/creators/apply"
                   className="btn-secondary text-lg sm:text-xl px-8 sm:px-10 py-4 sm:py-5 bg-white/90 dark:bg-dark-tertiary/90 backdrop-blur-sm border-primary-200 dark:border-orange-500/30 notion-block-hover shadow-lg dark:shadow-dark-medium hover:shadow-xl dark:hover:shadow-dark-large hover:bg-primary-50 dark:hover:bg-dark-quaternary transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-primary-200 dark:focus-visible:ring-orange-500/40"
                 >
-                  بيع قوالبك
+                  انضم كمبدع
                 </Link>
               </div>
+
 
               {/* Enhanced Stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
                 <div className="card-featured p-6 stats-counter">
                   <div className="text-3xl font-bold text-primary-500 dark:text-orange-500 mb-2">{stats.templates}</div>
-                  <div className="body-small">قالب جاهز</div>
+                  <div className="body-small">قالب متاح</div>
                 </div>
                 <div className="card-featured p-6 stats-counter">
                   <div className="text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">{stats.creators}</div>
-                  <div className="body-small">مبدع عربي</div>
+                  <div className="body-small">مبدع نشط</div>
                 </div>
                 <div className="card-featured p-6 stats-counter">
                   <div className="text-3xl font-bold text-primary-500 dark:text-orange-500 mb-2">{new Date().getFullYear()}</div>
@@ -272,9 +276,10 @@ export default function HomePage() {
                 </div>
                 <div className="card-featured p-6 stats-counter">
                   <div className="text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">+{Math.max(1, Math.min(stats.templates, 999))}</div>
-                  <div className="body-small">تحديثات هذا العام</div>
+                  <div className="body-small">قوالب جديدة</div>
                 </div>
               </div>
+
             </div>
           </div>
 

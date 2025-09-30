@@ -5,13 +5,16 @@ import Image from 'next/image';
 
 // Google Analytics component
 export function GoogleAnalytics({ GA_TRACKING_ID }) {
-  if (!GA_TRACKING_ID) return null;
+  // Use the provided ID or fallback to the hardcoded one
+  const trackingId = GA_TRACKING_ID || 'G-CE8V1ZYCC7';
+  
+  if (!trackingId) return null;
 
   return (
     <>
       <script
         async
-        src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`}
+        src={`https://www.googletagmanager.com/gtag/js?id=${trackingId}`}
       />
       <script
         dangerouslySetInnerHTML={{
@@ -19,7 +22,7 @@ export function GoogleAnalytics({ GA_TRACKING_ID }) {
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', '${GA_TRACKING_ID}');
+            gtag('config', '${trackingId}');
           `,
         }}
       />

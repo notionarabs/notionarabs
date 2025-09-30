@@ -16,18 +16,11 @@ router.post('/', auth, [
     .withMessage('يجب أن يكون الرابط من موقع نوشن (مثال: https://notion.so/your-page)')
 ], async (req, res) => {
   try {
-    console.log('=== SCREENSHOT REQUEST DEBUG ===');
-    console.log('Request body:', req.body);
-    console.log('Request headers:', req.headers);
-    console.log('User object:', req.user);
-    console.log('User creator status:', req.user?.creatorStatus);
-    console.log('User role:', req.user?.role);
-    console.log('================================');
+    // Debug logs removed for production
 
     // Check validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log('Validation errors:', errors.array());
       return res.status(400).json({
         success: false,
         message: 'بيانات غير صحيحة',
@@ -37,11 +30,6 @@ router.post('/', auth, [
 
     // Check if user is an approved creator
     if (req.user.creatorStatus !== 'approved') {
-      console.log('User creator status check failed:', {
-        userId: req.user.id,
-        creatorStatus: req.user.creatorStatus,
-        required: 'approved'
-      });
       return res.status(403).json({
         success: false,
         message: 'غير مصرح لك بالوصول إلى هذه الميزة. يجب أن تكون منشئ معتمد لاستخدام هذه الميزة.',
@@ -57,9 +45,7 @@ router.post('/', auth, [
     const { url } = req.body;
 
     // Take screenshot
-    console.log('Calling screenshot service with URL:', url);
     const result = await screenshotService.takeScreenshot(url, req);
-    console.log('Screenshot service result:', result);
 
     if (result.success) {
       res.json({
@@ -68,7 +54,6 @@ router.post('/', auth, [
         data: result
       });
     } else {
-      console.log('Screenshot service failed:', result);
       res.status(400).json({
         success: false,
         message: result.userMessage || result.error || 'فشل في التقاط الصورة',
@@ -121,16 +106,11 @@ router.post('/test', auth, [
     .withMessage('يجب أن يكون الرابط من موقع نوشن (مثال: https://notion.so/your-page)')
 ], async (req, res) => {
   try {
-    console.log('Test screenshot request received:', {
-      url: req.body.url,
-      userId: req.user?.id,
-      userCreatorStatus: req.user?.creatorStatus
-    });
+    // Debug logs removed for production
 
     // Check validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log('Validation errors:', errors.array());
       return res.status(400).json({
         success: false,
         message: 'بيانات غير صحيحة',
@@ -141,9 +121,7 @@ router.post('/test', auth, [
     const { url } = req.body;
 
     // Take screenshot (bypassing creator status check for testing)
-    console.log('Calling screenshot service with URL:', url);
     const result = await screenshotService.takeScreenshot(url, req);
-    console.log('Screenshot service result:', result);
 
     if (result.success) {
       res.json({
@@ -152,7 +130,6 @@ router.post('/test', auth, [
         data: result
       });
     } else {
-      console.log('Screenshot service failed:', result);
       res.status(400).json({
         success: false,
         message: result.userMessage || result.error || 'فشل في التقاط الصورة',
@@ -187,16 +164,11 @@ router.post('/debug', [
     .withMessage('يجب أن يكون الرابط من موقع نوشن (مثال: https://notion.so/your-page)')
 ], async (req, res) => {
   try {
-    console.log('=== DEBUG SCREENSHOT REQUEST ===');
-    console.log('Request body:', req.body);
-    console.log('Request headers:', req.headers);
-    console.log('No auth required for debug endpoint');
-    console.log('================================');
+    // Debug logs removed for production
 
     // Check validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log('Validation errors:', errors.array());
       return res.status(400).json({
         success: false,
         message: 'بيانات غير صحيحة',
@@ -207,9 +179,7 @@ router.post('/debug', [
     const { url } = req.body;
 
     // Take screenshot (bypassing creator status check for debugging)
-    console.log('Calling screenshot service with URL:', url);
     const result = await screenshotService.takeScreenshot(url, req);
-    console.log('Screenshot service result:', result);
 
     if (result.success) {
       res.json({
@@ -218,7 +188,6 @@ router.post('/debug', [
         data: result
       });
     } else {
-      console.log('Screenshot service failed:', result);
       res.status(400).json({
         success: false,
         message: result.userMessage || result.error || 'فشل في التقاط الصورة',

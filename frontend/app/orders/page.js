@@ -85,17 +85,26 @@ export default function OrdersPage() {
     .filter((i) => i.downloaded || i.status === 'completed');
 
   if (loading || isLoading) {
-    return <LoadingIndicator />;
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-primary">
+        <div className="container-custom py-12 sm:py-16 md:py-20">
+          <div className="text-center">
+            <LoadingIndicator />
+            <p className="text-base sm:text-lg text-gray-600 dark:text-dark-text-secondary mt-4">جاري تحميل طلباتك...</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-dark-primary">
-        <div className="container-custom py-20 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-dark-text-primary mb-4">
+        <div className="container-custom py-12 sm:py-16 md:py-20 text-center px-4 sm:px-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-dark-text-primary mb-4">
             يجب تسجيل الدخول لعرض الطلبات
           </h1>
-          <p className="text-gray-600 dark:text-dark-text-secondary">
+          <p className="text-sm sm:text-base text-gray-600 dark:text-dark-text-secondary">
             يرجى تسجيل الدخول لعرض تاريخ طلباتك
           </p>
         </div>
@@ -105,64 +114,59 @@ export default function OrdersPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-primary">
-      <main className="container-custom py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-text-primary mb-2">القوالب الخاصة بي</h1>
-          <p className="text-gray-600 dark:text-dark-text-secondary">جميع القوالب التي قمت بتحميلها أو شرائها</p>
+      <main className="container-custom py-6 sm:py-8">
+        <div className="mb-6 sm:mb-8 px-4 sm:px-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-dark-text-primary mb-2">القوالب الخاصة بي</h1>
+          <p className="text-sm sm:text-base text-gray-600 dark:text-dark-text-secondary">جميع القوالب التي قمت بتحميلها أو شرائها</p>
         </div>
 
         {/* Items grid */}
         {items.length === 0 ? (
-          <div className="text-center py-12">
-            <svg className="mx-auto h-12 w-12 text-gray-400 dark:text-dark-text-tertiary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="text-center py-8 sm:py-12 px-4 sm:px-0">
+            <svg className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400 dark:text-dark-text-tertiary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-dark-text-primary mb-2">
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-dark-text-primary mb-2">
               لا توجد طلبات
             </h3>
-            <p className="text-gray-500 dark:text-dark-text-terتيary mb-4">
+            <p className="text-sm sm:text-base text-gray-500 dark:text-dark-text-terتيary mb-4">
               لم تقم بشراء أي قوالب بعد
             </p>
-            <a href="/templates" className="btn-primary inline-block">تصفح القوالب</a>
+            <a href="/templates" className="btn-primary inline-block text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3">تصفح القوالب</a>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 px-4 sm:px-0">
             {items.map((item) => (
-              <div key={`${item.orderId}-${item.templateId || item.id}`} className="card p-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-dark-tertiary flex items-center justify-center">
+              <div key={`${item.orderId}-${item.templateId || item.id}`} className="card p-4 sm:p-6">
+                <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-dark-tertiary flex items-center justify-center">
                     {item.previewImage ? (
                       <Image src={item.previewImage} alt={item.name} width={64} height={64} className="w-full h-full object-cover" />
                     ) : (
-                      <svg className="w-8 h-8 text-gray-400 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                     )}
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900 dark:text-dark-text-primary">{item.name}</h4>
+                    <h4 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-dark-text-primary">{item.name}</h4>
                     <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">{new Date(item.date || Date.now()).toLocaleDateString('ar-SA')}</p>
                   </div>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(item.status)}`}>{getStatusText(item.status)}</span>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
                   {item.downloaded ? (
-                    <span className="text-green-600 dark:text-green-400 text-sm">تم التحميل</span>
+                    <span className="text-green-600 dark:text-green-400 text-xs sm:text-sm">تم التحميل</span>
                   ) : (
-                    <span className="text-yellow-700 dark:text-yellow-300 text-sm">لم يتم التحميل</span>
+                    <span className="text-yellow-700 dark:text-yellow-300 text-xs sm:text-sm">لم يتم التحميل</span>
                   )}
-                  <div className="flex gap-3">
-                    <a
-                      href={item.notionLink || `/templates/${item.templateId || item.id}`}
-                      target={item.notionLink ? '_blank' : undefined}
-                      rel={item.notionLink ? 'noopener noreferrer' : undefined}
-                      className="btn-outline text-sm"
+                  <div className="flex gap-2 sm:gap-3">
+                    <button
+                      onClick={() => window.open(item.notionLink || `/templates/${item.templateId || item.id}`, '_blank')}
+                      className="btn-primary text-xs sm:text-sm px-3 sm:px-4 py-2"
                     >
                       عرض القالب
-                    </a>
-                    {item.notionLink ? (
-                      <button onClick={() => window.open(item.notionLink, '_blank')} className="btn-primary text-sm">فتح</button>
-                    ) : null}
+                    </button>
                   </div>
                 </div>
               </div>

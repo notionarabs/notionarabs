@@ -3,40 +3,16 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Lightbulb, ShieldCheck, Users, Search } from 'lucide-react';
+import { Lightbulb, ShieldCheck, Users, Search, Code } from 'lucide-react';
 
 const teamMembers = [
   {
-    name: "أحمد المطيري",
-    role: "المؤسس والرئيس التنفيذي",
-    bio: "خبير في التقنية والإنتاجية، عمل في شركات التقنية الكبرى لأكثر من 10 سنوات",
+    name: "مطور الويب",
+    role: "مطور ثلاثي الأبعاد ومطور الويب",
+    bio: "متخصص في تطوير الويب ثلاثي الأبعاد، قام ببناء هذه المنصة من الصفر",
     imgSrc: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face",
-    linkedin: "#",
-    twitter: "#"
-  },
-  {
-    name: "فاطمة نور",
-    role: "مديرة التصميم",
-    bio: "مصممة تجربة مستخدم متخصصة في أدوات الإنتاجية، حاصلة على جوائز في التصميم",
-    imgSrc: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=face",
-    linkedin: "#",
-    twitter: "#"
-  },
-  {
-    name: "عمر خالد",
-    role: "مدير التطوير",
-    bio: "مطور برمجيات متخصص في تطبيقات الويب، خبرة 8 سنوات في تطوير المنصات",
-    imgSrc: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face",
-    linkedin: "#",
-    twitter: "#"
-  },
-  {
-    name: "ليلى أحمد",
-    role: "مديرة التسويق",
-    bio: "خبيرة في التسويق الرقمي وبناء المجتمعات، ساعدت في نمو العديد من الشركات الناشئة",
-    imgSrc: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=face",
-    linkedin: "#",
-    twitter: "#"
+    website: "https://hazem.vip",
+    email: "hazemyasser911@gmail.com"
   }
 ];
 
@@ -64,10 +40,9 @@ const values = [
 ];
 
 const stats = [
-  { number: "10,000+", label: "قالب متاح" },
-  { number: "500+", label: "مبدع عربي" },
-  { number: "50,000+", label: "تحميل شهري" },
-  { number: "4.9", label: "تقييم المستخدمين" }
+  { number: "1", label: "مؤسس" },
+  { number: "100%", label: "عربي" },
+  { number: "2025", label: "سنة التأسيس" }
 ];
 
 export default function AboutPage() {
@@ -82,13 +57,12 @@ export default function AboutPage() {
             <h1 className="heading-1 mb-6">من نحن</h1>
             <p className="body-large text-accent-700 dark:text-dark-text-secondary max-w-4xl mx-auto">
               عرب نوشن هي منصة عربية متخصصة في بيع وشراء قوالب نوشن المبتكرة.
-              نحن نؤمن بقوة التنظيم والإنتاجية في تحسين حياة الناس، ونسعى لجعل هذه الأدوات
-              متاحة ومفهومة للجمهور العربي.
+              تم تطويرها من قبل مطور ويب ثلاثي الأبعاد بهدف جعل أدوات التنظيم والإنتاجية متاحة ومفهومة للجمهور العربي.
             </p>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 max-w-4xl mx-auto">
             {stats.map((stat, index) => (
               <div key={index} className="card-featured p-6 text-center">
                 <div className="text-3xl font-bold text-primary-500 dark:text-orange-500 mb-2">
@@ -101,28 +75,37 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Mission Section */}
+      {/* Our Story Section */}
       <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
         <div className="container-custom">
           <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="heading-2 mb-6">قصتنا</h2>
+              <p className="body-large text-accent-600 dark:text-dark-text-secondary mb-8">
+                رحلة من الفكرة إلى الواقع
+              </p>
+            </div>
+
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div>
-                <h2 className="heading-2 mb-6">مهمتنا</h2>
                 <p className="body-large text-accent-600 dark:text-dark-text-secondary mb-6">
-                  مهمتنا هي تمكين المبدعين العرب من مشاركة معرفتهم وخبراتهم من خلال
-                  قوالب نوشن عالية الجودة، ومساعدة المستخدمين في العثور على الحلول
-                  المناسبة لاحتياجاتهم التنظيمية والإنتاجية.
+                  بدأت عرب نوشن كفكرة بسيطة عندما لاحظت الحاجة الماسة في السوق العربي
+                  لمنصة متخصصة في قوالب نوشن باللغة العربية.
+                </p>
+                <p className="body-medium text-accent-600 dark:text-dark-text-secondary mb-6">
+                  كمطور ويب ثلاثي الأبعاد، أدركت أن هناك فجوة كبيرة بين الأدوات المتاحة
+                  باللغة الإنجليزية واحتياجات المستخدمين العرب. لذلك قررت إنشاء منصة تجمع
+                  بين أفضل قوالب نوشن مع الترجمة والتوطين المناسب للثقافة العربية.
                 </p>
                 <p className="body-medium text-accent-600 dark:text-dark-text-secondary">
-                  نؤمن أن التنظيم والإنتاجية يجب أن يكونا متاحين للجميع، بغض النظر عن
-                  الخلفية التقنية أو مستوى الخبرة. لذلك نعمل على جعل قوالب نوشن
-                  سهلة الفهم والاستخدام للجمهور العربي.
+                  اليوم، نحن فخورون بأن نكون منصة عربية متخصصة في هذا المجال، ونعمل باستمرار
+                  على تطوير وتحسين تجربة المستخدمين والمبدعين على حد سواء.
                 </p>
               </div>
               <div className="relative">
                 <div className="aspect-square bg-gradient-to-br from-primary-100 to-accent-100 dark:from-orange-500/20 dark:to-orange-600/20 rounded-2xl flex items-center justify-center">
                   <svg className="w-32 h-32 text-primary-500 dark:text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                   </svg>
                 </div>
               </div>
@@ -131,11 +114,58 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Values Section */}
+      {/* Mission & Vision Section */}
       <section className="section-padding bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
         <div className="container-custom">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="heading-2 mb-4">رؤيتنا ومهمتنا</h2>
+              <p className="body-large text-accent-600 dark:text-dark-text-secondary max-w-3xl mx-auto">
+                نسعى لبناء مستقبل أفضل للتنظيم والإنتاجية في العالم العربي
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-12">
+              {/* Mission */}
+              <div className="card p-8 text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </div>
+                <h3 className="heading-3 mb-4">مهمتنا</h3>
+                <p className="body-medium text-accent-600 dark:text-dark-text-secondary">
+                  تمكين المبدعين العرب من مشاركة معرفتهم وخبراتهم من خلال
+                  قوالب نوشن عالية الجودة، ومساعدة المستخدمين في العثور على الحلول
+                  المناسبة لاحتياجاتهم التنظيمية والإنتاجية.
+                </p>
+              </div>
+
+              {/* Vision */}
+              <div className="card p-8 text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-accent-500 to-primary-500 dark:from-orange-600 dark:to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </div>
+                <h3 className="heading-3 mb-4">رؤيتنا</h3>
+                <p className="body-medium text-accent-600 dark:text-dark-text-secondary">
+                  أن نكون المنصة العربية الرائدة في مجال قوالب نوشن، وأن نساهم في
+                  رفع مستوى التنظيم والإنتاجية في المجتمع العربي من خلال أدوات
+                  مبتكرة وسهلة الاستخدام.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Values Section */}
+      <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
+        <div className="container-custom">
           <div className="text-center mb-16">
-            <h2 className="heading-2 mb-4">قيمنا</h2>
+            <h2 className="heading-2 mb-4">قيمنا الأساسية</h2>
             <p className="body-large text-accent-600 dark:text-dark-text-secondary max-w-3xl mx-auto">
               القيم التي نؤمن بها ونتخذها كمرشد في جميع قراراتنا وأعمالنا
             </p>
@@ -143,9 +173,11 @@ export default function AboutPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, index) => (
-              <div key={index} className="card p-8 text-center">
-                <div className="mb-4 flex items-center justify-center">
-                  <value.Icon className="w-10 h-10 text-primary-500 dark:text-orange-500" />
+              <div key={index} className="card p-8 text-center group hover:shadow-xl transition-all duration-300">
+                <div className="mb-6 flex items-center justify-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-accent-100 dark:from-orange-500/20 dark:to-orange-600/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <value.Icon className="w-8 h-8 text-primary-500 dark:text-orange-500" />
+                  </div>
                 </div>
                 <h3 className="heading-3 mb-4">{value.title}</h3>
                 <p className="body-medium text-accent-600 dark:text-dark-text-secondary">
@@ -158,83 +190,47 @@ export default function AboutPage() {
       </section>
 
       {/* Team Section */}
-      <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
+      <section className="section-padding bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
         <div className="container-custom">
           <div className="text-center mb-16">
             <h2 className="heading-2 mb-4">فريقنا</h2>
             <p className="body-large text-accent-600 dark:text-dark-text-secondary max-w-3xl mx-auto">
-              فريق من الخبراء والمبدعين الذين يعملون بجد لتحقيق رؤيتنا
+              يقود المنصة مطور ويب ثلاثي الأبعاد يعمل بجهد لتحقيق رؤيتنا
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {teamMembers.map((member, index) => (
-              <div key={index} className="card p-6 text-center">
-                <div className="relative mb-6">
-                  <Image
-                    src={member.imgSrc}
-                    alt={member.name}
-                    width={200}
-                    height={200}
-                    className="w-24 h-24 rounded-full object-cover mx-auto"
-                  />
+          <div className="flex justify-center">
+            <div className="w-full max-w-sm">
+              {teamMembers.map((member, index) => (
+                <div key={index} className="card p-8 text-center group hover:shadow-xl transition-all duration-300">
+                  <div className="relative mb-6 flex justify-center">
+                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary-100 to-accent-100 dark:from-orange-500/20 dark:to-orange-600/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <Code className="w-10 h-10 text-primary-500 dark:text-orange-500" />
+                    </div>
+                  </div>
+                  <h3 className="font-bold text-lg text-accent-500 dark:text-dark-text-primary mb-2">
+                    {member.name}
+                  </h3>
+                  <p className="text-primary-500 dark:text-orange-500 font-semibold mb-3">
+                    {member.role}
+                  </p>
+                  <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-6">
+                    {member.bio}
+                  </p>
+                  <div className="flex justify-center gap-3">
+                    <a href={member.website} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-gray-100 dark:bg-dark-tertiary rounded-xl flex items-center justify-center hover:bg-primary-500 hover:text-white transition-all duration-300 group/link">
+                      <svg className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover/link:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9" />
+                      </svg>
+                    </a>
+                    <a href={`mailto:${member.email}`} className="w-10 h-10 bg-gray-100 dark:bg-dark-tertiary rounded-xl flex items-center justify-center hover:bg-primary-500 hover:text-white transition-all duration-300 group/link">
+                      <svg className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover/link:text-white transition-colors duration-300" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+                      </svg>
+                    </a>
+                  </div>
                 </div>
-                <h3 className="font-bold text-lg text-accent-500 dark:text-dark-text-primary mb-2">
-                  {member.name}
-                </h3>
-                <p className="text-primary-500 dark:text-orange-500 font-semibold mb-3">
-                  {member.role}
-                </p>
-                <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-4">
-                  {member.bio}
-                </p>
-                <div className="flex justify-center gap-3">
-                  <a href={member.linkedin} className="w-8 h-8 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center hover:bg-primary-500 hover:text-white transition-colors">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                    </svg>
-                  </a>
-                  <a href={member.twitter} className="w-8 h-8 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center hover:bg-primary-500 hover:text-white transition-colors">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                    </svg>
-                  </a>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Story Section */}
-      <section className="section-padding bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
-        <div className="container-custom">
-          <div className="max-w-4xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div className="relative">
-                <div className="aspect-square bg-gradient-to-br from-accent-100 to-primary-100 dark:from-orange-500/20 dark:to-orange-600/20 rounded-2xl flex items-center justify-center">
-                  <svg className="w-32 h-32 text-accent-500 dark:text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                  </svg>
-                </div>
-              </div>
-              <div>
-                <h2 className="heading-2 mb-6">قصتنا</h2>
-                <p className="body-large text-accent-600 dark:text-dark-text-secondary mb-6">
-                  بدأت عرب نوشن كفكرة بسيطة عندما لاحظنا الحاجة الماسة في السوق العربي
-                  لمنصة متخصصة في قوالب نوشن باللغة العربية.
-                </p>
-                <p className="body-medium text-accent-600 dark:text-dark-text-secondary mb-6">
-                  بعد سنوات من العمل في مجال التقنية والإنتاجية، أدركنا أن هناك فجوة
-                  كبيرة بين الأدوات المتاحة باللغة الإنجليزية واحتياجات المستخدمين العرب.
-                  لذلك قررنا إنشاء منصة تجمع بين أفضل قوالب نوشن مع الترجمة والتوطين
-                  المناسب للثقافة العربية.
-                </p>
-                <p className="body-medium text-accent-600 dark:text-dark-text-secondary">
-                  اليوم، نحن فخورون بأن نكون المنصة الرائدة في هذا المجال، ونعمل باستمرار
-                  على تطوير وتحسين تجربة المستخدمين والمبدعين على حد سواء.
-                </p>
-              </div>
+              ))}
             </div>
           </div>
         </div>
@@ -300,6 +296,7 @@ export default function AboutPage() {
                 <li><Link href="/blog" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المدونة</Link></li>
                 <li><Link href="/careers" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الوظائف</Link></li>
                 <li><Link href="/press" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الصحافة</Link></li>
+                <li><a href="https://hazem.vip" target="_blank" rel="noopener noreferrer" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">مطور الموقع</a></li>
               </ul>
             </div>
 

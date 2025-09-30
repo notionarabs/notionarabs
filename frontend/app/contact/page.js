@@ -89,7 +89,6 @@ function ContactForm() {
         }));
       }
     } catch (error) {
-      console.error('Error fetching creator:', error);
       setCreator(null);
     } finally {
       setLoadingCreator(false);
@@ -138,15 +137,8 @@ function ContactForm() {
         throw new Error(response.data.message || 'فشل في إرسال الرسالة');
       }
     } catch (error) {
-      console.error('Error submitting contact form:', error);
-      console.error('Error response:', error.response?.data);
       setIsSubmitting(false);
       setSubmitStatus('error');
-
-      // Log validation errors if they exist
-      if (error.response?.data?.errors) {
-        console.error('Validation errors:', error.response.data.errors);
-      }
     }
 
   };
@@ -515,6 +507,7 @@ function ContactForm() {
                 <li><Link href="/blog" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المدونة</Link></li>
                 <li><Link href="/careers" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الوظائف</Link></li>
                 <li><Link href="/press" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الصحافة</Link></li>
+                <li><a href="https://hazem.vip" target="_blank" rel="noopener noreferrer" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">مطور الموقع</a></li>
               </ul>
             </div>
 

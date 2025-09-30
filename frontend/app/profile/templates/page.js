@@ -90,10 +90,12 @@ export default function CreatorTemplatesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center transition-colors duration-300">
-        <div className="text-center">
-          <div className="loading-spinner mx-auto mb-4"></div>
-          <p className="loading-text">جاري التحميل...</p>
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
+        <div className="container-custom py-12 sm:py-16 md:py-20">
+          <div className="text-center">
+            <div className="loading-spinner mx-auto mb-4"></div>
+            <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary">جاري تحميل قوالبك...</p>
+          </div>
         </div>
       </div>
     );
@@ -101,10 +103,10 @@ export default function CreatorTemplatesPage() {
 
   if (user?.creatorStatus !== 'approved') {
     return (
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center transition-colors duration-300">
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center transition-colors duration-300 px-4 sm:px-0">
         <div className="text-center">
-          <h1 className="heading-1 mb-4">غير مصرح لك بالوصول</h1>
-          <p className="body-large text-accent-600 dark:text-dark-text-secondary">يجب أن تكون مبدعاً معتمداً للوصول إلى هذه الصفحة</p>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4">غير مصرح لك بالوصول</h1>
+          <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary">يجب أن تكون مبدعاً معتمداً للوصول إلى هذه الصفحة</p>
         </div>
       </div>
     );
@@ -115,15 +117,15 @@ export default function CreatorTemplatesPage() {
       <Navigation activePage="profile" />
       {/* Header */}
       <div className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300">
-        <div className="container-custom py-6">
-          <div className="flex items-center justify-between">
+        <div className="container-custom py-4 sm:py-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-0">
             <div>
-              <h1 className="heading-1 mb-2">قوالبي</h1>
-              <p className="body-large text-accent-600 dark:text-dark-text-secondary">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">قوالبي</h1>
+              <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary">
                 تتبع حالة قوالبي ومراجعة تفاصيلها
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <ExportButton
                 endpoint="/templates/export"
                 filename={`my-templates-data-${new Date().toISOString().split('T')[0]}.csv`}
@@ -131,13 +133,13 @@ export default function CreatorTemplatesPage() {
               />
               <button
                 onClick={() => router.push('/templates/create')}
-                className="btn-primary"
+                className="btn-primary text-sm sm:text-base px-3 sm:px-4 py-2 sm:py-3 w-full sm:w-auto text-center"
               >
                 إنشاء قالب جديد
               </button>
               <button
                 onClick={() => router.push('/profile')}
-                className="btn-outline"
+                className="btn-outline text-sm sm:text-base px-3 sm:px-4 py-2 sm:py-3 w-full sm:w-auto text-center"
               >
                 العودة للملف الشخصي
               </button>
@@ -146,38 +148,38 @@ export default function CreatorTemplatesPage() {
         </div>
       </div>
 
-      <div className="container-custom py-8">
+      <div className="container-custom py-6 sm:py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="card p-6">
-            <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">إجمالي القوالب</h3>
-            <p className="text-3xl font-bold text-primary-500 dark:text-orange-500">{templates.length}</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+          <div className="card p-3 sm:p-6">
+            <h3 className="text-sm sm:text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">إجمالي القوالب</h3>
+            <p className="text-xl sm:text-3xl font-bold text-primary-500 dark:text-orange-500">{templates.length}</p>
           </div>
-          <div className="card p-6">
-            <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">قيد المراجعة</h3>
-            <p className="text-3xl font-bold text-yellow-500">{templates.filter(t => t.status === 'pending').length}</p>
+          <div className="card p-3 sm:p-6">
+            <h3 className="text-sm sm:text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">قيد المراجعة</h3>
+            <p className="text-xl sm:text-3xl font-bold text-yellow-500">{templates.filter(t => t.status === 'pending').length}</p>
           </div>
-          <div className="card p-6">
-            <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">موافق عليها</h3>
-            <p className="text-3xl font-bold text-green-500">{templates.filter(t => t.status === 'approved').length}</p>
+          <div className="card p-3 sm:p-6">
+            <h3 className="text-sm sm:text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">موافق عليها</h3>
+            <p className="text-xl sm:text-3xl font-bold text-green-500">{templates.filter(t => t.status === 'approved').length}</p>
           </div>
-          <div className="card p-6">
-            <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">مرفوضة</h3>
-            <p className="text-3xl font-bold text-red-500">{templates.filter(t => t.status === 'rejected').length}</p>
+          <div className="card p-3 sm:p-6">
+            <h3 className="text-sm sm:text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">مرفوضة</h3>
+            <p className="text-xl sm:text-3xl font-bold text-red-500">{templates.filter(t => t.status === 'rejected').length}</p>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="card p-6 mb-8">
+        <div className="card p-4 sm:p-6 mb-6 sm:mb-8">
           <div className="flex flex-wrap gap-4 items-center">
-            <div>
+            <div className="w-full sm:w-auto">
               <label className="block text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
                 تصفية حسب الحالة
               </label>
               <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value)}
-                className="form-input"
+                className="form-input w-full sm:w-auto"
               >
                 <option value="all">جميع الحالات</option>
                 <option value="pending">قيد المراجعة</option>
@@ -190,18 +192,18 @@ export default function CreatorTemplatesPage() {
 
         {/* Templates List */}
         {filteredTemplates.length > 0 ? (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {filteredTemplates.map((template) => (
-              <div key={template._id} className="card p-6">
+              <div key={template._id} className="card p-4 sm:p-6">
                 <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                   {/* Template Info */}
                   <div className="flex-1">
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <h3 className="text-xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
+                      <div className="flex-1">
+                        <h3 className="text-lg sm:text-xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">
                           {template.title}
                         </h3>
-                        <p className="text-accent-600 dark:text-dark-text-secondary mb-3 line-clamp-2">
+                        <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary mb-3 line-clamp-2">
                           {template.description}
                         </p>
                       </div>
@@ -210,26 +212,26 @@ export default function CreatorTemplatesPage() {
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-4 mb-4">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-accent-600 dark:text-dark-text-secondary">الفئة:</span>
-                        <span className="text-sm font-medium text-accent-500 dark:text-dark-text-primary">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-3 sm:mb-4">
+                      <div className="flex items-center gap-1 sm:gap-2">
+                        <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">الفئة:</span>
+                        <span className="text-xs sm:text-sm font-medium text-accent-500 dark:text-dark-text-primary">
                           {template.category}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-accent-600 dark:text-dark-text-secondary">السعر:</span>
-                        <span className="text-sm font-medium text-green-600 dark:text-green-400">
+                      <div className="flex items-center gap-1 sm:gap-2">
+                        <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">السعر:</span>
+                        <span className="text-xs sm:text-sm font-medium text-green-600 dark:text-green-400">
                           مجاني
                         </span>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 sm:gap-2">
                         {getDifficultyBadge(template.difficulty)}
                       </div>
                     </div>
 
                     {template.tags && template.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mb-4">
+                      <div className="flex flex-wrap gap-1 sm:gap-2 mb-3 sm:mb-4">
                         {template.tags.slice(0, 3).map((tag, index) => (
                           <span
                             key={index}
@@ -246,7 +248,7 @@ export default function CreatorTemplatesPage() {
                       </div>
                     )}
 
-                    <div className="flex items-center gap-4 text-sm text-accent-600 dark:text-dark-text-secondary">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">
                       <span>تاريخ الإرسال: {formatDate(template.createdAt)}</span>
                       {template.approvedAt && (
                         <span>تاريخ الموافقة: {formatDate(template.approvedAt)}</span>
@@ -257,11 +259,11 @@ export default function CreatorTemplatesPage() {
                     </div>
 
                     {template.adminNotes && (
-                      <div className="mt-4 p-4 bg-gray-50 dark:bg-dark-tertiary rounded-lg">
-                        <h4 className="text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
+                      <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-gray-50 dark:bg-dark-tertiary rounded-lg">
+                        <h4 className="text-xs sm:text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
                           ملاحظات الإدارة:
                         </h4>
-                        <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                        <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">
                           {template.adminNotes}
                         </p>
                       </div>
@@ -269,12 +271,12 @@ export default function CreatorTemplatesPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex flex-col gap-2 lg:min-w-[200px]">
+                  <div className="flex flex-col gap-2 lg:min-w-[180px] sm:min-w-[200px]">
                     <a
                       href={template.notionLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="btn-outline text-center"
+                      className="btn-outline text-center text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3"
                     >
                       عرض في نوشن
                     </a>
@@ -286,7 +288,7 @@ export default function CreatorTemplatesPage() {
                             // Add delete functionality here
                           }
                         }}
-                        className="btn-outline text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-600 dark:hover:bg-red-900/20"
+                        className="btn-outline text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-600 dark:hover:bg-red-900/20 text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3"
                       >
                         حذف القالب
                       </button>
@@ -297,7 +299,7 @@ export default function CreatorTemplatesPage() {
                         onClick={() => {
                           // Add edit functionality here
                         }}
-                        className="btn-outline"
+                        className="btn-outline text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3"
                       >
                         تعديل القالب
                       </button>
@@ -308,16 +310,16 @@ export default function CreatorTemplatesPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-16">
-            <div className="w-16 h-16 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-gray-400 dark:text-dark-text-quaternary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="text-center py-12 sm:py-16">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400 dark:text-dark-text-quaternary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
+            <h3 className="text-lg sm:text-xl font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
               {selectedStatus === 'all' ? 'لم تقم بإرسال أي قوالب بعد' : 'لا توجد قوالب بهذه الحالة'}
             </h3>
-            <p className="text-accent-600 dark:text-dark-text-secondary mb-6">
+            <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary mb-6">
               {selectedStatus === 'all'
                 ? 'ابدأ بإنشاء قالبك الأول وشاركه مع العالم'
                 : 'جرب تغيير فلتر الحالة لعرض قوالب أخرى'
@@ -325,7 +327,7 @@ export default function CreatorTemplatesPage() {
             </p>
             <button
               onClick={() => router.push('/templates/create')}
-              className="btn-primary"
+              className="btn-primary text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3"
             >
               إنشاء قالب جديد
             </button>

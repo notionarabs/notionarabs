@@ -34,8 +34,6 @@ const corsOptions = {
       if (process.env.NODE_ENV === 'production' && origin && origin.includes('vercel.app')) {
         callback(null, true);
       } else {
-        console.log('CORS blocked origin:', origin);
-        console.log('Allowed origins:', allowedOrigins);
         callback(new Error('Not allowed by CORS'));
       }
     }
@@ -75,8 +73,8 @@ require('./config/passport');
 
 // Database connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/notion-arabs')
-  .then(() => console.log('✅ Database connected successfully'))
-  .catch(err => console.error('❌ Database connection error:', err));
+  .then(() => {})
+  .catch(err => console.error('Database connection error:', err));
 
 // Routes
 const authRoutes = require('./routes/auth');
@@ -150,6 +148,4 @@ app.use((req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+app.listen(PORT, () => {});

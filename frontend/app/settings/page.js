@@ -16,8 +16,6 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState({
     notifications: true,
     emailUpdates: true,
-    language: 'ar',
-    timezone: 'Africa/Cairo',
     profileVisibility: 'public'
   });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -212,281 +210,182 @@ export default function SettingsPage() {
         <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
           <div className="container-custom">
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Main Settings */}
-              <div className="lg:col-span-2 space-y-6">
+            <div className="max-w-4xl mx-auto space-y-8">
 
-                {/* Notification Settings */}
-                <div className="card-interactive p-8">
-                  <h2 className="heading-3 mb-6 flex items-center gap-3">
-                    <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5-5-5h5v-5a7.5 7.5 0 00-15 0v5h5l-5 5-5-5h5V9a7.5 7.5 0 0115 0v8z" />
-                      </svg>
+              {/* Notification Settings */}
+              <div className="card-interactive p-8">
+                <h2 className="heading-3 mb-6 flex items-center gap-3">
+                  <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                    <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5-5-5h5v-5a7.5 7.5 0 00-15 0v5h5l-5 5-5-5h5V9a7.5 7.5 0 0115 0v8z" />
+                    </svg>
+                  </div>
+                  إعدادات الإشعارات
+                </h2>
+
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 dark:text-dark-text-secondary">
+                        الإشعارات العامة
+                      </label>
+                      <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">
+                        تلقي إشعارات حول الأنشطة المهمة
+                      </p>
                     </div>
-                    إعدادات الإشعارات
-                  </h2>
-
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <label className="text-sm font-medium text-gray-700 dark:text-dark-text-secondary">
-                          الإشعارات العامة
-                        </label>
-                        <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">
-                          تلقي إشعارات حول الأنشطة المهمة
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => handleSettingChange('notifications', !settings.notifications)}
-                        className={`
+                    <button
+                      onClick={() => handleSettingChange('notifications', !settings.notifications)}
+                      className={`
                           relative w-12 h-6 rounded-full transition-all duration-300 ease-in-out
                           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
                           ${settings.notifications
-                            ? 'bg-gradient-to-r from-primary-500 to-primary-600 shadow-lg'
-                            : 'bg-gray-300 hover:bg-gray-400 dark:bg-dark-tertiary'
-                          }
+                          ? 'bg-gradient-to-r from-primary-500 to-primary-600 shadow-lg'
+                          : 'bg-gray-300 hover:bg-gray-400 dark:bg-dark-tertiary'
+                        }
                         `}
-                        aria-label={`${settings.notifications ? 'Disable' : 'Enable'} notifications`}
-                      >
-                        {/* Toggle Circle */}
-                        <div
-                          className={`
+                      aria-label={`${settings.notifications ? 'Disable' : 'Enable'} notifications`}
+                    >
+                      {/* Toggle Circle */}
+                      <div
+                        className={`
                             absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-md
                             transition-all duration-300 ease-in-out transform
                             ${settings.notifications
-                              ? 'ltr:translate-x-6 rtl:-translate-x-[1.6rem]'
-                              : 'ltr:translate-x-0.5 rtl:-translate-x-0.5'
-                            }
+                            ? 'ltr:translate-x-6 rtl:-translate-x-[1.6rem]'
+                            : 'ltr:translate-x-0.5 rtl:-translate-x-0.5'
+                          }
                           `}
-                        >
-                          {/* Icon inside the circle */}
-                          <div className="flex items-center justify-center w-full h-full">
-                            {settings.notifications ? (
-                              <svg
-                                className="w-3 h-3 text-primary-500 transition-all duration-300"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                              >
-                                {/* Bell icon */}
-                                <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-                              </svg>
-                            ) : (
-                              <svg
-                                className="w-3 h-3 text-gray-600 transition-all duration-300"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                              >
-                                {/* Bell slash icon */}
-                                <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clipRule="evenodd" />
-                                <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
-                              </svg>
-                            )}
-                          </div>
+                      >
+                        {/* Icon inside the circle */}
+                        <div className="flex items-center justify-center w-full h-full">
+                          {settings.notifications ? (
+                            <svg
+                              className="w-3 h-3 text-primary-500 transition-all duration-300"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              {/* Bell icon */}
+                              <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                            </svg>
+                          ) : (
+                            <svg
+                              className="w-3 h-3 text-gray-600 transition-all duration-300"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              {/* Bell slash icon */}
+                              <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clipRule="evenodd" />
+                              <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                            </svg>
+                          )}
                         </div>
-
-                        {/* Background gradient overlay for active state */}
-                        {settings.notifications && (
-                          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary-400/20 to-primary-600/20"></div>
-                        )}
-                      </button>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <label className="text-sm font-medium text-gray-700 dark:text-dark-text-secondary">
-                          تحديثات البريد الإلكتروني
-                        </label>
-                        <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">
-                          تلقي تحديثات منتظمة عبر البريد الإلكتروني
-                        </p>
                       </div>
-                      <button
-                        onClick={() => handleSettingChange('emailUpdates', !settings.emailUpdates)}
-                        className={`
+
+                      {/* Background gradient overlay for active state */}
+                      {settings.notifications && (
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary-400/20 to-primary-600/20"></div>
+                      )}
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 dark:text-dark-text-secondary">
+                        تحديثات البريد الإلكتروني
+                      </label>
+                      <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">
+                        تلقي تحديثات منتظمة عبر البريد الإلكتروني
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleSettingChange('emailUpdates', !settings.emailUpdates)}
+                      className={`
                           relative w-12 h-6 rounded-full transition-all duration-300 ease-in-out
                           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
                           ${settings.emailUpdates
-                            ? 'bg-gradient-to-r from-primary-500 to-primary-600 shadow-lg'
-                            : 'bg-gray-300 hover:bg-gray-400 dark:bg-dark-tertiary'
-                          }
+                          ? 'bg-gradient-to-r from-primary-500 to-primary-600 shadow-lg'
+                          : 'bg-gray-300 hover:bg-gray-400 dark:bg-dark-tertiary'
+                        }
                         `}
-                        aria-label={`${settings.emailUpdates ? 'Disable' : 'Enable'} email updates`}
-                      >
-                        {/* Toggle Circle */}
-                        <div
-                          className={`
+                      aria-label={`${settings.emailUpdates ? 'Disable' : 'Enable'} email updates`}
+                    >
+                      {/* Toggle Circle */}
+                      <div
+                        className={`
                             absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-md
                             transition-all duration-300 ease-in-out transform
                             ${settings.emailUpdates
-                              ? 'ltr:translate-x-6 rtl:-translate-x-[1.6rem]'
-                              : 'ltr:translate-x-0.5 rtl:-translate-x-0.5'
-                            }
+                            ? 'ltr:translate-x-6 rtl:-translate-x-[1.6rem]'
+                            : 'ltr:translate-x-0.5 rtl:-translate-x-0.5'
+                          }
                           `}
-                        >
-                          {/* Icon inside the circle */}
-                          <div className="flex items-center justify-center w-full h-full">
-                            {settings.emailUpdates ? (
-                              <svg
-                                className="w-3 h-3 text-primary-500 transition-all duration-300"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                              >
-                                {/* Mail icon */}
-                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                              </svg>
-                            ) : (
-                              <svg
-                                className="w-3 h-3 text-gray-600 transition-all duration-300"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                              >
-                                {/* Mail slash icon */}
-                                <path fillRule="evenodd" d="M2.94 2.94A2 2 0 014 2h12a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V4a2 2 0 01.94-1.06zM4 4v10h12V4H4z" clipRule="evenodd" />
-                                <path d="M2 4l8 4 8-4" stroke="currentColor" strokeWidth="1" fill="none" />
-                              </svg>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Background gradient overlay for active state */}
-                        {settings.emailUpdates && (
-                          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary-400/20 to-primary-600/20"></div>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Language & Region Settings */}
-                <div className="card-interactive p-8">
-                  <h2 className="heading-3 mb-6 flex items-center gap-3">
-                    <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-                      </svg>
-                    </div>
-                    اللغة والمنطقة
-                  </h2>
-
-                  <div className="space-y-6">
-                    {/* Language Setting */}
-                    <div className="bg-gray-50 dark:bg-dark-tertiary/50 rounded-xl p-6 border border-gray-200 dark:border-dark-card-border">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-                              <svg className="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-                              </svg>
-                            </div>
-                            <div>
-                              <label className="text-sm font-semibold text-accent-700 dark:text-dark-text-primary">
-                                اللغة
-                              </label>
-                              <p className="text-xs text-accent-500 dark:text-dark-text-tertiary mt-1">
-                                اختر لغة واجهة التطبيق
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="relative">
-                          <select
-                            value={settings.language}
-                            onChange={(e) => handleSettingChange('language', e.target.value)}
-                            className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 min-w-40 pr-10"
-                          >
-                            <option value="ar">العربية</option>
-                            <option value="en">English</option>
-                          </select>
-                          {/* Custom dropdown indicator */}
-                          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                            <svg className="w-4 h-4 text-accent-400 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      >
+                        {/* Icon inside the circle */}
+                        <div className="flex items-center justify-center w-full h-full">
+                          {settings.emailUpdates ? (
+                            <svg
+                              className="w-3 h-3 text-primary-500 transition-all duration-300"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              {/* Mail icon */}
+                              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                             </svg>
-                          </div>
+                          ) : (
+                            <svg
+                              className="w-3 h-3 text-gray-600 transition-all duration-300"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              {/* Mail slash icon */}
+                              <path fillRule="evenodd" d="M2.94 2.94A2 2 0 014 2h12a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V4a2 2 0 01.94-1.06zM4 4v10h12V4H4z" clipRule="evenodd" />
+                              <path d="M2 4l8 4 8-4" stroke="currentColor" strokeWidth="1" fill="none" />
+                            </svg>
+                          )}
                         </div>
                       </div>
-                    </div>
 
-                    {/* Timezone Setting */}
-                    <div className="bg-gray-50 dark:bg-dark-tertiary/50 rounded-xl p-6 border border-gray-200 dark:border-dark-card-border">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                              <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                            </div>
-                            <div>
-                              <label className="text-sm font-semibold text-accent-700 dark:text-dark-text-primary">
-                                المنطقة الزمنية
-                              </label>
-                              <p className="text-xs text-accent-500 dark:text-dark-text-tertiary mt-1">
-                                اختر منطقتك الزمنية
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="relative">
-                          <select
-                            value={settings.timezone}
-                            onChange={(e) => handleSettingChange('timezone', e.target.value)}
-                            className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 min-w-40 pr-10"
-                          >
-                            <option value="Africa/Cairo">القاهرة (GMT+2)</option>
-                            <option value="Asia/Riyadh">الرياض (GMT+3)</option>
-                            <option value="Asia/Dubai">دبي (GMT+4)</option>
-                            <option value="Europe/London">لندن (GMT+0)</option>
-                          </select>
-                          {/* Custom dropdown indicator */}
-                          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                            <svg className="w-4 h-4 text-accent-400 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                            </svg>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                      {/* Background gradient overlay for active state */}
+                      {settings.emailUpdates && (
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary-400/20 to-primary-600/20"></div>
+                      )}
+                    </button>
                   </div>
                 </div>
               </div>
 
-              {/* Sidebar */}
-              <div className="space-y-6">
-
-                {/* Account Actions */}
-                <div className="card-interactive p-6">
-                  <h2 className="heading-3 mb-6 flex items-center gap-3">
-                    <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                    </div>
-                    إجراءات الحساب
-                  </h2>
-
-                  <div className="space-y-3">
-                    <button
-                      onClick={() => setShowPasswordModal(true)}
-                      className="w-full btn-outline text-sm py-3"
-                    >
-                      تغيير كلمة المرور
-                    </button>
-                    <button
-                      onClick={() => setShowDeleteModal(true)}
-                      className="w-full px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 border border-red-200 dark:border-red-800"
-                    >
-                      حذف الحساب
-                    </button>
+              {/* Account Actions */}
+              <div className="card-interactive p-8">
+                <h2 className="heading-3 mb-6 flex items-center gap-3">
+                  <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                    <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
                   </div>
-                </div>
+                  إجراءات الحساب
+                </h2>
 
-                {/* Save Button */}
-                <button className="w-full btn-primary py-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <button
+                    onClick={() => setShowPasswordModal(true)}
+                    className="btn-outline text-sm py-3"
+                  >
+                    تغيير كلمة المرور
+                  </button>
+                  <button
+                    onClick={() => setShowDeleteModal(true)}
+                    className="px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200 border border-red-200 dark:border-red-800"
+                  >
+                    حذف الحساب
+                  </button>
+                </div>
+              </div>
+
+              {/* Save Button */}
+              <div className="flex justify-center">
+                <button className="btn-primary py-3 px-8">
                   حفظ التغييرات
                 </button>
               </div>

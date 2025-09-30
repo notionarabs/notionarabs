@@ -47,12 +47,10 @@ router.post('/', auth, [
   body('previewImage')
     .optional()
     .custom((value) => {
-      // If no value provided, that's fine - screenshot will be captured automatically
-      if (!value) return true;
+      if (!value) return true; // No auto-screenshot fallback anymore
 
       try {
         const url = new URL(value);
-        // Allow http, https protocols
         if (!['http:', 'https:'].includes(url.protocol)) {
           throw new Error('Invalid protocol');
         }
@@ -121,25 +119,8 @@ router.post('/', auth, [
       });
     }
 
-    // If no preview image provided, capture screenshot automatically
+    // No automatic screenshot capture; require explicit preview image if needed
     let previewImageUrl = req.body.previewImage;
-    let screenshotError = null;
-
-    if (!previewImageUrl && req.body.notionLink) {
-      try {
-        const screenshotService = require('../services/screenshotService');
-        const screenshotResult = await screenshotService.takeScreenshot(req.body.notionLink, req);
-
-        if (screenshotResult.success) {
-          previewImageUrl = screenshotResult.screenshotUrl;
-        } else {
-          screenshotError = screenshotResult.userMessage || screenshotResult.error;
-        }
-      } catch (error) {
-        screenshotError = error.message;
-        // Continue without screenshot - it's not required
-      }
-    }
 
     // Generate unique slug for the template
     const slugExists = async (slug, excludeId = null) => {
@@ -172,20 +153,6 @@ router.post('/', auth, [
       message: 'تم إرسال القالب بنجاح. سيتم مراجعته من قبل الإدارة قريباً.',
       template
     };
-
-    // Include screenshot status in response
-    if (screenshotError) {
-      response.screenshotStatus = {
-        success: false,
-        error: screenshotError,
-        message: 'فشل في التقاط صورة المعاينة تلقائياً. يمكنك إضافة صورة يدوياً لاحقاً.'
-      };
-    } else if (previewImageUrl) {
-      response.screenshotStatus = {
-        success: true,
-        message: 'تم التقاط صورة المعاينة بنجاح'
-      };
-    }
 
     res.status(201).json(response);
   } catch (error) {

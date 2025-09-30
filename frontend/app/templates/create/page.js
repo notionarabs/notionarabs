@@ -14,7 +14,6 @@ export default function CreateTemplatePage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [isGeneratingScreenshot, setIsGeneratingScreenshot] = useState(false);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [uploadedImages, setUploadedImages] = useState([]);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -47,10 +46,12 @@ export default function CreateTemplatePage() {
   // Show loading only if we're actually loading and don't have user data
   if (loading && !user) {
     return (
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center transition-colors duration-300">
-        <div className="text-center">
-          <div className="loading-spinner mx-auto mb-4"></div>
-          <p className="loading-text">جاري التحميل...</p>
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
+        <div className="container-custom py-20">
+          <div className="text-center">
+            <div className="loading-spinner mx-auto mb-4"></div>
+            <p className="text-lg text-accent-600 dark:text-dark-text-secondary">جاري تحميل صفحة إنشاء القالب...</p>
+          </div>
         </div>
       </div>
     );
@@ -141,53 +142,7 @@ export default function CreateTemplatePage() {
     }
   };
 
-  const generateScreenshot = async () => {
-    if (!formData.notionLink) {
-      showError('يرجى إدخال رابط النوتن أولاً');
-      return;
-    }
-
-    // Validate URL format first
-    const notionRegex = /^https:\/\/([a-zA-Z0-9-]+\.)?notion\.(so|site)/;
-    if (!notionRegex.test(formData.notionLink)) {
-      showError('يرجى إدخال رابط صحيح من موقع نوشن (مثال: https://notion.so/your-page أو https://yoursite.notion.site/your-page)');
-      return;
-    }
-
-    setIsGeneratingScreenshot(true);
-    try {
-      const response = await api.post('/screenshot', {
-        url: formData.notionLink
-      });
-
-      if (response.data.success) {
-        setUploadedImage(response.data.data.screenshotUrl);
-        setFormData(prev => ({
-          ...prev,
-          previewImage: response.data.data.screenshotUrl
-        }));
-        showSuccess('تم إنشاء لقطة الشاشة تلقائياً!');
-      } else {
-        showError(response.data.message || 'فشل في إنشاء لقطة الشاشة');
-      }
-    } catch (error) {
-      console.error('Screenshot generation error:', error);
-
-      // Check if it's a validation error or server error
-      if (error.response?.status === 400) {
-        const errorMessage = error.response?.data?.message;
-        if (errorMessage && errorMessage.includes('رابط غير صحيح')) {
-          showError('يرجى إدخال رابط صحيح من موقع نوشن (مثال: https://notion.so/your-page أو https://yoursite.notion.site/your-page)');
-        } else {
-          showWarning('خدمة التقاط الصور التلقائية غير متاحة حالياً. يرجى إضافة صورة يدوياً باستخدام الزر أدناه.');
-        }
-      } else {
-        showWarning('خدمة التقاط الصور التلقائية غير متاحة حالياً. يرجى إضافة صورة يدوياً باستخدام الزر أدناه.');
-      }
-    } finally {
-      setIsGeneratingScreenshot(false);
-    }
-  };
+  // تم إزالة إنشاء لقطة الشاشة تلقائياً. الرجاء رفع صورة يدوياً.
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -316,7 +271,7 @@ export default function CreateTemplatePage() {
         difficulty: formData.difficulty,
         tags: tagsArray.length > 0 ? tagsArray : undefined,
         features: formData.features.trim() || undefined,
-        previewImage: formData.previewImage || undefined, // Only set if screenshot was captured
+        previewImage: formData.previewImage || undefined,
         previewImages: formData.previewImages.length > 0 ? formData.previewImages : undefined
       };
 
@@ -604,58 +559,9 @@ export default function CreateTemplatePage() {
                     لقطة شاشة للقالب (مطلوب) *
                   </label>
 
-                  {/* Automatic Screenshot Generation */}
-                  {formData.notionLink && !uploadedImage && (
-                    <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                          </svg>
-                          <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                            إنشاء لقطة شاشة تلقائياً من رابط النوتن
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={generateScreenshot}
-                          disabled={isGeneratingScreenshot}
-                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center gap-2"
-                        >
-                          {isGeneratingScreenshot ? (
-                            <>
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                              جاري الإنشاء...
-                            </>
-                          ) : (
-                            <>
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                              </svg>
-                              إنشاء تلقائي
-                            </>
-                          )}
-                        </button>
-                        <div className="text-xs text-gray-500 mt-1">
-                          💡 إذا لم تعمل الخدمة، يمكنك إضافة صورة يدوياً أدناه
-                        </div>
-                      </div>
-                      <p className="text-xs text-blue-600 dark:text-blue-300 mt-2">
-                        سيتم التقاط لقطة شاشة تلقائياً من صفحة النوتن الخاصة بك
-                      </p>
-                    </div>
-                  )}
+                  {/* تمت إزالة إنشاء لقطة الشاشة تلقائياً */}
 
                   {/* Manual Upload Option */}
-                  {!uploadedImage && (
-                    <div className="text-center my-4">
-                      <div className="flex items-center">
-                        <div className="flex-1 border-t border-gray-300 dark:border-gray-600"></div>
-                        <span className="px-4 text-sm text-gray-500 dark:text-gray-400">أو</span>
-                        <div className="flex-1 border-t border-gray-300 dark:border-gray-600"></div>
-                      </div>
-                    </div>
-                  )}
 
                   {!uploadedImage ? (
                     <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center hover:border-green-400 dark:hover:border-green-500 transition-colors duration-200">
@@ -689,9 +595,6 @@ export default function CreateTemplatePage() {
                               </p>
                               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 PNG, JPG, GIF حتى 5 ميجابايت - مطلوب كصورة مصغرة
-                              </p>
-                              <p className="text-xs text-green-600 dark:text-green-400 mt-1 font-medium">
-                                يجب أن تكون الصورة بقياس 400×300 بكسل
                               </p>
                             </div>
                           </>

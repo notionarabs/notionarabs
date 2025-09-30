@@ -237,15 +237,22 @@ export default function BlogPage() {
 
               {/* Sort By */}
               <div className="flex items-center gap-2">
-                <label htmlFor="sort-by" className="text-sm text-accent-600 dark:text-dark-text-secondary">
-                  ترتيب حسب:
+                <label htmlFor="sort-by" className="text-sm font-medium text-accent-700 dark:text-dark-text-primary">
+                  الترتيب:
                 </label>
                 <div className="relative">
                   <select
                     id="sort-by"
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="form-select text-sm cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 min-w-32"
+                    className="form-select text-sm cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 min-w-32 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-ms-expand]:opacity-0 [&::-webkit-calendar-picker-indicator]:text-accent-400 [&::-ms-expand]:text-accent-400 dark:[&::-webkit-calendar-picker-indicator]:text-dark-text-tertiary dark:[&::-ms-expand]:text-dark-text-tertiary"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                      backgroundPosition: 'right 0.5rem center',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundSize: '1.5em 1.5em',
+                      paddingRight: '2.5rem'
+                    }}
                   >
                     {sortOptions.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -253,12 +260,6 @@ export default function BlogPage() {
                       </option>
                     ))}
                   </select>
-                  {/* Custom dropdown indicator */}
-                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                    <svg className="w-4 h-4 text-accent-400 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
                 </div>
               </div>
             </div>

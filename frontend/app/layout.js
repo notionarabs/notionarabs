@@ -4,7 +4,6 @@ import { ThemeProvider } from '../contexts/ThemeContext'
 import { LoadingProvider } from '../contexts/LoadingContext'
 import { ToastProvider } from '../contexts/ToastContext'
 import NavigationWrapper from '../components/NavigationWrapper'
-import PaymentNotice from '../components/PaymentNotice'
 import NavigationHandler from '../components/NavigationHandler'
 import LoadingIndicator from '../components/LoadingIndicator'
 import { initSmoothScroll } from '../lib/smoothScroll'
@@ -83,7 +82,6 @@ export default function RootLayout({ children }) {
             <AuthProvider>
               <ToastProvider>
                 <NavigationWrapper />
-                <PaymentNotice />
                 <NavigationHandler />
                 <LoadingIndicator />
                 {children}

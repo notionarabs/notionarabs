@@ -870,8 +870,6 @@ export default function CreatorApplyPage() {
     }
     // Portfolio field is now optional
     // if (!formData.portfolio.trim()) {
-    //   setError('رابط المعرض مطلوب');
-    //   return false;
     // }
     if (!formData.experience.trim()) {
       setError('وصف الخبرة مطلوب');

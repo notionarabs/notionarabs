@@ -553,11 +553,11 @@ export default function ProfileSettingsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
           {/* Main Settings */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="xl:col-span-2 space-y-6 lg:space-y-8">
             {/* Profile Information */}
-            <div className="card p-8 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+            <div className="card p-4 sm:p-6 lg:p-8 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-10 h-10 bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 rounded-xl flex items-center justify-center">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -572,7 +572,7 @@ export default function ProfileSettingsPage() {
                 <label className="block text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-4">
                   صورة الملف الشخصي
                 </label>
-                <div className="flex items-center gap-6 p-6 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
+                <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 p-4 sm:p-6 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
                   <div className="relative group">
                     {profileSettings.profilePicture ? (
                       <Image
@@ -596,7 +596,7 @@ export default function ProfileSettingsPage() {
                       </svg>
                     </div>
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 w-full sm:w-auto">
                     <input
                       type="file"
                       accept="image/*"
@@ -606,14 +606,14 @@ export default function ProfileSettingsPage() {
                     />
                     <label
                       htmlFor="profile-picture-upload"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500 dark:bg-orange-500 text-white rounded-lg hover:bg-primary-600 dark:hover:bg-orange-600 transition-colors duration-200 cursor-pointer font-medium"
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary-500 dark:bg-orange-500 text-white rounded-lg hover:bg-primary-600 dark:hover:bg-orange-600 transition-colors duration-200 cursor-pointer font-medium w-full sm:w-auto"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       {isSaving ? 'جاري الرفع...' : 'تغيير الصورة'}
                     </label>
-                    <p className="text-sm text-gray-500 dark:text-dark-text-tertiary mt-2">
+                    <p className="text-xs sm:text-sm text-gray-500 dark:text-dark-text-tertiary mt-2 text-center sm:text-right">
                       الحد الأقصى 5 ميجابايت • PNG, JPG, GIF
                     </p>
                   </div>
@@ -625,7 +625,7 @@ export default function ProfileSettingsPage() {
                 <label className="block text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-4">
                   صورة الخلفية
                 </label>
-                <div className="flex items-center gap-6 p-6 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
+                <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 p-4 sm:p-6 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
                   <div className="relative group">
                     {profileSettings.backgroundImage ? (
                       <Image
@@ -649,7 +649,7 @@ export default function ProfileSettingsPage() {
                       </svg>
                     </div>
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 w-full sm:w-auto">
                     <input
                       type="file"
                       accept="image/*"
@@ -659,14 +659,14 @@ export default function ProfileSettingsPage() {
                     />
                     <label
                       htmlFor="background-image-upload"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500 dark:bg-orange-500 text-white rounded-lg hover:bg-primary-600 dark:hover:bg-orange-600 transition-colors duration-200 cursor-pointer font-medium"
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary-500 dark:bg-orange-500 text-white rounded-lg hover:bg-primary-600 dark:hover:bg-orange-600 transition-colors duration-200 cursor-pointer font-medium w-full sm:w-auto"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       {isSaving ? 'جاري الرفع...' : 'تغيير صورة الخلفية'}
                     </label>
-                    <p className="text-sm text-gray-500 dark:text-dark-text-tertiary mt-2">
+                    <p className="text-xs sm:text-sm text-gray-500 dark:text-dark-text-tertiary mt-2 text-center sm:text-right">
                       الحد الأقصى 5 ميجابايت • PNG, JPG, GIF • الأبعاد الموصى بها: 1200x600 بكسل
                     </p>
                   </div>
@@ -733,11 +733,26 @@ export default function ProfileSettingsPage() {
                 <div className="mt-3 p-3 bg-gray-50 dark:bg-dark-secondary rounded-lg">
                   <p className="text-xs font-medium text-gray-700 dark:text-dark-text-primary mb-2">متطلبات اسم المستخدم:</p>
                   <ul className="text-xs text-gray-600 dark:text-dark-text-secondary space-y-1">
-                    <li>• يجب أن يكون بين 3-20 حرف</li>
-                    <li>• أحرف صغيرة وأرقام وشرطة سفلية فقط</li>
-                    <li>• لا يمكن أن يبدأ أو ينتهي بشرطة سفلية</li>
-                    <li>• لا يمكن أن يحتوي على شرطتين سفليتين متتاليتين</li>
-                    <li>• يجب أن يكون فريداً وغير محجوز</li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary-500 dark:text-orange-400 mt-0.5">•</span>
+                      <span>يجب أن يكون بين 3-20 حرف</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary-500 dark:text-orange-400 mt-0.5">•</span>
+                      <span>أحرف صغيرة وأرقام وشرطة سفلية فقط</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary-500 dark:text-orange-400 mt-0.5">•</span>
+                      <span>لا يمكن أن يبدأ أو ينتهي بشرطة سفلية</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary-500 dark:text-orange-400 mt-0.5">•</span>
+                      <span>لا يمكن أن يحتوي على شرطتين سفليتين متتاليتين</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary-500 dark:text-orange-400 mt-0.5">•</span>
+                      <span>يجب أن يكون فريداً وغير محجوز</span>
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -781,7 +796,7 @@ export default function ProfileSettingsPage() {
             </div>
 
             {/* Social Links */}
-            <div className="card p-8 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+            <div className="card p-4 sm:p-6 lg:p-8 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -799,8 +814,8 @@ export default function ProfileSettingsPage() {
                   const hasError = link.url && !isValid;
 
                   return (
-                    <div key={index} className="flex gap-4 items-start">
-                      <div className="flex-1">
+                    <div key={index} className="flex flex-col sm:flex-row gap-4 items-start">
+                      <div className="flex-1 w-full">
                         <div className="relative">
                           <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                             {hasError ? (
@@ -841,7 +856,7 @@ export default function ProfileSettingsPage() {
                       <button
                         type="button"
                         onClick={() => removeSocialLink(index)}
-                        className="p-3 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors duration-200"
+                        className="p-3 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors duration-200 self-start sm:self-auto"
                         title="حذف الرابط"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -868,9 +883,9 @@ export default function ProfileSettingsPage() {
           </div>
 
           {/* Privacy Settings */}
-          <div className="space-y-8">
+          <div className="space-y-6 lg:space-y-8">
             {/* Privacy Settings */}
-            <div className="card p-8 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+            <div className="card p-4 sm:p-6 lg:p-8 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -987,11 +1002,11 @@ export default function ProfileSettingsPage() {
         </div>
 
         {/* Save Button */}
-        <div className="mt-12 flex justify-end">
+        <div className="mt-8 lg:mt-12 flex justify-center sm:justify-end">
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="group relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-accent-600 dark:hover:from-orange-600 dark:hover:to-orange-700 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:focus:ring-orange-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            className="group relative inline-flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-accent-600 dark:hover:from-orange-600 dark:hover:to-orange-700 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:focus:ring-orange-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 w-full sm:w-auto"
           >
             {isSaving ? (
               <>

@@ -64,7 +64,7 @@ export default function PublicProfilePage() {
         setCreatorRatings(ratingsResponse.data.ratings);
       }
     } catch (error) {
-      console.log('Error loading creator ratings:', error);
+      // Error loading creator ratings
     }
   };
 
@@ -81,12 +81,9 @@ export default function PublicProfilePage() {
           setCreatorTemplates(templatesResponse.data.templates);
         }
       } catch (templatesError) {
-        console.log('No templates found for creator');
         setCreatorTemplates([]);
       }
     } catch (error) {
-      console.error('Error fetching creator profile:', error);
-
       if (error.response?.status === 500) {
         setError('خطأ في الخادم - يرجى المحاولة لاحقاً');
       } else if (error.response?.status === 404) {
@@ -216,8 +213,6 @@ export default function PublicProfilePage() {
         creatorId: creator.id
       };
 
-      console.log('Sending message data:', JSON.stringify(submissionData, null, 2));
-      console.log('Creator object:', JSON.stringify(creator, null, 2));
 
       // Send message to creator via API
       const response = await api.post('/contact/creator', submissionData);
@@ -242,10 +237,6 @@ export default function PublicProfilePage() {
         setSubmitStatus('error');
       }
     } catch (error) {
-      console.error('Error submitting message:', error);
-      console.error('Error response:', JSON.stringify(error.response?.data, null, 2));
-      console.error('Error status:', error.response?.status);
-      console.error('Error headers:', JSON.stringify(error.response?.headers, null, 2));
       setIsSubmitting(false);
       setSubmitStatus('error');
     }

@@ -202,6 +202,55 @@ export default function TemplateDetailPage() {
         referrer: window.location.href
       });
 
+      // Create or upsert order entry for this user
+      try {
+        await api.post('/orders', {
+          items: [
+            {
+              templateId: template._id,
+              name: template.title,
+              price: template.price || 0,
+              quantity: 1,
+              downloaded: true,
+              previewImage: template.previewImage || template.previewImages?.[0] || '',
+              notionLink: template.notionLink || '',
+            },
+          ],
+          total: template.price || 0,
+          status: 'completed',
+          source: 'download',
+          downloaded: true,
+        });
+      } catch (e) {
+        // non-blocking – proceed even if order write fails
+      }
+
+      // Optimistic: store in localStorage so /orders shows immediately even if backend is unavailable
+      try {
+        const localOrdersRaw = typeof window !== 'undefined' ? localStorage.getItem('orders') : null;
+        const localOrders = localOrdersRaw ? JSON.parse(localOrdersRaw) : [];
+        const newOrder = {
+          id: `local-${Date.now()}`,
+          date: new Date().toISOString(),
+          status: 'completed',
+          total: template.price || 0,
+          items: [
+            {
+              id: template._id,
+              templateId: template._id,
+              name: template.title,
+              price: template.price || 0,
+              quantity: 1,
+              downloaded: true,
+              previewImage: template.previewImage || template.previewImages?.[0] || '',
+              notionLink: template.notionLink || '',
+            },
+          ],
+        };
+        localOrders.unshift(newOrder);
+        localStorage.setItem('orders', JSON.stringify(localOrders));
+      } catch (_) { }
+
       // Open the Notion template link in a new tab
       window.open(template.notionLink, '_blank');
 
@@ -656,10 +705,26 @@ export default function TemplateDetailPage() {
               {templateRatings.slice(0, showAllReviews ? templateRatings.length : 3).map((rating, index) => (
                 <div key={rating._id || index} className="p-6 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center flex-shrink-0">
-                      <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
-                        {rating.user?.name?.charAt(0)?.toUpperCase() || 'م'}
-                      </span>
+                    <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center">
+                      {rating.user?.profilePicture ? (
+                        <Image
+                          src={rating.user.profilePicture}
+                          alt={rating.user?.name || 'مستخدم'}
+                          width={40}
+                          height={40}
+                          className="w-full h-full object-cover"
+                          unoptimized
+                          onError={(e) => {
+                            // Hide broken image to reveal fallback initial
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : null}
+                      {!rating.user?.profilePicture && (
+                        <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
+                          {rating.user?.name?.charAt(0)?.toUpperCase() || 'م'}
+                        </span>
+                      )}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">

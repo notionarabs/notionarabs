@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import api from '../../lib/api';
-import { formatDate } from '../../lib/dateUtils';
+import { formatDate, formatTime } from '../../lib/dateUtils';
 import Navigation from '../../components/Navigation';
 
 
@@ -193,12 +193,14 @@ export default function ProfilePage() {
                     طلب مبدع قيد المراجعة
                   </div>
                 )}
-                <div className="inline-flex items-center px-4 py-2 bg-primary-100 dark:bg-orange-500/20 text-primary-800 dark:text-orange-300 rounded-full text-sm font-medium">
-                  <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  عضو منذ {formatDate(user?.createdAt)}
-                </div>
+                {user?.createdAt && (
+                  <div className="inline-flex items-center px-4 py-2 bg-primary-100 dark:bg-orange-500/20 text-primary-800 dark:text-orange-300 rounded-full text-sm font-medium">
+                    <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    عضو منذ {formatDate(user.createdAt)}، {formatTime(user.createdAt)}
+                  </div>
+                )}
               </div>
 
               {/* Quick Stats Preview */}

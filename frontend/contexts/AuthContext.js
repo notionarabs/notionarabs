@@ -23,17 +23,29 @@ export const AuthProvider = ({ children }) => {
   const router = useRouter();
 
   useEffect(() => {
+    // Ensure axios has the token as early as possible
+    const existingToken = Cookies.get('authToken');
+    if (existingToken) {
+      api.defaults.headers.common['Authorization'] = `Bearer ${existingToken}`;
+    }
+
     // Check if we have cached data first to minimize loading time
     const cachedUser = localStorage.getItem('user');
     const cacheTimestamp = localStorage.getItem('userCacheTimestamp');
     const cacheExpiry = 5 * 60 * 1000; // 5 minutes
 
-    if (cachedUser && cacheTimestamp) {
+    // If we have a token and any cached user, optimistically restore it immediately
+    // This avoids unnecessary redirects on browser back/forward/navigation
+    if (existingToken && cachedUser) {
+      try {
+        const userData = JSON.parse(cachedUser);
+        setUser(userData);
+      } catch { }
+    } else if (cachedUser && cacheTimestamp) {
+      // If no token, fall back to strict cache freshness (for non-auth flows)
       const now = Date.now();
       const timeSinceCache = now - parseInt(cacheTimestamp);
-
       if (timeSinceCache < cacheExpiry) {
-        // Use cached data immediately, no loading needed
         const userData = JSON.parse(cachedUser);
         setUser(userData);
         setLoading(false);

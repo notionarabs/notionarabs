@@ -601,10 +601,25 @@ export default function PublicProfilePage() {
               {creatorRatings.slice(0, showAllReviews ? creatorRatings.length : 3).map((rating, index) => (
                 <div key={rating._id || index} className="p-6 bg-white dark:bg-dark-secondary rounded-xl border border-gray-200 dark:border-dark-card-border shadow-sm">
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center flex-shrink-0">
-                      <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
-                        {rating.user?.name?.charAt(0)?.toUpperCase() || 'م'}
-                      </span>
+                    <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center">
+                      {rating.user?.profilePicture ? (
+                        <Image
+                          src={rating.user.profilePicture}
+                          alt={rating.user?.name || 'مستخدم'}
+                          width={40}
+                          height={40}
+                          className="w-full h-full object-cover"
+                          unoptimized
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : null}
+                      {!rating.user?.profilePicture && (
+                        <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
+                          {rating.user?.name?.charAt(0)?.toUpperCase() || 'م'}
+                        </span>
+                      )}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">

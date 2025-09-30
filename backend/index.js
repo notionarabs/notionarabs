@@ -11,7 +11,9 @@ const PORT = process.env.PORT || 5000;
 // Trust proxy so req.secure and forwarded headers are accurate behind Render/Vercel proxies
 app.set('trust proxy', 1);
 const allowedOrigins = [
-  process.env.FRONTEND_URL || 'https://notion-arabs.vercel.app',
+  process.env.FRONTEND_URL || 'https://notionarabs.com',
+  'https://notionarabs.com',
+  'https://www.notionarabs.com',
   'https://notion-arabs.vercel.app',
   'https://www.notion-arabs.vercel.app',
   'https://notion-arabs-git-main-hazemyasserprg.vercel.app',
@@ -73,7 +75,7 @@ require('./config/passport');
 
 // Database connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/notion-arabs')
-  .then(() => {})
+  .then(() => { })
   .catch(err => console.error('Database connection error:', err));
 
 // Routes
@@ -148,4 +150,4 @@ app.use((req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {});
+app.listen(PORT, () => { });

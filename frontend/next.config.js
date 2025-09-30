@@ -22,6 +22,12 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'notionarabs.com',
+        port: '',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'notion-arabs.onrender.com',
         port: '',
         pathname: '/uploads/**',
@@ -37,7 +43,7 @@ const nextConfig = {
   },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NODE_ENV === 'production'
-      ? 'https://notion-arabs.onrender.com/api'
+      ? 'https://notionarabs.com/api'
       : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'),
   },
 }

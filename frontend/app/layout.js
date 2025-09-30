@@ -8,6 +8,7 @@ import NavigationHandler from '../components/NavigationHandler'
 import LoadingIndicator from '../components/LoadingIndicator'
 import { initSmoothScroll } from '../lib/smoothScroll'
 import { OrganizationSchema, WebsiteSchema } from '../components/StructuredData'
+import { GoogleAnalytics } from '../components/SEOOptimizations'
 
 import { generateMetadata as generateBaseMetadata } from '../lib/seo'
 
@@ -34,6 +35,7 @@ export default function RootLayout({ children }) {
       <head>
         <OrganizationSchema />
         <WebsiteSchema />
+        <GoogleAnalytics GA_TRACKING_ID={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID} />
         <link rel="icon" href="/FaviconSvg.svg" type="image/svg+xml" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />

@@ -19,13 +19,7 @@ export function GoogleAnalytics({ GA_TRACKING_ID }) {
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', '${GA_TRACKING_ID}', {
-              page_title: document.title,
-              page_location: window.location.href,
-              custom_map: {
-                'custom_parameter_1': 'arabic_content'
-              }
-            });
+            gtag('config', '${GA_TRACKING_ID}');
           `,
         }}
       />

@@ -7,16 +7,33 @@ import NavigationWrapper from '../components/NavigationWrapper'
 import NavigationHandler from '../components/NavigationHandler'
 import LoadingIndicator from '../components/LoadingIndicator'
 import { initSmoothScroll } from '../lib/smoothScroll'
+import { OrganizationSchema, WebsiteSchema } from '../components/StructuredData'
 
-export const metadata = {
+import { generateMetadata as generateBaseMetadata } from '../lib/seo'
+
+export const metadata = generateBaseMetadata({
   title: 'Notion Arabs - قوالب نوشن باللغة العربية',
   description: 'اكتشف وبيع قوالب نوشن باللغة العربية - منصة مخصصة للمبدعين والمشترين العرب',
-}
+  keywords: [
+    'قوالب نوشن',
+    'notion templates',
+    'قوالب عربية',
+    'منظمات',
+    'إنتاجية',
+    'دراسة',
+    'أعمال',
+    'templates arabic',
+    'notion arabic',
+    'قوالب مجانية'
+  ]
+})
 
 export default function RootLayout({ children }) {
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head>
+        <OrganizationSchema />
+        <WebsiteSchema />
         <link rel="icon" href="/FaviconSvg.svg" type="image/svg+xml" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />

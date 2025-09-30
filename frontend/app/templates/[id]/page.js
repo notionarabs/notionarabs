@@ -10,6 +10,7 @@ import LoadingIndicator from '../../../components/LoadingIndicator';
 import RatingSystem from '../../../components/RatingSystem';
 import StarRating from '../../../components/StarRating';
 import { useAuth } from '../../../contexts/AuthContext';
+import { TemplateSchema, BreadcrumbSchema } from '../../../components/StructuredData';
 
 // Fallback data for when API fails
 const fallbackTemplate = {
@@ -370,6 +371,17 @@ export default function TemplateDetailPage() {
 
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+      {template && <TemplateSchema template={template} />}
+      {template && (
+        <BreadcrumbSchema
+          items={[
+            { name: 'الرئيسية', url: '/' },
+            { name: 'القوالب', url: '/templates' },
+            { name: template.category, url: `/templates?category=${encodeURIComponent(template.category)}` },
+            { name: template.title, url: `/templates/${template.slug || template._id}` }
+          ]}
+        />
+      )}
 
       {/* Template Details */}
       <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">

@@ -8,6 +8,7 @@ import { formatDate } from '../../../lib/dateUtils';
 import api from '../../../lib/api';
 import LoadingIndicator from '../../../components/LoadingIndicator';
 import { useToast } from '../../../contexts/ToastContext';
+import { BlogPostSchema, BreadcrumbSchema } from '../../../components/StructuredData';
 
 export default function BlogPostPage() {
   const params = useParams();
@@ -116,6 +117,17 @@ export default function BlogPostPage() {
 
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300">
+      {blog && <BlogPostSchema blog={blog} />}
+      {blog && (
+        <BreadcrumbSchema
+          items={[
+            { name: 'الرئيسية', url: '/' },
+            { name: 'المدونة', url: '/blog' },
+            { name: blog.category, url: `/blog?category=${encodeURIComponent(blog.category)}` },
+            { name: blog.title, url: `/blog/${blog.slug}` }
+          ]}
+        />
+      )}
       <div className="container-custom py-8">
         {/* Back Button */}
         <div className="mb-6">

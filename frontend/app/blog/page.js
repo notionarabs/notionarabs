@@ -475,34 +475,7 @@ export default function BlogPage() {
         </section>
       )}
 
-      {/* Newsletter Signup */}
-      <section className="section-padding bg-accent-500 dark:bg-dark-secondary transition-colors duration-300">
-        <div className="container-custom max-w-4xl text-center">
-          <h2 className="heading-2 text-white dark:text-dark-text-primary mb-4">
-            اشترك في نشرتنا البريدية
-          </h2>
-          <p className="body-large text-gray-300 dark:text-dark-text-secondary mb-8">
-            احصل على أحدث المقالات والنصائح حول نوشن والإنتاجية مباشرة في بريدك الإلكتروني
-          </p>
 
-          <div className="max-w-md mx-auto">
-            <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder="بريدك الإلكتروني"
-                className="flex-1 form-input"
-                dir="rtl"
-              />
-              <button className="btn-primary whitespace-nowrap">
-                اشترك
-              </button>
-            </div>
-            <p className="text-xs text-gray-400 dark:text-dark-text-tertiary mt-2">
-              نحترم خصوصيتك. لن نرسل لك بريد عشوائي.
-            </p>
-          </div>
-        </div>
-      </section>
     </main>
   );
 }

@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
 import api from '../../lib/api';
 import LoadingIndicator from '../../components/LoadingIndicator';
+import { useSearchParams } from 'next/navigation';
 
 // Fallback data for when API fails
 const fallbackTemplates = [
@@ -56,8 +58,13 @@ const sortOptions = [
 ];
 
 export default function TemplatesPage() {
+  const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const categoryFromQuery = searchParams.get('category');
+  const initialCategory = categoryFromQuery && categories.some((c) => c.value === categoryFromQuery)
+    ? categoryFromQuery
+    : 'all';
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [sortBy, setSortBy] = useState('createdAt');
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -117,6 +124,16 @@ export default function TemplatesPage() {
   useEffect(() => {
     fetchTemplates(1);
   }, [selectedCategory, sortBy, searchTerm]);
+
+  // Sync selected category when URL query changes (e.g., from homepage links)
+  useEffect(() => {
+    const category = searchParams.get('category');
+    if (category && categories.some((c) => c.value === category)) {
+      setSelectedCategory(category);
+    } else if (!category) {
+      setSelectedCategory('all');
+    }
+  }, [searchParams]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -282,22 +299,20 @@ export default function TemplatesPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {templates.map((template) => (
                 <Link key={template._id} href={`/templates/${template.slug || template._id}`}>
-                  <div className="card p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group">
+                  <div className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
                     {/* Template Image */}
-                    <div className="relative h-48 bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-lg mb-4">
+                    <div className="relative h-48 overflow-hidden rounded-lg">
                       {template.previewImage ? (
                         <Image
                           src={template.previewImage}
                           alt={template.title}
                           width={400}
                           height={300}
-                          className="w-full h-full object-contain bg-white dark:bg-dark-secondary group-hover:scale-105 transition-transform duration-500"
+                          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30">
-                          <svg className="w-12 h-12 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                          </svg>
+                        <div className="w-full h-full flex items-center justify-center">
+                          <LayoutDashboard className="w-12 h-12 text-primary-600 dark:text-primary-400" />
                         </div>
                       )}
 
@@ -310,7 +325,7 @@ export default function TemplatesPage() {
                     </div>
 
                     {/* Template Info */}
-                    <div>
+                    <div className="p-6">
                       <h3 className="font-bold text-lg text-accent-900 dark:text-dark-text-primary mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                         {template.title}
                       </h3>

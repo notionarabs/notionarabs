@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import api from '../../lib/api';
+import { formatDate } from '../../lib/dateUtils';
 import Navigation from '../../components/Navigation';
 
 
@@ -196,7 +197,7 @@ export default function ProfilePage() {
                   <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  عضو منذ {new Date(user?.createdAt).toLocaleDateString('ar-SA', { month: 'long', year: 'numeric' })}
+                  عضو منذ {formatDate(user?.createdAt)}
                 </div>
               </div>
 
@@ -282,29 +283,7 @@ export default function ProfilePage() {
                 <div className="text-xs text-gray-500 dark:text-gray-400">جاهزة للبيع</div>
               </div>
 
-              {/* Sales */}
-              <div className="card-featured p-6 text-center group hover:scale-105 transition-all duration-300 hover:shadow-xl">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                  </svg>
-                </div>
-                <div className="text-3xl font-bold text-blue-500 mb-2 stats-counter">0</div>
-                <div className="body-medium text-accent-600 dark:text-dark-text-secondary mb-2">المبيعات</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">إجمالي المبيعات</div>
-              </div>
 
-              {/* Earnings */}
-              <div className="card-featured p-6 text-center group hover:scale-105 transition-all duration-300 hover:shadow-xl">
-                <div className="w-16 h-16 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl mx-auto mb-4 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                  </svg>
-                </div>
-                <div className="text-3xl font-bold text-yellow-500 mb-2 stats-counter">0 ريال</div>
-                <div className="body-medium text-accent-600 dark:text-dark-text-secondary mb-2">الأرباح</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">إجمالي الأرباح</div>
-              </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

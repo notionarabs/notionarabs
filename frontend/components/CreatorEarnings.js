@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { formatDate } from '../lib/dateUtils';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingIndicator from './LoadingIndicator';
 
@@ -67,8 +68,8 @@ const CreatorEarnings = () => {
         <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-text-primary">
           إحصائياتي
         </h2>
-        <div className="text-sm text-gray-500 dark:text-dark-text-tertiary">
-          آخر تحديث: {new Date().toLocaleDateString('ar-SA')}
+        <div className="text-sm text-gray-500 dark:text-dark-text-terتيary">
+          آخر تحديث: {formatDate(new Date())}
         </div>
       </div>
 

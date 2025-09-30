@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import LoadingIndicator from '../../../components/LoadingIndicator';
+import { formatDate } from '../../../lib/dateUtils';
 import api from '../../../lib/api';
 import { useAuth } from '../../../contexts/AuthContext';
 import FollowButton from '../../../components/FollowButton';
@@ -404,7 +405,7 @@ export default function PublicProfilePage() {
               </div>
 
               {/* Rating System */}
-              {user && user.id !== creator.id && (
+              {user && user.id !== creator.id && (!userRating || !userRating.rating) && (
                 <div className="card p-6">
                   <h3 className="text-lg font-semibold text-accent-700 dark:text-dark-text-primary mb-4">
                     قيم هذا المبدع
@@ -420,6 +421,8 @@ export default function PublicProfilePage() {
                         ...prev,
                         rating: data.averageRating
                       }));
+                      // Hide the container after rating/commenting
+                      setUserRating({ rating: data?.rating || 0, review: data?.review || '' });
                       // Reload ratings
                       loadCreatorRatings();
                     }}
@@ -478,7 +481,7 @@ export default function PublicProfilePage() {
                       </svg>
                     </div>
                     <span className="text-accent-600 dark:text-dark-text-secondary">
-                      عضو منذ {new Date(creator.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
+                      عضو منذ {formatDate(creator.createdAt)}
                     </span>
                   </div>
                 )}
@@ -537,7 +540,7 @@ export default function PublicProfilePage() {
                           alt={template.title}
                           width={400}
                           height={300}
-                          className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
+                          className="w-full h-full object-contain bg-white dark:bg-dark-secondary group-hover:scale-105 transition-transform duration-500"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30">
@@ -610,7 +613,7 @@ export default function PublicProfilePage() {
                         </span>
                         <StarRating rating={rating.rating} size="small" showNumber={false} />
                         <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {new Date(rating.createdAt).toLocaleDateString('ar-SA')}
+                          {formatDate(rating.createdAt)}
                         </span>
                       </div>
                       {rating.review && (

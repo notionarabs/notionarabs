@@ -7,6 +7,7 @@ import api from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import FollowButton from '../../components/FollowButton';
+import { Search, ChevronDown, Star, User } from 'lucide-react';
 
 
 const specialties = [
@@ -23,8 +24,7 @@ const sortOptions = [
   { name: "الأكثر شعبية", value: "popular" },
   { name: "الأحدث", value: "newest" },
   { name: "الأعلى تقييماً", value: "rating" },
-  { name: "الأكثر قوالب", value: "templates" },
-  { name: "الأعلى ربحاً", value: "earnings" }
+  { name: "الأكثر قوالب", value: "templates" }
 ];
 
 export default function CreatorsPage() {
@@ -124,9 +124,7 @@ export default function CreatorsPage() {
                 className="w-full form-input pr-12 pl-4 py-4 text-lg"
                 dir="rtl"
               />
-              <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" />
             </div>
 
             {/* Filters */}
@@ -146,9 +144,7 @@ export default function CreatorsPage() {
                 </select>
                 {/* Custom dropdown indicator */}
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                  <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
+                  <ChevronDown className="w-5 h-5 text-accent-400 dark:text-dark-text-terتيary" />
                 </div>
               </div>
 
@@ -167,9 +163,7 @@ export default function CreatorsPage() {
                 </select>
                 {/* Custom dropdown indicator */}
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                  <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
+                  <ChevronDown className="w-5 h-5 text-accent-400 dark:text-dark-text-tertiary" />
                 </div>
               </div>
             </div>
@@ -217,7 +211,7 @@ export default function CreatorsPage() {
                         height={80}
                         className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md"
                       />
-                      <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white"></div>
+
                     </div>
                     <div className="flex-1">
                       <h3 className="font-bold text-xl text-accent-500 dark:text-dark-text-primary group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors mb-1">
@@ -299,9 +293,7 @@ export default function CreatorsPage() {
             </div>
           ) : (
             <div className="text-center py-16">
-              <svg className="w-16 h-16 text-gray-400 dark:text-dark-text-quaternary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
+              <User className="w-16 h-16 text-gray-400 dark:text-dark-text-quaternary mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-accent-500 dark:text-dark-text-primary mb-2">لم نجد مبدعين مطابقين</h3>
               <p className="text-accent-600 dark:text-dark-text-secondary mb-6">جرب تغيير معايير البحث أو الفلاتر</p>
               <button

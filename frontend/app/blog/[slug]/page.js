@@ -15,6 +15,7 @@ export default function BlogPostPage() {
   const { showError } = useToast();
 
   const [blog, setBlog] = useState(null);
+  const [authorSlug, setAuthorSlug] = useState('');
   const [relatedBlogs, setRelatedBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -35,6 +36,22 @@ export default function BlogPostPage() {
       if (response.data.success) {
         setBlog(response.data.blog);
         setRelatedBlogs(response.data.relatedBlogs || []);
+        // Precompute author slug
+        const a = response.data.blog?.author || {};
+        const immediateSlug = a.username || a.slug || a.handle || a.user?.username || a.creator?.username || (a.email ? a.email.split('@')[0] : '');
+        if (immediateSlug) {
+          setAuthorSlug(encodeURIComponent(immediateSlug));
+        } else if (a._id) {
+          // Attempt to resolve username by id
+          try {
+            const creatorRes = await api.get(`/creators/${a._id}`);
+            const c = creatorRes?.data?.creator || {};
+            const resolved = c.username || c.slug || (c.email ? c.email.split('@')[0] : '');
+            setAuthorSlug(encodeURIComponent(resolved || a._id));
+          } catch (_) {
+            setAuthorSlug(encodeURIComponent(a._id));
+          }
+        }
       } else {
         setError('المقال غير موجود');
         showError('المقال غير موجود');
@@ -86,6 +103,16 @@ export default function BlogPostPage() {
       </div>
     );
   }
+
+  const creatorSlug = authorSlug || encodeURIComponent(
+    blog.author?.username ||
+    blog.author?.user?.username ||
+    blog.author?.creator?.username ||
+    blog.author?.handle ||
+    blog.author?.slug ||
+    blog.author?.email?.split('@')[0] ||
+    blog.author?._id || ''
+  );
 
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300">
@@ -143,7 +170,7 @@ export default function BlogPostPage() {
                 {/* Meta Information */}
                 <div className="flex flex-wrap items-center gap-4 mb-6 text-sm text-accent-500 dark:text-dark-text-secondary">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                    <Link href={`/creators/${creatorSlug}`} className="w-8 h-8 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
                       {blog.author?.profilePicture ? (
                         <Image
                           src={blog.author.profilePicture}
@@ -157,8 +184,8 @@ export default function BlogPostPage() {
                           {blog.author?.name?.charAt(0) || '?'}
                         </span>
                       )}
-                    </div>
-                    <span className="font-medium">{blog.author?.name || 'مجهول'}</span>
+                    </Link>
+                    <Link href={`/creators/${creatorSlug}`} className="font-medium hover:text-primary-600 dark:hover:text-primary-400 transition-colors">{blog.author?.name || 'مجهول'}</Link>
                   </div>
 
                   <div className="flex items-center gap-1">
@@ -212,7 +239,7 @@ export default function BlogPostPage() {
                 {blog.author?.bio && (
                   <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
+                      <Link href={`/creators/${creatorSlug}`} className="w-12 h-12 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
                         {blog.author.profilePicture ? (
                           <Image
                             src={blog.author.profilePicture}
@@ -226,11 +253,11 @@ export default function BlogPostPage() {
                             {blog.author.name?.charAt(0) || '?'}
                           </span>
                         )}
-                      </div>
+                      </Link>
                       <div>
-                        <h3 className="font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
+                        <Link href={`/creators/${creatorSlug}`} className="font-semibold text-accent-900 dark:text-dark-text-primary mb-2 hover:text-primary-600 dark:hover:text-primary-400 transition-colors inline-block">
                           عن {blog.author.name}
-                        </h3>
+                        </Link>
                         <p className="text-accent-600 dark:text-dark-text-secondary">
                           {blog.author.bio}
                         </p>

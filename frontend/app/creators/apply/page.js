@@ -26,7 +26,7 @@ export default function CreatorApplyPage() {
       website: ''
     },
     availability: '',
-    expectedEarnings: '',
+
     agreeToTerms: false
   });
 
@@ -931,7 +931,7 @@ export default function CreatorApplyPage() {
         countryCode: formData.countryCode,
         socialMedia: formData.socialMedia,
         availability: formData.availability,
-        expectedEarnings: formData.expectedEarnings
+
       });
 
       if (response.data.success) {
@@ -1141,14 +1141,6 @@ export default function CreatorApplyPage() {
 
             {/* Benefits Section */}
             <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-              <div className="flex items-center justify-center space-x-3 space-x-reverse bg-white/60 dark:bg-dark-card-bg/60 backdrop-blur-sm rounded-xl p-4 border border-white/20 dark:border-dark-card-border">
-                <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                  </svg>
-                </div>
-                <span className="text-sm font-medium text-accent-700 dark:text-dark-text-primary">أرباح مضمونة</span>
-              </div>
               <div className="flex items-center justify-center space-x-3 space-x-reverse bg-white/60 dark:bg-dark-card-bg/60 backdrop-blur-sm rounded-xl p-4 border border-white/20 dark:border-dark-card-border">
                 <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
                   <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

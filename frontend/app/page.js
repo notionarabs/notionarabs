@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import api from '../lib/api';
 import FollowButton from '../components/FollowButton';
+import { Settings, BookOpen, Briefcase, Sunrise, Palette, Laptop, Dumbbell, PiggyBank, FolderTree, CalendarDays, LayoutDashboard, Users, Newspaper, Check, Twitter, Github, Youtube } from 'lucide-react';
 
 // Fallback data for when API fails
 const fallbackTemplates = [
@@ -50,17 +51,18 @@ const fallbackTemplates = [
   },
 ];
 
+// Use Lucide icons instead of external images for categories
 const categories = [
-  { name: "الإنتاجية", count: 0, imgSrc: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=300&h=200&fit=crop&crop=center" },
-  { name: "الدراسة", count: 0, imgSrc: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&h=200&fit=crop&crop=center" },
-  { name: "الأعمال", count: 0, imgSrc: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=300&h=200&fit=crop&crop=center" },
-  { name: "الحياة الشخصية", count: 0, imgSrc: "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=300&h=200&fit=crop&crop=center" },
-  { name: "الإبداع", count: 0, imgSrc: "https://images.unsplash.com/photo-1496317899792-9d7dbcd928a1?w=300&h=200&fit=crop&crop=center" },
-  { name: "التقنية", count: 0, imgSrc: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&h=200&fit=crop&crop=center" },
-  { name: "الصحة", count: 0, imgSrc: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=200&fit=crop&crop=center" },
-  { name: "المالية", count: 0, imgSrc: "https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=300&h=200&fit=crop&crop=center" },
-  { name: "التنظيم", count: 0, imgSrc: "https://images.unsplash.com/photo-1518085250887-2f903c200fee?w=300&h=200&fit=crop&crop=center" },
-  { name: "التخطيط", count: 0, imgSrc: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=300&h=200&fit=crop&crop=center" },
+  { name: "الإنتاجية", count: 0, Icon: Settings, bg: "from-primary-100 to-primary-200 dark:from-orange-900/30 dark:to-orange-800/30" },
+  { name: "الدراسة", count: 0, Icon: BookOpen, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
+  { name: "الأعمال", count: 0, Icon: Briefcase, bg: "from-emerald-100 to-emerald-200 dark:from-emerald-900/30 dark:to-emerald-800/30" },
+  { name: "الحياة الشخصية", count: 0, Icon: Sunrise, bg: "from-rose-100 to-rose-200 dark:from-rose-900/30 dark:to-rose-800/30" },
+  { name: "الإبداع", count: 0, Icon: Palette, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
+  { name: "التقنية", count: 0, Icon: Laptop, bg: "from-slate-100 to-slate-200 dark:from-slate-900/30 dark:to-slate-800/30" },
+  { name: "الصحة", count: 0, Icon: Dumbbell, bg: "from-teal-100 to-teal-200 dark:from-teal-900/30 dark:to-teal-800/30" },
+  { name: "المالية", count: 0, Icon: PiggyBank, bg: "from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/30" },
+  { name: "التنظيم", count: 0, Icon: FolderTree, bg: "from-zinc-100 to-zinc-200 dark:from-zinc-900/30 dark:to-zinc-800/30" },
+  { name: "التخطيط", count: 0, Icon: CalendarDays, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30" },
 ];
 
 // Map Arabic category names to English slugs for URLs
@@ -82,9 +84,9 @@ const categorySlugMap = {
 };
 
 const creators = [
-  { name: "ليلى أحمد", templates: 20, bio: "قوالب الإنتاجية", imgSrc: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face", rating: 4.9, earnings: "15,000 ريال" },
-  { name: "عمر خالد", templates: 15, bio: "إعدادات الدراسة والبحث", imgSrc: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face", rating: 4.8, earnings: "12,500 ريال" },
-  { name: "فاطمة نور", templates: 25, bio: "لوحات العمل والأعمال", imgSrc: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face", rating: 4.7, earnings: "18,200 ريال" },
+  { name: "ليلى أحمد", templates: 20, bio: "قوالب الإنتاجية", imgSrc: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face", rating: 4.9 },
+  { name: "عمر خالد", templates: 15, bio: "إعدادات الدراسة والبحث", imgSrc: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face", rating: 4.8 },
+  { name: "فاطمة نور", templates: 25, bio: "لوحات العمل والأعمال", imgSrc: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face", rating: 4.7 },
 ];
 
 const testimonials = [
@@ -99,13 +101,14 @@ export default function HomePage() {
   const [stats, setStats] = useState({ templates: 0, creators: 0 });
   const [topCreators, setTopCreators] = useState([]);
   const [categoryTotals, setCategoryTotals] = useState({});
+  const [loadingCreators, setLoadingCreators] = useState(true);
 
   // Fetch featured templates from API
   useEffect(() => {
     const fetchFeaturedTemplates = async () => {
       try {
         setLoading(true);
-        const response = await api.get('/templates?limit=4&sortBy=downloads&sortOrder=desc');
+        const response = await api.get('/templates?limit=3&sortBy=downloads&sortOrder=desc');
 
         if (response.data.success) {
           setFeaturedTemplates(response.data.templates || []);
@@ -126,6 +129,7 @@ export default function HomePage() {
   useEffect(() => {
     const fetchHomepageData = async () => {
       try {
+        setLoadingCreators(true);
         const categoriesArabic = [
           'الإنتاجية',
           'الدراسة',
@@ -167,6 +171,8 @@ export default function HomePage() {
         });
         setCategoryTotals(totalsMap);
       } catch (error) {
+      } finally {
+        setLoadingCreators(false);
       }
     };
 
@@ -333,9 +339,7 @@ export default function HomePage() {
               <Link href="/templates" className="group">
                 <div className="relative bg-gradient-to-br from-primary-500 to-primary-600 dark:from-orange-500 dark:to-orange-600 rounded-2xl p-8 shadow-large dark:shadow-dark-large notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:-translate-y-2 min-h-[300px]">
                   <div className="w-16 h-16 bg-white/20 rounded-xl mb-6 flex items-center justify-center">
-                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                    </svg>
+                    <LayoutDashboard className="w-8 h-8 text-white" />
                   </div>
 
                   <h3 className="text-2xl font-bold text-white mb-4">تصفح القوالب</h3>
@@ -356,9 +360,7 @@ export default function HomePage() {
               <Link href="/creators" className="group">
                 <div className="relative card-featured p-8 notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:-translate-y-2 min-h-[300px]">
                   <div className="w-16 h-16 bg-primary-500 rounded-xl mb-6 flex items-center justify-center shadow-soft">
-                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
+                    <Users className="w-8 h-8 text-white" />
                   </div>
 
                   <h3 className="heading-3 mb-3">المبدعين</h3>
@@ -379,9 +381,7 @@ export default function HomePage() {
               <Link href="/blog" className="group">
                 <div className="relative bg-gradient-to-br from-secondary-600 to-secondary-700 dark:from-dark-tertiary dark:to-dark-quaternary rounded-2xl p-8 shadow-large dark:shadow-dark-large notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:-translate-y-2 min-h-[300px]">
                   <div className="w-16 h-16 bg-white/20 rounded-xl mb-6 flex items-center justify-center">
-                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                    </svg>
+                    <Newspaper className="w-8 h-8 text-white" />
                   </div>
 
                   <h3 className="text-2xl font-bold text-white mb-4">المدونة</h3>
@@ -421,10 +421,10 @@ export default function HomePage() {
             </a>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {loading ? (
               // Loading skeleton
-              [...Array(4)].map((_, idx) => (
+              [...Array(3)].map((_, idx) => (
                 <div key={idx} className="card-interactive overflow-hidden animate-pulse">
                   <div className="h-48 bg-gray-200 dark:bg-gray-700"></div>
                   <div className="p-6">
@@ -442,7 +442,7 @@ export default function HomePage() {
               featuredTemplates.map((t, idx) => (
                 <Link key={t._id || idx} href={`/templates/${t.slug || t._id}`}>
                   <div className="group card-interactive overflow-hidden">
-                    <div className="relative h-48 bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-lg">
+                    <div className="relative h-48 overflow-hidden rounded-lg">
                       {t.previewImage ? (
                         <Image
                           src={t.previewImage}
@@ -452,7 +452,7 @@ export default function HomePage() {
                           className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30">
+                        <div className="w-full h-full flex items-center justify-center">
                           <svg className="w-12 h-12 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
                           </svg>
@@ -474,9 +474,7 @@ export default function HomePage() {
                           <StarRating rating={t.rating || 0} />
                           <span className="text-sm text-accent-600 dark:text-dark-text-secondary">({t.downloads || 0})</span>
                         </div>
-                        <div className="text-lg font-bold text-green-600 dark:text-green-400">
-                          مجاني
-                        </div>
+                        <div className="text-sm font-medium text-accent-600 dark:text-dark-text-secondary">مجاني</div>
                       </div>
 
                       <button className="w-full btn-primary py-2 px-4 text-base">
@@ -504,21 +502,16 @@ export default function HomePage() {
               {categories.slice(0, 6).map((c, idx) => (
                 <Link href={`/templates?category=${encodeURIComponent(c.name)}`} key={idx} className="group">
                   <div className="card-interactive border-2 border-gray-100 overflow-hidden hover:border-accent-300 hover:shadow-large transition-all duration-300">
-                    <div className="h-24 md:h-28 overflow-hidden relative">
-                      <Image
-                        src={c.imgSrc}
-                        alt={c.name}
-                        width={300}
-                        height={200}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                    <div className={`h-24 md:h-28 overflow-hidden relative flex items-center justify-center bg-gradient-to-br ${c.bg}`}>
+                      <div className="w-14 h-14 md:w-16 md:h-16 bg-white/80 dark:bg-dark-tertiary/80 backdrop-blur-sm rounded-xl flex items-center justify-center shadow-md">
+                        <c.Icon className="w-7 h-7 md:w-8 md:h-8 text-accent-700 dark:text-dark-text-primary" />
+                      </div>
                     </div>
                     <div className="p-4 md:p-6 text-center">
                       <h3 className="font-bold text-accent-500 dark:text-dark-text-primary group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors mb-2">
                         {c.name}
                       </h3>
-                      <p className="body-small">{c.count} قالب</p>
+                      <p className="body-small">{categoryTotals[c.name] ?? 0} قالب</p>
                     </div>
                   </div>
                 </Link>
@@ -537,57 +530,83 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {(topCreators.length ? topCreators : creators).map((cr, idx) => (
-              <div key={cr.id || idx} className="group">
-                <div className="card-interactive p-8">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="relative">
-                      <Image
-                        src={cr.imgSrc || cr.profilePicture || 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'}
-                        alt={cr.name}
-                        width={60}
-                        height={60}
-                        className="w-15 h-15 rounded-full object-cover border-2 border-white shadow-md"
-                      />
-                      <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white"></div>
+            {loadingCreators ? (
+              [...Array(3)].map((_, idx) => (
+                <div key={idx} className="group">
+                  <div className="card-interactive p-8 animate-pulse">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-15 h-15 rounded-full bg-gray-200 dark:bg-gray-700" />
+                      <div className="flex-1">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-2" />
+                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/3" />
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-lg text-accent-500 dark:text-dark-text-primary group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
-                        {cr.name}
-                      </h3>
-                      <p className="text-sm text-accent-600 dark:text-dark-text-secondary">{cr.bio}</p>
+                    <div className="space-y-3">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3" />
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
                     </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-accent-600 dark:text-dark-text-secondary">القوالب</span>
-                      <span className="font-semibold text-accent-500 dark:text-dark-text-primary">{cr.templates}</span>
+                    <div className="space-y-3 mt-6">
+                      <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded" />
+                      <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded" />
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-accent-600 dark:text-dark-text-secondary">التقييم</span>
-                      <StarRating rating={cr.rating} />
-                    </div>
-                  </div>
-
-                  <div className="space-y-3 mt-6">
-                    <Link
-                      href={`/creators/${cr.username || cr.email?.split('@')[0] || cr.displayName || cr.name || cr.id || cr._id || idx}`}
-                      className="w-full btn-primary text-center block"
-                    >
-                      عرض الملف الشخصي
-                    </Link>
-                    <FollowButton
-                      creatorId={cr.id || cr._id}
-                      creatorName={cr.name}
-                      className="w-full"
-                      size="small"
-                      showText={true}
-                    />
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (topCreators && topCreators.length > 0) ? (
+              topCreators.map((cr, idx) => (
+                <div key={cr.id || idx} className="group">
+                  <div className="card-interactive p-8">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="relative">
+                        <Image
+                          src={cr.imgSrc || cr.profilePicture || 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'}
+                          alt={cr.name}
+                          width={60}
+                          height={60}
+                          className="w-15 h-15 rounded-full object-cover border-2 border-white shadow-md"
+                        />
+
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-bold text-lg text-accent-500 dark:text-dark-text-primary group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
+                          {cr.name}
+                        </h3>
+                        <p className="text-sm text-accent-600 dark:text-dark-text-secondary">{cr.bio}</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-accent-600 dark:text-dark-text-secondary">القوالب</span>
+                        <span className="font-semibold text-accent-500 dark:text-dark-text-primary">{cr.templates}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-accent-600 dark:text-dark-text-secondary">التقييم</span>
+                        <StarRating rating={cr.rating} />
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 mt-6">
+                      <Link
+                        href={`/creators/${cr.username || cr.email?.split('@')[0] || cr.displayName || cr.name || cr.id || cr._id || idx}`}
+                        className="w-full btn-primary text-center block"
+                      >
+                        عرض الملف الشخصي
+                      </Link>
+                      <FollowButton
+                        creatorId={cr.id || cr._id}
+                        creatorName={cr.name}
+                        className="w-full"
+                        size="small"
+                        showText={true}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="md:col-span-3 text-center py-8 text-accent-600 dark:text-dark-text-secondary">لا يوجد مبدعين لعرضهم حالياً.</div>
+            )}
           </div>
         </div>
       </section>
@@ -633,32 +652,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Newsletter Signup */}
-      <section className="section-padding bg-accent-500 dark:bg-dark-secondary transition-colors duration-300">
-        <div className="container-custom max-w-4xl text-center">
-          <h2 className="heading-2 text-white dark:text-dark-text-primary mb-4">
-            ابق على اطلاع بأحدث القوالب
-          </h2>
-          <p className="body-large text-gray-300 dark:text-dark-text-secondary mb-8">
-            اشترك في نشرتنا البريدية واحصل على إشعارات بالقوالب الجديدة والعروض الخاصة
-          </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="أدخل بريدك الإلكتروني"
-              className="form-input flex-1 border-0 bg-white/90 dark:bg-dark-tertiary/90 backdrop-blur-sm focus:ring-white/50 dark:focus:ring-orange-500/50 text-accent-700 dark:text-dark-text-primary"
-            />
-            <button className="btn-primary px-8 py-3">
-              اشترك الآن
-            </button>
-          </div>
-
-          <p className="text-sm text-gray-400 dark:text-dark-text-quaternary mt-4">
-            يمكنك إلغاء الاشتراك في أي وقت. نحن نحترم خصوصيتك.
-          </p>
-        </div>
-      </section>
 
       {/* Enhanced Call-to-Action Banner */}
       <section className="section-padding">
@@ -692,24 +686,9 @@ export default function HomePage() {
               </div>
 
               <div className="mt-8 flex flex-wrap justify-center gap-6 text-sm text-gray-300 dark:text-dark-text-tertiary">
-                <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-white dark:text-dark-text-primary" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  <span>بدون رسوم إعداد</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-white dark:text-dark-text-primary" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  <span>دفع آمن وسريع</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-white dark:text-dark-text-primary" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  <span>دعم فني 24/7</span>
-                </div>
+                <div className="flex items-center gap-2"><Check className="w-5 h-5 text-white dark:text-dark-text-primary" /><span>بدون رسوم إعداد</span></div>
+                <div className="flex items-center gap-2"><Check className="w-5 h-5 text-white dark:text-dark-text-primary" /><span>دفع آمن وسريع</span></div>
+                <div className="flex items-center gap-2"><Check className="w-5 h-5 text-white dark:text-dark-text-primary" /><span>دعم فني 24/7</span></div>
               </div>
             </div>
           </div>
@@ -738,19 +717,13 @@ export default function HomePage() {
               </p>
               <div className="flex gap-4">
                 <Link href="#" className="w-12 h-12 bg-gray-700 dark:bg-dark-tertiary rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                  </svg>
+                  <Twitter className="w-5 h-5" />
                 </Link>
                 <Link href="#" className="w-12 h-12 bg-gray-700 dark:bg-dark-tertiary rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.746-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001.012.001z" />
-                  </svg>
+                  <Github className="w-5 h-5" />
                 </Link>
                 <Link href="#" className="w-12 h-12 bg-gray-700 dark:bg-dark-tertiary rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                  </svg>
+                  <Youtube className="w-5 h-5" />
                 </Link>
               </div>
             </div>

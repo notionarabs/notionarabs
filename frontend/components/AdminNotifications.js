@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../lib/api';
+import { formatDate, formatTime } from '../lib/dateUtils';
 
 export default function AdminNotifications() {
   const [notifications, setNotifications] = useState([]);
@@ -220,13 +221,7 @@ export default function AdminNotifications() {
                       {getNotificationMessage(notification)}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-dark-text-tertiary mt-1">
-                      {new Date(notification.createdAt).toLocaleDateString('ar-SA', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
+                      {`${formatDate(notification.createdAt)}، ${formatTime(notification.createdAt)}`}
                     </p>
                   </div>
                   {!notification.isRead && (

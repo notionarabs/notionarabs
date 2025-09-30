@@ -21,10 +21,27 @@ export const formatDate = (dateString) => {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-    calendar: 'gregory' // Force Gregorian calendar to prevent hydration issues
+    calendar: 'gregory',
+    numberingSystem: 'latn'
   };
 
-  return date.toLocaleDateString('ar-SA', options);
+  // Try preferred locales with proper Unicode extension (single -u-)
+  const localeCandidates = [
+    'ar-EG-u-ca-gregory-nu-latn',
+    'ar-u-ca-gregory-nu-latn',
+    'en-GB-u-ca-gregory',
+    'en-US'
+  ];
+
+  for (const locale of localeCandidates) {
+    try {
+      return new Intl.DateTimeFormat(locale, options).format(date);
+    } catch (_) {
+      // try next locale
+    }
+  }
+
+  return date.toISOString().slice(0, 10);
 };
 
 /**
@@ -42,4 +59,27 @@ export const formatLastUpdated = (dateString) => {
  */
 export const formatCurrentDate = () => {
   return formatDate(new Date().toISOString());
+};
+
+/**
+ * Formats time (hours:minutes) in Gregorian with Latin numerals
+ * @param {string|Date} dateInput
+ * @returns {string}
+ */
+export const formatTime = (dateInput) => {
+  const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+  if (isNaN(date.getTime())) return '';
+  const options = { hour: '2-digit', minute: '2-digit', hour12: false };
+  const localeCandidates = [
+    'ar-EG-u-ca-gregory-nu-latn',
+    'ar-u-ca-gregory-nu-latn',
+    'en-GB-u-ca-gregory',
+    'en-US'
+  ];
+  for (const locale of localeCandidates) {
+    try {
+      return new Intl.DateTimeFormat(locale, options).format(date);
+    } catch (_) { }
+  }
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 };

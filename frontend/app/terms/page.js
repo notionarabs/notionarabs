@@ -121,10 +121,7 @@ export default function TermsPage() {
                   يمكن طلب استرداد خلال 30 يوماً من الشراء. الاسترداد يتم عبر نفس طريقة الدفع الأصلية.
                 </p>
 
-                <h3 className="heading-3 mb-3">6.3 أرباح المبدعين</h3>
-                <p className="body-medium text-accent-600 dark:text-dark-text-secondary mb-4">
-                  يتم تحويل الأرباح شهرياً بعد خصم رسوم المنصة. الحد الأدنى للتحويل هو 50 ريال.
-                </p>
+
               </section>
 
               <section>

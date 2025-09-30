@@ -72,11 +72,13 @@ export default function TemplateDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isDownloaded, setIsDownloaded] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [userRating, setUserRating] = useState(null);
   const [templateRatings, setTemplateRatings] = useState([]);
+  const [ratingsSummary, setRatingsSummary] = useState({ averageRating: 0, totalRatings: 0 });
   const [showAllReviews, setShowAllReviews] = useState(false);
 
   // Load ratings for the template
@@ -94,11 +96,35 @@ export default function TemplateDetailPage() {
       const ratingsResponse = await api.get(`/ratings/template/${templateId}?limit=5`);
       if (ratingsResponse.data.success) {
         setTemplateRatings(ratingsResponse.data.ratings);
+        if (typeof ratingsResponse.data.averageRating !== 'undefined' && typeof ratingsResponse.data.totalRatings !== 'undefined') {
+          setRatingsSummary({
+            averageRating: ratingsResponse.data.averageRating || 0,
+            totalRatings: ratingsResponse.data.totalRatings || 0
+          });
+          setTemplate(prev => ({ ...prev, rating: ratingsResponse.data.averageRating || 0 }));
+        }
       }
     } catch (error) {
       console.log('Error loading ratings:', error);
     }
   };
+
+  // Lightbox keyboard controls
+  useEffect(() => {
+    const handler = (e) => {
+      if (!isLightboxOpen) return;
+      if (e.key === 'Escape') setIsLightboxOpen(false);
+      if (template?.previewImages?.length > 1) {
+        if (e.key === 'ArrowRight') {
+          setSelectedImage((prev) => (prev + 1) % template.previewImages.length);
+        } else if (e.key === 'ArrowLeft') {
+          setSelectedImage((prev) => (prev - 1 + template.previewImages.length) % template.previewImages.length);
+        }
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [isLightboxOpen, template]);
 
   // Fetch template data from API
   useEffect(() => {
@@ -254,7 +280,12 @@ export default function TemplateDetailPage() {
                     </div>
                   )}
 
-                  <div className="absolute inset-0 flex items-center justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setIsLightboxOpen(true)}
+                    className="absolute inset-0 flex items-center justify-center cursor-zoom-in"
+                    title="عرض بملء الشاشة"
+                  >
                     <Image
                       key={`${selectedImage}-${template.previewImages?.[selectedImage] || template.previewImage}`}
                       src={
@@ -268,7 +299,7 @@ export default function TemplateDetailPage() {
                       className="w-full h-full object-contain animate-fade-in"
                       quality={100}
                     />
-                  </div>
+                  </button>
                 </div>
               </div>
 
@@ -336,46 +367,54 @@ export default function TemplateDetailPage() {
               <h1 className="heading-1 mb-4">{template.title}</h1>
 
               {/* Creator Info */}
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-                  {template.creator?.profilePicture ? (
-                    <Image
-                      src={template.creator.profilePicture}
-                      alt={template.creator?.name || 'مبدع'}
-                      width={40}
-                      height={40}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        // Fallback to initial letter if image fails to load
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'flex';
-                      }}
-                    />
-                  ) : null}
+              {(() => {
+                const c = template.creator || {};
+                const creatorSlug = encodeURIComponent(
+                  c.username || c.slug || c.handle || c.user?.username || c.creator?.username || (c.email ? c.email.split('@')[0] : '') || c._id || ''
+                );
+                return (
+                  <div className="flex items-center gap-3 mb-4">
+                    <Link href={`/creators/${creatorSlug}`} className="w-10 h-10 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                      {template.creator?.profilePicture ? (
+                        <Image
+                          src={template.creator.profilePicture}
+                          alt={template.creator?.name || 'مبدع'}
+                          width={40}
+                          height={40}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            // Fallback to initial letter if image fails to load
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                          }}
+                        />
+                      ) : null}
 
-                  {/* Fallback avatar with initial letter */}
-                  <div className={`w-full h-full flex items-center justify-center ${template.creator?.profilePicture ? 'hidden' : 'flex'} bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30`}>
-                    <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
-                      {template.creator?.name?.charAt(0)?.toUpperCase() || 'م'}
-                    </span>
+                      {/* Fallback avatar with initial letter */}
+                      <div className={`w-full h-full flex items-center justify-center ${template.creator?.profilePicture ? 'hidden' : 'flex'} bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30`}>
+                        <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
+                          {template.creator?.name?.charAt(0)?.toUpperCase() || 'م'}
+                        </span>
+                      </div>
+                    </Link>
+                    <div>
+                      <p className="text-sm text-accent-600 dark:text-dark-text-secondary">بواسطة</p>
+                      <Link
+                        href={`/creators/${creatorSlug}`}
+                        className="font-medium text-accent-700 dark:text-dark-text-primary hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
+                      >
+                        {template.creator?.name || 'مبدع غير معروف'}
+                      </Link>
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <p className="text-sm text-accent-600 dark:text-dark-text-secondary">بواسطة</p>
-                  <Link
-                    href={`/creators/${template.creator?.username || template.creator?.email?.split('@')[0] || template.creator?.displayName || template.creator?.name || 'unknown'}`}
-                    className="font-medium text-accent-700 dark:text-dark-text-primary hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
-                  >
-                    {template.creator?.name || 'مبدع غير معروف'}
-                  </Link>
-                </div>
-              </div>
+                );
+              })()}
 
               {/* Rating and Reviews */}
               <div className="flex items-center gap-4 mb-6">
-                <StarRating rating={template.rating || 0} />
+                <StarRating rating={ratingsSummary.averageRating || template.rating || 0} />
                 <span className="text-sm text-accent-600 dark:text-dark-text-secondary">
-                  ({template.reviews || 0} تقييم)
+                  ({ratingsSummary.totalRatings || 0} تقييم)
                 </span>
                 <span className="text-sm text-accent-600 dark:text-dark-text-secondary">
                   {(template.downloads || 0).toLocaleString()} تحميل
@@ -383,37 +422,42 @@ export default function TemplateDetailPage() {
               </div>
 
               {/* Interactive Rating System */}
-              <div className="mb-6 p-4 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
-                <h3 className="text-lg font-semibold text-accent-700 dark:text-dark-text-primary mb-3">
-                  قيم هذا القالب
-                </h3>
-                <RatingSystem
-                  targetType="template"
-                  targetId={template._id}
-                  initialRating={template.rating || 0}
-                  initialUserRating={userRating}
-                  onRatingChange={(data) => {
-                    // Update template rating
-                    setTemplate(prev => ({
-                      ...prev,
-                      rating: data.averageRating,
-                      reviewsCount: data.totalRatings
-                    }));
-                    // Reload ratings
-                    loadRatings(template._id);
-                  }}
-                  className="mb-3"
-                  size="large"
-                />
-                {!isAuthenticated && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    <Link href="/login" className="text-blue-600 dark:text-blue-400 hover:underline">
-                      سجل الدخول
-                    </Link>
-                    {' '}لتتمكن من تقييم القوالب
-                  </p>
-                )}
-              </div>
+              {(!userRating || !userRating.rating) && (
+                <div className="mb-6 p-4 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
+                  <h3 className="text-lg font-semibold text-accent-700 dark:text-dark-text-primary mb-3">
+                    قيم هذا القالب
+                  </h3>
+                  <RatingSystem
+                    targetType="template"
+                    targetId={template._id}
+                    initialRating={template.rating || 0}
+                    initialUserRating={userRating}
+                    onRatingChange={(data) => {
+                      // Update template rating
+                      setTemplate(prev => ({
+                        ...prev,
+                        rating: data.averageRating,
+                        reviews: data.totalRatings
+                      }));
+                      setRatingsSummary({ averageRating: data.averageRating || 0, totalRatings: data.totalRatings || 0 });
+                      // Hide the container once user rated/commented
+                      setUserRating({ rating: data?.rating || 0, review: data?.review || '' });
+                      // Reload ratings
+                      loadRatings(template._id);
+                    }}
+                    className="mb-3"
+                    size="large"
+                  />
+                  {!isAuthenticated && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      <Link href="/login" className="text-blue-600 dark:text-blue-400 hover:underline">
+                        سجل الدخول
+                      </Link>
+                      {' '}لتتمكن من تقييم القوالب
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Price - All templates are now free */}
               <div className="flex items-center gap-3 mb-6">
@@ -578,7 +622,7 @@ export default function TemplateDetailPage() {
 
                   <div className="flex justify-between items-center">
                     <span className="text-accent-600 dark:text-dark-text-secondary">عدد التقييمات</span>
-                    <span className="font-medium text-accent-700 dark:text-dark-text-primary">{template.reviews || 0}</span>
+                    <span className="font-medium text-accent-700 dark:text-dark-text-primary">{ratingsSummary.totalRatings || 0}</span>
                   </div>
 
                   <div className="flex justify-between items-center">
@@ -624,7 +668,7 @@ export default function TemplateDetailPage() {
                         </span>
                         <StarRating rating={rating.rating} size="small" showNumber={false} />
                         <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {new Date(rating.createdAt).toLocaleDateString('ar-SA')}
+                          {formatDate(rating.createdAt)}
                         </span>
                       </div>
                       {rating.review && (
@@ -667,7 +711,7 @@ export default function TemplateDetailPage() {
                       alt={relatedTemplate.title}
                       width={400}
                       height={300}
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-cover"
                       quality={100}
                     />
                     <div className="absolute top-3 left-3 bg-green-500 text-white px-2 py-1 rounded-md text-sm font-medium">
@@ -689,6 +733,70 @@ export default function TemplateDetailPage() {
           </div>
         </div>
       </section>
+
+      {/* Lightbox Modal */}
+      {isLightboxOpen && (
+        <div
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsLightboxOpen(false);
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setIsLightboxOpen(false)}
+            aria-label="إغلاق"
+            className="absolute top-4 left-4 text-white/80 hover:text-white"
+          >
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          {template?.previewImages?.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedImage((prev) => (prev - 1 + template.previewImages.length) % template.previewImages.length);
+                }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white"
+                aria-label="السابق"
+              >
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedImage((prev) => (prev + 1) % template.previewImages.length);
+                }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white"
+                aria-label="التالي"
+              >
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </>
+          )}
+
+          <div className="max-w-7xl w-full h-full flex items-center justify-center">
+            <img
+              src={
+                template?.previewImages && template.previewImages.length > selectedImage
+                  ? template.previewImages[selectedImage]
+                  : template?.previewImage || template?.imgSrc || '/placeholder-template.jpg'
+              }
+              alt={template?.title}
+              className="max-w-full max-h-full object-contain"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary transition-colors duration-300">

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Lightbulb, ShieldCheck, Users, Search } from 'lucide-react';
 
 const teamMembers = [
   {
@@ -43,22 +44,22 @@ const values = [
   {
     title: "الابتكار",
     description: "نؤمن بقوة الابتكار في تحسين تجربة المستخدمين وتطوير حلول جديدة",
-    icon: "💡"
+    Icon: Lightbulb
   },
   {
     title: "الجودة",
     description: "نلتزم بتقديم أعلى مستويات الجودة في جميع منتجاتنا وخدماتنا",
-    icon: "⭐"
+    Icon: ShieldCheck
   },
   {
     title: "المجتمع",
     description: "نبني مجتمعاً قوياً من المبدعين والمستخدمين الذين يدعمون بعضهم البعض",
-    icon: "🤝"
+    Icon: Users
   },
   {
     title: "الشفافية",
     description: "نؤمن بالشفافية في جميع تعاملاتنا مع المستخدمين والشركاء",
-    icon: "🔍"
+    Icon: Search
   }
 ];
 
@@ -143,7 +144,9 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, index) => (
               <div key={index} className="card p-8 text-center">
-                <div className="text-4xl mb-4">{value.icon}</div>
+                <div className="mb-4 flex items-center justify-center">
+                  <value.Icon className="w-10 h-10 text-primary-500 dark:text-orange-500" />
+                </div>
                 <h3 className="heading-3 mb-4">{value.title}</h3>
                 <p className="body-medium text-accent-600 dark:text-dark-text-secondary">
                   {value.description}

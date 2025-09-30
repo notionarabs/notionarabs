@@ -7,7 +7,7 @@ import Image from 'next/image';
 export function GoogleAnalytics({ GA_TRACKING_ID }) {
   // Use the provided ID or fallback to the hardcoded one
   const trackingId = GA_TRACKING_ID || 'G-CE8V1ZYCC7';
-  
+
   if (!trackingId) return null;
 
   return (

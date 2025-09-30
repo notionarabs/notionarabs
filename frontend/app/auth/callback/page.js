@@ -3,16 +3,21 @@
 import { useEffect, Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useLoading } from '../../../contexts/LoadingContext';
 import Cookies from 'js-cookie';
 
 function AuthCallbackForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { checkAuthStatus } = useAuth();
+  const { setLoading } = useLoading();
   const [error, setError] = useState(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
+    // Disable global loading indicator since we have our own custom loading design
+    setLoading(false);
+    
     const handleCallback = async () => {
       const token = searchParams.get('token');
       const success = searchParams.get('success');
@@ -90,7 +95,14 @@ function AuthCallbackForm() {
     };
 
     handleCallback();
-  }, [searchParams, router, checkAuthStatus]);
+  }, [searchParams, router, checkAuthStatus, setLoading]);
+
+  // Cleanup effect to ensure global loading is disabled when component unmounts
+  useEffect(() => {
+    return () => {
+      setLoading(false);
+    };
+  }, [setLoading]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-dark-primary dark:via-dark-secondary dark:to-dark-tertiary flex items-center justify-center relative overflow-hidden" dir="rtl">

@@ -284,7 +284,7 @@ export default function TemplatesPage() {
                 <Link key={template._id} href={`/templates/${template.slug || template._id}`}>
                   <div className="card p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group">
                     {/* Template Image */}
-                    <div className="relative aspect-[4/3] bg-gray-700 overflow-hidden rounded-lg mb-4">
+                    <div className="relative h-48 bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-lg mb-4">
                       {template.previewImage ? (
                         <Image
                           src={template.previewImage}

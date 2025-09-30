@@ -437,14 +437,14 @@ export default function HomePage() {
               featuredTemplates.map((t, idx) => (
                 <Link key={t._id || idx} href={`/templates/${t.slug || t._id}`}>
                   <div className="group card-interactive overflow-hidden">
-                    <div className="relative h-48 bg-gray-200 overflow-hidden">
+                    <div className="relative h-48 bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-lg">
                       {t.previewImage ? (
                         <Image
                           src={t.previewImage}
                           alt={t.title}
                           width={400}
                           height={300}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30">
@@ -457,9 +457,6 @@ export default function HomePage() {
                       <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full font-medium bg-green-500 text-white">
                         مجاني
                       </span>
-                      <div className="absolute bottom-3 right-3 bg-bw-white/90 backdrop-blur-sm rounded-lg px-2 py-1">
-                        <StarRating rating={t.rating || 0} />
-                      </div>
                     </div>
                     <div className="p-6">
                       <h3 className="font-bold text-lg text-accent-500 dark:text-dark-text-primary mb-2 group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">

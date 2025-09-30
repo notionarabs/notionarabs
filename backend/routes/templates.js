@@ -552,8 +552,8 @@ router.get('/export', auth, async (req, res) => {
 
 // @route   POST /api/templates/:id/download
 // @desc    Track template download
-// @access  Public
-router.post('/:id/download', async (req, res) => {
+// @access  Private
+router.post('/:id/download', auth, async (req, res) => {
   try {
     const { id } = req.params;
     const { timestamp, userAgent, referrer } = req.body;

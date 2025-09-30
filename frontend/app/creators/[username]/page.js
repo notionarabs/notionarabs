@@ -530,14 +530,14 @@ export default function PublicProfilePage() {
               {creatorTemplates.map((template) => (
                 <Link key={template._id || template.id} href={`/templates/${template.slug || template._id || template.id}`}>
                   <div className="card-interactive overflow-hidden">
-                    <div className="relative h-48 bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                    <div className="relative h-48 bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-lg">
                       {template.previewImage ? (
                         <Image
                           src={template.previewImage}
                           alt={template.title}
                           width={400}
                           height={300}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30">
@@ -550,9 +550,6 @@ export default function PublicProfilePage() {
                       <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full font-medium bg-green-500 text-white">
                         مجاني
                       </span>
-                      <div className="absolute bottom-3 right-3 bg-white/90 dark:bg-dark-tertiary/90 backdrop-blur-sm rounded-lg px-2 py-1">
-                        <StarRating rating={template.rating || 0} />
-                      </div>
                     </div>
                     <div className="p-6">
                       <h3 className="font-bold text-lg text-accent-500 dark:text-dark-text-primary mb-2 group-hover:text-primary-500 dark:group-hover:text-orange-400 transition-colors line-clamp-2">

@@ -160,21 +160,24 @@ export default function TemplateDetailPage() {
   const handleDownload = async () => {
     if (!template) return;
 
+    // Check authentication first
+    if (!isAuthenticated) {
+      window.location.href = '/login';
+      return;
+    }
+
     setIsDownloading(true);
 
     try {
-      // Open the Notion template link in a new tab
-      window.open(template.notionLink, '_blank');
-
-      // Track download (optional - you can implement analytics here)
+      // Track download first (this now requires authentication)
       await api.post(`/templates/${template._id}/download`, {
         timestamp: new Date().toISOString(),
         userAgent: navigator.userAgent,
         referrer: window.location.href
-      }).catch(error => {
-        // Don't show error to user if tracking fails
-        console.log('Download tracking failed:', error);
       });
+
+      // Open the Notion template link in a new tab
+      window.open(template.notionLink, '_blank');
 
       // Show success state
       setIsDownloaded(true);
@@ -186,8 +189,13 @@ export default function TemplateDetailPage() {
 
     } catch (error) {
       console.error('Download error:', error);
-      // Could add a toast notification here instead of alert
-      // For now, just reset the state
+      if (error.response?.status === 401) {
+        // Authentication error - redirect to login
+        window.location.href = '/login';
+      } else {
+        // Other errors - could add a toast notification here
+        console.log('Download tracking failed:', error);
+      }
       setIsDownloaded(false);
     } finally {
       setIsDownloading(false);
@@ -653,13 +661,13 @@ export default function TemplateDetailPage() {
             {relatedTemplates.map((relatedTemplate) => (
               <div key={relatedTemplate._id || relatedTemplate.id} className="bg-white dark:bg-dark-primary rounded-xl shadow-medium dark:shadow-dark-medium overflow-hidden transition-all duration-200 hover:shadow-large dark:hover:shadow-dark-large hover:-translate-y-1">
                 <Link href={`/templates/${relatedTemplate.slug || relatedTemplate._id || relatedTemplate.id}`}>
-                  <div className="relative">
+                  <div className="relative h-48 bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-lg">
                     <Image
                       src={relatedTemplate.previewImage || relatedTemplate.imgSrc || '/placeholder-template.jpg'}
                       alt={relatedTemplate.title}
                       width={400}
-                      height={250}
-                      className="w-full h-48 object-cover"
+                      height={300}
+                      className="w-full h-full object-contain"
                       quality={100}
                     />
                     <div className="absolute top-3 left-3 bg-green-500 text-white px-2 py-1 rounded-md text-sm font-medium">

@@ -30,7 +30,7 @@ const upload = multer({
 });
 
 // Upload image endpoint
-router.post('/image', upload.single('image'), async (req, res) => {
+router.post('/image', auth, upload.single('image'), async (req, res) => {
   try {
     // Check if file was uploaded
     if (!req.file) {
@@ -109,7 +109,7 @@ router.post('/image', upload.single('image'), async (req, res) => {
 });
 
 // Delete image endpoint
-router.delete('/image/:publicId', async (req, res) => {
+router.delete('/image/:publicId', auth, async (req, res) => {
   try {
     const { publicId } = req.params;
 

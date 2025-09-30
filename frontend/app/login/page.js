@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '../../contexts/AuthContext';
@@ -15,9 +15,19 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [showVerificationOptions, setShowVerificationOptions] = useState(false);
   const [userEmail, setUserEmail] = useState('');
+  const [redirectPath, setRedirectPath] = useState('/');
 
   const { login, resendVerification } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Get redirect parameter from URL
+  useEffect(() => {
+    const redirect = searchParams.get('redirect');
+    if (redirect) {
+      setRedirectPath(redirect);
+    }
+  }, [searchParams]);
 
   const handleChange = (e) => {
     setFormData({
@@ -35,7 +45,8 @@ export default function LoginPage() {
     const result = await login(formData.email, formData.password);
 
     if (result.success) {
-      router.push('/');
+      // Redirect to the intended page or homepage
+      router.push(redirectPath);
     } else {
       setError(result.error);
       // If email verification is required, show additional options

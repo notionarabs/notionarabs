@@ -2,7 +2,7 @@ import { siteConfig } from '../lib/seo'
 
 export default async function sitemap() {
   const baseUrl = siteConfig.url
-  
+
   // Static pages
   const staticPages = [
     {
@@ -81,7 +81,7 @@ export default async function sitemap() {
 
   // Category pages
   const categories = [
-    'الإنتاجية', 'الدراسة', 'الأعمال', 'الحياة الشخصية', 
+    'الإنتاجية', 'الدراسة', 'الأعمال', 'الحياة الشخصية',
     'الإبداع', 'التقنية', 'الصحة', 'المالية', 'التنظيم', 'التخطيط'
   ]
   const categoryPages = categories.map((category) => ({

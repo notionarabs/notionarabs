@@ -57,7 +57,7 @@ const sortOptions = [
   { name: "الأعلى تقييماً", value: "rating" }
 ];
 
-export default function TemplatesPage() {
+function TemplatesPageContent() {
   const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const categoryFromQuery = searchParams.get('category');
@@ -174,250 +174,256 @@ export default function TemplatesPage() {
   }
 
   return (
+    <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
+      {/* Header */}
+      <div className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300">
+        <div className="container-custom py-12">
+          <div className="text-center">
+            <h1 className="heading-1 mb-4">قوالب نوشن</h1>
+            <p className="body-large text-accent-600 dark:text-dark-text-secondary max-w-2xl mx-auto">
+              اكتشف مجموعة متنوعة من قوالب نوشن المصممة خصيصاً للمستخدمين العرب.
+              قوالب احترافية لتنظيم عملك وحياتك الشخصية
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="container-custom py-8">
+        <div className="bg-white dark:bg-dark-secondary rounded-lg p-6 shadow-sm border border-gray-200 dark:border-dark-card-border transition-colors duration-300">
+          {/* Search */}
+          <form onSubmit={handleSearch} className="mb-6">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="ابحث عن قوالب..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="form-input pr-12"
+              />
+              <button
+                type="submit"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-accent-400 hover:text-accent-600 dark:text-dark-text-tertiary dark:hover:text-dark-text-secondary transition-colors"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </form>
+
+          {/* Filters */}
+          <div className="flex flex-wrap gap-4">
+            {/* Category Filter */}
+            <div className="flex-1 min-w-48 relative">
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+              >
+                {categories.map((category) => (
+                  <option key={category.value} value={category.value}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+              {/* Custom dropdown indicator */}
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Sort Filter */}
+            <div className="flex-1 min-w-48 relative">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+              >
+                {sortOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.name}
+                  </option>
+                ))}
+              </select>
+              {/* Custom dropdown indicator */}
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          {/* Results Count */}
+          <div className="flex items-center justify-between mt-6">
+            <p className="text-accent-600 dark:text-dark-text-secondary">
+              عرض {templates.length} من {pagination.total} قالب
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Templates Grid */}
+      <section className="section-padding bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
+        <div className="container-custom max-w-[1600px] mx-auto">
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+              <div className="flex items-center gap-2 text-red-700 dark:text-red-300">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+                <span>{error}</span>
+              </div>
+            </div>
+          )}
+
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(8)].map((_, index) => (
+                <div key={index} className="card p-6 animate-pulse">
+                  <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg mb-4"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded mb-4 w-3/4"></div>
+                  <div className="flex justify-between items-center">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : templates.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {templates.map((template) => (
+                <Link key={template._id} href={`/templates/${template.slug || template._id}`}>
+                  <div className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
+                    {/* Template Image */}
+                    <div className="relative h-48 overflow-hidden rounded-lg">
+                      {template.previewImage ? (
+                        <Image
+                          src={template.previewImage}
+                          alt={template.title}
+                          width={400}
+                          height={300}
+                          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <LayoutDashboard className="w-12 h-12 text-primary-600 dark:text-primary-400" />
+                        </div>
+                      )}
+
+                      {/* Price Tag */}
+                      <div className="absolute top-3 left-3">
+                        <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                          مجاني
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Template Info */}
+                    <div className="p-6">
+                      <h3 className="font-bold text-lg text-accent-900 dark:text-dark-text-primary mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                        {template.title}
+                      </h3>
+                      <p className="text-accent-600 dark:text-dark-text-secondary text-sm mb-3 line-clamp-2">
+                        {template.description}
+                      </p>
+                      <p className="text-sm text-accent-500 dark:text-dark-text-tertiary mb-3">
+                        بواسطة {template.creator?.name || 'مبدع غير معروف'}
+                      </p>
+
+                      <div className="flex items-center justify-between">
+                        <StarRating rating={template.rating} />
+                        <span className="text-sm text-accent-500 dark:text-dark-text-tertiary">
+                          {template.downloads || 0} تحميل
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <svg className="w-16 h-16 text-accent-400 dark:text-dark-text-quaternary mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+              </svg>
+              <h3 className="text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
+                لم يتم العثور على قوالب
+              </h3>
+              <p className="text-accent-600 dark:text-dark-text-secondary">
+                جرب تغيير معايير البحث أو الفلترة
+              </p>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {pagination.pages > 1 && (
+            <div className="flex justify-center mt-12">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handlePageChange(pagination.current - 1)}
+                  disabled={pagination.current <= 1 || loading}
+                  className="px-3 py-2 text-sm font-medium text-accent-700 dark:text-dark-text-secondary bg-white dark:bg-dark-secondary border border-accent-300 dark:border-dark-card-border rounded-lg hover:bg-accent-50 dark:hover:bg-dark-tertiary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  السابق
+                </button>
+
+                {[...Array(pagination.pages)].map((_, index) => {
+                  const page = index + 1;
+                  const isCurrentPage = page === pagination.current;
+                  const isNearCurrent = Math.abs(page - pagination.current) <= 2;
+
+                  if (!isNearCurrent && page !== 1 && page !== pagination.pages) {
+                    if (page === 2 || page === pagination.pages - 1) {
+                      return <span key={page} className="px-2 text-accent-500">...</span>;
+                    }
+                    return null;
+                  }
+
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      disabled={loading}
+                      className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${isCurrentPage
+                        ? 'bg-primary-600 text-white'
+                        : 'text-accent-700 dark:text-dark-text-secondary bg-white dark:bg-dark-secondary border border-accent-300 dark:border-dark-card-border hover:bg-accent-50 dark:hover:bg-dark-tertiary'
+                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
+
+                <button
+                  onClick={() => handlePageChange(pagination.current + 1)}
+                  disabled={pagination.current >= pagination.pages || loading}
+                  className="px-3 py-2 text-sm font-medium text-accent-700 dark:text-dark-text-secondary bg-white dark:bg-dark-secondary border border-accent-300 dark:border-dark-card-border rounded-lg hover:bg-accent-50 dark:hover:bg-dark-tertiary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  التالي
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+export default function TemplatesPage() {
+  return (
     <Suspense fallback={
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300 flex items-center justify-center" dir="rtl">
         <LoadingIndicator />
       </div>
     }>
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
-        {/* Header */}
-        <div className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300">
-          <div className="container-custom py-12">
-            <div className="text-center">
-              <h1 className="heading-1 mb-4">قوالب نوشن</h1>
-              <p className="body-large text-accent-600 dark:text-dark-text-secondary max-w-2xl mx-auto">
-                اكتشف مجموعة متنوعة من قوالب نوشن المصممة خصيصاً للمستخدمين العرب.
-                قوالب احترافية لتنظيم عملك وحياتك الشخصية
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div className="container-custom py-8">
-          <div className="bg-white dark:bg-dark-secondary rounded-lg p-6 shadow-sm border border-gray-200 dark:border-dark-card-border transition-colors duration-300">
-            {/* Search */}
-            <form onSubmit={handleSearch} className="mb-6">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="ابحث عن قوالب..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="form-input pr-12"
-                />
-                <button
-                  type="submit"
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-accent-400 hover:text-accent-600 dark:text-dark-text-tertiary dark:hover:text-dark-text-secondary transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                  </svg>
-                </button>
-              </div>
-            </form>
-
-            {/* Filters */}
-            <div className="flex flex-wrap gap-4">
-              {/* Category Filter */}
-              <div className="flex-1 min-w-48 relative">
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
-                >
-                  {categories.map((category) => (
-                    <option key={category.value} value={category.value}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-                {/* Custom dropdown indicator */}
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                  <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-
-              {/* Sort Filter */}
-              <div className="flex-1 min-w-48 relative">
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
-                >
-                  {sortOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.name}
-                    </option>
-                  ))}
-                </select>
-                {/* Custom dropdown indicator */}
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                  <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            {/* Results Count */}
-            <div className="flex items-center justify-between mt-6">
-              <p className="text-accent-600 dark:text-dark-text-secondary">
-                عرض {templates.length} من {pagination.total} قالب
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Templates Grid */}
-        <section className="section-padding bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
-          <div className="container-custom max-w-[1600px] mx-auto">
-            {/* Error Message */}
-            {error && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
-                <div className="flex items-center gap-2 text-red-700 dark:text-red-300">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
-                  <span>{error}</span>
-                </div>
-              </div>
-            )}
-
-            {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(8)].map((_, index) => (
-                  <div key={index} className="card p-6 animate-pulse">
-                    <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg mb-4"></div>
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded mb-4 w-3/4"></div>
-                    <div className="flex justify-between items-center">
-                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : templates.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {templates.map((template) => (
-                  <Link key={template._id} href={`/templates/${template.slug || template._id}`}>
-                    <div className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
-                      {/* Template Image */}
-                      <div className="relative h-48 overflow-hidden rounded-lg">
-                        {template.previewImage ? (
-                          <Image
-                            src={template.previewImage}
-                            alt={template.title}
-                            width={400}
-                            height={300}
-                            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <LayoutDashboard className="w-12 h-12 text-primary-600 dark:text-primary-400" />
-                          </div>
-                        )}
-
-                        {/* Price Tag */}
-                        <div className="absolute top-3 left-3">
-                          <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-                            مجاني
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Template Info */}
-                      <div className="p-6">
-                        <h3 className="font-bold text-lg text-accent-900 dark:text-dark-text-primary mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                          {template.title}
-                        </h3>
-                        <p className="text-accent-600 dark:text-dark-text-secondary text-sm mb-3 line-clamp-2">
-                          {template.description}
-                        </p>
-                        <p className="text-sm text-accent-500 dark:text-dark-text-tertiary mb-3">
-                          بواسطة {template.creator?.name || 'مبدع غير معروف'}
-                        </p>
-
-                        <div className="flex items-center justify-between">
-                          <StarRating rating={template.rating} />
-                          <span className="text-sm text-accent-500 dark:text-dark-text-tertiary">
-                            {template.downloads || 0} تحميل
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <svg className="w-16 h-16 text-accent-400 dark:text-dark-text-quaternary mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                </svg>
-                <h3 className="text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
-                  لم يتم العثور على قوالب
-                </h3>
-                <p className="text-accent-600 dark:text-dark-text-secondary">
-                  جرب تغيير معايير البحث أو الفلترة
-                </p>
-              </div>
-            )}
-
-            {/* Pagination */}
-            {pagination.pages > 1 && (
-              <div className="flex justify-center mt-12">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handlePageChange(pagination.current - 1)}
-                    disabled={pagination.current <= 1 || loading}
-                    className="px-3 py-2 text-sm font-medium text-accent-700 dark:text-dark-text-secondary bg-white dark:bg-dark-secondary border border-accent-300 dark:border-dark-card-border rounded-lg hover:bg-accent-50 dark:hover:bg-dark-tertiary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    السابق
-                  </button>
-
-                  {[...Array(pagination.pages)].map((_, index) => {
-                    const page = index + 1;
-                    const isCurrentPage = page === pagination.current;
-                    const isNearCurrent = Math.abs(page - pagination.current) <= 2;
-
-                    if (!isNearCurrent && page !== 1 && page !== pagination.pages) {
-                      if (page === 2 || page === pagination.pages - 1) {
-                        return <span key={page} className="px-2 text-accent-500">...</span>;
-                      }
-                      return null;
-                    }
-
-                    return (
-                      <button
-                        key={page}
-                        onClick={() => handlePageChange(page)}
-                        disabled={loading}
-                        className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${isCurrentPage
-                          ? 'bg-primary-600 text-white'
-                          : 'text-accent-700 dark:text-dark-text-secondary bg-white dark:bg-dark-secondary border border-accent-300 dark:border-dark-card-border hover:bg-accent-50 dark:hover:bg-dark-tertiary'
-                          } disabled:opacity-50 disabled:cursor-not-allowed`}
-                      >
-                        {page}
-                      </button>
-                    );
-                  })}
-
-                  <button
-                    onClick={() => handlePageChange(pagination.current + 1)}
-                    disabled={pagination.current >= pagination.pages || loading}
-                    className="px-3 py-2 text-sm font-medium text-accent-700 dark:text-dark-text-secondary bg-white dark:bg-dark-secondary border border-accent-300 dark:border-dark-card-border rounded-lg hover:bg-accent-50 dark:hover:bg-dark-tertiary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    التالي
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </section>
-      </div>
+      <TemplatesPageContent />
     </Suspense>
   );
 }

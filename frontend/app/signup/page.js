@@ -252,7 +252,16 @@ export default function SignupPage() {
                         disabled={resendingEmail}
                         className="text-primary-500 hover:text-primary-600 text-sm underline disabled:opacity-50"
                       >
-                        {resendingEmail ? 'جاري الإرسال...' : 'إعادة إرسال بريد التأكيد'}
+                        {resendingEmail ? (
+                          <div className="flex items-center justify-center space-x-2 space-x-reverse">
+                            <div className="w-4 h-4 border-2 border-primary-500/30 rounded-full animate-spin">
+                              <div className="absolute inset-0 border-2 border-transparent border-t-primary-500 rounded-full animate-spin" style={{ animationDuration: '0.8s' }}></div>
+                            </div>
+                            <span>جاري الإرسال...</span>
+                          </div>
+                        ) : (
+                          'إعادة إرسال بريد التأكيد'
+                        )}
                       </button>
                     </div>
                   )}
@@ -268,12 +277,14 @@ export default function SignupPage() {
                 className="w-full btn-primary text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {loading ? (
-                  <div className="flex items-center justify-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    جاري إنشاء الحساب...
+                  <div className="flex items-center justify-center space-x-2 space-x-reverse">
+                    <div className="relative">
+                      {/* Enhanced loading spinner */}
+                      <div className="w-5 h-5 border-2 border-white/30 rounded-full animate-spin">
+                        <div className="absolute inset-0 border-2 border-transparent border-t-white rounded-full animate-spin" style={{ animationDuration: '0.8s' }}></div>
+                      </div>
+                    </div>
+                    <span className="animate-pulse">جاري إنشاء الحساب...</span>
                   </div>
                 ) : (
                   'إنشاء الحساب'
@@ -336,7 +347,16 @@ export default function SignupPage() {
                   disabled={resendingEmail}
                   className="w-full btn-outline"
                 >
-                  {resendingEmail ? 'جاري الإرسال...' : 'إعادة إرسال بريد التأكيد'}
+                  {resendingEmail ? (
+                    <div className="flex items-center justify-center space-x-2 space-x-reverse">
+                      <div className="w-4 h-4 border-2 border-primary-500/30 rounded-full animate-spin">
+                        <div className="absolute inset-0 border-2 border-transparent border-t-primary-500 rounded-full animate-spin" style={{ animationDuration: '0.8s' }}></div>
+                      </div>
+                      <span>جاري الإرسال...</span>
+                    </div>
+                  ) : (
+                    'إعادة إرسال بريد التأكيد'
+                  )}
                 </button>
 
                 <button

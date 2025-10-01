@@ -610,7 +610,7 @@ export default function CreateBlogPage() {
                   </svg>
                   <span className="font-medium">تم الحفظ تلقائياً</span>
                   <span className="text-green-600 dark:text-green-400">•</span>
-                  <span>{lastSaved.toLocaleTimeString('ar-SA')}</span>
+                  <span>{lastSaved.toLocaleTimeString('en-US')}</span>
                 </div>
               )}
 

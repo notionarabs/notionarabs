@@ -143,7 +143,6 @@ router.get('/check-username/:username', async (req, res) => {
         query._id = { $ne: decoded.id };
       } catch (tokenError) {
         // If token is invalid, continue without excluding any user
-        console.log('Invalid token in username check:', tokenError.message);
       }
     }
 
@@ -284,15 +283,17 @@ router.post('/signup', [
       await transporter.sendMail(mailOptions);
 
       // Store user data temporarily (not in database yet)
-      tempUserStorage.set(emailVerificationToken, {
+      const tempUserData = {
         name,
-        username: username ? username.toLowerCase() : null,
+        username: username ? username.toLowerCase() : undefined, // Use undefined instead of null
         email,
         password,
         emailVerificationToken,
         emailVerificationExpiry,
         createdAt: new Date()
-      });
+      };
+
+      tempUserStorage.set(emailVerificationToken, tempUserData);
 
       res.status(201).json({
         success: true,
@@ -512,7 +513,6 @@ router.get('/profile/settings', auth, async (req, res) => {
       customMessage: user.customMessage || ''
     };
 
-    console.log('Returning profile settings:', profileSettings);
     res.json({
       success: true,
       data: profileSettings
@@ -619,7 +619,6 @@ router.put('/profile/settings', auth, [
     // Check validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log('Profile settings validation errors:', errors.array());
       return res.status(400).json({
         success: false,
         message: 'بيانات غير صحيحة',
@@ -971,9 +970,19 @@ router.post('/verify-email', [
     const tempUserData = tempUserStorage.get(verificationToken);
 
     if (!tempUserData) {
+      // Check if user exists in database (might have been verified already)
+      const existingUser = await User.findOne({ email: req.body.email });
+      if (existingUser && existingUser.isEmailVerified) {
+        return res.status(400).json({
+          success: false,
+          message: 'البريد الإلكتروني مؤكد بالفعل. يمكنك تسجيل الدخول الآن',
+          errorType: 'ALREADY_VERIFIED'
+        });
+      }
+
       return res.status(400).json({
         success: false,
-        message: 'رمز التأكيد غير موجود أو منتهي الصلاحية',
+        message: 'رمز التأكيد غير صحيح أو منتهي الصلاحية. يرجى طلب رابط جديد من صفحة تسجيل الدخول',
         errorType: 'INVALID_TOKEN'
       });
     }
@@ -1000,39 +1009,55 @@ router.post('/verify-email', [
     }
 
     // Create the actual user account now
-    const user = new User({
-      name: tempUserData.name,
-      username: tempUserData.username,
-      email: tempUserData.email,
-      password: tempUserData.password,
-      isEmailVerified: true,
-      isActive: true
-    });
+    let user;
+    try {
+      const userData = {
+        name: tempUserData.name,
+        email: tempUserData.email,
+        password: tempUserData.password,
+        isEmailVerified: true,
+        isActive: true
+      };
 
-    await user.save();
+      // Only include username if it's not undefined
+      if (tempUserData.username !== undefined) {
+        userData.username = tempUserData.username;
+      }
+
+      user = new User(userData);
+
+      await user.save();
+    } catch (userCreationError) {
+      console.error('Error creating user:', userCreationError);
+      throw userCreationError;
+    }
 
     // Remove from temporary storage
     tempUserStorage.delete(verificationToken);
 
     // Generate token for automatic login
-    const token = generateToken(user._id);
-
-    res.json({
-      success: true,
-      message: 'تم تأكيد البريد الإلكتروني بنجاح. مرحباً بك في عرب نوشن!',
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        profilePicture: user.profilePicture,
-        creatorStatus: user.creatorStatus,
-        isEmailVerified: user.isEmailVerified,
-        isActive: user.isActive
-      }
-    });
+    try {
+      const token = generateToken(user._id);
+      res.json({
+        success: true,
+        message: 'تم تأكيد البريد الإلكتروني بنجاح. مرحباً بك في عرب نوشن!',
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+          profilePicture: user.profilePicture,
+          creatorStatus: user.creatorStatus,
+          isEmailVerified: user.isEmailVerified,
+          isActive: user.isActive
+        }
+      });
+    } catch (tokenError) {
+      console.error('Error generating token:', tokenError);
+      throw tokenError;
+    }
   } catch (error) {
     console.error('Email verification error:', error);
     res.status(500).json({
@@ -1237,30 +1262,52 @@ router.post('/resend-verification', [
 
     const { email } = req.body;
 
-    // Find user by email
+    // Check if user exists in database first
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: 'البريد الإلكتروني غير مسجل'
-      });
+    if (user) {
+      // Check if already verified
+      if (user.isEmailVerified) {
+        return res.status(400).json({
+          success: false,
+          message: 'البريد الإلكتروني مؤكد بالفعل'
+        });
+      }
+
+      // Generate new verification token for existing user
+      const emailVerificationToken = crypto.randomBytes(32).toString('hex');
+      const emailVerificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+      user.emailVerificationToken = emailVerificationToken;
+      user.emailVerificationExpiry = emailVerificationExpiry;
+      await user.save();
+    } else {
+      // Check if user exists in temporary storage
+      let tempUserData = null;
+      for (const [token, data] of tempUserStorage.entries()) {
+        if (data.email === email) {
+          tempUserData = data;
+          // Remove old token
+          tempUserStorage.delete(token);
+          break;
+        }
+      }
+
+      if (!tempUserData) {
+        return res.status(400).json({
+          success: false,
+          message: 'البريد الإلكتروني غير مسجل أو انتهت صلاحية رابط التأكيد. يرجى التسجيل مرة أخرى'
+        });
+      }
+
+      // Generate new verification token for temp user
+      const emailVerificationToken = crypto.randomBytes(32).toString('hex');
+      const emailVerificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+      // Update temp user data with new token
+      tempUserData.emailVerificationToken = emailVerificationToken;
+      tempUserData.emailVerificationExpiry = emailVerificationExpiry;
+      tempUserStorage.set(emailVerificationToken, tempUserData);
     }
-
-    // Check if already verified
-    if (user.isEmailVerified) {
-      return res.status(400).json({
-        success: false,
-        message: 'البريد الإلكتروني مؤكد بالفعل'
-      });
-    }
-
-    // Generate new verification token
-    const emailVerificationToken = crypto.randomBytes(32).toString('hex');
-    const emailVerificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-
-    user.emailVerificationToken = emailVerificationToken;
-    user.emailVerificationExpiry = emailVerificationExpiry;
-    await user.save();
 
     // Send verification email
     try {
@@ -1275,7 +1322,7 @@ router.post('/resend-verification', [
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
             <h2 style="color: #333; text-align: center;">تأكيد البريد الإلكتروني</h2>
-            <p>مرحباً ${user.name}،</p>
+            <p>مرحباً ${user ? user.name : tempUserData.name}،</p>
             <p>لقد طلبت إعادة إرسال رابط تأكيد البريد الإلكتروني.</p>
             <p>اضغط على الرابط أدناه لتأكيد حسابك:</p>
             <div style="text-align: center; margin: 30px 0;">
@@ -1320,7 +1367,6 @@ router.delete('/account', auth, async (req, res) => {
     const userEmail = req.user.email;
     const isGoogleUser = !!req.user.googleId;
 
-    console.log(`Account deletion request for user: ${userId}, email: ${userEmail}, Google user: ${isGoogleUser}`);
 
     // Start a session for transaction
     const session = await mongoose.startSession();

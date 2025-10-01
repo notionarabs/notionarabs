@@ -492,8 +492,8 @@ router.get('/export', auth, async (req, res) => {
       const downloads = template.downloads || 0;
       const sales = template.sales || 0;
       const rating = template.rating || 0;
-      const approvedAt = template.approvedAt ? new Date(template.approvedAt).toLocaleDateString('ar-SA') : '';
-      const createdAt = template.createdAt ? new Date(template.createdAt).toLocaleDateString('ar-SA') : '';
+      const approvedAt = template.approvedAt ? new Date(template.approvedAt).toLocaleDateString('en-US') : '';
+      const createdAt = template.createdAt ? new Date(template.createdAt).toLocaleDateString('en-US') : '';
 
       return `${title},${creator},${email},${category},${price},${status},${views},${downloads},${sales},${rating},${approvedAt},${createdAt}`;
     }).join('\n');

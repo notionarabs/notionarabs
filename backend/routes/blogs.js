@@ -286,8 +286,8 @@ router.get('/export', auth, async (req, res) => {
       const status = `"${(blog.status || '').replace(/"/g, '""')}"`;
       const views = blog.views || 0;
       const likes = blog.likes || 0;
-      const publishedAt = blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString('ar-SA') : '';
-      const createdAt = blog.createdAt ? new Date(blog.createdAt).toLocaleDateString('ar-SA') : '';
+      const publishedAt = blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString('en-US') : '';
+      const createdAt = blog.createdAt ? new Date(blog.createdAt).toLocaleDateString('en-US') : '';
 
       return `${title},${author},${email},${category},${status},${views},${likes},${publishedAt},${createdAt}`;
     }).join('\n');

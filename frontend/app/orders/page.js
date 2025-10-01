@@ -150,7 +150,7 @@ export default function OrdersPage() {
                   </div>
                   <div className="flex-1">
                     <h4 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-dark-text-primary">{item.name}</h4>
-                    <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">{new Date(item.date || Date.now()).toLocaleDateString('ar-SA')}</p>
+                    <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">{new Date(item.date || Date.now()).toLocaleDateString('en-US')}</p>
                   </div>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(item.status)}`}>{getStatusText(item.status)}</span>
                 </div>

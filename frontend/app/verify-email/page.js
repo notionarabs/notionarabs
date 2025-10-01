@@ -338,7 +338,7 @@ function VerifyEmailForm() {
                 <h2 className="heading-2 mb-4">
                   {errorType === 'ALREADY_VERIFIED' ? 'البريد الإلكتروني مؤكد بالفعل' :
                     errorType === 'EXPIRED_TOKEN' ? 'انتهت صلاحية الرابط' :
-                      errorType === 'INVALID_TOKEN' ? 'رابط غير صحيح' :
+                      errorType === 'INVALID_TOKEN' ? 'رابط غير صحيح أو منتهي الصلاحية' :
                         'فشل في التأكيد'}
                 </h2>
                 <p className="body-large text-accent-600 dark:text-dark-text-secondary mb-8">{error}</p>
@@ -367,7 +367,7 @@ function VerifyEmailForm() {
                       disabled={loading}
                       className="w-full btn-primary text-lg py-3 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {loading ? 'جاري الإرسال...' : 'طلب رابط جديد'}
+                      {loading ? 'جاري الإرسال...' : 'إعادة إرسال رابط التأكيد'}
                     </button>
                     <div className="text-center">
                       <button
@@ -375,6 +375,14 @@ function VerifyEmailForm() {
                         className="btn-ghost text-sm"
                       >
                         تسجيل الدخول
+                      </button>
+                    </div>
+                    <div className="text-center">
+                      <button
+                        onClick={() => router.push('/signup')}
+                        className="btn-ghost text-sm"
+                      >
+                        إنشاء حساب جديد
                       </button>
                     </div>
                   </div>

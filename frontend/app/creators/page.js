@@ -7,7 +7,7 @@ import api from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import FollowButton from '../../components/FollowButton';
-import { Search, Star, User } from 'lucide-react';
+import { Search, Star, User, Youtube, Facebook, Send, X, Users } from 'lucide-react';
 
 
 const specialties = [
@@ -199,20 +199,21 @@ export default function CreatorsPage() {
 
       {/* Creators Grid */}
       <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
-        <div className="container-custom">
+        <div className="container-custom pr-2 sm:pr-4">
           {loading ? (
             <div className="text-center py-12 sm:py-16">
               <div className="loading-spinner mx-auto mb-4"></div>
               <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary">جاري تحميل المبدعين...</p>
             </div>
           ) : creatorsData.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 items-stretch">
               {creatorsData.map((creator) => (
                 <Link
                   key={creator.id}
                   href={`/creators/${creator.username || creator.email?.split('@')[0] || creator.displayName || creator.name || creator.id}`}
-                  className="group card-interactive p-4 sm:p-6 md:p-8 block"
+                  className="group card-interactive p-4 sm:p-6 md:p-8 h-full flex flex-col max-h-[600px]"
                 >
+                  {/* Card Header */}
                   <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
                     <div className="relative">
                       <Image
@@ -222,7 +223,6 @@ export default function CreatorsPage() {
                         height={80}
                         className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-white shadow-md"
                       />
-
                     </div>
                     <div className="flex-1">
                       <h3 className="font-bold text-base sm:text-lg md:text-xl text-accent-500 dark:text-dark-text-primary group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors mb-1">
@@ -236,40 +236,49 @@ export default function CreatorsPage() {
                     </div>
                   </div>
 
-                  <p className="text-accent-600 dark:text-dark-text-secondary mb-4 sm:mb-6 text-xs sm:text-sm leading-relaxed">
-                    {creator.bio || 'مبدع محتوى متخصص في إنشاء قوالب مبتكرة'}
-                  </p>
+                  {/* Card Content - Flexible */}
+                  <div className="flex-1 flex flex-col">
+                    <p className="text-accent-600 dark:text-dark-text-secondary mb-4 sm:mb-6 text-xs sm:text-sm leading-relaxed">
+                      {creator.bio || 'مبدع محتوى متخصص في إنشاء قوالب مبتكرة'}
+                    </p>
 
-                  {/* Specialties */}
-                  {creator.specialties && creator.specialties.length > 0 && (
-                    <div className="mb-4 sm:mb-6">
-                      <h4 className="text-xs sm:text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2 sm:mb-3">التخصصات</h4>
-                      <div className="flex flex-wrap gap-1 sm:gap-2">
-                        {creator.specialties.map((specialty, index) => (
-                          <span
-                            key={index}
-                            className="px-2 sm:px-3 py-1 bg-primary-100 dark:bg-orange-500/20 text-primary-800 dark:text-orange-300 text-xs rounded-full"
-                          >
-                            {specialty}
-                          </span>
-                        ))}
+                    {/* Specialties */}
+                    {creator.specialties && creator.specialties.length > 0 && (
+                      <div className="mb-4 sm:mb-6">
+                        <h4 className="text-xs sm:text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2 sm:mb-3">التخصصات</h4>
+                        <div className="flex flex-wrap gap-1 sm:gap-2 max-h-20 overflow-hidden">
+                          {creator.specialties.slice(0, 6).map((specialty, index) => (
+                            <span
+                              key={index}
+                              className="px-2 sm:px-3 py-1 bg-primary-100 dark:bg-orange-500/20 text-primary-800 dark:text-orange-300 text-xs rounded-full"
+                            >
+                              {specialty}
+                            </span>
+                          ))}
+                          {creator.specialties.length > 6 && (
+                            <span className="px-2 sm:px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded-full">
+                              +{creator.specialties.length - 6}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Stats */}
-                  <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-4 sm:mb-6">
-                    <div className="text-center">
-                      <div className="text-sm sm:text-lg font-bold text-accent-500 dark:text-dark-text-primary">{creator.templates || 0}</div>
-                      <div className="text-xs text-accent-600 dark:text-dark-text-secondary">قوالب</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-sm sm:text-lg font-bold text-accent-500 dark:text-dark-text-primary">{creator.followers || 0}</div>
-                      <div className="text-xs text-accent-600 dark:text-dark-text-secondary">متابع</div>
+                    {/* Stats */}
+                    <div className="grid grid-cols-2 gap-2 sm:gap-4 mb-4 sm:mb-6">
+                      <div className="text-center">
+                        <div className="text-sm sm:text-lg font-bold text-accent-500 dark:text-dark-text-primary">{creator.templates || 0}</div>
+                        <div className="text-xs text-accent-600 dark:text-dark-text-secondary">قوالب</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-sm sm:text-lg font-bold text-accent-500 dark:text-dark-text-primary">{creator.followers || 0}</div>
+                        <div className="text-xs text-accent-600 dark:text-dark-text-secondary">متابع</div>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="space-y-2 sm:space-y-3">
+                  {/* Card Footer - Always at bottom */}
+                  <div className="space-y-2 sm:space-y-3 mt-auto">
                     <button
                       onClick={(e) => {
                         e.preventDefault();
@@ -345,53 +354,71 @@ export default function CreatorsPage() {
       {/* Footer */}
       <footer className="bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary transition-colors duration-300">
         <div className="container-custom py-12 sm:py-16 md:py-20 lg:py-24">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-8 sm:mb-10 md:mb-12">
-            <div className="lg:col-span-1">
-              <div className="flex items-center mb-3 sm:mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10 mb-8 sm:mb-10 md:mb-12">
+            {/* Brand Section */}
+            <div className="md:col-span-1">
+              <div className="flex items-center mb-4 sm:mb-6">
                 <Image
                   src="/NavLogoLight.svg"
                   alt="عرب نوشن"
                   width={60}
                   height={40}
-                  className="h-8 sm:h-10 w-auto"
+                  className="h-10 sm:h-12 w-auto"
                   quality={100}
                   priority
                   unoptimized
                 />
               </div>
-              <p className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary mb-4 sm:mb-6 leading-relaxed">
+              <p className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary mb-6 sm:mb-8 leading-relaxed">
                 منصتك العربية الأولى لبيع وشراء قوالب نوشن المبتكرة. انضم إلى مجتمع المبدعين العرب.
               </p>
+              <div className="flex gap-3 sm:gap-4">
+                <Link href="https://youtube.com/@notionarabs" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft">
+                  <Youtube className="w-4 h-4 sm:w-5 sm:h-5" />
+                </Link>
+                <Link href="https://facebook.com/notionarabs" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft">
+                  <Facebook className="w-4 h-4 sm:w-5 sm:h-5" />
+                </Link>
+                <Link href="https://www.facebook.com/groups/notionarabs/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft" title="مجموعة فيسبوك">
+                  <Users className="w-4 h-4 sm:w-5 sm:h-5" />
+                </Link>
+                <Link href="https://t.me/notionarabs" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft">
+                  <Send className="w-4 h-4 sm:w-5 sm:h-5" />
+                </Link>
+                <Link href="https://twitter.com/notionarabs" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                  </svg>
+                </Link>
+              </div>
             </div>
 
-            <div>
-              <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">المنتج</h4>
-              <ul className="space-y-2 sm:space-y-3">
-                <li><Link href="/templates" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">القوالب</Link></li>
-                <li><Link href="/creators" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المبدعين</Link></li>
-                <li><Link href="/pricing" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الأسعار</Link></li>
-                <li><Link href="/features" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المميزات</Link></li>
-              </ul>
+            {/* Product & Company Section */}
+            <div className="md:col-span-1">
+              <div className="mb-6 sm:mb-8">
+                <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">المنتج</h4>
+                <ul className="space-y-2 sm:space-y-3">
+                  <li><Link href="/templates" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">القوالب</Link></li>
+                  <li><Link href="/creators" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المبدعين</Link></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">الشركة</h4>
+                <ul className="space-y-2 sm:space-y-3">
+                  <li><Link href="/about" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">من نحن</Link></li>
+                  <li><Link href="/blog" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المدونة</Link></li>
+                </ul>
+              </div>
             </div>
 
-            <div>
-              <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">الشركة</h4>
-              <ul className="space-y-2 sm:space-y-3">
-                <li><Link href="/about" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">من نحن</Link></li>
-                <li><Link href="/blog" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المدونة</Link></li>
-                <li><Link href="/careers" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الوظائف</Link></li>
-                <li><Link href="/press" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الصحافة</Link></li>
-                <li><a href="https://hazem.vip" target="_blank" rel="noopener noreferrer" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">مطور الموقع</a></li>
-              </ul>
-            </div>
-
-            <div>
+            {/* Support Section */}
+            <div className="md:col-span-1">
               <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">الدعم</h4>
-              <ul className="space-y-2 sm:space-y-3">
-                <li><Link href="/help" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">مركز المساعدة</Link></li>
+              <ul className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
                 <li><Link href="/contact" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">اتصل بنا</Link></li>
                 <li><Link href="/privacy" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الخصوصية</Link></li>
                 <li><Link href="/terms" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الشروط</Link></li>
+                <li><Link href="/cookies" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">ملفات تعريف الارتباط</Link></li>
               </ul>
             </div>
           </div>

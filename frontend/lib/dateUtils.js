@@ -20,17 +20,13 @@ export const formatDate = (dateString) => {
   const options = {
     year: 'numeric',
     month: 'long',
-    day: 'numeric',
-    calendar: 'gregory',
-    numberingSystem: 'latn'
+    day: 'numeric'
   };
 
-  // Try preferred locales with proper Unicode extension (single -u-)
+  // Use standard English locale for consistent Gregorian dates
   const localeCandidates = [
-    'ar-EG-u-ca-gregory-nu-latn',
-    'ar-u-ca-gregory-nu-latn',
-    'en-GB-u-ca-gregory',
-    'en-US'
+    'en-US',
+    'en-GB'
   ];
 
   for (const locale of localeCandidates) {
@@ -71,10 +67,8 @@ export const formatTime = (dateInput) => {
   if (isNaN(date.getTime())) return '';
   const options = { hour: '2-digit', minute: '2-digit', hour12: false };
   const localeCandidates = [
-    'ar-EG-u-ca-gregory-nu-latn',
-    'ar-u-ca-gregory-nu-latn',
-    'en-GB-u-ca-gregory',
-    'en-US'
+    'en-US',
+    'en-GB'
   ];
   for (const locale of localeCandidates) {
     try {

@@ -4,7 +4,7 @@ import { siteConfig } from '../lib/seo'
 // Use this when your API is stable and available during build time
 export default async function sitemapDynamic() {
   const baseUrl = siteConfig.url
-  
+
   // Static pages
   const staticPages = [
     {
@@ -44,30 +44,6 @@ export default async function sitemapDynamic() {
       priority: 0.5,
     },
     {
-      url: `${baseUrl}/pricing`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/features`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/careers`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/help`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    },
-    {
       url: `${baseUrl}/privacy`,
       lastModified: new Date(),
       changeFrequency: 'yearly',
@@ -83,7 +59,7 @@ export default async function sitemapDynamic() {
 
   // Category pages
   const categories = [
-    'الإنتاجية', 'الدراسة', 'الأعمال', 'الحياة الشخصية', 
+    'الإنتاجية', 'الدراسة', 'الأعمال', 'الحياة الشخصية',
     'الإبداع', 'التقنية', 'الصحة', 'المالية', 'التنظيم', 'التخطيط'
   ]
   const categoryPages = categories.map((category) => ({
@@ -96,16 +72,16 @@ export default async function sitemapDynamic() {
   try {
     // Try to fetch dynamic content
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
-    
+
     const [templatesRes, blogsRes, creatorsRes] = await Promise.allSettled([
-      fetch(`${apiUrl}/templates?limit=1000`, { 
+      fetch(`${apiUrl}/templates?limit=1000`, {
         next: { revalidate: 3600 } // Cache for 1 hour
       }),
-      fetch(`${apiUrl}/blogs?limit=1000`, { 
-        next: { revalidate: 3600 } 
+      fetch(`${apiUrl}/blogs?limit=1000`, {
+        next: { revalidate: 3600 }
       }),
-      fetch(`${apiUrl}/creators?limit=1000`, { 
-        next: { revalidate: 3600 } 
+      fetch(`${apiUrl}/creators?limit=1000`, {
+        next: { revalidate: 3600 }
       })
     ])
 

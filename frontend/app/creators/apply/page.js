@@ -19,14 +19,7 @@ export default function CreatorApplyPage() {
     specialties: [],
     motivation: '',
     sampleWork: '',
-    socialMedia: {
-      instagram: '',
-      twitter: '',
-      linkedin: '',
-      website: ''
-    },
     availability: '',
-
     agreeToTerms: false
   });
 
@@ -374,16 +367,7 @@ export default function CreatorApplyPage() {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    if (name.startsWith('socialMedia.')) {
-      const socialKey = name.split('.')[1];
-      setFormData(prev => ({
-        ...prev,
-        socialMedia: {
-          ...prev.socialMedia,
-          [socialKey]: value
-        }
-      }));
-    } else if (name === 'specialties') {
+    if (name === 'specialties') {
       if (value === 'أخرى') {
         setShowCustomInput(checked);
         if (!checked) {
@@ -927,9 +911,7 @@ export default function CreatorApplyPage() {
         motivation: formData.motivation,
         phone: `${formData.countryCode}${formData.phone}`,
         countryCode: formData.countryCode,
-        socialMedia: formData.socialMedia,
         availability: formData.availability,
-
       });
 
       if (response.data.success) {
@@ -1154,6 +1136,14 @@ export default function CreatorApplyPage() {
                   </svg>
                 </div>
                 <span className="text-sm font-medium text-accent-700 dark:text-dark-text-primary">مجتمع نشط</span>
+              </div>
+              <div className="flex items-center justify-center space-x-3 space-x-reverse bg-white/60 dark:bg-dark-card-bg/60 backdrop-blur-sm rounded-xl p-4 border border-white/20 dark:border-dark-card-border">
+                <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <span className="text-sm font-medium text-accent-700 dark:text-dark-text-primary">جودة عالية</span>
               </div>
             </div>
           </div>
@@ -1511,91 +1501,6 @@ export default function CreatorApplyPage() {
                 </div>
               </div>
 
-              {/* Social Media Links */}
-              <div className="space-y-8">
-                <div className="flex items-center space-x-3 space-x-reverse mb-6">
-                  <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
-                    <svg className="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10m-10 0a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2M9 12l2 2 4-4" />
-                    </svg>
-                  </div>
-                  <h2 className="heading-3 text-primary-600 dark:text-orange-400">
-                    روابط التواصل الاجتماعي
-                  </h2>
-                  <span className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">اختياري</span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-3">
-                      <svg className="w-4 h-4 text-pink-500 ml-2" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-                      </svg>
-                      Instagram
-                    </label>
-                    <input
-                      type="url"
-                      name="socialMedia.instagram"
-                      value={formData.socialMedia.instagram}
-                      onChange={handleChange}
-                      className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400"
-                      placeholder="https://instagram.com/username"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-3">
-                      <svg className="w-4 h-4 text-blue-500 ml-2" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                      </svg>
-                      Twitter
-                    </label>
-                    <input
-                      type="url"
-                      name="socialMedia.twitter"
-                      value={formData.socialMedia.twitter}
-                      onChange={handleChange}
-                      className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400"
-                      placeholder="https://twitter.com/username"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-3">
-                      <svg className="w-4 h-4 text-blue-600 ml-2" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                      </svg>
-                      LinkedIn
-                    </label>
-                    <input
-                      type="url"
-                      name="socialMedia.linkedin"
-                      value={formData.socialMedia.linkedin}
-                      onChange={handleChange}
-                      className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400"
-                      placeholder="https://linkedin.com/in/username"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="flex items-center text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-3">
-                      <svg className="w-4 h-4 text-primary-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9" />
-                      </svg>
-                      الموقع الشخصي
-                    </label>
-                    <input
-                      type="url"
-                      name="socialMedia.website"
-                      value={formData.socialMedia.website}
-                      onChange={handleChange}
-                      className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400"
-                      placeholder="https://example.com"
-                    />
-                  </div>
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 text-center">شاركنا روابطك على وسائل التواصل الاجتماعي لنتعرف عليك أكثر</p>
-              </div>
 
 
               {/* Terms and Conditions */}

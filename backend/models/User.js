@@ -14,7 +14,16 @@ const userSchema = new mongoose.Schema({
     sparse: true,
     trim: true,
     lowercase: true,
-    match: [/^[a-zA-Z0-9_]+$/, 'اسم المستخدم يجب أن يحتوي على أحرف وأرقام وشرطة سفلية فقط']
+    default: undefined, // Use undefined instead of null
+    validate: {
+      validator: function (v) {
+        // Allow null/undefined/empty values
+        if (v === null || v === undefined || v === '') return true;
+        // If not null, validate the format
+        return /^[a-zA-Z0-9_]+$/.test(v);
+      },
+      message: 'اسم المستخدم يجب أن يحتوي على أحرف وأرقام وشرطة سفلية فقط'
+    }
   },
   email: {
     type: String,
@@ -135,7 +144,9 @@ const userSchema = new mongoose.Schema({
     instagram: { type: String, default: null },
     twitter: { type: String, default: null },
     linkedin: { type: String, default: null },
-    website: { type: String, default: null }
+    website: { type: String, default: null },
+    youtube: { type: String, default: null },
+    facebook: { type: String, default: null }
   },
   availability: {
     type: String,

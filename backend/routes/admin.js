@@ -643,7 +643,7 @@ router.get('/export/users', auth, async (req, res) => {
       const totalSales = user.totalSales || 0;
       const followers = user.followers || 0;
       const rating = user.rating || 0;
-      const createdAt = user.createdAt ? new Date(user.createdAt).toLocaleDateString('ar-SA') : '';
+      const createdAt = user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US') : '';
 
       return `${name},${email},${role},${creatorStatus},${isActive},${isEmailVerified},${templatesCount},${totalEarnings},${totalSales},${followers},${rating},${createdAt}`;
     }).join('\n');
@@ -731,5 +731,70 @@ router.put('/notifications/read-all', auth, async (req, res) => {
   } catch (error) {
     console.error('Mark all notifications read error:', error);
     res.status(500).json({ success: false, message: 'خطأ في الخادم' });
+  }
+});
+
+// @route   POST /api/admin/fix-duplicate-usernames
+// @desc    Fix duplicate username issues by removing null/undefined usernames
+// @access  Private (Admin)
+router.post('/fix-duplicate-usernames', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    console.log('Starting to fix duplicate username issues...');
+
+    // Find all users with null or undefined usernames
+    const usersWithNullUsernames = await User.find({
+      $or: [
+        { username: null },
+        { username: undefined },
+        { username: '' }
+      ]
+    });
+
+    console.log(`Found ${usersWithNullUsernames.length} users with null/undefined usernames`);
+
+    // Remove the username field entirely for these users
+    let fixedCount = 0;
+    for (let i = 0; i < usersWithNullUsernames.length; i++) {
+      const user = usersWithNullUsernames[i];
+      await User.updateOne(
+        { _id: user._id },
+        { $unset: { username: 1 } }
+      );
+      fixedCount++;
+      console.log(`Fixed user ${i + 1}/${usersWithNullUsernames.length}: ${user.email}`);
+    }
+
+    console.log(`Successfully fixed ${fixedCount} duplicate username issues`);
+
+    // Verify the fix
+    const remainingNullUsernames = await User.find({
+      $or: [
+        { username: null },
+        { username: undefined },
+        { username: '' }
+      ]
+    });
+
+    res.json({
+      success: true,
+      message: `تم إصلاح ${fixedCount} مشكلة في أسماء المستخدمين`,
+      fixedCount,
+      remainingIssues: remainingNullUsernames.length
+    });
+
+  } catch (error) {
+    console.error('Fix duplicate usernames error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في إصلاح أسماء المستخدمين',
+      error: error.message
+    });
   }
 });

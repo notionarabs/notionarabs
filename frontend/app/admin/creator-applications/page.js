@@ -262,7 +262,7 @@ export default function CreatorApplicationsPage() {
                           {application.email}
                         </p>
                         <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">
-                          {new Date(application.appliedAt).toLocaleDateString('ar-SA')}
+                          {new Date(application.appliedAt).toLocaleDateString('en-US')}
                         </p>
                       </div>
                     </div>

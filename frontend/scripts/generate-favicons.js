@@ -29,19 +29,19 @@ const sizes = [
 ];
 
 async function generateFavicons() {
-  const inputPath = path.join(__dirname, '../public/favicon.svg');
+  const inputPath = path.join(__dirname, '../public/notionarabs.png');
   const outputDir = path.join(__dirname, '../public');
 
   try {
-    // Read the SVG file
-    const svgBuffer = fs.readFileSync(inputPath);
+    // Read the PNG file
+    const imageBuffer = fs.readFileSync(inputPath);
 
     console.log('Generating favicon files...');
 
     for (const { name, size } of sizes) {
       const outputPath = path.join(outputDir, name);
-
-      await sharp(svgBuffer)
+      
+      await sharp(imageBuffer)
         .resize(size, size, {
           kernel: sharp.kernel.lanczos3,
           fit: 'contain',
@@ -52,12 +52,12 @@ async function generateFavicons() {
           compressionLevel: 9
         })
         .toFile(outputPath);
-
+      
       console.log(`✓ Generated ${name} (${size}x${size})`);
     }
 
     // Generate favicon.ico (16x16 and 32x32 combined)
-    const favicon16 = await sharp(svgBuffer)
+    const favicon16 = await sharp(imageBuffer)
       .resize(16, 16, {
         kernel: sharp.kernel.lanczos3,
         fit: 'contain',
@@ -66,7 +66,7 @@ async function generateFavicons() {
       .png()
       .toBuffer();
 
-    const favicon32 = await sharp(svgBuffer)
+    const favicon32 = await sharp(imageBuffer)
       .resize(32, 32, {
         kernel: sharp.kernel.lanczos3,
         fit: 'contain',
@@ -77,7 +77,7 @@ async function generateFavicons() {
 
     // For ICO file, we'll create a simple 32x32 PNG as ICO
     // (Sharp doesn't directly support ICO, but PNG works fine)
-    await sharp(svgBuffer)
+    await sharp(imageBuffer)
       .resize(32, 32, {
         kernel: sharp.kernel.lanczos3,
         fit: 'contain',
@@ -98,7 +98,7 @@ async function generateFavicons() {
     console.error('Error generating favicons:', error);
     console.log('\nTo fix this:');
     console.log('1. Install sharp: npm install sharp');
-    console.log('2. Make sure your favicon.svg file exists in public/');
+    console.log('2. Make sure your notionarabs.png file exists in public/');
     console.log('3. Run this script again: node scripts/generate-favicons.js');
   }
 }

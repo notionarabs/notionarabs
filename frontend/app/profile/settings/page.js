@@ -415,7 +415,11 @@ export default function ProfileSettingsPage() {
     try {
       setIsSaving(true);
       ensureTokenInHeaders();
-      const response = await api.post(`/upload/${type}`, formData, {
+      
+      // Map the type to the correct endpoint
+      const endpoint = type === 'profilePicture' ? '/upload/profile-picture' : '/upload/backgroundImage';
+      
+      const response = await api.post(endpoint, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

@@ -27,9 +27,9 @@ export default function AdminSettingsPage() {
       youtube: ''
     },
     contactInfo: {
-      email: 'admin@notionarabs.com',
-      phone: '+966500000000',
-      address: 'الرياض، المملكة العربية السعودية'
+      email: 'support@notionarabs.com',
+      phone: '+201050505673',
+      address: 'القاهرة، جمهورية مصر العربية'
     }
   });
 

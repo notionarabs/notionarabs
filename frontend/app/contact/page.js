@@ -5,51 +5,33 @@ import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import api from '../../lib/api';
-import { Youtube, Facebook, Send, X, Users } from 'lucide-react';
+import { Youtube, Facebook, Send, X, Users, Mail, Wrench, Handshake, Newspaper } from 'lucide-react';
 
 const contactMethods = [
   {
     title: "البريد الإلكتروني",
-    description: "راسلنا على البريد الإلكتروني وسنرد عليك خلال 24 ساعة",
-    contact: "info@notion-arabs.com",
-    icon: "📧"
+    description: "راسلنا وسنرد عليك خلال 24 ساعة",
+    contact: "support@notionarabs.com",
+    Icon: Mail,
+    bg: "from-primary-100 to-primary-200 dark:from-orange-900/30 dark:to-orange-800/30"
   },
   {
     title: "الدعم الفني",
     description: "للحصول على مساعدة فنية سريعة",
-    contact: "support@notion-arabs.com",
-    icon: "🛠️"
-  },
-  {
-    title: "الشراكات",
-    description: "للمنظمات والشركات المهتمة بالشراكة",
-    contact: "partnerships@notion-arabs.com",
-    icon: "🤝"
-  },
-  {
-    title: "الإعلام",
-    description: "للاستفسارات الإعلامية والصحفية",
-    contact: "press@notion-arabs.com",
-    icon: "📰"
+    contact: "support@notionarabs.com",
+    Icon: Wrench,
+    bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30"
   }
 ];
 
 const faqs = [
   {
-    question: "كيف يمكنني إلغاء اشتراكي؟",
-    answer: "يمكنك إلغاء اشتراكك من خلال الذهاب إلى إعدادات الحساب والنقر على 'إلغاء الاشتراك'. ستحتفظ بجميع القوالب المحملة حتى نهاية فترة الاشتراك."
+    question: "كيف يمكنني استخدام القوالب؟",
+    answer: "بعد شراء القالب، ستحصل على رابط للوصول إليه في حسابك. يمكنك نسخ القالب إلى حساب نوشن الخاص بك."
   },
   {
-    question: "هل يمكنني الحصول على استرداد؟",
-    answer: "نعم، نقدم استرداد كامل خلال 30 يوماً من تاريخ الاشتراك. تواصل معنا عبر البريد الإلكتروني للحصول على المساعدة."
-  },
-  {
-    question: "كيف يمكنني رفع قوالب للبيع؟",
-    answer: "بعد إنشاء حساب مبدع، يمكنك رفع قوالبك من خلال لوحة التحكم. تأكد من اتباع إرشادات الجودة والمحتوى."
-  },
-  {
-    question: "هل تدعمون الدفع بالعملات المحلية؟",
-    answer: "نعم، نقبل الدفع بالريال السعودي والدرهم الإماراتي والدينار الكويتي بالإضافة إلى العملات الدولية."
+    question: "هل القوالب متوافقة مع جميع أجهزة نوشن؟",
+    answer: "نعم، جميع القوالب متوافقة مع تطبيق نوشن على جميع المنصات (الويب، الهاتف، التابلت)."
   }
 ];
 
@@ -134,6 +116,14 @@ function ContactForm() {
           message: '',
           category: creator ? 'creator' : 'general'
         });
+
+        // Scroll to top of form to show success message
+        setTimeout(() => {
+          document.getElementById('contact-form')?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }, 100);
       } else {
         throw new Error(response.data.message || 'فشل في إرسال الرسالة');
       }
@@ -148,7 +138,7 @@ function ContactForm() {
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
 
       {/* Hero Section */}
-      <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
+      <section className="section-padding bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary transition-colors duration-300">
         <div className="container-custom">
           <div className="text-center mb-16">
             <h1 className="heading-1 mb-6">
@@ -176,9 +166,9 @@ function ContactForm() {
             <div className="card p-8 mb-12 bg-gradient-to-r from-primary-50 to-orange-50 dark:from-dark-tertiary dark:to-dark-primary border border-primary-200 dark:border-orange-500/30">
               <div className="flex flex-col md:flex-row items-center gap-6">
                 <div className="flex-shrink-0">
-                  {creator.avatar ? (
+                  {creator.profilePicture ? (
                     <Image
-                      src={creator.avatar}
+                      src={creator.profilePicture}
                       alt={creator.displayName || creator.name}
                       width={80}
                       height={80}
@@ -186,8 +176,10 @@ function ContactForm() {
                       quality={100}
                     />
                   ) : (
-                    <div className="w-20 h-20 rounded-full bg-primary-500 dark:bg-orange-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-                      {(creator.displayName || creator.name).charAt(0)}
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center border-4 border-white dark:border-dark-secondary shadow-lg">
+                      <span className="text-2xl font-bold text-primary-500 dark:text-orange-400">
+                        {(creator.displayName || creator.name)?.charAt(0)?.toUpperCase() || 'م'}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -233,38 +225,63 @@ function ContactForm() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Contact Form */}
-            <div className="card p-8">
-              <h2 className="heading-2 mb-6">أرسل لنا رسالة</h2>
+            <div id="contact-form" className="card p-10 border-primary-200 dark:border-orange-500/30">
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-primary-100 to-orange-100 dark:from-orange-900/30 dark:to-orange-800/30 rounded-2xl mb-4">
+                  <svg className="w-8 h-8 text-primary-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h2 className="heading-2 mb-3">أرسل لنا رسالة</h2>
+                <p className="body-medium text-accent-600 dark:text-dark-text-secondary">
+                  نحن هنا لمساعدتك في أي وقت
+                </p>
+              </div>
 
               {submitStatus === 'success' && (
-                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl text-sm mb-6">
+                <div className="bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-500/30 text-green-700 dark:text-green-300 px-6 py-4 rounded-xl text-sm mb-8 shadow-lg">
                   <div className="flex items-center">
-                    <svg className="w-5 h-5 text-green-600 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    {creator
-                      ? `تم إرسال رسالتك إلى ${creator.displayName || creator.name} بنجاح! سنتواصل معك قريباً.`
-                      : 'تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.'
-                    }
+                    <div className="flex-shrink-0">
+                      <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <div className="mr-3">
+                      <p className="font-bold text-lg">تم الإرسال بنجاح!</p>
+                      <p className="text-sm">
+                        {creator
+                          ? `تم إرسال رسالتك إلى ${creator.displayName || creator.name} بنجاح! سنتواصل معك قريباً.`
+                          : 'تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.'
+                        }
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}
 
               {submitStatus === 'error' && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm mb-6">
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-300 px-6 py-4 rounded-2xl text-sm mb-8">
                   <div className="flex items-center">
-                    <svg className="w-5 h-5 text-red-600 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.
+                    <div className="flex-shrink-0">
+                      <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </div>
+                    <div className="mr-3">
+                      <p className="font-medium">حدث خطأ</p>
+                      <p className="text-sm">حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة مرة أخرى.</p>
+                    </div>
                   </div>
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <form onSubmit={handleSubmit} className="space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="form-group">
-                    <label htmlFor="name" className="form-label">
+                    <label htmlFor="name" className="form-label flex items-center gap-2">
+                      <svg className="w-4 h-4 text-primary-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
                       الاسم الكامل
                     </label>
                     <input
@@ -274,13 +291,16 @@ function ContactForm() {
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      className="form-input"
+                      className="form-input focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-orange-500 dark:focus:border-orange-500"
                       placeholder="أدخل اسمك الكامل"
                     />
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="email" className="form-label">
+                    <label htmlFor="email" className="form-label flex items-center gap-2">
+                      <svg className="w-4 h-4 text-primary-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
                       البريد الإلكتروني
                     </label>
                     <input
@@ -290,7 +310,7 @@ function ContactForm() {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="form-input"
+                      className="form-input focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-orange-500 dark:focus:border-orange-500"
                       placeholder="أدخل بريدك الإلكتروني"
                       dir="ltr"
                     />
@@ -298,7 +318,10 @@ function ContactForm() {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="category" className="form-label">
+                  <label htmlFor="category" className="form-label flex items-center gap-2">
+                    <svg className="w-4 h-4 text-primary-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
                     نوع الاستفسار
                   </label>
                   <select
@@ -306,11 +329,10 @@ function ContactForm() {
                     name="category"
                     value={formData.category}
                     onChange={handleChange}
-                    className="form-input"
+                    className="form-select focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-orange-500 dark:focus:border-orange-500"
                   >
                     <option value="general">استفسار عام</option>
                     <option value="technical">دعم فني</option>
-                    <option value="billing">الفوترة والدفع</option>
                     <option value="partnership">شراكة</option>
                     <option value="feedback">ملاحظات ومقترحات</option>
                     <option value="creator">تواصل مع مبدع</option>
@@ -318,7 +340,10 @@ function ContactForm() {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="subject" className="form-label">
+                  <label htmlFor="subject" className="form-label flex items-center gap-2">
+                    <svg className="w-4 h-4 text-primary-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                    </svg>
                     الموضوع
                   </label>
                   <input
@@ -328,13 +353,16 @@ function ContactForm() {
                     value={formData.subject}
                     onChange={handleChange}
                     required
-                    className="form-input"
+                    className="form-input focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-orange-500 dark:focus:border-orange-500"
                     placeholder="أدخل موضوع الرسالة"
                   />
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="message" className="form-label">
+                  <label htmlFor="message" className="form-label flex items-center gap-2">
+                    <svg className="w-4 h-4 text-primary-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
                     الرسالة
                   </label>
                   <textarea
@@ -344,28 +372,35 @@ function ContactForm() {
                     onChange={handleChange}
                     required
                     rows={6}
-                    className="form-input"
+                    className="form-input focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-orange-500 dark:focus:border-orange-500 resize-none"
                     placeholder="اكتب رسالتك هنا..."
                   />
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full btn-primary text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                >
-                  {isSubmitting ? (
-                    <div className="flex items-center justify-center">
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      جاري الإرسال...
-                    </div>
-                  ) : (
-                    'إرسال الرسالة'
-                  )}
-                </button>
+                <div className="pt-4">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full btn-primary text-lg py-4 px-8 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>جاري الإرسال...</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                        </svg>
+                        <span>إرسال الرسالة</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </form>
             </div>
 
@@ -373,21 +408,23 @@ function ContactForm() {
             <div className="space-y-8">
               <div>
                 <h2 className="heading-2 mb-6">طرق التواصل</h2>
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {contactMethods.map((method, index) => (
-                    <div key={index} className="card p-6">
+                    <div key={index} className="card p-6 hover:shadow-medium dark:hover:shadow-dark-medium transition-all duration-300 hover:-translate-y-1">
                       <div className="flex items-start gap-4">
-                        <div className="text-3xl">{method.icon}</div>
-                        <div>
+                        <div className={`p-3 rounded-xl bg-gradient-to-r ${method.bg} flex-shrink-0`}>
+                          <method.Icon className="w-6 h-6 text-primary-600 dark:text-orange-400" />
+                        </div>
+                        <div className="flex-1">
                           <h3 className="font-semibold text-lg text-accent-500 dark:text-dark-text-primary mb-2">
                             {method.title}
                           </h3>
-                          <p className="text-accent-600 dark:text-dark-text-secondary mb-3">
+                          <p className="text-accent-600 dark:text-dark-text-secondary mb-3 text-sm">
                             {method.description}
                           </p>
                           <a
                             href={`mailto:${method.contact}`}
-                            className="text-primary-500 dark:text-orange-500 font-medium hover:underline"
+                            className="text-primary-500 dark:text-orange-500 font-medium hover:underline text-sm"
                           >
                             {method.contact}
                           </a>
@@ -399,22 +436,12 @@ function ContactForm() {
               </div>
 
               <div className="card p-6">
-                <h3 className="font-semibold text-lg text-accent-500 dark:text-dark-text-primary mb-4">
+                <h3 className="font-semibold text-lg text-accent-500 dark:text-dark-text-primary mb-3">
                   أوقات العمل
                 </h3>
-                <div className="space-y-2 text-accent-600 dark:text-dark-text-secondary">
-                  <div className="flex justify-between">
-                    <span>الأحد - الخميس:</span>
-                    <span>9:00 ص - 6:00 م</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>الجمعة - السبت:</span>
-                    <span>مغلق</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>التوقيت:</span>
-                    <span>توقيت الرياض (GMT+3)</span>
-                  </div>
+                <div className="text-accent-600 dark:text-dark-text-secondary">
+                  <p className="mb-2">الأحد - الخميس: 9:00 ص - 6:00 م</p>
+                  <p className="text-sm">توقيت القاهرة (GMT+2)</p>
                 </div>
               </div>
             </div>
@@ -423,7 +450,7 @@ function ContactForm() {
       </section>
 
       {/* FAQ Section */}
-      <section className="section-padding bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
+      <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
         <div className="container-custom">
           <div className="text-center mb-16">
             <h2 className="heading-2 mb-4">الأسئلة الشائعة</h2>
@@ -432,16 +459,25 @@ function ContactForm() {
             </p>
           </div>
 
-          <div className="max-w-4xl mx-auto">
-            <div className="space-y-6">
+          <div className="max-w-2xl mx-auto">
+            <div className="space-y-4">
               {faqs.map((faq, index) => (
-                <div key={index} className="card p-6">
-                  <h3 className="font-semibold text-lg text-accent-500 dark:text-dark-text-primary mb-3">
-                    {faq.question}
-                  </h3>
-                  <p className="text-accent-600 dark:text-dark-text-secondary">
-                    {faq.answer}
-                  </p>
+                <div key={index} className="card p-6 hover:shadow-medium dark:hover:shadow-dark-medium transition-all duration-300 hover:-translate-y-1">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 rounded-lg bg-primary-100 dark:bg-orange-500/20 flex-shrink-0">
+                      <svg className="w-5 h-5 text-primary-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg text-accent-500 dark:text-dark-text-primary mb-3">
+                        {faq.question}
+                      </h3>
+                      <p className="text-accent-600 dark:text-dark-text-secondary text-sm leading-relaxed">
+                        {faq.answer}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -450,17 +486,43 @@ function ContactForm() {
       </section>
 
       {/* CTA Section */}
-      <section className="section-padding bg-accent-500 dark:bg-dark-secondary transition-colors duration-300">
+      <section className="section-padding bg-gradient-to-r from-accent-500 to-primary-500 dark:from-dark-secondary dark:to-dark-tertiary transition-colors duration-300">
         <div className="container-custom text-center">
           <h2 className="heading-2 text-white dark:text-dark-text-primary mb-4">
             لم تجد ما تبحث عنه؟
           </h2>
-          <p className="body-large text-gray-300 dark:text-dark-text-secondary mb-8 max-w-2xl mx-auto">
-            تواصل معنا مباشرة للحصول على المساعدة التي تحتاجها
+          <p className="body-large text-gray-100 dark:text-dark-text-secondary mb-8">
+            اكتشف المزيد من الخيارات المتاحة لك
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/templates" className="btn-primary text-lg px-8 py-4">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-4xl mx-auto">
+            <Link href="/templates" className="btn-primary text-lg px-6 py-4 bg-white text-primary-600 hover:bg-gray-50 dark:bg-dark-primary dark:text-orange-400 dark:hover:bg-dark-tertiary flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
               تصفح القوالب
+            </Link>
+            <Link href="/creators" className="btn-outline text-lg px-6 py-4 border-white text-white hover:bg-white hover:text-primary-600 dark:border-orange-400 dark:text-orange-400 dark:hover:bg-orange-400 dark:hover:text-dark-primary flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              المبدعين
+            </Link>
+            <Link href="/blog" className="btn-outline text-lg px-6 py-4 border-white text-white hover:bg-white hover:text-primary-600 dark:border-orange-400 dark:text-orange-400 dark:hover:bg-orange-400 dark:hover:text-dark-primary flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+              </svg>
+              المدونة
+            </Link>
+            <Link href="/about" className="btn-outline text-lg px-6 py-4 border-white text-white hover:bg-white hover:text-primary-600 dark:border-orange-400 dark:text-orange-400 dark:hover:bg-orange-400 dark:hover:text-dark-primary flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              من نحن
+            </Link>
+          </div>
+          <div className="mt-8">
+            <Link href="#contact-form" className="text-white/80 hover:text-white text-sm underline hover:no-underline transition-colors">
+              أو تواصل معنا مباشرة
             </Link>
           </div>
         </div>

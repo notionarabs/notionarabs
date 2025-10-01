@@ -21,8 +21,8 @@ export function OrganizationSchema() {
     },
     "address": {
       "@type": "PostalAddress",
-      "addressCountry": "SA",
-      "addressRegion": "Riyadh"
+      "addressCountry": "EG",
+      "addressRegion": "Cairo"
     },
     "founder": {
       "@type": "Person",

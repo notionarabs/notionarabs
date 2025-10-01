@@ -521,83 +521,47 @@ export default function HomePage() {
             <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary">تعرف على أفضل المبدعين في مجتمعنا</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
             {loadingCreators ? (
-              [...Array(3)].map((_, idx) => (
-                <div key={idx} className="group">
-                  <div className="card-interactive p-4 sm:p-6 md:p-8 animate-pulse">
-                    <div className="flex items-center gap-3 sm:gap-4 mb-4">
-                      <div className="w-12 h-12 sm:w-15 sm:h-15 rounded-full bg-gray-200 dark:bg-gray-700" />
-                      <div className="flex-1">
-                        <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-2" />
-                        <div className="h-2 sm:h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/3" />
-                      </div>
-                    </div>
-                    <div className="space-y-2 sm:space-y-3">
-                      <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3" />
-                      <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
-                    </div>
-                    <div className="space-y-2 sm:space-y-3 mt-4 sm:mt-6">
-                      <div className="h-8 sm:h-10 bg-gray-200 dark:bg-gray-700 rounded" />
-                      <div className="h-8 sm:h-10 bg-gray-200 dark:bg-gray-700 rounded" />
-                    </div>
+              [...Array(5)].map((_, idx) => (
+                <div key={idx} className="group text-center">
+                  <div className="animate-pulse">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-gray-200 dark:bg-gray-700 mb-3" />
+                    <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto" />
                   </div>
                 </div>
               ))
             ) : (topCreators && topCreators.length > 0) ? (
               topCreators.map((cr, idx) => (
-                <div key={cr.id || idx} className="group">
-                  <div className="card-interactive p-4 sm:p-6 md:p-8">
-                    <div className="flex items-center gap-3 sm:gap-4 mb-4">
-                      <div className="relative">
-                        <Image
-                          src={cr.imgSrc || cr.profilePicture || 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'}
-                          alt={cr.name}
-                          width={60}
-                          height={60}
-                          className="w-12 h-12 sm:w-15 sm:h-15 rounded-full object-cover border-2 border-white shadow-md"
-                        />
-
+                <div key={cr.id || idx} className="group text-center">
+                  <Link href={`/creators/${cr.username || cr.email?.split('@')[0] || cr.displayName || cr.name || cr.id || cr._id || idx}`}>
+                    <div className="transition-transform duration-300 group-hover:scale-105">
+                      <div className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3">
+                        {cr.profilePicture ? (
+                          <Image
+                            src={cr.profilePicture}
+                            alt={cr.name}
+                            width={80}
+                            height={80}
+                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-white shadow-md"
+                          />
+                        ) : (
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center border-2 border-white shadow-md">
+                            <span className="text-lg sm:text-xl font-bold text-primary-500 dark:text-orange-400">
+                              {cr.name?.charAt(0)?.toUpperCase() || 'م'}
+                            </span>
+                          </div>
+                        )}
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-bold text-base sm:text-lg text-accent-500 dark:text-dark-text-primary group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
-                          {cr.name}
-                        </h3>
-                        <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">{cr.bio}</p>
-                      </div>
+                      <h3 className="font-medium text-sm sm:text-base text-accent-500 dark:text-dark-text-primary group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
+                        {cr.name}
+                      </h3>
                     </div>
-
-                    <div className="space-y-2 sm:space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">القوالب</span>
-                        <span className="font-semibold text-sm sm:text-base text-accent-500 dark:text-dark-text-primary">{cr.templates}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">التقييم</span>
-                        <StarRating rating={cr.rating} />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2 sm:space-y-3 mt-4 sm:mt-6">
-                      <Link
-                        href={`/creators/${cr.username || cr.email?.split('@')[0] || cr.displayName || cr.name || cr.id || cr._id || idx}`}
-                        className="w-full btn-primary text-center block text-sm sm:text-base py-2 sm:py-3"
-                      >
-                        عرض الملف الشخصي
-                      </Link>
-                      <FollowButton
-                        creatorId={cr.id || cr._id}
-                        creatorName={cr.name}
-                        className="w-full"
-                        size="small"
-                        showText={true}
-                      />
-                    </div>
-                  </div>
+                  </Link>
                 </div>
               ))
             ) : (
-              <div className="md:col-span-3 text-center py-8 text-accent-600 dark:text-dark-text-secondary">لا يوجد مبدعين لعرضهم حالياً.</div>
+              <div className="col-span-full text-center py-8 text-accent-600 dark:text-dark-text-secondary">لا يوجد مبدعين لعرضهم حالياً.</div>
             )}
           </div>
         </div>

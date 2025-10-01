@@ -158,13 +158,13 @@ export default function CookiesPage() {
                 </p>
                 <div className="bg-gray-50 dark:bg-dark-tertiary p-6 rounded-xl">
                   <p className="text-accent-600 dark:text-dark-text-secondary mb-2">
-                    <strong>البريد الإلكتروني:</strong> privacy@notion-arabs.com
+                    <strong>البريد الإلكتروني:</strong> support@notionarabs.com
                   </p>
                   <p className="text-accent-600 dark:text-dark-text-secondary mb-2">
-                    <strong>العنوان:</strong> الرياض، المملكة العربية السعودية
+                    <strong>العنوان:</strong> القاهرة، جمهورية مصر العربية
                   </p>
                   <p className="text-accent-600 dark:text-dark-text-secondary">
-                    <strong>الهاتف:</strong> +966 11 123 4567
+                    <strong>الهاتف:</strong> +201050505673
                   </p>
                 </div>
               </section>

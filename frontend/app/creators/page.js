@@ -216,13 +216,21 @@ export default function CreatorsPage() {
                   {/* Card Header */}
                   <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
                     <div className="relative">
-                      <Image
-                        src={creator.profilePicture || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"}
-                        alt={creator.name}
-                        width={80}
-                        height={80}
-                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-white shadow-md"
-                      />
+                      {creator.profilePicture ? (
+                        <Image
+                          src={creator.profilePicture}
+                          alt={creator.name}
+                          width={80}
+                          height={80}
+                          className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-white shadow-md"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center border-2 border-white shadow-md">
+                          <span className="text-2xl sm:text-3xl font-bold text-primary-500 dark:text-orange-400">
+                            {creator.name?.charAt(0)?.toUpperCase() || 'م'}
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <div className="flex-1">
                       <h3 className="font-bold text-base sm:text-lg md:text-xl text-accent-500 dark:text-dark-text-primary group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors mb-1">

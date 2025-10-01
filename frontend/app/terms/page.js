@@ -164,7 +164,7 @@ export default function TermsPage() {
               <section>
                 <h2 className="heading-2 mb-4">10. القانون المطبق</h2>
                 <p className="body-medium text-accent-600 dark:text-dark-text-secondary mb-4">
-                  هذه الشروط تحكمها قوانين المملكة العربية السعودية. أي نزاعات تخضع لاختصاص محاكم الرياض.
+                  هذه الشروط تحكمها قوانين جمهورية مصر العربية. أي نزاعات تخضع لاختصاص محاكم القاهرة.
                 </p>
               </section>
 
@@ -175,13 +175,13 @@ export default function TermsPage() {
                 </p>
                 <div className="bg-gray-50 dark:bg-dark-tertiary p-6 rounded-xl">
                   <p className="text-accent-600 dark:text-dark-text-secondary mb-2">
-                    <strong>البريد الإلكتروني:</strong> legal@notion-arabs.com
+                    <strong>البريد الإلكتروني:</strong> support@notionarabs.com
                   </p>
                   <p className="text-accent-600 dark:text-dark-text-secondary mb-2">
-                    <strong>العنوان:</strong> الرياض، المملكة العربية السعودية
+                    <strong>العنوان:</strong> القاهرة، جمهورية مصر العربية
                   </p>
                   <p className="text-accent-600 dark:text-dark-text-secondary">
-                    <strong>الهاتف:</strong> +966 11 123 4567
+                    <strong>الهاتف:</strong> +201050505673
                   </p>
                 </div>
               </section>

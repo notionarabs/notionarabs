@@ -102,6 +102,15 @@ router.post('/creator', [
       console.warn('Email configuration missing. Message logged but not sent via email.');
       console.log('To enable email sending, set EMAIL_USER and EMAIL_PASS environment variables.');
 
+      // Log admin notification for manual follow-up
+      console.log('=== ADMIN NOTIFICATION (NO EMAIL) ===');
+      console.log('Creator Contact Message:');
+      console.log('Creator:', creator.displayName || creator.name, `(${creator.email})`);
+      console.log('From:', name, `(${email})`);
+      console.log('Subject:', subject);
+      console.log('Message:', message);
+      console.log('=====================================');
+
       // Return success but with a note that email wasn't sent
       res.json({
         success: true,
@@ -144,6 +153,40 @@ router.post('/creator', [
       };
 
       await transporter.sendMail(mailOptions);
+
+      // Send notification to admin (hazemyasser911@gmail.com)
+      const adminNotificationOptions = {
+        from: process.env.EMAIL_USER,
+        to: 'hazemyasser911@gmail.com',
+        subject: `[عرب نوشن] رسالة جديدة من ${name} إلى ${creator.displayName || creator.name}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
+            <h2 style="color: #333; text-align: center;">إشعار: رسالة جديدة من موقع عرب نوشن</h2>
+            <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p><strong>نوع الرسالة:</strong> تواصل مع مبدع</p>
+              <p><strong>المبدع المستهدف:</strong> ${creator.displayName || creator.name} (${creator.email})</p>
+            </div>
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #495057; margin-bottom: 15px;">تفاصيل الرسالة:</h3>
+              <p><strong>المرسل:</strong> ${name}</p>
+              <p><strong>البريد الإلكتروني:</strong> <a href="mailto:${email}" style="color: #007bff;">${email}</a></p>
+              <p><strong>الموضوع:</strong> ${subject}</p>
+            </div>
+            <div style="background-color: #ffffff; padding: 20px; border: 1px solid #dee2e6; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #495057; margin-bottom: 15px;">محتوى الرسالة:</h3>
+              <p style="line-height: 1.6; color: #333;">${message.replace(/\n/g, '<br>')}</p>
+            </div>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="mailto:${email}" style="background-color: #28a745; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; margin-left: 10px;">الرد على المرسل</a>
+              <a href="mailto:${creator.email}" style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">الرد على المبدع</a>
+            </div>
+            <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+            <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
+          </div>
+        `
+      };
+
+      await transporter.sendMail(adminNotificationOptions);
 
       // Also send a copy to the sender for confirmation
       const confirmationMailOptions = {
@@ -247,6 +290,15 @@ router.post('/general', [
       console.warn('Email configuration missing. Message logged but not sent via email.');
       console.log('To enable email sending, set EMAIL_USER and EMAIL_PASS environment variables.');
 
+      // Log admin notification for manual follow-up
+      console.log('=== ADMIN NOTIFICATION (NO EMAIL) ===');
+      console.log('General Contact Message:');
+      console.log('From:', name, `(${email})`);
+      console.log('Subject:', subject);
+      console.log('Category:', req.body.category || 'عام');
+      console.log('Message:', message);
+      console.log('=====================================');
+
       // Return success but with a note that email wasn't sent
       res.json({
         success: true,
@@ -287,6 +339,39 @@ router.post('/general', [
       };
 
       await transporter.sendMail(mailOptions);
+
+      // Send notification to admin (hazemyasser911@gmail.com)
+      const adminNotificationOptions = {
+        from: process.env.EMAIL_USER,
+        to: 'hazemyasser911@gmail.com',
+        subject: `[عرب نوشن] رسالة جديدة من ${name} - ${subject}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
+            <h2 style="color: #333; text-align: center;">إشعار: رسالة جديدة من موقع عرب نوشن</h2>
+            <div style="background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p><strong>نوع الرسالة:</strong> استفسار عام</p>
+              <p><strong>نوع الاستفسار:</strong> ${req.body.category || 'عام'}</p>
+            </div>
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #495057; margin-bottom: 15px;">تفاصيل الرسالة:</h3>
+              <p><strong>المرسل:</strong> ${name}</p>
+              <p><strong>البريد الإلكتروني:</strong> <a href="mailto:${email}" style="color: #007bff;">${email}</a></p>
+              <p><strong>الموضوع:</strong> ${subject}</p>
+            </div>
+            <div style="background-color: #ffffff; padding: 20px; border: 1px solid #dee2e6; border-radius: 8px; margin: 20px 0;">
+              <h3 style="color: #495057; margin-bottom: 15px;">محتوى الرسالة:</h3>
+              <p style="line-height: 1.6; color: #333;">${message.replace(/\n/g, '<br>')}</p>
+            </div>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="mailto:${email}" style="background-color: #28a745; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">الرد على المرسل</a>
+            </div>
+            <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+            <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
+          </div>
+        `
+      };
+
+      await transporter.sendMail(adminNotificationOptions);
 
       // Send confirmation to the sender
       const confirmationMailOptions = {

@@ -236,7 +236,7 @@ export default function PublicProfilePage() {
           subject: '',
           message: ''
         });
-        
+
         // Show success toast
         showSuccess('تم إرسال الرسالة بنجاح! سنقوم بإرسالها للمبدع وسيرد عليك قريباً');
 
@@ -256,7 +256,7 @@ export default function PublicProfilePage() {
       setSubmitStatus('error');
       console.error('Message submission error:', error);
       console.error('Error response:', error.response?.data);
-      
+
       // Show error toast with more specific message
       const errorMessage = error.response?.data?.message || 'حدث خطأ في إرسال الرسالة. يرجى المحاولة مرة أخرى';
       showError(errorMessage);

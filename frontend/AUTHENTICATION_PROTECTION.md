@@ -47,7 +47,6 @@ A Next.js middleware (`frontend/middleware.js`) has been implemented to globally
 
 - `/templates/[id]` - Individual template detail pages
 - `/blog/[id]` - Individual blog post pages
-- `/creators/[username]` - Individual creator profile pages
 
 ## Protected Routes (Authentication Required)
 
@@ -62,6 +61,7 @@ All other routes require authentication, including but not limited to:
 
 - `/creators` - Creators listing page
 - `/creators/apply` - Creator application page
+- `/creators/[username]` - Individual creator profile pages
 
 ### Blog Routes
 
@@ -87,7 +87,7 @@ All other routes require authentication, including but not limited to:
 
 ### Middleware Location
 
-```
+```text
 frontend/middleware.js
 ```
 
@@ -110,8 +110,8 @@ export function middleware(request) {
   const isPublicRoute = publicRoutes.includes(pathname);
   const isDynamicPublicRoute =
     pathname.match(/^\/templates\/[^\/]+$/) ||
-    pathname.match(/^\/blog\/[^\/]+$/) ||
-    pathname.match(/^\/creators\/[^\/]+$/);
+    pathname.match(/^\/blog\/[^\/]+$/);
+  // Note: /creators/[username] routes are now protected
 
   // Allow public routes
   if (isPublicRoute || isDynamicPublicRoute) {
@@ -137,61 +137,3 @@ export function middleware(request) {
 4. **Better UX**: Automatic redirect to intended destination after login
 5. **Performance**: Checks happen at the edge before page rendering
 6. **Security**: Server-side validation prevents unauthorized access
-
-## Testing
-
-### Test Cases
-
-1. **Unauthenticated User**:
-
-   - ✅ Can access homepage
-   - ✅ Can access login/signup pages
-   - ✅ Can view individual templates, blogs, creators
-   - ❌ Cannot access templates listing
-   - ❌ Cannot access profile pages
-   - ❌ Cannot access creator application
-   - ❌ Redirected to login when accessing protected routes
-
-2. **Authenticated User**:
-   - ✅ Can access all public routes
-   - ✅ Can access all protected routes
-   - ✅ Can browse templates listing
-   - ✅ Can apply to become a creator
-   - ✅ Can access profile and settings
-
-## Future Enhancements
-
-1. **Role-Based Access**: Add admin-only routes protection
-2. **Creator-Only Routes**: Protect template creation for approved creators
-3. **Rate Limiting**: Add rate limiting for sensitive routes
-4. **Session Management**: Implement token refresh mechanism
-
-## Troubleshooting
-
-### Issue: Infinite redirect loop
-
-**Solution**: Ensure login/signup pages are in the public routes list
-
-### Issue: Static assets not loading
-
-**Solution**: Check that `_next`, `static`, and file extensions are excluded in middleware matcher
-
-### Issue: User redirected even when logged in
-
-**Solution**: Verify that the `authToken` cookie is being set correctly and is accessible
-
-## Maintenance
-
-When adding new routes:
-
-1. Decide if the route should be public or protected
-2. If public, add it to the `publicRoutes` array in `middleware.js`
-3. If protected, no action needed (default behavior)
-4. For dynamic public routes, update the regex patterns
-
-## Related Files
-
-- `frontend/middleware.js` - Main middleware file
-- `frontend/contexts/AuthContext.js` - Authentication context
-- `frontend/lib/api.js` - API configuration with auth interceptors
-- `frontend/app/login/page.js` - Login page with redirect handling

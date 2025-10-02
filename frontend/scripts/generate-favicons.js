@@ -40,7 +40,7 @@ async function generateFavicons() {
 
     for (const { name, size } of sizes) {
       const outputPath = path.join(outputDir, name);
-      
+
       await sharp(imageBuffer)
         .resize(size, size, {
           kernel: sharp.kernel.lanczos3,
@@ -52,7 +52,7 @@ async function generateFavicons() {
           compressionLevel: 9
         })
         .toFile(outputPath);
-      
+
       console.log(`✓ Generated ${name} (${size}x${size})`);
     }
 

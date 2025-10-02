@@ -32,9 +32,9 @@ export function middleware(request) {
 
   // Check if it's a dynamic route that's allowed without auth
   const isDynamicPublicRoute =
-    pathname.match(/^\/templates\/[^\/]+$/) || // /templates/[id]
-    pathname.match(/^\/blog\/[^\/]+$/) ||      // /blog/[id]
-    pathname.match(/^\/creators\/[^\/]+$/);    // /creators/[username]
+    (pathname.match(/^\/templates\/[^\/]+$/) && pathname !== '/templates/create') || // /templates/[id] but not /templates/create
+    (pathname.match(/^\/blog\/[^\/]+$/) && !pathname.startsWith('/blog/create') && !pathname.startsWith('/blog/edit/')); // /blog/[id] but not /blog/create or /blog/edit/[id]
+  // Note: /creators/[username] routes are now protected and require authentication
 
   // Check if it's a static asset or Next.js internal route
   const isStaticAsset =

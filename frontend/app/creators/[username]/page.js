@@ -268,8 +268,17 @@ export default function PublicProfilePage() {
       console.error('Message submission error:', error);
       console.error('Error response:', error.response?.data);
 
-      // Show error toast with more specific message
-      const errorMessage = error.response?.data?.message || 'حدث خطأ في إرسال الرسالة. يرجى المحاولة مرة أخرى';
+      // Handle different types of errors
+      let errorMessage = 'حدث خطأ في إرسال الرسالة. يرجى المحاولة مرة أخرى';
+
+      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+        errorMessage = 'انتهت مهلة الاتصال. يرجى المحاولة مرة أخرى';
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
       showError(errorMessage);
     }
   };
@@ -331,7 +340,7 @@ export default function PublicProfilePage() {
       <section className="section-padding">
         <div className="container-custom">
           <div className="space-y-8">
-            
+
             {/* Profile Card */}
             <div className="card p-8 text-center">
               <div className="flex flex-col items-center space-y-6">
@@ -352,7 +361,7 @@ export default function PublicProfilePage() {
                       </span>
                     </div>
                   )}
-                  
+
                   {/* Verified Badge */}
                   {creator.creatorStatus === 'approved' && (
                     <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-lg">

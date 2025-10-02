@@ -119,18 +119,22 @@ router.post('/creator', [
       return;
     }
 
-    // Send email to creator
+    // Send email to creator with overall timeout
     try {
-      const transporter = createTransporter();
+      const emailPromise = (async () => {
+        const transporter = createTransporter();
 
-      // Verify transporter connection
-      await transporter.verify();
+        // Verify transporter connection with timeout
+        await Promise.race([
+          transporter.verify(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Email verification timeout')), 10000))
+        ]);
 
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: creator.email,
-        subject: `رسالة جديدة من ${name} - ${subject}`,
-        html: `
+        const mailOptions = {
+          from: process.env.EMAIL_USER,
+          to: creator.email,
+          subject: `رسالة جديدة من ${name} - ${subject}`,
+          html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
             <h2 style="color: #333; text-align: center;">رسالة جديدة من موقع عرب نوشن</h2>
             <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -150,16 +154,16 @@ router.post('/creator', [
             <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
           </div>
         `
-      };
+        };
 
-      await transporter.sendMail(mailOptions);
+        await transporter.sendMail(mailOptions);
 
-      // Send notification to admin (hazemyasser911@gmail.com)
-      const adminNotificationOptions = {
-        from: process.env.EMAIL_USER,
-        to: 'hazemyasser911@gmail.com',
-        subject: `[عرب نوشن] رسالة جديدة من ${name} إلى ${creator.displayName || creator.name}`,
-        html: `
+        // Send notification to admin (hazemyasser911@gmail.com)
+        const adminNotificationOptions = {
+          from: process.env.EMAIL_USER,
+          to: 'hazemyasser911@gmail.com',
+          subject: `[عرب نوشن] رسالة جديدة من ${name} إلى ${creator.displayName || creator.name}`,
+          html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
             <h2 style="color: #333; text-align: center;">إشعار: رسالة جديدة من موقع عرب نوشن</h2>
             <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 8px; margin: 20px 0;">
@@ -184,16 +188,16 @@ router.post('/creator', [
             <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
           </div>
         `
-      };
+        };
 
-      await transporter.sendMail(adminNotificationOptions);
+        await transporter.sendMail(adminNotificationOptions);
 
-      // Also send a copy to the sender for confirmation
-      const confirmationMailOptions = {
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: `تأكيد إرسال رسالتك إلى ${creator.displayName || creator.name}`,
-        html: `
+        // Also send a copy to the sender for confirmation
+        const confirmationMailOptions = {
+          from: process.env.EMAIL_USER,
+          to: email,
+          subject: `تأكيد إرسال رسالتك إلى ${creator.displayName || creator.name}`,
+          html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
             <h2 style="color: #333; text-align: center;">تم إرسال رسالتك بنجاح!</h2>
             <p>مرحباً ${name}،</p>
@@ -208,14 +212,23 @@ router.post('/creator', [
             <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
           </div>
         `
-      };
+        };
 
-      await transporter.sendMail(confirmationMailOptions);
+        await transporter.sendMail(confirmationMailOptions);
 
-      res.json({
-        success: true,
-        message: 'تم إرسال رسالتك بنجاح للمبدع'
-      });
+        return {
+          success: true,
+          message: 'تم إرسال رسالتك بنجاح للمبدع'
+        };
+      })();
+
+      // Add overall timeout for the entire email operation
+      const result = await Promise.race([
+        emailPromise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Email operation timeout')), 30000))
+      ]);
+
+      res.json(result);
 
     } catch (emailError) {
       console.error('Email sending error:', emailError);

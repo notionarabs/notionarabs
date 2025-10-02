@@ -327,131 +327,140 @@ export default function PublicProfilePage() {
         </div>
       </div>
 
-      {/* Profile Section */}
+      {/* Profile Section - Card-Based Layout */}
       <section className="section-padding">
         <div className="container-custom">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            {/* Left Column - Profile Picture, Name, Bio, Contact Button */}
-            <div className="text-center lg:text-right">
-              {/* Profile Picture */}
-              <div className="flex justify-center lg:justify-start mb-8">
-                {creator.profilePicture ? (
-                  <Image
-                    src={creator.profilePicture}
-                    alt={`صورة ${creator.displayName || creator.name}`}
-                    width={200}
-                    height={200}
-                    className="w-48 h-48 rounded-3xl object-cover border-4 border-white dark:border-dark-card-border shadow-large dark:shadow-dark-large"
-                  />
-                ) : (
-                  <div className="w-48 h-48 rounded-3xl bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center shadow-large dark:shadow-dark-large border-4 border-white dark:border-dark-card-border">
-                    <span className="text-6xl font-bold text-primary-500 dark:text-orange-400">
-                      {(creator.displayName || creator.name)?.charAt(0)?.toUpperCase()}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Name and Verified Badge */}
-              <h1 className="heading-1 mb-6">
-                {creator.displayName || creator.name}
-              </h1>
-
-              {creator.creatorStatus === 'approved' && (
-                <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-yellow-400/20 to-amber-500/20 backdrop-blur-sm rounded-full border border-yellow-300/30 shadow-xl mb-6">
-                  <svg className="w-6 h-6 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <span className="text-lg font-semibold text-yellow-700 dark:text-yellow-300">مبدع معتمد</span>
+          <div className="space-y-8">
+            
+            {/* Profile Card */}
+            <div className="card p-8 text-center">
+              <div className="flex flex-col items-center space-y-6">
+                {/* Profile Picture */}
+                <div className="relative">
+                  {creator.profilePicture ? (
+                    <Image
+                      src={creator.profilePicture}
+                      alt={`صورة ${creator.displayName || creator.name}`}
+                      width={160}
+                      height={160}
+                      className="w-40 h-40 rounded-3xl object-cover border-4 border-white dark:border-dark-card-border shadow-large dark:shadow-dark-large"
+                    />
+                  ) : (
+                    <div className="w-40 h-40 rounded-3xl bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center shadow-large dark:shadow-dark-large border-4 border-white dark:border-dark-card-border">
+                      <span className="text-5xl font-bold text-primary-500 dark:text-orange-400">
+                        {(creator.displayName || creator.name)?.charAt(0)?.toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {/* Verified Badge */}
+                  {creator.creatorStatus === 'approved' && (
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-lg">
+                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      </svg>
+                    </div>
+                  )}
                 </div>
-              )}
 
-              {/* Bio */}
-              {(creator.bio || creator.experience) && (
-                <p className="body-large mb-8">
-                  {creator.bio || creator.experience}
-                </p>
-              )}
+                {/* Name */}
+                <h1 className="heading-1 mb-2">
+                  {creator.displayName || creator.name}
+                </h1>
 
-              {/* Action Buttons */}
-              <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                {/* Follow Button */}
-                <FollowButton
-                  creatorId={creator.id}
-                  creatorName={creator.displayName || creator.name}
-                  onFollowChange={(isFollowing) => {
-                    setCreator(prev => ({
-                      ...prev,
-                      followers: prev.followers + (isFollowing ? 1 : -1)
-                    }));
-                  }}
-                  className="shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                  size="large"
-                  showText={true}
-                />
-
-                {/* Contact Button */}
-                {creator.allowMessages && (
-                  <button
-                    onClick={() => setShowMessageModal(true)}
-                    className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-accent-600 dark:hover:from-orange-600 dark:hover:to-orange-700 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:focus:ring-orange-300 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                {/* Verified Status */}
+                {creator.creatorStatus === 'approved' && (
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-400/20 to-amber-500/20 backdrop-blur-sm rounded-full border border-yellow-300/30">
+                    <svg className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                     </svg>
-                    إرسال رسالة
-                  </button>
+                    <span className="text-sm font-semibold text-yellow-700 dark:text-yellow-300">مبدع معتمد</span>
+                  </div>
+                )}
+
+                {/* Bio */}
+                {(creator.bio || creator.experience) && (
+                  <p className="body-large text-center max-w-2xl">
+                    {creator.bio || creator.experience}
+                  </p>
                 )}
               </div>
             </div>
 
-            {/* Right Column - Stats, Contact Info, Social Links */}
-            <div className="space-y-8">
-              {/* Stats */}
-              <div className="grid grid-cols-2 gap-4">
-                {creator.showTemplateCount !== false && (
-                  <div className="card p-6 text-center">
-                    <div className="text-3xl font-bold text-primary-500 dark:text-orange-500 mb-2">{creator.templateCount || creatorTemplates.length || 0}</div>
-                    <div className="body-small">قوالب</div>
-                  </div>
-                )}
-                <div className="card p-6 text-center">
-                  <div className="text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">{creator.followers || 0}</div>
-                  <div className="body-small">متابع</div>
-                </div>
-              </div>
-
-
-
-              {/* Social Links */}
-              {creator.socialLinks && creator.socialLinks.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-4">روابط التواصل</h3>
-                  <div className="flex flex-wrap gap-3">
-                    {creator.socialLinks.map((link, index) => {
-                      if (!link.url) return null;
-
-                      const platform = detectPlatform(link.url);
-
-                      return (
-                        <a
-                          key={index}
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 dark:border-dark-card-border hover:border-primary-300 dark:hover:border-orange-500/50 transition-all duration-200 hover:shadow-md group ${platform?.color || 'text-gray-600 dark:text-dark-text-secondary'}`}
-                        >
-                          {getPlatformIcon(platform?.icon || 'website')}
-                          <span className="text-sm font-medium capitalize group-hover:text-primary-600 dark:group-hover:text-orange-400 transition-colors">
-                            {platform?.name || 'موقع'}
-                          </span>
-                        </a>
-                      );
-                    })}
-                  </div>
+            {/* Stats Cards Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {creator.showTemplateCount !== false && (
+                <div className="card p-6 text-center hover:shadow-lg transition-shadow duration-200">
+                  <div className="text-4xl font-bold text-primary-500 dark:text-orange-500 mb-2">{creator.templateCount || creatorTemplates.length || 0}</div>
+                  <div className="body-small text-gray-600 dark:text-dark-text-secondary">قوالب منشورة</div>
                 </div>
               )}
+              <div className="card p-6 text-center hover:shadow-lg transition-shadow duration-200">
+                <div className="text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">{creator.followers || 0}</div>
+                <div className="body-small text-gray-600 dark:text-dark-text-secondary">متابع</div>
+              </div>
             </div>
+
+            {/* Social Links Row */}
+            {creator.socialLinks && creator.socialLinks.length > 0 && (
+              <div className="card p-6">
+                <h3 className="text-xl font-semibold text-accent-500 dark:text-dark-text-primary mb-6 text-center">روابط التواصل</h3>
+                <div className="flex flex-wrap justify-center gap-4">
+                  {creator.socialLinks.map((link, index) => {
+                    if (!link.url) return null;
+
+                    const platform = detectPlatform(link.url);
+
+                    return (
+                      <a
+                        key={index}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`flex items-center gap-3 px-6 py-3 rounded-xl border border-gray-200 dark:border-dark-card-border hover:border-primary-300 dark:hover:border-orange-500/50 transition-all duration-200 hover:shadow-md group ${platform?.color || 'text-gray-600 dark:text-dark-text-secondary'}`}
+                      >
+                        {getPlatformIcon(platform?.icon || 'website')}
+                        <span className="text-sm font-medium capitalize group-hover:text-primary-600 dark:group-hover:text-orange-400 transition-colors">
+                          {platform?.name || 'موقع'}
+                        </span>
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons Row */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              {/* Follow Button */}
+              <FollowButton
+                creatorId={creator.id}
+                creatorName={creator.displayName || creator.name}
+                onFollowChange={(isFollowing) => {
+                  setCreator(prev => ({
+                    ...prev,
+                    followers: prev.followers + (isFollowing ? 1 : -1)
+                  }));
+                }}
+                className="shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                size="large"
+                showText={true}
+              />
+
+              {/* Message Button */}
+              {creator.allowMessages !== false && (
+                <button
+                  onClick={() => setShowMessageModal(true)}
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-accent-600 dark:hover:from-orange-600 dark:hover:to-orange-700 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:focus:ring-orange-300 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                  إرسال رسالة
+                </button>
+              )}
+            </div>
+
           </div>
         </div>
       </section>

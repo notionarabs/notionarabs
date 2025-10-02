@@ -41,6 +41,17 @@ export default function PublicProfilePage() {
     }
   }, [username]);
 
+  // Pre-fill email and name when modal opens
+  useEffect(() => {
+    if (showMessageModal && user) {
+      setMessageData(prev => ({
+        ...prev,
+        email: user.email || '',
+        name: user.displayName || user.name || ''
+      }));
+    }
+  }, [showMessageModal, user]);
+
   useEffect(() => {
     if (creator && isAuthenticated) {
       loadCreatorRatings();

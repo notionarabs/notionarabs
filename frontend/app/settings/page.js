@@ -37,17 +37,16 @@ export default function SettingsPage() {
     message: '',
     isChecking: false
   });
+  const [isEditingUsername, setIsEditingUsername] = useState(false);
+  const [isSavingUsername, setIsSavingUsername] = useState(false);
   const [profileSettings, setProfileSettings] = useState({
     username: '',
     displayName: '',
     bio: '',
     profilePicture: '',
     socialLinks: [],
-    showEmail: false,
-    showPhone: false,
     allowMessages: true,
-    showTemplateCount: true,
-    showJoinDate: true
+    showTemplateCount: true
   });
 
   useEffect(() => {
@@ -418,12 +417,12 @@ export default function SettingsPage() {
     const icons = {
       twitter: (
         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
         </svg>
       ),
       instagram: (
         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.62 5.367 11.987 11.988 11.987s11.987-5.367 11.987-11.987C24.014 5.367 18.647.001 12.017.001zM8.449 16.988c-1.297 0-2.448-.49-3.323-1.297C4.198 14.895 3.708 13.744 3.708 12.447s.49-2.448 1.297-3.323c.875-.807 2.026-1.297 3.323-1.297s2.448.49 3.323 1.297c.807.875 1.297 2.026 1.297 3.323s-.49 2.448-1.297 3.323c-.875.807-2.026 1.297-3.323 1.297zm7.718-1.297c-.875.807-2.026 1.297-3.323 1.297s-2.448-.49-3.323-1.297c-.807-.875-1.297-2.026-1.297-3.323s.49-2.448 1.297-3.323c.875-.807 2.026-1.297 3.323-1.297s2.448.49 3.323 1.297c.807.875 1.297 2.026 1.297 3.323s-.49 2.448-1.297 3.323z" />
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
         </svg>
       ),
       linkedin: (
@@ -557,63 +556,101 @@ export default function SettingsPage() {
     }
   };
 
+  const handleSaveUsername = async () => {
+    try {
+      setIsSavingUsername(true);
+      ensureTokenInHeaders();
+
+      // Check if username has actually changed
+      const originalUsername = user?.username || '';
+      const newUsername = profileSettings.username;
+
+      if (newUsername === originalUsername) {
+        // No changes made, just close edit mode
+        showSuccess('لم يتم تغيير اسم المستخدم');
+        setIsEditingUsername(false);
+        setUsernameValidation({ isValid: true, message: '', isChecking: false });
+        setIsSavingUsername(false);
+        return;
+      }
+
+      // Validate username before saving
+      const validation = validateUsername(profileSettings.username);
+      if (!validation.isValid) {
+        showError(validation.message);
+        setIsSavingUsername(false);
+        return;
+      }
+
+      // Check availability one more time
+      try {
+        const API_BASE_URL = process.env.NODE_ENV === 'production'
+          ? 'https://notion-arabs.onrender.com/api'
+          : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api');
+
+        const cleanAxios = axios.create({
+          baseURL: API_BASE_URL,
+          headers: {
+            'Content-Type': 'application/json',
+            ...(api.defaults.headers.common['Authorization'] && {
+              'Authorization': api.defaults.headers.common['Authorization']
+            })
+          },
+          validateStatus: (status) => status < 500 // Accept all status codes below 500
+        });
+
+        const response = await cleanAxios.get(`/auth/check-username/${profileSettings.username}`);
+
+        if (response.status === 200) {
+          // Username is available, continue with save
+        } else if (response.status === 409) {
+          const errorMessage = response.data?.message || 'اسم المستخدم غير متاح';
+          showError(errorMessage);
+          setIsSavingUsername(false);
+          return;
+        } else if (response.status === 400) {
+          const errorMessage = response.data?.message || 'اسم المستخدم غير صحيح';
+          showError(errorMessage);
+          setIsSavingUsername(false);
+          return;
+        } else {
+          showError('خطأ في التحقق من اسم المستخدم');
+          setIsSavingUsername(false);
+          return;
+        }
+      } catch (error) {
+        console.error('Error checking username during save:', error);
+        showError('خطأ في التحقق من اسم المستخدم');
+        setIsSavingUsername(false);
+        return;
+      }
+
+      // Save only the username
+      await api.put('/auth/profile/settings', { username: profileSettings.username });
+      showSuccess('تم حفظ اسم المستخدم بنجاح! 🎉');
+      setIsEditingUsername(false);
+      setUsernameValidation({ isValid: true, message: '', isChecking: false });
+    } catch (error) {
+      console.error('Error saving username:', error);
+
+      if (error.response?.data?.errors) {
+        // Show specific validation errors
+        const firstError = error.response.data.errors[0];
+        showError(firstError.msg || 'حدث خطأ في حفظ اسم المستخدم');
+      } else if (error.response?.data?.message) {
+        showError(error.response.data.message);
+      } else {
+        showError('حدث خطأ في حفظ اسم المستخدم');
+      }
+    } finally {
+      setIsSavingUsername(false);
+    }
+  };
+
   const handleSave = async () => {
     try {
       setIsSaving(true);
       ensureTokenInHeaders();
-
-      // Validate username before saving
-      if (profileSettings.username && profileSettings.username.toLowerCase() !== user?.username?.toLowerCase()) {
-        const validation = validateUsername(profileSettings.username);
-        if (!validation.isValid) {
-          showError(validation.message);
-          setIsSaving(false);
-          return;
-        }
-
-        // Check availability one more time
-        try {
-          const API_BASE_URL = process.env.NODE_ENV === 'production'
-            ? 'https://notion-arabs.onrender.com/api'
-            : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api');
-
-          const cleanAxios = axios.create({
-            baseURL: API_BASE_URL,
-            headers: {
-              'Content-Type': 'application/json',
-              ...(api.defaults.headers.common['Authorization'] && {
-                'Authorization': api.defaults.headers.common['Authorization']
-              })
-            },
-            validateStatus: (status) => status < 500 // Accept all status codes below 500
-          });
-
-          const response = await cleanAxios.get(`/auth/check-username/${profileSettings.username}`);
-
-          if (response.status === 200) {
-            // Username is available, continue with save
-          } else if (response.status === 409) {
-            const errorMessage = response.data?.message || 'اسم المستخدم غير متاح';
-            showError(errorMessage);
-            setIsSaving(false);
-            return;
-          } else if (response.status === 400) {
-            const errorMessage = response.data?.message || 'اسم المستخدم غير صحيح';
-            showError(errorMessage);
-            setIsSaving(false);
-            return;
-          } else {
-            showError('خطأ في التحقق من اسم المستخدم');
-            setIsSaving(false);
-            return;
-          }
-        } catch (error) {
-          console.error('Error checking username during save:', error);
-          showError('خطأ في التحقق من اسم المستخدم');
-          setIsSaving(false);
-          return;
-        }
-      }
 
       // Clean up empty social links and validate URLs
       const cleanedSettings = {
@@ -814,44 +851,99 @@ export default function SettingsPage() {
                   <label className="block text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-3">
                     اسم المستخدم
                   </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <span className="text-gray-500 dark:text-dark-text-tertiary text-sm">@</span>
+                  <div className="flex gap-3">
+                    <div className="relative flex-1">
+                      <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500 dark:text-dark-text-tertiary text-sm">@</span>
+                      </div>
+                      <input
+                        type="text"
+                        value={profileSettings.username}
+                        onChange={(e) => handleInputChange('username', e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                        disabled={!isEditingUsername}
+                        className={`w-full pl-4 pr-8 py-3 border rounded-xl focus:ring-2 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-tertiary transition-colors duration-200 ${usernameValidation.isValid
+                          ? 'border-gray-300 dark:border-dark-card-border focus:ring-primary-500 dark:focus:ring-orange-500'
+                          : 'border-red-500 dark:border-red-400 focus:ring-red-500 dark:focus:ring-red-400'
+                          } ${!isEditingUsername ? 'bg-gray-50 dark:bg-dark-tertiary cursor-not-allowed' : ''}`}
+                        placeholder="username"
+                      />
+                      {/* Loading indicator */}
+                      {usernameValidation.isChecking && (
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-500 dark:border-orange-500"></div>
+                        </div>
+                      )}
+                      {/* Success/Error indicator - only show while editing */}
+                      {!usernameValidation.isChecking && profileSettings.username && isEditingUsername && (
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          {usernameValidation.isValid ? (
+                            <svg className="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : (
+                            <svg className="h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          )}
+                        </div>
+                      )}
                     </div>
-                    <input
-                      type="text"
-                      value={profileSettings.username}
-                      onChange={(e) => handleInputChange('username', e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
-                      className={`w-full pl-4 pr-8 py-3 border rounded-xl focus:ring-2 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-tertiary transition-colors duration-200 ${usernameValidation.isValid
-                        ? 'border-gray-300 dark:border-dark-card-border focus:ring-primary-500 dark:focus:ring-orange-500'
-                        : 'border-red-500 dark:border-red-400 focus:ring-red-500 dark:focus:ring-red-400'
-                        }`}
-                      placeholder="username"
-                    />
-                    {/* Loading indicator */}
-                    {usernameValidation.isChecking && (
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-500 dark:border-orange-500"></div>
-                      </div>
-                    )}
-                    {/* Success/Error indicator */}
-                    {!usernameValidation.isChecking && profileSettings.username && (
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        {usernameValidation.isValid ? (
-                          <svg className="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+
+                    {/* Edit/Save/Cancel buttons */}
+                    <div className="flex gap-2">
+                      {!isEditingUsername ? (
+                        <button
+                          type="button"
+                          onClick={() => setIsEditingUsername(true)}
+                          className="px-4 py-3 bg-gray-100 dark:bg-dark-secondary text-gray-600 dark:text-dark-text-secondary hover:bg-gray-200 dark:hover:bg-dark-tertiary rounded-xl transition-colors duration-200 border border-gray-200 dark:border-dark-card-border"
+                          title="تعديل اسم المستخدم"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
-                        ) : (
-                          <svg className="h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        )}
-                      </div>
-                    )}
+                        </button>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            onClick={handleSaveUsername}
+                            disabled={isSavingUsername || !usernameValidation.isValid}
+                            className="px-4 py-3 bg-green-500 text-white hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-colors duration-200"
+                            title="حفظ اسم المستخدم"
+                          >
+                            {isSavingUsername ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            ) : (
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsEditingUsername(false);
+                              // Reset to original username
+                              setProfileSettings(prev => ({
+                                ...prev,
+                                username: user?.username || ''
+                              }));
+                              setUsernameValidation({ isValid: true, message: '', isChecking: false });
+                            }}
+                            className="px-4 py-3 bg-gray-100 dark:bg-dark-secondary text-gray-600 dark:text-dark-text-secondary hover:bg-gray-200 dark:hover:bg-dark-tertiary rounded-xl transition-colors duration-200 border border-gray-200 dark:border-dark-card-border"
+                            title="إلغاء التعديل"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
 
-                  {/* Validation message */}
-                  {usernameValidation.message && (
+                  {/* Validation message - only show while editing */}
+                  {isEditingUsername && usernameValidation.message && (
                     <p className={`text-xs mt-2 ${usernameValidation.isValid
                       ? 'text-green-600 dark:text-green-400'
                       : 'text-red-600 dark:text-red-400'
@@ -865,32 +957,34 @@ export default function SettingsPage() {
                     سيتم استخدام هذا الاسم في رابط ملفك الشخصي: /creators/{profileSettings.username || profileSettings.email?.split('@')[0] || 'username'}
                   </p>
 
-                  {/* Username requirements */}
-                  <div className="mt-3 p-3 bg-gray-50 dark:bg-dark-secondary rounded-lg">
-                    <p className="text-xs font-medium text-gray-700 dark:text-dark-text-primary mb-2">متطلبات اسم المستخدم:</p>
-                    <ul className="text-xs text-gray-600 dark:text-dark-text-secondary space-y-1">
-                      <li className="flex items-start gap-2">
-                        <span className="text-primary-500 dark:text-orange-400 mt-0.5">•</span>
-                        <span>يجب أن يكون بين 3-20 حرف</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-primary-500 dark:text-orange-400 mt-0.5">•</span>
-                        <span>أحرف صغيرة وأرقام وشرطة سفلية فقط</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-primary-500 dark:text-orange-400 mt-0.5">•</span>
-                        <span>لا يمكن أن يبدأ أو ينتهي بشرطة سفلية</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-primary-500 dark:text-orange-400 mt-0.5">•</span>
-                        <span>لا يمكن أن يحتوي على شرطتين سفليتين متتاليتين</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-primary-500 dark:text-orange-400 mt-0.5">•</span>
-                        <span>يجب أن يكون فريداً وغير محجوز</span>
-                      </li>
-                    </ul>
-                  </div>
+                  {/* Username requirements - only show when editing */}
+                  {isEditingUsername && (
+                    <div className="mt-3 p-3 bg-gray-50 dark:bg-dark-secondary rounded-lg">
+                      <p className="text-xs font-medium text-gray-700 dark:text-dark-text-primary mb-2">متطلبات اسم المستخدم:</p>
+                      <ul className="text-xs text-gray-600 dark:text-dark-text-secondary space-y-1">
+                        <li className="flex items-start gap-2">
+                          <span className="text-primary-500 dark:text-orange-400 mt-0.5">•</span>
+                          <span>يجب أن يكون بين 3-20 حرف</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-primary-500 dark:text-orange-400 mt-0.5">•</span>
+                          <span>أحرف صغيرة وأرقام وشرطة سفلية فقط</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-primary-500 dark:text-orange-400 mt-0.5">•</span>
+                          <span>لا يمكن أن يبدأ أو ينتهي بشرطة سفلية</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-primary-500 dark:text-orange-400 mt-0.5">•</span>
+                          <span>لا يمكن أن يحتوي على شرطتين سفليتين متتاليتين</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-primary-500 dark:text-orange-400 mt-0.5">•</span>
+                          <span>يجب أن يكون فريداً وغير محجوز</span>
+                        </li>
+                      </ul>
+                    </div>
+                  )}
                 </div>
 
                 {/* Display Name */}
@@ -1035,46 +1129,6 @@ export default function SettingsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <label className="text-sm font-medium text-gray-700 dark:text-dark-text-primary">
-                        إظهار البريد الإلكتروني
-                      </label>
-                      <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">
-                        السماح للمستخدمين برؤية بريدك الإلكتروني
-                      </p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={profileSettings.showEmail}
-                        onChange={(e) => handleInputChange('showEmail', e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-orange-300 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-500 dark:peer-checked:bg-orange-500"></div>
-                    </label>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <label className="text-sm font-medium text-gray-700 dark:text-dark-text-primary">
-                        إظهار رقم الهاتف
-                      </label>
-                      <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">
-                        السماح للمستخدمين برؤية رقم هاتفك
-                      </p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={profileSettings.showPhone}
-                        onChange={(e) => handleInputChange('showPhone', e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-orange-300 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-500 dark:peer-checked:bg-orange-500"></div>
-                    </label>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <label className="text-sm font-medium text-gray-700 dark:text-dark-text-primary">
                         السماح بالرسائل
                       </label>
                       <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">
@@ -1106,26 +1160,6 @@ export default function SettingsPage() {
                         type="checkbox"
                         checked={profileSettings.showTemplateCount}
                         onChange={(e) => handleInputChange('showTemplateCount', e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-orange-300 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-500 dark:peer-checked:bg-orange-500"></div>
-                    </label>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <label className="text-sm font-medium text-gray-700 dark:text-dark-text-primary">
-                        إظهار تاريخ الانضمام
-                      </label>
-                      <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">
-                        إظهار تاريخ انضمامك للمنصة في ملفك الشخصي
-                      </p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={profileSettings.showJoinDate}
-                        onChange={(e) => handleInputChange('showJoinDate', e.target.checked)}
                         className="sr-only peer"
                       />
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-orange-300 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-500 dark:peer-checked:bg-orange-500"></div>

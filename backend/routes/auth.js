@@ -758,16 +758,25 @@ router.get('/google/callback', async (req, res) => {
 // Email configuration
 const createTransporter = () => {
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    throw new Error('Email configuration missing. Please set EMAIL_USER and EMAIL_PASS environment variables.');
+    throw new Error('Email configuration missing. Please set EMAIL_USER and EMAIL_PASS environment variables in your .env file.');
   }
 
-  return nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
-  });
+  try {
+    return nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      },
+      // Add timeout and retry options
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 10000
+    });
+  } catch (error) {
+    console.error('Failed to create email transporter:', error);
+    throw new Error('Failed to initialize email service. Please check your email configuration.');
+  }
 };
 
 // @route   POST /api/auth/forgot-password

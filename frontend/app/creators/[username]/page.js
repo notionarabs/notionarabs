@@ -8,6 +8,7 @@ import LoadingIndicator from '../../../components/LoadingIndicator';
 import { formatDate } from '../../../lib/dateUtils';
 import api from '../../../lib/api';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useToast } from '../../../contexts/ToastContext';
 import FollowButton from '../../../components/FollowButton';
 import RatingSystem from '../../../components/RatingSystem';
 import StarRating from '../../../components/StarRating';
@@ -16,6 +17,7 @@ export default function PublicProfilePage() {
   const params = useParams();
   const username = params.username;
   const { user, isAuthenticated } = useAuth();
+  const { showSuccess, showError } = useToast();
   const [creator, setCreator] = useState(null);
   const [creatorTemplates, setCreatorTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -218,9 +220,12 @@ export default function PublicProfilePage() {
         creatorId: creator.id
       };
 
+      console.log('Sending message with data:', submissionData);
 
       // Send message to creator via API
       const response = await api.post('/contact/creator', submissionData);
+
+      console.log('Message response:', response.data);
 
       if (response.data.success) {
         setIsSubmitting(false);
@@ -231,6 +236,9 @@ export default function PublicProfilePage() {
           subject: '',
           message: ''
         });
+        
+        // Show success toast
+        showSuccess('تم إرسال الرسالة بنجاح! سنقوم بإرسالها للمبدع وسيرد عليك قريباً');
 
         // Close modal after 3 seconds
         setTimeout(() => {
@@ -240,10 +248,18 @@ export default function PublicProfilePage() {
       } else {
         setIsSubmitting(false);
         setSubmitStatus('error');
+        console.error('Message submission failed:', response.data);
+        showError('حدث خطأ في إرسال الرسالة. يرجى المحاولة مرة أخرى');
       }
     } catch (error) {
       setIsSubmitting(false);
       setSubmitStatus('error');
+      console.error('Message submission error:', error);
+      console.error('Error response:', error.response?.data);
+      
+      // Show error toast with more specific message
+      const errorMessage = error.response?.data?.message || 'حدث خطأ في إرسال الرسالة. يرجى المحاولة مرة أخرى';
+      showError(errorMessage);
     }
   };
 

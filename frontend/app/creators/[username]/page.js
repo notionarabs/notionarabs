@@ -335,9 +335,9 @@ export default function PublicProfilePage() {
               )}
 
               {/* Bio */}
-              {creator.bio && (
+              {(creator.bio || creator.experience) && (
                 <p className="body-large mb-8">
-                  {creator.bio}
+                  {creator.bio || creator.experience}
                 </p>
               )}
 

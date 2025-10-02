@@ -81,21 +81,22 @@ const Toast = ({
   if (!show) return null;
 
   return (
-    <div className={`transform transition-all duration-300 ease-in-out ${show ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+    <div className={`transform transition-all duration-300 ease-in-out ${show ? 'translate-x-0 opacity-100' : 'rtl:translate-x-full ltr:-translate-x-full opacity-0'
       }`} dir="rtl">
-      <div className={`max-w-sm w-full ${styles.bg} ${styles.border} border rounded-lg shadow-lg p-4`}>
+      <div className={`max-w-sm w-full ${styles.bg} ${styles.border} border rounded-xl shadow-lg p-4 backdrop-blur-sm`}>
         <div className="flex items-start gap-3">
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 mt-0.5">
             {styles.icon}
           </div>
           <div className="flex-1">
-            <p className={`text-sm font-medium ${styles.text}`}>
+            <p className={`text-sm font-medium leading-relaxed ${styles.text}`}>
               {message}
             </p>
           </div>
           <button
             onClick={handleClose}
-            className={`flex-shrink-0 ${styles.text} hover:opacity-75 transition-opacity`}
+            className={`flex-shrink-0 ${styles.text} hover:opacity-75 transition-opacity p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/5`}
+            aria-label="إغلاق"
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />

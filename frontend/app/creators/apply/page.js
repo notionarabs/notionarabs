@@ -18,8 +18,6 @@ export default function CreatorApplyPage() {
     experience: '',
     specialties: [],
     motivation: '',
-    sampleWork: '',
-    availability: '',
     agreeToTerms: false
   });
 
@@ -911,7 +909,6 @@ export default function CreatorApplyPage() {
         motivation: formData.motivation,
         phone: `${formData.countryCode}${formData.phone}`,
         countryCode: formData.countryCode,
-        availability: formData.availability,
       });
 
       if (response.data.success) {
@@ -1268,9 +1265,9 @@ export default function CreatorApplyPage() {
                         <button
                           type="button"
                           onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
-                          className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 w-full pr-4 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border rounded-xl appearance-none text-right flex items-center justify-between"
+                          className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 w-full pr-4 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border rounded-xl appearance-none text-right flex items-center"
                         >
-                          <span className="flex-1 text-right truncate">
+                          <span className="flex-1 text-right truncate pr-8">
                             {countryOptions.find(c => c.code === formData.countryCode)?.name || 'Egypt'} ({formData.countryCode})
                           </span>
                           <div className="flex items-center gap-2">
@@ -1279,9 +1276,6 @@ export default function CreatorApplyPage() {
                               svg
                               style={{ width: '20px', height: '15px' }}
                             />
-                            <svg className="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                            </svg>
                           </div>
                         </button>
 
@@ -1393,7 +1387,7 @@ export default function CreatorApplyPage() {
                     <button
                       type="button"
                       onClick={() => setIsSpecialtyDropdownOpen(!isSpecialtyDropdownOpen)}
-                      className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 w-full pr-4 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border rounded-xl appearance-none text-right flex items-center justify-between"
+                      className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 w-full pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border rounded-xl appearance-none text-right flex items-center"
                     >
                       <span className="flex-1 text-right">
                         {formData.specialties.length > 0
@@ -1401,9 +1395,6 @@ export default function CreatorApplyPage() {
                           : 'اختر المجالات التي تختص بها'
                         }
                       </span>
-                      <svg className="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
                     </button>
 
                     {/* Dropdown Options */}

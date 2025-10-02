@@ -679,7 +679,7 @@ router.put('/profile/settings', auth, [
 
     res.json({
       success: true,
-      message: 'تم حفظ إعدادات الملف الشخصي بنجاح',
+      message: 'تم حفظ إعدادات الملف الشخصي بنجاح! 🎉',
       user
     });
   } catch (error) {
@@ -1391,7 +1391,7 @@ router.delete('/account', auth, async (req, res) => {
 
       res.json({
         success: true,
-        message: 'تم حذف حسابك وجميع البيانات المرتبطة به بنجاح'
+        message: 'تم حذف حسابك وجميع البيانات المرتبطة به بنجاح. نأسف لرؤيتك تترك مجتمع عرب نوشن! 😢'
       });
 
     } catch (error) {

@@ -72,10 +72,9 @@ All other routes require authentication, including but not limited to:
 ### User Routes
 
 - `/profile` - User profile
-- `/profile/settings` - Profile settings
+- `/settings` - Settings (includes profile and account settings)
 - `/profile/templates` - User's templates
 - `/profile/my-blogs` - User's blog posts
-- `/settings` - Account settings
 - `/orders` - Order history
 
 ### Admin Routes

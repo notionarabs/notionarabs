@@ -64,7 +64,7 @@ router.get('/', async (req, res) => {
 
     // Get creators with pagination
     const creators = await User.find(query)
-      .select('name username displayName email bio profilePicture specialties rating followers createdAt templateCount totalEarnings')
+      .select('name username displayName email bio profilePicture specialties rating followers createdAt templateCount totalEarnings experience motivation')
       .sort(sort)
       .skip(skip)
       .limit(limit)

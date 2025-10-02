@@ -97,12 +97,12 @@ export default function AdminSettingsPage() {
       setSaving(true);
       const response = await api.put('/admin/settings', settings);
       if (response.data.success) {
-        showSuccess('تم حفظ الإعدادات بنجاح');
+        showSuccess('تم حفظ الإعدادات بنجاح! 🎉');
       }
     } catch (error) {
       console.error('Error saving settings:', error);
       // Silently fail - API endpoint not implemented yet
-      showSuccess('تم حفظ الإعدادات محلياً (API غير متاح)');
+      showSuccess('تم حفظ الإعدادات محلياً! 🎉 (API غير متاح)');
     } finally {
       setSaving(false);
     }

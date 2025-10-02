@@ -236,7 +236,6 @@ export default function CreatorsPage() {
                       <h3 className="font-bold text-base sm:text-lg md:text-xl text-accent-500 dark:text-dark-text-primary group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors mb-1">
                         {creator.name}
                       </h3>
-                      <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary mb-2">{creator.bio || 'مبدع محتوى'}</p>
                       <div className="flex items-center gap-1 sm:gap-2">
                         <StarRating rating={creator.rating} />
                         <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">({creator.followers || 0} متابع)</span>
@@ -246,9 +245,11 @@ export default function CreatorsPage() {
 
                   {/* Card Content - Flexible */}
                   <div className="flex-1 flex flex-col">
-                    <p className="text-accent-600 dark:text-dark-text-secondary mb-4 sm:mb-6 text-xs sm:text-sm leading-relaxed">
-                      {creator.bio || 'مبدع محتوى متخصص في إنشاء قوالب مبتكرة'}
-                    </p>
+                    {(creator.bio || creator.experience) && (
+                      <p className="text-accent-600 dark:text-dark-text-secondary mb-4 sm:mb-6 text-xs sm:text-sm leading-relaxed">
+                        {creator.bio || creator.experience}
+                      </p>
+                    )}
 
                     {/* Specialties */}
                     {creator.specialties && creator.specialties.length > 0 && (

@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import api from '../lib/api';
-import FollowButton from '../components/FollowButton';
-import { Settings, BookOpen, Briefcase, Sunrise, Palette, Laptop, Dumbbell, PiggyBank, FolderTree, CalendarDays, LayoutDashboard, Users, Newspaper, Check, X, Youtube, Facebook, Send } from 'lucide-react';
+import { Settings, BookOpen, Briefcase, Sunrise, Palette, Laptop, Dumbbell, PiggyBank, FolderTree, CalendarDays, LayoutDashboard, Users, Check, Youtube, Facebook, Send } from 'lucide-react';
 
 // Fallback data for when API fails
 const fallbackTemplates = [
@@ -82,13 +81,6 @@ const categorySlugMap = {
   'الحياة': 'life',
   'الشخصي': 'personal'
 };
-
-const creators = [
-  { name: "ليلى أحمد", templates: 20, bio: "قوالب الإنتاجية", imgSrc: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face", rating: 4.9 },
-  { name: "عمر خالد", templates: 15, bio: "إعدادات الدراسة والبحث", imgSrc: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face", rating: 4.8 },
-  { name: "فاطمة نور", templates: 25, bio: "لوحات العمل والأعمال", imgSrc: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face", rating: 4.7 },
-];
-
 
 export default function HomePage() {
   const [featuredTemplates, setFeaturedTemplates] = useState([]);

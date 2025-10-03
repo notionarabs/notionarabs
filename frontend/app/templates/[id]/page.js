@@ -75,6 +75,7 @@ export default function TemplateDetailPage() {
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
   const [isDownloaded, setIsDownloaded] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -177,6 +178,30 @@ export default function TemplateDetailPage() {
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [isLightboxOpen, template]);
+
+  // Helper function to get YouTube embed URL
+  const getYouTubeEmbedUrl = (url) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return match && match[2].length === 11 ? `https://www.youtube.com/embed/${match[2]}` : null;
+  };
+
+  // Helper function to get Vimeo embed URL
+  const getVimeoEmbedUrl = (url) => {
+    const regExp = /vimeo\.com\/(\d+)/;
+    const match = url.match(regExp);
+    return match ? `https://player.vimeo.com/video/${match[1]}` : null;
+  };
+
+  // Helper function to get video embed URL
+  const getVideoEmbedUrl = (url) => {
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      return getYouTubeEmbedUrl(url);
+    } else if (url.includes('vimeo.com')) {
+      return getVimeoEmbedUrl(url);
+    }
+    return null;
+  };
 
   // Fetch template data from API
   useEffect(() => {
@@ -388,7 +413,7 @@ export default function TemplateDetailPage() {
       <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
         <div className="container-custom">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
-            {/* Images */}
+            {/* Images and Video */}
             <div className="lg:col-span-3">
               <div className="mb-4">
                 <div className="w-full h-96 bg-white dark:bg-gray-900 rounded-xl flex items-center justify-center overflow-hidden relative">
@@ -399,41 +424,82 @@ export default function TemplateDetailPage() {
                     </div>
                   )}
 
-                  <button
-                    type="button"
-                    onClick={() => setIsLightboxOpen(true)}
-                    className="absolute inset-0 flex items-center justify-center cursor-zoom-in"
-                    title="عرض بملء الشاشة"
-                  >
-                    <Image
-                      key={`${selectedImage}-${template.previewImages?.[selectedImage] || template.previewImage}`}
-                      src={
-                        template.previewImages && template.previewImages.length > selectedImage
-                          ? template.previewImages[selectedImage]
-                          : template.previewImage || template.imgSrc || '/placeholder-template.jpg'
-                      }
-                      alt={template.title}
-                      width={2400}
-                      height={1800}
-                      className="w-full h-full object-contain animate-fade-in"
-                      quality={100}
+                  {/* Video Player */}
+                  {showVideo && template.explanationVideo && getVideoEmbedUrl(template.explanationVideo) ? (
+                    <iframe
+                      src={getVideoEmbedUrl(template.explanationVideo)}
+                      title={`فيديو توضيحي - ${template.title}`}
+                      className="w-full h-full"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
                     />
-                  </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setIsLightboxOpen(true)}
+                      className="absolute inset-0 flex items-center justify-center cursor-zoom-in"
+                      title="عرض بملء الشاشة"
+                    >
+                      <Image
+                        key={`${selectedImage}-${template.previewImages?.[selectedImage] || template.previewImage}`}
+                        src={
+                          template.previewImages && template.previewImages.length > selectedImage
+                            ? template.previewImages[selectedImage]
+                            : template.previewImage || template.imgSrc || '/placeholder-template.jpg'
+                        }
+                        alt={template.title}
+                        width={2400}
+                        height={1800}
+                        className="w-full h-full object-contain animate-fade-in"
+                        quality={100}
+                      />
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {/* Thumbnail Images - Only show if we have multiple images */}
-              {template.previewImages && template.previewImages.length > 1 ? (
+              {/* Thumbnail Images and Video - Show if we have multiple images or video */}
+              {(template.previewImages && template.previewImages.length > 1) || template.explanationVideo ? (
                 <div className="grid grid-cols-4 gap-2">
-                  {template.previewImages.map((imageSrc, index) => (
+                  {/* Video Thumbnail */}
+                  {template.explanationVideo && getVideoEmbedUrl(template.explanationVideo) && (
+                    <button
+                      onClick={() => {
+                        setShowVideo(true);
+                        setSelectedImage(-1); // Special index for video
+                      }}
+                      className={`relative overflow-hidden rounded-lg transition-all duration-300 transform ${showVideo
+                        ? 'ring-2 ring-orange-500 scale-105 shadow-lg'
+                        : 'hover:opacity-80 hover:scale-102 hover:shadow-md'
+                        }`}
+                    >
+                      <div className="w-full h-20 bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30 flex items-center justify-center relative">
+                        <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-6 h-6 bg-white/80 rounded-full flex items-center justify-center">
+                            <svg className="w-3 h-3 text-red-600 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  )}
+
+                  {/* Image Thumbnails */}
+                  {template.previewImages && template.previewImages.map((imageSrc, index) => (
                     <button
                       key={index}
                       onClick={() => {
                         setIsImageLoading(true);
                         setSelectedImage(index);
+                        setShowVideo(false);
                         setTimeout(() => setIsImageLoading(false), 300);
                       }}
-                      className={`relative overflow-hidden rounded-lg transition-all duration-300 transform ${selectedImage === index
+                      className={`relative overflow-hidden rounded-lg transition-all duration-300 transform ${selectedImage === index && !showVideo
                         ? 'ring-2 ring-orange-500 scale-105 shadow-lg'
                         : 'hover:opacity-80 hover:scale-102 hover:shadow-md'
                         }`}
@@ -929,15 +995,26 @@ export default function TemplateDetailPage() {
           )}
 
           <div className="max-w-7xl w-full h-full flex items-center justify-center">
-            <img
-              src={
-                template?.previewImages && template.previewImages.length > selectedImage
-                  ? template.previewImages[selectedImage]
-                  : template?.previewImage || template?.imgSrc || '/placeholder-template.jpg'
-              }
-              alt={template?.title}
-              className="max-w-full max-h-full object-contain"
-            />
+            {showVideo && template.explanationVideo && getVideoEmbedUrl(template.explanationVideo) ? (
+              <iframe
+                src={getVideoEmbedUrl(template.explanationVideo)}
+                title={`فيديو توضيحي - ${template.title}`}
+                className="max-w-full max-h-full w-full h-full"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <img
+                src={
+                  template?.previewImages && template.previewImages.length > selectedImage
+                    ? template.previewImages[selectedImage]
+                    : template?.previewImage || template?.imgSrc || '/placeholder-template.jpg'
+                }
+                alt={template?.title}
+                className="max-w-full max-h-full object-contain"
+              />
+            )}
           </div>
         </div>
       )}

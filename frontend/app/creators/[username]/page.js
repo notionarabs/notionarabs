@@ -35,6 +35,7 @@ export default function PublicProfilePage() {
   const [userRating, setUserRating] = useState(null);
   const [creatorRatings, setCreatorRatings] = useState([]);
   const [showAllReviews, setShowAllReviews] = useState(false);
+  const [medianRating, setMedianRating] = useState(0);
 
   useEffect(() => {
     if (username) {
@@ -87,6 +88,9 @@ export default function PublicProfilePage() {
       setLoading(true);
       const response = await api.get(`/creators/${username}`);
       setCreator(response.data.creator);
+
+      // Set median rating from creator data
+      setMedianRating(response.data.creator.rating || 0);
 
       // Fetch creator's templates
       try {
@@ -441,6 +445,17 @@ export default function PublicProfilePage() {
                   <div className="text-center">
                     <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary-500 dark:text-orange-500 mb-2">{creator.templateCount || creatorTemplates.length || 0}</div>
                     <div className="text-base sm:text-lg text-gray-600 dark:text-dark-text-secondary">قوالب منشورة</div>
+                  </div>
+                  <div className="w-px h-12 sm:h-16 bg-gray-300 dark:bg-gray-600"></div>
+                </>
+              )}
+              {medianRating > 0 && (
+                <>
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <StarRating rating={medianRating} />
+                    </div>
+                    <div className="text-base sm:text-lg text-gray-600 dark:text-dark-text-secondary">التقييم المتوسط</div>
                   </div>
                   <div className="w-px h-12 sm:h-16 bg-gray-300 dark:bg-gray-600"></div>
                 </>

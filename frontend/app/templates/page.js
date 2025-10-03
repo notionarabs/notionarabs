@@ -316,17 +316,17 @@ function TemplatesPageContent() {
                 <Link key={template._id} href={`/templates/${template.slug || template._id}`}>
                   <div className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
                     {/* Template Image */}
-                    <div className="relative overflow-hidden rounded-lg">
+                    <div className="relative overflow-hidden rounded-lg h-48">
                       {template.previewImage ? (
                         <Image
                           src={template.previewImage}
                           alt={template.title}
                           width={400}
                           height={300}
-                          className="w-full h-auto object-contain"
+                          className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full aspect-video flex items-center justify-center bg-gray-50 dark:bg-gray-700">
+                        <div className="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-700">
                           <LayoutDashboard className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-primary-600 dark:text-primary-400" />
                         </div>
                       )}

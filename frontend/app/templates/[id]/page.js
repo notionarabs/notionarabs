@@ -7,9 +7,7 @@ import { useParams } from 'next/navigation';
 import { formatDate } from '../../../lib/dateUtils';
 import api from '../../../lib/api';
 import LoadingIndicator from '../../../components/LoadingIndicator';
-import RatingSystem from '../../../components/RatingSystem';
 import RatingCommentSystem from '../../../components/RatingCommentSystem';
-import CommentsDisplay from '../../../components/CommentsDisplay';
 import StarRating from '../../../components/StarRating';
 import { useAuth } from '../../../contexts/AuthContext';
 import { TemplateSchema, BreadcrumbSchema } from '../../../components/StructuredData';
@@ -358,7 +356,7 @@ export default function TemplateDetailPage() {
             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
           </svg>
         ))}
-        <span className="text-sm text-accent-600 dark:text-dark-text-secondary mr-1">{rating}</span>
+        <span className="text-sm text-accent-600 dark:text-dark-text-secondary mr-1">{rating.toFixed(1)}</span>
       </div>
     );
   };
@@ -740,7 +738,7 @@ export default function TemplateDetailPage() {
 
               {/* Rating and Reviews */}
               <div className="flex items-center gap-4 mb-6">
-                <StarRating rating={ratingsSummary.averageRating || template.rating || 0} />
+                <StarRating rating={ratingsSummary.averageRating || template.rating || 0} showNumber={false} />
                 <span className="text-sm text-accent-600 dark:text-dark-text-secondary">
                   ({ratingsSummary.totalRatings || 0} تقييم)
                 </span>
@@ -895,7 +893,7 @@ export default function TemplateDetailPage() {
                   <div className="flex justify-between items-center">
                     <span className="text-accent-600 dark:text-dark-text-secondary">التقييم</span>
                     <div className="flex items-center gap-2">
-                      <StarRating rating={template.rating || 0} />
+                      <StarRating rating={ratingsSummary.averageRating || template.rating || 0} showNumber={false} />
                     </div>
                   </div>
 

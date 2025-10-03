@@ -126,7 +126,7 @@ router.post('/creator', [
         try {
           const transporter = createTransporter();
           await transporter.verify();
-          
+
           const mailOptions = {
             from: process.env.EMAIL_USER,
             to: creator.email,
@@ -231,7 +231,7 @@ router.post('/general', [
         try {
           const transporter = createTransporter();
           await transporter.verify();
-          
+
           const mailOptions = {
             from: process.env.EMAIL_USER,
             to: process.env.SUPPORT_EMAIL || process.env.EMAIL_USER,

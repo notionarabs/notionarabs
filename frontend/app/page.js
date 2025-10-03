@@ -203,72 +203,91 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
 
-      {/* Hero Section */}
-      <section className="bg-secondary-50 dark:bg-dark-primary py-20 md:py-32">
-        <div className="container-custom">
+      {/* Enhanced Hero Section with Notion-inspired Animations */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-12 sm:py-16 md:py-20 lg:py-24 xl:py-28 transition-colors duration-300">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+          {/* Floating Notion-style Blocks */}
+          <div className="hidden sm:block absolute top-20 left-10 w-16 h-16 bg-white/60 dark:bg-dark-tertiary/60 rounded-lg shadow-lg dark:shadow-dark-medium floating-block notion-block-hover"></div>
+          <div className="hidden sm:block absolute top-40 right-20 w-12 h-12 bg-gray-100/70 dark:bg-dark-quaternary/70 rounded-md shadow-md dark:shadow-dark-soft floating-block-delayed notion-block-hover"></div>
+          <div className="hidden md:block absolute bottom-32 left-1/4 w-20 h-20 bg-white/50 dark:bg-dark-tertiary/50 rounded-xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover"></div>
+          <div className="hidden lg:block absolute top-1/3 right-1/3 w-14 h-14 bg-gray-50/80 dark:bg-dark-quaternary/80 rounded-lg shadow-md dark:shadow-dark-soft floating-block-delayed notion-block-hover"></div>
+          <div className="hidden md:block absolute bottom-20 right-10 w-18 h-18 bg-white/40 dark:bg-dark-tertiary/40 rounded-2xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover"></div>
 
+          {/* Gradient Orbs */}
+          <div className="hidden sm:block absolute top-0 left-0 w-96 h-96 bg-gradient-to-r from-blue-100/30 to-purple-100/30 dark:from-orange-500/10 dark:to-orange-600/10 rounded-full blur-3xl motion-safe:animate-pulse"></div>
+          <div className="hidden sm:block absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-l from-gray-100/40 to-black/20 dark:from-dark-tertiary/20 dark:to-dark-primary/40 rounded-full blur-3xl motion-safe:animate-pulse"></div>
+
+          {/* Subtle Grid Pattern */}
+          <div className="absolute inset-0 opacity-[0.015] dark:opacity-[0.05]" style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(0,0,0,0.3) 1px, transparent 0)`,
+            backgroundSize: '20px 20px'
+          }}></div>
+        </div>
+
+        <div className="container-custom relative z-10">
           {/* Hero Content */}
           <div className="text-center">
             <div className="max-w-4xl mx-auto">
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-100 dark:bg-orange-900/30 text-primary-800 dark:text-orange-300 rounded-full text-sm font-medium mb-8">
-                <div className="w-2 h-2 bg-primary-500 dark:bg-orange-500 rounded-full"></div>
+              <div className="inline-flex items-center px-4 py-2 bg-white/90 dark:bg-dark-tertiary/90 backdrop-blur-sm text-accent-500 dark:text-dark-text-primary rounded-full text-sm font-medium mb-6 text-reveal shadow-lg dark:shadow-dark-medium border border-primary-200 dark:border-orange-500/30 transition-colors duration-300">
+                <span className="w-2 h-2 bg-primary-500 dark:bg-orange-500 rounded-full ml-2 pulse-glow"></span>
                 قوالب عربية عالية الجودة
               </div>
 
               {/* Main Heading */}
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-accent-500 dark:text-dark-text-primary mb-6 leading-tight">
-                المنصة العربية الأولى
-                <br />
-                <span className="text-primary-500 dark:text-orange-500">لقوالب نوشن</span>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-accent-500 dark:text-dark-text-primary mb-4 sm:mb-6 text-reveal-delayed leading-tight tracking-tight">
+                <div className="block">
+                  <div className="block">المنصة العربية الأولى لقوالب</div>
+                  <div className="block mt-2 md:mt-3 lg:mt-4">نوشن</div>
+                </div>
               </h1>
 
               {/* Description */}
-              <p className="text-lg md:text-xl text-accent-600 dark:text-dark-text-secondary mb-12 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary mb-6 sm:mb-8 max-w-xs sm:max-w-2xl md:max-w-3xl mx-auto text-reveal-delayed-2 leading-relaxed px-2 sm:px-0">
                 اكتشف قوالب نوشن عربية عالية الجودة مصممة للعمل والدراسة والتنظيم الشخصي. انضم لمجتمع المبدعين العرب وابدأ رحلتك نحو الإنتاجية.
               </p>
 
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
+              <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-8 sm:mb-12 text-reveal-delayed-3">
                 <Link
                   href="/templates"
-                  className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-primary-500 dark:bg-orange-500 text-white rounded-xl hover:bg-primary-600 dark:hover:bg-orange-600 transition-colors duration-200 text-lg font-semibold shadow-lg hover:shadow-xl"
+                  className="inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-primary-500 dark:bg-orange-500 text-white rounded-xl hover:bg-primary-600 dark:hover:bg-orange-600 transition-all duration-300 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
                   استكشف القوالب
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </Link>
                 <Link
                   href="/creators/apply"
-                  className="inline-flex items-center justify-center px-8 py-4 bg-white dark:bg-dark-tertiary text-accent-600 dark:text-dark-text-primary rounded-xl border-2 border-primary-200 dark:border-orange-500/30 hover:bg-primary-50 dark:hover:bg-orange-900/20 transition-colors duration-200 text-lg font-semibold"
+                  className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-white/90 dark:bg-dark-tertiary/90 backdrop-blur-sm text-accent-600 dark:text-dark-text-primary rounded-xl border-2 border-primary-200 dark:border-orange-500/30 hover:bg-primary-50 dark:hover:bg-orange-900/20 transition-all duration-300 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
                   انضم كمبدع
                 </Link>
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
                 <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-primary-500 dark:text-orange-500 mb-2">{stats.templates}</div>
-                  <div className="text-sm text-accent-500 dark:text-dark-text-secondary">قالب متاح</div>
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-500 dark:text-orange-500 mb-1 sm:mb-2">{stats.templates}</div>
+                  <div className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-secondary">قالب متاح</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">{stats.creators}</div>
-                  <div className="text-sm text-accent-500 dark:text-dark-text-secondary">مبدع نشط</div>
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">{stats.creators}</div>
+                  <div className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-secondary">مبدع نشط</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">{stats.downloads}</div>
-                  <div className="text-sm text-accent-500 dark:text-dark-text-secondary">تحميل</div>
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">{stats.downloads}</div>
+                  <div className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-secondary">تحميل</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">{stats.specialties}</div>
-                  <div className="text-sm text-accent-500 dark:text-dark-text-secondary">مجال متخصص</div>
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">{stats.specialties}</div>
+                  <div className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-secondary">مجال متخصص</div>
                 </div>
               </div>
             </div>
           </div>
-
         </div>
       </section>
 

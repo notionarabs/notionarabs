@@ -88,6 +88,7 @@ const creatorRoutes = require('./routes/creators');
 const uploadRoutes = require('./routes/upload');
 const contactRoutes = require('./routes/contact');
 const ratingRoutes = require('./routes/ratings');
+const commentRoutes = require('./routes/comments');
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/templates', templateRoutes);
@@ -97,6 +98,7 @@ app.use('/api/creators', creatorRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/ratings', ratingRoutes);
+app.use('/api/comments', commentRoutes);
 
 // Basic route
 app.get('/', (req, res) => {

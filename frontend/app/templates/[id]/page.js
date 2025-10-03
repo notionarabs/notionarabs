@@ -8,6 +8,8 @@ import { formatDate } from '../../../lib/dateUtils';
 import api from '../../../lib/api';
 import LoadingIndicator from '../../../components/LoadingIndicator';
 import RatingSystem from '../../../components/RatingSystem';
+import RatingCommentSystem from '../../../components/RatingCommentSystem';
+import CommentsDisplay from '../../../components/CommentsDisplay';
 import StarRating from '../../../components/StarRating';
 import { useAuth } from '../../../contexts/AuthContext';
 import { TemplateSchema, BreadcrumbSchema } from '../../../components/StructuredData';
@@ -80,11 +82,15 @@ export default function TemplateDetailPage() {
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [userRating, setUserRating] = useState(null);
+  const [userComment, setUserComment] = useState(null);
   const [templateRatings, setTemplateRatings] = useState([]);
+  const [templateComments, setTemplateComments] = useState([]);
   const [ratingsSummary, setRatingsSummary] = useState({ averageRating: 0, totalRatings: 0 });
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [userHasTemplate, setUserHasTemplate] = useState(false);
   const [checkingOwnership, setCheckingOwnership] = useState(false);
+  const [hasSubmittedRating, setHasSubmittedRating] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   // Check if user already owns this template
   const checkUserOwnership = async (templateId) => {
@@ -134,20 +140,37 @@ export default function TemplateDetailPage() {
     }
   };
 
-  // Load ratings for the template
+  // Load ratings and comments for the template
   const loadRatings = async (templateId) => {
     try {
-      // Load user's rating if authenticated
+      // Load user's rating and comment if authenticated
       if (isAuthenticated) {
-        const userRatingResponse = await api.get(`/ratings/user/template/${templateId}`);
+        const [userRatingResponse, userCommentResponse] = await Promise.all([
+          api.get(`/ratings/user/template/${templateId}`),
+          api.get(`/comments/user/template/${templateId}`)
+        ]);
+
         if (userRatingResponse.data.success) {
           const ratingData = userRatingResponse.data.rating;
           setUserRating({ rating: ratingData?.rating || 0, review: ratingData?.review || '' });
+          // If user has already rated, mark as submitted
+          if (ratingData?.rating > 0) {
+            setHasSubmittedRating(true);
+          }
+        }
+
+        if (userCommentResponse.data.success) {
+          const commentData = userCommentResponse.data.comment;
+          setUserComment(commentData);
         }
       }
 
-      // Load all ratings for the template
-      const ratingsResponse = await api.get(`/ratings/template/${templateId}?limit=5`);
+      // Load all ratings and comments for the template
+      const [ratingsResponse, commentsResponse] = await Promise.all([
+        api.get(`/ratings/template/${templateId}?limit=5`),
+        api.get(`/comments/template/${templateId}?limit=10`)
+      ]);
+
       if (ratingsResponse.data.success) {
         setTemplateRatings(ratingsResponse.data.ratings);
         if (typeof ratingsResponse.data.averageRating !== 'undefined' && typeof ratingsResponse.data.totalRatings !== 'undefined') {
@@ -158,9 +181,76 @@ export default function TemplateDetailPage() {
           setTemplate(prev => ({ ...prev, rating: ratingsResponse.data.averageRating || 0 }));
         }
       }
+
+      if (commentsResponse.data.success) {
+        setTemplateComments(commentsResponse.data.comments || []);
+      }
     } catch (error) {
       // Error loading ratings
     }
+  };
+
+  // Get current user info
+  const getCurrentUser = async () => {
+    if (!isAuthenticated) return;
+
+    try {
+      const response = await api.get('/auth/me');
+      if (response.data.success) {
+        setCurrentUser(response.data.user);
+      }
+    } catch (error) {
+      console.error('Error getting current user:', error);
+    }
+  };
+
+  // Handle comment like
+  const handleCommentLike = async (commentId) => {
+    if (!isAuthenticated) {
+      window.location.href = '/login';
+      return;
+    }
+
+    try {
+      const response = await api.post(`/comments/${commentId}/like`);
+      if (response.data.success) {
+        // Update the comment's like count and like status in the local state
+        setTemplateComments(prev => prev.map(comment => {
+          if (comment._id === commentId) {
+            // Toggle the like for current user
+            const currentUserId = currentUser?._id || currentUser?.id;
+            const isLiked = comment.likes?.some(like =>
+              like.user?._id === currentUserId || like.user === currentUserId
+            );
+
+            let newLikes;
+            if (isLiked) {
+              // Remove like
+              newLikes = comment.likes.filter(like =>
+                like.user?._id !== currentUserId && like.user !== currentUserId
+              );
+            } else {
+              // Add like
+              newLikes = [...(comment.likes || []), { user: currentUserId }];
+            }
+
+            return { ...comment, likes: newLikes };
+          }
+          return comment;
+        }));
+      }
+    } catch (error) {
+      console.error('Error liking comment:', error);
+    }
+  };
+
+  // Check if current user has liked a comment
+  const isCommentLikedByUser = (comment) => {
+    if (!currentUser || !comment.likes) return false;
+    const currentUserId = currentUser._id || currentUser.id;
+    return comment.likes.some(like =>
+      like.user?._id === currentUserId || like.user === currentUserId
+    );
   };
 
   // Lightbox keyboard controls
@@ -247,6 +337,13 @@ export default function TemplateDetailPage() {
       fetchTemplate();
     }
   }, [templateIdentifier, isAuthenticated]);
+
+  // Load current user info when authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      getCurrentUser();
+    }
+  }, [isAuthenticated]);
 
   const StarRating = ({ rating }) => {
     return (
@@ -652,43 +749,6 @@ export default function TemplateDetailPage() {
                 </span>
               </div>
 
-              {/* Interactive Rating System */}
-              {(isDownloaded || userHasTemplate) && (!userRating || !userRating.rating) && (
-                <div className="mb-6 p-4 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
-                  <h3 className="text-lg font-semibold text-accent-700 dark:text-dark-text-primary mb-3">
-                    قيم هذا القالب
-                  </h3>
-                  <RatingSystem
-                    targetType="template"
-                    targetId={template._id}
-                    initialRating={template.rating || 0}
-                    initialUserRating={userRating ? { rating: userRating.rating, review: userRating.review } : null}
-                    onRatingChange={(data) => {
-                      // Update template rating
-                      setTemplate(prev => ({
-                        ...prev,
-                        rating: data.averageRating,
-                        reviews: data.totalRatings
-                      }));
-                      setRatingsSummary({ averageRating: data.averageRating || 0, totalRatings: data.totalRatings || 0 });
-                      // Update user rating state
-                      setUserRating({ rating: data?.rating || 0, review: data?.review || '' });
-                      // Reload ratings
-                      loadRatings(template._id);
-                    }}
-                    className="mb-3"
-                    size="large"
-                  />
-                  {!isAuthenticated && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      <Link href="/login" className="text-blue-600 dark:text-blue-400 hover:underline">
-                        سجل الدخول
-                      </Link>
-                      {' '}لتتمكن من تقييم القوالب
-                    </p>
-                  )}
-                </div>
-              )}
 
               {/* Price - All templates are now free */}
               <div className="flex items-center gap-3 mb-6">
@@ -765,6 +825,46 @@ export default function TemplateDetailPage() {
                 </div>
               )}
 
+              {/* Rating and Comments Section */}
+              {(isDownloaded || userHasTemplate) && !hasSubmittedRating && (
+                <div className="mb-6">
+                  <div className="p-6 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
+                    <h3 className="text-lg font-semibold text-accent-700 dark:text-dark-text-primary mb-4">
+                      قيم هذا القالب وشاركنا رأيك
+                    </h3>
+                    <RatingCommentSystem
+                      targetType="template"
+                      targetId={template._id}
+                      initialRating={template.rating || 0}
+                      initialUserRating={userRating ? { rating: userRating.rating, review: userRating.review } : null}
+                      initialUserComment={userComment}
+                      onRatingChange={(data) => {
+                        // Update template rating
+                        setTemplate(prev => ({
+                          ...prev,
+                          rating: data.averageRating,
+                          reviews: data.totalRatings
+                        }));
+                        setRatingsSummary({ averageRating: data.averageRating || 0, totalRatings: data.totalRatings || 0 });
+                        // Update user rating state
+                        setUserRating({ rating: data?.rating || 0, review: data?.review || '' });
+                        // Mark as submitted to hide the section
+                        setHasSubmittedRating(true);
+                        // Reload ratings
+                        loadRatings(template._id);
+                      }}
+                      onCommentChange={(data) => {
+                        // Update user comment state
+                        setUserComment(data.comment);
+                        // Reload ratings and comments
+                        loadRatings(template._id);
+                      }}
+                      size="large"
+                    />
+                  </div>
+                </div>
+              )}
+
 
             </div>
           </div>
@@ -780,33 +880,9 @@ export default function TemplateDetailPage() {
               <h2 className="heading-2 mb-6">تفاصيل القالب</h2>
               <div className="prose prose-accent dark:prose-dark max-w-none">
                 <p className="text-accent-600 dark:text-dark-text-secondary leading-relaxed mb-6">
-                  {template.longDescription || template.description || 'لا يوجد وصف مفصل متاح لهذا القالب.'}
+                  {template.features || template.description || 'لا يوجد وصف مفصل متاح لهذا القالب.'}
                 </p>
 
-                {template.features && (() => {
-                  // Convert features string to array if needed and remove duplicates
-                  const featuresArray = typeof template.features === 'string'
-                    ? template.features.split('\n').filter(feature => feature.trim())
-                    : Array.isArray(template.features)
-                      ? template.features
-                      : [];
-
-                  // Remove duplicates by converting to Set and back to Array
-                  const uniqueFeatures = [...new Set(featuresArray.map(feature => feature.trim()).filter(feature => feature))];
-
-                  return uniqueFeatures.length > 0 && (
-                    <ul className="space-y-3">
-                      {uniqueFeatures.map((feature, index) => (
-                        <li key={`${feature}-${index}`} className="flex items-start gap-3">
-                          <svg className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                          <span className="text-accent-600 dark:text-dark-text-secondary">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  );
-                })()}
               </div>
             </div>
 
@@ -849,71 +925,171 @@ export default function TemplateDetailPage() {
         </div>
       </section>
 
-      {/* Reviews Section */}
-      {templateRatings.length > 0 && (
+      {/* Reviews and Comments Section */}
+      {(templateRatings.length > 0 || templateComments.length > 0) && (
         <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
           <div className="container-custom">
-            <h2 className="heading-2 mb-8">تقييمات المستخدمين</h2>
+            <h2 className="heading-2 mb-8">تقييمات المستخدمين والتعليقات</h2>
 
-            <div className="grid gap-6">
-              {templateRatings.slice(0, showAllReviews ? templateRatings.length : 3).map((rating, index) => (
-                <div key={rating._id || index} className="p-6 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center">
-                      {rating.user?.profilePicture ? (
-                        <Image
-                          src={rating.user.profilePicture}
-                          alt={rating.user?.name || 'مستخدم'}
-                          width={40}
-                          height={40}
-                          className="w-full h-full object-cover"
-                          unoptimized
-                          onError={(e) => {
-                            // Hide broken image to reveal fallback initial
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
-                      ) : null}
-                      {!rating.user?.profilePicture && (
-                        <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
-                          {rating.user?.name?.charAt(0)?.toUpperCase() || 'م'}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="font-medium text-accent-700 dark:text-dark-text-primary">
-                          {rating.user?.name || 'مستخدم'}
-                        </span>
-                        <StarRating rating={rating.rating} size="small" showNumber={false} />
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {formatDate(rating.createdAt)}
-                        </span>
+            <div className="space-y-4">
+              {/* Combined Ratings and Comments */}
+              {(() => {
+                // Create a map of user reviews combining ratings and comments
+                const userReviews = new Map();
+
+                // Add ratings to the map
+                templateRatings.forEach(rating => {
+                  const userId = rating.user?._id || rating.user?.id;
+                  if (userId) {
+                    userReviews.set(userId, {
+                      ...userReviews.get(userId),
+                      user: rating.user,
+                      rating: rating.rating,
+                      ratingId: rating._id,
+                      ratingDate: rating.createdAt,
+                      review: rating.review
+                    });
+                  }
+                });
+
+                // Add comments to the map
+                templateComments.forEach(comment => {
+                  const userId = comment.user?._id || comment.user?.id;
+                  if (userId) {
+                    userReviews.set(userId, {
+                      ...userReviews.get(userId),
+                      user: comment.user,
+                      comment: comment.content,
+                      commentId: comment._id,
+                      commentDate: comment.createdAt,
+                      likes: comment.likes
+                    });
+                  }
+                });
+
+                // Convert map to array and sort by most recent activity
+                const combinedReviews = Array.from(userReviews.values()).sort((a, b) => {
+                  const aDate = new Date(Math.max(new Date(a.ratingDate || 0), new Date(a.commentDate || 0)));
+                  const bDate = new Date(Math.max(new Date(b.ratingDate || 0), new Date(b.commentDate || 0)));
+                  return bDate - aDate;
+                });
+
+                const reviewsToShow = showAllReviews ? combinedReviews : combinedReviews.slice(0, 5);
+
+                return (
+                  <div className="grid gap-4">
+                    {reviewsToShow.map((review, index) => (
+                      <div key={review.ratingId || review.commentId || index} className="p-4 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center">
+                            {review.user?.profilePicture ? (
+                              <Image
+                                src={review.user.profilePicture}
+                                alt={review.user?.name || 'مستخدم'}
+                                width={40}
+                                height={40}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                  e.target.nextSibling.style.display = 'flex';
+                                }}
+                              />
+                            ) : null}
+
+                            {/* Fallback avatar with initial letter */}
+                            <div className={`w-full h-full flex items-center justify-center ${review.user?.profilePicture ? 'hidden' : 'flex'}`}>
+                              <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
+                                {review.user?.name?.charAt(0)?.toUpperCase() || 'م'}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <span className="font-medium text-accent-700 dark:text-dark-text-primary">
+                                {review.user?.name || review.user?.displayName || 'مستخدم'}
+                              </span>
+                              {review.rating && (
+                                <StarRating rating={review.rating} size="small" showNumber={false} />
+                              )}
+                              <span className="text-sm text-gray-500 dark:text-gray-400">
+                                {formatDate(Math.max(new Date(review.ratingDate || 0), new Date(review.commentDate || 0)))}
+                              </span>
+                            </div>
+
+                            {/* Rating Review */}
+                            {review.review && (
+                              <div className="mb-2">
+                                <p className="text-sm text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                                  {review.review}
+                                </p>
+                              </div>
+                            )}
+
+                            {/* Comment */}
+                            {review.comment && (
+                              <div className={`${review.review ? 'mt-3 pt-3 border-t border-gray-200 dark:border-dark-card-border' : ''}`}>
+                                <p className="text-sm text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                                  {review.comment}
+                                </p>
+                              </div>
+                            )}
+
+                            {/* Actions */}
+                            <div className="flex items-center gap-3 mt-2">
+                              {review.commentId && (() => {
+                                const comment = templateComments.find(c => c._id === review.commentId);
+                                const isLiked = comment ? isCommentLikedByUser(comment) : false;
+
+                                return (
+                                  <button
+                                    onClick={() => handleCommentLike(review.commentId)}
+                                    className={`flex items-center gap-1 text-xs transition-colors ${isLiked
+                                      ? 'text-red-500 dark:text-red-400'
+                                      : 'text-gray-500 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400'
+                                      }`}
+                                  >
+                                    <svg
+                                      className="w-3 h-3"
+                                      fill={isLiked ? "currentColor" : "none"}
+                                      stroke="currentColor"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                      />
+                                    </svg>
+                                    <span>{review.likes?.length || 0}</span>
+                                  </button>
+                                );
+                              })()}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      {rating.review && (
-                        <p className="text-accent-600 dark:text-dark-text-secondary leading-relaxed">
-                          {rating.review}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
+                    ))}
 
-              {templateRatings.length > 3 && (
-                <div className="text-center">
-                  <button
-                    onClick={() => setShowAllReviews(!showAllReviews)}
-                    className="px-6 py-3 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-xl hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-colors duration-200"
-                  >
-                    {showAllReviews ? 'عرض أقل' : `عرض جميع التقييمات (${templateRatings.length})`}
-                  </button>
-                </div>
-              )}
+                    {combinedReviews.length > 5 && (
+                      <div className="text-center">
+                        <button
+                          onClick={() => setShowAllReviews(!showAllReviews)}
+                          className="px-4 py-2 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-lg hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-colors duration-200 text-sm"
+                        >
+                          {showAllReviews ? 'عرض أقل' : `عرض جميع التقييمات والتعليقات (${combinedReviews.length})`}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </section>
       )}
+
 
       {/* Related Templates */}
       <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">

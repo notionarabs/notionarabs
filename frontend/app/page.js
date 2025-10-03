@@ -203,203 +203,72 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
 
-      {/* Enhanced Hero Section with Notion-inspired Animations */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-12 sm:py-16 md:py-20 lg:py-24 xl:py-28 transition-colors duration-300">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
-          {/* Floating Notion-style Blocks */}
-          <div className="hidden sm:block absolute top-20 left-10 w-16 h-16 bg-white/60 dark:bg-dark-tertiary/60 rounded-lg shadow-lg dark:shadow-dark-medium floating-block notion-block-hover"></div>
-          <div className="hidden sm:block absolute top-40 right-20 w-12 h-12 bg-gray-100/70 dark:bg-dark-quaternary/70 rounded-md shadow-md dark:shadow-dark-soft floating-block-delayed notion-block-hover"></div>
-          <div className="hidden md:block absolute bottom-32 left-1/4 w-20 h-20 bg-white/50 dark:bg-dark-tertiary/50 rounded-xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover"></div>
-          <div className="hidden lg:block absolute top-1/3 right-1/3 w-14 h-14 bg-gray-50/80 dark:bg-dark-quaternary/80 rounded-lg shadow-md dark:shadow-dark-soft floating-block-delayed notion-block-hover"></div>
-          <div className="hidden md:block absolute bottom-20 right-10 w-18 h-18 bg-white/40 dark:bg-dark-tertiary/40 rounded-2xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover"></div>
+      {/* Hero Section */}
+      <section className="bg-secondary-50 dark:bg-dark-primary py-20 md:py-32">
+        <div className="container-custom">
 
-          {/* Gradient Orbs */}
-          <div className="hidden sm:block absolute top-0 left-0 w-96 h-96 bg-gradient-to-r from-blue-100/30 to-purple-100/30 dark:from-orange-500/10 dark:to-orange-600/10 rounded-full blur-3xl motion-safe:animate-pulse"></div>
-          <div className="hidden sm:block absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-l from-gray-100/40 to-black/20 dark:from-dark-tertiary/20 dark:to-dark-primary/40 rounded-full blur-3xl motion-safe:animate-pulse"></div>
-
-          {/* Subtle Grid Pattern */}
-          <div className="absolute inset-0 opacity-[0.015] dark:opacity-[0.05]" style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(0,0,0,0.3) 1px, transparent 0)`,
-            backgroundSize: '20px 20px'
-          }}></div>
-        </div>
-
-        <div className="container-custom relative">
-
-          {/* Full Width Content Layout */}
-          <div className="text-center mb-12">
-            {/* النصوص */}
+          {/* Hero Content */}
+          <div className="text-center">
             <div className="max-w-4xl mx-auto">
-              <div className="inline-flex items-center px-4 py-2 bg-white/90 dark:bg-dark-tertiary/90 backdrop-blur-sm text-accent-500 dark:text-dark-text-primary rounded-full text-sm font-medium mb-6 text-reveal shadow-lg dark:shadow-dark-medium border border-primary-200 dark:border-orange-500/30 transition-colors duration-300">
-                <span className="w-2 h-2 bg-primary-500 dark:bg-orange-500 rounded-full ml-2 pulse-glow"></span>
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-100 dark:bg-orange-900/30 text-primary-800 dark:text-orange-300 rounded-full text-sm font-medium mb-8">
+                <div className="w-2 h-2 bg-primary-500 dark:bg-orange-500 rounded-full"></div>
                 قوالب عربية عالية الجودة
               </div>
 
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-accent-500 dark:text-dark-text-primary mb-4 sm:mb-6 text-reveal-delayed leading-tight tracking-tight">
-                <div className="block">
-                  <div className="block">المنصة العربية الأولى لقوالب</div>
-                  <div className="block mt-2 md:mt-3 lg:mt-4">نوشن</div>
-                </div>
+              {/* Main Heading */}
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-accent-500 dark:text-dark-text-primary mb-6 leading-tight">
+                المنصة العربية الأولى
+                <br />
+                <span className="text-primary-500 dark:text-orange-500">لقوالب نوشن</span>
               </h1>
 
-              <p className="text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary mb-6 sm:mb-8 max-w-xs sm:max-w-2xl md:max-w-3xl mx-auto text-reveal-delayed-2 leading-relaxed px-2 sm:px-0">
+              {/* Description */}
+              <p className="text-lg md:text-xl text-accent-600 dark:text-dark-text-secondary mb-12 max-w-3xl mx-auto leading-relaxed">
                 اكتشف قوالب نوشن عربية عالية الجودة مصممة للعمل والدراسة والتنظيم الشخصي. انضم لمجتمع المبدعين العرب وابدأ رحلتك نحو الإنتاجية.
               </p>
 
-              {/* CTAs */}
-              <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-8 sm:mb-12 text-reveal-delayed-3 px-4 sm:px-0">
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
                 <Link
                   href="/templates"
-                  className="btn-primary text-base sm:text-lg md:text-xl px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 shadow-large hover:shadow-glow notion-block-hover focus-visible:ring-2 focus-visible:ring-primary-400 w-full sm:w-auto text-center"
+                  className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-primary-500 dark:bg-orange-500 text-white rounded-xl hover:bg-primary-600 dark:hover:bg-orange-600 transition-colors duration-200 text-lg font-semibold shadow-lg hover:shadow-xl"
                 >
                   استكشف القوالب
-                  <svg className="inline-block mr-2 w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </Link>
                 <Link
                   href="/creators/apply"
-                  className="btn-secondary text-base sm:text-lg md:text-xl px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 bg-white/90 dark:bg-dark-tertiary/90 backdrop-blur-sm border-primary-200 dark:border-orange-500/30 notion-block-hover shadow-lg dark:shadow-dark-medium hover:shadow-xl dark:hover:shadow-dark-large hover:bg-primary-50 dark:hover:bg-dark-quaternary transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-primary-200 dark:focus-visible:ring-orange-500/40 w-full sm:w-auto text-center"
+                  className="inline-flex items-center justify-center px-8 py-4 bg-white dark:bg-dark-tertiary text-accent-600 dark:text-dark-text-primary rounded-xl border-2 border-primary-200 dark:border-orange-500/30 hover:bg-primary-50 dark:hover:bg-orange-900/20 transition-colors duration-200 text-lg font-semibold"
                 >
                   انضم كمبدع
                 </Link>
               </div>
 
-
-              {/* Enhanced Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-12 sm:mb-16 px-4 sm:px-0">
-                <div className="card-featured p-3 sm:p-4 md:p-6 stats-counter">
-                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-primary-500 dark:text-orange-500 mb-1 sm:mb-2">{stats.templates}</div>
-                  <div className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-secondary">قالب متاح</div>
+              {/* Stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div className="text-center">
+                  <div className="text-3xl md:text-4xl font-bold text-primary-500 dark:text-orange-500 mb-2">{stats.templates}</div>
+                  <div className="text-sm text-accent-500 dark:text-dark-text-secondary">قالب متاح</div>
                 </div>
-                <div className="card-featured p-3 sm:p-4 md:p-6 stats-counter">
-                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">{stats.creators}</div>
-                  <div className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-secondary">مبدع نشط</div>
+                <div className="text-center">
+                  <div className="text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">{stats.creators}</div>
+                  <div className="text-sm text-accent-500 dark:text-dark-text-secondary">مبدع نشط</div>
                 </div>
-                <div className="card-featured p-3 sm:p-4 md:p-6 stats-counter">
-                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">{stats.downloads}</div>
-                  <div className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-secondary">تحميل</div>
+                <div className="text-center">
+                  <div className="text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">{stats.downloads}</div>
+                  <div className="text-sm text-accent-500 dark:text-dark-text-secondary">تحميل</div>
                 </div>
-                <div className="card-featured p-3 sm:p-4 md:p-6 stats-counter">
-                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">{stats.specialties}</div>
-                  <div className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-secondary">مجال متخصص</div>
+                <div className="text-center">
+                  <div className="text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">{stats.specialties}</div>
+                  <div className="text-sm text-accent-500 dark:text-dark-text-secondary">مجال متخصص</div>
                 </div>
               </div>
-
             </div>
           </div>
 
-          {/* Full Width Interactive Demo Section */}
-          <div className="relative" aria-hidden="true">
-            {/* Floating UI Elements - More strategically placed */}
-            <div className="hidden lg:block absolute top-0 left-10 w-24 h-24 bg-white/80 dark:bg-dark-tertiary/80 backdrop-blur-sm rounded-xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
-              <div className="p-4">
-                <div className="w-8 h-8 bg-blue-500 rounded-lg mb-2"></div>
-                <div className="w-12 h-2 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
-                <div className="w-8 h-2 bg-gray-300 dark:bg-dark-text-quaternary rounded"></div>
-              </div>
-            </div>
-
-            <div className="hidden lg:block absolute top-20 right-20 w-20 h-20 bg-white/70 dark:bg-dark-tertiary/70 backdrop-blur-sm rounded-lg shadow-md dark:shadow-dark-soft floating-block-delayed notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
-              <div className="p-3">
-                <div className="w-6 h-6 bg-green-500 rounded-md mb-2"></div>
-                <div className="w-10 h-1.5 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
-                <div className="w-6 h-1.5 bg-gray-300 dark:bg-dark-text-quaternary rounded"></div>
-              </div>
-            </div>
-
-            <div className="hidden lg:block absolute bottom-20 left-1/4 w-16 h-16 bg-white/60 dark:bg-dark-tertiary/60 backdrop-blur-sm rounded-lg shadow-lg dark:shadow-dark-medium floating-block notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
-              <div className="p-2">
-                <div className="w-4 h-4 bg-purple-500 rounded mb-1"></div>
-                <div className="w-8 h-1 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
-                <div className="w-6 h-1 bg-gray-300 dark:bg-dark-text-quaternary rounded"></div>
-              </div>
-            </div>
-
-            <div className="hidden xl:block absolute top-1/3 right-1/3 w-28 h-28 bg-white/50 dark:bg-dark-tertiary/50 backdrop-blur-sm rounded-2xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
-              <div className="p-4">
-                <div className="w-10 h-10 bg-orange-500 rounded-lg mb-3"></div>
-                <div className="w-16 h-2 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
-                <div className="w-12 h-2 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
-                <div className="w-8 h-2 bg-gray-300 dark:bg-dark-text-quaternary rounded"></div>
-              </div>
-            </div>
-
-            <div className="hidden xl:block absolute bottom-1/3 right-1/4 w-18 h-18 bg-white/60 dark:bg-dark-tertiary/60 backdrop-blur-sm rounded-lg shadow-md dark:shadow-dark-soft floating-block-delayed notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
-              <div className="p-3">
-                <div className="w-6 h-6 bg-red-500 rounded-md mb-2"></div>
-                <div className="w-12 h-1.5 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
-                <div className="w-8 h-1.5 bg-gray-300 dark:bg-dark-text-quaternary rounded"></div>
-              </div>
-            </div>
-
-            {/* Three Simple Navigation Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 max-w-5xl mx-auto px-4 sm:px-0">
-              {/* Card 1: Browse Templates */}
-              <Link href="/templates" className="group">
-                <div className="relative bg-gradient-to-br from-primary-500 to-primary-600 dark:from-orange-500 dark:to-orange-600 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-large dark:shadow-dark-large notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:-translate-y-2 min-h-[250px] sm:min-h-[300px]">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-lg sm:rounded-xl mb-4 sm:mb-6 flex items-center justify-center">
-                    <LayoutDashboard className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-                  </div>
-
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2 sm:mb-4">تصفح القوالب</h3>
-                  <p className="text-orange-100 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">
-                    اكتشف آلاف القوالب الجاهزة للعمل والدراسة والحياة اليومية
-                  </p>
-
-                  <div className="flex items-center text-white group-hover:translate-x-2 transition-transform duration-300">
-                    <span className="font-semibold text-sm sm:text-base">ابدأ الآن</span>
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </div>
-                </div>
-              </Link>
-
-              {/* Card 2: Creators */}
-              <Link href="/creators" className="group">
-                <div className="relative card-featured p-4 sm:p-6 md:p-8 notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:-translate-y-2 min-h-[250px] sm:min-h-[300px]">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary-500 rounded-lg sm:rounded-xl mb-4 sm:mb-6 flex items-center justify-center shadow-soft">
-                    <Users className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-                  </div>
-
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-accent-500 dark:text-dark-text-primary mb-2 sm:mb-3">المبدعين</h3>
-                  <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary mb-4 sm:mb-6 leading-relaxed">
-                    تصفح حسب الفئة - العمل، الدراسة، الأعمال، والصحة
-                  </p>
-
-                  <div className="flex items-center text-primary-500 group-hover:translate-x-1 transition-transform duration-300">
-                    <span className="text-xs sm:text-sm font-semibold">استكشف</span>
-                    <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </div>
-                </div>
-              </Link>
-
-              {/* Card 3: Blog */}
-              <Link href="/blog" className="group">
-                <div className="relative bg-gradient-to-br from-secondary-600 to-secondary-700 dark:from-dark-tertiary dark:to-dark-quaternary rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-large dark:shadow-dark-large notion-block-hover transition-all duration-300 transform group-hover:scale-105 group-hover:-translate-y-2 min-h-[250px] sm:min-h-[300px]">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-lg sm:rounded-xl mb-4 sm:mb-6 flex items-center justify-center">
-                    <Newspaper className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-                  </div>
-
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2 sm:mb-4">المدونة</h3>
-                  <p className="text-gray-100 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">
-                    نصائح وتوجيهات لاستخدام نوشن وأفضل الممارسات
-                  </p>
-
-                  <div className="flex items-center text-white group-hover:translate-x-2 transition-transform duration-300">
-                    <span className="font-semibold text-sm sm:text-base">اقرأ المزيد</span>
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </div>
-                </div>
-              </Link>
-            </div>
-          </div>
         </div>
       </section>
 

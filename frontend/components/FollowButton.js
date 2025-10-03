@@ -88,8 +88,8 @@ const FollowButton = ({
       onClick={handleFollowToggle}
       disabled={loading}
       className={`inline-flex items-center gap-2 font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${isFollowing
-          ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-gray-500'
-          : 'bg-blue-500 hover:bg-blue-600 text-white focus:ring-blue-500'
+        ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-gray-500'
+        : 'bg-blue-500 hover:bg-blue-600 text-white focus:ring-blue-500'
         } ${sizeClasses[size]} ${loading ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
       title={isFollowing ? `إلغاء متابعة ${creatorName}` : `متابعة ${creatorName}`}
     >

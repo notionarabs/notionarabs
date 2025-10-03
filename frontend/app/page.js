@@ -93,7 +93,7 @@ const creators = [
 export default function HomePage() {
   const [featuredTemplates, setFeaturedTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ templates: 0, creators: 0 });
+  const [stats, setStats] = useState({ templates: 0, creators: 0, specialties: 0, downloads: 0 });
   const [topCreators, setTopCreators] = useState([]);
   const [categoryTotals, setCategoryTotals] = useState({});
   const [loadingCreators, setLoadingCreators] = useState(true);
@@ -140,6 +140,8 @@ export default function HomePage() {
 
         const templatesCountReq = api.get('/templates?limit=1');
         const creatorsReq = api.get('/creators?limit=3&sortBy=popular');
+        const specialtiesCountReq = api.get('/creators/stats/specialties');
+        const downloadsCountReq = api.get('/creators/stats/downloads');
         const categoryCountReqs = categoriesArabic.map((name) =>
           api
             .get(`/templates?category=${encodeURIComponent(name)}&limit=1`)
@@ -147,15 +149,19 @@ export default function HomePage() {
             .catch(() => ({ name, total: 0 }))
         );
 
-        const [templatesRes, creatorsRes, categoryTotalsArr] = await Promise.all([
+        const [templatesRes, creatorsRes, specialtiesRes, downloadsRes, categoryTotalsArr] = await Promise.all([
           templatesCountReq,
           creatorsReq,
+          specialtiesCountReq,
+          downloadsCountReq,
           Promise.all(categoryCountReqs)
         ]);
 
         const totalTemplates = templatesRes?.data?.pagination?.total || 0;
         const totalCreators = creatorsRes?.data?.pagination?.total || 0;
-        setStats({ templates: totalTemplates, creators: totalCreators });
+        const totalSpecialties = specialtiesRes?.data?.count || 0;
+        const totalDownloads = downloadsRes?.data?.count || 0;
+        setStats({ templates: totalTemplates, creators: totalCreators, specialties: totalSpecialties, downloads: totalDownloads });
 
         const creatorsList = creatorsRes?.data?.creators || [];
         setTopCreators(creatorsList);
@@ -262,7 +268,7 @@ export default function HomePage() {
 
 
               {/* Enhanced Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-12 sm:mb-16 px-4 sm:px-0">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-12 sm:mb-16 px-4 sm:px-0">
                 <div className="card-featured p-3 sm:p-4 md:p-6 stats-counter">
                   <div className="text-xl sm:text-2xl md:text-3xl font-bold text-primary-500 dark:text-orange-500 mb-1 sm:mb-2">{stats.templates}</div>
                   <div className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-secondary">قالب متاح</div>
@@ -272,8 +278,12 @@ export default function HomePage() {
                   <div className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-secondary">مبدع نشط</div>
                 </div>
                 <div className="card-featured p-3 sm:p-4 md:p-6 stats-counter">
-                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">+{Math.max(1, Math.min(stats.templates, 999))}</div>
-                  <div className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-secondary">قوالب جديدة</div>
+                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">{stats.downloads}</div>
+                  <div className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-secondary">تحميل</div>
+                </div>
+                <div className="card-featured p-3 sm:p-4 md:p-6 stats-counter">
+                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">{stats.specialties}</div>
+                  <div className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-secondary">مجال متخصص</div>
                 </div>
               </div>
 

@@ -373,4 +373,84 @@ router.post('/:id/follow', auth, async (req, res) => {
 });
 
 
+// @route   GET /api/creators/stats/specialties
+// @desc    Get count of unique specialties
+// @access  Public
+router.get('/stats/specialties', async (req, res) => {
+  try {
+    // Get all unique specialties from approved creators
+    const specialties = await User.aggregate([
+      {
+        $match: {
+          creatorStatus: 'approved',
+          isActive: true,
+          isEmailVerified: true,
+          specialties: { $exists: true, $ne: [] }
+        }
+      },
+      {
+        $unwind: '$specialties'
+      },
+      {
+        $group: {
+          _id: '$specialties'
+        }
+      },
+      {
+        $count: 'total'
+      }
+    ]);
+
+    const count = specialties.length > 0 ? specialties[0].total : 0;
+
+    res.json({
+      success: true,
+      count
+    });
+
+  } catch (error) {
+    console.error('Get specialties count error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   GET /api/creators/stats/downloads
+// @desc    Get total template downloads count
+// @access  Public
+router.get('/stats/downloads', async (req, res) => {
+  try {
+    // Get total downloads from all approved templates
+    const downloads = await Template.aggregate([
+      {
+        $match: {
+          status: 'approved'
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: '$downloads' }
+        }
+      }
+    ]);
+
+    const count = downloads.length > 0 ? downloads[0].total : 0;
+
+    res.json({
+      success: true,
+      count
+    });
+
+  } catch (error) {
+    console.error('Get downloads count error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
 module.exports = router;

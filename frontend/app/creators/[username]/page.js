@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import { MessageCircle } from 'lucide-react';
 import LoadingIndicator from '../../../components/LoadingIndicator';
 import { formatDate } from '../../../lib/dateUtils';
 import api from '../../../lib/api';
@@ -344,18 +345,15 @@ export default function PublicProfilePage() {
             {/* Profile Section */}
             <div className="relative text-center">
               {/* Action Buttons - Top Right */}
-              <div className="absolute top-0 right-0 flex items-center gap-3 sm:gap-4">
+              <div className="absolute top-0 right-0 flex items-center gap-2 sm:gap-3">
                 {/* Message Button */}
                 {creator.allowMessages !== false && (
                   <button
                     onClick={() => setShowMessageModal(true)}
-                    className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 text-white rounded-lg hover:from-primary-600 hover:to-accent-600 dark:hover:from-orange-600 dark:hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-primary-300 dark:focus:ring-orange-300 transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base font-medium"
+                    className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 text-white rounded-lg hover:from-primary-600 hover:to-accent-600 dark:hover:from-orange-600 dark:hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-primary-300 dark:focus:ring-orange-300 transition-all duration-200 shadow-md hover:shadow-lg"
                     title="إرسال رسالة"
                   >
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                    </svg>
-                    <span>رسالة</span>
+                    <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
                   </button>
                 )}
 
@@ -369,9 +367,9 @@ export default function PublicProfilePage() {
                       followers: prev.followers + (isFollowing ? 1 : -1)
                     }));
                   }}
-                  className="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-medium rounded-lg"
-                  size="default"
-                  showText={true}
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg"
+                  size="icon"
+                  showText={false}
                 />
               </div>
 
@@ -383,10 +381,10 @@ export default function PublicProfilePage() {
                     alt={`صورة ${creator.displayName || creator.name}`}
                     width={160}
                     height={160}
-                    className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl object-cover border-4 border-white dark:border-dark-card-border shadow-xl"
+                    className="w-36 h-36 sm:w-40 sm:h-40 rounded-2xl object-cover border-4 border-white dark:border-dark-card-border shadow-xl"
                   />
                 ) : (
-                  <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center shadow-xl border-4 border-white dark:border-dark-card-border">
+                  <div className="w-36 h-36 sm:w-40 sm:h-40 rounded-2xl bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center shadow-xl border-4 border-white dark:border-dark-card-border">
                     <span className="text-4xl sm:text-5xl font-bold text-primary-500 dark:text-orange-400">
                       {(creator.displayName || creator.name)?.charAt(0)?.toUpperCase()}
                     </span>
@@ -395,8 +393,8 @@ export default function PublicProfilePage() {
 
                 {/* Verified Badge */}
                 {creator.creatorStatus === 'approved' && (
-                  <div className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-lg">
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <div className="absolute -top-2 -right-2 sm:-top-2 sm:-right-2 w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-lg">
+                    <svg className="w-4 h-4 sm:w-4 sm:h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                     </svg>
                   </div>

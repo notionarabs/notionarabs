@@ -282,7 +282,7 @@ router.get('/:id', async (req, res) => {
         name: creator.name,
         username: creator.username || creator.email?.split('@')[0], // Use email username part as fallback
         displayName: creator.displayName || creator.name, // Use name as fallback for displayName
-        email: creator.email, // Always include email for mailto functionality
+        email: creator.contactEmail || creator.email, // Use contactEmail if available, fallback to regular email
         showEmail: creator.showEmail, // Include showEmail setting for display purposes
         phone: creator.showPhone ? creator.phone : null, // Only include phone if showPhone is true
         bio: creator.bio,

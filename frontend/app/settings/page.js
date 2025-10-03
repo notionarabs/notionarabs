@@ -46,6 +46,7 @@ export default function SettingsPage() {
     profilePicture: '',
     socialLinks: [],
     allowMessages: true,
+    contactEmail: '',
     showTemplateCount: true,
     // Specialties field
     specialties: [],
@@ -1208,6 +1209,25 @@ export default function SettingsPage() {
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-orange-300 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-500 dark:peer-checked:bg-orange-500"></div>
                     </label>
                   </div>
+
+                  {/* Contact Email Field - Only show if allowMessages is enabled */}
+                  {profileSettings.allowMessages && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700 dark:text-dark-text-primary">
+                        البريد الإلكتروني للتواصل
+                      </label>
+                      <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">
+                        البريد الإلكتروني الذي سيستخدمه المستخدمون للتواصل معك (اختياري)
+                      </p>
+                      <input
+                        type="email"
+                        value={profileSettings.contactEmail || ''}
+                        onChange={(e) => handleInputChange('contactEmail', e.target.value)}
+                        placeholder="example@email.com"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 focus:border-transparent bg-white dark:bg-dark-tertiary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-quaternary transition-all duration-200"
+                      />
+                    </div>
+                  )}
 
                   <div className="flex items-center justify-between">
                     <div>

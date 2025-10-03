@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MessageCircle, Palette, TrendingUp, Code, BookOpen, ClipboardList, Package } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import LoadingIndicator from '../../../components/LoadingIndicator';
 import { formatDate } from '../../../lib/dateUtils';
 import api from '../../../lib/api';
@@ -260,43 +260,53 @@ export default function PublicProfilePage() {
 
             {/* Left Column - Creator Identity */}
             <div className="space-y-6">
-              {/* Profile Picture */}
-              <div className="relative inline-block">
-                {creator.profilePicture ? (
-                  <Image
-                    src={creator.profilePicture}
-                    alt={`صورة ${creator.displayName || creator.name}`}
-                    width={120}
-                    height={120}
-                    className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-4 border-white dark:border-dark-card-border shadow-lg"
-                  />
-                ) : (
-                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center shadow-lg border-4 border-white dark:border-dark-card-border">
-                    <span className="text-3xl sm:text-4xl font-bold text-primary-500 dark:text-orange-400">
-                      {(creator.displayName || creator.name)?.charAt(0)?.toUpperCase()}
-                    </span>
-                  </div>
-                )}
+              {/* Profile Picture and Name */}
+              <div className="flex items-center gap-6">
+                {/* Profile Picture */}
+                <div className="relative">
+                  {creator.profilePicture ? (
+                    <Image
+                      src={creator.profilePicture}
+                      alt={`صورة ${creator.displayName || creator.name}`}
+                      width={120}
+                      height={120}
+                      className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-4 border-white dark:border-dark-card-border shadow-lg"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center shadow-lg border-4 border-white dark:border-dark-card-border">
+                      <span className="text-3xl sm:text-4xl font-bold text-primary-500 dark:text-orange-400">
+                        {(creator.displayName || creator.name)?.charAt(0)?.toUpperCase()}
+                      </span>
+                    </div>
+                  )}
 
-                {/* Verified Badge */}
-                {creator.creatorStatus === 'approved' && (
-                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-lg">
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                  </div>
-                )}
+                  {/* Verified Badge */}
+                  {creator.creatorStatus === 'approved' && (
+                    <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-lg">
+                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+
+                {/* Creator Name and Handle */}
+                <div className="flex-1">
+                  <h1 className="text-3xl sm:text-4xl font-bold text-accent-500 dark:text-dark-text-primary leading-tight">
+                    {creator.displayName || creator.name}
+                  </h1>
+                  <p className="text-base text-accent-600 dark:text-dark-text-secondary leading-none text-right" dir="ltr">
+                    @{creator.username || creator.name?.toLowerCase()}
+                  </p>
+                </div>
               </div>
 
-              {/* Creator Name and Handle */}
-              <div>
-                <h1 className="text-4xl sm:text-5xl font-bold text-accent-500 dark:text-dark-text-primary leading-tight">
-                  {creator.displayName || creator.name}
-                </h1>
-                <p className="text-lg text-accent-600 dark:text-dark-text-secondary leading-none text-right" dir="ltr">
-                  @{creator.username || creator.name?.toLowerCase()}
+              {/* Bio */}
+              {(creator.bio || creator.experience) && (
+                <p className="text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                  {creator.bio || creator.experience}
                 </p>
-              </div>
+              )}
 
               {/* Stats */}
               <div className="flex items-center gap-6 py-4">
@@ -339,13 +349,6 @@ export default function PublicProfilePage() {
                 </div>
               )}
 
-              {/* Bio */}
-              {(creator.bio || creator.experience) && (
-                <p className="text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed">
-                  {creator.bio || creator.experience}
-                </p>
-              )}
-
               {/* Action Buttons */}
               <div className="flex items-center gap-3">
                 {/* Contact Creator Button */}
@@ -379,52 +382,15 @@ export default function PublicProfilePage() {
               {creator.specialties && creator.specialties.length > 0 && (
                 <div>
                   <h3 className="text-sm font-medium text-gray-500 dark:text-dark-text-quaternary mb-4">المجالات المتخصصة</h3>
-                  <div className="space-y-3">
-                    {creator.specialties.slice(0, 3).map((specialty, index) => {
-                      // Map specialty to appropriate icon based on content
-                      const getSpecialtyIcon = (specialty) => {
-                        const specialtyLower = specialty.toLowerCase();
-                        if (specialtyLower.includes('design') || specialtyLower.includes('تصميم') || specialtyLower.includes('creative') || specialtyLower.includes('إبداع')) {
-                          return 'design';
-                        } else if (specialtyLower.includes('marketing') || specialtyLower.includes('تسويق') || specialtyLower.includes('business') || specialtyLower.includes('أعمال')) {
-                          return 'marketing';
-                        } else if (specialtyLower.includes('tech') || specialtyLower.includes('تقنية') || specialtyLower.includes('programming') || specialtyLower.includes('برمجة')) {
-                          return 'tech';
-                        } else if (specialtyLower.includes('education') || specialtyLower.includes('تعليم') || specialtyLower.includes('learning') || specialtyLower.includes('تعلم')) {
-                          return 'education';
-                        } else if (specialtyLower.includes('productivity') || specialtyLower.includes('إنتاجية') || specialtyLower.includes('organization') || specialtyLower.includes('تنظيم')) {
-                          return 'productivity';
-                        } else {
-                          return 'default';
-                        }
-                      };
-
-                      const iconType = getSpecialtyIcon(specialty);
-
-                      const getIconComponent = (type) => {
-                        switch (type) {
-                          case 'design':
-                            return <Palette className="w-4 h-4 text-gray-600 dark:text-dark-text-secondary" />;
-                          case 'marketing':
-                            return <TrendingUp className="w-4 h-4 text-gray-600 dark:text-dark-text-secondary" />;
-                          case 'tech':
-                            return <Code className="w-4 h-4 text-gray-600 dark:text-dark-text-secondary" />;
-                          case 'education':
-                            return <BookOpen className="w-4 h-4 text-gray-600 dark:text-dark-text-secondary" />;
-                          case 'productivity':
-                            return <ClipboardList className="w-4 h-4 text-gray-600 dark:text-dark-text-secondary" />;
-                          default:
-                            return <Package className="w-4 h-4 text-gray-600 dark:text-dark-text-secondary" />;
-                        }
-                      };
-
-                      return (
-                        <div key={index} className="flex items-center gap-3 px-4 py-2 bg-gray-100 dark:bg-dark-tertiary rounded-lg hover:bg-gray-200 dark:hover:bg-dark-quaternary transition-colors duration-200">
-                          {getIconComponent(iconType)}
-                          <span className="text-sm font-medium text-accent-600 dark:text-dark-text-secondary">{specialty}</span>
-                        </div>
-                      );
-                    })}
+                  <div className="flex flex-wrap gap-2">
+                    {creator.specialties.slice(0, 5).map((specialty, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-dark-tertiary text-gray-700 dark:text-dark-text-secondary"
+                      >
+                        {specialty}
+                      </span>
+                    ))}
                   </div>
                 </div>
               )}

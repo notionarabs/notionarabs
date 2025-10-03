@@ -501,6 +501,7 @@ router.get('/profile/settings', auth, async (req, res) => {
       showEmail: user.showEmail || false,
       showPhone: user.showPhone || false,
       allowMessages: user.allowMessages !== false, // default true
+      contactEmail: user.contactEmail || '',
       showTemplateCount: user.showTemplateCount !== false, // default true
       showJoinDate: user.showJoinDate !== false, // default true
       customMessage: user.customMessage || '',
@@ -609,6 +610,10 @@ router.put('/profile/settings', auth, [
     .optional()
     .isIn(['public', 'followers', 'private'])
     .withMessage('نوع الرؤية غير صحيح'),
+  body('contactEmail')
+    .optional()
+    .isEmail()
+    .withMessage('البريد الإلكتروني للتواصل غير صحيح'),
   // Specialties validation
   body('specialties')
     .optional()
@@ -637,6 +642,7 @@ router.put('/profile/settings', auth, [
       showEmail,
       showPhone,
       allowMessages,
+      contactEmail,
       showTemplateCount,
       showJoinDate,
       customMessage,
@@ -669,6 +675,7 @@ router.put('/profile/settings', auth, [
     if (showEmail !== undefined) updateData.showEmail = showEmail;
     if (showPhone !== undefined) updateData.showPhone = showPhone;
     if (allowMessages !== undefined) updateData.allowMessages = allowMessages;
+    if (contactEmail !== undefined) updateData.contactEmail = contactEmail;
     if (showTemplateCount !== undefined) updateData.showTemplateCount = showTemplateCount;
     if (showJoinDate !== undefined) updateData.showJoinDate = showJoinDate;
     if (customMessage !== undefined) updateData.customMessage = customMessage;

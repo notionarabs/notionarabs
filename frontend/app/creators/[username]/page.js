@@ -9,16 +9,13 @@ import LoadingIndicator from '../../../components/LoadingIndicator';
 import { formatDate } from '../../../lib/dateUtils';
 import api from '../../../lib/api';
 import { useAuth } from '../../../contexts/AuthContext';
-import { useToast } from '../../../contexts/ToastContext';
 import FollowButton from '../../../components/FollowButton';
-import RatingSystem from '../../../components/RatingSystem';
 import StarRating from '../../../components/StarRating';
 
 export default function PublicProfilePage() {
   const params = useParams();
   const username = params.username;
   const { user, isAuthenticated } = useAuth();
-  const { showSuccess, showError } = useToast();
   const [creator, setCreator] = useState(null);
   const [creatorTemplates, setCreatorTemplates] = useState([]);
   const [loading, setLoading] = useState(true);

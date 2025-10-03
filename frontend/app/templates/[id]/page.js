@@ -11,34 +11,8 @@ import RatingCommentSystem from '../../../components/RatingCommentSystem';
 import StarRating from '../../../components/StarRating';
 import { useAuth } from '../../../contexts/AuthContext';
 import { TemplateSchema, BreadcrumbSchema } from '../../../components/StructuredData';
-import { Youtube, Facebook, Send, X, Users } from 'lucide-react';
+import { Youtube, Facebook, Send } from 'lucide-react';
 
-// Fallback data for when API fails
-const fallbackTemplate = {
-  id: 1,
-  title: "مخطط الدراسة الشامل",
-  creator: {
-    name: "علي حسن",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face"
-  },
-  price: 0,
-  description: "قالب شامل ومتقدم لتنظيم الدراسة والمذاكرة بكفاءة عالية. يتضمن جداول زمنية، تتبع التقدم، وأدوات تحليل الأداء.",
-  longDescription: "هذا القالب مصمم خصيصاً للطلاب والدارسين الذين يريدون تنظيم دراستهم بطريقة علمية وفعالة. يحتوي على أكثر من 20 صفحة من الأدوات والجداول المختلفة التي تساعدك في:",
-  features: [
-    "جدول زمني مرن للدراسة",
-    "تتبع التقدم اليومي والأسبوعي",
-    "أدوات تحليل الأداء",
-    "قوالب للامتحانات والاختبارات",
-    "نظام تذكيرات ذكي",
-    "تقارير إحصائية مفصلة"
-  ],
-  category: "التعليم",
-  tags: ["دراسة", "تعليم", "إنتاجية", "تنظيم"],
-  rating: 4.8,
-  reviews: 156,
-  downloads: 2100,
-  imgSrc: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop&crop=center"
-};
 
 const relatedTemplates = [
   {
@@ -302,10 +276,6 @@ export default function TemplateDetailPage() {
         const response = await api.get(`/templates/${templateIdentifier}`);
 
         if (response.data.success) {
-          console.log('Template data:', response.data.template);
-          console.log('Preview Image:', response.data.template.previewImage);
-          console.log('Preview Images:', response.data.template.previewImages);
-          console.log('Img Src:', response.data.template.imgSrc);
           setTemplate(response.data.template);
 
           // Load ratings
@@ -321,11 +291,9 @@ export default function TemplateDetailPage() {
           }
         } else {
           setError('القالب غير موجود');
-          setTemplate(fallbackTemplate);
         }
       } catch (error) {
         setError('فشل في تحميل القالب');
-        setTemplate(fallbackTemplate);
       } finally {
         setLoading(false);
       }
@@ -555,7 +523,6 @@ export default function TemplateDetailPage() {
                             // Default fallback
                             imageSrc = template.previewImage || template.imgSrc || '/placeholder-template.jpg';
                           }
-                          console.log('Image source:', imageSrc, 'Selected index:', selectedImage);
                           return imageSrc;
                         })()}
                         alt={template.title}

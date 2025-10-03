@@ -9,31 +9,6 @@ import LoadingIndicator from '../../components/LoadingIndicator';
 import StarRating from '../../components/StarRating';
 import { useSearchParams } from 'next/navigation';
 
-// Fallback data for when API fails
-const fallbackTemplates = [
-  {
-    _id: 'fallback-1',
-    title: "مخطط الدراسة",
-    creator: { name: "علي حسن" },
-    previewImage: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop&crop=center",
-    price: 0,
-    rating: 4.8,
-    downloads: 1200,
-    category: "الدراسة",
-    description: "قالب شامل لتنظيم الدراسة والمذاكرة مع جداول زمنية وتتبع التقدم"
-  },
-  {
-    _id: 'fallback-2',
-    title: "لوحة تحكم الشركة الناشئة",
-    creator: { name: "سارة محمد" },
-    previewImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop&crop=center",
-    price: 0,
-    rating: 4.9,
-    downloads: 890,
-    category: "الأعمال",
-    description: "إدارة شاملة للمشاريع والمهام والموظفين في الشركات الناشئة"
-  }
-];
 
 const categories = [
   { name: "الكل", value: "all" },
@@ -103,12 +78,10 @@ function TemplatesPageContent() {
         setPagination(response.data.pagination || pagination);
       } else {
         setError('فشل في تحميل القوالب');
-        setTemplates(fallbackTemplates);
       }
     } catch (error) {
       console.error('Error fetching templates:', error);
       setError('فشل في تحميل القوالب');
-      setTemplates(fallbackTemplates);
     } finally {
       setLoading(false);
     }

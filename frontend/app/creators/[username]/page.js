@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Mail, UserPlus } from 'lucide-react';
 import LoadingIndicator from '../../../components/LoadingIndicator';
 import { formatDate } from '../../../lib/dateUtils';
 import api from '../../../lib/api';
@@ -290,14 +290,30 @@ export default function PublicProfilePage() {
                   )}
                 </div>
 
-                {/* Creator Name and Handle */}
+                {/* Creator Name and Stats */}
                 <div className="flex-1">
                   <h1 className="text-3xl sm:text-4xl font-bold text-accent-500 dark:text-dark-text-primary leading-tight">
                     {creator.displayName || creator.name}
                   </h1>
-                  <p className="text-base text-accent-600 dark:text-dark-text-secondary leading-none text-right" dir="ltr">
-                    @{creator.username || creator.name?.toLowerCase()}
-                  </p>
+                  {/* Stats inline under name */}
+                  <div className="flex items-center gap-3 mt-3">
+                    <div className="flex items-center gap-1 px-3 py-1 bg-gray-100 dark:bg-dark-tertiary rounded-full">
+                      <span className="text-xs font-medium text-gray-700 dark:text-dark-text-primary">{creator.followers || 0}</span>
+                      <span className="text-xs text-gray-500 dark:text-dark-text-secondary">متابع</span>
+                    </div>
+                    {creator.showTemplateCount !== false && (
+                      <div className="flex items-center gap-1 px-3 py-1 bg-blue-50 dark:bg-blue-900/20 rounded-full">
+                        <span className="text-xs font-medium text-blue-600 dark:text-blue-400">{creator.templateCount || creatorTemplates.length || 0}</span>
+                        <span className="text-xs text-blue-500 dark:text-blue-300">قالب</span>
+                      </div>
+                    )}
+                    {medianRating > 0 && (
+                      <div className="flex items-center gap-1 px-3 py-1 bg-amber-50 dark:bg-amber-900/20 rounded-full">
+                        <span className="text-xs font-medium text-amber-600 dark:text-amber-400">{medianRating.toFixed(1)}</span>
+                        <span className="text-xs text-amber-500 dark:text-amber-300">تقييم</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -307,37 +323,6 @@ export default function PublicProfilePage() {
                   {creator.bio || creator.experience}
                 </p>
               )}
-
-              {/* Stats */}
-              <div className="flex items-center gap-6 py-4">
-                {/* Template Count */}
-                {creator.showTemplateCount !== false && (
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-primary-500 dark:text-orange-500">
-                      {creator.templateCount || creatorTemplates.length || 0}
-                    </div>
-                    <div className="text-xs text-gray-600 dark:text-dark-text-secondary">قوالب</div>
-                  </div>
-                )}
-
-                {/* Rating */}
-                {medianRating > 0 && (
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1 mb-1">
-                      <StarRating rating={medianRating} />
-                    </div>
-                    <div className="text-xs text-gray-600 dark:text-dark-text-secondary">التقييم</div>
-                  </div>
-                )}
-
-                {/* Followers */}
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-accent-500 dark:text-dark-text-primary">
-                    {creator.followers || 0}
-                  </div>
-                  <div className="text-xs text-gray-600 dark:text-dark-text-secondary">متابع</div>
-                </div>
-              </div>
 
               {/* Recommended Creator Badge */}
               {creator.creatorStatus === 'approved' && (
@@ -355,9 +340,11 @@ export default function PublicProfilePage() {
                 {creator.allowMessages !== false && creator.email && (
                   <a
                     href={`mailto:${creator.email}`}
-                    className="bg-primary-500 dark:bg-orange-500 hover:bg-primary-600 dark:hover:bg-orange-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 shadow-soft hover:shadow-medium inline-block"
+                    className="flex items-center gap-2 px-3 py-2 bg-primary-500 dark:bg-orange-500 hover:bg-primary-600 dark:hover:bg-orange-600 text-white rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 shadow-soft hover:shadow-medium"
+                    title="تواصل مع المبدع"
                   >
-                    تواصل مع المبدع
+                    <Mail className="w-4 h-4" />
+                    <span className="text-sm font-medium">تواصل</span>
                   </a>
                 )}
 
@@ -371,7 +358,8 @@ export default function PublicProfilePage() {
                       followers: prev.followers + (isFollowing ? 1 : -1)
                     }));
                   }}
-                  className="bg-white dark:bg-dark-tertiary hover:bg-gray-50 dark:hover:bg-dark-quaternary text-accent-500 dark:text-dark-text-primary border border-gray-300 dark:border-dark-card-border hover:border-accent-300 dark:hover:border-accent-400 font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 shadow-soft hover:shadow-medium"
+                  showText={true}
+                  className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-dark-tertiary hover:bg-gray-50 dark:hover:bg-dark-quaternary text-accent-500 dark:text-dark-text-primary border border-gray-300 dark:border-dark-card-border hover:border-accent-300 dark:hover:border-accent-400 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 shadow-soft hover:shadow-medium"
                 />
               </div>
             </div>

@@ -103,11 +103,11 @@ export const AuthProvider = ({ children }) => {
           // Verify token with backend with timeout
           const response = await Promise.race([
             api.get('/auth/me'),
-            new Promise((_, reject) => 
+            new Promise((_, reject) =>
               setTimeout(() => reject(new Error('Request timeout')), 8000)
             )
           ]);
-          
+
           const userData = response.data.user;
           setUser(userData);
 
@@ -116,12 +116,12 @@ export const AuthProvider = ({ children }) => {
           localStorage.setItem('userCacheTimestamp', Date.now().toString());
         } catch (apiError) {
           console.warn('Auth verification failed:', apiError.message);
-          
+
           // If it's a timeout or network error, don't clear the token
           // The user might still be authenticated
-          if (apiError.message === 'Request timeout' || 
-              apiError.code === 'NETWORK_ERROR' || 
-              !apiError.response) {
+          if (apiError.message === 'Request timeout' ||
+            apiError.code === 'NETWORK_ERROR' ||
+            !apiError.response) {
             console.log('Network/timeout error, keeping token for retry');
             // Keep the token and try to use cached data if available
             if (cachedUser) {
@@ -134,7 +134,7 @@ export const AuthProvider = ({ children }) => {
               }
             }
           }
-          
+
           // Clear invalid token and cache only for auth errors
           if (apiError.response?.status === 401) {
             Cookies.remove('authToken');

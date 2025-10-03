@@ -232,12 +232,8 @@ export default function PublicProfilePage() {
         creatorId: creator.id
       };
 
-      console.log('Sending message with data:', submissionData);
-
       // Send message to creator via API
       const response = await api.post('/contact/creator', submissionData);
-
-      console.log('Message response:', response.data);
 
       if (response.data.success) {
         setIsSubmitting(false);
@@ -260,14 +256,12 @@ export default function PublicProfilePage() {
       } else {
         setIsSubmitting(false);
         setSubmitStatus('error');
-        console.error('Message submission failed:', response.data);
         showError('حدث خطأ في إرسال الرسالة. يرجى المحاولة مرة أخرى');
       }
     } catch (error) {
       setIsSubmitting(false);
       setSubmitStatus('error');
       console.error('Message submission error:', error);
-      console.error('Error response:', error.response?.data);
 
       // Handle different types of errors
       let errorMessage = 'حدث خطأ في إرسال الرسالة. يرجى المحاولة مرة أخرى';

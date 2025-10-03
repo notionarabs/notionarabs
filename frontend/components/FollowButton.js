@@ -31,7 +31,6 @@ const FollowButton = ({
         setIsFollowing(response.data.isFollowing);
       }
     } catch (error) {
-      console.log('Error checking follow status:', error);
     }
   };
 

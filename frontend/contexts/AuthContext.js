@@ -117,14 +117,12 @@ export const AuthProvider = ({ children }) => {
           localStorage.setItem('user', JSON.stringify(userData));
           localStorage.setItem('userCacheTimestamp', Date.now().toString());
         } catch (apiError) {
-          console.warn('Auth verification failed:', apiError.message);
 
           // If it's a timeout or network error, don't clear the token
           // The user might still be authenticated
           if (apiError.message === 'Request timeout' ||
             apiError.code === 'NETWORK_ERROR' ||
             !apiError.response) {
-            console.log('Network/timeout error, keeping token for retry');
             // Keep the token and try to use cached data if available
             if (cachedUser) {
               try {

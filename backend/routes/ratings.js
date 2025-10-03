@@ -94,6 +94,39 @@ router.post('/', auth, [
         rating: averageRating,
         reviewsCount: totalRatings
       });
+
+      // Update creator's median rating based on all their template ratings
+      const template = await Template.findById(targetId).select('creator');
+      if (template && template.creator) {
+        const creatorTemplates = await Template.find({
+          creator: template.creator,
+          status: 'approved'
+        }).select('rating');
+
+        // Calculate median rating from all template ratings
+        let medianRating = 0;
+        if (creatorTemplates.length > 0) {
+          const validRatings = creatorTemplates
+            .map(t => t.rating)
+            .filter(rating => rating && rating > 0)
+            .sort((a, b) => a - b);
+
+          if (validRatings.length > 0) {
+            const mid = Math.floor(validRatings.length / 2);
+            if (validRatings.length % 2 === 0) {
+              // Even number of ratings - average of two middle values
+              medianRating = (validRatings[mid - 1] + validRatings[mid]) / 2;
+            } else {
+              // Odd number of ratings - middle value
+              medianRating = validRatings[mid];
+            }
+          }
+        }
+
+        await User.findByIdAndUpdate(template.creator, {
+          rating: medianRating
+        });
+      }
     } else if (targetType === 'creator') {
       await User.findByIdAndUpdate(targetId, {
         rating: averageRating

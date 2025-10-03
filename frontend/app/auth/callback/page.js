@@ -23,24 +23,17 @@ function AuthCallbackForm() {
       const success = searchParams.get('success');
       const error = searchParams.get('error');
 
-      console.log('Callback params:', { token, success, error });
-
       // If we have a token, proceed with authentication regardless of success parameter
       if (token) {
         try {
-          console.log('Setting up authentication...');
-
           // Store the token
           Cookies.set('authToken', token, { expires: 7 });
-          console.log('Token stored in cookie');
 
           // Set token in axios headers
           const api = (await import('../../../lib/api')).default;
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          console.log('Token set in API headers');
 
           // Check auth status to update context with timeout
-          console.log('Checking auth status...');
           try {
             const authPromise = checkAuthStatus();
             const timeoutPromise = new Promise((_, reject) =>
@@ -48,7 +41,6 @@ function AuthCallbackForm() {
             );
 
             await Promise.race([authPromise, timeoutPromise]);
-            console.log('Auth status checked successfully');
           } catch (authError) {
             console.warn('Auth check failed, but token is valid:', authError.message);
             // Don't throw error - token is valid, just context update failed
@@ -58,7 +50,6 @@ function AuthCallbackForm() {
           // Small delay to ensure context is updated
           setTimeout(() => {
             if (!isRedirecting) {
-              console.log('Redirecting to home page...');
               setIsRedirecting(true);
               // Use window.location for more reliable redirect
               window.location.href = '/';
@@ -71,7 +62,6 @@ function AuthCallbackForm() {
           // Check if token was stored successfully
           const storedToken = Cookies.get('authToken');
           if (storedToken) {
-            console.log('Token stored successfully, redirecting despite error');
             // Token is valid, redirect to home page
             setTimeout(() => {
               if (!isRedirecting) {
@@ -92,7 +82,6 @@ function AuthCallbackForm() {
         }
       } else if (success === 'true') {
         // Handle case where success=true but no token (shouldn't happen)
-        console.error('Success=true but no token provided');
         setError('No authentication token provided');
         setTimeout(() => {
           if (!isRedirecting) {
@@ -102,7 +91,6 @@ function AuthCallbackForm() {
         }, 1000);
       } else {
         // Handle error
-        console.error('Google OAuth error:', error);
         setError(error || 'Google authentication failed');
         setTimeout(() => {
           if (!isRedirecting) {

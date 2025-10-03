@@ -54,7 +54,6 @@ export default function UserSettingsPage() {
       // Load basic user settings
       setIsLoading(false);
     } catch (error) {
-      console.error('Error loading user settings:', error);
       setIsLoading(false);
     }
   };
@@ -72,7 +71,6 @@ export default function UserSettingsPage() {
       // Save user settings
       showSuccess('تم حفظ الإعدادات بنجاح');
     } catch (error) {
-      console.error('Error saving settings:', error);
       showError('حدث خطأ في حفظ الإعدادات');
     } finally {
       setIsSaving(false);

@@ -72,10 +72,8 @@ export default function SettingsPage() {
     try {
       ensureTokenInHeaders();
       const response = await api.get('/auth/profile/settings');
-      console.log('Profile settings response:', response.data);
       if (response.data && response.data.success) {
         const profileData = response.data.data;
-        console.log('Profile data:', profileData);
         setProfileSettings(prev => ({
           ...prev,
           ...profileData,
@@ -112,7 +110,6 @@ export default function SettingsPage() {
       [key]: value
     }));
     // Here you would typically save to backend
-    console.log(`Setting ${key} changed to:`, value);
   };
 
   const handlePasswordChange = (field, value) => {
@@ -228,7 +225,6 @@ export default function SettingsPage() {
 
     const validation = validateUsername(username);
     if (!validation.isValid) {
-      console.log('Frontend validation failed:', validation.errors);
       setUsernameValidation({ ...validation, isChecking: false });
       return;
     }
@@ -239,7 +235,6 @@ export default function SettingsPage() {
       return;
     }
 
-    console.log('Making API call for username:', username);
 
     try {
       setUsernameValidation(prev => ({ ...prev, isChecking: true }));
@@ -495,7 +490,6 @@ export default function SettingsPage() {
   // Debounced username availability check
   useEffect(() => {
     if (profileSettings.username) {
-      console.log('Username changed to:', profileSettings.username);
 
       // If it's the same as current username, it's valid
       if (profileSettings.username.toLowerCase() === user?.username?.toLowerCase()) {
@@ -508,18 +502,14 @@ export default function SettingsPage() {
       }
 
       const validation = validateUsername(profileSettings.username);
-      console.log('Validation result:', validation);
-
       if (validation.isValid) {
         // Only make API call if username passes all frontend validation
-        console.log('Username is valid, setting timeout for API call');
         const timeoutId = setTimeout(() => {
           checkUsernameAvailability(profileSettings.username);
         }, 500);
         return () => clearTimeout(timeoutId);
       } else {
         // If validation fails, clear any checking state
-        console.log('Username validation failed, clearing checking state');
         setUsernameValidation(prev => ({ ...prev, isChecking: false }));
       }
     }
@@ -697,20 +687,15 @@ export default function SettingsPage() {
 
     try {
       setIsDeleting(true);
-      console.log('Starting account deletion process...');
-
-      // Debug: Check if token is set
+      // Check if token is set
       const token = document.cookie
         .split('; ')
         .find(row => row.startsWith('authToken='))
         ?.split('=')[1];
-      console.log('Auth token present:', !!token);
-      console.log('API headers:', api.defaults.headers.common);
 
       // Ensure token is set in headers
       if (token) {
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        console.log('Token set in headers:', api.defaults.headers.common['Authorization']);
       } else {
         throw new Error('No authentication token found');
       }
@@ -718,7 +703,6 @@ export default function SettingsPage() {
       const response = await api.delete('/auth/account');
 
       if (response.data.success) {
-        console.log('Account deletion successful');
         showSuccess('تم حذف حسابك بنجاح');
         setShowDeleteModal(false);
 
@@ -731,11 +715,6 @@ export default function SettingsPage() {
       }
     } catch (error) {
       console.error('Delete account error:', error);
-      console.error('Error details:', {
-        status: error.response?.status,
-        data: error.response?.data,
-        message: error.message
-      });
 
       const errorMessage = error.response?.data?.message || 'حدث خطأ أثناء حذف الحساب';
       showError(errorMessage);

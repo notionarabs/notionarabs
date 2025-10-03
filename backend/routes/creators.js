@@ -80,7 +80,7 @@ router.get('/', async (req, res) => {
               _id: null,
               totalTemplates: { $sum: 1 },
               totalDownloads: { $sum: '$downloads' },
-              averageRating: { $avg: '$rating' }
+              templateRatings: { $push: '$rating' }
             }
           }
         ]);
@@ -88,8 +88,26 @@ router.get('/', async (req, res) => {
         const stats = templateStats[0] || {
           totalTemplates: 0,
           totalDownloads: 0,
-          averageRating: 0
+          templateRatings: []
         };
+
+        // Calculate median rating from template ratings
+        let medianRating = 0;
+        if (stats.templateRatings && stats.templateRatings.length > 0) {
+          // Filter out null/undefined ratings and sort
+          const validRatings = stats.templateRatings.filter(rating => rating && rating > 0).sort((a, b) => a - b);
+
+          if (validRatings.length > 0) {
+            const mid = Math.floor(validRatings.length / 2);
+            if (validRatings.length % 2 === 0) {
+              // Even number of ratings - average of two middle values
+              medianRating = (validRatings[mid - 1] + validRatings[mid]) / 2;
+            } else {
+              // Odd number of ratings - middle value
+              medianRating = validRatings[mid];
+            }
+          }
+        }
 
         return {
           ...creator,
@@ -98,7 +116,7 @@ router.get('/', async (req, res) => {
           displayName: creator.displayName || creator.name, // Use name as fallback for displayName
           templates: stats.totalTemplates,
           downloads: stats.totalDownloads,
-          rating: stats.averageRating || creator.rating || 0,
+          rating: medianRating || creator.rating || 0,
           earnings: creator.totalEarnings || 0
         };
       })
@@ -201,7 +219,7 @@ router.get('/:id', async (req, res) => {
     let creatorStats = {
       totalTemplates: 0,
       totalDownloads: 0,
-      averageRating: 0,
+      medianRating: 0,
       totalRevenue: 0
     };
 
@@ -213,7 +231,7 @@ router.get('/:id', async (req, res) => {
             _id: null,
             totalTemplates: { $sum: 1 },
             totalDownloads: { $sum: { $ifNull: ['$downloads', 0] } },
-            averageRating: { $avg: { $ifNull: ['$rating', 0] } },
+            templateRatings: { $push: { $ifNull: ['$rating', 0] } },
             totalRevenue: {
               $sum: {
                 $multiply: [
@@ -226,7 +244,32 @@ router.get('/:id', async (req, res) => {
         }
       ]);
 
-      creatorStats = stats[0] || creatorStats;
+      const rawStats = stats[0] || {};
+
+      // Calculate median rating from template ratings
+      let medianRating = 0;
+      if (rawStats.templateRatings && rawStats.templateRatings.length > 0) {
+        // Filter out null/undefined ratings and sort
+        const validRatings = rawStats.templateRatings.filter(rating => rating && rating > 0).sort((a, b) => a - b);
+
+        if (validRatings.length > 0) {
+          const mid = Math.floor(validRatings.length / 2);
+          if (validRatings.length % 2 === 0) {
+            // Even number of ratings - average of two middle values
+            medianRating = (validRatings[mid - 1] + validRatings[mid]) / 2;
+          } else {
+            // Odd number of ratings - middle value
+            medianRating = validRatings[mid];
+          }
+        }
+      }
+
+      creatorStats = {
+        totalTemplates: rawStats.totalTemplates || 0,
+        totalDownloads: rawStats.totalDownloads || 0,
+        medianRating: medianRating,
+        totalRevenue: rawStats.totalRevenue || 0
+      };
     } catch (statsError) {
       console.error('Error fetching creator stats:', statsError);
       // Use default stats if there's an error
@@ -246,7 +289,7 @@ router.get('/:id', async (req, res) => {
         backgroundImage: creator.backgroundImage, // Include background image
         socialLinks: creator.socialLinks || [],
         specialties: creator.specialties || [],
-        rating: creatorStats.averageRating || creator.rating || 0,
+        rating: creatorStats.medianRating || creator.rating || 0,
         followers: creator.followers || 0,
         templateCount: creator.showTemplateCount !== false ? (creatorStats.totalTemplates || creator.templateCount || 0) : null, // Only show if allowed
         joinDate: creator.showJoinDate ? creator.createdAt : null, // Only include join date if showJoinDate is true

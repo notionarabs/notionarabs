@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 import LoadingIndicator from '../../components/LoadingIndicator';
+import { formatDate } from '../../lib/dateUtils';
 
 export default function UserSettingsPage() {
   const router = useRouter();
@@ -301,7 +302,7 @@ export default function UserSettingsPage() {
                   <div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">تاريخ الانضمام</p>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('ar-SA') : 'غير محدد'}
+                      {user?.createdAt ? formatDate(user.createdAt) : 'غير محدد'}
                     </p>
                   </div>
                 </div>

@@ -17,27 +17,12 @@ export const formatDate = (dateString) => {
     return '';
   }
 
-  const options = {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  };
-
-  // Use standard English locale for consistent Gregorian dates
-  const localeCandidates = [
-    'en-US',
-    'en-GB'
-  ];
-
-  for (const locale of localeCandidates) {
-    try {
-      return new Intl.DateTimeFormat(locale, options).format(date);
-    } catch (_) {
-      // try next locale
-    }
-  }
-
-  return date.toISOString().slice(0, 10);
+  // Simple format: DD/MM/YYYY
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  
+  return `${day}/${month}/${year}`;
 };
 
 /**

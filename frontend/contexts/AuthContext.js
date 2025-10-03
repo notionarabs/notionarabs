@@ -100,8 +100,14 @@ export const AuthProvider = ({ children }) => {
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
         try {
-          // Verify token with backend
-          const response = await api.get('/auth/me');
+          // Verify token with backend with timeout
+          const response = await Promise.race([
+            api.get('/auth/me'),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Request timeout')), 8000)
+            )
+          ]);
+          
           const userData = response.data.user;
           setUser(userData);
 
@@ -109,11 +115,33 @@ export const AuthProvider = ({ children }) => {
           localStorage.setItem('user', JSON.stringify(userData));
           localStorage.setItem('userCacheTimestamp', Date.now().toString());
         } catch (apiError) {
-          // Clear invalid token and cache
-          Cookies.remove('authToken');
-          localStorage.removeItem('user');
-          localStorage.removeItem('userCacheTimestamp');
-          delete api.defaults.headers.common['Authorization'];
+          console.warn('Auth verification failed:', apiError.message);
+          
+          // If it's a timeout or network error, don't clear the token
+          // The user might still be authenticated
+          if (apiError.message === 'Request timeout' || 
+              apiError.code === 'NETWORK_ERROR' || 
+              !apiError.response) {
+            console.log('Network/timeout error, keeping token for retry');
+            // Keep the token and try to use cached data if available
+            if (cachedUser) {
+              try {
+                const userData = JSON.parse(cachedUser);
+                setUser(userData);
+                return;
+              } catch (e) {
+                // Cache is corrupted, continue to clear
+              }
+            }
+          }
+          
+          // Clear invalid token and cache only for auth errors
+          if (apiError.response?.status === 401) {
+            Cookies.remove('authToken');
+            localStorage.removeItem('user');
+            localStorage.removeItem('userCacheTimestamp');
+            delete api.defaults.headers.common['Authorization'];
+          }
           throw apiError; // Re-throw to be caught by callback
         }
       } else {
@@ -122,11 +150,13 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('userCacheTimestamp');
       }
     } catch (error) {
-      // Clear any invalid token and cache
-      Cookies.remove('authToken');
-      localStorage.removeItem('user');
-      localStorage.removeItem('userCacheTimestamp');
-      delete api.defaults.headers.common['Authorization'];
+      // Only clear token for authentication errors, not network errors
+      if (error.response?.status === 401) {
+        Cookies.remove('authToken');
+        localStorage.removeItem('user');
+        localStorage.removeItem('userCacheTimestamp');
+        delete api.defaults.headers.common['Authorization'];
+      }
       throw error; // Re-throw to be caught by callback
     } finally {
       setLoading(false);

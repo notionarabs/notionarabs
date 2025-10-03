@@ -41,13 +41,19 @@ function AuthCallbackForm() {
 
           // Check auth status to update context with timeout
           console.log('Checking auth status...');
-          const authPromise = checkAuthStatus();
-          const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Auth check timeout')), 10000)
-          );
+          try {
+            const authPromise = checkAuthStatus();
+            const timeoutPromise = new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('Auth check timeout')), 5000)
+            );
 
-          await Promise.race([authPromise, timeoutPromise]);
-          console.log('Auth status checked successfully');
+            await Promise.race([authPromise, timeoutPromise]);
+            console.log('Auth status checked successfully');
+          } catch (authError) {
+            console.warn('Auth check failed, but token is valid:', authError.message);
+            // Don't throw error - token is valid, just context update failed
+            // The user will be authenticated when they navigate
+          }
 
           // Small delay to ensure context is updated
           setTimeout(() => {
@@ -61,15 +67,28 @@ function AuthCallbackForm() {
 
         } catch (error) {
           console.error('Auth setup error:', error);
-          setError(error.message || 'Authentication setup failed');
-
-          // Redirect to login with error after a delay
-          setTimeout(() => {
-            if (!isRedirecting) {
-              setIsRedirecting(true);
-              window.location.href = '/login?error=auth_setup_failed';
-            }
-          }, 2000);
+          
+          // Check if token was stored successfully
+          const storedToken = Cookies.get('authToken');
+          if (storedToken) {
+            console.log('Token stored successfully, redirecting despite error');
+            // Token is valid, redirect to home page
+            setTimeout(() => {
+              if (!isRedirecting) {
+                setIsRedirecting(true);
+                window.location.href = '/';
+              }
+            }, 1000);
+          } else {
+            setError(error.message || 'Authentication setup failed');
+            // Redirect to login with error after a delay
+            setTimeout(() => {
+              if (!isRedirecting) {
+                setIsRedirecting(true);
+                window.location.href = '/login?error=auth_setup_failed';
+              }
+            }, 2000);
+          }
         }
       } else if (success === 'true') {
         // Handle case where success=true but no token (shouldn't happen)

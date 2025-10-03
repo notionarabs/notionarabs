@@ -54,9 +54,9 @@ export default function SettingsPage() {
     if (!loading && !isAuthenticated) {
       router.push('/login');
     }
-    // Redirect if user is not an approved creator
+    // Redirect non-creators to user settings page
     if (!loading && isAuthenticated && user && user.creatorStatus !== 'approved') {
-      router.push('/');
+      router.push('/user-settings');
     }
 
     // Load profile settings if user is authenticated

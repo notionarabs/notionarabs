@@ -295,7 +295,7 @@ export default function UserDropdown() {
             <div className="space-y-1">
               {/* Settings Link */}
               <Link
-                href="/settings"
+                href={user?.creatorStatus === 'approved' ? "/settings" : "/user-settings"}
                 onClick={() => setIsOpen(false)}
                 className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
               >

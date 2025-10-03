@@ -278,13 +278,10 @@ export default function SignupPage() {
               >
                 {loading ? (
                   <div className="flex items-center justify-center space-x-2 space-x-reverse">
-                    <div className="relative">
-                      {/* Enhanced loading spinner */}
-                      <div className="w-5 h-5 border-2 border-white/30 rounded-full animate-spin">
-                        <div className="absolute inset-0 border-2 border-transparent border-t-white rounded-full animate-spin" style={{ animationDuration: '0.8s' }}></div>
-                      </div>
+                    <div className="w-4 h-4 border-2 border-white/30 rounded-full animate-spin">
+                      <div className="absolute inset-0 border-2 border-transparent border-t-white rounded-full"></div>
                     </div>
-                    <span className="animate-pulse">جاري إنشاء الحساب...</span>
+                    <span>جاري إنشاء الحساب...</span>
                   </div>
                 ) : (
                   'إنشاء الحساب'
@@ -350,7 +347,7 @@ export default function SignupPage() {
                   {resendingEmail ? (
                     <div className="flex items-center justify-center space-x-2 space-x-reverse">
                       <div className="w-4 h-4 border-2 border-primary-500/30 rounded-full animate-spin">
-                        <div className="absolute inset-0 border-2 border-transparent border-t-primary-500 rounded-full animate-spin" style={{ animationDuration: '0.8s' }}></div>
+                        <div className="absolute inset-0 border-2 border-transparent border-t-primary-500 rounded-full"></div>
                       </div>
                       <span>جاري الإرسال...</span>
                     </div>

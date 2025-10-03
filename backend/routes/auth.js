@@ -241,14 +241,7 @@ router.post('/signup', [
       });
     }
 
-    // Validate email domain exists (has MX record)
-    const isDomainValid = await validateEmailDomain(email);
-    if (!isDomainValid) {
-      return res.status(400).json({
-        success: false,
-        message: 'البريد الإلكتروني غير صحيح أو غير موجود'
-      });
-    }
+    // Skip DNS validation for faster signup - email verification will catch invalid emails
 
     // Generate email verification token
     const emailVerificationToken = crypto.randomBytes(32).toString('hex');

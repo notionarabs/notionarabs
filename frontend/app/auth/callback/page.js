@@ -17,7 +17,7 @@ function AuthCallbackForm() {
   useEffect(() => {
     // Disable global loading indicator since we have our own custom loading design
     setLoading(false);
-    
+
     const handleCallback = async () => {
       const token = searchParams.get('token');
       const success = searchParams.get('success');
@@ -63,11 +63,11 @@ function AuthCallbackForm() {
               // Use window.location for more reliable redirect
               window.location.href = '/';
             }
-          }, 500);
+          }, 200);
 
         } catch (error) {
           console.error('Auth setup error:', error);
-          
+
           // Check if token was stored successfully
           const storedToken = Cookies.get('authToken');
           if (storedToken) {
@@ -78,7 +78,7 @@ function AuthCallbackForm() {
                 setIsRedirecting(true);
                 window.location.href = '/';
               }
-            }, 1000);
+            }, 300);
           } else {
             setError(error.message || 'Authentication setup failed');
             // Redirect to login with error after a delay
@@ -87,7 +87,7 @@ function AuthCallbackForm() {
                 setIsRedirecting(true);
                 window.location.href = '/login?error=auth_setup_failed';
               }
-            }, 2000);
+            }, 1000);
           }
         }
       } else if (success === 'true') {
@@ -99,7 +99,7 @@ function AuthCallbackForm() {
             setIsRedirecting(true);
             window.location.href = '/login?error=no_token';
           }
-        }, 2000);
+        }, 1000);
       } else {
         // Handle error
         console.error('Google OAuth error:', error);
@@ -109,7 +109,7 @@ function AuthCallbackForm() {
             setIsRedirecting(true);
             window.location.href = '/login?error=google_auth_failed';
           }
-        }, 2000);
+        }, 1000);
       }
     };
 
@@ -150,19 +150,10 @@ function AuthCallbackForm() {
           </div>
         ) : (
           <div className="bg-white dark:bg-dark-card-bg rounded-3xl p-12 shadow-2xl border border-gray-200 dark:border-dark-card-border max-w-md mx-auto">
-            {/* Enhanced loading spinner */}
+            {/* Simplified loading spinner */}
             <div className="relative mb-8">
-              {/* Outer rotating ring */}
-              <div className="w-20 h-20 border-4 border-gray-200 dark:border-gray-700 rounded-full animate-spin mx-auto relative">
-                <div className="absolute inset-0 border-4 border-transparent border-t-primary-500 dark:border-t-orange-500 rounded-full animate-spin" style={{ animationDuration: '1s' }}></div>
-              </div>
-
-              {/* Inner pulsing ring */}
-              <div className="absolute inset-0 w-20 h-20 border-4 border-transparent border-r-orange-400 dark:border-r-orange-300 rounded-full animate-spin mx-auto" style={{ animationDuration: '1.5s', animationDirection: 'reverse' }}></div>
-
-              {/* Center pulsing dot */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-3 h-3 bg-primary-500 dark:bg-orange-500 rounded-full animate-pulse"></div>
+              <div className="w-16 h-16 border-4 border-gray-200 dark:border-gray-700 rounded-full animate-spin mx-auto">
+                <div className="absolute inset-0 border-4 border-transparent border-t-primary-500 dark:border-t-orange-500 rounded-full"></div>
               </div>
             </div>
 
@@ -201,19 +192,10 @@ export default function AuthCallbackPage() {
 
         <div className="text-center relative z-10">
           <div className="bg-white dark:bg-dark-card-bg rounded-3xl p-12 shadow-2xl border border-gray-200 dark:border-dark-card-border max-w-md mx-auto">
-            {/* Enhanced loading spinner */}
+            {/* Simplified loading spinner */}
             <div className="relative mb-8">
-              {/* Outer rotating ring */}
-              <div className="w-20 h-20 border-4 border-gray-200 dark:border-gray-700 rounded-full animate-spin mx-auto relative">
-                <div className="absolute inset-0 border-4 border-transparent border-t-primary-500 dark:border-t-orange-500 rounded-full animate-spin" style={{ animationDuration: '1s' }}></div>
-              </div>
-
-              {/* Inner pulsing ring */}
-              <div className="absolute inset-0 w-20 h-20 border-4 border-transparent border-r-orange-400 dark:border-r-orange-300 rounded-full animate-spin mx-auto" style={{ animationDuration: '1.5s', animationDirection: 'reverse' }}></div>
-
-              {/* Center pulsing dot */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-3 h-3 bg-primary-500 dark:bg-orange-500 rounded-full animate-pulse"></div>
+              <div className="w-16 h-16 border-4 border-gray-200 dark:border-gray-700 rounded-full animate-spin mx-auto">
+                <div className="absolute inset-0 border-4 border-transparent border-t-primary-500 dark:border-t-orange-500 rounded-full"></div>
               </div>
             </div>
 

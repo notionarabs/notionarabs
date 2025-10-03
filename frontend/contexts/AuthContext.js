@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
     // Check if we have cached data first to minimize loading time
     const cachedUser = localStorage.getItem('user');
     const cacheTimestamp = localStorage.getItem('userCacheTimestamp');
-    const cacheExpiry = 5 * 60 * 1000; // 5 minutes
+    const cacheExpiry = 10 * 60 * 1000; // Increased to 10 minutes for better UX
 
     // If we have a token and any cached user, optimistically restore it immediately
     // This avoids unnecessary redirects on browser back/forward/navigation
@@ -40,6 +40,8 @@ export const AuthProvider = ({ children }) => {
       try {
         const userData = JSON.parse(cachedUser);
         setUser(userData);
+        // Set loading to false immediately for cached users
+        setLoading(false);
       } catch { }
     } else if (cachedUser && cacheTimestamp) {
       // If no token, fall back to strict cache freshness (for non-auth flows)
@@ -58,7 +60,7 @@ export const AuthProvider = ({ children }) => {
     if (!hasCheckedAuth) {
       const timeoutId = setTimeout(() => {
         setLoading(false);
-      }, 2000); // Reduced to 2 seconds for faster UX
+      }, 1500); // Reduced to 1.5 seconds for faster UX
 
       checkAuthStatus().finally(() => {
         clearTimeout(timeoutId);
@@ -80,7 +82,7 @@ export const AuthProvider = ({ children }) => {
       // Check if we have cached user data
       const cachedUser = localStorage.getItem('user');
       const cacheTimestamp = localStorage.getItem('userCacheTimestamp');
-      const cacheExpiry = 5 * 60 * 1000; // 5 minutes
+      const cacheExpiry = 10 * 60 * 1000; // 10 minutes
 
       if (token && cachedUser && cacheTimestamp) {
         const now = Date.now();
@@ -104,7 +106,7 @@ export const AuthProvider = ({ children }) => {
           const response = await Promise.race([
             api.get('/auth/me'),
             new Promise((_, reject) =>
-              setTimeout(() => reject(new Error('Request timeout')), 8000)
+              setTimeout(() => reject(new Error('Request timeout')), 5000)
             )
           ]);
 

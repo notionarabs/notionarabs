@@ -106,167 +106,62 @@ router.post('/creator', [
     console.log('Message:', message);
     console.log('========================');
 
-    // Check if email configuration is available
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      console.warn('Email configuration missing. Message logged but not sent via email.');
-      console.log('To enable email sending, set EMAIL_USER and EMAIL_PASS environment variables.');
+    // Log the message immediately for manual follow-up
+    console.log('=== CREATOR CONTACT MESSAGE ===');
+    console.log('Creator:', creator.displayName || creator.name, `(${creator.email})`);
+    console.log('From:', name, `(${email})`);
+    console.log('Subject:', subject);
+    console.log('Message:', message);
+    console.log('===============================');
 
-      // Log admin notification for manual follow-up
-      console.log('=== ADMIN NOTIFICATION (NO EMAIL) ===');
-      console.log('Creator Contact Message:');
-      console.log('Creator:', creator.displayName || creator.name, `(${creator.email})`);
-      console.log('From:', name, `(${email})`);
-      console.log('Subject:', subject);
-      console.log('Message:', message);
-      console.log('=====================================');
+    // Return success immediately - no email sending to avoid delays
+    res.json({
+      success: true,
+      message: 'تم استلام رسالتك بنجاح! سنتواصل معك قريباً.'
+    });
 
-      // Return success but with a note that email wasn't sent
-      res.json({
-        success: true,
-        message: 'تم استلام رسالتك بنجاح! سنتواصل معك قريباً.'
-      });
-      return;
-    }
-
-    // Send email to creator with overall timeout
-    try {
-      const emailPromise = (async () => {
-        let transporter;
+    // Try to send email in background (non-blocking)
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+      setImmediate(async () => {
         try {
-          transporter = createTransporter();
-        } catch (configError) {
-          console.error('Email configuration error:', configError.message);
-          throw new Error('Email configuration is missing. Please contact the administrator.');
+          const transporter = createTransporter();
+          await transporter.verify();
+          
+          const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: creator.email,
+            subject: `رسالة جديدة من ${name} - ${subject}`,
+            html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
+              <h2 style="color: #333; text-align: center;">رسالة جديدة من موقع عرب نوشن</h2>
+              <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="color: #495057; margin-bottom: 15px;">تفاصيل الرسالة:</h3>
+                <p><strong>المرسل:</strong> ${name}</p>
+                <p><strong>البريد الإلكتروني:</strong> <a href="mailto:${email}" style="color: #007bff;">${email}</a></p>
+                <p><strong>الموضوع:</strong> ${subject}</p>
+              </div>
+              <div style="background-color: #ffffff; padding: 20px; border: 1px solid #dee2e6; border-radius: 8px; margin: 20px 0;">
+                <h3 style="color: #495057; margin-bottom: 15px;">محتوى الرسالة:</h3>
+                <p style="line-height: 1.6; color: #333;">${message.replace(/\n/g, '<br>')}</p>
+              </div>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="mailto:${email}" style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">الرد على الرسالة</a>
+              </div>
+              <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+              <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
+            </div>
+          `
+          };
+
+          await transporter.sendMail(mailOptions);
+          console.log('✅ Email sent successfully to creator:', creator.email);
+        } catch (emailError) {
+          console.log('❌ Email sending failed (background):', emailError.message);
         }
-
-        // Verify transporter connection with timeout
-        await Promise.race([
-          transporter.verify(),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Email verification timeout')), 10000))
-        ]);
-
-        const mailOptions = {
-          from: process.env.EMAIL_USER,
-          to: creator.email,
-          subject: `رسالة جديدة من ${name} - ${subject}`,
-          html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
-            <h2 style="color: #333; text-align: center;">رسالة جديدة من موقع عرب نوشن</h2>
-            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #495057; margin-bottom: 15px;">تفاصيل الرسالة:</h3>
-              <p><strong>المرسل:</strong> ${name}</p>
-              <p><strong>البريد الإلكتروني:</strong> <a href="mailto:${email}" style="color: #007bff;">${email}</a></p>
-              <p><strong>الموضوع:</strong> ${subject}</p>
-            </div>
-            <div style="background-color: #ffffff; padding: 20px; border: 1px solid #dee2e6; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #495057; margin-bottom: 15px;">محتوى الرسالة:</h3>
-              <p style="line-height: 1.6; color: #333;">${message.replace(/\n/g, '<br>')}</p>
-            </div>
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="mailto:${email}" style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">الرد على الرسالة</a>
-            </div>
-            <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-            <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
-          </div>
-        `
-        };
-
-        await transporter.sendMail(mailOptions);
-
-        // Send notification to admin (hazemyasser911@gmail.com)
-        const adminNotificationOptions = {
-          from: process.env.EMAIL_USER,
-          to: 'hazemyasser911@gmail.com',
-          subject: `[عرب نوشن] رسالة جديدة من ${name} إلى ${creator.displayName || creator.name}`,
-          html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
-            <h2 style="color: #333; text-align: center;">إشعار: رسالة جديدة من موقع عرب نوشن</h2>
-            <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 15px; border-radius: 8px; margin: 20px 0;">
-              <p><strong>نوع الرسالة:</strong> تواصل مع مبدع</p>
-              <p><strong>المبدع المستهدف:</strong> ${creator.displayName || creator.name} (${creator.email})</p>
-            </div>
-            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #495057; margin-bottom: 15px;">تفاصيل الرسالة:</h3>
-              <p><strong>المرسل:</strong> ${name}</p>
-              <p><strong>البريد الإلكتروني:</strong> <a href="mailto:${email}" style="color: #007bff;">${email}</a></p>
-              <p><strong>الموضوع:</strong> ${subject}</p>
-            </div>
-            <div style="background-color: #ffffff; padding: 20px; border: 1px solid #dee2e6; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #495057; margin-bottom: 15px;">محتوى الرسالة:</h3>
-              <p style="line-height: 1.6; color: #333;">${message.replace(/\n/g, '<br>')}</p>
-            </div>
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="mailto:${email}" style="background-color: #28a745; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; margin-left: 10px;">الرد على المرسل</a>
-              <a href="mailto:${creator.email}" style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">الرد على المبدع</a>
-            </div>
-            <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-            <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
-          </div>
-        `
-        };
-
-        await transporter.sendMail(adminNotificationOptions);
-
-        // Also send a copy to the sender for confirmation
-        const confirmationMailOptions = {
-          from: process.env.EMAIL_USER,
-          to: email,
-          subject: `تأكيد إرسال رسالتك إلى ${creator.displayName || creator.name}`,
-          html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
-            <h2 style="color: #333; text-align: center;">تم إرسال رسالتك بنجاح!</h2>
-            <p>مرحباً ${name}،</p>
-            <p>تم إرسال رسالتك إلى <strong>${creator.displayName || creator.name}</strong> بنجاح.</p>
-            <div style="background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 8px; margin: 20px 0;">
-              <p><strong>تفاصيل الرسالة المرسلة:</strong></p>
-              <p><strong>الموضوع:</strong> ${subject}</p>
-              <p><strong>المبدع:</strong> ${creator.displayName || creator.name}</p>
-            </div>
-            <p>سنتواصل معك قريباً عبر البريد الإلكتروني إذا كان هناك رد من المبدع.</p>
-            <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-            <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
-          </div>
-        `
-        };
-
-        await transporter.sendMail(confirmationMailOptions);
-
-        return {
-          success: true,
-          message: 'تم إرسال رسالتك بنجاح للمبدع'
-        };
-      })();
-
-      // Add overall timeout for the entire email operation
-      const result = await Promise.race([
-        emailPromise,
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Email operation timeout')), 30000))
-      ]);
-
-      res.json(result);
-
-    } catch (emailError) {
-      console.error('Email sending error:', emailError);
-      console.error('Email error details:', {
-        message: emailError.message,
-        code: emailError.code,
-        stack: emailError.stack
-      });
-
-      // Log the message for manual follow-up
-      console.log('=== MESSAGE SAVED FOR MANUAL FOLLOW-UP ===');
-      console.log('Creator:', creator.displayName || creator.name, `(${creator.email})`);
-      console.log('From:', name, `(${email})`);
-      console.log('Subject:', subject);
-      console.log('Message:', message);
-      console.log('==========================================');
-
-      // Return success even if email fails
-      res.json({
-        success: true,
-        message: 'تم استلام رسالتك بنجاح! سنتواصل معك قريباً.'
       });
     }
+    return;
+
 
   } catch (error) {
     console.error('Contact creator error:', error);
@@ -316,153 +211,62 @@ router.post('/general', [
 
     const { name, email, subject, message } = req.body;
 
-    // Log the general contact message
+    // Log the general contact message immediately
     console.log('=== GENERAL CONTACT MESSAGE ===');
     console.log('From:', name, `(${email})`);
     console.log('Subject:', subject);
+    console.log('Category:', req.body.category || 'عام');
     console.log('Message:', message);
     console.log('================================');
 
-    // Check if email configuration is available
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      console.warn('Email configuration missing. Message logged but not sent via email.');
-      console.log('To enable email sending, set EMAIL_USER and EMAIL_PASS environment variables.');
+    // Return success immediately - no email sending to avoid delays
+    res.json({
+      success: true,
+      message: 'تم استلام رسالتك بنجاح! سنتواصل معك قريباً.'
+    });
 
-      // Log admin notification for manual follow-up
-      console.log('=== ADMIN NOTIFICATION (NO EMAIL) ===');
-      console.log('General Contact Message:');
-      console.log('From:', name, `(${email})`);
-      console.log('Subject:', subject);
-      console.log('Category:', req.body.category || 'عام');
-      console.log('Message:', message);
-      console.log('=====================================');
-
-      // Return success but with a note that email wasn't sent
-      res.json({
-        success: true,
-        message: 'تم استلام رسالتك بنجاح! سنتواصل معك قريباً.'
-      });
-      return;
-    }
-
-    // Send email to support team
-    try {
-      let transporter;
-      try {
-        transporter = createTransporter();
-      } catch (configError) {
-        console.error('Email configuration error:', configError.message);
-        throw new Error('Email configuration is missing. Please contact the administrator.');
-      }
-
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: process.env.SUPPORT_EMAIL || process.env.EMAIL_USER, // Use support email or fallback to main email
-        subject: `رسالة جديدة من موقع عرب نوشن - ${subject}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
-            <h2 style="color: #333; text-align: center;">رسالة جديدة من موقع عرب نوشن</h2>
-            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #495057; margin-bottom: 15px;">تفاصيل الرسالة:</h3>
-              <p><strong>المرسل:</strong> ${name}</p>
-              <p><strong>البريد الإلكتروني:</strong> <a href="mailto:${email}" style="color: #007bff;">${email}</a></p>
-              <p><strong>الموضوع:</strong> ${subject}</p>
-              <p><strong>نوع الاستفسار:</strong> ${req.body.category || 'عام'}</p>
+    // Try to send email in background (non-blocking)
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+      setImmediate(async () => {
+        try {
+          const transporter = createTransporter();
+          await transporter.verify();
+          
+          const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: process.env.SUPPORT_EMAIL || process.env.EMAIL_USER,
+            subject: `رسالة جديدة من موقع عرب نوشن - ${subject}`,
+            html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
+              <h2 style="color: #333; text-align: center;">رسالة جديدة من موقع عرب نوشن</h2>
+              <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="color: #495057; margin-bottom: 15px;">تفاصيل الرسالة:</h3>
+                <p><strong>المرسل:</strong> ${name}</p>
+                <p><strong>البريد الإلكتروني:</strong> <a href="mailto:${email}" style="color: #007bff;">${email}</a></p>
+                <p><strong>الموضوع:</strong> ${subject}</p>
+                <p><strong>نوع الاستفسار:</strong> ${req.body.category || 'عام'}</p>
+              </div>
+              <div style="background-color: #ffffff; padding: 20px; border: 1px solid #dee2e6; border-radius: 8px; margin: 20px 0;">
+                <h3 style="color: #495057; margin-bottom: 15px;">محتوى الرسالة:</h3>
+                <p style="line-height: 1.6; color: #333;">${message.replace(/\n/g, '<br>')}</p>
+              </div>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="mailto:${email}" style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">الرد على الرسالة</a>
+              </div>
+              <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+              <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
             </div>
-            <div style="background-color: #ffffff; padding: 20px; border: 1px solid #dee2e6; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #495057; margin-bottom: 15px;">محتوى الرسالة:</h3>
-              <p style="line-height: 1.6; color: #333;">${message.replace(/\n/g, '<br>')}</p>
-            </div>
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="mailto:${email}" style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">الرد على الرسالة</a>
-            </div>
-            <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-            <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
-          </div>
-        `
-      };
+          `
+          };
 
-      await transporter.sendMail(mailOptions);
-
-      // Send notification to admin (hazemyasser911@gmail.com)
-      const adminNotificationOptions = {
-        from: process.env.EMAIL_USER,
-        to: 'hazemyasser911@gmail.com',
-        subject: `[عرب نوشن] رسالة جديدة من ${name} - ${subject}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
-            <h2 style="color: #333; text-align: center;">إشعار: رسالة جديدة من موقع عرب نوشن</h2>
-            <div style="background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 15px; border-radius: 8px; margin: 20px 0;">
-              <p><strong>نوع الرسالة:</strong> استفسار عام</p>
-              <p><strong>نوع الاستفسار:</strong> ${req.body.category || 'عام'}</p>
-            </div>
-            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #495057; margin-bottom: 15px;">تفاصيل الرسالة:</h3>
-              <p><strong>المرسل:</strong> ${name}</p>
-              <p><strong>البريد الإلكتروني:</strong> <a href="mailto:${email}" style="color: #007bff;">${email}</a></p>
-              <p><strong>الموضوع:</strong> ${subject}</p>
-            </div>
-            <div style="background-color: #ffffff; padding: 20px; border: 1px solid #dee2e6; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #495057; margin-bottom: 15px;">محتوى الرسالة:</h3>
-              <p style="line-height: 1.6; color: #333;">${message.replace(/\n/g, '<br>')}</p>
-            </div>
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="mailto:${email}" style="background-color: #28a745; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">الرد على المرسل</a>
-            </div>
-            <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-            <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
-          </div>
-        `
-      };
-
-      await transporter.sendMail(adminNotificationOptions);
-
-      // Send confirmation to the sender
-      const confirmationMailOptions = {
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: `تأكيد استلام رسالتك - عرب نوشن`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
-            <h2 style="color: #333; text-align: center;">تم استلام رسالتك بنجاح!</h2>
-            <p>مرحباً ${name}،</p>
-            <p>شكراً لتواصلك معنا. تم استلام رسالتك وسنرد عليك خلال 24 ساعة.</p>
-            <div style="background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 8px; margin: 20px 0;">
-              <p><strong>تفاصيل الرسالة المرسلة:</strong></p>
-              <p><strong>الموضوع:</strong> ${subject}</p>
-              <p><strong>نوع الاستفسار:</strong> ${req.body.category || 'عام'}</p>
-            </div>
-            <p>إذا كان لديك أي استفسارات أخرى، لا تتردد في التواصل معنا.</p>
-            <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-            <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
-          </div>
-        `
-      };
-
-      await transporter.sendMail(confirmationMailOptions);
-
-      res.json({
-        success: true,
-        message: 'تم إرسال رسالتك بنجاح وسنرد عليك قريباً'
-      });
-
-    } catch (emailError) {
-      console.error('Email sending error:', emailError);
-
-      // Log the message for manual follow-up
-      console.log('=== GENERAL MESSAGE SAVED FOR MANUAL FOLLOW-UP ===');
-      console.log('From:', name, `(${email})`);
-      console.log('Subject:', subject);
-      console.log('Category:', req.body.category || 'عام');
-      console.log('Message:', message);
-      console.log('================================================');
-
-      // Return success even if email fails
-      res.json({
-        success: true,
-        message: 'تم استلام رسالتك بنجاح! سنتواصل معك قريباً.'
+          await transporter.sendMail(mailOptions);
+          console.log('✅ Email sent successfully to support team');
+        } catch (emailError) {
+          console.log('❌ Email sending failed (background):', emailError.message);
+        }
       });
     }
+    return;
 
   } catch (error) {
     console.error('General contact error:', error);

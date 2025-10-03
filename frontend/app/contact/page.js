@@ -440,8 +440,8 @@ function ContactForm() {
                   أوقات العمل
                 </h3>
                 <div className="text-accent-600 dark:text-dark-text-secondary">
-                  <p className="mb-2">الأحد - الخميس: 9:00 ص - 6:00 م</p>
-                  <p className="text-sm">توقيت القاهرة (GMT+2)</p>
+                  <p className="mb-2">24 ساعة يومياً، 7 أيام في الأسبوع</p>
+                  <p className="text-sm">خدمة متاحة على مدار الساعة</p>
                 </div>
               </div>
             </div>

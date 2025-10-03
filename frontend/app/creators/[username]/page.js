@@ -463,10 +463,6 @@ export default function PublicProfilePage() {
       {/* Templates Section */}
       <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
         <div className="container-custom">
-          <div className="text-center mb-12">
-            <h2 className="heading-2 mb-4">قوالب {creator.displayName || creator.name}</h2>
-            <p className="body-large">اكتشف القوالب المبتكرة من هذا المبدع</p>
-          </div>
 
           {creatorTemplates.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

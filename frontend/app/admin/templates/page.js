@@ -170,20 +170,6 @@ export default function AdminTemplatesPage() {
     );
   };
 
-  const getDifficultyBadge = (difficulty) => {
-    const difficultyConfig = {
-      beginner: { label: 'مبتدئ', className: 'bg-blue-100 text-blue-800' },
-      intermediate: { label: 'متوسط', className: 'bg-orange-100 text-orange-800' },
-      advanced: { label: 'متقدم', className: 'bg-red-100 text-red-800' }
-    };
-
-    const config = difficultyConfig[difficulty] || difficultyConfig.beginner;
-    return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.className}`}>
-        {config.label}
-      </span>
-    );
-  };
 
   if (loading) {
     return (
@@ -400,7 +386,6 @@ export default function AdminTemplatesPage() {
                             {template.description}
                           </div>
                           <div className="flex items-center gap-2 mt-1">
-                            {getDifficultyBadge(template.difficulty)}
                             {template.tags && template.tags.length > 0 && (
                               <span className="text-xs text-accent-500 dark:text-dark-text-tertiary">
                                 {template.tags.slice(0, 2).join(', ')}
@@ -427,8 +412,10 @@ export default function AdminTemplatesPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-accent-600 dark:text-dark-text-secondary">
-                      {template.category}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 py-1 text-xs bg-gray-100 dark:bg-dark-tertiary text-gray-700 dark:text-dark-text-secondary rounded-full">
+                        {template.category}
+                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600 dark:text-green-400">
                       مجاني
@@ -611,15 +598,13 @@ export default function AdminTemplatesPage() {
                     </div>
                     <div>
                       <span className="font-medium text-accent-600 dark:text-dark-text-secondary">الفئة:</span>
-                      <p className="text-accent-500 dark:text-dark-text-primary">{selectedTemplateDetails.category}</p>
+                      <span className="px-2 py-1 text-xs bg-gray-100 dark:bg-dark-tertiary text-gray-700 dark:text-dark-text-secondary rounded-full">
+                        {selectedTemplateDetails.category}
+                      </span>
                     </div>
                     <div>
                       <span className="font-medium text-accent-600 dark:text-dark-text-secondary">السعر:</span>
                       <p className="text-green-600 dark:text-green-400">مجاني</p>
-                    </div>
-                    <div>
-                      <span className="font-medium text-accent-600 dark:text-dark-text-secondary">مستوى الصعوبة:</span>
-                      <div className="mt-1">{getDifficultyBadge(selectedTemplateDetails.difficulty)}</div>
                     </div>
                     {selectedTemplateDetails.tags && selectedTemplateDetails.tags.length > 0 && (
                       <div>
@@ -658,12 +643,66 @@ export default function AdminTemplatesPage() {
                     </p>
                   </div>
                 )}
+
+                <div className="card p-4">
+                  <h4 className="font-semibold text-accent-500 dark:text-dark-text-primary mb-4">إحصائيات الأداء</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <span className="font-medium text-accent-600 dark:text-dark-text-secondary">المشاهدات:</span>
+                      <p className="text-accent-500 dark:text-dark-text-primary">{selectedTemplateDetails.views || 0}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-accent-600 dark:text-dark-text-secondary">التحميلات:</span>
+                      <p className="text-accent-500 dark:text-dark-text-primary">{selectedTemplateDetails.downloads || 0}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-accent-600 dark:text-dark-text-secondary">التقييم:</span>
+                      <p className="text-accent-500 dark:text-dark-text-primary">
+                        {selectedTemplateDetails.rating ? selectedTemplateDetails.rating.toFixed(1) : '0.0'} ⭐
+                      </p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-accent-600 dark:text-dark-text-secondary">عدد المراجعات:</span>
+                      <p className="text-accent-500 dark:text-dark-text-primary">{selectedTemplateDetails.reviewsCount || 0}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {(selectedTemplateDetails.approvedAt || selectedTemplateDetails.rejectedAt) && (
+                  <div className="card p-4">
+                    <h4 className="font-semibold text-accent-500 dark:text-dark-text-primary mb-4">معلومات المراجعة</h4>
+                    <div className="space-y-3">
+                      {selectedTemplateDetails.approvedAt && (
+                        <div>
+                          <span className="font-medium text-green-600 dark:text-green-400">تمت الموافقة في:</span>
+                          <p className="text-accent-500 dark:text-dark-text-primary">
+                            {new Date(selectedTemplateDetails.approvedAt).toLocaleDateString('ar-SA')}
+                          </p>
+                        </div>
+                      )}
+                      {selectedTemplateDetails.rejectedAt && (
+                        <div>
+                          <span className="font-medium text-red-600 dark:text-red-400">تم الرفض في:</span>
+                          <p className="text-accent-500 dark:text-dark-text-primary">
+                            {new Date(selectedTemplateDetails.rejectedAt).toLocaleDateString('ar-SA')}
+                          </p>
+                        </div>
+                      )}
+                      {selectedTemplateDetails.adminNotes && (
+                        <div>
+                          <span className="font-medium text-accent-600 dark:text-dark-text-secondary">ملاحظات الإدارة:</span>
+                          <p className="text-accent-500 dark:text-dark-text-primary">{selectedTemplateDetails.adminNotes}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Right Column - Preview Image */}
               <div className="space-y-6">
                 <div className="card p-4">
-                  <h4 className="font-semibold text-accent-500 dark:text-dark-text-primary mb-4">صورة المعاينة</h4>
+                  <h4 className="font-semibold text-accent-500 dark:text-dark-text-primary mb-4">صور المعاينة</h4>
                   {selectedTemplateDetails.previewImage ? (
                     <div className="space-y-4">
                       <img
@@ -672,7 +711,7 @@ export default function AdminTemplatesPage() {
                         className="w-full h-64 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
                       />
                       <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
-                        تم التقاط هذه الصورة تلقائياً من قالب نوشن
+                        الصورة الرئيسية
                       </p>
                     </div>
                   ) : (
@@ -682,6 +721,22 @@ export default function AdminTemplatesPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                         <p className="text-gray-500 dark:text-gray-400">لا توجد صورة معاينة</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedTemplateDetails.previewImages && selectedTemplateDetails.previewImages.length > 0 && (
+                    <div className="mt-6">
+                      <h5 className="font-medium text-accent-600 dark:text-dark-text-secondary mb-3">صور إضافية</h5>
+                      <div className="grid grid-cols-2 gap-3">
+                        {selectedTemplateDetails.previewImages.map((image, index) => (
+                          <img
+                            key={index}
+                            src={image}
+                            alt={`معاينة إضافية ${index + 1}`}
+                            className="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                          />
+                        ))}
                       </div>
                     </div>
                   )}

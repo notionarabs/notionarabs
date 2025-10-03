@@ -139,7 +139,9 @@ export default function AdminPage() {
             <div className="card p-6">
               <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">مستخدمي Google</h3>
               <p className="text-3xl font-bold text-blue-600">{stats.googleUsers}</p>
-              <p className="text-sm text-accent-600 dark:text-dark-text-secondary">{stats.googleUsersPercentage}% من إجمالي المستخدمين</p>
+              <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                {stats.totalUsers > 0 ? Math.round((stats.googleUsers / stats.totalUsers) * 100) : 0}% من إجمالي المستخدمين
+              </p>
             </div>
             <div className="card p-6">
               <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">مستخدمي البريد الإلكتروني</h3>
@@ -268,8 +270,8 @@ export default function AdminPage() {
                 className="form-select"
               >
                 <option value="all">جميع الحالات</option>
-                <option value="active">نشط</option>
-                <option value="inactive">غير نشط</option>
+                <option value="admin">مدير</option>
+                <option value="user">مستخدم</option>
               </select>
             </div>
             <div>
@@ -355,11 +357,11 @@ export default function AdminPage() {
                       {formatDate(user.createdAt)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.isActive
-                        ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
-                        : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.role === 'admin'
+                        ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300'
+                        : 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300'
                         }`}>
-                        {user.isActive ? 'نشط' : 'غير نشط'}
+                        {user.role === 'admin' ? 'مدير' : 'مستخدم'}
                       </span>
                     </td>
                   </tr>

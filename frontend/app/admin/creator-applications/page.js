@@ -251,13 +251,6 @@ export default function CreatorApplicationsPage() {
                         <h3 className="font-semibold text-gray-900 dark:text-dark-text-primary">
                           {application.name}
                         </h3>
-                        {application.requestedName && application.requestedName !== application.name && (
-                          <div className="mb-2">
-                            <span className="text-sm text-blue-600 dark:text-blue-400 font-medium">
-                              يطلب تغيير الاسم إلى: {application.requestedName}
-                            </span>
-                          </div>
-                        )}
                         <p className="text-sm text-gray-600 dark:text-dark-text-secondary">
                           {application.email}
                         </p>

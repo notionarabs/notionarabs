@@ -16,16 +16,6 @@ export default function AdminSettingsPage() {
     creatorApplicationsEnabled: true,
     autoApproveTemplates: false,
     autoApproveBlogs: false,
-    maxFileSize: 10,
-    allowedFileTypes: ['jpg', 'jpeg', 'png', 'gif', 'pdf'],
-    emailNotifications: true,
-    smsNotifications: false,
-    socialMediaLinks: {
-      twitter: '',
-      instagram: '',
-      linkedin: '',
-      youtube: ''
-    },
     contactInfo: {
       email: 'support@notionarabs.com',
       phone: '+201050505673',
@@ -71,16 +61,6 @@ export default function AdminSettingsPage() {
         creatorApplicationsEnabled: true,
         autoApproveTemplates: false,
         autoApproveBlogs: false,
-        maxFileSize: 10,
-        allowedFileTypes: ['jpg', 'jpeg', 'png', 'gif', 'pdf'],
-        emailNotifications: true,
-        smsNotifications: false,
-        socialMediaLinks: {
-          twitter: '',
-          instagram: '',
-          linkedin: '',
-          youtube: ''
-        },
         contactInfo: {
           email: '',
           phone: '',
@@ -188,15 +168,6 @@ export default function AdminSettingsPage() {
                 </a>
                 <a href="#content" className="block px-3 py-2 text-sm text-accent-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary rounded-lg">
                   إدارة المحتوى
-                </a>
-                <a href="#files" className="block px-3 py-2 text-sm text-accent-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary rounded-lg">
-                  إعدادات الملفات
-                </a>
-                <a href="#notifications" className="block px-3 py-2 text-sm text-accent-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary rounded-lg">
-                  الإشعارات
-                </a>
-                <a href="#social" className="block px-3 py-2 text-sm text-accent-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary rounded-lg">
-                  وسائل التواصل
                 </a>
                 <a href="#contact" className="block px-3 py-2 text-sm text-accent-600 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary rounded-lg">
                   معلومات التواصل
@@ -333,134 +304,6 @@ export default function AdminSettingsPage() {
               </div>
             </div>
 
-            {/* File Settings */}
-            <div id="files" className="card p-6">
-              <h3 className="heading-3 mb-6">إعدادات الملفات</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-accent-700 dark:text-dark-text-primary mb-2">
-                    الحد الأقصى لحجم الملف (MB)
-                  </label>
-                  <input
-                    type="number"
-                    value={settings.maxFileSize}
-                    onChange={(e) => handleInputChange(null, 'maxFileSize', parseInt(e.target.value))}
-                    className="form-input"
-                    min="1"
-                    max="100"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-accent-700 dark:text-dark-text-primary mb-2">
-                    أنواع الملفات المسموحة
-                  </label>
-                  <input
-                    type="text"
-                    value={settings.allowedFileTypes.join(', ')}
-                    onChange={(e) => handleInputChange(null, 'allowedFileTypes', e.target.value.split(',').map(type => type.trim()))}
-                    className="form-input"
-                    placeholder="jpg, jpeg, png, gif, pdf"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Notifications */}
-            <div id="notifications" className="card p-6">
-              <h3 className="heading-3 mb-6">الإشعارات</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-tertiary rounded-lg">
-                  <div>
-                    <h4 className="font-medium text-accent-700 dark:text-dark-text-primary">إشعارات البريد الإلكتروني</h4>
-                    <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
-                      إرسال إشعارات عبر البريد الإلكتروني
-                    </p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={settings.emailNotifications}
-                      onChange={(e) => handleInputChange(null, 'emailNotifications', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
-                  </label>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-tertiary rounded-lg">
-                  <div>
-                    <h4 className="font-medium text-accent-700 dark:text-dark-text-primary">إشعارات الرسائل النصية</h4>
-                    <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
-                      إرسال إشعارات عبر الرسائل النصية
-                    </p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={settings.smsNotifications}
-                      onChange={(e) => handleInputChange(null, 'smsNotifications', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            {/* Social Media Links */}
-            <div id="social" className="card p-6">
-              <h3 className="heading-3 mb-6">وسائل التواصل الاجتماعي</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-accent-700 dark:text-dark-text-primary mb-2">
-                    تويتر
-                  </label>
-                  <input
-                    type="url"
-                    value={settings.socialMediaLinks.twitter}
-                    onChange={(e) => handleInputChange('socialMediaLinks', 'twitter', e.target.value)}
-                    className="form-input"
-                    placeholder="https://twitter.com/notionarabs"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-accent-700 dark:text-dark-text-primary mb-2">
-                    إنستغرام
-                  </label>
-                  <input
-                    type="url"
-                    value={settings.socialMediaLinks.instagram}
-                    onChange={(e) => handleInputChange('socialMediaLinks', 'instagram', e.target.value)}
-                    className="form-input"
-                    placeholder="https://instagram.com/notionarabs"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-accent-700 dark:text-dark-text-primary mb-2">
-                    لينكد إن
-                  </label>
-                  <input
-                    type="url"
-                    value={settings.socialMediaLinks.linkedin}
-                    onChange={(e) => handleInputChange('socialMediaLinks', 'linkedin', e.target.value)}
-                    className="form-input"
-                    placeholder="https://linkedin.com/company/notionarabs"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-accent-700 dark:text-dark-text-primary mb-2">
-                    يوتيوب
-                  </label>
-                  <input
-                    type="url"
-                    value={settings.socialMediaLinks.youtube}
-                    onChange={(e) => handleInputChange('socialMediaLinks', 'youtube', e.target.value)}
-                    className="form-input"
-                    placeholder="https://youtube.com/@notionarabs"
-                  />
-                </div>
-              </div>
-            </div>
 
             {/* Contact Information */}
             <div id="contact" className="card p-6">

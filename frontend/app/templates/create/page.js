@@ -24,9 +24,10 @@ export default function CreateTemplatePage() {
     categories: [], // New field for multiple categories
     notionLink: '',
     features: '',
-    tags: '',
+    tags: [], // Changed to array for tag-based input
     previewImage: '',
-    previewImages: []
+    previewImages: [],
+    explanationVideo: '' // Video link for template explanation
   });
 
   // Multi-select state
@@ -34,6 +35,10 @@ export default function CreateTemplatePage() {
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const categoryDropdownRef = useRef(null);
   const categoryInputRef = useRef(null);
+
+  // Tags state
+  const [tagInput, setTagInput] = useState('');
+  const tagInputRef = useRef(null);
 
   useEffect(() => {
     // Ensure token is set in headers when component mounts
@@ -299,7 +304,7 @@ export default function CreateTemplatePage() {
   );
 
   const addCategory = (category) => {
-    if (!formData.categories.includes(category)) {
+    if (!formData.categories.includes(category) && formData.categories.length < 3) {
       setFormData(prev => ({
         ...prev,
         categories: [...prev.categories, category]
@@ -315,6 +320,41 @@ export default function CreateTemplatePage() {
       ...prev,
       categories: prev.categories.filter(category => category !== categoryToRemove)
     }));
+  };
+
+  // Tag management functions
+  const addTag = (tag) => {
+    const trimmedTag = tag.trim();
+    if (trimmedTag && !formData.tags.includes(trimmedTag) && formData.tags.length < 10) {
+      setFormData(prev => ({
+        ...prev,
+        tags: [...prev.tags, trimmedTag]
+      }));
+    }
+    setTagInput('');
+  };
+
+  const removeTag = (tagToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
+    }));
+  };
+
+  const handleTagInputChange = (e) => {
+    setTagInput(e.target.value);
+  };
+
+  const handleTagKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (tagInput.trim()) {
+        addTag(tagInput);
+      }
+    } else if (e.key === 'Backspace' && !tagInput && formData.tags.length > 0) {
+      // Remove last tag when backspace is pressed on empty input
+      removeTag(formData.tags[formData.tags.length - 1]);
+    }
   };
 
   const handleCategorySearch = (e) => {
@@ -338,9 +378,9 @@ export default function CreateTemplatePage() {
       return;
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      showError('حجم الصورة يجب أن يكون أقل من 5 ميجابايت');
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      showError('حجم الصورة يجب أن يكون أقل من 2 ميجابايت');
       return;
     }
 
@@ -391,14 +431,20 @@ export default function CreateTemplatePage() {
 
     if (files.length === 0) return;
 
+    // Check if adding these files would exceed the 4 image limit
+    if (formData.previewImages.length + files.length > 4) {
+      showError('يمكنك رفع 4 صور كحد أقصى');
+      return;
+    }
+
     // Validate all files
     for (const file of files) {
       if (!file.type.startsWith('image/')) {
         showError(`الملف ${file.name} ليس صورة صالحة`);
         return;
       }
-      if (file.size > 10 * 1024 * 1024) {
-        showError(`الملف ${file.name} كبير جداً (أكثر من 10 ميجابايت)`);
+      if (file.size > 2 * 1024 * 1024) {
+        showError(`الملف ${file.name} كبير جداً (أكثر من 2 ميجابايت)`);
         return;
       }
     }
@@ -476,6 +522,16 @@ export default function CreateTemplatePage() {
         setIsSubmitting(false);
         return;
       }
+      if (formData.description.length > 300) {
+        showError('وصف القالب يجب أن يكون أقل من 300 حرف');
+        setIsSubmitting(false);
+        return;
+      }
+      if (formData.features && formData.features.length > 1000) {
+        showError('مميزات القالب يجب أن تكون أقل من 1000 حرف');
+        setIsSubmitting(false);
+        return;
+      }
       if (!formData.categories || formData.categories.length === 0) {
         showError('يرجى اختيار فئة واحدة على الأقل');
         setIsSubmitting(false);
@@ -493,8 +549,8 @@ export default function CreateTemplatePage() {
         return;
       }
 
-      // Convert tags string to array
-      const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+      // Tags are already an array
+      const tagsArray = formData.tags;
 
       // Clean up the form data - remove empty strings for optional fields
       const templateData = {
@@ -506,7 +562,8 @@ export default function CreateTemplatePage() {
         tags: tagsArray.length > 0 ? tagsArray : undefined,
         features: formData.features.trim() || undefined,
         previewImage: formData.previewImage || undefined,
-        previewImages: formData.previewImages.length > 0 ? formData.previewImages : undefined
+        previewImages: formData.previewImages.length > 0 ? formData.previewImages : undefined,
+        explanationVideo: formData.explanationVideo.trim() || undefined
       };
 
       // Remove undefined values
@@ -527,9 +584,10 @@ export default function CreateTemplatePage() {
           categories: [],
           notionLink: '',
           features: '',
-          tags: '',
+          tags: [],
           previewImage: '',
-          previewImages: []
+          previewImages: [],
+          explanationVideo: ''
         });
         setUploadedImage(null);
         setUploadedImages([]);
@@ -658,11 +716,16 @@ export default function CreateTemplatePage() {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="flex items-center text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
-                    <svg className="w-4 h-4 text-primary-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                    </svg>
-                    الفئات *
+                  <label className="flex items-center justify-between text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
+                    <div className="flex items-center">
+                      <svg className="w-4 h-4 text-primary-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                      </svg>
+                      الفئات *
+                    </div>
+                    <span className="text-xs text-gray-500 dark:text-dark-text-tertiary">
+                      {formData.categories.length}/3
+                    </span>
                   </label>
 
                   {/* Category Multi-Select Input */}
@@ -693,13 +756,20 @@ export default function CreateTemplatePage() {
                         type="text"
                         value={categorySearch}
                         onChange={handleCategorySearch}
-                        onFocus={() => setShowCategoryDropdown(true)}
+                        onFocus={() => formData.categories.length < 3 && setShowCategoryDropdown(true)}
                         onKeyDown={handleKeyDown}
                         onBlur={() => {
                           setTimeout(() => setShowCategoryDropdown(false), 200);
                         }}
-                        placeholder={formData.categories.length > 0 ? "أضف فئة أخرى..." : "ابحث عن الفئة..."}
-                        className="flex-1 min-w-[120px] bg-transparent outline-none text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-quaternary"
+                        placeholder={
+                          formData.categories.length >= 3
+                            ? "تم الوصول للحد الأقصى (3 فئات)"
+                            : formData.categories.length > 0
+                              ? "أضف فئة أخرى..."
+                              : "ابحث عن الفئة..."
+                        }
+                        disabled={formData.categories.length >= 3}
+                        className="flex-1 min-w-[120px] bg-transparent outline-none text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-quaternary disabled:opacity-50 disabled:cursor-not-allowed"
                         autoComplete="off"
                       />
                     </div>
@@ -711,7 +781,7 @@ export default function CreateTemplatePage() {
                     </div>
 
                     {/* Dropdown */}
-                    {showCategoryDropdown && (
+                    {showCategoryDropdown && formData.categories.length < 3 && (
                       <div ref={categoryDropdownRef} className="absolute z-[9999] w-full mt-2 bg-white dark:bg-dark-card-bg border border-gray-200 dark:border-dark-card-border rounded-xl shadow-2xl max-h-64 overflow-y-auto">
                         {filteredCategories.length > 0 ? (
                           filteredCategories.map((category, index) => (
@@ -747,26 +817,35 @@ export default function CreateTemplatePage() {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="flex items-center text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
+                  <label className="flex items-center text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
                     <svg className="w-4 h-4 text-primary-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     وصف القالب *
                   </label>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                    وصف مختصر للقالب يظهر في صفحة القالب الرئيسية (حد أقصى 300 حرف)
+                  </p>
                   <div className="relative">
                     <textarea
                       name="description"
                       value={formData.description}
                       onChange={handleInputChange}
                       required
+                      maxLength={300}
                       rows={4}
-                      className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400 resize-none"
-                      placeholder="اكتب وصفاً مفصلاً عن القالب ومميزاته..."
+                      className={`form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400 resize-none ${formData.description.length > 300 ? 'border-red-500' : ''}`}
+                      placeholder="اكتب وصفاً مختصراً عن القالب ومميزاته..."
                     />
                     <div className="absolute right-4 top-4">
                       <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
+                    </div>
+                    <div className="absolute left-4 bottom-4">
+                      <span className={`text-xs ${formData.description.length > 300 ? 'text-red-500' : formData.description.length > 250 ? 'text-yellow-500' : 'text-gray-400'}`}>
+                        {formData.description.length}/300
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -857,7 +936,7 @@ export default function CreateTemplatePage() {
                                 اضغط لرفع لقطة شاشة للصفحة الرئيسية للقالب
                               </p>
                               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                PNG, JPG, GIF حتى 5 ميجابايت - مطلوب كصورة مصغرة
+                                PNG, JPG, GIF حتى 2 ميجابايت - مطلوب كصورة مصغرة
                               </p>
                             </div>
                           </>
@@ -961,7 +1040,7 @@ export default function CreateTemplatePage() {
                               اضغط لرفع صور إضافية للقالب
                             </p>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                              يمكنك اختيار عدة صور مرة واحدة - PNG, JPG, GIF حتى 10 ميجابايت
+                              يمكنك اختيار عدة صور مرة واحدة - PNG, JPG, GIF حتى 2 ميجابايت (حد أقصى 4 صور)
                             </p>
                           </div>
                         </>
@@ -996,29 +1075,70 @@ export default function CreateTemplatePage() {
                       ))}
                     </div>
 
-                    {/* Add more images button */}
-                    <div className="text-center">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleMultipleFileChange}
-                        className="hidden"
-                        id="add-more-images"
-                        disabled={isUploadingImage}
-                      />
-                      <label
-                        htmlFor="add-more-images"
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors cursor-pointer text-sm"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
-                        إضافة صور أخرى
-                      </label>
-                    </div>
+                    {/* Add more images button - only show if less than 4 images */}
+                    {formData.previewImages.length < 4 && (
+                      <div className="text-center">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={handleMultipleFileChange}
+                          className="hidden"
+                          id="add-more-images"
+                          disabled={isUploadingImage}
+                        />
+                        <label
+                          htmlFor="add-more-images"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors cursor-pointer text-sm"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                          </svg>
+                          إضافة صور أخرى ({formData.previewImages.length}/4)
+                        </label>
+                      </div>
+                    )}
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Video Explanation */}
+            <div className="card p-8 shadow-xl border-0 bg-white/80 dark:bg-dark-card-bg/80 backdrop-blur-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <svg className="w-5 h-5 text-accent-600 dark:text-dark-text-secondary" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                </svg>
+                <h3 className="text-lg font-semibold text-accent-700 dark:text-dark-text-primary">
+                  فيديو توضيحي للقالب (اختياري)
+                </h3>
+              </div>
+
+              <div className="mb-4">
+                <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-3">
+                  يمكنك إضافة رابط فيديو يوضح كيفية استخدام القالب. هذا الفيديو سيساعد المستخدمين على فهم القالب بشكل أفضل.
+                </p>
+
+                <div className="relative">
+                  <input
+                    type="url"
+                    name="explanationVideo"
+                    value={formData.explanationVideo}
+                    onChange={handleInputChange}
+                    className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-purple-500 dark:focus:border-purple-500 rounded-xl transition-all duration-200 hover:border-purple-300 dark:hover:border-purple-400"
+                    placeholder="https://youtube.com/watch?v=... أو https://vimeo.com/..."
+                    dir="ltr"
+                  />
+                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                    <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                    </svg>
+                  </div>
+                </div>
+
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                  يدعم روابط YouTube و Vimeo و منصات الفيديو الأخرى
+                </p>
               </div>
             </div>
 
@@ -1035,56 +1155,96 @@ export default function CreateTemplatePage() {
 
               <div className="space-y-6">
                 <div>
-                  <label className="flex items-center text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
+                  <label className="flex items-center text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
                     <svg className="w-4 h-4 text-blue-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     مميزات القالب (اختياري)
                   </label>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                    وصف مفصل لمميزات القالب يظهر في صفحة تفاصيل القالب (حد أقصى 1000 حرف)
+                  </p>
                   <div className="relative">
                     <textarea
                       name="features"
                       value={formData.features}
                       onChange={handleInputChange}
-                      rows={4}
-                      className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-blue-500 dark:focus:border-blue-500 rounded-xl transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-400 resize-none"
-                      placeholder="اكتب مميزات القالب، كل ميزة في سطر منفصل..."
+                      maxLength={1000}
+                      rows={6}
+                      className={`form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-blue-500 dark:focus:border-blue-500 rounded-xl transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-400 resize-none ${formData.features.length > 1000 ? 'border-red-500' : ''}`}
+                      placeholder="اكتب وصفاً مفصلاً لمميزات القالب..."
                     />
                     <div className="absolute right-4 top-4">
                       <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
+                    <div className="absolute left-4 bottom-4">
+                      <span className={`text-xs ${formData.features.length > 1000 ? 'text-red-500' : formData.features.length > 800 ? 'text-yellow-500' : 'text-gray-400'}`}>
+                        {formData.features.length}/1000
+                      </span>
+                    </div>
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                    اكتب كل ميزة في سطر منفصل لسهولة القراءة
-                  </p>
                 </div>
 
                 <div>
-                  <label className="flex items-center text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
-                    <svg className="w-4 h-4 text-blue-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                    </svg>
-                    الكلمات المفتاحية (اختياري)
+                  <label className="flex items-center justify-between text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
+                    <div className="flex items-center">
+                      <svg className="w-4 h-4 text-blue-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                      </svg>
+                      الكلمات المفتاحية (اختياري)
+                    </div>
+                    <span className="text-xs text-gray-500 dark:text-dark-text-tertiary">
+                      {formData.tags.length}/10
+                    </span>
                   </label>
+
+                  {/* Tag Input */}
                   <div className="relative">
-                    <input
-                      type="text"
-                      name="tags"
-                      value={formData.tags}
-                      onChange={handleInputChange}
-                      className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-blue-500 dark:focus:border-blue-500 rounded-xl transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-400"
-                      placeholder="إنتاجية, دراسة, تنظيم (مفصولة بفواصل)"
-                    />
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                    <div className="form-input w-full min-h-[3rem] px-4 py-3 pr-12 border-2 border-gray-200 dark:border-dark-input-border focus-within:border-blue-500 dark:focus-within:border-blue-500 rounded-xl transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-400 flex flex-wrap items-center gap-2">
+                      {/* Selected Tags */}
+                      {formData.tags.map((tag, index) => (
+                        <span
+                          key={index}
+                          className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-md text-sm font-medium"
+                        >
+                          {tag}
+                          <button
+                            type="button"
+                            onClick={() => removeTag(tag)}
+                            className="hover:text-blue-900 dark:hover:text-blue-100 transition-colors"
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </span>
+                      ))}
+
+                      {/* Tag Input Field */}
+                      <input
+                        ref={tagInputRef}
+                        type="text"
+                        value={tagInput}
+                        onChange={handleTagInputChange}
+                        onKeyDown={handleTagKeyDown}
+                        placeholder={formData.tags.length >= 10 ? "تم الوصول للحد الأقصى (10 كلمات)" : formData.tags.length > 0 ? "أضف كلمة مفتاحية..." : "اكتب كلمة مفتاحية واضغط Enter"}
+                        disabled={formData.tags.length >= 10}
+                        className="flex-1 min-w-[200px] bg-transparent outline-none text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-quaternary disabled:opacity-50 disabled:cursor-not-allowed"
+                        autoComplete="off"
+                      />
+                    </div>
+
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
                       <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                       </svg>
                     </div>
                   </div>
+
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                    تساعد الكلمات المفتاحية في العثور على قالبك بسهولة
+                    اضغط Enter لإضافة كلمة مفتاحية. الحد الأقصى 10 كلمات
                   </p>
                 </div>
 

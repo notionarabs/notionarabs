@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import api from '../lib/api';
-import { Settings, BookOpen, Briefcase, Sunrise, Palette, Laptop, Dumbbell, PiggyBank, FolderTree, CalendarDays, LayoutDashboard, Users, Check, Youtube, Facebook, Send } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { Settings, BookOpen, Briefcase, Heart, Palette, Laptop, Dumbbell, PiggyBank, FolderTree, CalendarDays, LayoutDashboard, Users, Check, Youtube, Facebook, Send, Zap, Target, Lightbulb, TrendingUp } from 'lucide-react';
 
 // Fallback data for when API fails
 const fallbackTemplates = [
@@ -50,18 +51,14 @@ const fallbackTemplates = [
   },
 ];
 
-// Use Lucide icons instead of external images for categories
+// Most important categories with better icons
 const categories = [
-  { name: "الإنتاجية", count: 0, Icon: Settings, bg: "from-primary-100 to-primary-200 dark:from-orange-900/30 dark:to-orange-800/30" },
+  { name: "الإنتاجية", count: 0, Icon: Zap, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30" },
   { name: "الدراسة", count: 0, Icon: BookOpen, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
-  { name: "الأعمال", count: 0, Icon: Briefcase, bg: "from-emerald-100 to-emerald-200 dark:from-emerald-900/30 dark:to-emerald-800/30" },
-  { name: "الحياة الشخصية", count: 0, Icon: Sunrise, bg: "from-rose-100 to-rose-200 dark:from-rose-900/30 dark:to-rose-800/30" },
-  { name: "الإبداع", count: 0, Icon: Palette, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
-  { name: "التقنية", count: 0, Icon: Laptop, bg: "from-slate-100 to-slate-200 dark:from-slate-900/30 dark:to-slate-800/30" },
-  { name: "الصحة", count: 0, Icon: Dumbbell, bg: "from-teal-100 to-teal-200 dark:from-teal-900/30 dark:to-teal-800/30" },
-  { name: "المالية", count: 0, Icon: PiggyBank, bg: "from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/30" },
-  { name: "التنظيم", count: 0, Icon: FolderTree, bg: "from-zinc-100 to-zinc-200 dark:from-zinc-900/30 dark:to-zinc-800/30" },
-  { name: "التخطيط", count: 0, Icon: CalendarDays, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30" },
+  { name: "الأعمال", count: 0, Icon: TrendingUp, bg: "from-emerald-100 to-emerald-200 dark:from-emerald-900/30 dark:to-emerald-800/30" },
+  { name: "الحياة الشخصية", count: 0, Icon: Heart, bg: "from-rose-100 to-rose-200 dark:from-rose-900/30 dark:to-rose-800/30" },
+  { name: "الإبداع", count: 0, Icon: Lightbulb, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
+  { name: "التخطيط", count: 0, Icon: Target, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30" },
 ];
 
 // Map Arabic category names to English slugs for URLs
@@ -83,6 +80,7 @@ const categorySlugMap = {
 };
 
 export default function HomePage() {
+  const { user, isAuthenticated } = useAuth();
   const [featuredTemplates, setFeaturedTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ templates: 0, creators: 0, specialties: 0, downloads: 0 });
@@ -123,10 +121,6 @@ export default function HomePage() {
           'الأعمال',
           'الحياة الشخصية',
           'الإبداع',
-          'التقنية',
-          'الصحة',
-          'المالية',
-          'التنظيم',
           'التخطيط'
         ];
 
@@ -299,10 +293,10 @@ export default function HomePage() {
                   </svg>
                 </Link>
                 <Link
-                  href="/creators/apply"
+                  href={isAuthenticated && user?.creatorStatus === 'approved' ? '/profile' : '/creators/apply'}
                   className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-white/95 dark:bg-dark-tertiary/95 backdrop-blur-sm text-accent-700 dark:text-dark-text-primary rounded-xl border-2 border-primary-300 dark:border-orange-400/50 hover:bg-primary-50 dark:hover:bg-orange-900/20 transition-all duration-300 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
                 >
-                  انضم كمبدع
+                  {isAuthenticated && user?.creatorStatus === 'approved' ? 'لوحة التحكم' : 'انضم كمبدع'}
                 </Link>
               </div>
 
@@ -426,8 +420,8 @@ export default function HomePage() {
           </div>
 
           <div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
-              {categories.slice(0, 6).map((c, idx) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
+              {categories.map((c, idx) => (
                 <Link href={`/templates?category=${encodeURIComponent(c.name)}`} key={idx} className="group">
                   <div className="card-interactive border-2 border-gray-100 overflow-hidden hover:border-accent-300 hover:shadow-large transition-all duration-300">
                     <div className={`h-16 sm:h-20 md:h-24 lg:h-28 overflow-hidden relative flex items-center justify-center bg-gradient-to-br ${c.bg}`}>
@@ -521,10 +515,10 @@ export default function HomePage() {
 
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-6 sm:mb-8">
                 <Link
-                  href="/creators/apply"
+                  href={isAuthenticated && user?.creatorStatus === 'approved' ? '/profile' : '/creators/apply'}
                   className="btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 shadow-large hover:shadow-glow w-full sm:w-auto text-center"
                 >
-                  كن مبدعاً
+                  {isAuthenticated && user?.creatorStatus === 'approved' ? 'لوحة التحكم' : 'كن مبدعاً'}
                   <svg className="inline-block mr-2 w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>

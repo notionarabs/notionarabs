@@ -41,8 +41,7 @@ const values = [
 
 const stats = [
   { number: "1", label: "مؤسس" },
-  { number: "100%", label: "عربي" },
-  { number: "2025", label: "سنة التأسيس" }
+  { number: "100%", label: "عربي" }
 ];
 
 export default function AboutPage() {
@@ -62,7 +61,7 @@ export default function AboutPage() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16 max-w-2xl mx-auto">
             {stats.map((stat, index) => (
               <div key={index} className="card-featured p-6 text-center">
                 <div className="text-3xl font-bold text-primary-500 dark:text-orange-500 mb-2">

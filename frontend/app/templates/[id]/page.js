@@ -141,7 +141,8 @@ export default function TemplateDetailPage() {
       if (isAuthenticated) {
         const userRatingResponse = await api.get(`/ratings/user/template/${templateId}`);
         if (userRatingResponse.data.success) {
-          setUserRating(userRatingResponse.data.rating);
+          const ratingData = userRatingResponse.data.rating;
+          setUserRating({ rating: ratingData?.rating || 0, review: ratingData?.review || '' });
         }
       }
 
@@ -213,6 +214,10 @@ export default function TemplateDetailPage() {
         const response = await api.get(`/templates/${templateIdentifier}`);
 
         if (response.data.success) {
+          console.log('Template data:', response.data.template);
+          console.log('Preview Image:', response.data.template.previewImage);
+          console.log('Preview Images:', response.data.template.previewImages);
+          console.log('Img Src:', response.data.template.imgSrc);
           setTemplate(response.data.template);
 
           // Load ratings
@@ -443,11 +448,21 @@ export default function TemplateDetailPage() {
                     >
                       <Image
                         key={`${selectedImage}-${template.previewImages?.[selectedImage] || template.previewImage}`}
-                        src={
-                          template.previewImages && template.previewImages.length > selectedImage
-                            ? template.previewImages[selectedImage]
-                            : template.previewImage || template.imgSrc || '/placeholder-template.jpg'
-                        }
+                        src={(() => {
+                          let imageSrc;
+                          if (selectedImage === -2) {
+                            // Main image (previewImage)
+                            imageSrc = template.previewImage || '/placeholder-template.jpg';
+                          } else if (template.previewImages && template.previewImages.length > selectedImage && selectedImage >= 0) {
+                            // Additional images (previewImages)
+                            imageSrc = template.previewImages[selectedImage];
+                          } else {
+                            // Default fallback
+                            imageSrc = template.previewImage || template.imgSrc || '/placeholder-template.jpg';
+                          }
+                          console.log('Image source:', imageSrc, 'Selected index:', selectedImage);
+                          return imageSrc;
+                        })()}
                         alt={template.title}
                         width={2400}
                         height={1800}
@@ -461,7 +476,7 @@ export default function TemplateDetailPage() {
 
               {/* Thumbnail Images and Video - Show if we have multiple images or video */}
               {(template.previewImages && template.previewImages.length > 1) || template.explanationVideo ? (
-                <div className="grid grid-cols-4 gap-2">
+                <div className="flex flex-wrap gap-2 justify-end" dir="ltr">
                   {/* Video Thumbnail */}
                   {template.explanationVideo && getVideoEmbedUrl(template.explanationVideo) && (
                     <button
@@ -469,27 +484,33 @@ export default function TemplateDetailPage() {
                         setShowVideo(true);
                         setSelectedImage(-1); // Special index for video
                       }}
-                      className={`relative overflow-hidden rounded-lg transition-all duration-300 transform ${showVideo
+                      className={`relative overflow-hidden rounded-lg transition-all duration-300 transform w-24 h-16 flex-shrink-0 ${showVideo
                         ? 'ring-2 ring-orange-500 scale-105 shadow-lg'
                         : 'hover:opacity-80 hover:scale-102 hover:shadow-md'
                         }`}
                     >
-                      <div className="w-full h-20 bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30 flex items-center justify-center relative">
-                        <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
-                        </svg>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-6 h-6 bg-white/80 rounded-full flex items-center justify-center">
-                            <svg className="w-3 h-3 text-red-600 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-                            </svg>
+                      <div className="w-full h-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative">
+                        {/* Video thumbnail placeholder */}
+                        <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center relative">
+                          {/* Play button overlay */}
+                          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                            <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
+                              <svg className="w-4 h-4 text-gray-700 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                              </svg>
+                            </div>
                           </div>
+
+                          {/* Video icon */}
+                          <svg className="w-8 h-8 text-gray-400 dark:text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                          </svg>
                         </div>
                       </div>
                     </button>
                   )}
 
-                  {/* Image Thumbnails */}
+                  {/* Additional Image Thumbnails (previewImages) */}
                   {template.previewImages && template.previewImages.map((imageSrc, index) => (
                     <button
                       key={index}
@@ -499,7 +520,7 @@ export default function TemplateDetailPage() {
                         setShowVideo(false);
                         setTimeout(() => setIsImageLoading(false), 300);
                       }}
-                      className={`relative overflow-hidden rounded-lg transition-all duration-300 transform ${selectedImage === index && !showVideo
+                      className={`relative overflow-hidden rounded-lg transition-all duration-300 transform w-24 h-16 flex-shrink-0 ${selectedImage === index && !showVideo
                         ? 'ring-2 ring-orange-500 scale-105 shadow-lg'
                         : 'hover:opacity-80 hover:scale-102 hover:shadow-md'
                         }`}
@@ -508,13 +529,13 @@ export default function TemplateDetailPage() {
                         <Image
                           src={imageSrc}
                           alt={`${template.title} - ${index + 1}`}
-                          width={150}
-                          height={100}
-                          className="w-full h-20 object-cover"
+                          width={96}
+                          height={64}
+                          className="w-full h-full object-cover"
                           quality={100}
                         />
                       ) : (
-                        <div className="w-full h-20 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center">
+                        <div className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center">
                           <svg className="w-8 h-8 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
                           </svg>
@@ -522,6 +543,31 @@ export default function TemplateDetailPage() {
                       )}
                     </button>
                   ))}
+
+                  {/* Main Image Thumbnail (previewImage) */}
+                  {template.previewImage && (
+                    <button
+                      onClick={() => {
+                        setIsImageLoading(true);
+                        setSelectedImage(-2); // Special index for main image
+                        setShowVideo(false);
+                        setTimeout(() => setIsImageLoading(false), 300);
+                      }}
+                      className={`relative overflow-hidden rounded-lg transition-all duration-300 transform w-24 h-16 flex-shrink-0 ${selectedImage === -2 && !showVideo
+                        ? 'ring-2 ring-orange-500 scale-105 shadow-lg'
+                        : 'hover:opacity-80 hover:scale-102 hover:shadow-md'
+                        }`}
+                    >
+                      <Image
+                        src={template.previewImage}
+                        alt={`${template.title} - Main`}
+                        width={96}
+                        height={64}
+                        className="w-full h-full object-cover"
+                        quality={100}
+                      />
+                    </button>
+                  )}
                 </div>
               ) : (
                 /* Single image - show image info instead of thumbnails */
@@ -607,7 +653,7 @@ export default function TemplateDetailPage() {
               </div>
 
               {/* Interactive Rating System */}
-              {(!userRating || !userRating.rating) && (
+              {(isDownloaded || userHasTemplate) && (!userRating || !userRating.rating) && (
                 <div className="mb-6 p-4 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
                   <h3 className="text-lg font-semibold text-accent-700 dark:text-dark-text-primary mb-3">
                     قيم هذا القالب
@@ -616,7 +662,7 @@ export default function TemplateDetailPage() {
                     targetType="template"
                     targetId={template._id}
                     initialRating={template.rating || 0}
-                    initialUserRating={userRating}
+                    initialUserRating={userRating ? { rating: userRating.rating, review: userRating.review } : null}
                     onRatingChange={(data) => {
                       // Update template rating
                       setTemplate(prev => ({
@@ -625,7 +671,7 @@ export default function TemplateDetailPage() {
                         reviews: data.totalRatings
                       }));
                       setRatingsSummary({ averageRating: data.averageRating || 0, totalRatings: data.totalRatings || 0 });
-                      // Hide the container once user rated/commented
+                      // Update user rating state
                       setUserRating({ rating: data?.rating || 0, review: data?.review || '' });
                       // Reload ratings
                       loadRatings(template._id);
@@ -648,9 +694,6 @@ export default function TemplateDetailPage() {
               <div className="flex items-center gap-3 mb-6">
                 <span className="text-3xl font-bold text-green-600 dark:text-green-400">
                   مجاني
-                </span>
-                <span className="bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 px-3 py-1 rounded-md text-sm font-medium">
-                  جميع القوالب مجانية
                 </span>
               </div>
 
@@ -691,7 +734,7 @@ export default function TemplateDetailPage() {
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
-                    تحميل مجاني
+                    تحميل
                   </span>
                 )}
               </button>
@@ -722,41 +765,7 @@ export default function TemplateDetailPage() {
                 </div>
               )}
 
-              {/* Description */}
-              <div className="mb-6">
-                <h3 className="font-semibold text-accent-700 dark:text-dark-text-primary mb-2">الوصف</h3>
-                <p className="text-accent-600 dark:text-dark-text-secondary leading-relaxed">
-                  {template.description || 'لا يوجد وصف متاح لهذا القالب.'}
-                </p>
-              </div>
 
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2">
-                {template.tags && (() => {
-                  // Convert tags string to array if needed and remove duplicates
-                  const tagsArray = typeof template.tags === 'string'
-                    ? template.tags.split(',').filter(tag => tag.trim())
-                    : Array.isArray(template.tags)
-                      ? template.tags
-                      : [];
-
-                  // Remove duplicates by converting to Set and back to Array
-                  const uniqueTags = [...new Set(tagsArray.map(tag => tag.trim()).filter(tag => tag))];
-
-                  return uniqueTags.length > 0 ? (
-                    uniqueTags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-3 py-1 bg-accent-100 dark:bg-dark-tertiary text-accent-700 dark:text-dark-text-secondary rounded-full text-sm"
-                      >
-                        #{tag}
-                      </span>
-                    ))
-                  ) : (
-                    <span className="text-accent-500 dark:text-dark-text-tertiary text-sm">لا توجد علامات</span>
-                  );
-                })()}
-              </div>
             </div>
           </div>
         </div>
@@ -963,13 +972,18 @@ export default function TemplateDetailPage() {
             </svg>
           </button>
 
-          {template?.previewImages?.length > 1 && (
+          {((template?.previewImage && template?.previewImages?.length > 0) || template?.previewImages?.length > 1) && (
             <>
               <button
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setSelectedImage((prev) => (prev - 1 + template.previewImages.length) % template.previewImages.length);
+                  const totalItems = (template.previewImage ? 1 : 0) + (template.previewImages?.length || 0);
+                  setSelectedImage((prev) => {
+                    if (prev === -2) return template.previewImages?.length - 1 || -1; // From main image to last additional
+                    if (prev === -1) return -2; // From video to main image
+                    return prev > 0 ? prev - 1 : -2; // From additional images to main
+                  });
                 }}
                 className="absolute left-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white"
                 aria-label="السابق"
@@ -982,7 +996,11 @@ export default function TemplateDetailPage() {
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setSelectedImage((prev) => (prev + 1) % template.previewImages.length);
+                  setSelectedImage((prev) => {
+                    if (prev === -2) return 0; // From main image to first additional
+                    if (prev === -1) return -2; // From video to main image
+                    return prev < (template.previewImages?.length - 1) ? prev + 1 : -1; // From additional images to video
+                  });
                 }}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white"
                 aria-label="التالي"
@@ -1006,11 +1024,20 @@ export default function TemplateDetailPage() {
               />
             ) : (
               <img
-                src={
-                  template?.previewImages && template.previewImages.length > selectedImage
-                    ? template.previewImages[selectedImage]
-                    : template?.previewImage || template?.imgSrc || '/placeholder-template.jpg'
-                }
+                src={(() => {
+                  let imageSrc;
+                  if (selectedImage === -2) {
+                    // Main image (previewImage)
+                    imageSrc = template?.previewImage || '/placeholder-template.jpg';
+                  } else if (template?.previewImages && template.previewImages.length > selectedImage && selectedImage >= 0) {
+                    // Additional images (previewImages)
+                    imageSrc = template.previewImages[selectedImage];
+                  } else {
+                    // Default fallback
+                    imageSrc = template?.previewImage || template?.imgSrc || '/placeholder-template.jpg';
+                  }
+                  return imageSrc;
+                })()}
                 alt={template?.title}
                 className="max-w-full max-h-full object-contain"
               />

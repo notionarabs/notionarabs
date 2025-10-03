@@ -123,7 +123,7 @@ router.post('/creator', [
       // Return success but with a note that email wasn't sent
       res.json({
         success: true,
-        message: 'تم استلام رسالتك بنجاح (لم يتم إرسالها بالبريد الإلكتروني - تحتاج إعداد البريد الإلكتروني)'
+        message: 'تم استلام رسالتك بنجاح! سنتواصل معك قريباً.'
       });
       return;
     }
@@ -330,7 +330,7 @@ router.post('/general', [
       // Return success but with a note that email wasn't sent
       res.json({
         success: true,
-        message: 'تم استلام رسالتك بنجاح (لم يتم إرسالها بالبريد الإلكتروني - تحتاج إعداد البريد الإلكتروني)'
+        message: 'تم استلام رسالتك بنجاح! سنتواصل معك قريباً.'
       });
       return;
     }

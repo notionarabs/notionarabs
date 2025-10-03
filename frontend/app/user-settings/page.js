@@ -179,7 +179,7 @@ export default function UserSettingsPage() {
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                   إعدادات الإشعارات
                 </h2>
-                
+
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
@@ -228,7 +228,7 @@ export default function UserSettingsPage() {
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                   إجراءات الحساب
                 </h2>
-                
+
                 <div className="space-y-4">
                   {/* Change Password */}
                   <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
@@ -319,7 +319,7 @@ export default function UserSettingsPage() {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               تغيير كلمة المرور
             </h3>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -393,7 +393,7 @@ export default function UserSettingsPage() {
             <h3 className="text-lg font-semibold text-red-600 dark:text-red-400 mb-4">
               حذف الحساب
             </h3>
-            
+
             <p className="text-gray-600 dark:text-gray-400 mb-4">
               هذا الإجراء لا يمكن التراجع عنه. سيتم حذف حسابك وجميع البيانات المرتبطة به نهائياً.
             </p>

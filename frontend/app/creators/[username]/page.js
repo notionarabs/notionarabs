@@ -336,92 +336,26 @@ export default function PublicProfilePage() {
         </div>
       </div>
 
-      {/* Profile Section - Card-Based Layout */}
-      <section className="section-padding">
+      {/* Profile Section */}
+      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
         <div className="container-custom">
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
 
             {/* Profile Section */}
-            <div className="text-center py-8">
-              {/* Profile Picture */}
-              <div className="relative inline-block mb-6">
-                {creator.profilePicture ? (
-                  <Image
-                    src={creator.profilePicture}
-                    alt={`صورة ${creator.displayName || creator.name}`}
-                    width={160}
-                    height={160}
-                    className="w-32 h-32 rounded-2xl object-cover border-4 border-white dark:border-dark-card-border shadow-2xl"
-                  />
-                ) : (
-                  <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center shadow-2xl border-4 border-white dark:border-dark-card-border">
-                    <span className="text-4xl font-bold text-primary-500 dark:text-orange-400">
-                      {(creator.displayName || creator.name)?.charAt(0)?.toUpperCase()}
-                    </span>
-                  </div>
-                )}
-
-                {/* Verified Badge */}
-                {creator.creatorStatus === 'approved' && (
-                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-lg">
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                  </div>
-                )}
-              </div>
-
-              {/* Name & Status */}
-              <h1 className="text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-4">
-                {creator.displayName || creator.name}
-              </h1>
-
-              {creator.creatorStatus === 'approved' && (
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-400/20 to-amber-500/20 backdrop-blur-sm rounded-full border border-yellow-300/30 mb-6">
-                  <svg className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <span className="text-sm font-semibold text-yellow-700 dark:text-yellow-300">مبدع معتمد</span>
-                </div>
-              )}
-
-              {/* Bio */}
-              {(creator.bio || creator.experience) && (
-                <p className="text-lg text-accent-600 dark:text-dark-text-secondary mb-6 max-w-2xl mx-auto">
-                  {creator.bio || creator.experience}
-                </p>
-              )}
-
-              {/* Specialties */}
-              {creator.specialties && creator.specialties.length > 0 && (
-                <div className="mb-8">
-                  <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-4">المجالات المتخصصة</h3>
-                  <div className="flex flex-wrap justify-center gap-2">
-                    {creator.specialties.map((specialty, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-primary-100 dark:bg-orange-900/30 text-primary-800 dark:text-orange-300 border border-primary-200 dark:border-orange-500/30"
-                      >
-                        {specialty}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-center gap-4">
+            <div className="relative text-center">
+              {/* Action Buttons - Top Right */}
+              <div className="absolute top-0 right-0 flex items-center gap-3 sm:gap-4">
                 {/* Message Button */}
                 {creator.allowMessages !== false && (
                   <button
                     onClick={() => setShowMessageModal(true)}
-                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 text-white rounded-lg hover:from-primary-600 hover:to-accent-600 dark:hover:from-orange-600 dark:hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-primary-300 dark:focus:ring-orange-300 transition-all duration-200 shadow-md hover:shadow-lg"
+                    className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 text-white rounded-lg hover:from-primary-600 hover:to-accent-600 dark:hover:from-orange-600 dark:hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-primary-300 dark:focus:ring-orange-300 transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base font-medium"
                     title="إرسال رسالة"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                     </svg>
-                    <span className="font-medium">إرسال رسالة</span>
+                    <span>رسالة</span>
                   </button>
                 )}
 
@@ -435,43 +369,112 @@ export default function PublicProfilePage() {
                       followers: prev.followers + (isFollowing ? 1 : -1)
                     }));
                   }}
-                  className="px-6 py-3"
-                  size="large"
+                  className="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-medium rounded-lg"
+                  size="default"
                   showText={true}
                 />
               </div>
+
+              {/* Profile Picture */}
+              <div className="relative inline-block mb-6 sm:mb-8">
+                {creator.profilePicture ? (
+                  <Image
+                    src={creator.profilePicture}
+                    alt={`صورة ${creator.displayName || creator.name}`}
+                    width={160}
+                    height={160}
+                    className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl object-cover border-4 border-white dark:border-dark-card-border shadow-xl"
+                  />
+                ) : (
+                  <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center shadow-xl border-4 border-white dark:border-dark-card-border">
+                    <span className="text-4xl sm:text-5xl font-bold text-primary-500 dark:text-orange-400">
+                      {(creator.displayName || creator.name)?.charAt(0)?.toUpperCase()}
+                    </span>
+                  </div>
+                )}
+
+                {/* Verified Badge */}
+                {creator.creatorStatus === 'approved' && (
+                  <div className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-lg">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+
+              {/* Name & Status */}
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-accent-500 dark:text-dark-text-primary mb-4 sm:mb-6">
+                {creator.displayName || creator.name}
+              </h1>
+
+              {creator.creatorStatus === 'approved' && (
+                <div className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-yellow-400/20 to-amber-500/20 backdrop-blur-sm rounded-full border border-yellow-300/30 mb-6 sm:mb-8">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  <span className="text-sm sm:text-base font-semibold text-yellow-700 dark:text-yellow-300">مبدع معتمد</span>
+                </div>
+              )}
+
+              {/* Bio */}
+              {(creator.bio || creator.experience) && (
+                <p className="text-base sm:text-lg md:text-xl text-accent-600 dark:text-dark-text-secondary mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
+                  {creator.bio || creator.experience}
+                </p>
+              )}
+
+              {/* Specialties */}
+              {creator.specialties && creator.specialties.length > 0 && (
+                <div className="mb-8 sm:mb-12">
+                  <h3 className="text-lg sm:text-xl font-semibold text-accent-500 dark:text-dark-text-primary mb-4 sm:mb-6">المجالات المتخصصة</h3>
+                  <div className="flex flex-wrap justify-center gap-3">
+                    {creator.specialties.map((specialty, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 rounded-full text-sm sm:text-base font-medium bg-primary-100 dark:bg-orange-900/30 text-primary-800 dark:text-orange-300 border border-primary-200 dark:border-orange-500/30"
+                      >
+                        {specialty}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Stats Section */}
-            <div className="flex justify-center gap-8 py-6">
+            <div className="flex justify-center items-center gap-8 sm:gap-12 py-6 sm:py-8">
               {creator.showTemplateCount !== false && (
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary-500 dark:text-orange-500 mb-1">{creator.templateCount || creatorTemplates.length || 0}</div>
-                  <div className="text-sm text-gray-600 dark:text-dark-text-secondary">قوالب منشورة</div>
-                </div>
+                <>
+                  <div className="text-center">
+                    <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary-500 dark:text-orange-500 mb-2">{creator.templateCount || creatorTemplates.length || 0}</div>
+                    <div className="text-base sm:text-lg text-gray-600 dark:text-dark-text-secondary">قوالب منشورة</div>
+                  </div>
+                  <div className="w-px h-12 sm:h-16 bg-gray-300 dark:bg-gray-600"></div>
+                </>
               )}
               <div className="text-center">
-                <div className="text-2xl font-bold text-accent-500 dark:text-dark-text-primary mb-1">{creator.followers || 0}</div>
-                <div className="text-sm text-gray-600 dark:text-dark-text-secondary">متابع</div>
+                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">{creator.followers || 0}</div>
+                <div className="text-base sm:text-lg text-gray-600 dark:text-dark-text-secondary">متابع</div>
               </div>
             </div>
 
             {/* Professional Information */}
             {(creator.portfolio || creator.experience || creator.motivation) && (
-              <div className="max-w-2xl mx-auto py-6">
-                <h3 className="text-xl font-semibold text-accent-500 dark:text-dark-text-primary mb-6 text-center">المعلومات المهنية</h3>
-                <div className="space-y-6">
+              <div className="max-w-3xl mx-auto py-6 sm:py-8">
+                <h3 className="text-xl sm:text-2xl font-semibold text-accent-500 dark:text-dark-text-primary mb-6 sm:mb-8 text-center">المعلومات المهنية</h3>
+                <div className="space-y-6 sm:space-y-8">
                   {/* Portfolio */}
                   {creator.portfolio && (
                     <div className="text-center">
-                      <h4 className="text-lg font-medium text-accent-600 dark:text-dark-text-secondary mb-2">المعرض</h4>
+                      <h4 className="text-lg sm:text-xl font-medium text-accent-600 dark:text-dark-text-secondary mb-3 sm:mb-4">المعرض</h4>
                       <a
                         href={creator.portfolio}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-primary-600 dark:text-orange-400 hover:text-primary-700 dark:hover:text-orange-300 transition-colors"
+                        className="inline-flex items-center gap-2 text-primary-600 dark:text-orange-400 hover:text-primary-700 dark:hover:text-orange-300 transition-colors text-base sm:text-lg"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg>
                         {creator.portfolio}
@@ -482,8 +485,8 @@ export default function PublicProfilePage() {
                   {/* Experience */}
                   {creator.experience && (
                     <div>
-                      <h4 className="text-lg font-medium text-accent-600 dark:text-dark-text-secondary mb-3">الخبرة</h4>
-                      <p className="text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                      <h4 className="text-lg sm:text-xl font-medium text-accent-600 dark:text-dark-text-secondary mb-3 sm:mb-4">الخبرة</h4>
+                      <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary leading-relaxed">
                         {creator.experience}
                       </p>
                     </div>
@@ -492,8 +495,8 @@ export default function PublicProfilePage() {
                   {/* Motivation */}
                   {creator.motivation && (
                     <div>
-                      <h4 className="text-lg font-medium text-accent-600 dark:text-dark-text-secondary mb-3">الدافع</h4>
-                      <p className="text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                      <h4 className="text-lg sm:text-xl font-medium text-accent-600 dark:text-dark-text-secondary mb-3 sm:mb-4">الدافع</h4>
+                      <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary leading-relaxed">
                         {creator.motivation}
                       </p>
                     </div>
@@ -504,9 +507,9 @@ export default function PublicProfilePage() {
 
             {/* Social Links */}
             {creator.socialLinks && creator.socialLinks.length > 0 && (
-              <div className="max-w-2xl mx-auto py-6">
-                <h3 className="text-xl font-semibold text-accent-500 dark:text-dark-text-primary mb-6 text-center">روابط التواصل</h3>
-                <div className="flex flex-wrap justify-center gap-4">
+              <div className="max-w-3xl mx-auto py-6 sm:py-8">
+                <h3 className="text-xl sm:text-2xl font-semibold text-accent-500 dark:text-dark-text-primary mb-6 sm:mb-8 text-center">روابط التواصل</h3>
+                <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
                   {creator.socialLinks.map((link, index) => {
                     if (!link.url) return null;
 
@@ -518,10 +521,10 @@ export default function PublicProfilePage() {
                         href={link.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`flex items-center gap-3 px-6 py-3 rounded-xl border border-gray-200 dark:border-dark-card-border hover:border-primary-300 dark:hover:border-orange-500/50 transition-all duration-200 hover:shadow-md group ${platform?.color || 'text-gray-600 dark:text-dark-text-secondary'}`}
+                        className={`flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 rounded-xl border border-gray-200 dark:border-dark-card-border hover:border-primary-300 dark:hover:border-orange-500/50 transition-all duration-200 hover:shadow-md group ${platform?.color || 'text-gray-600 dark:text-dark-text-secondary'}`}
                       >
                         {getPlatformIcon(platform?.icon || 'website')}
-                        <span className="text-sm font-medium capitalize group-hover:text-primary-600 dark:group-hover:text-orange-400 transition-colors">
+                        <span className="text-sm sm:text-base font-medium capitalize group-hover:text-primary-600 dark:group-hover:text-orange-400 transition-colors">
                           {platform?.name || 'موقع'}
                         </span>
                       </a>
@@ -530,7 +533,6 @@ export default function PublicProfilePage() {
                 </div>
               </div>
             )}
-
 
           </div>
         </div>

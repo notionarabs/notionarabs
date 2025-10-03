@@ -393,6 +393,20 @@ export default function PublicProfilePage() {
                     {creator.bio || creator.experience}
                   </p>
                 )}
+
+                {/* Specialties */}
+                {creator.specialties && creator.specialties.length > 0 && (
+                  <div className="flex flex-wrap justify-center gap-2 mt-4">
+                    {creator.specialties.map((specialty, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 dark:bg-orange-900/30 text-primary-800 dark:text-orange-300"
+                      >
+                        {specialty}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -409,6 +423,52 @@ export default function PublicProfilePage() {
                 <div className="body-small text-gray-600 dark:text-dark-text-secondary">متابع</div>
               </div>
             </div>
+
+            {/* Professional Information */}
+            {(creator.portfolio || creator.experience || creator.motivation) && (
+              <div className="card p-6">
+                <h3 className="text-xl font-semibold text-accent-500 dark:text-dark-text-primary mb-6 text-center">المعلومات المهنية</h3>
+                <div className="space-y-6">
+                  {/* Portfolio */}
+                  {creator.portfolio && (
+                    <div className="text-center">
+                      <h4 className="text-lg font-medium text-accent-600 dark:text-dark-text-secondary mb-2">المعرض</h4>
+                      <a
+                        href={creator.portfolio}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-primary-600 dark:text-orange-400 hover:text-primary-700 dark:hover:text-orange-300 transition-colors"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        {creator.portfolio}
+                      </a>
+                    </div>
+                  )}
+
+                  {/* Experience */}
+                  {creator.experience && (
+                    <div>
+                      <h4 className="text-lg font-medium text-accent-600 dark:text-dark-text-secondary mb-3">الخبرة</h4>
+                      <p className="text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                        {creator.experience}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Motivation */}
+                  {creator.motivation && (
+                    <div>
+                      <h4 className="text-lg font-medium text-accent-600 dark:text-dark-text-secondary mb-3">الدافع</h4>
+                      <p className="text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                        {creator.motivation}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Social Links Row */}
             {creator.socialLinks && creator.socialLinks.length > 0 && (

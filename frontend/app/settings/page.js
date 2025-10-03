@@ -46,7 +46,10 @@ export default function SettingsPage() {
     profilePicture: '',
     socialLinks: [],
     allowMessages: true,
-    showTemplateCount: true
+    showTemplateCount: true,
+    // Specialties field
+    specialties: [],
+    newSpecialty: ''
   });
 
   useEffect(() => {
@@ -80,7 +83,9 @@ export default function SettingsPage() {
           displayName: profileData.displayName || user?.name || '',
           bio: profileData.bio || '',
           profilePicture: profileData.profilePicture || user?.profilePicture || '',
-          socialLinks: Array.isArray(profileData.socialLinks) ? profileData.socialLinks : []
+          socialLinks: Array.isArray(profileData.socialLinks) ? profileData.socialLinks : [],
+          // Specialties field
+          specialties: Array.isArray(profileData.specialties) ? profileData.specialties : (Array.isArray(user?.specialties) ? user.specialties : [])
         }));
       }
     } catch (error) {
@@ -92,7 +97,9 @@ export default function SettingsPage() {
         displayName: user?.name || '',
         bio: user?.bio || '',
         profilePicture: user?.profilePicture || '',
-        socialLinks: Array.isArray(user?.socialLinks) ? user.socialLinks : []
+        socialLinks: Array.isArray(user?.socialLinks) ? user.socialLinks : [],
+        // Specialties field
+        specialties: Array.isArray(user?.specialties) ? user.specialties : []
       }));
     } finally {
       setIsLoading(false);
@@ -658,7 +665,9 @@ export default function SettingsPage() {
         socialLinks: (profileSettings.socialLinks || []).filter(link => {
           if (!link.url || !link.url.trim()) return false;
           return isValidSocialMediaUrl(link.url);
-        })
+        }),
+        // Remove temporary fields
+        newSpecialty: undefined
       };
 
       await api.put('/auth/profile/settings', cleanedSettings);
@@ -1023,6 +1032,80 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
+                {/* Specialties */}
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-3">
+                    <svg className="w-4 h-4 text-primary-500 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                    المجالات التي تختص بها
+                  </label>
+                  <div className="space-y-3">
+                    {/* Selected Specialties Display */}
+                    {profileSettings.specialties && profileSettings.specialties.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {profileSettings.specialties.map((specialty, index) => (
+                          <span
+                            key={index}
+                            className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 dark:bg-orange-900/30 text-primary-800 dark:text-orange-300"
+                          >
+                            {specialty}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newSpecialties = profileSettings.specialties.filter((_, i) => i !== index);
+                                handleInputChange('specialties', newSpecialties);
+                              }}
+                              className="mr-2 text-primary-600 dark:text-orange-400 hover:text-primary-800 dark:hover:text-orange-200"
+                            >
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Add Specialty Input */}
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={profileSettings.newSpecialty || ''}
+                        onChange={(e) => handleInputChange('newSpecialty', e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (profileSettings.newSpecialty && profileSettings.newSpecialty.trim()) {
+                              const newSpecialties = [...(profileSettings.specialties || []), profileSettings.newSpecialty.trim()];
+                              handleInputChange('specialties', newSpecialties);
+                              handleInputChange('newSpecialty', '');
+                            }
+                          }
+                        }}
+                        className="flex-1 px-4 py-3 border border-gray-300 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-tertiary transition-colors duration-200"
+                        placeholder="أضف مجال جديد واضغط Enter"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (profileSettings.newSpecialty && profileSettings.newSpecialty.trim()) {
+                            const newSpecialties = [...(profileSettings.specialties || []), profileSettings.newSpecialty.trim()];
+                            handleInputChange('specialties', newSpecialties);
+                            handleInputChange('newSpecialty', '');
+                          }
+                        }}
+                        className="px-4 py-3 bg-primary-500 dark:bg-orange-500 text-white rounded-xl hover:bg-primary-600 dark:hover:bg-orange-600 transition-colors duration-200"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">اكتب المجال واضغط Enter أو انقر على زر الإضافة</p>
+                  </div>
+                </div>
+
               </div>
 
               {/* Social Links */}
@@ -1110,6 +1193,7 @@ export default function SettingsPage() {
                   </button>
                 </div>
               </div>
+
             </div>
 
             {/* Privacy Settings */}

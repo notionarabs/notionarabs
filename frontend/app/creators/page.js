@@ -238,7 +238,6 @@ export default function CreatorsPage() {
                       </h3>
                       <div className="flex items-center gap-1 sm:gap-2">
                         <StarRating rating={creator.rating} />
-                        <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">({creator.followers || 0} متابع)</span>
                       </div>
                     </div>
                   </div>
@@ -251,27 +250,6 @@ export default function CreatorsPage() {
                       </p>
                     )}
 
-                    {/* Specialties */}
-                    {creator.specialties && creator.specialties.length > 0 && (
-                      <div className="mb-4 sm:mb-6">
-                        <h4 className="text-xs sm:text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2 sm:mb-3">التخصصات</h4>
-                        <div className="flex flex-wrap gap-1 sm:gap-2 max-h-20 overflow-hidden">
-                          {creator.specialties.slice(0, 6).map((specialty, index) => (
-                            <span
-                              key={index}
-                              className="px-2 sm:px-3 py-1 bg-primary-100 dark:bg-orange-500/20 text-primary-800 dark:text-orange-300 text-xs rounded-full"
-                            >
-                              {specialty}
-                            </span>
-                          ))}
-                          {creator.specialties.length > 6 && (
-                            <span className="px-2 sm:px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded-full">
-                              +{creator.specialties.length - 6}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
 
                     {/* Stats */}
                     <div className="grid grid-cols-2 gap-2 sm:gap-4 mb-4 sm:mb-6">

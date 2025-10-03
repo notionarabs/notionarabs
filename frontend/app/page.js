@@ -231,7 +231,10 @@ export default function HomePage() {
               </div>
 
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-accent-500 dark:text-dark-text-primary mb-4 sm:mb-6 text-reveal-delayed leading-tight tracking-tight">
-                المنصة العربية الأولى لقوالب نوشن
+                <div className="block">
+                  <div className="block">المنصة العربية الأولى لقوالب</div>
+                  <div className="block mt-2 md:mt-3 lg:mt-4">نوشن</div>
+                </div>
               </h1>
 
               <p className="text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary mb-6 sm:mb-8 max-w-xs sm:max-w-2xl md:max-w-3xl mx-auto text-reveal-delayed-2 leading-relaxed px-2 sm:px-0">
@@ -259,7 +262,7 @@ export default function HomePage() {
 
 
               {/* Enhanced Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-12 sm:mb-16 px-4 sm:px-0">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-12 sm:mb-16 px-4 sm:px-0">
                 <div className="card-featured p-3 sm:p-4 md:p-6 stats-counter">
                   <div className="text-xl sm:text-2xl md:text-3xl font-bold text-primary-500 dark:text-orange-500 mb-1 sm:mb-2">{stats.templates}</div>
                   <div className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-secondary">قالب متاح</div>
@@ -267,10 +270,6 @@ export default function HomePage() {
                 <div className="card-featured p-3 sm:p-4 md:p-6 stats-counter">
                   <div className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">{stats.creators}</div>
                   <div className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-secondary">مبدع نشط</div>
-                </div>
-                <div className="card-featured p-3 sm:p-4 md:p-6 stats-counter">
-                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-primary-500 dark:text-orange-500 mb-1 sm:mb-2">{new Date().getFullYear()}</div>
-                  <div className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-secondary">سنة الإطلاق</div>
                 </div>
                 <div className="card-featured p-3 sm:p-4 md:p-6 stats-counter">
                   <div className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">+{Math.max(1, Math.min(stats.templates, 999))}</div>

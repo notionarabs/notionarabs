@@ -503,7 +503,9 @@ router.get('/profile/settings', auth, async (req, res) => {
       allowMessages: user.allowMessages !== false, // default true
       showTemplateCount: user.showTemplateCount !== false, // default true
       showJoinDate: user.showJoinDate !== false, // default true
-      customMessage: user.customMessage || ''
+      customMessage: user.customMessage || '',
+      // Specialties field
+      specialties: user.specialties || []
     };
 
     res.json({
@@ -606,7 +608,12 @@ router.put('/profile/settings', auth, [
   body('profileVisibility')
     .optional()
     .isIn(['public', 'followers', 'private'])
-    .withMessage('نوع الرؤية غير صحيح')
+    .withMessage('نوع الرؤية غير صحيح'),
+  // Specialties validation
+  body('specialties')
+    .optional()
+    .isArray()
+    .withMessage('المجالات يجب أن تكون قائمة')
 ], async (req, res) => {
   try {
     // Check validation errors
@@ -632,7 +639,9 @@ router.put('/profile/settings', auth, [
       allowMessages,
       showTemplateCount,
       showJoinDate,
-      customMessage
+      customMessage,
+      // Specialties field
+      specialties
     } = req.body;
 
     const updateData = {};
@@ -663,6 +672,8 @@ router.put('/profile/settings', auth, [
     if (showTemplateCount !== undefined) updateData.showTemplateCount = showTemplateCount;
     if (showJoinDate !== undefined) updateData.showJoinDate = showJoinDate;
     if (customMessage !== undefined) updateData.customMessage = customMessage;
+    // Specialties field
+    if (specialties !== undefined) updateData.specialties = specialties;
 
     const user = await User.findByIdAndUpdate(
       req.user._id,

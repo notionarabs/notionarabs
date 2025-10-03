@@ -82,6 +82,21 @@ router.post('/', auth, [
         }
       }
       return true;
+    }),
+  body('explanationVideo')
+    .optional()
+    .custom((value) => {
+      if (!value) return true; // Optional field
+
+      try {
+        const url = new URL(value);
+        if (!['http:', 'https:'].includes(url.protocol)) {
+          throw new Error('Invalid protocol');
+        }
+        return true;
+      } catch (error) {
+        throw new Error('رابط الفيديو غير صحيح');
+      }
     })
 ], async (req, res) => {
   try {
@@ -353,7 +368,22 @@ router.put('/:id', auth, [
   body('notionLink')
     .optional()
     .isURL()
-    .withMessage('رابط نوشن غير صحيح')
+    .withMessage('رابط نوشن غير صحيح'),
+  body('explanationVideo')
+    .optional()
+    .custom((value) => {
+      if (!value) return true; // Optional field
+
+      try {
+        const url = new URL(value);
+        if (!['http:', 'https:'].includes(url.protocol)) {
+          throw new Error('Invalid protocol');
+        }
+        return true;
+      } catch (error) {
+        throw new Error('رابط الفيديو غير صحيح');
+      }
+    })
 ], async (req, res) => {
   try {
     if (req.user.creatorStatus !== 'approved') {

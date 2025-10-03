@@ -86,6 +86,17 @@ const templateSchema = new mongoose.Schema({
       message: 'رابط الصورة غير صحيح'
     }
   }],
+  explanationVideo: {
+    type: String,
+    trim: true,
+    validate: {
+      validator: function (v) {
+        if (!v) return true; // Optional field
+        return /^https?:\/\/.+/.test(v);
+      },
+      message: 'رابط الفيديو غير صحيح'
+    }
+  },
   status: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],

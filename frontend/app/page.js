@@ -204,7 +204,7 @@ export default function HomePage() {
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
 
       {/* Enhanced Hero Section with Notion-inspired Animations */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-12 sm:py-16 md:py-20 lg:py-24 xl:py-28 transition-colors duration-300">
+      <section className="relative overflow-hidden bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-8 sm:py-12 md:py-16 lg:py-20 xl:py-24 transition-colors duration-300 min-h-[70vh] sm:min-h-[80vh] md:min-h-[90vh] flex items-center">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
           {/* Floating Notion-style Blocks */}
@@ -225,41 +225,49 @@ export default function HomePage() {
           }}></div>
         </div>
 
-        {/* Full Width Interactive Demo Section */}
-        <div className="relative" aria-hidden="true">
-          {/* Floating UI Elements - More strategically placed */}
-          <div className="hidden lg:block absolute top-0 left-10 w-24 h-24 bg-white/80 dark:bg-dark-tertiary/80 backdrop-blur-sm rounded-xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
+        {/* Well-Separated Animated Template Squares */}
+        <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+          {/* Large Blue Template - Top Left */}
+          <div className="hidden lg:block absolute top-16 left-16 w-32 h-32 bg-white/80 dark:bg-dark-tertiary/80 backdrop-blur-sm rounded-2xl shadow-xl dark:shadow-dark-large floating-block notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
+            <div className="p-6">
+              <div className="w-12 h-12 bg-blue-500 rounded-xl mb-3 shadow-lg"></div>
+              <div className="w-16 h-2 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-2"></div>
+              <div className="w-12 h-1.5 bg-gray-300 dark:bg-dark-text-quaternary rounded"></div>
+            </div>
+          </div>
+
+          {/* Medium Green Template - Top Right */}
+          <div className="hidden lg:block absolute top-24 right-24 w-20 h-20 bg-white/70 dark:bg-dark-tertiary/70 backdrop-blur-sm rounded-xl shadow-lg dark:shadow-dark-medium floating-block-delayed notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
             <div className="p-4">
-              <div className="w-8 h-8 bg-blue-500 rounded-lg mb-2"></div>
-              <div className="w-12 h-2 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
+              <div className="w-8 h-8 bg-green-500 rounded-lg mb-2 shadow-md"></div>
+              <div className="w-12 h-1.5 bg-gray-300 dark:bg-dark-text-quaternary rounded"></div>
             </div>
           </div>
 
-          <div className="hidden lg:block absolute top-20 right-20 w-20 h-20 bg-white/70 dark:bg-dark-tertiary/70 backdrop-blur-sm rounded-lg shadow-md dark:shadow-dark-soft floating-block-delayed notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
+          {/* Small Purple Template - Middle Left */}
+          <div className="hidden md:block absolute top-1/2 left-8 w-16 h-16 bg-white/60 dark:bg-dark-tertiary/60 backdrop-blur-sm rounded-lg shadow-md dark:shadow-dark-soft floating-block notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
             <div className="p-3">
-              <div className="w-6 h-6 bg-green-500 rounded-md mb-2"></div>
-              <div className="w-10 h-1.5 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
+              <div className="w-6 h-6 bg-purple-500 rounded-md mb-1"></div>
+              <div className="w-8 h-1 bg-gray-300 dark:bg-dark-text-quaternary rounded"></div>
             </div>
           </div>
 
-          <div className="hidden lg:block absolute bottom-20 left-1/4 w-16 h-16 bg-white/60 dark:bg-dark-tertiary/60 backdrop-blur-sm rounded-lg shadow-lg dark:shadow-dark-medium floating-block notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
-            <div className="p-2">
-              <div className="w-4 h-4 bg-purple-500 rounded mb-1"></div>
-              <div className="w-8 h-1 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
+          {/* Extra Large Orange Template - Bottom Right */}
+          <div className="hidden xl:block absolute bottom-16 right-16 w-36 h-36 bg-white/50 dark:bg-dark-tertiary/50 backdrop-blur-sm rounded-3xl shadow-2xl dark:shadow-dark-large floating-block notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
+            <div className="p-6">
+              <div className="w-16 h-16 bg-orange-500 rounded-2xl mb-4 shadow-xl"></div>
+              <div className="w-20 h-2 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-2"></div>
+              <div className="w-16 h-1.5 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
+              <div className="w-12 h-1 bg-gray-300 dark:bg-dark-text-quaternary rounded"></div>
             </div>
           </div>
 
-          <div className="hidden xl:block absolute top-1/3 right-1/3 w-28 h-28 bg-white/50 dark:bg-dark-tertiary/50 backdrop-blur-sm rounded-2xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
+          {/* Medium Red Template - Bottom Left */}
+          <div className="hidden lg:block absolute bottom-24 left-12 w-24 h-24 bg-white/65 dark:bg-dark-tertiary/65 backdrop-blur-sm rounded-xl shadow-lg dark:shadow-dark-medium floating-block-delayed notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
             <div className="p-4">
-              <div className="w-10 h-10 bg-orange-500 rounded-lg mb-3"></div>
-              <div className="w-16 h-2 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
-            </div>
-          </div>
-
-          <div className="hidden xl:block absolute bottom-1/3 right-1/4 w-18 h-18 bg-white/60 dark:bg-dark-tertiary/60 backdrop-blur-sm rounded-lg shadow-md dark:shadow-dark-soft floating-block-delayed notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
-            <div className="p-3">
-              <div className="w-6 h-6 bg-red-500 rounded-md mb-2"></div>
-              <div className="w-12 h-1.5 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
+              <div className="w-10 h-10 bg-red-500 rounded-lg mb-2 shadow-md"></div>
+              <div className="w-14 h-1.5 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
+              <div className="w-10 h-1 bg-gray-300 dark:bg-dark-text-quaternary rounded"></div>
             </div>
           </div>
         </div>
@@ -268,9 +276,9 @@ export default function HomePage() {
           {/* Hero Content */}
           <div className="text-center">
             <div className="max-w-4xl mx-auto">
-              {/* Badge */}
-              <div className="inline-flex items-center px-4 py-2 bg-white/90 dark:bg-dark-tertiary/90 backdrop-blur-sm text-accent-500 dark:text-dark-text-primary rounded-full text-sm font-medium mb-6 text-reveal shadow-lg dark:shadow-dark-medium border border-primary-200 dark:border-orange-500/30 transition-colors duration-300">
-                <span className="w-2 h-2 bg-primary-500 dark:bg-orange-500 rounded-full ml-2 pulse-glow"></span>
+              {/* Enhanced Badge with Better Contrast */}
+              <div className="inline-flex items-center px-4 py-2 bg-white/95 dark:bg-dark-tertiary/95 backdrop-blur-sm text-accent-700 dark:text-dark-text-primary rounded-full text-sm font-semibold mb-6 text-reveal shadow-lg dark:shadow-dark-medium border border-primary-300 dark:border-orange-400/50 transition-colors duration-300">
+                <span className="w-2 h-2 bg-primary-600 dark:bg-orange-400 rounded-full ml-2 pulse-glow"></span>
                 قوالب عربية عالية الجودة
               </div>
 
@@ -282,47 +290,47 @@ export default function HomePage() {
                 </div>
               </h1>
 
-              {/* Description */}
-              <p className="text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary mb-6 sm:mb-8 max-w-xs sm:max-w-2xl md:max-w-3xl mx-auto text-reveal-delayed-2 leading-relaxed px-2 sm:px-0">
+              {/* Enhanced Description with Better Typography */}
+              <p className="text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary mb-6 sm:mb-8 max-w-xs sm:max-w-2xl md:max-w-3xl mx-auto text-reveal-delayed-2 leading-relaxed px-2 sm:px-0 font-medium">
                 اكتشف قوالب نوشن عربية عالية الجودة مصممة للعمل والدراسة والتنظيم الشخصي. انضم لمجتمع المبدعين العرب وابدأ رحلتك نحو الإنتاجية.
               </p>
 
-              {/* CTA Buttons */}
+              {/* Enhanced CTA Buttons with Better Animations */}
               <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-8 sm:mb-12 text-reveal-delayed-3">
                 <Link
                   href="/templates"
-                  className="inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-primary-500 dark:bg-orange-500 text-white rounded-xl hover:bg-primary-600 dark:hover:bg-orange-600 transition-all duration-300 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                  className="inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-primary-500 dark:bg-orange-500 text-white rounded-xl hover:bg-primary-600 dark:hover:bg-orange-600 transition-all duration-300 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
                 >
                   استكشف القوالب
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </Link>
                 <Link
                   href="/creators/apply"
-                  className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-white/90 dark:bg-dark-tertiary/90 backdrop-blur-sm text-accent-600 dark:text-dark-text-primary rounded-xl border-2 border-primary-200 dark:border-orange-500/30 hover:bg-primary-50 dark:hover:bg-orange-900/20 transition-all duration-300 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                  className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-white/95 dark:bg-dark-tertiary/95 backdrop-blur-sm text-accent-700 dark:text-dark-text-primary rounded-xl border-2 border-primary-300 dark:border-orange-400/50 hover:bg-primary-50 dark:hover:bg-orange-900/20 transition-all duration-300 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
                 >
                   انضم كمبدع
                 </Link>
               </div>
 
-              {/* Stats */}
+              {/* Enhanced Stats with Better Visual Hierarchy and Consistent Shadows */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
-                <div className="text-center">
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-500 dark:text-orange-500 mb-1 sm:mb-2">{stats.templates}</div>
-                  <div className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-secondary">قالب متاح</div>
+                <div className="text-center group cursor-pointer transition-all duration-300 hover:scale-105 p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg hover:shadow-xl border border-white/20 dark:border-dark-card-border/30">
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-500 dark:text-orange-500 mb-1 sm:mb-2 transition-colors duration-300 group-hover:text-primary-600 dark:group-hover:text-orange-400">{stats.templates}</div>
+                  <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary transition-colors duration-300 group-hover:text-accent-700 dark:group-hover:text-white">قالب متاح</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">{stats.creators}</div>
-                  <div className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-secondary">مبدع نشط</div>
+                <div className="text-center group cursor-pointer transition-all duration-300 hover:scale-105 p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg hover:shadow-xl border border-white/20 dark:border-dark-card-border/30">
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2 transition-colors duration-300 group-hover:text-primary-500 dark:group-hover:text-orange-400">{stats.creators}</div>
+                  <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary transition-colors duration-300 group-hover:text-accent-700 dark:group-hover:text-white">مبدع نشط</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">{stats.downloads}</div>
-                  <div className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-secondary">تحميل</div>
+                <div className="text-center group cursor-pointer transition-all duration-300 hover:scale-105 p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg hover:shadow-xl border border-white/20 dark:border-dark-card-border/30">
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2 transition-colors duration-300 group-hover:text-primary-500 dark:group-hover:text-orange-400">{stats.downloads}</div>
+                  <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary transition-colors duration-300 group-hover:text-accent-700 dark:group-hover:text-white">تحميل</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">{stats.specialties}</div>
-                  <div className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-secondary">مجال متخصص</div>
+                <div className="text-center group cursor-pointer transition-all duration-300 hover:scale-105 p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg hover:shadow-xl border border-white/20 dark:border-dark-card-border/30">
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2 transition-colors duration-300 group-hover:text-primary-500 dark:group-hover:text-orange-400">{stats.specialties}</div>
+                  <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary transition-colors duration-300 group-hover:text-accent-700 dark:group-hover:text-white">مجال متخصص</div>
                 </div>
               </div>
             </div>

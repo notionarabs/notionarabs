@@ -252,7 +252,7 @@ router.post('/creator', [
         code: emailError.code,
         stack: emailError.stack
       });
-      
+
       // Log the message for manual follow-up
       console.log('=== MESSAGE SAVED FOR MANUAL FOLLOW-UP ===');
       console.log('Creator:', creator.displayName || creator.name, `(${creator.email})`);
@@ -260,7 +260,7 @@ router.post('/creator', [
       console.log('Subject:', subject);
       console.log('Message:', message);
       console.log('==========================================');
-      
+
       // Return success even if email fails
       res.json({
         success: true,
@@ -448,7 +448,7 @@ router.post('/general', [
 
     } catch (emailError) {
       console.error('Email sending error:', emailError);
-      
+
       // Log the message for manual follow-up
       console.log('=== GENERAL MESSAGE SAVED FOR MANUAL FOLLOW-UP ===');
       console.log('From:', name, `(${email})`);
@@ -456,7 +456,7 @@ router.post('/general', [
       console.log('Category:', req.body.category || 'عام');
       console.log('Message:', message);
       console.log('================================================');
-      
+
       // Return success even if email fails
       res.json({
         success: true,

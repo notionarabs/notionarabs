@@ -299,11 +299,13 @@ function TemplatesPageContent() {
               {[...Array(8)].map((_, index) => (
                 <div key={index} className="card p-4 sm:p-6 animate-pulse">
                   <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg mb-3 sm:mb-4"></div>
-                  <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-                  <div className="h-2 sm:h-3 bg-gray-200 dark:bg-gray-700 rounded mb-3 sm:mb-4 w-3/4"></div>
-                  <div className="flex justify-between items-center">
-                    <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded w-12 sm:w-16"></div>
-                    <div className="h-4 sm:h-6 bg-gray-200 dark:bg-gray-700 rounded w-16 sm:w-20"></div>
+                  <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded mb-3"></div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                    </div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-8"></div>
                   </div>
                 </div>
               ))}
@@ -314,45 +316,51 @@ function TemplatesPageContent() {
                 <Link key={template._id} href={`/templates/${template.slug || template._id}`}>
                   <div className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
                     {/* Template Image */}
-                    <div className="relative h-36 sm:h-40 md:h-48 overflow-hidden rounded-lg">
+                    <div className="relative overflow-hidden rounded-lg">
                       {template.previewImage ? (
                         <Image
                           src={template.previewImage}
                           alt={template.title}
                           width={400}
                           height={300}
-                          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                          className="w-full h-auto object-contain"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center">
+                        <div className="w-full aspect-video flex items-center justify-center bg-gray-50 dark:bg-gray-700">
                           <LayoutDashboard className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-primary-600 dark:text-primary-400" />
                         </div>
                       )}
 
-                      {/* Price Tag */}
-                      <div className="absolute top-2 left-2 sm:top-3 sm:left-3">
-                        <span className="bg-green-500 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium">
-                          مجاني
-                        </span>
-                      </div>
                     </div>
 
                     {/* Template Info */}
-                    <div className="p-4 sm:p-6">
-                      <h3 className="font-bold text-base sm:text-lg text-accent-900 dark:text-dark-text-primary mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                    <div className="p-4 sm:p-6 relative">
+                      <h3 className="font-semibold text-sm sm:text-base text-accent-900 dark:text-dark-text-primary mb-3 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-2">
                         {template.title}
                       </h3>
-                      <p className="text-accent-600 dark:text-dark-text-secondary text-xs sm:text-sm mb-3 line-clamp-2">
-                        {template.description}
-                      </p>
-                      <p className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-tertiary mb-3">
-                        بواسطة {template.creator?.name || 'مبدع غير معروف'}
-                      </p>
-
                       <div className="flex items-center justify-between">
-                        <StarRating rating={template.rating} />
-                        <span className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-tertiary">
-                          {template.downloads || 0} تحميل
+                        <div className="flex items-center gap-2">
+                          {template.creator?.profilePicture ? (
+                            <Image
+                              src={template.creator.profilePicture}
+                              alt={template.creator?.name || 'مبدع'}
+                              width={20}
+                              height={20}
+                              className="w-5 h-5 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-5 h-5 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
+                              <span className="text-xs font-medium text-primary-600 dark:text-primary-400">
+                                {template.creator?.name?.charAt(0)?.toUpperCase() || 'م'}
+                              </span>
+                            </div>
+                          )}
+                          <span className="text-xs text-accent-500 dark:text-dark-text-tertiary">
+                            {template.creator?.name || 'مبدع غير معروف'}
+                          </span>
+                        </div>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          مجاني
                         </span>
                       </div>
                     </div>

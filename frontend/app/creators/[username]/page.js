@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Palette, TrendingUp, Code, BookOpen, ClipboardList, Package } from 'lucide-react';
 import LoadingIndicator from '../../../components/LoadingIndicator';
 import { formatDate } from '../../../lib/dateUtils';
 import api from '../../../lib/api';
@@ -23,15 +23,6 @@ export default function PublicProfilePage() {
   const [creatorTemplates, setCreatorTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showMessageModal, setShowMessageModal] = useState(false);
-  const [messageData, setMessageData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState(null);
   const [userRating, setUserRating] = useState(null);
   const [creatorRatings, setCreatorRatings] = useState([]);
   const [showAllReviews, setShowAllReviews] = useState(false);
@@ -43,16 +34,6 @@ export default function PublicProfilePage() {
     }
   }, [username]);
 
-  // Pre-fill email and name when modal opens
-  useEffect(() => {
-    if (showMessageModal && user) {
-      setMessageData(prev => ({
-        ...prev,
-        email: user.email || '',
-        name: user.displayName || user.name || ''
-      }));
-    }
-  }, [showMessageModal, user]);
 
   useEffect(() => {
     if (creator && isAuthenticated) {
@@ -225,69 +206,6 @@ export default function PublicProfilePage() {
     return icons[platform] || icons.website;
   };
 
-  const handleMessageSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      // Prepare message data with creator information
-      const submissionData = {
-        ...messageData,
-        creatorId: creator.id
-      };
-
-      // Send message to creator via API
-      const response = await api.post('/contact/creator', submissionData);
-
-      if (response.data.success) {
-        setIsSubmitting(false);
-        setSubmitStatus('success');
-        setMessageData({
-          name: '',
-          email: '',
-          subject: '',
-          message: ''
-        });
-
-        // Show success toast
-        showSuccess('تم إرسال الرسالة بنجاح! سنقوم بإرسالها للمبدع وسيرد عليك قريباً');
-
-        // Close modal after 3 seconds
-        setTimeout(() => {
-          setShowMessageModal(false);
-          setSubmitStatus(null);
-        }, 3000);
-      } else {
-        setIsSubmitting(false);
-        setSubmitStatus('error');
-        showError('حدث خطأ في إرسال الرسالة. يرجى المحاولة مرة أخرى');
-      }
-    } catch (error) {
-      setIsSubmitting(false);
-      setSubmitStatus('error');
-      console.error('Message submission error:', error);
-
-      // Handle different types of errors
-      let errorMessage = 'حدث خطأ في إرسال الرسالة. يرجى المحاولة مرة أخرى';
-
-      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
-        errorMessage = 'انتهت مهلة الاتصال. يرجى المحاولة مرة أخرى';
-      } else if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-
-      showError(errorMessage);
-    }
-  };
-
-  const handleInputChange = (field, value) => {
-    setMessageData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
 
   if (loading) {
     return <LoadingIndicator />;
@@ -370,15 +288,46 @@ export default function PublicProfilePage() {
                 )}
               </div>
 
-              {/* Creator Name */}
-              <h1 className="text-4xl sm:text-5xl font-bold text-accent-500 dark:text-dark-text-primary">
-                {creator.displayName || creator.name}
-              </h1>
+              {/* Creator Name and Handle */}
+              <div>
+                <h1 className="text-4xl sm:text-5xl font-bold text-accent-500 dark:text-dark-text-primary leading-tight">
+                  {creator.displayName || creator.name}
+                </h1>
+                <p className="text-lg text-accent-600 dark:text-dark-text-secondary leading-none text-right" dir="ltr">
+                  @{creator.username || creator.name?.toLowerCase()}
+                </p>
+              </div>
 
-              {/* Creator Handle */}
-              <p className="text-lg text-accent-600 dark:text-dark-text-secondary">
-                @{creator.username || creator.name?.toLowerCase()}
-              </p>
+              {/* Stats */}
+              <div className="flex items-center gap-6 py-4">
+                {/* Template Count */}
+                {creator.showTemplateCount !== false && (
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary-500 dark:text-orange-500">
+                      {creator.templateCount || creatorTemplates.length || 0}
+                    </div>
+                    <div className="text-xs text-gray-600 dark:text-dark-text-secondary">قوالب</div>
+                  </div>
+                )}
+
+                {/* Rating */}
+                {medianRating > 0 && (
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                      <StarRating rating={medianRating} />
+                    </div>
+                    <div className="text-xs text-gray-600 dark:text-dark-text-secondary">التقييم</div>
+                  </div>
+                )}
+
+                {/* Followers */}
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-accent-500 dark:text-dark-text-primary">
+                    {creator.followers || 0}
+                  </div>
+                  <div className="text-xs text-gray-600 dark:text-dark-text-secondary">متابع</div>
+                </div>
+              </div>
 
               {/* Recommended Creator Badge */}
               {creator.creatorStatus === 'approved' && (
@@ -400,13 +349,13 @@ export default function PublicProfilePage() {
               {/* Action Buttons */}
               <div className="flex items-center gap-3">
                 {/* Contact Creator Button */}
-                {creator.allowMessages !== false && (
-                  <button
-                    onClick={() => setShowMessageModal(true)}
-                    className="bg-primary-500 dark:bg-orange-500 hover:bg-primary-600 dark:hover:bg-orange-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 shadow-soft hover:shadow-medium"
+                {creator.allowMessages !== false && creator.email && (
+                  <a
+                    href={`mailto:${creator.email}`}
+                    className="bg-primary-500 dark:bg-orange-500 hover:bg-primary-600 dark:hover:bg-orange-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 shadow-soft hover:shadow-medium inline-block"
                   >
                     تواصل مع المبدع
-                  </button>
+                  </a>
                 )}
 
                 {/* Follow Button */}
@@ -428,19 +377,50 @@ export default function PublicProfilePage() {
             <div className="space-y-8">
               {/* Top Categories */}
               {creator.specialties && creator.specialties.length > 0 && (
-                <div className="card p-6">
+                <div>
                   <h3 className="text-sm font-medium text-gray-500 dark:text-dark-text-quaternary mb-4">المجالات المتخصصة</h3>
                   <div className="space-y-3">
                     {creator.specialties.slice(0, 3).map((specialty, index) => {
-                      const icons = ['list', 'user', 'calendar'];
-                      const icon = icons[index] || 'list';
+                      // Map specialty to appropriate icon based on content
+                      const getSpecialtyIcon = (specialty) => {
+                        const specialtyLower = specialty.toLowerCase();
+                        if (specialtyLower.includes('design') || specialtyLower.includes('تصميم') || specialtyLower.includes('creative') || specialtyLower.includes('إبداع')) {
+                          return 'design';
+                        } else if (specialtyLower.includes('marketing') || specialtyLower.includes('تسويق') || specialtyLower.includes('business') || specialtyLower.includes('أعمال')) {
+                          return 'marketing';
+                        } else if (specialtyLower.includes('tech') || specialtyLower.includes('تقنية') || specialtyLower.includes('programming') || specialtyLower.includes('برمجة')) {
+                          return 'tech';
+                        } else if (specialtyLower.includes('education') || specialtyLower.includes('تعليم') || specialtyLower.includes('learning') || specialtyLower.includes('تعلم')) {
+                          return 'education';
+                        } else if (specialtyLower.includes('productivity') || specialtyLower.includes('إنتاجية') || specialtyLower.includes('organization') || specialtyLower.includes('تنظيم')) {
+                          return 'productivity';
+                        } else {
+                          return 'default';
+                        }
+                      };
+
+                      const iconType = getSpecialtyIcon(specialty);
+
+                      const getIconComponent = (type) => {
+                        switch (type) {
+                          case 'design':
+                            return <Palette className="w-4 h-4 text-gray-600 dark:text-dark-text-secondary" />;
+                          case 'marketing':
+                            return <TrendingUp className="w-4 h-4 text-gray-600 dark:text-dark-text-secondary" />;
+                          case 'tech':
+                            return <Code className="w-4 h-4 text-gray-600 dark:text-dark-text-secondary" />;
+                          case 'education':
+                            return <BookOpen className="w-4 h-4 text-gray-600 dark:text-dark-text-secondary" />;
+                          case 'productivity':
+                            return <ClipboardList className="w-4 h-4 text-gray-600 dark:text-dark-text-secondary" />;
+                          default:
+                            return <Package className="w-4 h-4 text-gray-600 dark:text-dark-text-secondary" />;
+                        }
+                      };
+
                       return (
                         <div key={index} className="flex items-center gap-3 px-4 py-2 bg-gray-100 dark:bg-dark-tertiary rounded-lg hover:bg-gray-200 dark:hover:bg-dark-quaternary transition-colors duration-200">
-                          <svg className="w-4 h-4 text-gray-600 dark:text-dark-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            {icon === 'list' && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />}
-                            {icon === 'user' && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />}
-                            {icon === 'calendar' && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />}
-                          </svg>
+                          {getIconComponent(iconType)}
                           <span className="text-sm font-medium text-accent-600 dark:text-dark-text-secondary">{specialty}</span>
                         </div>
                       );
@@ -449,49 +429,10 @@ export default function PublicProfilePage() {
                 </div>
               )}
 
-              {/* Stats */}
-              <div className="card p-6">
-                <h3 className="text-sm font-medium text-gray-500 dark:text-dark-text-quaternary mb-4">الإحصائيات</h3>
-                <div className="space-y-3">
-                  {/* Template Count */}
-                  {creator.showTemplateCount !== false && (
-                    <div className="flex items-center gap-3 px-4 py-2 bg-gray-100 dark:bg-dark-tertiary rounded-lg hover:bg-gray-200 dark:hover:bg-dark-quaternary transition-colors duration-200">
-                      <svg className="w-4 h-4 text-gray-600 dark:text-dark-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="text-sm font-medium text-accent-600 dark:text-dark-text-secondary">
-                        {creator.templateCount || creatorTemplates.length || 0} قوالب منشورة
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Rating */}
-                  {medianRating > 0 && (
-                    <div className="flex items-center gap-3 px-4 py-2 bg-gray-100 dark:bg-dark-tertiary rounded-lg hover:bg-gray-200 dark:hover:bg-dark-quaternary transition-colors duration-200">
-                      <div className="flex items-center gap-1">
-                        <StarRating rating={medianRating} />
-                      </div>
-                      <span className="text-sm font-medium text-accent-600 dark:text-dark-text-secondary">
-                        التقييم المتوسط
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Followers */}
-                  <div className="flex items-center gap-3 px-4 py-2 bg-gray-100 dark:bg-dark-tertiary rounded-lg hover:bg-gray-200 dark:hover:bg-dark-quaternary transition-colors duration-200">
-                    <svg className="w-4 h-4 text-gray-600 dark:text-dark-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    <span className="text-sm font-medium text-accent-600 dark:text-dark-text-secondary">
-                      {creator.followers || 0} متابع
-                    </span>
-                  </div>
-                </div>
-              </div>
 
               {/* Professional Information */}
               {(creator.portfolio || creator.experience || creator.motivation) && (
-                <div className="card p-6">
+                <div>
                   <h3 className="text-sm font-medium text-gray-500 dark:text-dark-text-quaternary mb-4">المعلومات المهنية</h3>
                   <div className="space-y-4">
                     {/* Portfolio */}
@@ -537,9 +478,9 @@ export default function PublicProfilePage() {
 
               {/* All Social Links */}
               {creator.socialLinks && creator.socialLinks.length > 0 && (
-                <div className="card p-6">
+                <div>
                   <h3 className="text-sm font-medium text-gray-500 dark:text-dark-text-quaternary mb-4">الروابط</h3>
-                  <div className="space-y-3">
+                  <div className="flex gap-3">
                     {creator.socialLinks.map((link, index) => {
                       if (!link.url) return null;
                       const platform = detectPlatform(link.url);
@@ -549,12 +490,10 @@ export default function PublicProfilePage() {
                           href={link.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-dark-tertiary rounded-lg transition-all duration-200 hover:scale-105 transform"
+                          className="flex items-center justify-center w-10 h-10 hover:bg-gray-100 dark:hover:bg-dark-tertiary rounded-lg transition-all duration-200 hover:scale-105 transform"
+                          title={platform?.name === 'website' ? new URL(link.url).hostname.replace('www.', '') : platform?.name}
                         >
                           {getPlatformIcon(platform?.icon || 'website')}
-                          <span className="text-sm font-medium text-accent-600 dark:text-dark-text-secondary">
-                            {platform?.name === 'website' ? new URL(link.url).hostname.replace('www.', '') : platform?.name}
-                          </span>
                         </a>
                       );
                     })}
@@ -714,165 +653,6 @@ export default function PublicProfilePage() {
         </div>
       </footer>
 
-      {/* Message Modal */}
-      {showMessageModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" dir="rtl">
-          <div className="bg-white dark:bg-dark-secondary rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              {/* Header */}
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 rounded-xl flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-text-primary">
-                      إرسال رسالة لـ {creator.displayName || creator.name}
-                    </h3>
-                    <p className="text-sm text-gray-500 dark:text-dark-text-tertiary">
-                      سنقوم بإرسال رسالتك للمبدع
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowMessageModal(false)}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-dark-primary rounded-lg transition-colors"
-                >
-                  <svg className="w-5 h-5 text-gray-500 dark:text-dark-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Form */}
-              {submitStatus === 'success' ? (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <h4 className="text-lg font-semibold text-gray-900 dark:text-dark-text-primary mb-2">
-                    تم إرسال الرسالة بنجاح!
-                  </h4>
-                  <p className="text-gray-500 dark:text-dark-text-tertiary">
-                    سنقوم بإرسال رسالتك للمبدع وسيرد عليك قريباً
-                  </p>
-                </div>
-              ) : submitStatus === 'error' ? (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <h4 className="text-lg font-semibold text-gray-900 dark:text-dark-text-primary mb-2">
-                    حدث خطأ في إرسال الرسالة
-                  </h4>
-                  <p className="text-gray-500 dark:text-dark-text-tertiary mb-4">
-                    يرجى المحاولة مرة أخرى
-                  </p>
-                  <button
-                    onClick={() => setSubmitStatus(null)}
-                    className="btn-primary"
-                  >
-                    المحاولة مرة أخرى
-                  </button>
-                </div>
-              ) : (
-                <form onSubmit={handleMessageSubmit} className="space-y-4">
-                  {/* Name */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2">
-                      الاسم *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={messageData.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-tertiary transition-colors duration-200"
-                      placeholder="أدخل اسمك"
-                    />
-                  </div>
-
-                  {/* Email */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2">
-                      البريد الإلكتروني *
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={messageData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-tertiary transition-colors duration-200"
-                      placeholder="أدخل بريدك الإلكتروني"
-                    />
-                  </div>
-
-                  {/* Subject */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2">
-                      الموضوع *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={messageData.subject}
-                      onChange={(e) => handleInputChange('subject', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-tertiary transition-colors duration-200"
-                      placeholder="أدخل موضوع الرسالة"
-                    />
-                  </div>
-
-                  {/* Message */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2">
-                      الرسالة *
-                    </label>
-                    <textarea
-                      required
-                      rows={4}
-                      value={messageData.message}
-                      onChange={(e) => handleInputChange('message', e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-tertiary transition-colors duration-200 resize-none"
-                      placeholder="اكتب رسالتك هنا..."
-                    />
-                  </div>
-
-                  {/* Submit Button */}
-                  <div className="flex gap-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={() => setShowMessageModal(false)}
-                      className="flex-1 px-4 py-3 border border-gray-300 dark:border-dark-card-border text-gray-700 dark:text-dark-text-primary rounded-xl hover:bg-gray-50 dark:hover:bg-dark-primary transition-colors duration-200"
-                    >
-                      إلغاء
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="flex-1 px-4 py-3 bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-accent-600 dark:hover:from-orange-600 dark:hover:to-orange-700 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:focus:ring-orange-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-                    >
-                      {isSubmitting ? (
-                        <div className="flex items-center justify-center gap-2">
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          جاري الإرسال...
-                        </div>
-                      ) : (
-                        'إرسال الرسالة'
-                      )}
-                    </button>
-                  </div>
-                </form>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </main>
   );
 }

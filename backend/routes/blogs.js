@@ -400,6 +400,14 @@ router.get('/', async (req, res) => {
       .populate('author', 'name profilePicture')
       .lean();
 
+    // Add rating data to each blog
+    const Rating = require('../models/Rating');
+    for (let blog of blogs) {
+      const { averageRating, totalRatings } = await Rating.getAverageRating('blog', blog._id);
+      blog.rating = averageRating;
+      blog.totalRatings = totalRatings;
+    }
+
     // Apply Fuse.js search if search term is provided
     if (search && search.trim()) {
       const fuseOptions = {
@@ -497,6 +505,14 @@ router.get('/featured', async (req, res) => {
       .limit(limit)
       .lean();
 
+    // Add rating data to each blog
+    const Rating = require('../models/Rating');
+    for (let blog of blogs) {
+      const { averageRating, totalRatings } = await Rating.getAverageRating('blog', blog._id);
+      blog.rating = averageRating;
+      blog.totalRatings = totalRatings;
+    }
+
     res.json({
       success: true,
       blogs
@@ -587,6 +603,12 @@ router.get('/:slug', async (req, res) => {
       status: 'published'
     }).populate('author', 'name profilePicture bio');
 
+    // Add rating data to the blog
+    const Rating = require('../models/Rating');
+    const { averageRating, totalRatings } = await Rating.getAverageRating('blog', blog._id);
+    blog.rating = averageRating;
+    blog.totalRatings = totalRatings;
+
     if (!blog) {
       return res.status(404).json({
         success: false,
@@ -614,6 +636,13 @@ router.get('/:slug', async (req, res) => {
       .sort({ publishedAt: -1 })
       .limit(3)
       .lean();
+
+    // Add rating data to related blogs
+    for (let relatedBlog of relatedBlogs) {
+      const { averageRating, totalRatings } = await Rating.getAverageRating('blog', relatedBlog._id);
+      relatedBlog.rating = averageRating;
+      relatedBlog.totalRatings = totalRatings;
+    }
 
     res.json({
       success: true,
@@ -685,6 +714,14 @@ router.get('/author/:authorId', async (req, res) => {
       .skip(skip)
       .limit(limit)
       .lean();
+
+    // Add rating data to each blog
+    const Rating = require('../models/Rating');
+    for (let blog of blogs) {
+      const { averageRating, totalRatings } = await Rating.getAverageRating('blog', blog._id);
+      blog.rating = averageRating;
+      blog.totalRatings = totalRatings;
+    }
 
     const total = await Blog.countDocuments(query);
     const pages = Math.ceil(total / limit);

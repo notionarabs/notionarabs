@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import api from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
+import StarRating from '../components/StarRating';
 import { Settings, BookOpen, Briefcase, Heart, Palette, Laptop, Dumbbell, PiggyBank, FolderTree, CalendarDays, LayoutDashboard, Users, Check, Youtube, Facebook, Send, Zap, Target, Lightbulb, TrendingUp } from 'lucide-react';
 
 
@@ -25,14 +26,10 @@ const categorySlugMap = {
   'الأعمال': 'business',
   'الحياة الشخصية': 'personal',
   'الإبداع': 'creativity',
-  'التقنية': 'technology',
-  'الصحة': 'health',
-  'المالية': 'finance',
-  'التنظيم': 'organization',
   'التخطيط': 'planning',
   // Fallbacks for simpler labels used in this grid
-  'العمل': 'work',
-  'الحياة': 'life',
+  'العمل': 'business',
+  'الحياة': 'personal',
   'الشخصي': 'personal'
 };
 
@@ -50,7 +47,7 @@ export default function HomePage() {
     const fetchFeaturedTemplates = async () => {
       try {
         setLoading(true);
-        const response = await api.get('/templates?limit=3&sortBy=downloads&sortOrder=desc');
+        const response = await api.get('/templates?limit=6&sortBy=downloads&sortOrder=desc');
 
         if (response.data.success) {
           setFeaturedTemplates(response.data.templates || []);
@@ -80,7 +77,7 @@ export default function HomePage() {
         ];
 
         const templatesCountReq = api.get('/templates?limit=1');
-        const creatorsReq = api.get('/creators?limit=3&sortBy=popular');
+        const creatorsReq = api.get('/creators?limit=4&sortBy=popular&includeStats=true');
         const specialtiesCountReq = api.get('/creators/stats/specialties');
         const downloadsCountReq = api.get('/creators/stats/downloads');
         const categoryCountReqs = categoriesArabic.map((name) =>
@@ -105,7 +102,41 @@ export default function HomePage() {
         setStats({ templates: totalTemplates, creators: totalCreators, specialties: totalSpecialties, downloads: totalDownloads });
 
         const creatorsList = creatorsRes?.data?.creators || [];
-        setTopCreators(creatorsList);
+
+        // If creators don't have stats, fetch them individually
+        const creatorsWithStats = await Promise.all(
+          creatorsList.map(async (creator) => {
+            try {
+              // Fetch creator's template count
+              const templatesResponse = await api.get(`/templates?creator=${creator.id || creator._id}&limit=1`);
+              const templateCount = templatesResponse?.data?.pagination?.total || 0;
+
+              // Fetch creator's ratings
+              const ratingsResponse = await api.get(`/ratings/creator/${creator.id || creator._id}?limit=1`);
+              const ratings = ratingsResponse?.data?.ratings || [];
+              const averageRating = ratings.length > 0
+                ? ratings.reduce((sum, rating) => sum + rating.rating, 0) / ratings.length
+                : 0;
+
+              return {
+                ...creator,
+                templatesCount: templateCount,
+                averageRating: averageRating,
+                followersCount: creator.followersCount || creator.followers || 0
+              };
+            } catch (error) {
+              // Return creator with default values if stats fetch fails
+              return {
+                ...creator,
+                templatesCount: 0,
+                averageRating: 0,
+                followersCount: creator.followersCount || creator.followers || 0
+              };
+            }
+          })
+        );
+
+        setTopCreators(creatorsWithStats);
 
         const totalsMap = {};
         categoryTotalsArr.forEach(({ name, total }) => {
@@ -121,23 +152,6 @@ export default function HomePage() {
     fetchHomepageData();
   }, []);
 
-  const StarRating = ({ rating }) => {
-    return (
-      <div className="flex items-center gap-1">
-        {[...Array(5)].map((_, i) => (
-          <svg
-            key={i}
-            className={`w-3 h-3 sm:w-4 sm:h-4 ${i < Math.floor(rating) ? 'text-black dark:text-orange-500' : 'text-gray-300 dark:text-gray-600'}`}
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-          </svg>
-        ))}
-        <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary mr-1">{rating.toFixed(1)}</span>
-      </div>
-    );
-  };
 
 
 
@@ -301,7 +315,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {loading ? (
               // Loading skeleton
-              [...Array(3)].map((_, idx) => (
+              [...Array(6)].map((_, idx) => (
                 <div key={idx} className="card-interactive overflow-hidden animate-pulse">
                   <div className="h-32 sm:h-40 md:h-48 bg-gray-200 dark:bg-gray-700"></div>
                   <div className="p-4 sm:p-6">
@@ -318,44 +332,62 @@ export default function HomePage() {
             ) : (
               featuredTemplates.map((t, idx) => (
                 <Link key={t._id || idx} href={`/templates/${t.slug || t._id}`}>
-                  <div className="group card-interactive overflow-hidden">
-                    <div className="relative h-32 sm:h-40 md:h-48 overflow-hidden rounded-lg">
+                  <div className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
+                    {/* Template Image */}
+                    <div className="relative overflow-hidden rounded-lg h-48">
                       {t.previewImage ? (
                         <Image
                           src={t.previewImage}
                           alt={t.title}
                           width={400}
                           height={300}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center">
+                        <div className="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-700">
                           <svg className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
                           </svg>
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                     </div>
-                    <div className="p-4 sm:p-6">
-                      <h3 className="font-bold text-base sm:text-lg text-accent-500 dark:text-dark-text-primary mb-2 group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
+
+                    {/* Template Info */}
+                    <div className="p-4 sm:p-6 relative">
+                      <h3 className="font-semibold text-sm sm:text-base text-accent-900 dark:text-dark-text-primary mb-3 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-2">
                         {t.title}
                       </h3>
-                      <p className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-secondary mb-3">بواسطة {t.creator?.name || 'مبدع غير معروف'}</p>
 
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-1 sm:gap-2">
-                          <StarRating rating={t.rating || 0} />
-                          <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">({t.downloads || 0})</span>
+                      {/* Rating */}
+                      <div className="mb-3">
+                        <StarRating rating={t.rating || 0} size="small" showNumber={true} />
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {t.creator?.profilePicture ? (
+                            <Image
+                              src={t.creator.profilePicture}
+                              alt={t.creator?.name || 'مبدع'}
+                              width={20}
+                              height={20}
+                              className="w-5 h-5 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-5 h-5 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
+                              <span className="text-xs font-medium text-primary-600 dark:text-primary-400">
+                                {t.creator?.name?.charAt(0)?.toUpperCase() || 'م'}
+                              </span>
+                            </div>
+                          )}
+                          <span className="text-xs text-accent-500 dark:text-dark-text-tertiary">
+                            {t.creator?.name || 'مبدع غير معروف'}
+                          </span>
                         </div>
                         <span className="text-xs text-gray-500 dark:text-gray-400">
                           مجاني
                         </span>
                       </div>
-
-                      <button className="w-full btn-primary py-2 sm:py-3 px-4 text-sm sm:text-base">
-                        عرض التفاصيل
-                      </button>
                     </div>
                   </div>
                 </Link>
@@ -376,7 +408,7 @@ export default function HomePage() {
           <div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
               {categories.map((c, idx) => (
-                <Link href={`/templates?category=${encodeURIComponent(c.name)}`} key={idx} className="group">
+                <Link href={`/templates/category/${categorySlugMap[c.name] || c.name.toLowerCase()}`} key={idx} className="group">
                   <div className="card-interactive border-2 border-gray-100 overflow-hidden hover:border-accent-300 hover:shadow-large transition-all duration-300">
                     <div className={`h-16 sm:h-20 md:h-24 lg:h-28 overflow-hidden relative flex items-center justify-center bg-gradient-to-br ${c.bg}`}>
                       <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 bg-white/80 dark:bg-dark-tertiary/80 backdrop-blur-sm rounded-lg sm:rounded-xl flex items-center justify-center shadow-md">
@@ -400,49 +432,114 @@ export default function HomePage() {
       {/* Enhanced Featured Creators */}
       <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-dark-secondary transition-colors duration-300">
         <div className="container-custom">
-          <div className="text-center mb-8 sm:mb-10 md:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-2 sm:mb-4">المبدعين المميزين</h2>
-            <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary">تعرف على أفضل المبدعين في مجتمعنا</p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 sm:mb-10 md:mb-12">
+            <div className="mb-4 sm:mb-0">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-2 sm:mb-4">المبدعين المميزين</h2>
+              <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary">تعرف على أفضل المبدعين في مجتمعنا</p>
+            </div>
+            <Link
+              href="/creators"
+              className="inline-flex items-center text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 text-accent-700 dark:text-dark-text-primary hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+            >
+              تصفح {stats.creators} مبدع
+              <svg className="mr-2 w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </Link>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {loadingCreators ? (
-              [...Array(5)].map((_, idx) => (
-                <div key={idx} className="group text-center">
-                  <div className="animate-pulse">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-gray-200 dark:bg-gray-700 mb-3" />
-                    <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto" />
+              [...Array(4)].map((_, idx) => (
+                <div key={idx} className="bg-white dark:bg-dark-tertiary rounded-xl p-6 shadow-sm border border-gray-200 dark:border-dark-card-border animate-pulse h-full flex flex-col">
+                  <div className="text-center mb-4 flex-shrink-0">
+                    <div className="w-16 h-16 mx-auto rounded-full bg-gray-200 dark:bg-gray-700 mb-3" />
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto mb-2" />
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto" />
+                  </div>
+                  <div className="flex-1 flex flex-col justify-between">
+                    <div className="h-16 bg-gray-200 dark:bg-gray-700 rounded mb-3 flex-1"></div>
+
+                    {/* Stats skeleton */}
+                    <div className="mt-auto flex items-center justify-between">
+                      <div className="flex items-center gap-1">
+                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-14"></div>
+                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-6"></div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-8"></div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-6"></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))
             ) : (topCreators && topCreators.length > 0) ? (
-              topCreators.map((cr, idx) => (
-                <div key={cr.id || idx} className="group text-center">
-                  <Link href={`/creators/${cr.username || cr.email?.split('@')[0] || cr.displayName || cr.name || cr.id || cr._id || idx}`}>
-                    <div className="transition-transform duration-300 group-hover:scale-105">
-                      <div className="relative w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-3">
+              topCreators.slice(0, 4).map((cr, idx) => (
+                <Link key={cr.id || idx} href={`/creators/${cr.username || cr.email?.split('@')[0] || cr.displayName || cr.name || cr.id || cr._id || idx}`}>
+                  <div className="group bg-white dark:bg-dark-tertiary rounded-xl p-6 shadow-sm border border-gray-200 dark:border-dark-card-border hover:shadow-md hover:border-primary-300 dark:hover:border-primary-400 transition-all duration-300 h-full flex flex-col">
+                    <div className="text-center mb-4 flex-shrink-0">
+                      <div className="relative w-16 h-16 mx-auto mb-3">
                         {cr.profilePicture ? (
                           <Image
                             src={cr.profilePicture}
                             alt={cr.name}
-                            width={80}
-                            height={80}
-                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-white shadow-md"
+                            width={64}
+                            height={64}
+                            className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md"
                           />
                         ) : (
-                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center border-2 border-white shadow-md">
-                            <span className="text-lg sm:text-xl font-bold text-primary-500 dark:text-orange-400">
+                          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center border-2 border-white shadow-md">
+                            <span className="text-lg font-bold text-primary-500 dark:text-orange-400">
                               {cr.name?.charAt(0)?.toUpperCase() || 'م'}
                             </span>
                           </div>
                         )}
                       </div>
-                      <h3 className="font-medium text-sm sm:text-base text-accent-500 dark:text-dark-text-primary group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
+                      <h3 className="font-bold text-accent-900 dark:text-dark-text-primary group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                         {cr.name}
                       </h3>
                     </div>
-                  </Link>
-                </div>
+                    <div className="flex-1 flex flex-col justify-between">
+                      <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-3 line-clamp-3 leading-relaxed flex-1">
+                        {cr.bio || cr.description || 'مبدع قوالب نوشن متخصص في إنشاء قوالب احترافية وعملية.'}
+                      </p>
+
+                      {/* Creator Stats */}
+                      <div className="mt-auto flex items-center justify-between text-xs">
+                        {/* Template Count */}
+                        <div className="flex items-center gap-1">
+                          <span className="text-accent-500 dark:text-dark-text-tertiary">القوالب</span>
+                          <span className="text-accent-600 dark:text-dark-text-secondary">
+                            {(cr.templatesCount || cr.templateCount || cr.totalTemplates || 0).toLocaleString()}
+                          </span>
+                        </div>
+
+                        {/* Followers */}
+                        <div className="flex items-center gap-1">
+                          <span className="text-accent-500 dark:text-dark-text-tertiary">المتابعون</span>
+                          <span className="text-accent-600 dark:text-dark-text-secondary">
+                            {(cr.followersCount || cr.followers || cr.totalFollowers || 0).toLocaleString()}
+                          </span>
+                        </div>
+
+                        {/* Rating */}
+                        <div className="flex items-center gap-1">
+                          <svg className="w-3 h-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                          <span className="text-accent-600 dark:text-dark-text-secondary">
+                            {(cr.averageRating || cr.rating || cr.medianRating || 0).toFixed(1)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
               ))
             ) : (
               <div className="col-span-full text-center py-8 text-accent-600 dark:text-dark-text-secondary">لا يوجد مبدعين لعرضهم حالياً.</div>

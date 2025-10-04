@@ -85,8 +85,8 @@ export default function BlogPostPage() {
 
     try {
       const [ratingsResponse, commentsResponse] = await Promise.all([
-        api.get(`/ratings?targetType=blog&targetId=${blog?._id}`),
-        api.get(`/comments?targetType=blog&targetId=${blog?._id}`)
+        api.get(`/ratings/blog/${blog?._id}`),
+        api.get(`/comments/blog/${blog?._id}`)
       ]);
 
       if (ratingsResponse.data.success) {
@@ -418,6 +418,124 @@ export default function BlogPostPage() {
                     className="mb-6"
                   />
                 </div>
+
+                {/* Reviews and Comments Display Section */}
+                {(blogRatings.length > 0 || blogComments.length > 0) && (
+                  <div className="mt-8 p-6 bg-white dark:bg-dark-secondary rounded-xl shadow-medium dark:shadow-dark-medium">
+                    <h3 className="text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-6">
+                      تقييمات المستخدمين والتعليقات
+                    </h3>
+
+                    <div className="space-y-4">
+                      {/* Combined Ratings and Comments */}
+                      {(() => {
+                        // Create a map of user reviews combining ratings and comments
+                        const userReviews = new Map();
+
+                        // Add ratings to the map
+                        blogRatings.forEach(rating => {
+                          const userId = rating.user?._id || rating.user?.id;
+                          if (userId) {
+                            userReviews.set(userId, {
+                              ...userReviews.get(userId),
+                              user: rating.user,
+                              rating: rating.rating,
+                              ratingId: rating._id,
+                              ratingDate: rating.createdAt,
+                              review: rating.review
+                            });
+                          }
+                        });
+
+                        // Add comments to the map
+                        blogComments.forEach(comment => {
+                          const userId = comment.user?._id || comment.user?.id;
+                          if (userId) {
+                            userReviews.set(userId, {
+                              ...userReviews.get(userId),
+                              user: comment.user,
+                              comment: comment.content,
+                              commentId: comment._id,
+                              commentDate: comment.createdAt,
+                              likes: comment.likes
+                            });
+                          }
+                        });
+
+                        // Convert map to array and sort by most recent activity
+                        const sortedReviews = Array.from(userReviews.values()).sort((a, b) => {
+                          const aDate = new Date(a.ratingDate || a.commentDate);
+                          const bDate = new Date(b.ratingDate || b.commentDate);
+                          return bDate - aDate;
+                        });
+
+                        return sortedReviews.map((review, index) => (
+                          <div key={index} className="border-b border-gray-200 dark:border-gray-700 last:border-b-0 pb-4 last:pb-0">
+                            <div className="flex items-start gap-3">
+                              {/* User Avatar */}
+                              <div className="w-10 h-10 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
+                                {review.user?.profilePicture ? (
+                                  <img
+                                    src={review.user.profilePicture}
+                                    alt={review.user.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
+                                    {review.user?.name?.charAt(0) || 'م'}
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Review Content */}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="font-medium text-accent-900 dark:text-dark-text-primary">
+                                    {review.user?.name || 'مستخدم'}
+                                  </span>
+                                  
+                                  {/* Rating Stars */}
+                                  {review.rating && (
+                                    <div className="flex items-center gap-1">
+                                      {[...Array(5)].map((_, i) => (
+                                        <svg
+                                          key={i}
+                                          className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'}`}
+                                          fill="currentColor"
+                                          viewBox="0 0 20 20"
+                                        >
+                                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                      ))}
+                                    </div>
+                                  )}
+                                  
+                                  <span className="text-xs text-accent-500 dark:text-dark-text-tertiary">
+                                    {formatDate(review.ratingDate || review.commentDate)}
+                                  </span>
+                                </div>
+
+                                {/* Review Text */}
+                                {review.review && (
+                                  <p className="text-sm text-accent-700 dark:text-dark-text-secondary mb-2">
+                                    {review.review}
+                                  </p>
+                                )}
+
+                                {/* Comment Text */}
+                                {review.comment && (
+                                  <p className="text-sm text-accent-700 dark:text-dark-text-secondary">
+                                    {review.comment}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ));
+                      })()}
+                    </div>
+                  </div>
+                )}
               </div>
             </article>
           </div>

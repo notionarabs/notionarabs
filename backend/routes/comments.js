@@ -43,6 +43,8 @@ router.post('/', auth, [
       target = await User.findById(targetId);
     } else if (targetType === 'blog') {
       target = await Blog.findById(targetId);
+    } else if (targetType === 'blog') {
+      target = await Blog.findById(targetId);
     }
 
     if (!target) {
@@ -119,7 +121,7 @@ router.get('/:targetType/:targetId', async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
 
     // Validate targetType
-    if (!['template', 'creator'].includes(targetType)) {
+    if (!['template', 'creator', 'blog'].includes(targetType)) {
       return res.status(400).json({
         success: false,
         message: 'نوع الهدف غير صحيح'
@@ -132,6 +134,8 @@ router.get('/:targetType/:targetId', async (req, res) => {
       target = await Template.findById(targetId);
     } else if (targetType === 'creator') {
       target = await User.findById(targetId);
+    } else if (targetType === 'blog') {
+      target = await Blog.findById(targetId);
     }
 
     if (!target) {
@@ -174,7 +178,7 @@ router.get('/user/:targetType/:targetId', auth, async (req, res) => {
     const userId = req.user._id;
 
     // Validate targetType
-    if (!['template', 'creator'].includes(targetType)) {
+    if (!['template', 'creator', 'blog'].includes(targetType)) {
       return res.status(400).json({
         success: false,
         message: 'نوع الهدف غير صحيح'
@@ -206,7 +210,7 @@ router.delete('/:targetType/:targetId', auth, async (req, res) => {
     const userId = req.user._id;
 
     // Validate targetType
-    if (!['template', 'creator'].includes(targetType)) {
+    if (!['template', 'creator', 'blog'].includes(targetType)) {
       return res.status(400).json({
         success: false,
         message: 'نوع الهدف غير صحيح'

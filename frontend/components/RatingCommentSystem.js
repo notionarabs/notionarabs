@@ -21,16 +21,19 @@ const RatingCommentSystem = ({
   const [hoverRating, setHoverRating] = useState(0);
   const [userComment, setUserComment] = useState(initialUserComment?.content || '');
   const [isLoading, setIsLoading] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   useEffect(() => {
     if (initialUserRating) {
       setUserRating(initialUserRating.rating);
+      setHasSubmitted(true);
     }
   }, [initialUserRating]);
 
   useEffect(() => {
     if (initialUserComment) {
       setUserComment(initialUserComment.content);
+      setHasSubmitted(true);
     }
   }, [initialUserComment]);
 
@@ -128,6 +131,9 @@ const RatingCommentSystem = ({
         onCommentChange(results[1].data);
       }
 
+      // Set hasSubmitted to true after successful submission
+      setHasSubmitted(true);
+
       // Show success message with a friendly notification
       const successMessage = userComment.trim()
         ? 'تم إرسال التقييم والتعليق بنجاح! شكراً لك على مشاركة رأيك.'
@@ -203,8 +209,22 @@ const RatingCommentSystem = ({
 
   return (
     <div className={`space-y-4 ${className}`}>
-      {/* Rating Section */}
-      <div>
+      {/* Show submitted message if user has already submitted */}
+      {hasSubmitted && isAuthenticated ? (
+        <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <p className="text-sm text-green-700 dark:text-green-300">
+              شكراً لك! تم إرسال تقييمك والتعليق بنجاح.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Rating Section */}
+          <div>
         <label className="block text-sm font-medium text-accent-700 dark:text-dark-text-primary mb-2">
           التقييم
         </label>
@@ -253,7 +273,7 @@ const RatingCommentSystem = ({
           value={userComment}
           onChange={handleCommentChange}
           disabled={readOnly || isLoading}
-          placeholder="شاركنا رأيك حول هذا القالب..."
+           placeholder="شاركنا رأيك حول هذا المقال..."
           className={`w-full px-3 py-2 border border-gray-300 dark:border-dark-card-border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-dark-secondary text-accent-700 dark:text-dark-text-primary placeholder-accent-400 dark:placeholder-dark-text-quaternary resize-none ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
           rows={4}
           maxLength={1000}
@@ -295,16 +315,18 @@ const RatingCommentSystem = ({
         </div>
       )}
 
-      {/* Authentication Notice */}
-      {!isAuthenticated && (
-        <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-          <p className="text-sm text-blue-700 dark:text-blue-300">
-            <a href="/login" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
-              سجل الدخول
-            </a>
-            {' '}لتتمكن من تقييم والتعليق على القوالب
-          </p>
-        </div>
+          {/* Authentication Notice */}
+          {!isAuthenticated && (
+            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                <a href="/login" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+                  سجل الدخول
+                </a>
+                {' '}لتتمكن من تقييم والتعليق على المقالات
+              </p>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

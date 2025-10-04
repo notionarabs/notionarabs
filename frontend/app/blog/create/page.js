@@ -257,6 +257,9 @@ export default function CreateBlogPage() {
   // Blog preview state
   const [showPreview, setShowPreview] = useState(false);
 
+  // Prevent duplicate draft restoration messages
+  const [draftRestored, setDraftRestored] = useState(false);
+
   // Redirect if not authenticated or not approved creator
   useEffect(() => {
     // Ensure token is set in headers when component mounts
@@ -295,7 +298,7 @@ export default function CreateBlogPage() {
   // Load draft on component mount
   useEffect(() => {
     const savedDraft = localStorage.getItem('blogDraft');
-    if (savedDraft) {
+    if (savedDraft && !draftRestored) {
       try {
         const draftData = JSON.parse(savedDraft);
         setFormData({
@@ -303,18 +306,19 @@ export default function CreateBlogPage() {
           excerpt: draftData.excerpt || '',
           content: draftData.content || '',
           categories: draftData.categories || draftData.category ? [draftData.category] : [],
-          tags: draftData.tags || [],
+          tags: Array.isArray(draftData.tags) ? draftData.tags : (draftData.tags ? [draftData.tags] : []),
         });
 
         if (draftData.timestamp) {
           setLastSaved(new Date(draftData.timestamp));
         }
         showSuccess('تم استعادة المسودة المحفوظة');
+        setDraftRestored(true);
       } catch (error) {
         console.error('Error loading draft:', error);
       }
     }
-  }, []);
+  }, [draftRestored]);
 
   // Handle click outside to close category dropdown
   useEffect(() => {
@@ -435,10 +439,11 @@ export default function CreateBlogPage() {
   // Tag management functions
   const addTag = (tag) => {
     const trimmedTag = tag.trim();
-    if (trimmedTag && !formData.tags.includes(trimmedTag) && formData.tags.length < 10) {
+    const currentTags = Array.isArray(formData.tags) ? formData.tags : [];
+    if (trimmedTag && !currentTags.includes(trimmedTag) && currentTags.length < 10) {
       setFormData(prev => ({
         ...prev,
-        tags: [...prev.tags, trimmedTag]
+        tags: [...currentTags, trimmedTag]
       }));
     }
     setTagInput('');
@@ -447,7 +452,7 @@ export default function CreateBlogPage() {
   const removeTag = (tagToRemove) => {
     setFormData(prev => ({
       ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
+      tags: Array.isArray(prev.tags) ? prev.tags.filter(tag => tag !== tagToRemove) : []
     }));
   };
 
@@ -461,7 +466,7 @@ export default function CreateBlogPage() {
       if (tagInput.trim()) {
         addTag(tagInput);
       }
-    } else if (e.key === 'Backspace' && !tagInput && formData.tags.length > 0) {
+    } else if (e.key === 'Backspace' && !tagInput && Array.isArray(formData.tags) && formData.tags.length > 0) {
       // Remove last tag when backspace is pressed on empty input
       removeTag(formData.tags[formData.tags.length - 1]);
     }
@@ -475,7 +480,7 @@ export default function CreateBlogPage() {
   };
 
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, submissionType = 'draft') => {
     e.preventDefault();
 
     if (!user) {
@@ -483,15 +488,25 @@ export default function CreateBlogPage() {
       return;
     }
 
-    // Validate all fields
+    // Validate fields based on submission type
     const isTitleValid = validateField('title', formData.title);
-    const isExcerptValid = validateField('excerpt', formData.excerpt);
     const isContentValid = validateField('content', formData.content);
-    const isCategoryValid = validateField('categories', formData.categories);
 
-    if (!isTitleValid || !isExcerptValid || !isContentValid || !isCategoryValid) {
-      showError('يرجى تصحيح الأخطاء في النموذج');
-      return;
+    // For review submission, validate all fields
+    if (submissionType === 'review') {
+      const isExcerptValid = validateField('excerpt', formData.excerpt);
+      const isCategoryValid = validateField('categories', formData.categories);
+
+      if (!isTitleValid || !isExcerptValid || !isContentValid || !isCategoryValid) {
+        showError('يرجى تصحيح الأخطاء في النموذج');
+        return;
+      }
+    } else {
+      // For draft submission, only validate title and content
+      if (!isTitleValid || !isContentValid) {
+        showError('يرجى إدخال عنوان المقال ومحتوى المقال');
+        return;
+      }
     }
 
     try {
@@ -955,7 +970,7 @@ export default function CreateBlogPage() {
                     العلامات
                   </div>
                   <span className="text-xs text-gray-500 dark:text-dark-text-tertiary">
-                    {formData.tags.length}/10
+                    {Array.isArray(formData.tags) ? formData.tags.length : 0}/10
                   </span>
                 </label>
 
@@ -963,7 +978,7 @@ export default function CreateBlogPage() {
                 <div className="relative">
                   <div className="form-input w-full min-h-[3rem] px-4 py-3 pr-12 border-2 border-gray-200 dark:border-dark-input-border focus-within:border-primary-500 dark:focus-within:border-primary-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-primary-400 flex flex-wrap items-center gap-2">
                     {/* Selected Tags */}
-                    {formData.tags.map((tag, index) => (
+                    {(Array.isArray(formData.tags) ? formData.tags : []).map((tag, index) => (
                       <span
                         key={index}
                         className="inline-flex items-center gap-1 px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-md text-sm font-medium"
@@ -988,8 +1003,8 @@ export default function CreateBlogPage() {
                       value={tagInput}
                       onChange={handleTagInputChange}
                       onKeyDown={handleTagKeyDown}
-                      placeholder={formData.tags.length >= 10 ? "تم الوصول للحد الأقصى (10 علامات)" : formData.tags.length > 0 ? "أضف علامة..." : "اكتب علامة واضغط Enter"}
-                      disabled={formData.tags.length >= 10}
+                      placeholder={(Array.isArray(formData.tags) ? formData.tags.length : 0) >= 10 ? "تم الوصول للحد الأقصى (10 علامات)" : (Array.isArray(formData.tags) ? formData.tags.length : 0) > 0 ? "أضف علامة..." : "اكتب علامة واضغط Enter"}
+                      disabled={(Array.isArray(formData.tags) ? formData.tags.length : 0) >= 10}
                       className="flex-1 min-w-[200px] bg-transparent outline-none text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-quaternary disabled:opacity-50 disabled:cursor-not-allowed"
                       autoComplete="off"
                     />

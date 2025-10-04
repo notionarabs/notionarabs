@@ -7,49 +7,6 @@ import api from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { Settings, BookOpen, Briefcase, Heart, Palette, Laptop, Dumbbell, PiggyBank, FolderTree, CalendarDays, LayoutDashboard, Users, Check, Youtube, Facebook, Send, Zap, Target, Lightbulb, TrendingUp } from 'lucide-react';
 
-// Fallback data for when API fails
-const fallbackTemplates = [
-  {
-    title: "مخطط الدراسة",
-    creator: "علي حسن",
-    imgSrc: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop&crop=center",
-    tag: "شائع",
-    price: "مجاني",
-    rating: 4.8,
-    downloads: 1200,
-    isFree: true,
-  },
-  {
-    title: "لوحة تحكم الشركة الناشئة",
-    creator: "سارة محمد",
-    imgSrc: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop&crop=center",
-    tag: "جديد",
-    price: "مجاني",
-    rating: 4.9,
-    downloads: 890,
-    isFree: true,
-  },
-  {
-    title: "المذكرة الشخصية",
-    creator: "أحمد ياسر",
-    imgSrc: "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=400&h=300&fit=crop&crop=center",
-    tag: "مجاني",
-    price: "مجاني",
-    rating: 4.7,
-    downloads: 2100,
-    isFree: true,
-  },
-  {
-    title: "مدير المهام",
-    creator: "منى خالد",
-    imgSrc: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop&crop=center",
-    tag: "رائج",
-    price: "مجاني",
-    rating: 4.6,
-    downloads: 1500,
-    isFree: true,
-  },
-];
 
 // Most important categories with better icons
 const categories = [
@@ -97,11 +54,9 @@ export default function HomePage() {
 
         if (response.data.success) {
           setFeaturedTemplates(response.data.templates || []);
-        } else {
-          setFeaturedTemplates(fallbackTemplates);
         }
       } catch (error) {
-        setFeaturedTemplates(fallbackTemplates);
+        console.error('Error fetching featured templates:', error);
       } finally {
         setLoading(false);
       }

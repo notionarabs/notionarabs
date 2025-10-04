@@ -8,93 +8,6 @@ import api from '../../lib/api';
 import LoadingIndicator from '../../components/LoadingIndicator';
 import { useToast } from '../../contexts/ToastContext';
 
-// Fallback data for when API fails
-const fallbackBlogPosts = [
-  {
-    id: 1,
-    title: "10 نصائح لاستخدام نوشن بكفاءة أكبر",
-    excerpt: "اكتشف أفضل الطرق لتنظيم عملك وحياتك باستخدام نوشن",
-    content: "نوشن هو أداة قوية لتنظيم المعلومات، ولكن هناك طرق لاستخدامه بكفاءة أكبر...",
-    author: "أحمد المطيري",
-    authorImg: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-    publishDate: "2024-01-15",
-    readTime: "5 دقائق",
-    category: "نصائح",
-    tags: ["نوشن", "الإنتاجية", "التنظيم"],
-    featured: true,
-    imgSrc: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=800&h=400&fit=crop&crop=center"
-  },
-  {
-    id: 2,
-    title: "كيفية إنشاء قوالب نوشن احترافية",
-    excerpt: "دليل شامل لتصميم قوالب نوشن جذابة ومفيدة",
-    content: "إنشاء قوالب نوشن احترافية يتطلب فهم عميق للمنصة وتصميم تجربة المستخدم...",
-    author: "فاطمة نور",
-    authorImg: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
-    publishDate: "2024-01-12",
-    readTime: "8 دقائق",
-    category: "تصميم",
-    tags: ["قوالب", "تصميم", "نوشن"],
-    featured: false,
-    imgSrc: "https://images.unsplash.com/photo-1558655146-d09347e92766?w=800&h=400&fit=crop&crop=center"
-  },
-  {
-    id: 3,
-    title: "أفضل قوالب نوشن للطلاب",
-    excerpt: "مجموعة مختارة من القوالب التي تساعد الطلاب في تنظيم دراستهم",
-    content: "الطلاب يحتاجون إلى تنظيم ممتاز لإدارة وقتهم ودراستهم، وهذه القوالب ستساعدهم...",
-    author: "عمر خالد",
-    authorImg: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
-    publishDate: "2024-01-10",
-    readTime: "6 دقائق",
-    category: "الدراسة",
-    tags: ["طلاب", "دراسة", "تنظيم"],
-    featured: false,
-    imgSrc: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&h=400&fit=crop&crop=center"
-  },
-  {
-    id: 4,
-    title: "نظام إدارة المشاريع بنوشن",
-    excerpt: "كيفية استخدام نوشن لإدارة مشاريعك بكفاءة عالية",
-    content: "نوشن يوفر أدوات قوية لإدارة المشاريع، من التخطيط إلى التنفيذ والمتابعة...",
-    author: "نورا أحمد",
-    authorImg: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face",
-    publishDate: "2024-01-08",
-    readTime: "7 دقائق",
-    category: "الأعمال",
-    tags: ["مشاريع", "إدارة", "نوشن"],
-    featured: false,
-    imgSrc: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=400&fit=crop&crop=center"
-  },
-  {
-    id: 5,
-    title: "تحسين الإنتاجية مع نوشن",
-    excerpt: "نصائح عملية لزيادة إنتاجيتك اليومية باستخدام نوشن",
-    content: "الإنتاجية هي مفتاح النجاح، ونوشن يمكن أن يكون أداة رائعة لتحسينها...",
-    author: "خالد محمد",
-    authorImg: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-    publishDate: "2024-01-05",
-    readTime: "5 دقائق",
-    category: "الإنتاجية",
-    tags: ["إنتاجية", "تنظيم", "نصائح"],
-    featured: false,
-    imgSrc: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=400&fit=crop&crop=center"
-  },
-  {
-    id: 6,
-    title: "قوالب نوشن للمطورين",
-    excerpt: "قوالب متخصصة للمطورين والمبرمجين لتنظيم مشاريعهم",
-    content: "المطورون يحتاجون إلى تنظيم خاص لمشاريعهم، وهذه القوالب ستساعدهم...",
-    author: "سارة التقنية",
-    authorImg: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
-    publishDate: "2024-01-03",
-    readTime: "6 دقائق",
-    category: "التقنية",
-    tags: ["مطورين", "برمجة", "مشاريع"],
-    featured: false,
-    imgSrc: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=400&fit=crop&crop=center"
-  }
-];
 
 const categories = [
   { name: "الكل", value: "all" },
@@ -162,13 +75,11 @@ export default function BlogPage() {
           setPagination(response.data.pagination || pagination);
         } else {
           setError('فشل في تحميل المقالات');
-          setBlogPosts(fallbackBlogPosts.filter(post => !post.featured));
           showError('فشل في تحميل المقالات');
         }
       } catch (err) {
         console.error('Error fetching blog posts:', err);
         setError('فشل في تحميل المقالات');
-        setBlogPosts(fallbackBlogPosts.filter(post => !post.featured));
         showError('فشل في تحميل المقالات');
       } finally {
         setLoading(false);

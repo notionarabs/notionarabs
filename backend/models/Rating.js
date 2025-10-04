@@ -8,7 +8,7 @@ const ratingSchema = new mongoose.Schema({
   },
   targetType: {
     type: String,
-    enum: ['template', 'creator'],
+    enum: ['template', 'creator', 'blog'],
     required: true
   },
   targetId: {

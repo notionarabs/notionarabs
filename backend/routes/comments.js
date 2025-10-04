@@ -60,6 +60,14 @@ router.post('/', auth, [
       });
     }
 
+    // Check if user is trying to comment on their own blog
+    if (targetType === 'blog' && target.author && target.author.toString() === userId.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: 'لا يمكنك التعليق على مقالاتك الخاصة'
+      });
+    }
+
     // Check if user already commented on this target
     const existingComment = await Comment.findOne({
       user: userId,

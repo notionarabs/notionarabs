@@ -72,6 +72,14 @@ router.post('/', auth, [
       });
     }
 
+    // Check if user is trying to rate their own blog
+    if (targetType === 'blog' && target.author && target.author.toString() === userId.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: 'لا يمكنك تقييم مقالاتك الخاصة'
+      });
+    }
+
     // Check if user already rated this target
     const existingRating = await Rating.findOne({
       user: userId,

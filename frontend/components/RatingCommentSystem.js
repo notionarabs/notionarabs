@@ -199,8 +199,6 @@ const RatingCommentSystem = ({
 
   const starClasses = `${sizeClasses[size]} transition-colors duration-200`;
 
-  console.log('RatingCommentSystem render:', { hasSubmitted, isAuthenticated, initialUserRating, initialUserComment });
-
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Show submitted message if user has already submitted */}

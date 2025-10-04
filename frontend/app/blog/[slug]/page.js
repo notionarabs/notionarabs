@@ -493,7 +493,7 @@ export default function BlogPostPage() {
                                   <span className="font-medium text-accent-900 dark:text-dark-text-primary">
                                     {review.user?.name || 'مستخدم'}
                                   </span>
-                                  
+
                                   {/* Rating Stars */}
                                   {review.rating && (
                                     <div className="flex items-center gap-1">
@@ -509,7 +509,7 @@ export default function BlogPostPage() {
                                       ))}
                                     </div>
                                   )}
-                                  
+
                                   <span className="text-xs text-accent-500 dark:text-dark-text-tertiary">
                                     {formatDate(review.ratingDate || review.commentDate)}
                                   </span>

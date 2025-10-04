@@ -225,95 +225,95 @@ const RatingCommentSystem = ({
         <>
           {/* Rating Section */}
           <div>
-        <label className="block text-sm font-medium text-accent-700 dark:text-dark-text-primary mb-2">
-          التقييم
-        </label>
-        <div className="flex items-center gap-1">
-          {[...Array(5)].map((_, index) => {
-            const rating = index + 1;
-            const isActive = rating <= (hoverRating || userRating);
+            <label className="block text-sm font-medium text-accent-700 dark:text-dark-text-primary mb-2">
+              التقييم
+            </label>
+            <div className="flex items-center gap-1">
+              {[...Array(5)].map((_, index) => {
+                const rating = index + 1;
+                const isActive = rating <= (hoverRating || userRating);
 
-            return (
-              <button
-                key={index}
-                onClick={() => handleStarClick(rating)}
-                disabled={readOnly || isLoading}
-                className={`${starClasses} ${isActive
-                  ? 'text-yellow-400'
-                  : 'text-gray-300 dark:text-gray-600'
-                  } ${!readOnly && isAuthenticated ? 'hover:text-yellow-400 cursor-pointer' : 'cursor-default'} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-                onMouseEnter={() => !readOnly && setHoverRating(rating)}
-                onMouseLeave={() => !readOnly && setHoverRating(0)}
-                title={readOnly ? '' : `تقييم ${rating} من 5`}
-              >
-                <svg fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-              </button>
-            );
-          })}
-          {isLoading && (
-            <div className="w-4 h-4 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin ml-2"></div>
-          )}
-        </div>
-        {userRating > 0 && (
-          <p className="text-sm text-accent-600 dark:text-dark-text-secondary mt-1">
-            تقييمك: {userRating} من 5
-          </p>
-        )}
-      </div>
-
-      {/* Comment Section */}
-      <div>
-        <label className="block text-sm font-medium text-accent-700 dark:text-dark-text-primary mb-2">
-          التعليق (اختياري)
-        </label>
-        <textarea
-          value={userComment}
-          onChange={handleCommentChange}
-          disabled={readOnly || isLoading}
-           placeholder="شاركنا رأيك حول هذا المقال..."
-          className={`w-full px-3 py-2 border border-gray-300 dark:border-dark-card-border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-dark-secondary text-accent-700 dark:text-dark-text-primary placeholder-accent-400 dark:placeholder-dark-text-quaternary resize-none ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-          rows={4}
-          maxLength={1000}
-        />
-        <div className="flex justify-between items-center mt-1">
-          <span className="text-xs text-accent-500 dark:text-dark-text-quaternary">
-            {userComment.length}/1000 حرف
-          </span>
-          {userComment.trim() && (
-            <span className="text-xs text-green-600 dark:text-green-400">
-              سيتم إرسال التعليق مع التقييم
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Submit Button */}
-      {userRating > 0 && !readOnly && isAuthenticated && (
-        <div className="pt-2">
-          <button
-            onClick={handleSubmit}
-            disabled={isLoading}
-            className="w-full px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white text-sm font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
-          >
-            {isLoading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                جاري الإرسال...
-              </>
-            ) : (
-              <>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                </svg>
-                إرسال التقييم {userComment.trim() ? 'والتعليق' : ''}
-              </>
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleStarClick(rating)}
+                    disabled={readOnly || isLoading}
+                    className={`${starClasses} ${isActive
+                      ? 'text-yellow-400'
+                      : 'text-gray-300 dark:text-gray-600'
+                      } ${!readOnly && isAuthenticated ? 'hover:text-yellow-400 cursor-pointer' : 'cursor-default'} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                    onMouseEnter={() => !readOnly && setHoverRating(rating)}
+                    onMouseLeave={() => !readOnly && setHoverRating(0)}
+                    title={readOnly ? '' : `تقييم ${rating} من 5`}
+                  >
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  </button>
+                );
+              })}
+              {isLoading && (
+                <div className="w-4 h-4 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin ml-2"></div>
+              )}
+            </div>
+            {userRating > 0 && (
+              <p className="text-sm text-accent-600 dark:text-dark-text-secondary mt-1">
+                تقييمك: {userRating} من 5
+              </p>
             )}
-          </button>
-        </div>
-      )}
+          </div>
+
+          {/* Comment Section */}
+          <div>
+            <label className="block text-sm font-medium text-accent-700 dark:text-dark-text-primary mb-2">
+              التعليق (اختياري)
+            </label>
+            <textarea
+              value={userComment}
+              onChange={handleCommentChange}
+              disabled={readOnly || isLoading}
+              placeholder="شاركنا رأيك حول هذا المقال..."
+              className={`w-full px-3 py-2 border border-gray-300 dark:border-dark-card-border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-dark-secondary text-accent-700 dark:text-dark-text-primary placeholder-accent-400 dark:placeholder-dark-text-quaternary resize-none ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              rows={4}
+              maxLength={1000}
+            />
+            <div className="flex justify-between items-center mt-1">
+              <span className="text-xs text-accent-500 dark:text-dark-text-quaternary">
+                {userComment.length}/1000 حرف
+              </span>
+              {userComment.trim() && (
+                <span className="text-xs text-green-600 dark:text-green-400">
+                  سيتم إرسال التعليق مع التقييم
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          {userRating > 0 && !readOnly && isAuthenticated && (
+            <div className="pt-2">
+              <button
+                onClick={handleSubmit}
+                disabled={isLoading}
+                className="w-full px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white text-sm font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    جاري الإرسال...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                    إرسال التقييم {userComment.trim() ? 'والتعليق' : ''}
+                  </>
+                )}
+              </button>
+            </div>
+          )}
 
           {/* Authentication Notice */}
           {!isAuthenticated && (

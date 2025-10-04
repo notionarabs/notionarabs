@@ -336,9 +336,6 @@ export default function HomePage() {
                         </div>
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                      <span className="absolute top-2 sm:top-3 right-2 sm:right-3 text-xs px-2 sm:px-3 py-1 rounded-full font-medium bg-green-500 text-white">
-                        مجاني
-                      </span>
                     </div>
                     <div className="p-4 sm:p-6">
                       <h3 className="font-bold text-base sm:text-lg text-accent-500 dark:text-dark-text-primary mb-2 group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
@@ -351,7 +348,9 @@ export default function HomePage() {
                           <StarRating rating={t.rating || 0} />
                           <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">({t.downloads || 0})</span>
                         </div>
-                        <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-secondary">مجاني</div>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          مجاني
+                        </span>
                       </div>
 
                       <button className="w-full btn-primary py-2 sm:py-3 px-4 text-sm sm:text-base">

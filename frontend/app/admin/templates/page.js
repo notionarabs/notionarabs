@@ -417,7 +417,7 @@ export default function AdminTemplatesPage() {
                         {template.category}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600 dark:text-green-400">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                       مجاني
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -604,7 +604,7 @@ export default function AdminTemplatesPage() {
                     </div>
                     <div>
                       <span className="font-medium text-accent-600 dark:text-dark-text-secondary">السعر:</span>
-                      <p className="text-green-600 dark:text-green-400">مجاني</p>
+                      <p className="text-gray-500 dark:text-gray-400">مجاني</p>
                     </div>
                     {selectedTemplateDetails.tags && selectedTemplateDetails.tags.length > 0 && (
                       <div>

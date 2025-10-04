@@ -219,14 +219,13 @@ export default function CreatorTemplatesPage() {
                           {template.category}
                         </span>
                       </div>
-                      <div className="flex items-center gap-1 sm:gap-2">
-                        <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">السعر:</span>
-                        <span className="text-xs sm:text-sm font-medium text-green-600 dark:text-green-400">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1 sm:gap-2">
+                          {getDifficultyBadge(template.difficulty)}
+                        </div>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
                           مجاني
                         </span>
-                      </div>
-                      <div className="flex items-center gap-1 sm:gap-2">
-                        {getDifficultyBadge(template.difficulty)}
                       </div>
                     </div>
 

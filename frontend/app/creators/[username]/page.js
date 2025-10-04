@@ -467,9 +467,6 @@ export default function PublicProfilePage() {
                         </div>
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                      <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full font-medium bg-green-500 text-white">
-                        مجاني
-                      </span>
                     </div>
                     <div className="p-6">
                       <h3 className="font-bold text-lg text-accent-500 dark:text-dark-text-primary mb-2 group-hover:text-primary-500 dark:group-hover:text-orange-400 transition-colors line-clamp-2">
@@ -477,7 +474,7 @@ export default function PublicProfilePage() {
                       </h3>
                       <div className="flex items-center justify-between mb-4">
                         <StarRating rating={template.rating || 0} />
-                        <span className="text-lg font-bold text-green-600 dark:text-green-400">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
                           مجاني
                         </span>
                       </div>

@@ -255,6 +255,13 @@ export default function TemplateDetailPage() {
         if (response.data.success) {
           setTemplate(response.data.template);
 
+          // Set main image as default selected image
+          if (response.data.template.previewImage) {
+            setSelectedImage(-2); // -2 is the special index for main image
+          } else {
+            setSelectedImage(0); // Default to first additional image
+          }
+
           // Load ratings
           await loadRatings(response.data.template._id);
 

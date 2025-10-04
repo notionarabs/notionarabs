@@ -3,6 +3,7 @@ const { body, validationResult } = require('express-validator');
 const Comment = require('../models/Comment');
 const Template = require('../models/Template');
 const User = require('../models/User');
+const Blog = require('../models/Blog');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
@@ -12,8 +13,8 @@ const router = express.Router();
 // @access  Private
 router.post('/', auth, [
   body('targetType')
-    .isIn(['template', 'creator'])
-    .withMessage('نوع الهدف يجب أن يكون template أو creator'),
+    .isIn(['template', 'creator', 'blog'])
+    .withMessage('نوع الهدف يجب أن يكون template أو creator أو blog'),
   body('targetId')
     .isMongoId()
     .withMessage('معرف الهدف غير صحيح'),
@@ -40,12 +41,14 @@ router.post('/', auth, [
       target = await Template.findById(targetId);
     } else if (targetType === 'creator') {
       target = await User.findById(targetId);
+    } else if (targetType === 'blog') {
+      target = await Blog.findById(targetId);
     }
 
     if (!target) {
       return res.status(404).json({
         success: false,
-        message: targetType === 'template' ? 'القالب غير موجود' : 'المبدع غير موجود'
+        message: targetType === 'template' ? 'القالب غير موجود' : targetType === 'blog' ? 'المقال غير موجود' : 'المبدع غير موجود'
       });
     }
 
@@ -126,7 +129,7 @@ router.get('/:targetType/:targetId', async (req, res) => {
     if (!target) {
       return res.status(404).json({
         success: false,
-        message: targetType === 'template' ? 'القالب غير موجود' : 'المبدع غير موجود'
+        message: targetType === 'template' ? 'القالب غير موجود' : targetType === 'blog' ? 'المقال غير موجود' : 'المبدع غير موجود'
       });
     }
 

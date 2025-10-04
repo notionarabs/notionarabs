@@ -466,9 +466,9 @@ export default function CreateBlogPage() {
         return;
       }
 
-      // Convert tags string to array
+      // Convert tags string to array (split by newlines)
       const tagsArray = formData.tags
-        ? formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
+        ? formData.tags.split('\n').map(tag => tag.trim()).filter(tag => tag)
         : [];
 
       const blogData = {
@@ -900,16 +900,16 @@ export default function CreateBlogPage() {
                   </svg>
                   العلامات
                 </label>
-                <input
-                  type="text"
+                <textarea
                   name="tags"
                   value={formData.tags}
                   onChange={handleInputChange}
-                  className="form-input focus:ring-primary-200"
-                  placeholder="اكتب العلامات مفصولة بفواصل (مثال: نوشن، إنتاجية، تنظيم)"
+                  rows={4}
+                  className="form-input resize-none focus:ring-primary-200"
+                  placeholder="اكتب كل علامة في سطر منفصل (مثال:&#10;نوشن&#10;إنتاجية&#10;تنظيم)"
                 />
                 <p className="text-xs text-accent-500 dark:text-dark-text-tertiary">
-                  اكتب العلامات مفصولة بفواصل
+                  اكتب كل علامة في سطر منفصل واضغط Enter
                 </p>
               </div>
 

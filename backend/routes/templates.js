@@ -4,6 +4,7 @@ const Template = require('../models/Template');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 const { generateTemplateSlug } = require('../utils/slugGenerator');
+const Fuse = require('fuse.js');
 
 const router = express.Router();
 
@@ -210,32 +211,72 @@ router.get('/', async (req, res) => {
       filter.creator = creator;
     }
 
-    if (search) {
-      filter.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
-        { tags: { $in: [new RegExp(search, 'i')] } }
-      ];
+    // Get all templates first (for Fuse.js search)
+    let templates = await Template.find(filter)
+      .populate('creator', 'name username displayName profilePicture')
+      .lean();
+
+    // Apply Fuse.js search if search term is provided
+    if (search && search.trim()) {
+      const fuseOptions = {
+        keys: [
+          { name: 'title', weight: 0.4 },
+          { name: 'description', weight: 0.3 },
+          { name: 'category', weight: 0.2 },
+          { name: 'tags', weight: 0.1 },
+          { name: 'creator.name', weight: 0.1 },
+          { name: 'creator.username', weight: 0.1 },
+          { name: 'creator.displayName', weight: 0.1 }
+        ],
+        threshold: 0.4, // Lower threshold for more strict matching
+        includeScore: true,
+        includeMatches: true,
+        minMatchCharLength: 2,
+        // Support both Arabic and English
+        ignoreLocation: true,
+        findAllMatches: true,
+        // Custom search function to handle both languages
+        getFn: (obj, path) => {
+          const value = Fuse.config.getFn(obj, path);
+          if (typeof value === 'string') {
+            // Normalize text for better matching
+            return value.toLowerCase().trim();
+          }
+          return value;
+        }
+      };
+
+      const fuse = new Fuse(templates, fuseOptions);
+      const searchResults = fuse.search(search.trim().toLowerCase());
+      
+      // Extract the items from Fuse results
+      templates = searchResults.map(result => result.item);
     }
 
-    // Build sort object
+    // Apply sorting
     const sort = {};
     sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
 
-    // Calculate pagination
+    // Sort the templates array
+    templates.sort((a, b) => {
+      const aValue = a[sortBy];
+      const bValue = b[sortBy];
+
+      if (sortOrder === 'desc') {
+        return bValue > aValue ? 1 : -1;
+      } else {
+        return aValue > bValue ? 1 : -1;
+      }
+    });
+
+    // Apply pagination
+    const total = templates.length;
     const skip = (parseInt(page) - 1) * parseInt(limit);
-
-    const templates = await Template.find(filter)
-      .populate('creator', 'name username displayName profilePicture')
-      .sort(sort)
-      .skip(skip)
-      .limit(parseInt(limit));
-
-    const total = await Template.countDocuments(filter);
+    const paginatedTemplates = templates.slice(skip, skip + parseInt(limit));
 
     res.json({
       success: true,
-      templates,
+      templates: paginatedTemplates,
       pagination: {
         current: parseInt(page),
         pages: Math.ceil(total / parseInt(limit)),

@@ -363,22 +363,6 @@ export default function PublicProfilePage() {
 
             {/* Right Column - Metadata */}
             <div className="space-y-8">
-              {/* Top Categories */}
-              {creator.specialties && creator.specialties.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-dark-text-quaternary mb-4">المجالات المتخصصة</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {creator.specialties.slice(0, 5).map((specialty, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-dark-tertiary text-gray-700 dark:text-dark-text-secondary"
-                      >
-                        {specialty}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
 
 
               {/* Professional Information */}
@@ -473,7 +457,7 @@ export default function PublicProfilePage() {
                           alt={template.title}
                           width={400}
                           height={300}
-                          className="w-full h-full object-contain bg-white dark:bg-dark-secondary group-hover:scale-105 transition-transform duration-500"
+                          className="w-full h-full object-cover bg-white dark:bg-dark-secondary group-hover:scale-105 transition-transform duration-500"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30">

@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatDate } from '../../lib/dateUtils';
 import api from '../../lib/api';
 import LoadingIndicator from '../../components/LoadingIndicator';
 import { useToast } from '../../contexts/ToastContext';
+import Fuse from 'fuse.js';
 
 
 const categories = [
@@ -35,7 +36,7 @@ export default function BlogPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
-  const [blogPosts, setBlogPosts] = useState([]);
+  const [allBlogPosts, setAllBlogPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
@@ -46,7 +47,69 @@ export default function BlogPage() {
   });
   const { showError } = useToast();
 
-  // Fetch blog posts from API
+  // Fuse.js configuration for blogs
+  const fuseOptions = useMemo(() => ({
+    keys: [
+      { name: 'title', weight: 0.4 },
+      { name: 'excerpt', weight: 0.3 },
+      { name: 'category', weight: 0.2 },
+      { name: 'tags', weight: 0.1 },
+      { name: 'author.name', weight: 0.1 }
+    ],
+    threshold: 0.4,
+    includeScore: true,
+    includeMatches: true,
+    minMatchCharLength: 2,
+    // Support both Arabic and English
+    ignoreLocation: true,
+    findAllMatches: true,
+    // Custom search function to handle both languages
+    getFn: (obj, path) => {
+      const value = Fuse.config.getFn(obj, path);
+      if (typeof value === 'string') {
+        // Normalize text for better matching
+        return value.toLowerCase().trim();
+      }
+      return value;
+    }
+  }), []);
+
+  // Create Fuse instance
+  const fuse = useMemo(() => {
+    return new Fuse(allBlogPosts, fuseOptions);
+  }, [allBlogPosts, fuseOptions]);
+
+  // Filtered and sorted blog posts
+  const blogPosts = useMemo(() => {
+    let filteredPosts = allBlogPosts;
+
+    // Apply category filter
+    if (selectedCategory !== 'all') {
+      filteredPosts = filteredPosts.filter(post => post.category === selectedCategory);
+    }
+
+    // Apply search filter
+    if (searchTerm.trim()) {
+      const searchResults = fuse.search(searchTerm.trim().toLowerCase());
+      filteredPosts = searchResults.map(result => result.item);
+    }
+
+    // Apply sorting
+    const sortedPosts = [...filteredPosts].sort((a, b) => {
+      if (sortBy === 'newest') {
+        return new Date(b.publishedAt || b.createdAt) - new Date(a.publishedAt || a.createdAt);
+      } else if (sortBy === 'oldest') {
+        return new Date(a.publishedAt || a.createdAt) - new Date(b.publishedAt || b.createdAt);
+      } else if (sortBy === 'views') {
+        return (b.views || 0) - (a.views || 0);
+      }
+      return 0;
+    });
+
+    return sortedPosts;
+  }, [allBlogPosts, selectedCategory, searchTerm, sortBy, fuse]);
+
+  // Fetch all blog posts from API (no server-side search)
   useEffect(() => {
     const fetchBlogPosts = async () => {
       try {
@@ -54,25 +117,13 @@ export default function BlogPage() {
         setError(null);
 
         const params = new URLSearchParams({
-          page: '1',
-          limit: '9',
-          sortBy: sortBy === 'newest' ? 'publishedAt' : sortBy === 'oldest' ? 'publishedAt' : 'views',
-          sortOrder: sortBy === 'newest' ? 'desc' : sortBy === 'oldest' ? 'asc' : 'desc'
+          limit: '1000' // Get all blogs for client-side search
         });
-
-        if (selectedCategory !== 'all') {
-          params.append('category', selectedCategory);
-        }
-
-        if (searchTerm.trim()) {
-          params.append('search', searchTerm.trim());
-        }
 
         const response = await api.get(`/blogs?${params.toString()}`);
 
         if (response.data.success) {
-          setBlogPosts(response.data.blogs || []);
-          setPagination(response.data.pagination || pagination);
+          setAllBlogPosts(response.data.blogs || []);
         } else {
           setError('فشل في تحميل المقالات');
           showError('فشل في تحميل المقالات');
@@ -87,7 +138,17 @@ export default function BlogPage() {
     };
 
     fetchBlogPosts();
-  }, [selectedCategory, searchTerm, sortBy, showError]);
+  }, [showError]);
+
+  // Update pagination when blog posts change
+  useEffect(() => {
+    setPagination(prev => ({
+      ...prev,
+      current: 1,
+      total: blogPosts.length,
+      pages: Math.ceil(blogPosts.length / prev.limit)
+    }));
+  }, [blogPosts]);
 
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
@@ -117,7 +178,7 @@ export default function BlogPage() {
             <div className="relative mb-8">
               <input
                 type="text"
-                placeholder="ابحث في المقالات..."
+                placeholder="ابحث في المقالات... (مثال: نصائح نوشن، إنتاجية، تصميم)"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full form-input pr-12 pl-4 py-4 text-lg"

@@ -49,6 +49,14 @@ router.post('/', auth, [
       });
     }
 
+    // Check if user is trying to comment on their own template
+    if (targetType === 'template' && target.creator && target.creator.toString() === userId.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: 'لا يمكنك التعليق على قوالبك الخاصة'
+      });
+    }
+
     // Check if user already commented on this target
     const existingComment = await Comment.findOne({
       user: userId,
@@ -124,9 +132,9 @@ router.get('/:targetType/:targetId', async (req, res) => {
 
     // Get comments
     const { comments, totalComments, pagination } = await Comment.getCommentsForTarget(
-      targetType, 
-      targetId, 
-      page, 
+      targetType,
+      targetId,
+      page,
       limit
     );
 

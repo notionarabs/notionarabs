@@ -3,6 +3,7 @@ const { body, validationResult } = require('express-validator');
 const Blog = require('../models/Blog');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const Fuse = require('fuse.js');
 
 const router = express.Router();
 
@@ -171,36 +172,78 @@ router.get('/', async (req, res) => {
       query.category = category;
     }
 
-    if (search) {
-      query.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { excerpt: { $regex: search, $options: 'i' } },
-        { tags: { $in: [new RegExp(search, 'i')] } }
-      ];
+    // Get all blogs first (for Fuse.js search)
+    let blogs = await Blog.find(query)
+      .populate('author', 'name profilePicture')
+      .lean();
+
+    // Apply Fuse.js search if search term is provided
+    if (search && search.trim()) {
+      const fuseOptions = {
+        keys: [
+          { name: 'title', weight: 0.4 },
+          { name: 'excerpt', weight: 0.3 },
+          { name: 'category', weight: 0.2 },
+          { name: 'tags', weight: 0.1 },
+          { name: 'author.name', weight: 0.1 }
+        ],
+        threshold: 0.4, // Lower threshold for more strict matching
+        includeScore: true,
+        includeMatches: true,
+        minMatchCharLength: 2,
+        // Support both Arabic and English
+        ignoreLocation: true,
+        findAllMatches: true,
+        // Custom search function to handle both languages
+        getFn: (obj, path) => {
+          const value = Fuse.config.getFn(obj, path);
+          if (typeof value === 'string') {
+            // Normalize text for better matching
+            return value.toLowerCase().trim();
+          }
+          return value;
+        }
+      };
+
+      const fuse = new Fuse(blogs, fuseOptions);
+      const searchResults = fuse.search(search.trim().toLowerCase());
+
+      // Extract the items from Fuse results
+      blogs = searchResults.map(result => result.item);
     }
 
-    // Build sort object
+    // Apply sorting
     const sort = {};
     sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
 
+    // Sort the blogs array
+    blogs.sort((a, b) => {
+      const aValue = a[sortBy];
+      const bValue = b[sortBy];
+
+      if (sortBy === 'publishedAt' || sortBy === 'createdAt') {
+        return sortOrder === 'asc'
+          ? new Date(aValue) - new Date(bValue)
+          : new Date(bValue) - new Date(aValue);
+      } else if (sortBy === 'views' || sortBy === 'likes') {
+        return sortOrder === 'asc'
+          ? (aValue || 0) - (bValue || 0)
+          : (bValue || 0) - (aValue || 0);
+      }
+      return 0;
+    });
+
+    // Apply pagination
+    const total = blogs.length;
     const skip = (page - 1) * limit;
-
-    const blogs = await Blog.find(query)
-      .populate('author', 'name profilePicture')
-      .sort(sort)
-      .skip(skip)
-      .limit(limit)
-      .lean();
-
-    const total = await Blog.countDocuments(query);
-    const pages = Math.ceil(total / limit);
+    const paginatedBlogs = blogs.slice(skip, skip + limit);
 
     res.json({
       success: true,
-      blogs,
+      blogs: paginatedBlogs,
       pagination: {
         current: page,
-        pages,
+        pages: Math.ceil(total / limit),
         total,
         limit
       }

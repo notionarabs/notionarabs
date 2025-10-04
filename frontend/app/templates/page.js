@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useMemo } from 'react';
 import Image from 'next/image';
 import { LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
@@ -8,22 +8,9 @@ import api from '../../lib/api';
 import LoadingIndicator from '../../components/LoadingIndicator';
 import StarRating from '../../components/StarRating';
 import { useSearchParams } from 'next/navigation';
+import Fuse from 'fuse.js';
 
 
-const categories = [
-  { name: "الكل", value: "all" },
-  { name: "الإنتاجية", value: "الإنتاجية" },
-  { name: "الدراسة", value: "الدراسة" },
-  { name: "الأعمال", value: "الأعمال" },
-  { name: "الحياة الشخصية", value: "الحياة الشخصية" },
-  { name: "الإبداع", value: "الإبداع" },
-  { name: "التقنية", value: "التقنية" },
-  { name: "الصحة", value: "الصحة" },
-  { name: "المالية", value: "المالية" },
-  { name: "التنظيم", value: "التنظيم" },
-  { name: "التخطيط", value: "التخطيط" },
-  { name: "ديني", value: "ديني" }
-];
 
 const sortOptions = [
   { name: "الأحدث", value: "createdAt" },
@@ -34,13 +21,8 @@ const sortOptions = [
 function TemplatesPageContent() {
   const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
-  const categoryFromQuery = searchParams.get('category');
-  const initialCategory = categoryFromQuery && categories.some((c) => c.value === categoryFromQuery)
-    ? categoryFromQuery
-    : 'all';
-  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [sortBy, setSortBy] = useState('createdAt');
-  const [templates, setTemplates] = useState([]);
+  const [allTemplates, setAllTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({
@@ -50,32 +32,80 @@ function TemplatesPageContent() {
     limit: 12
   });
 
-  // Fetch templates from API
-  const fetchTemplates = async (page = 1) => {
+  // Fuse.js configuration for templates
+  const fuseOptions = useMemo(() => ({
+    keys: [
+      { name: 'title', weight: 0.4 },
+      { name: 'description', weight: 0.3 },
+      { name: 'category', weight: 0.2 },
+      { name: 'tags', weight: 0.1 },
+      { name: 'creator.name', weight: 0.1 },
+      { name: 'creator.username', weight: 0.1 },
+      { name: 'creator.displayName', weight: 0.1 }
+    ],
+    threshold: 0.4,
+    includeScore: true,
+    includeMatches: true,
+    minMatchCharLength: 2,
+    // Support both Arabic and English
+    ignoreLocation: true,
+    findAllMatches: true,
+    // Custom search function to handle both languages
+    getFn: (obj, path) => {
+      const value = Fuse.config.getFn(obj, path);
+      if (typeof value === 'string') {
+        // Normalize text for better matching
+        return value.toLowerCase().trim();
+      }
+      return value;
+    }
+  }), []);
+
+  // Create Fuse instance
+  const fuse = useMemo(() => {
+    return new Fuse(allTemplates, fuseOptions);
+  }, [allTemplates, fuseOptions]);
+
+  // Filtered and sorted templates
+  const templates = useMemo(() => {
+    let filteredTemplates = allTemplates;
+
+    // Apply search filter
+    if (searchTerm.trim()) {
+      const searchResults = fuse.search(searchTerm.trim().toLowerCase());
+      filteredTemplates = searchResults.map(result => result.item);
+    }
+
+    // Apply sorting
+    const sortedTemplates = [...filteredTemplates].sort((a, b) => {
+      const aValue = a[sortBy];
+      const bValue = b[sortBy];
+
+      if (sortBy === 'createdAt') {
+        return new Date(bValue) - new Date(aValue);
+      } else if (sortBy === 'downloads' || sortBy === 'rating') {
+        return (bValue || 0) - (aValue || 0);
+      }
+      return 0;
+    });
+
+    return sortedTemplates;
+  }, [allTemplates, searchTerm, sortBy, fuse]);
+
+  // Fetch all templates from API (no server-side search)
+  const fetchTemplates = async () => {
     try {
       setLoading(true);
       setError(null);
 
       const params = new URLSearchParams({
-        page: page.toString(),
-        limit: '12',
-        sortBy: sortBy,
-        sortOrder: 'desc'
+        limit: '1000' // Get all templates for client-side search
       });
-
-      if (selectedCategory !== 'all') {
-        params.append('category', selectedCategory);
-      }
-
-      if (searchTerm.trim()) {
-        params.append('search', searchTerm.trim());
-      }
 
       const response = await api.get(`/templates?${params.toString()}`);
 
       if (response.data.success) {
-        setTemplates(response.data.templates || []);
-        setPagination(response.data.pagination || pagination);
+        setAllTemplates(response.data.templates || []);
       } else {
         setError('فشل في تحميل القوالب');
       }
@@ -89,36 +119,38 @@ function TemplatesPageContent() {
 
   // Initial load
   useEffect(() => {
-    fetchTemplates(1);
+    fetchTemplates();
   }, []);
 
-  // Refetch when filters change
-  useEffect(() => {
-    fetchTemplates(1);
-  }, [selectedCategory, sortBy, searchTerm]);
+  // Paginated templates for display
+  const paginatedTemplates = useMemo(() => {
+    const startIndex = (pagination.current - 1) * pagination.limit;
+    const endIndex = startIndex + pagination.limit;
+    return templates.slice(startIndex, endIndex);
+  }, [templates, pagination.current, pagination.limit]);
 
-  // Sync selected category when URL query changes (e.g., from homepage links)
+  // Update pagination when templates change
   useEffect(() => {
-    const category = searchParams.get('category');
-    if (category && categories.some((c) => c.value === category)) {
-      setSelectedCategory(category);
-    } else if (!category) {
-      setSelectedCategory('all');
-    }
-  }, [searchParams]);
+    setPagination(prev => ({
+      ...prev,
+      current: 1,
+      total: templates.length,
+      pages: Math.ceil(templates.length / prev.limit)
+    }));
+  }, [templates]);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    fetchTemplates(1);
+    setPagination(prev => ({ ...prev, current: 1 }));
   };
 
   const handlePageChange = (newPage) => {
-    fetchTemplates(newPage);
+    setPagination(prev => ({ ...prev, current: newPage }));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
 
-  if (loading && templates.length === 0) {
+  if (loading && allTemplates.length === 0) {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
         <div className="container-custom py-12 sm:py-16 md:py-20">
@@ -154,7 +186,7 @@ function TemplatesPageContent() {
             <div className="relative">
               <input
                 type="text"
-                placeholder="ابحث عن قوالب..."
+                placeholder="ابحث في القوالب... (مثال: قالب إنتاجية، تصميم، دراسة)"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="form-input pr-12 text-sm sm:text-base"
@@ -170,35 +202,8 @@ function TemplatesPageContent() {
             </div>
           </form>
 
-          {/* Filters */}
+          {/* Sort Filter */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-            {/* Category Filter */}
-            <div className="flex-1">
-              <label htmlFor="category-filter" className="block text-xs sm:text-sm font-medium text-accent-700 dark:text-dark-text-primary mb-2">
-                التصنيف
-              </label>
-              <select
-                id="category-filter"
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm sm:text-base w-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-ms-expand]:opacity-0 [&::-webkit-calendar-picker-indicator]:text-accent-400 [&::-ms-expand]:text-accent-400 dark:[&::-webkit-calendar-picker-indicator]:text-dark-text-tertiary dark:[&::-ms-expand]:text-dark-text-tertiary"
-                style={{
-                  backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-                  backgroundPosition: 'right 0.5rem center',
-                  backgroundRepeat: 'no-repeat',
-                  backgroundSize: '1.5em 1.5em',
-                  paddingRight: '2.5rem'
-                }}
-              >
-                {categories.map((category) => (
-                  <option key={category.value} value={category.value}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Sort Filter */}
             <div className="flex-1">
               <label htmlFor="sort-filter" className="block text-xs sm:text-sm font-medium text-accent-700 dark:text-dark-text-primary mb-2">
                 الترتيب
@@ -228,7 +233,7 @@ function TemplatesPageContent() {
           {/* Results Count */}
           <div className="flex items-center justify-between mt-4 sm:mt-6">
             <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">
-              عرض {templates.length} من {pagination.total} قالب
+              عرض {paginatedTemplates.length} من {pagination.total} قالب
             </p>
           </div>
         </div>
@@ -265,9 +270,9 @@ function TemplatesPageContent() {
                 </div>
               ))}
             </div>
-          ) : templates.length > 0 ? (
+          ) : paginatedTemplates.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {templates.map((template) => (
+              {paginatedTemplates.map((template) => (
                 <Link key={template._id} href={`/templates/${template.slug || template._id}`}>
                   <div className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
                     {/* Template Image */}

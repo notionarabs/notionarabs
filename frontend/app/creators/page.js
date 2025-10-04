@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import api from '../../lib/api';
@@ -8,6 +8,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import FollowButton from '../../components/FollowButton';
 import { Search, Star, User, Youtube, Facebook, Send, X, Users } from 'lucide-react';
+import Fuse from 'fuse.js';
 
 
 const specialties = [
@@ -30,13 +31,77 @@ const sortOptions = [
 export default function CreatorsPage() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedSpecialty, setSelectedSpecialty] = useState('all');
   const [sortBy, setSortBy] = useState('popular');
-  const [creatorsData, setCreatorsData] = useState([]);
+  const [allCreators, setAllCreators] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [pagination, setPagination] = useState(null);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pages: 1,
+    total: 0,
+    limit: 50
+  });
   const { user, isAuthenticated } = useAuth();
+
+  // Fuse.js configuration for creators
+  const fuseOptions = useMemo(() => ({
+    keys: [
+      { name: 'name', weight: 0.4 },
+      { name: 'username', weight: 0.3 },
+      { name: 'displayName', weight: 0.3 },
+      { name: 'bio', weight: 0.2 },
+      { name: 'specialties', weight: 0.2 },
+      { name: 'experience', weight: 0.1 },
+      { name: 'motivation', weight: 0.1 }
+    ],
+    threshold: 0.4,
+    includeScore: true,
+    includeMatches: true,
+    minMatchCharLength: 2,
+    // Support both Arabic and English
+    ignoreLocation: true,
+    findAllMatches: true,
+    // Custom search function to handle both languages
+    getFn: (obj, path) => {
+      const value = Fuse.config.getFn(obj, path);
+      if (typeof value === 'string') {
+        // Normalize text for better matching
+        return value.toLowerCase().trim();
+      }
+      return value;
+    }
+  }), []);
+
+  // Create Fuse instance
+  const fuse = useMemo(() => {
+    return new Fuse(allCreators, fuseOptions);
+  }, [allCreators, fuseOptions]);
+
+  // Filtered and sorted creators
+  const creatorsData = useMemo(() => {
+    let filteredCreators = allCreators;
+
+    // Apply search filter
+    if (searchTerm.trim()) {
+      const searchResults = fuse.search(searchTerm.trim().toLowerCase());
+      filteredCreators = searchResults.map(result => result.item);
+    }
+
+    // Apply sorting
+    const sortedCreators = [...filteredCreators].sort((a, b) => {
+      const aValue = a[sortBy] || a.followers;
+      const bValue = b[sortBy] || b.followers;
+
+      if (sortBy === 'popular' || sortBy === 'rating' || sortBy === 'templates') {
+        return (bValue || 0) - (aValue || 0);
+      } else if (sortBy === 'newest') {
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      }
+      return 0;
+    });
+
+    return sortedCreators;
+  }, [allCreators, searchTerm, sortBy, fuse]);
 
   const StarRating = ({ rating }) => {
     return (
@@ -51,12 +116,12 @@ export default function CreatorsPage() {
             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
           </svg>
         ))}
-        <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary mr-1">{rating}</span>
+        <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary mr-1">{rating.toFixed(1)}</span>
       </div>
     );
   };
 
-  // Fetch creators from API
+  // Fetch all creators from API (no server-side search)
   useEffect(() => {
     const fetchCreators = async () => {
       try {
@@ -64,24 +129,13 @@ export default function CreatorsPage() {
         setError(null);
 
         const params = new URLSearchParams({
-          page: '1',
-          limit: '50',
-          sortBy: sortBy
+          limit: '1000' // Get all creators for client-side search
         });
-
-        if (searchTerm) {
-          params.append('search', searchTerm);
-        }
-
-        if (selectedSpecialty !== 'all') {
-          params.append('specialty', selectedSpecialty);
-        }
 
         const response = await api.get(`/creators?${params.toString()}`);
 
         if (response.data.success) {
-          setCreatorsData(response.data.creators);
-          setPagination(response.data.pagination);
+          setAllCreators(response.data.creators);
         } else {
           setError('فشل في تحميل المبدعين');
         }
@@ -93,7 +147,17 @@ export default function CreatorsPage() {
     };
 
     fetchCreators();
-  }, [searchTerm, selectedSpecialty, sortBy]);
+  }, []);
+
+  // Update pagination when creators change
+  useEffect(() => {
+    setPagination(prev => ({
+      ...prev,
+      current: 1,
+      total: creatorsData.length,
+      pages: Math.ceil(creatorsData.length / prev.limit)
+    }));
+  }, [creatorsData]);
 
 
 
@@ -117,7 +181,7 @@ export default function CreatorsPage() {
             <div className="relative mb-6 sm:mb-8">
               <input
                 type="text"
-                placeholder="ابحث عن المبدعين..."
+                placeholder="ابحث عن المبدعين... (مثال: أحمد محمد، تصميم، إنتاجية)"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full form-input pr-12 pl-4 py-3 sm:py-4 text-base sm:text-lg"
@@ -128,31 +192,6 @@ export default function CreatorsPage() {
 
             {/* Filters */}
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8">
-              {/* Specialty Filter */}
-              <div className="flex-1 relative">
-                <label htmlFor="specialty-filter" className="block text-xs sm:text-sm font-medium text-accent-700 dark:text-dark-text-primary mb-2">
-                  التخصص
-                </label>
-                <select
-                  id="specialty-filter"
-                  value={selectedSpecialty}
-                  onChange={(e) => setSelectedSpecialty(e.target.value)}
-                  className="w-full form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm sm:text-base [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-ms-expand]:opacity-0 [&::-webkit-calendar-picker-indicator]:text-accent-400 [&::-ms-expand]:text-accent-400 dark:[&::-webkit-calendar-picker-indicator]:text-dark-text-tertiary dark:[&::-ms-expand]:text-dark-text-tertiary"
-                  style={{
-                    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-                    backgroundPosition: 'right 0.5rem center',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundSize: '1.5em 1.5em',
-                    paddingRight: '2.5rem'
-                  }}
-                >
-                  {specialties.map((specialty) => (
-                    <option key={specialty.value} value={specialty.value}>
-                      {specialty.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
 
               {/* Sort Filter */}
               <div className="flex-1 relative">
@@ -189,7 +228,7 @@ export default function CreatorsPage() {
                 <p className="text-sm sm:text-base text-red-500">{error}</p>
               ) : (
                 <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary">
-                  عرض {creatorsData.length} من {pagination?.total || creatorsData.length} مبدع
+                  عرض {creatorsData.length} من {pagination.total} مبدع
                 </p>
               )}
             </div>
@@ -286,7 +325,7 @@ export default function CreatorsPage() {
                       creatorName={creator.name}
                       onFollowChange={(isFollowing) => {
                         // Update followers count
-                        setCreatorsData(prev => prev.map(c => {
+                        setAllCreators(prev => prev.map(c => {
                           if (c.id === creator.id) {
                             return {
                               ...c,
@@ -311,7 +350,6 @@ export default function CreatorsPage() {
               <button
                 onClick={() => {
                   setSearchTerm('');
-                  setSelectedSpecialty('all');
                   setSortBy('popular');
                 }}
                 className="btn-primary text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3"

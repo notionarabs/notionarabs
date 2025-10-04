@@ -11,37 +11,14 @@ import RatingCommentSystem from '../../../components/RatingCommentSystem';
 import StarRating from '../../../components/StarRating';
 import { useAuth } from '../../../contexts/AuthContext';
 import { TemplateSchema, BreadcrumbSchema } from '../../../components/StructuredData';
-import { Youtube, Facebook, Send } from 'lucide-react';
+import { Youtube, Facebook, Send, Users } from 'lucide-react';
 
 
-const relatedTemplates = [
-  {
-    id: 2,
-    title: "منظم المشاريع الشخصية",
-    creator: "سارة أحمد",
-    price: 0,
-    imgSrc: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop&crop=center"
-  },
-  {
-    id: 3,
-    title: "مخطط الميزانية الشهري",
-    creator: "محمد علي",
-    price: 0,
-    imgSrc: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop&crop=center"
-  },
-  {
-    id: 4,
-    title: "منظم الروتين اليومي",
-    creator: "فاطمة حسن",
-    price: 0,
-    imgSrc: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop&crop=center"
-  }
-];
 
 export default function TemplateDetailPage() {
   const params = useParams();
   const templateIdentifier = params.id; // This can be either ID or slug
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   const [template, setTemplate] = useState(null);
   const [relatedTemplates, setRelatedTemplates] = useState([]);
@@ -797,6 +774,16 @@ export default function TemplateDetailPage() {
                     <h3 className="text-lg font-semibold text-accent-700 dark:text-dark-text-primary mb-4">
                       قيم هذا القالب وشاركنا رأيك
                     </h3>
+                    {user && template && user._id === template.creator?._id && (
+                      <div className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                        <div className="flex items-center gap-2 text-yellow-700 dark:text-yellow-300">
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-sm font-medium">لا يمكنك تقييم أو التعليق على قوالبك الخاصة</span>
+                        </div>
+                      </div>
+                    )}
                     <RatingCommentSystem
                       targetType="template"
                       targetId={template._id}
@@ -825,6 +812,7 @@ export default function TemplateDetailPage() {
                         loadRatings(template._id);
                       }}
                       size="large"
+                      readOnly={user && template && user._id === template.creator?._id}
                     />
                   </div>
                 </div>

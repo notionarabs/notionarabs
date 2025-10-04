@@ -10,6 +10,27 @@ import LoadingIndicator from '../../../components/LoadingIndicator';
 import { useToast } from '../../../contexts/ToastContext';
 import { BlogPostSchema, BreadcrumbSchema } from '../../../components/StructuredData';
 
+// Calculate reading time based on content
+const calculateReadingTime = (content) => {
+  if (!content) return '5 دقائق';
+
+  // Remove HTML tags and get plain text
+  const plainText = content.replace(/<[^>]*>/g, '');
+
+  // Count words (split by whitespace and filter out empty strings)
+  const wordCount = plainText.trim().split(/\s+/).filter(word => word.length > 0).length;
+
+  // Average reading speed: 200-250 words per minute for Arabic text
+  // Using 200 words per minute for conservative estimate
+  const wordsPerMinute = 200;
+  const minutes = Math.ceil(wordCount / wordsPerMinute);
+
+  // Minimum reading time is 1 minute
+  const readingTime = Math.max(1, minutes);
+
+  return `${readingTime} ${readingTime === 1 ? 'دقيقة' : 'دقائق'}`;
+};
+
 export default function BlogPostPage() {
   const params = useParams();
   const router = useRouter();
@@ -20,12 +41,35 @@ export default function BlogPostPage() {
   const [relatedBlogs, setRelatedBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [viewCount, setViewCount] = useState(0);
 
   useEffect(() => {
     if (params.slug) {
       fetchBlogPost();
+      incrementViewCount();
     }
   }, [params.slug]);
+
+  // Increment view count only once per session
+  const incrementViewCount = async () => {
+    if (!params.slug) return;
+
+    const viewedBlogs = JSON.parse(localStorage.getItem('viewedBlogs') || '[]');
+
+    if (!viewedBlogs.includes(params.slug)) {
+      try {
+        const response = await api.post(`/blogs/${params.slug}/increment-view`);
+        if (response.data.success) {
+          setViewCount(response.data.views);
+          viewedBlogs.push(params.slug);
+          localStorage.setItem('viewedBlogs', JSON.stringify(viewedBlogs));
+        }
+      } catch (error) {
+        console.error('Error incrementing view count:', error);
+      }
+    }
+  };
+
 
   const fetchBlogPost = async () => {
     try {
@@ -36,6 +80,7 @@ export default function BlogPostPage() {
 
       if (response.data.success) {
         setBlog(response.data.blog);
+        setViewCount(response.data.blog.views || 0);
         setRelatedBlogs(response.data.relatedBlogs || []);
         // Precompute author slug
         const a = response.data.blog?.author || {};
@@ -212,14 +257,14 @@ export default function BlogPostPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
-                    <span>{blog.views || 0} مشاهدة</span>
+                    <span>{viewCount} مشاهدة</span>
                   </div>
 
                   <div className="flex items-center gap-1">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span>{blog.readTime || '5 دقائق'}</span>
+                    <span>{blog.readTime || calculateReadingTime(blog.content)}</span>
                   </div>
                 </div>
 

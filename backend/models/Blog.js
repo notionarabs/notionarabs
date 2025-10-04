@@ -163,6 +163,32 @@ blogSchema.pre('save', function (next) {
   next();
 });
 
+// Pre-save middleware to calculate reading time
+blogSchema.pre('save', function (next) {
+  if (this.isModified('content') || !this.readTime) {
+    // Calculate reading time based on content
+    if (this.content) {
+      // Remove HTML tags and get plain text
+      const plainText = this.content.replace(/<[^>]*>/g, '');
+
+      // Count words (split by whitespace and filter out empty strings)
+      const wordCount = plainText.trim().split(/\s+/).filter(word => word.length > 0).length;
+
+      // Average reading speed: 200 words per minute for Arabic text
+      const wordsPerMinute = 200;
+      const minutes = Math.ceil(wordCount / wordsPerMinute);
+
+      // Minimum reading time is 1 minute
+      const readingTime = Math.max(1, minutes);
+
+      this.readTime = `${readingTime} ${readingTime === 1 ? 'دقيقة' : 'دقائق'}`;
+    } else {
+      this.readTime = '1 دقيقة';
+    }
+  }
+  next();
+});
+
 // Pre-save middleware to set publishedAt when status changes to published
 blogSchema.pre('save', function (next) {
   if (this.isModified('status') && this.status === 'published' && !this.publishedAt) {

@@ -594,8 +594,7 @@ router.get('/:slug', async (req, res) => {
       });
     }
 
-    // Increment views
-    await blog.incrementViews();
+    // Don't increment views here - will be handled by separate endpoint
 
     // Get related blogs (same category, excluding current blog)
     const relatedBlogs = await Blog.find({
@@ -616,6 +615,40 @@ router.get('/:slug', async (req, res) => {
 
   } catch (error) {
     console.error('Get blog error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   POST /api/blogs/:slug/increment-view
+// @desc    Increment blog view count
+// @access  Public
+router.post('/:slug/increment-view', async (req, res) => {
+  try {
+    const blog = await Blog.findOne({
+      slug: req.params.slug,
+      status: 'published'
+    });
+
+    if (!blog) {
+      return res.status(404).json({
+        success: false,
+        message: 'المقال غير موجود'
+      });
+    }
+
+    // Increment views
+    await blog.incrementViews();
+
+    res.json({
+      success: true,
+      views: blog.views
+    });
+
+  } catch (error) {
+    console.error('Increment view error:', error);
     res.status(500).json({
       success: false,
       message: 'خطأ في الخادم'

@@ -557,33 +557,22 @@ export default function BlogPage() {
                         </p>
                       </div>
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                      <div className="absolute top-3 right-3 flex flex-wrap gap-1">
-                        {(post.categories && post.categories.length > 0 ? post.categories : [post.category]).slice(0, 2).map((category, index) => (
-                          <span key={index} className="text-xs px-3 py-1 rounded-full font-medium bg-primary-100 text-primary-800">
-                            {category}
-                          </span>
-                        ))}
-                        {((post.categories && post.categories.length > 2) || (!post.categories && post.category)) && (
-                          <span className="text-xs px-3 py-1 rounded-full font-medium bg-primary-100 text-primary-800">
-                            +{((post.categories && post.categories.length) || 1) - 2} أخرى
-                          </span>
-                        )}
-                      </div>
                     </div>
                     <div className="p-6">
-                      <h3 className="font-bold text-lg text-accent-500 dark:text-dark-text-primary mb-2 group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
-                        {post.title}
-                      </h3>
-                      <p className="text-accent-600 dark:text-dark-text-secondary text-sm mb-4 line-clamp-3">
-                        {post.excerpt}
-                      </p>
-
                       <div className="flex items-center justify-between text-sm text-accent-500 dark:text-dark-text-tertiary mb-4">
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-                            <span className="text-primary-600 dark:text-primary-400 font-medium text-xs">
-                              {post.author?.name?.charAt(0) || 'م'}
-                            </span>
+                          <div className="w-6 h-6 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                            {post.author?.profilePicture ? (
+                              <img
+                                src={post.author.profilePicture}
+                                alt={post.author.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-primary-600 dark:text-primary-400 font-medium text-xs">
+                                {post.author?.name?.charAt(0) || 'م'}
+                              </span>
+                            )}
                           </div>
                           <span>{post.author?.name || 'كاتب غير معروف'}</span>
                         </div>

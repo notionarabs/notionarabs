@@ -237,7 +237,7 @@ export default function CreateBlogPage() {
     excerpt: '',
     content: '',
     categories: [], // Changed to array for multi-category selection
-    tags: ''
+    tags: [] // Changed to array for tag-based input
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -249,6 +249,10 @@ export default function CreateBlogPage() {
   const [categorySearch, setCategorySearch] = useState('');
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const categoryDropdownRef = useRef(null);
+
+  // Tags state
+  const [tagInput, setTagInput] = useState('');
+  const tagInputRef = useRef(null);
 
   // Blog preview state
   const [showPreview, setShowPreview] = useState(false);
@@ -299,7 +303,7 @@ export default function CreateBlogPage() {
           excerpt: draftData.excerpt || '',
           content: draftData.content || '',
           categories: draftData.categories || draftData.category ? [draftData.category] : [],
-          tags: draftData.tags || '',
+          tags: draftData.tags || [],
         });
 
         if (draftData.timestamp) {
@@ -428,6 +432,41 @@ export default function CreateBlogPage() {
     }));
   };
 
+  // Tag management functions
+  const addTag = (tag) => {
+    const trimmedTag = tag.trim();
+    if (trimmedTag && !formData.tags.includes(trimmedTag) && formData.tags.length < 10) {
+      setFormData(prev => ({
+        ...prev,
+        tags: [...prev.tags, trimmedTag]
+      }));
+    }
+    setTagInput('');
+  };
+
+  const removeTag = (tagToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
+    }));
+  };
+
+  const handleTagInputChange = (e) => {
+    setTagInput(e.target.value);
+  };
+
+  const handleTagKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (tagInput.trim()) {
+        addTag(tagInput);
+      }
+    } else if (e.key === 'Backspace' && !tagInput && formData.tags.length > 0) {
+      // Remove last tag when backspace is pressed on empty input
+      removeTag(formData.tags[formData.tags.length - 1]);
+    }
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === 'Escape') {
       setShowCategoryDropdown(false);
@@ -466,10 +505,8 @@ export default function CreateBlogPage() {
         return;
       }
 
-      // Convert tags string to array (split by newlines)
-      const tagsArray = formData.tags
-        ? formData.tags.split('\n').map(tag => tag.trim()).filter(tag => tag)
-        : [];
+      // Tags are already an array
+      const tagsArray = formData.tags;
 
       const blogData = {
         title: formData.title.trim(),
@@ -801,7 +838,7 @@ export default function CreateBlogPage() {
                           key={index}
                           className="inline-flex items-center gap-1 px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-md text-sm font-medium"
                         >
-                          {category?.name}
+                          {category?.name || categoryValue}
                           <button
                             type="button"
                             onClick={() => removeCategory(categoryValue)}
@@ -894,22 +931,63 @@ export default function CreateBlogPage() {
 
               {/* Tags */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-accent-600 dark:text-dark-text-primary mb-3 flex items-center gap-2">
-                  <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                  </svg>
-                  العلامات
+                <label className="flex items-center justify-between text-sm font-semibold text-accent-600 dark:text-dark-text-primary mb-3">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                    العلامات
+                  </div>
+                  <span className="text-xs text-gray-500 dark:text-dark-text-tertiary">
+                    {formData.tags.length}/10
+                  </span>
                 </label>
-                <textarea
-                  name="tags"
-                  value={formData.tags}
-                  onChange={handleInputChange}
-                  rows={4}
-                  className="form-input resize-none focus:ring-primary-200"
-                  placeholder="اكتب كل علامة في سطر منفصل (مثال:&#10;نوشن&#10;إنتاجية&#10;تنظيم)"
-                />
+
+                {/* Tag Input */}
+                <div className="relative">
+                  <div className="form-input w-full min-h-[3rem] px-4 py-3 pr-12 border-2 border-gray-200 dark:border-dark-input-border focus-within:border-primary-500 dark:focus-within:border-primary-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-primary-400 flex flex-wrap items-center gap-2">
+                    {/* Selected Tags */}
+                    {formData.tags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center gap-1 px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-md text-sm font-medium"
+                      >
+                        {tag}
+                        <button
+                          type="button"
+                          onClick={() => removeTag(tag)}
+                          className="hover:text-primary-900 dark:hover:text-primary-100 transition-colors"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </span>
+                    ))}
+
+                    {/* Tag Input Field */}
+                    <input
+                      ref={tagInputRef}
+                      type="text"
+                      value={tagInput}
+                      onChange={handleTagInputChange}
+                      onKeyDown={handleTagKeyDown}
+                      placeholder={formData.tags.length >= 10 ? "تم الوصول للحد الأقصى (10 علامات)" : formData.tags.length > 0 ? "أضف علامة..." : "اكتب علامة واضغط Enter"}
+                      disabled={formData.tags.length >= 10}
+                      className="flex-1 min-w-[200px] bg-transparent outline-none text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-quaternary disabled:opacity-50 disabled:cursor-not-allowed"
+                      autoComplete="off"
+                    />
+                  </div>
+
+                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                  </div>
+                </div>
+
                 <p className="text-xs text-accent-500 dark:text-dark-text-tertiary">
-                  اكتب كل علامة في سطر منفصل واضغط Enter
+                  اضغط Enter لإضافة علامة. الحد الأقصى 10 علامات
                 </p>
               </div>
 

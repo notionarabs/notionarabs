@@ -12,18 +12,235 @@ import Fuse from 'fuse.js';
 
 const categories = [
   { name: "الكل", value: "all" },
-  { name: "نصائح", value: "نصائح" },
-  { name: "تصميم", value: "تصميم" },
+  // الإنتاجية والتنظيم
+  { name: "الإنتاجية", value: "الإنتاجية" },
   { name: "الدراسة", value: "الدراسة" },
   { name: "الأعمال", value: "الأعمال" },
-  { name: "الحياة الشخصية", value: "الحياة الشخصية" },
-  { name: "الإبداع", value: "الإبداع" },
-  { name: "التقنية", value: "التقنية" },
-  { name: "الصحة", value: "الصحة" },
-  { name: "المالية", value: "المالية" },
-  { name: "التنظيم", value: "التنظيم" },
   { name: "التخطيط", value: "التخطيط" },
-  { name: "تعليم", value: "تعليم" }
+  { name: "إدارة الوقت", value: "إدارة الوقت" },
+  { name: "إدارة المشاريع", value: "إدارة المشاريع" },
+  { name: "التنظيم", value: "التنظيم" },
+  { name: "التنسيق", value: "التنسيق" },
+  { name: "التطوير الشخصي", value: "التطوير الشخصي" },
+  { name: "النمو الشخصي", value: "النمو الشخصي" },
+  { name: "التطوير الذاتي", value: "التطوير الذاتي" },
+  { name: "النجاح الشخصي", value: "النجاح الشخصي" },
+  { name: "التميز الشخصي", value: "التميز الشخصي" },
+  { name: "الإنجاز الشخصي", value: "الإنجاز الشخصي" },
+  { name: "القيادة", value: "القيادة" },
+  { name: "العمل الجماعي", value: "العمل الجماعي" },
+  { name: "التواصل", value: "التواصل" },
+  { name: "العرض والخطابة", value: "العرض والخطابة" },
+  { name: "التفاوض", value: "التفاوض" },
+  { name: "حل المشاكل", value: "حل المشاكل" },
+  { name: "الإبداع", value: "الإبداع" },
+  { name: "الابتكار", value: "الابتكار" },
+  { name: "ريادة الأعمال", value: "ريادة الأعمال" },
+
+  // التقنية والبرمجة
+  { name: "التقنية", value: "التقنية" },
+  { name: "البرمجة", value: "البرمجة" },
+  { name: "التطوير", value: "التطوير" },
+  { name: "التصميم الجرافيكي", value: "التصميم الجرافيكي" },
+  { name: "التصوير", value: "التصوير" },
+  { name: "الفيديو", value: "الفيديو" },
+  { name: "الصوت", value: "الصوت" },
+  { name: "الكتابة", value: "الكتابة" },
+  { name: "الترجمة", value: "الترجمة" },
+  { name: "التكنولوجيا", value: "التكنولوجيا" },
+  { name: "الذكاء الاصطناعي", value: "الذكاء الاصطناعي" },
+  { name: "البيانات", value: "البيانات" },
+  { name: "الأمن السيبراني", value: "الأمن السيبراني" },
+  { name: "البلوك تشين", value: "البلوك تشين" },
+  { name: "الواقع الافتراضي", value: "الواقع الافتراضي" },
+  { name: "الروبوتات", value: "الروبوتات" },
+  { name: "الطاقة المتجددة", value: "الطاقة المتجددة" },
+  { name: "البيئة", value: "البيئة" },
+  { name: "الاستدامة", value: "الاستدامة" },
+
+  // المالية والأعمال
+  { name: "الاستثمار", value: "الاستثمار" },
+  { name: "التداول", value: "التداول" },
+  { name: "العقارات", value: "العقارات" },
+  { name: "التأمين", value: "التأمين" },
+  { name: "البنوك", value: "البنوك" },
+  { name: "التمويل", value: "التمويل" },
+  { name: "الادخار", value: "الادخار" },
+  { name: "الاستهلاك", value: "الاستهلاك" },
+  { name: "التسوق", value: "التسوق" },
+  { name: "البيع", value: "البيع" },
+  { name: "الشراء", value: "الشراء" },
+  { name: "التوزيع", value: "التوزيع" },
+  { name: "الخدمة العملاء", value: "الخدمة العملاء" },
+  { name: "المبيعات", value: "المبيعات" },
+  { name: "التسويق", value: "التسويق" },
+  { name: "التسويق الرقمي", value: "التسويق الرقمي" },
+  { name: "وسائل التواصل", value: "وسائل التواصل" },
+  { name: "المحتوى", value: "المحتوى" },
+  { name: "العلامة التجارية", value: "العلامة التجارية" },
+  { name: "العلاقات العامة", value: "العلاقات العامة" },
+  { name: "الإعلان", value: "الإعلان" },
+  { name: "الترويج", value: "الترويج" },
+  { name: "المحاسبة", value: "المحاسبة" },
+  { name: "القانون", value: "القانون" },
+
+  // التصميم والفنون
+  { name: "تصميم", value: "تصميم" },
+  { name: "الفنون", value: "الفنون" },
+  { name: "الرسم", value: "الرسم" },
+  { name: "النحت", value: "النحت" },
+  { name: "التصميم الداخلي", value: "التصميم الداخلي" },
+  { name: "التصميم الصناعي", value: "التصميم الصناعي" },
+  { name: "الأزياء", value: "الأزياء" },
+  { name: "الموضة", value: "الموضة" },
+  { name: "الجمال", value: "الجمال" },
+  { name: "التجميل", value: "التجميل" },
+  { name: "العناية بالبشرة", value: "العناية بالبشرة" },
+  { name: "العناية بالشعر", value: "العناية بالشعر" },
+
+  // التعليم والعلوم
+  { name: "التعليم", value: "التعليم" },
+  { name: "التعليم الإلكتروني", value: "التعليم الإلكتروني" },
+  { name: "التدريب", value: "التدريب" },
+  { name: "التطوير المهني", value: "التطوير المهني" },
+  { name: "التطوير الوظيفي", value: "التطوير الوظيفي" },
+  { name: "العلوم", value: "العلوم" },
+  { name: "الطب", value: "الطب" },
+  { name: "الهندسة", value: "الهندسة" },
+  { name: "الرياضيات", value: "الرياضيات" },
+  { name: "الفيزياء", value: "الفيزياء" },
+  { name: "الكيمياء", value: "الكيمياء" },
+  { name: "الأحياء", value: "الأحياء" },
+  { name: "الجيولوجيا", value: "الجيولوجيا" },
+  { name: "الفلك", value: "الفلك" },
+  { name: "النفس", value: "النفس" },
+  { name: "الاجتماع", value: "الاجتماع" },
+  { name: "التاريخ", value: "التاريخ" },
+  { name: "الجغرافيا", value: "الجغرافيا" },
+  { name: "الفلسفة", value: "الفلسفة" },
+  { name: "السياسة", value: "السياسة" },
+  { name: "الاقتصاد", value: "الاقتصاد" },
+
+  // الصحة واللياقة
+  { name: "الصحة", value: "الصحة" },
+  { name: "الصحة النفسية", value: "الصحة النفسية" },
+  { name: "الطب البديل", value: "الطب البديل" },
+  { name: "التغذية", value: "التغذية" },
+  { name: "اللياقة البدنية", value: "اللياقة البدنية" },
+  { name: "الرياضة", value: "الرياضة" },
+  { name: "كمال الأجسام", value: "كمال الأجسام" },
+  { name: "الركض", value: "الركض" },
+  { name: "السباحة", value: "السباحة" },
+  { name: "ركوب الدراجات", value: "ركوب الدراجات" },
+  { name: "اليوغا", value: "اليوغا" },
+  { name: "البيلاتس", value: "البيلاتس" },
+  { name: "الرقص", value: "الرقص" },
+  { name: "الفنون القتالية", value: "الفنون القتالية" },
+
+  // الحياة الشخصية والعلاقات
+  { name: "الحياة الشخصية", value: "الحياة الشخصية" },
+  { name: "العلاقات", value: "العلاقات" },
+  { name: "الأسرة", value: "الأسرة" },
+  { name: "الأطفال", value: "الأطفال" },
+  { name: "المراهقين", value: "المراهقين" },
+  { name: "كبار السن", value: "كبار السن" },
+  { name: "النساء", value: "النساء" },
+  { name: "الرجال", value: "الرجال" },
+  { name: "الزواج", value: "الزواج" },
+  { name: "الطلاق", value: "الطلاق" },
+  { name: "التربية", value: "التربية" },
+  { name: "الأبوة", value: "الأبوة" },
+  { name: "الأمومة", value: "الأمومة" },
+
+  // الترفيه والهوايات
+  { name: "الترفيه", value: "الترفيه" },
+  { name: "الألعاب", value: "الألعاب" },
+  { name: "ألعاب الفيديو", value: "ألعاب الفيديو" },
+  { name: "الألعاب الإلكترونية", value: "الألعاب الإلكترونية" },
+  { name: "الألعاب الجماعية", value: "الألعاب الجماعية" },
+  { name: "ألعاب الطاولة", value: "ألعاب الطاولة" },
+  { name: "الأحجيات", value: "الأحجيات" },
+  { name: "السفر", value: "السفر" },
+  { name: "السياحة", value: "السياحة" },
+  { name: "المطارات", value: "المطارات" },
+  { name: "الفنادق", value: "الفنادق" },
+  { name: "المطاعم", value: "المطاعم" },
+  { name: "الطبخ", value: "الطبخ" },
+  { name: "الوصفات", value: "الوصفات" },
+  { name: "المشروبات", value: "المشروبات" },
+  { name: "الحلويات", value: "الحلويات" },
+  { name: "الخبز", value: "الخبز" },
+  { name: "المشاوي", value: "المشاوي" },
+  { name: "السلطات", value: "السلطات" },
+  { name: "الشوربات", value: "الشوربات" },
+  { name: "المقبلات", value: "المقبلات" },
+  { name: "الأطباق الرئيسية", value: "الأطباق الرئيسية" },
+
+  // الأخبار والمراجعات
+  { name: "الأخبار", value: "الأخبار" },
+  { name: "المراجعات", value: "المراجعات" },
+  { name: "التقارير", value: "التقارير" },
+  { name: "التحليل", value: "التحليل" },
+  { name: "الإحصائيات", value: "الإحصائيات" },
+  { name: "البحث", value: "البحث" },
+  { name: "الدراسات", value: "الدراسات" },
+  { name: "الاستطلاعات", value: "الاستطلاعات" },
+  { name: "الاستبيانات", value: "الاستبيانات" },
+  { name: "المقابلات", value: "المقابلات" },
+  { name: "التجارب", value: "التجارب" },
+  { name: "الاختبارات", value: "الاختبارات" },
+  { name: "التقييم", value: "التقييم" },
+  { name: "القياس", value: "القياس" },
+  { name: "التتبع", value: "التتبع" },
+  { name: "المراقبة", value: "المراقبة" },
+
+  // النصائح العامة
+  { name: "نصائح", value: "نصائح" },
+  { name: "حيل", value: "حيل" },
+  { name: "أسرار", value: "أسرار" },
+  { name: "طرق", value: "طرق" },
+  { name: "أساليب", value: "أساليب" },
+  { name: "تقنيات", value: "تقنيات" },
+  { name: "استراتيجيات", value: "استراتيجيات" },
+  { name: "خطط", value: "خطط" },
+  { name: "برامج", value: "برامج" },
+  { name: "أنظمة", value: "أنظمة" },
+  { name: "قوانين", value: "قوانين" },
+  { name: "مبادئ", value: "مبادئ" },
+  { name: "قواعد", value: "قواعد" },
+  { name: "معايير", value: "معايير" },
+  { name: "مقاييس", value: "مقاييس" },
+  { name: "مؤشرات", value: "مؤشرات" },
+  { name: "أهداف", value: "أهداف" },
+  { name: "نتائج", value: "نتائج" },
+  { name: "فعالية", value: "فعالية" },
+  { name: "كفاءة", value: "كفاءة" },
+  { name: "أداء", value: "أداء" },
+  { name: "جودة", value: "جودة" },
+  { name: "تحسين", value: "تحسين" },
+  { name: "تطوير", value: "تطوير" },
+  { name: "تغيير", value: "تغيير" },
+  { name: "تحول", value: "تحول" },
+  { name: "تنسيق", value: "تنسيق" },
+  { name: "إدارة", value: "إدارة" },
+  { name: "تحكم", value: "تحكم" },
+  { name: "مراقبة", value: "مراقبة" },
+  { name: "تتبع", value: "تتبع" },
+  { name: "قياس", value: "قياس" },
+  { name: "تقييم", value: "تقييم" },
+  { name: "اختبارات", value: "اختبارات" },
+  { name: "تجارب", value: "تجارب" },
+  { name: "مقابلات", value: "مقابلات" },
+  { name: "استبيانات", value: "استبيانات" },
+  { name: "استطلاعات", value: "استطلاعات" },
+  { name: "دراسات", value: "دراسات" },
+  { name: "بحث", value: "بحث" },
+  { name: "إحصائيات", value: "إحصائيات" },
+  { name: "تحليل", value: "تحليل" },
+  { name: "تقارير", value: "تقارير" },
+  { name: "مراجعات", value: "مراجعات" },
+  { name: "أخبار", value: "أخبار" },
+  { name: "عام", value: "عام" }
 ];
 
 const sortOptions = [
@@ -52,7 +269,8 @@ export default function BlogPage() {
     keys: [
       { name: 'title', weight: 0.4 },
       { name: 'excerpt', weight: 0.3 },
-      { name: 'category', weight: 0.2 },
+      { name: 'category', weight: 0.15 },
+      { name: 'categories', weight: 0.15 },
       { name: 'tags', weight: 0.1 },
       { name: 'author.name', weight: 0.1 }
     ],
@@ -83,9 +301,16 @@ export default function BlogPage() {
   const blogPosts = useMemo(() => {
     let filteredPosts = allBlogPosts;
 
-    // Apply category filter
+    // Apply category filter - check both single category and multiple categories
     if (selectedCategory !== 'all') {
-      filteredPosts = filteredPosts.filter(post => post.category === selectedCategory);
+      filteredPosts = filteredPosts.filter(post => {
+        // Check if post has multiple categories
+        if (post.categories && post.categories.length > 0) {
+          return post.categories.includes(selectedCategory);
+        }
+        // Fallback to single category
+        return post.category === selectedCategory;
+      });
     }
 
     // Apply search filter
@@ -192,19 +417,29 @@ export default function BlogPage() {
             {/* Filters Row */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
               {/* Category Filter */}
-              <div className="flex flex-wrap gap-2">
-                {categories.map((category) => (
-                  <button
-                    key={category.value}
-                    onClick={() => setSelectedCategory(category.value)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${selectedCategory === category.value
-                      ? 'bg-primary-500 text-white'
-                      : 'bg-gray-200 dark:bg-dark-tertiary text-accent-600 dark:text-dark-text-secondary hover:bg-gray-300 dark:hover:bg-dark-quaternary'
-                      }`}
+              <div className="flex items-center gap-3">
+                <label htmlFor="category-filter" className="text-sm font-medium text-accent-700 dark:text-dark-text-primary">
+                  الفئة:
+                </label>
+                <div className="relative">
+                  <select
+                    id="category-filter"
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="form-select text-sm cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 min-w-48 appearance-none"
                   >
-                    {category.name}
-                  </button>
-                ))}
+                    {categories.map((category) => (
+                      <option key={category.value} value={category.value}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
               </div>
 
               {/* Sort By */}
@@ -284,26 +519,56 @@ export default function BlogPage() {
               {blogPosts.map((post) => (
                 <Link key={post._id} href={`/blog/${post.slug}`}>
                   <div className="card-interactive overflow-hidden group">
-                    <div className="relative h-48 overflow-hidden">
-                      {post.featuredImage ? (
-                        <Image
-                          src={post.featuredImage}
-                          alt={post.title}
-                          width={400}
-                          height={300}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30">
-                          <svg className="w-12 h-12 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                    <div className="relative h-48 overflow-hidden bg-gradient-to-br from-orange-400 via-orange-500 to-red-500">
+                      {/* Background Pattern */}
+                      <div className="absolute inset-0 opacity-20">
+                        <div className="absolute top-4 left-4 w-16 h-16 bg-white rounded-full opacity-30"></div>
+                        <div className="absolute top-12 right-8 w-8 h-8 bg-white rounded-full opacity-20"></div>
+                        <div className="absolute bottom-8 left-12 w-12 h-12 bg-white rounded-full opacity-25"></div>
+                        <div className="absolute bottom-4 right-4 w-6 h-6 bg-white rounded-full opacity-30"></div>
+                        <div className="absolute top-1/2 left-1/4 w-4 h-4 bg-white rounded-full opacity-20"></div>
+                      </div>
+                      
+                      {/* Main Content Overlay */}
+                      <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+                      
+                      {/* Generated Image Content */}
+                      <div className="absolute inset-0 flex flex-col justify-center items-center p-4 text-center">
+                        {/* Blog Icon */}
+                        <div className="mb-3">
+                          <div className="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white border-opacity-30">
+                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5h-2.5" />
                           </svg>
+                          </div>
                         </div>
-                      )}
+                        
+                        {/* Auto-generated Title */}
+                        <h3 className="text-white text-sm font-bold leading-tight mb-2 drop-shadow-lg max-w-full line-clamp-2">
+                          {post.title}
+                        </h3>
+                        
+                        {/* Auto-generated Subtitle */}
+                        <p className="text-white text-xs opacity-90 max-w-full line-clamp-2">
+                          {post.excerpt ? 
+                            (post.excerpt.length > 60 ? post.excerpt.substring(0, 60) + '...' : post.excerpt) : 
+                            'اكتشف المزيد في هذا المقال المميز'
+                          }
+                        </p>
+                      </div>
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                      <span className="absolute top-3 right-3 text-xs px-3 py-1 rounded-full font-medium bg-primary-100 text-primary-800">
-                        {post.category}
+                      <div className="absolute top-3 right-3 flex flex-wrap gap-1">
+                        {(post.categories && post.categories.length > 0 ? post.categories : [post.category]).slice(0, 2).map((category, index) => (
+                          <span key={index} className="text-xs px-3 py-1 rounded-full font-medium bg-primary-100 text-primary-800">
+                            {category}
+                          </span>
+                        ))}
+                        {((post.categories && post.categories.length > 2) || (!post.categories && post.category)) && (
+                          <span className="text-xs px-3 py-1 rounded-full font-medium bg-primary-100 text-primary-800">
+                            +{((post.categories && post.categories.length) || 1) - 2} أخرى
                       </span>
+                        )}
+                      </div>
                     </div>
                     <div className="p-6">
                       <h3 className="font-bold text-lg text-accent-500 dark:text-dark-text-primary mb-2 group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
@@ -377,22 +642,44 @@ export default function BlogPage() {
             <div className="card-interactive overflow-hidden max-w-4xl mx-auto">
               <div className="md:flex">
                 <div className="md:w-1/2">
-                  <div className="relative h-64 md:h-full">
-                    {blogPosts.find(post => post.featured)?.featuredImage ? (
-                      <Image
-                        src={blogPosts.find(post => post.featured).featuredImage}
-                        alt={blogPosts.find(post => post.featured).title}
-                        width={800}
-                        height={400}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30">
-                        <svg className="w-16 h-16 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                  <div className="relative h-64 md:h-full bg-gradient-to-br from-orange-400 via-orange-500 to-red-500">
+                    {/* Background Pattern */}
+                    <div className="absolute inset-0 opacity-20">
+                      <div className="absolute top-4 left-4 w-16 h-16 bg-white rounded-full opacity-30"></div>
+                      <div className="absolute top-12 right-8 w-8 h-8 bg-white rounded-full opacity-20"></div>
+                      <div className="absolute bottom-8 left-12 w-12 h-12 bg-white rounded-full opacity-25"></div>
+                      <div className="absolute bottom-4 right-4 w-6 h-6 bg-white rounded-full opacity-30"></div>
+                      <div className="absolute top-1/2 left-1/4 w-4 h-4 bg-white rounded-full opacity-20"></div>
+                    </div>
+                    
+                    {/* Main Content Overlay */}
+                    <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+                    
+                    {/* Generated Image Content */}
+                    <div className="absolute inset-0 flex flex-col justify-center items-center p-6 text-center">
+                      {/* Blog Icon */}
+                      <div className="mb-4">
+                        <div className="w-16 h-16 bg-white bg-opacity-20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white border-opacity-30">
+                          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5h-2.5" />
                         </svg>
+                        </div>
                       </div>
-                    )}
+                      
+                      {/* Auto-generated Title */}
+                      <h3 className="text-white text-lg font-bold leading-tight mb-2 drop-shadow-lg max-w-full line-clamp-2">
+                        {blogPosts.find(post => post.featured)?.title}
+                      </h3>
+                      
+                      {/* Auto-generated Subtitle */}
+                      <p className="text-white text-sm opacity-90 max-w-full line-clamp-3">
+                        {blogPosts.find(post => post.featured)?.excerpt ? 
+                          (blogPosts.find(post => post.featured)?.excerpt.length > 100 ? blogPosts.find(post => post.featured)?.excerpt.substring(0, 100) + '...' : blogPosts.find(post => post.featured)?.excerpt) : 
+                          'اكتشف المزيد في هذا المقال المميز'
+                        }
+                      </p>
+                    </div>
+                    
                     <div className="absolute top-4 right-4">
                       <span className="px-3 py-1 bg-primary-500 text-white text-sm rounded-full">
                         مميز
@@ -402,9 +689,21 @@ export default function BlogPage() {
                 </div>
                 <div className="md:w-1/2 p-8">
                   <div className="flex items-center gap-2 mb-4">
+                    <div className="flex flex-wrap gap-2">
+                      {(blogPosts.find(post => post.featured)?.categories && blogPosts.find(post => post.featured)?.categories.length > 0 ? 
+                        blogPosts.find(post => post.featured)?.categories : 
+                        [blogPosts.find(post => post.featured)?.category]).slice(0, 3).map((category, index) => (
+                        <span key={index} className="px-3 py-1 bg-primary-100 dark:bg-orange-500/20 text-primary-800 dark:text-orange-300 text-sm rounded-full">
+                          {category}
+                        </span>
+                      ))}
+                      {((blogPosts.find(post => post.featured)?.categories && blogPosts.find(post => post.featured)?.categories.length > 3) || 
+                        (!blogPosts.find(post => post.featured)?.categories && blogPosts.find(post => post.featured)?.category)) && (
                     <span className="px-3 py-1 bg-primary-100 dark:bg-orange-500/20 text-primary-800 dark:text-orange-300 text-sm rounded-full">
-                      {blogPosts.find(post => post.featured)?.category}
+                          +{((blogPosts.find(post => post.featured)?.categories && blogPosts.find(post => post.featured)?.categories.length) || 1) - 3} أخرى
                     </span>
+                      )}
+                    </div>
                   </div>
 
                   <h3 className="heading-3 mb-4">

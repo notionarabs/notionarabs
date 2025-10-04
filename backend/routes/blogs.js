@@ -250,7 +250,7 @@ router.post('/', auth, [
         'النجاح الذاتي', 'التميز الذاتي', 'الإنجاز الذاتي', 'الابتكار الذاتي', 'الإبداع الذاتي', 'القيادة الذاتية',
         'الإدارة الذاتية', 'التخطيط الذاتي'
       ];
-      
+
       if (categories && categories.length > 0) {
         const invalidCategories = categories.filter(cat => !validCategories.includes(cat));
         if (invalidCategories.length > 0) {

@@ -8,6 +8,8 @@ import { formatDate } from '../../../lib/dateUtils';
 import api from '../../../lib/api';
 import LoadingIndicator from '../../../components/LoadingIndicator';
 import { useToast } from '../../../contexts/ToastContext';
+import { useAuth } from '../../../contexts/AuthContext';
+import RatingCommentSystem from '../../../components/RatingCommentSystem';
 import { BlogPostSchema, BreadcrumbSchema } from '../../../components/StructuredData';
 
 // Calculate reading time based on content
@@ -35,6 +37,7 @@ export default function BlogPostPage() {
   const params = useParams();
   const router = useRouter();
   const { showError } = useToast();
+  const { isAuthenticated, user } = useAuth();
 
   const [blog, setBlog] = useState(null);
   const [authorSlug, setAuthorSlug] = useState('');
@@ -42,6 +45,11 @@ export default function BlogPostPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [viewCount, setViewCount] = useState(0);
+  const [blogRatings, setBlogRatings] = useState([]);
+  const [blogComments, setBlogComments] = useState([]);
+  const [ratingsSummary, setRatingsSummary] = useState({ averageRating: 0, totalRatings: 0 });
+  const [userRating, setUserRating] = useState(null);
+  const [userComment, setUserComment] = useState(null);
 
   useEffect(() => {
     if (params.slug) {
@@ -49,6 +57,58 @@ export default function BlogPostPage() {
       incrementViewCount();
     }
   }, [params.slug]);
+
+  // Fetch ratings and comments when blog is loaded and user is authenticated
+  useEffect(() => {
+    if (blog && isAuthenticated && user) {
+      fetchRatingsAndComments();
+    }
+  }, [blog, isAuthenticated, user]);
+
+  // Handle rating change
+  const handleRatingChange = (ratingData) => {
+    setUserRating(ratingData.rating);
+    // Refresh ratings summary
+    fetchRatingsAndComments();
+  };
+
+  // Handle comment change
+  const handleCommentChange = (commentData) => {
+    setUserComment(commentData.comment);
+    // Refresh comments
+    fetchRatingsAndComments();
+  };
+
+  // Fetch ratings and comments for the blog
+  const fetchRatingsAndComments = async () => {
+    if (!params.slug || !isAuthenticated) return;
+
+    try {
+      const [ratingsResponse, commentsResponse] = await Promise.all([
+        api.get(`/ratings?targetType=blog&targetId=${blog?._id}`),
+        api.get(`/comments?targetType=blog&targetId=${blog?._id}`)
+      ]);
+
+      if (ratingsResponse.data.success) {
+        setBlogRatings(ratingsResponse.data.ratings || []);
+        setRatingsSummary(ratingsResponse.data.summary || { averageRating: 0, totalRatings: 0 });
+
+        // Find user's rating
+        const userRatingData = ratingsResponse.data.ratings?.find(rating => rating.user._id === user?._id);
+        setUserRating(userRatingData || null);
+      }
+
+      if (commentsResponse.data.success) {
+        setBlogComments(commentsResponse.data.comments || []);
+
+        // Find user's comment
+        const userCommentData = commentsResponse.data.comments?.find(comment => comment.user._id === user?._id);
+        setUserComment(userCommentData || null);
+      }
+    } catch (error) {
+      console.error('Error fetching ratings and comments:', error);
+    }
+  };
 
   // Increment view count only once per session
   const incrementViewCount = async () => {
@@ -307,6 +367,57 @@ export default function BlogPostPage() {
                     </div>
                   </div>
                 )}
+
+                {/* Ratings and Comments Section */}
+                <div className="mt-8 p-6 bg-white dark:bg-dark-secondary rounded-xl shadow-medium dark:shadow-dark-medium">
+                  <h3 className="text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-6">
+                    تقييم المقال
+                  </h3>
+
+                  {/* Ratings Summary */}
+                  {ratingsSummary.totalRatings > 0 && (
+                    <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                      <div className="flex items-center gap-4">
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-accent-900 dark:text-dark-text-primary">
+                            {ratingsSummary.averageRating.toFixed(1)}
+                          </div>
+                          <div className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                            من 5 نجوم
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-1 mb-2">
+                            {[...Array(5)].map((_, index) => (
+                              <svg
+                                key={index}
+                                className={`w-5 h-5 ${index < Math.round(ratingsSummary.averageRating) ? 'text-yellow-400' : 'text-gray-300 dark:text-gray-600'}`}
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                            ))}
+                          </div>
+                          <div className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                            بناءً على {ratingsSummary.totalRatings} تقييم
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <RatingCommentSystem
+                    targetType="blog"
+                    targetId={blog._id}
+                    initialRating={ratingsSummary.averageRating}
+                    initialUserRating={userRating}
+                    initialUserComment={userComment}
+                    onRatingChange={handleRatingChange}
+                    onCommentChange={handleCommentChange}
+                    className="mb-6"
+                  />
+                </div>
               </div>
             </article>
           </div>

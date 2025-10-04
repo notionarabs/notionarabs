@@ -416,31 +416,6 @@ export default function BlogPage() {
 
             {/* Filters Row */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-              {/* Category Filter */}
-              <div className="flex items-center gap-3">
-                <label htmlFor="category-filter" className="text-sm font-medium text-accent-700 dark:text-dark-text-primary">
-                  الفئة:
-                </label>
-                <div className="relative">
-                  <select
-                    id="category-filter"
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="form-select text-sm cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 min-w-48 appearance-none"
-                  >
-                    {categories.map((category) => (
-                      <option key={category.value} value={category.value}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
 
               {/* Sort By */}
               <div className="flex items-center gap-2">

@@ -268,21 +268,6 @@ export default function BlogPostPage() {
                   </div>
                 </div>
 
-                {/* Tags */}
-                {blog.tags && blog.tags.length > 0 && (
-                  <div className="mb-8">
-                    <div className="flex flex-wrap gap-2">
-                      {blog.tags.map((tag, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full"
-                        >
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
                 {/* Content */}
                 <div className="prose prose-lg max-w-none dark:prose-invert">
@@ -342,29 +327,42 @@ export default function BlogPostPage() {
                       className="block group"
                     >
                       <div className="flex gap-3">
-                        <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex-shrink-0">
-                          {relatedBlog.featuredImage ? (
-                            <Image
-                              src={relatedBlog.featuredImage}
-                              alt={relatedBlog.title}
-                              width={64}
-                              height={64}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                              </svg>
+                        <div className="w-32 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-orange-400 via-orange-500 to-red-500 flex-shrink-0 relative">
+                          {/* Background Pattern */}
+                          <div className="absolute inset-0 opacity-20">
+                            <div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full opacity-30"></div>
+                            <div className="absolute top-2 right-2 w-2 h-2 bg-white rounded-full opacity-20"></div>
+                            <div className="absolute bottom-2 left-3 w-3 h-3 bg-white rounded-full opacity-25"></div>
+                            <div className="absolute bottom-1 right-1 w-1 h-1 bg-white rounded-full opacity-30"></div>
+                          </div>
+
+                          {/* Content Overlay */}
+                          <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+
+                          {/* Blog Icon and Title */}
+                          <div className="absolute inset-0 flex flex-col justify-center items-center p-1 text-center">
+                            {/* Blog Icon */}
+                            <div className="mb-1">
+                              <div className="w-3 h-3 bg-white bg-opacity-20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white border-opacity-30">
+                                <svg className="w-1.5 h-1.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5h-2.5" />
+                                </svg>
+                              </div>
                             </div>
-                          )}
+
+                            {/* Auto-generated Title */}
+                            <h5 className="text-white text-xs font-bold leading-tight drop-shadow-lg max-w-full line-clamp-2">
+                              {relatedBlog.title.length > 20 ? relatedBlog.title.substring(0, 20) + '...' : relatedBlog.title}
+                            </h5>
+                          </div>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="font-medium text-accent-900 dark:text-dark-text-primary group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-2">
                             {relatedBlog.title}
                           </h4>
                           <p className="text-sm text-accent-500 dark:text-dark-text-secondary mt-1">
-                            {formatDate(relatedBlog.publishedAt)}
+                            {relatedBlog.author?.name || 'كاتب غير معروف'}
                           </p>
                         </div>
                       </div>

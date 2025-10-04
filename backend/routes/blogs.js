@@ -596,9 +596,17 @@ router.get('/:slug', async (req, res) => {
 
     // Don't increment views here - will be handled by separate endpoint
 
-    // Get related blogs (same category, excluding current blog)
+    // Get related blogs (same category or categories, excluding current blog)
     const relatedBlogs = await Blog.find({
-      category: blog.category,
+      $or: [
+        { category: blog.category },
+        { categories: { $in: [blog.category] } },
+        // If current blog has multiple categories, find blogs with any of those categories
+        ...(blog.categories && blog.categories.length > 0 ? [
+          { category: { $in: blog.categories } },
+          { categories: { $in: blog.categories } }
+        ] : [])
+      ],
       status: 'published',
       _id: { $ne: blog._id }
     })

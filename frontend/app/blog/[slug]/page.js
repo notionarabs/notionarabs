@@ -407,18 +407,22 @@ export default function BlogPostPage() {
                     </div>
                   )}
 
-                  {/* Only show rating system if user is not the blog author */}
-                  {user?._id !== blog.author?._id && (
-                    <RatingCommentSystem
-                      targetType="blog"
-                      targetId={blog._id}
-                      initialRating={ratingsSummary.averageRating}
-                      initialUserRating={userRating}
-                      initialUserComment={userComment}
-                      onRatingChange={handleRatingChange}
-                      onCommentChange={handleCommentChange}
-                      className="mb-6"
-                    />
+                  {/* Only show rating system if user is not the blog author and hasn't submitted a rating yet */}
+                  {user?._id !== blog.author?._id && !userRating && !userComment && (
+                    <div className="mb-6 p-6 bg-white dark:bg-dark-secondary rounded-xl shadow-medium dark:shadow-dark-medium">
+                      <h3 className="text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-6">
+                        تقييم المقال
+                      </h3>
+                      <RatingCommentSystem
+                        targetType="blog"
+                        targetId={blog._id}
+                        initialRating={ratingsSummary.averageRating}
+                        initialUserRating={userRating}
+                        initialUserComment={userComment}
+                        onRatingChange={handleRatingChange}
+                        onCommentChange={handleCommentChange}
+                      />
+                    </div>
                   )}
 
                   {/* Show message for blog author */}

@@ -9,7 +9,7 @@ import LoadingIndicator from '../../../components/LoadingIndicator';
 
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState({
-    platformName: 'Notion Arabs',
+    platformName: 'عرب نوشن',
     platformDescription: 'منصة قوالب Notion العربية',
     maintenanceMode: false,
     registrationEnabled: true,

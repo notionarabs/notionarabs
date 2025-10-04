@@ -1,7 +1,7 @@
-// SEO utility functions for Notion Arabs
+// SEO utility functions for عرب نوشن
 export const siteConfig = {
-  name: 'Notion Arabs',
-  title: 'Notion Arabs - قوالب نوشن باللغة العربية',
+  name: 'عرب نوشن',
+  title: 'عرب نوشن - قوالب نوشن باللغة العربية',
   description: 'اكتشف وبيع قوالب نوشن باللغة العربية - منصة مخصصة للمبدعين والمشترين العرب',
   url: 'https://notionarabs.com',
   ogImage: '/og-image.jpg',
@@ -141,7 +141,7 @@ export function generateTemplateMetadata(template) {
 // Blog-specific SEO metadata
 export function generateBlogMetadata(blog) {
   const title = blog.title;
-  const description = blog.excerpt || blog.description || `اقرأ مقال ${blog.title} من ${blog.author?.name || 'مبدع'} على Notion Arabs.`;
+  const description = blog.excerpt || blog.description || `اقرأ مقال ${blog.title} من ${blog.author?.name || 'مبدع'} على عرب نوشن.`;
 
   const keywords = [
     blog.title,

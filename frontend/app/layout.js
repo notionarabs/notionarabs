@@ -13,7 +13,7 @@ import { GoogleAnalytics } from '../components/SEOOptimizations'
 import { generateMetadata as generateBaseMetadata } from '../lib/seo'
 
 export const metadata = generateBaseMetadata({
-  title: 'Notion Arabs - قوالب نوشن باللغة العربية',
+  title: 'عرب نوشن - قوالب نوشن باللغة العربية',
   description: 'اكتشف وبيع قوالب نوشن باللغة العربية - منصة مخصصة للمبدعين والمشترين العرب',
   keywords: [
     'قوالب نوشن',

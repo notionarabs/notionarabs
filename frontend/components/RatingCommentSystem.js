@@ -24,18 +24,10 @@ const RatingCommentSystem = ({
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
   useEffect(() => {
-    if (initialUserRating) {
-      setUserRating(initialUserRating.rating);
+    if (initialUserRating || initialUserComment) {
       setHasSubmitted(true);
     }
-  }, [initialUserRating]);
-
-  useEffect(() => {
-    if (initialUserComment) {
-      setUserComment(initialUserComment.content);
-      setHasSubmitted(true);
-    }
-  }, [initialUserComment]);
+  }, [initialUserRating, initialUserComment]);
 
   const handleStarClick = (rating) => {
     if (readOnly || !isAuthenticated) {
@@ -206,6 +198,8 @@ const RatingCommentSystem = ({
   };
 
   const starClasses = `${sizeClasses[size]} transition-colors duration-200`;
+
+  console.log('RatingCommentSystem render:', { hasSubmitted, isAuthenticated, initialUserRating, initialUserComment });
 
   return (
     <div className={`space-y-4 ${className}`}>

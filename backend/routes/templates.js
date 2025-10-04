@@ -248,7 +248,7 @@ router.get('/', async (req, res) => {
 
       const fuse = new Fuse(templates, fuseOptions);
       const searchResults = fuse.search(search.trim().toLowerCase());
-      
+
       // Extract the items from Fuse results
       templates = searchResults.map(result => result.item);
     }
@@ -343,6 +343,118 @@ router.get('/creator/:creatorId', async (req, res) => {
     });
   } catch (error) {
     console.error('Get creator templates error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   GET /api/templates/similar/:id
+// @desc    Get similar templates based on content similarity
+// @access  Public
+router.get('/similar/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { limit = 3 } = req.query;
+
+    // Find the current template - try multiple approaches
+    let currentTemplate = await Template.findOne({
+      $or: [{ _id: id }, { slug: id }],
+      status: 'approved'
+    });
+
+    // If not found, try with trimmed slug
+    if (!currentTemplate) {
+      currentTemplate = await Template.findOne({
+        $or: [{ _id: id }, { slug: id.trim() }],
+        status: 'approved'
+      });
+    }
+
+    // If still not found, try without status filter
+    if (!currentTemplate) {
+      currentTemplate = await Template.findOne({
+        $or: [{ _id: id }, { slug: id }]
+      });
+    }
+
+    if (!currentTemplate) {
+      // If template exists but not approved, return empty array instead of error
+      return res.json({
+        success: true,
+        templates: []
+      });
+    }
+
+    // Get all approved templates except the current one
+    const allTemplates = await Template.find({
+      status: 'approved',
+      _id: { $ne: currentTemplate._id }
+    }).populate('creator', 'name username displayName profilePicture');
+
+    if (allTemplates.length === 0) {
+      return res.json({
+        success: true,
+        templates: []
+      });
+    }
+
+    // Simple similarity matching without complex Fuse.js configuration
+    let similarTemplates = [];
+
+    try {
+      // First, try to find templates with matching tags
+      if (currentTemplate.tags && currentTemplate.tags.length > 0) {
+        const tagMatches = allTemplates.filter(template => {
+          return template.tags && template.tags.some(tag =>
+            currentTemplate.tags.some(currentTag =>
+              currentTag.toLowerCase().includes(tag.toLowerCase()) ||
+              tag.toLowerCase().includes(currentTag.toLowerCase())
+            )
+          );
+        }).sort((a, b) => b.downloads - a.downloads);
+
+        similarTemplates = tagMatches.slice(0, parseInt(limit));
+      }
+
+      // If not enough matches from tags, add templates from same category
+      if (similarTemplates.length < parseInt(limit)) {
+        const categoryTemplates = allTemplates
+          .filter(t => t.category === currentTemplate.category)
+          .sort((a, b) => b.downloads - a.downloads);
+
+        const existingIds = new Set(similarTemplates.map(t => t._id.toString()));
+        const additionalTemplates = categoryTemplates.filter(t => !existingIds.has(t._id.toString()));
+
+        similarTemplates.push(...additionalTemplates.slice(0, parseInt(limit) - similarTemplates.length));
+      }
+
+      // If still not enough, add popular templates
+      if (similarTemplates.length < parseInt(limit)) {
+        const remainingTemplates = allTemplates
+          .filter(t => !similarTemplates.some(st => st._id.toString() === t._id.toString()))
+          .sort((a, b) => b.downloads - a.downloads)
+          .slice(0, parseInt(limit) - similarTemplates.length);
+
+        similarTemplates.push(...remainingTemplates);
+      }
+    } catch (similarityError) {
+      console.error('Similarity matching error:', similarityError);
+      // Fallback to category-based matching
+      similarTemplates = allTemplates
+        .filter(t => t.category === currentTemplate.category)
+        .sort((a, b) => b.downloads - a.downloads)
+        .slice(0, parseInt(limit));
+    }
+
+    res.json({
+      success: true,
+      templates: similarTemplates
+    });
+
+  } catch (error) {
+    console.error('Get similar templates error:', error);
     res.status(500).json({
       success: false,
       message: 'خطأ في الخادم'

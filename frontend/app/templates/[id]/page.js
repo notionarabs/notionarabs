@@ -268,15 +268,23 @@ export default function TemplateDetailPage() {
           // Check if user already owns this template
           await checkUserOwnership(response.data.template._id);
 
-          // Fetch related templates from same category
-          const relatedResponse = await api.get(`/templates?category=${response.data.template.category}&limit=3&sortBy=downloads&sortOrder=desc`);
-          if (relatedResponse.data.success) {
-            setRelatedTemplates(relatedResponse.data.templates.filter(t => (t.slug || t._id) !== templateIdentifier));
+          // Fetch truly similar templates using the new similarity API
+          try {
+            // Use the template ID instead of the identifier to avoid slug issues
+            const relatedResponse = await api.get(`/templates/similar/${response.data.template._id}?limit=3`);
+            if (relatedResponse.data.success) {
+              setRelatedTemplates(relatedResponse.data.templates);
+            }
+          } catch (similarError) {
+            console.error('Similar templates error:', similarError);
+            // If similar templates fail, just set empty array - don't fail the whole page
+            setRelatedTemplates([]);
           }
         } else {
           setError('القالب غير موجود');
         }
       } catch (error) {
+        console.error('Template loading error:', error);
         setError('فشل في تحميل القالب');
       } finally {
         setLoading(false);
@@ -1069,18 +1077,20 @@ export default function TemplateDetailPage() {
                       className="w-full h-full object-cover"
                       quality={100}
                     />
-                    <div className="absolute top-3 left-3 bg-green-500 text-white px-2 py-1 rounded-md text-sm font-medium">
-                      مجاني
-                    </div>
                   </div>
 
                   <div className="p-4">
                     <h3 className="font-semibold text-accent-700 dark:text-dark-text-primary mb-2 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
                       {relatedTemplate.title}
                     </h3>
-                    <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
-                      بواسطة {relatedTemplate.creator?.name || 'مبدع غير معروف'}
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                        بواسطة {relatedTemplate.creator?.name || 'مبدع غير معروف'}
+                      </p>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        مجاني
+                      </span>
+                    </div>
                   </div>
                 </Link>
               </div>

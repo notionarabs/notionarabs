@@ -285,9 +285,18 @@ export default function MyBlogsPage() {
                         </p>
 
                         <div className="flex items-center gap-4 text-sm text-accent-500 dark:text-dark-text-tertiary mb-3">
-                          <span className="px-2 py-1 bg-gray-100 dark:bg-dark-tertiary text-gray-700 dark:text-dark-text-secondary rounded-full text-xs">
-                            {blog.category}
-                          </span>
+                          <div className="flex flex-wrap gap-1">
+                            {(blog.categories && blog.categories.length > 0 ? blog.categories : [blog.category]).slice(0, 2).map((category, index) => (
+                              <span key={index} className="px-2 py-1 bg-gray-100 dark:bg-dark-tertiary text-gray-700 dark:text-dark-text-secondary rounded-full text-xs">
+                                {category}
+                              </span>
+                            ))}
+                            {((blog.categories && blog.categories.length > 2) || (!blog.categories && blog.category)) && (
+                              <span className="px-2 py-1 bg-gray-100 dark:bg-dark-tertiary text-gray-700 dark:text-dark-text-secondary rounded-full text-xs">
+                                +{((blog.categories && blog.categories.length) || 1) - 2} أخرى
+                              </span>
+                            )}
+                          </div>
                           <span className="flex items-center gap-1">
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                               <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />

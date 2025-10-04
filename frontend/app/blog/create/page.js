@@ -475,7 +475,8 @@ export default function CreateBlogPage() {
         title: formData.title.trim(),
         excerpt: formData.excerpt.trim(),
         content: formData.content.trim(),
-        categories: formData.categories,
+        category: formData.categories[0], // Send first category as single category field
+        categories: formData.categories, // Also send full array for future use
         tags: tagsArray,
         status: submissionType === 'review' ? 'pending' : 'draft'
       };

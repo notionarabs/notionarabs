@@ -528,10 +528,10 @@ export default function BlogPage() {
                         <div className="absolute bottom-4 right-4 w-6 h-6 bg-white rounded-full opacity-30"></div>
                         <div className="absolute top-1/2 left-1/4 w-4 h-4 bg-white rounded-full opacity-20"></div>
                       </div>
-                      
+
                       {/* Main Content Overlay */}
                       <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-                      
+
                       {/* Generated Image Content */}
                       <div className="absolute inset-0 flex flex-col justify-center items-center p-4 text-center">
                         {/* Blog Icon */}
@@ -539,19 +539,19 @@ export default function BlogPage() {
                           <div className="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white border-opacity-30">
                             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5h-2.5" />
-                          </svg>
+                            </svg>
                           </div>
                         </div>
-                        
+
                         {/* Auto-generated Title */}
                         <h3 className="text-white text-sm font-bold leading-tight mb-2 drop-shadow-lg max-w-full line-clamp-2">
                           {post.title}
                         </h3>
-                        
+
                         {/* Auto-generated Subtitle */}
                         <p className="text-white text-xs opacity-90 max-w-full line-clamp-2">
-                          {post.excerpt ? 
-                            (post.excerpt.length > 60 ? post.excerpt.substring(0, 60) + '...' : post.excerpt) : 
+                          {post.excerpt ?
+                            (post.excerpt.length > 60 ? post.excerpt.substring(0, 60) + '...' : post.excerpt) :
                             'اكتشف المزيد في هذا المقال المميز'
                           }
                         </p>
@@ -566,7 +566,7 @@ export default function BlogPage() {
                         {((post.categories && post.categories.length > 2) || (!post.categories && post.category)) && (
                           <span className="text-xs px-3 py-1 rounded-full font-medium bg-primary-100 text-primary-800">
                             +{((post.categories && post.categories.length) || 1) - 2} أخرى
-                      </span>
+                          </span>
                         )}
                       </div>
                     </div>
@@ -651,10 +651,10 @@ export default function BlogPage() {
                       <div className="absolute bottom-4 right-4 w-6 h-6 bg-white rounded-full opacity-30"></div>
                       <div className="absolute top-1/2 left-1/4 w-4 h-4 bg-white rounded-full opacity-20"></div>
                     </div>
-                    
+
                     {/* Main Content Overlay */}
                     <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-                    
+
                     {/* Generated Image Content */}
                     <div className="absolute inset-0 flex flex-col justify-center items-center p-6 text-center">
                       {/* Blog Icon */}
@@ -662,24 +662,24 @@ export default function BlogPage() {
                         <div className="w-16 h-16 bg-white bg-opacity-20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white border-opacity-30">
                           <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5h-2.5" />
-                        </svg>
+                          </svg>
                         </div>
                       </div>
-                      
+
                       {/* Auto-generated Title */}
                       <h3 className="text-white text-lg font-bold leading-tight mb-2 drop-shadow-lg max-w-full line-clamp-2">
                         {blogPosts.find(post => post.featured)?.title}
                       </h3>
-                      
+
                       {/* Auto-generated Subtitle */}
                       <p className="text-white text-sm opacity-90 max-w-full line-clamp-3">
-                        {blogPosts.find(post => post.featured)?.excerpt ? 
-                          (blogPosts.find(post => post.featured)?.excerpt.length > 100 ? blogPosts.find(post => post.featured)?.excerpt.substring(0, 100) + '...' : blogPosts.find(post => post.featured)?.excerpt) : 
+                        {blogPosts.find(post => post.featured)?.excerpt ?
+                          (blogPosts.find(post => post.featured)?.excerpt.length > 100 ? blogPosts.find(post => post.featured)?.excerpt.substring(0, 100) + '...' : blogPosts.find(post => post.featured)?.excerpt) :
                           'اكتشف المزيد في هذا المقال المميز'
                         }
                       </p>
                     </div>
-                    
+
                     <div className="absolute top-4 right-4">
                       <span className="px-3 py-1 bg-primary-500 text-white text-sm rounded-full">
                         مميز
@@ -690,19 +690,19 @@ export default function BlogPage() {
                 <div className="md:w-1/2 p-8">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="flex flex-wrap gap-2">
-                      {(blogPosts.find(post => post.featured)?.categories && blogPosts.find(post => post.featured)?.categories.length > 0 ? 
-                        blogPosts.find(post => post.featured)?.categories : 
+                      {(blogPosts.find(post => post.featured)?.categories && blogPosts.find(post => post.featured)?.categories.length > 0 ?
+                        blogPosts.find(post => post.featured)?.categories :
                         [blogPosts.find(post => post.featured)?.category]).slice(0, 3).map((category, index) => (
-                        <span key={index} className="px-3 py-1 bg-primary-100 dark:bg-orange-500/20 text-primary-800 dark:text-orange-300 text-sm rounded-full">
-                          {category}
-                        </span>
-                      ))}
-                      {((blogPosts.find(post => post.featured)?.categories && blogPosts.find(post => post.featured)?.categories.length > 3) || 
+                          <span key={index} className="px-3 py-1 bg-primary-100 dark:bg-orange-500/20 text-primary-800 dark:text-orange-300 text-sm rounded-full">
+                            {category}
+                          </span>
+                        ))}
+                      {((blogPosts.find(post => post.featured)?.categories && blogPosts.find(post => post.featured)?.categories.length > 3) ||
                         (!blogPosts.find(post => post.featured)?.categories && blogPosts.find(post => post.featured)?.category)) && (
-                    <span className="px-3 py-1 bg-primary-100 dark:bg-orange-500/20 text-primary-800 dark:text-orange-300 text-sm rounded-full">
-                          +{((blogPosts.find(post => post.featured)?.categories && blogPosts.find(post => post.featured)?.categories.length) || 1) - 3} أخرى
-                    </span>
-                      )}
+                          <span className="px-3 py-1 bg-primary-100 dark:bg-orange-500/20 text-primary-800 dark:text-orange-300 text-sm rounded-full">
+                            +{((blogPosts.find(post => post.featured)?.categories && blogPosts.find(post => post.featured)?.categories.length) || 1) - 3} أخرى
+                          </span>
+                        )}
                     </div>
                   </div>
 

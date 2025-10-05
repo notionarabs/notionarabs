@@ -9,6 +9,7 @@ import LoadingIndicator from '../components/LoadingIndicator'
 import { initSmoothScroll } from '../lib/smoothScroll'
 import { OrganizationSchema, WebsiteSchema } from '../components/StructuredData'
 import { GoogleAnalytics } from '../components/SEOOptimizations'
+import { QueryProvider } from '../components/QueryProvider'
 
 import { generateMetadata as generateBaseMetadata } from '../lib/seo'
 
@@ -127,18 +128,20 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="font-tajawal transition-colors duration-300 scrollbar-primary scrollbar-hover-effect" suppressHydrationWarning={true}>
-        <ThemeProvider>
-          <LoadingProvider>
-            <AuthProvider>
-              <ToastProvider>
-                <NavigationWrapper />
-                <NavigationHandler />
-                <LoadingIndicator />
-                {children}
-              </ToastProvider>
-            </AuthProvider>
-          </LoadingProvider>
-        </ThemeProvider>
+        <QueryProvider>
+          <ThemeProvider>
+            <LoadingProvider>
+              <AuthProvider>
+                <ToastProvider>
+                  <NavigationWrapper />
+                  <NavigationHandler />
+                  <LoadingIndicator />
+                  {children}
+                </ToastProvider>
+              </AuthProvider>
+            </LoadingProvider>
+          </ThemeProvider>
+        </QueryProvider>
       </body>
     </html>
   )

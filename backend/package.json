@@ -14,11 +14,15 @@
     "axios": "^1.12.2",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.7.0",
+    "compression": "^1.8.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
     "express-validator": "^7.2.1",
     "fuse.js": "^7.1.0",
+    "helmet": "^8.1.0",
+    "ioredis": "^5.8.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.18.2",
     "multer": "^2.0.2",
@@ -27,7 +31,10 @@
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
     "puppeteer": "^24.22.3",
-    "puppeteer-core": "^24.22.3"
+    "puppeteer-core": "^24.22.3",
+    "rate-limiter-flexible": "^8.0.1",
+    "redis": "^5.8.3",
+    "zod": "^4.1.11"
   },
   "devDependencies": {
     "@types/node": "^24.5.2",

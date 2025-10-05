@@ -4,6 +4,20 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 require('dotenv').config();
 
+// Import optimization middleware
+const { 
+  securityHeaders, 
+  compressionMiddleware, 
+  generalRateLimit, 
+  authRateLimit, 
+  apiRateLimit 
+} = require('./middleware/security');
+const { 
+  requestLogger, 
+  memoryMonitor, 
+  responseTimeOptimization 
+} = require('./middleware/performance');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -46,6 +60,13 @@ const corsOptions = {
   optionsSuccessStatus: 200 // For legacy browser support
 };
 
+// Apply optimization middleware first
+app.use(securityHeaders);
+app.use(compressionMiddleware);
+app.use(requestLogger);
+app.use(memoryMonitor);
+app.use(responseTimeOptimization);
+
 // Apply CORS middleware  
 app.use(cors(corsOptions));
 
@@ -78,6 +99,11 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/notion-ar
   .then(() => { })
   .catch(err => console.error('Database connection error:', err));
 
+// Apply rate limiting to routes
+app.use('/api/auth', authRateLimit);
+app.use('/api', apiRateLimit);
+app.use('/', generalRateLimit);
+
 // Routes
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
@@ -89,6 +115,7 @@ const uploadRoutes = require('./routes/upload');
 const contactRoutes = require('./routes/contact');
 const ratingRoutes = require('./routes/ratings');
 const commentRoutes = require('./routes/comments');
+const healthRoutes = require('./routes/health');
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/templates', templateRoutes);
@@ -99,6 +126,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/ratings', ratingRoutes);
 app.use('/api/comments', commentRoutes);
+app.use('/api/health', healthRoutes);
 
 // Basic route
 app.get('/', (req, res) => {

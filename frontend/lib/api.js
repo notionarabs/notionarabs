@@ -1,4 +1,5 @@
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const API_BASE_URL = process.env.NODE_ENV === 'production'
   ? 'https://notion-arabs.onrender.com/api'
@@ -28,8 +29,11 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Token expired or invalid, clear it
+    const { response } = error;
+    
+    // Handle different error types
+    if (response?.status === 401) {
+      // Token expired or invalid
       if (typeof window !== 'undefined') {
         const Cookies = require('js-cookie');
         Cookies.remove('authToken');
@@ -39,10 +43,37 @@ api.interceptors.response.use(
           window.location.href = '/login';
         }
       }
+    } else if (response?.status === 403) {
+      toast.error('ليس لديك صلاحية للوصول إلى هذا المورد');
+    } else if (response?.status === 404) {
+      toast.error('المورد المطلوب غير موجود');
+    } else if (response?.status >= 500) {
+      toast.error('خطأ في الخادم. يرجى المحاولة مرة أخرى');
+    } else if (!response) {
+      toast.error('خطأ في الاتصال. تحقق من اتصالك بالإنترنت');
     }
+    
     return Promise.reject(error);
   }
 );
 
+// Optimized API methods with caching hints
+export const apiMethods = {
+  get: (url, config = {}) => api.get(url, {
+    ...config,
+    headers: {
+      'Cache-Control': 'max-age=300',
+      ...config.headers,
+    },
+  }),
+  
+  post: (url, data, config = {}) => api.post(url, data, config),
+  
+  put: (url, data, config = {}) => api.put(url, data, config),
+  
+  patch: (url, data, config = {}) => api.patch(url, data, config),
+  
+  delete: (url, config = {}) => api.delete(url, config),
+};
 
 export default api;

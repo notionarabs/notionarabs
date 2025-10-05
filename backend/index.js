@@ -5,17 +5,17 @@ const passport = require('passport');
 require('dotenv').config();
 
 // Import optimization middleware
-const { 
-  securityHeaders, 
-  compressionMiddleware, 
-  generalRateLimit, 
-  authRateLimit, 
-  apiRateLimit 
+const {
+  securityHeaders,
+  compressionMiddleware,
+  generalRateLimit,
+  authRateLimit,
+  apiRateLimit
 } = require('./middleware/security');
-const { 
-  requestLogger, 
-  memoryMonitor, 
-  responseTimeOptimization 
+const {
+  requestLogger,
+  memoryMonitor,
+  responseTimeOptimization
 } = require('./middleware/performance');
 
 const app = express();

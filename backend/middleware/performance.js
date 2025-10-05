@@ -93,10 +93,14 @@ const memoryMonitor = (req, res, next) => {
 const responseTimeOptimization = (req, res, next) => {
   const start = Date.now();
   
-  res.on('finish', () => {
+  // Store original methods
+  const originalSend = res.send;
+  const originalJson = res.json;
+  const originalEnd = res.end;
+  
+  // Override res.send to add headers before sending
+  res.send = function(data) {
     const duration = Date.now() - start;
-    
-    // Add performance headers
     res.set('X-Response-Time', `${duration}ms`);
     
     // Add cache headers for static content
@@ -105,7 +109,39 @@ const responseTimeOptimization = (req, res, next) => {
     } else if (req.originalUrl.startsWith('/api/')) {
       res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     }
-  });
+    
+    return originalSend.call(this, data);
+  };
+  
+  // Override res.json to add headers before sending
+  res.json = function(data) {
+    const duration = Date.now() - start;
+    res.set('X-Response-Time', `${duration}ms`);
+    
+    // Add cache headers for static content
+    if (req.originalUrl.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg)$/)) {
+      res.set('Cache-Control', 'public, max-age=31536000'); // 1 year
+    } else if (req.originalUrl.startsWith('/api/')) {
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+    
+    return originalJson.call(this, data);
+  };
+  
+  // Override res.end to add headers before ending
+  res.end = function(data) {
+    const duration = Date.now() - start;
+    res.set('X-Response-Time', `${duration}ms`);
+    
+    // Add cache headers for static content
+    if (req.originalUrl.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg)$/)) {
+      res.set('Cache-Control', 'public, max-age=31536000'); // 1 year
+    } else if (req.originalUrl.startsWith('/api/')) {
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+    
+    return originalEnd.call(this, data);
+  };
   
   next();
 };

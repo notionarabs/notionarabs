@@ -312,13 +312,17 @@ router.post('/signup', [
       // Store user data temporarily (not in database yet)
       const tempUserData = {
         name,
-        username: finalUsername,
         email,
         password,
         emailVerificationToken,
         emailVerificationExpiry,
         createdAt: new Date()
       };
+
+      // Only add username if it's provided
+      if (finalUsername) {
+        tempUserData.username = finalUsername;
+      }
 
       tempUserStorage.set(emailVerificationToken, tempUserData);
 
@@ -335,21 +339,25 @@ router.post('/signup', [
       console.error('Email error type:', typeof emailError.message);
 
       // If email service is not configured or has connection issues, create user directly without verification
-      if (emailError.message.includes('Email service is not configured') || 
-          emailError.message.includes('Connection timeout') ||
-          emailError.code === 'ETIMEDOUT' ||
-          emailError.message.includes('ECONNREFUSED') ||
-          emailError.message.includes('ENOTFOUND')) {
+      if (emailError.message.includes('Email service is not configured') ||
+        emailError.message.includes('Connection timeout') ||
+        emailError.code === 'ETIMEDOUT' ||
+        emailError.message.includes('ECONNREFUSED') ||
+        emailError.message.includes('ENOTFOUND')) {
         try {
           // Create user directly without email verification
           const userData = {
             name,
-            username: finalUsername,
             email,
             password,
             isEmailVerified: true, // Skip verification if email service is down
             isActive: true
           };
+
+          // Only add username if it's provided
+          if (finalUsername) {
+            userData.username = finalUsername;
+          }
 
           const user = new User(userData);
           await user.save();
@@ -1152,12 +1160,16 @@ router.post('/verify-email', [
     try {
       const userData = {
         name: tempUserData.name,
-        username: tempUserData.username,
         email: tempUserData.email,
         password: tempUserData.password,
         isEmailVerified: true,
         isActive: true
       };
+
+      // Only add username if it's provided
+      if (tempUserData.username) {
+        userData.username = tempUserData.username;
+      }
 
       user = new User(userData);
 

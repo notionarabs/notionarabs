@@ -877,9 +877,18 @@ export default function TemplateDetailPage() {
                     <span className="font-medium text-accent-700 dark:text-dark-text-primary">{(template.downloads || 0).toLocaleString()}</span>
                   </div>
 
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-start">
                     <span className="text-accent-600 dark:text-dark-text-secondary">الفئة</span>
-                    <span className="font-medium text-accent-700 dark:text-dark-text-primary">{template.category}</span>
+                    <div className="flex flex-wrap gap-1 justify-end max-w-[200px]">
+                      {(template.categories && template.categories.length > 0 ? template.categories : [template.category]).map((category, index) => (
+                        <span
+                          key={index}
+                          className="inline-block px-2 py-1 text-xs font-medium bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-md"
+                        >
+                          {category}
+                        </span>
+                      ))}
+                    </div>
                   </div>
 
                   <div className="flex justify-between items-center">

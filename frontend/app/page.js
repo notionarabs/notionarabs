@@ -275,21 +275,21 @@ export default function HomePage() {
 
               {/* Enhanced Stats with Better Visual Hierarchy and Consistent Shadows */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
-                <div className="text-center group cursor-pointer transition-all duration-300 hover:scale-105 p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg hover:shadow-xl border border-white/20 dark:border-dark-card-border/30">
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-500 dark:text-orange-500 mb-1 sm:mb-2 transition-colors duration-300 group-hover:text-primary-600 dark:group-hover:text-orange-400">{stats.templates}</div>
-                  <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary transition-colors duration-300 group-hover:text-accent-700 dark:group-hover:text-white">قالب متاح</div>
+                <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30">
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-500 dark:text-orange-500 mb-1 sm:mb-2">{stats.templates}</div>
+                  <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">قالب متاح</div>
                 </div>
-                <div className="text-center group cursor-pointer transition-all duration-300 hover:scale-105 p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg hover:shadow-xl border border-white/20 dark:border-dark-card-border/30">
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2 transition-colors duration-300 group-hover:text-primary-500 dark:group-hover:text-orange-400">{stats.creators}</div>
-                  <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary transition-colors duration-300 group-hover:text-accent-700 dark:group-hover:text-white">مبدع نشط</div>
+                <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30">
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">{stats.creators}</div>
+                  <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">مبدع نشط</div>
                 </div>
-                <div className="text-center group cursor-pointer transition-all duration-300 hover:scale-105 p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg hover:shadow-xl border border-white/20 dark:border-dark-card-border/30">
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2 transition-colors duration-300 group-hover:text-primary-500 dark:group-hover:text-orange-400">{stats.downloads}</div>
-                  <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary transition-colors duration-300 group-hover:text-accent-700 dark:group-hover:text-white">تحميل</div>
+                <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30">
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">{stats.downloads}</div>
+                  <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">تحميل</div>
                 </div>
-                <div className="text-center group cursor-pointer transition-all duration-300 hover:scale-105 p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg hover:shadow-xl border border-white/20 dark:border-dark-card-border/30">
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2 transition-colors duration-300 group-hover:text-primary-500 dark:group-hover:text-orange-400">{stats.specialties}</div>
-                  <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary transition-colors duration-300 group-hover:text-accent-700 dark:group-hover:text-white">مجال متخصص</div>
+                <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30">
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">{stats.specialties}</div>
+                  <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">مجال متخصص</div>
                 </div>
               </div>
             </div>

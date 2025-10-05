@@ -34,6 +34,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head>
+        <link rel="canonical" href="https://www.notionarabs.com/" />
         <OrganizationSchema />
         <WebsiteSchema />
         <GoogleAnalytics GA_TRACKING_ID={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID} />

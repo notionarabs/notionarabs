@@ -3,7 +3,7 @@ export const siteConfig = {
   name: 'عرب نوشن',
   title: 'عرب نوشن - قوالب نوشن باللغة العربية',
   description: 'اكتشف وبيع قوالب نوشن باللغة العربية - منصة مخصصة للمبدعين والمشترين العرب',
-  url: 'https://notionarabs.com',
+  url: 'https://www.notionarabs.com',
   ogImage: '/og-image.jpg',
   creator: '@notionarabs',
   keywords: [

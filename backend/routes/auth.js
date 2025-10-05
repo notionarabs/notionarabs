@@ -195,10 +195,10 @@ router.post('/signup', [
     .withMessage('كلمة المرور يجب أن تكون 6 أحرف على الأقل')
 ], async (req, res) => {
   try {
-    console.log('Signup request received:', { 
-      name: req.body.name, 
-      email: req.body.email, 
-      hasPassword: !!req.body.password 
+    console.log('Signup request received:', {
+      name: req.body.name,
+      email: req.body.email,
+      hasPassword: !!req.body.password
     });
 
     // Check validation errors

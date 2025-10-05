@@ -26,10 +26,6 @@ export default function robots() {
         userAgent: 'GPTBot',
         disallow: '/',
       },
-      {
-        userAgent: 'Google-Extended',
-        disallow: '/',
-      },
     ],
     sitemap: `${siteConfig.url}/sitemap.xml`,
     host: siteConfig.url,

@@ -25,6 +25,10 @@ export function middleware(request) {
     '/press',
     '/features',
     '/pricing',
+    '/templates',
+    '/categories',
+    '/creators',
+    '/blog',
   ];
 
   // Check if the current path is public

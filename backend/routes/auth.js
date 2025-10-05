@@ -907,9 +907,9 @@ const createTransporter = () => {
         pass: process.env.EMAIL_PASS
       },
       // Enhanced timeout and retry options for production
-      connectionTimeout: 30000, // Increased to 30 seconds
-      greetingTimeout: 30000,   // Increased to 30 seconds
-      socketTimeout: 30000,     // Increased to 30 seconds
+      connectionTimeout: 5000,  // Reduced to 5 seconds for faster failure
+      greetingTimeout: 5000,    // Reduced to 5 seconds for faster failure
+      socketTimeout: 5000,      // Reduced to 5 seconds for faster failure
       // Add TLS options for better compatibility
       tls: {
         rejectUnauthorized: false

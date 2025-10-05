@@ -331,6 +331,8 @@ router.post('/signup', [
       });
     } catch (emailError) {
       console.error('Verification email sending error:', emailError);
+      console.error('Email error message:', emailError.message);
+      console.error('Email error type:', typeof emailError.message);
 
       // If email service is not configured, create user directly without verification
       if (emailError.message.includes('Email service is not configured')) {
@@ -369,6 +371,12 @@ router.post('/signup', [
           });
         } catch (userCreationError) {
           console.error('User creation error:', userCreationError);
+          console.error('User creation error details:', {
+            message: userCreationError.message,
+            name: userCreationError.name,
+            code: userCreationError.code,
+            stack: userCreationError.stack
+          });
           res.status(500).json({
             success: false,
             message: 'فشل في إنشاء الحساب. يرجى المحاولة مرة أخرى.'
@@ -388,7 +396,8 @@ router.post('/signup', [
     console.error('Error details:', {
       message: error.message,
       stack: error.stack,
-      name: error.name
+      name: error.name,
+      code: error.code
     });
     res.status(500).json({
       success: false,

@@ -334,8 +334,12 @@ router.post('/signup', [
       console.error('Email error message:', emailError.message);
       console.error('Email error type:', typeof emailError.message);
 
-      // If email service is not configured, create user directly without verification
-      if (emailError.message.includes('Email service is not configured')) {
+      // If email service is not configured or has connection issues, create user directly without verification
+      if (emailError.message.includes('Email service is not configured') || 
+          emailError.message.includes('Connection timeout') ||
+          emailError.code === 'ETIMEDOUT' ||
+          emailError.message.includes('ECONNREFUSED') ||
+          emailError.message.includes('ENOTFOUND')) {
         try {
           // Create user directly without email verification
           const userData = {

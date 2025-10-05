@@ -86,6 +86,133 @@ import {
   MessageSquare, Languages, Scroll
 } from 'lucide-react';
 
+// Map Arabic category names to English slugs for URLs
+const categorySlugMap = {
+  'الإنتاجية': 'productivity',
+  'الدراسة': 'study',
+  'الأعمال': 'business',
+  'الحياة الشخصية': 'personal',
+  'الإبداع': 'creativity',
+  'التقنية': 'technology',
+  'الصحة': 'health',
+  'المالية': 'finance',
+  'التنظيم': 'organization',
+  'التخطيط': 'planning',
+  'ديني': 'religious',
+  'التسويق': 'marketing',
+  'التصميم': 'design',
+  'التطوير': 'development',
+  'التعليم': 'education',
+  'السفر': 'travel',
+  'الطعام': 'food',
+  'الرياضة': 'sports',
+  'الترفيه': 'entertainment',
+  'الموضة': 'fashion',
+  'الجمال': 'beauty',
+  'المنزل': 'home',
+  'الحديقة': 'garden',
+  'الحيوانات الأليفة': 'pets',
+  'السيارات': 'cars',
+  'التكنولوجيا': 'technology',
+  'البرمجة': 'programming',
+  'قواعد البيانات': 'database',
+  'الأمان السيبراني': 'cybersecurity',
+  'الذكاء الاصطناعي': 'ai',
+  'البلوك تشين': 'blockchain',
+  'التجارة الإلكترونية': 'ecommerce',
+  'المبيعات': 'sales',
+  'خدمة العملاء': 'customer-service',
+  'الموارد البشرية': 'hr',
+  'المحاسبة': 'accounting',
+  'الاستثمار': 'investment',
+  'العقارات': 'real-estate',
+  'التأمين': 'insurance',
+  'القانون': 'law',
+  'الطب': 'medicine',
+  'التمريض': 'nursing',
+  'العلاج الطبيعي': 'physical-therapy',
+  'التغذية': 'nutrition',
+  'الطبخ': 'cooking',
+  'الحلويات': 'desserts',
+  'المشروبات': 'beverages',
+  'المطاعم': 'restaurants',
+  'الفنون': 'arts',
+  'الموسيقى': 'music',
+  'الرسم': 'drawing',
+  'النحت': 'sculpture',
+  'التصوير': 'photography',
+  'الفيديو': 'video',
+  'الكتابة': 'writing',
+  'الترجمة': 'translation',
+  'اللغات': 'languages',
+  'التاريخ': 'history',
+  'الجغرافيا': 'geography',
+  'العلوم': 'science',
+  'الرياضيات': 'mathematics',
+  'الفيزياء': 'physics',
+  'الكيمياء': 'chemistry',
+  'الأحياء': 'biology',
+  'علم النفس': 'psychology',
+  'علم الاجتماع': 'sociology',
+  'الفلسفة': 'philosophy',
+  'الأدب': 'literature',
+  'الشعر': 'poetry',
+  'المسرح': 'theater',
+  'السينما': 'cinema',
+  'الألعاب': 'gaming',
+  'الرياضة الإلكترونية': 'esports',
+  'السياحة': 'tourism',
+  'الفندقة': 'hospitality',
+  'النقل': 'transportation',
+  'الطيران': 'aviation',
+  'البحرية': 'maritime',
+  'الزراعة': 'agriculture',
+  'البيئة': 'environment',
+  'الطاقة': 'energy',
+  'البناء': 'construction',
+  'الهندسة': 'engineering',
+  'العمارة': 'architecture',
+  'الديكور': 'decoration',
+  'الأثاث': 'furniture',
+  'الأدوات': 'tools',
+  'الأجهزة': 'devices',
+  'البرامج': 'software',
+  'التطبيقات': 'applications',
+  'المواقع': 'websites',
+  'التطوير الويب': 'web-development',
+  'تطوير التطبيقات': 'app-development',
+  'التعليم الإلكتروني': 'e-learning',
+  'الاجتماعات': 'meetings',
+  'التواصل': 'communication',
+  'الشبكات الاجتماعية': 'social-networks',
+  'المحتوى': 'content',
+  'الإعلان': 'advertising',
+  'العلاقات العامة': 'public-relations',
+  'العلامة التجارية': 'branding',
+  'الاستراتيجية': 'strategy',
+  'القيادة': 'leadership',
+  'الإدارة': 'management',
+  'المشاريع': 'projects',
+  'العمليات': 'operations',
+  'الجودة': 'quality',
+  'الابتكار': 'innovation',
+  'البحث والتطوير': 'research-development',
+  'التحليل': 'analysis',
+  'الإحصاء': 'statistics',
+  'البيانات': 'data',
+  'التقارير': 'reports',
+  'العروض التقديمية': 'presentations',
+  'التدريب': 'training',
+  'التطوير المهني': 'professional-development',
+  'الاستشارات': 'consulting',
+  'الخدمات': 'services',
+  'المنتجات': 'products',
+  'التصنيع': 'manufacturing',
+  'التوزيع': 'distribution',
+  'المخازن': 'warehouses',
+  'اللوجستيات': 'logistics'
+};
+
 // All available template categories from create template page with unique icons
 const allCategories = [
   { name: "الإنتاجية", icon: Zap, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30", description: "قوالب لتحسين الإنتاجية وإدارة المهام" },
@@ -261,7 +388,7 @@ export default function CategoriesPage() {
           {filteredCategories.map((category, idx) => (
             <Link
               key={idx}
-              href={`/templates?category=${encodeURIComponent(category.name)}`}
+              href={`/templates/category/${categorySlugMap[category.name] || category.name.toLowerCase()}`}
               className="group"
             >
               <div className="bg-white dark:bg-dark-tertiary rounded-xl p-4 shadow-sm border border-gray-200 dark:border-dark-card-border hover:shadow-md hover:border-accent-300 dark:hover:border-accent-400 transition-all duration-300 h-full flex flex-col">
@@ -309,40 +436,6 @@ export default function CategoriesPage() {
           </div>
         )}
 
-        {/* Help Section */}
-        <div className="mt-16 bg-white dark:bg-dark-secondary rounded-2xl p-6 sm:p-8 border border-gray-200 dark:border-dark-card-border">
-          <div className="text-center max-w-3xl mx-auto">
-            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-accent-100 to-accent-200 dark:from-accent-900/30 dark:to-accent-800/30 flex items-center justify-center">
-              <HelpCircle className="w-8 h-8 text-accent-600 dark:text-accent-400" />
-            </div>
-            <h2 className="text-2xl font-bold text-accent-500 dark:text-dark-text-primary mb-4">
-              كيف تستخدم التصنيفات؟
-            </h2>
-            <p className="text-accent-600 dark:text-dark-text-secondary leading-relaxed mb-6">
-              عند إنشاء قالب جديد، يمكنك اختيار تصنيف واحد أو أكثر من هذه التصنيفات. هذا يساعد المستخدمين الآخرين في العثور على قالبك بسهولة ويحسن من تجربة البحث والتصفح.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div className="flex items-center justify-center space-x-2 rtl:space-x-reverse">
-                <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                  <span className="text-blue-600 dark:text-blue-400 font-bold">1</span>
-                </div>
-                <span className="text-accent-600 dark:text-dark-text-secondary">اختر التصنيف المناسب</span>
-              </div>
-              <div className="flex items-center justify-center space-x-2 rtl:space-x-reverse">
-                <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                  <span className="text-green-600 dark:text-green-400 font-bold">2</span>
-                </div>
-                <span className="text-accent-600 dark:text-dark-text-secondary">أنشئ قالبك المميز</span>
-              </div>
-              <div className="flex items-center justify-center space-x-2 rtl:space-x-reverse">
-                <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                  <span className="text-purple-600 dark:text-purple-400 font-bold">3</span>
-                </div>
-                <span className="text-accent-600 dark:text-dark-text-secondary">شاركه مع المجتمع</span>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

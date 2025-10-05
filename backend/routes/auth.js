@@ -25,6 +25,63 @@ router.get('/test', (req, res) => {
   });
 });
 
+// @route   GET /api/auth/test-email
+// @desc    Test email configuration
+// @access  Public
+router.get('/test-email', async (req, res) => {
+  try {
+    // Check if email configuration is available
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      return res.status(500).json({
+        success: false,
+        message: 'Email configuration missing',
+        details: {
+          EMAIL_USER: process.env.EMAIL_USER ? 'Set' : 'Missing',
+          EMAIL_PASS: process.env.EMAIL_PASS ? 'Set' : 'Missing'
+        }
+      });
+    }
+
+    // Test email transporter
+    const transporter = createTransporter();
+
+    // Test email sending
+    const testEmail = process.env.EMAIL_USER; // Send to yourself for testing
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: testEmail,
+      subject: 'Test Email from Notion Arabs',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
+          <h2 style="color: #333; text-align: center;">اختبار إرسال البريد الإلكتروني</h2>
+          <p>هذا اختبار لإرسال البريد الإلكتروني من منصة عرب نوشن.</p>
+          <p>إذا تلقيت هذا البريد، فالإعداد يعمل بشكل صحيح!</p>
+          <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+          <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.json({
+      success: true,
+      message: 'Email configuration is working! Test email sent.',
+      timestamp: new Date().toISOString(),
+      emailSentTo: testEmail
+    });
+
+  } catch (error) {
+    console.error('Email test error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Email configuration failed',
+      error: error.message,
+      code: error.code
+    });
+  }
+});
+
 // Temporary storage for unverified users (in production, use Redis or database)
 const tempUserStorage = new Map();
 
@@ -338,70 +395,32 @@ router.post('/signup', [
       console.error('Email error message:', emailError.message);
       console.error('Email error type:', typeof emailError.message);
 
-      // If email service is not configured or has connection issues, create user directly without verification
-      if (emailError.message.includes('Email service is not configured') ||
-        emailError.message.includes('Connection timeout') ||
-        emailError.code === 'ETIMEDOUT' ||
-        emailError.message.includes('ECONNREFUSED') ||
-        emailError.message.includes('ENOTFOUND')) {
-        try {
-          // Create user directly without email verification
-          const userData = {
-            name,
-            email,
-            password,
-            isEmailVerified: true, // Skip verification if email service is down
-            isActive: true
-          };
+      // Store user data temporarily for email verification (even if email service fails)
+      const tempUserData = {
+        name,
+        email,
+        password,
+        emailVerificationToken,
+        emailVerificationExpiry,
+        createdAt: new Date()
+      };
 
-          // Only add username if it's provided
-          if (finalUsername) {
-            userData.username = finalUsername;
-          }
-
-          const user = new User(userData);
-          await user.save();
-
-          // Generate token for automatic login
-          const token = generateToken(user._id);
-
-          res.status(201).json({
-            success: true,
-            message: 'تم إنشاء حسابك بنجاح! مرحباً بك في عرب نوشن.',
-            token,
-            user: {
-              id: user._id,
-              name: user.name,
-              username: user.username,
-              email: user.email,
-              role: user.role,
-              profilePicture: user.profilePicture,
-              creatorStatus: user.creatorStatus,
-              isEmailVerified: user.isEmailVerified,
-              isActive: user.isActive
-            }
-          });
-        } catch (userCreationError) {
-          console.error('User creation error:', userCreationError);
-          console.error('User creation error details:', {
-            message: userCreationError.message,
-            name: userCreationError.name,
-            code: userCreationError.code,
-            stack: userCreationError.stack
-          });
-          res.status(500).json({
-            success: false,
-            message: 'فشل في إنشاء الحساب. يرجى المحاولة مرة أخرى.'
-          });
-        }
-      } else {
-        // Email service is configured but failed to send
-        res.status(500).json({
-          success: false,
-          message: 'فشل في إرسال بريد التأكيد. يرجى المحاولة مرة أخرى لاحقاً.',
-          errorType: 'EMAIL_SEND_FAILED'
-        });
+      // Only add username if it's provided
+      if (finalUsername) {
+        tempUserData.username = finalUsername;
       }
+
+      tempUserStorage.set(emailVerificationToken, tempUserData);
+
+      // Always return verification required (even if email failed to send)
+      res.status(201).json({
+        success: true,
+        message: 'تم إرسال رابط التأكيد إلى بريدك الإلكتروني. يرجى التحقق من بريدك والضغط على الرابط لتأكيد حسابك.',
+        requiresVerification: true,
+        verificationToken: emailVerificationToken,
+        email: email,
+        emailSent: false // Indicate that email wasn't actually sent
+      });
     }
   } catch (error) {
     console.error('Signup error:', error);
@@ -887,10 +906,10 @@ const createTransporter = () => {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
       },
-      // Enhanced timeout and retry options
-      connectionTimeout: 15000,
-      greetingTimeout: 15000,
-      socketTimeout: 15000,
+      // Enhanced timeout and retry options for production
+      connectionTimeout: 30000, // Increased to 30 seconds
+      greetingTimeout: 30000,   // Increased to 30 seconds
+      socketTimeout: 30000,     // Increased to 30 seconds
       // Add TLS options for better compatibility
       tls: {
         rejectUnauthorized: false

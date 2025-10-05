@@ -73,7 +73,7 @@ app.use(cors(corsOptions));
 // Additional CORS headers for preflight requests
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  
+
   // Only set CORS headers if origin is in allowed list
   if (allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);

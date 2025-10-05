@@ -17,6 +17,8 @@ const categories = [
   { name: "الحياة الشخصية", count: 0, Icon: Heart, bg: "from-rose-100 to-rose-200 dark:from-rose-900/30 dark:to-rose-800/30" },
   { name: "الإبداع", count: 0, Icon: Lightbulb, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
   { name: "التخطيط", count: 0, Icon: Target, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30" },
+  { name: "المراجعة", count: 0, Icon: Check, bg: "from-teal-100 to-teal-200 dark:from-teal-900/30 dark:to-teal-800/30" },
+  { name: "التسويق", count: 0, Icon: Users, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30" },
 ];
 
 // Map Arabic category names to English slugs for URLs
@@ -27,6 +29,8 @@ const categorySlugMap = {
   'الحياة الشخصية': 'personal',
   'الإبداع': 'creativity',
   'التخطيط': 'planning',
+  'المراجعة': 'review',
+  'التسويق': 'marketing',
   // Fallbacks for simpler labels used in this grid
   'العمل': 'business',
   'الحياة': 'personal',
@@ -397,34 +401,49 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Enhanced Categories */}
+      {/* Top Categories - Redesigned */}
       <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
         <div className="container-custom">
-          <div className="text-center mb-8 sm:mb-10 md:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-2 sm:mb-4">تصفح حسب التصنيف</h2>
-            <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary">اختر التصنيف المناسب لاحتياجاتك</p>
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-8 sm:mb-10 md:mb-12">
+            <div className="mb-4 sm:mb-0">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-2 sm:mb-4">التصنيفات المميزة</h2>
+              <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary">اكتشف طرق جديدة لاستخدام نوشن</p>
+            </div>
+            <Link
+              href="/categories"
+              className="inline-flex items-center gap-2 text-accent-600 dark:text-dark-text-secondary hover:text-accent-700 dark:hover:text-dark-text-primary transition-colors duration-200 text-sm sm:text-base"
+            >
+              تصفح جميع التصنيفات
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
           </div>
 
-          <div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
-              {categories.map((c, idx) => (
-                <Link href={`/templates/category/${categorySlugMap[c.name] || c.name.toLowerCase()}`} key={idx} className="group">
-                  <div className="card-interactive border-2 border-gray-100 overflow-hidden hover:border-accent-300 hover:shadow-large transition-all duration-300">
-                    <div className={`h-16 sm:h-20 md:h-24 lg:h-28 overflow-hidden relative flex items-center justify-center bg-gradient-to-br ${c.bg}`}>
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 bg-white/80 dark:bg-dark-tertiary/80 backdrop-blur-sm rounded-lg sm:rounded-xl flex items-center justify-center shadow-md">
-                        <c.Icon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8 text-accent-700 dark:text-dark-text-primary" />
-                      </div>
-                    </div>
-                    <div className="p-2 sm:p-3 md:p-4 lg:p-6 text-center">
-                      <h3 className="font-bold text-xs sm:text-sm md:text-base text-accent-500 dark:text-dark-text-primary group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors mb-1 sm:mb-2">
-                        {c.name}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-accent-500 dark:text-dark-text-secondary">{categoryTotals[c.name] ?? 0} قالب</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+            {categories.slice(0, 8).map((c, idx) => (
+              <Link href={`/templates/category/${categorySlugMap[c.name] || c.name.toLowerCase()}`} key={idx} className="group">
+                <div className="bg-white dark:bg-dark-tertiary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-dark-card-border hover:shadow-md hover:border-accent-300 dark:hover:border-accent-400 transition-all duration-300 h-full flex flex-col">
+                  {/* Icon */}
+                  <div className="flex justify-center mb-4">
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br ${c.bg} backdrop-blur-sm border border-white/20 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}>
+                      <c.Icon className="w-6 h-6 text-white drop-shadow-sm group-hover:scale-110 transition-transform duration-300" />
                     </div>
                   </div>
-                </Link>
-              ))}
-            </div>
+
+                  {/* Category Name */}
+                  <h3 className="font-bold text-sm sm:text-base text-accent-500 dark:text-dark-text-primary text-center mb-2 group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
+                    {c.name}
+                  </h3>
+
+                  {/* Template Count */}
+                  <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary text-center mb-4">
+                    {categoryTotals[c.name] ?? 0} قالب
+                  </p>
+
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
@@ -451,28 +470,41 @@ export default function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {loadingCreators ? (
               [...Array(4)].map((_, idx) => (
-                <div key={idx} className="bg-white dark:bg-dark-tertiary rounded-xl p-6 shadow-sm border border-gray-200 dark:border-dark-card-border animate-pulse h-full flex flex-col">
+                <div key={idx} className="bg-white dark:bg-dark-tertiary rounded-xl p-6 shadow-sm border border-gray-200 dark:border-dark-card-border h-full flex flex-col overflow-hidden">
                   <div className="text-center mb-4 flex-shrink-0">
-                    <div className="w-16 h-16 mx-auto rounded-full bg-gray-200 dark:bg-gray-700 mb-3" />
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto mb-2" />
-                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto" />
-                  </div>
-                  <div className="flex-1 flex flex-col justify-between">
-                    <div className="h-16 bg-gray-200 dark:bg-gray-700 rounded mb-3 flex-1"></div>
+                    {/* Profile Picture Skeleton with Shimmer */}
+                    <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 mb-3 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
 
-                    {/* Stats skeleton */}
-                    <div className="mt-auto flex items-center justify-between">
+                    {/* Name Skeleton */}
+                    <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-lg w-3/4 mx-auto bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                  </div>
+
+                  <div className="flex-1 flex flex-col justify-between">
+                    {/* Bio Skeleton */}
+                    <div className="space-y-2 mb-4 flex-1">
+                      <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-full bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                      <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-4/5 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                      <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-3/5 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    </div>
+
+                    {/* Stats skeleton - matches actual card structure */}
+                    <div className="mt-auto flex items-center justify-between text-xs">
+                      {/* Template Count */}
                       <div className="flex items-center gap-1">
-                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-14"></div>
-                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-6"></div>
+                        <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-6 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"></div>
+                        <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-8 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"></div>
                       </div>
+
+                      {/* Followers */}
                       <div className="flex items-center gap-1">
-                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-8"></div>
+                        <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-8 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"></div>
+                        <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-10 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"></div>
                       </div>
+
+                      {/* Rating */}
                       <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-6"></div>
+                        <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-6 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"></div>
+                        <div className="w-3 h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"></div>
                       </div>
                     </div>
                   </div>
@@ -513,28 +545,28 @@ export default function HomePage() {
                       <div className="mt-auto flex items-center justify-between text-xs">
                         {/* Template Count */}
                         <div className="flex items-center gap-1">
-                          <span className="text-accent-500 dark:text-dark-text-tertiary">القوالب</span>
                           <span className="text-accent-600 dark:text-dark-text-secondary">
                             {(cr.templatesCount || cr.templateCount || cr.totalTemplates || 0).toLocaleString()}
                           </span>
+                          <span className="text-accent-500 dark:text-dark-text-tertiary">قالب</span>
                         </div>
 
                         {/* Followers */}
                         <div className="flex items-center gap-1">
-                          <span className="text-accent-500 dark:text-dark-text-tertiary">المتابعون</span>
                           <span className="text-accent-600 dark:text-dark-text-secondary">
                             {(cr.followersCount || cr.followers || cr.totalFollowers || 0).toLocaleString()}
                           </span>
+                          <span className="text-accent-500 dark:text-dark-text-tertiary">متابع</span>
                         </div>
 
                         {/* Rating */}
                         <div className="flex items-center gap-1">
-                          <svg className="w-3 h-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                          </svg>
                           <span className="text-accent-600 dark:text-dark-text-secondary">
                             {(cr.averageRating || cr.rating || cr.medianRating || 0).toFixed(1)}
                           </span>
+                          <svg className="w-3 h-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
                         </div>
                       </div>
                     </div>

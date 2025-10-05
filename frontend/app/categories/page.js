@@ -1,0 +1,348 @@
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import {
+  Zap, BookOpen, TrendingUp, Heart, Lightbulb, Target,
+  Check, Users, Settings, Palette, Laptop, Dumbbell,
+  PiggyBank, FolderTree, CalendarDays, LayoutDashboard,
+  Code, Shield, Globe, Smartphone, Monitor, Database,
+  Cloud, Lock, Wifi, Cpu, HardDrive, Printer, Camera,
+  Headphones, Mic, Speaker, Gamepad2, GameController2,
+  Music, Video, Image, FileText, FileSpreadsheet,
+  FileImage, FileVideo, FileAudio, FilePdf, FileWord,
+  Briefcase, Building as BuildingIcon, User as UserIcon, UserCheck, UserX,
+  Mail, Phone, MessageCircle, Send,
+  Star, ThumbsUp, ThumbsDown,
+  Eye, EyeOff, Search, Filter, SortAsc, SortDesc,
+  Plus, Minus, X, CheckCircle, XCircle, AlertCircle,
+  Info, HelpCircle, ExternalLink, Download, Upload,
+  Share, Copy, Edit, Trash2, Save, RefreshCw,
+  ArrowLeft, ArrowRight, ArrowUp, ArrowDown,
+  ChevronLeft, ChevronRight, ChevronUp, ChevronDown,
+  Home, Menu, Grid, List, BarChart3, PieChart,
+  TrendingDown, Activity, Zap as ZapIcon,
+  Package, Car, Coffee, Gamepad, MapPin, ShoppingCart,
+  CreditCard, Clock, Calendar, Bell, Award, Trophy,
+  Gift, Tag, Percent, DollarSign, Euro, Yen, Bitcoin,
+  Umbrella, Sun, Moon, CloudRain, Wind, Snowflake,
+  Flame, Droplets, TreePine, Leaf, Flower2, Bug,
+  Fish, Bird, Cat, Dog, Rabbit, Turtle, Whale,
+  Plane, Train, Bike, Truck, Bus, Ship, Anchor,
+  Compass, Map, Navigation, Flag, Mountain, Waves,
+  Tent, Caravan, Hotel, Building2, Factory, Warehouse,
+  Store, ShoppingBag, Receipt, Wallet, Banknote, Coins,
+  BarChart, LineChart, Timer, Stopwatch, Hourglass,
+  Alarm, Volume2, VolumeX, Play, Pause, Stop as StopIcon,
+  SkipBack, SkipForward, RotateCcw, RotateCw, Repeat,
+  Shuffle, Maximize, Minimize, Expand, Shrink, Move,
+  Rotate, FlipHorizontal, FlipVertical, Crop, Scissors,
+  Eraser, Pen, Pencil, Paintbrush, Highlighter, Marker,
+  Type, AlignLeft, AlignCenter, AlignRight, AlignJustify,
+  Bold, Italic, Underline, Strikethrough, Link as LinkIcon, Unlink,
+  ImageIcon, File, Folder, FolderOpen, Archive, Inbox,
+  Outbox, MailOpen, Reply, ReplyAll, Forward, Cut,
+  Paste, Clipboard, ClipboardList, ClipboardCheck,
+  ClipboardCopy, ClipboardEdit, ClipboardX, FileCode,
+  FilePresentation, FileExcel, FilePowerpoint, FileZip,
+  CloudUpload, CloudDownload, WifiOff, Bluetooth,
+  Signal, SignalZero, SignalLow, SignalMedium, SignalHigh,
+  Battery, BatteryLow, BatteryMedium, BatteryHigh,
+  BatteryCharging, Power, PowerOff, Plug, Unplug,
+  Cable, Volume1, MicOff, VideoOff, CameraOff,
+  Webcam, Tablet, Watch, Mouse, Keyboard, Scanner,
+  Fax, Router, Server, Memory, Motherboard, GraphicsCard,
+  Fan, Thermometer, Gauge, Pulse, Brain, Ear, Nose,
+  Mouth, Hand, Fingerprint, UserPlus, UserMinus,
+  UserCircle, UserSquare, Baby, Child, Adult, Senior,
+  Male, Female, Gender, Family, Couple, Smile, Frown,
+  Meh, Angry, Sad, Happy, Surprised, Confused, Wink,
+  Kiss, Tongue, Disgusted, Worried, Sleepy, Dizzy,
+  Sick, Mask, Glasses, Sunglasses, Hat, Crown, Gem,
+  Diamond, Ruby, Emerald, Sapphire, Pearl, Gold,
+  Silver, Bronze, Medal, Ribbon, Badge, Certificate,
+  Diploma, Degree, Books, Notebook, Journal, Diary,
+  Notification, Message, Chat, Comment, Quote, Hash,
+  AtSign, Pound, DebitCard, Money, Market, Mall,
+  Shop, Boutique, Department, Supermarket, Grocery,
+  Pharmacy, Restaurant, Cafe, Bar, Pub, Motel,
+  Hostel, Resort, Villa, Apartment, House, Office,
+  School, University, Hospital, Clinic, Lab, Airport,
+  Station, Port, Harbor, Marina, Dock, Bridge,
+  Tunnel, Road, Street, Avenue, Boulevard, Highway,
+  Freeway, Expressway, Intersection, Roundabout, Traffic,
+  Stop as StopSign, Yield, Warning, Caution, Danger, Hazard,
+  Biohazard, Radioactive, Toxic, Poison, Explosive,
+  Flammable, Corrosive, Irritant, Health, Safety,
+  Security, Protection, Unlock, Key, Keys,
+  Megaphone, GraduationCap, Utensils, Shirt, Sparkles,
+  PawPrint, Terminal, Bot, ShieldCheck, Stethoscope,
+  HeartHandshake, Apple, ChefHat, Cake, Restaurant as RestaurantIcon,
+  Hammer, Wrench, Sofa, Tool, Code2, Laptop2,
+  Share2, Handshake, Chess, Crown as CrownIcon, Cog, Rocket,
+  Presentation, Microscope, Calculator, Atom, FlaskConical,
+  Dna, UserGroup, BookMarked, Theater, Film, Gamepad as GamepadIcon,
+  Wheat, Truck as TruckIcon, Warehouse as WarehouseIcon
+} from 'lucide-react';
+
+// All available template categories from create template page with unique icons
+const allCategories = [
+  { name: "الإنتاجية", icon: Zap, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30", description: "قوالب لتحسين الإنتاجية وإدارة المهام" },
+  { name: "الدراسة", icon: BookOpen, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب للدراسة والبحث والتعلم" },
+  { name: "الأعمال", icon: Briefcase, bg: "from-emerald-100 to-emerald-200 dark:from-emerald-900/30 dark:to-emerald-800/30", description: "قوالب لإدارة الأعمال والمشاريع التجارية" },
+  { name: "الحياة الشخصية", icon: Heart, bg: "from-rose-100 to-rose-200 dark:from-rose-900/30 dark:to-rose-800/30", description: "قوالب للتنظيم الشخصي وإدارة الحياة اليومية" },
+  { name: "الإبداع", icon: Lightbulb, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30", description: "قوالب للإبداع والتصميم والفنون" },
+  { name: "التقنية", icon: Code, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30", description: "قوالب للبرمجة والتطوير التقني" },
+  { name: "الصحة", icon: Activity, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30", description: "قوالب لمتابعة الصحة واللياقة البدنية" },
+  { name: "المالية", icon: PiggyBank, bg: "from-yellow-100 to-yellow-200 dark:from-yellow-900/30 dark:to-yellow-800/30", description: "قوالب لإدارة المال والاستثمار" },
+  { name: "التنظيم", icon: FolderTree, bg: "from-cyan-100 to-cyan-200 dark:from-cyan-900/30 dark:to-cyan-800/30", description: "قوالب لتنظيم المعلومات والمستندات" },
+  { name: "التخطيط", icon: Target, bg: "from-violet-100 to-violet-200 dark:from-violet-900/30 dark:to-violet-800/30", description: "قوالب للتخطيط وإدارة المشاريع" },
+  { name: "ديني", icon: Star, bg: "from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/30", description: "قوالب للشؤون الدينية والروحانية" },
+  { name: "التسويق", icon: Megaphone, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30", description: "قوالب للتسويق والترويج" },
+  { name: "التصميم", icon: Palette, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30", description: "قوالب للتصميم الجرافيكي والفني" },
+  { name: "التطوير", icon: Cpu, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30", description: "قوالب للتطوير والبرمجة" },
+  { name: "التعليم", icon: GraduationCap, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب للتعليم والتدريب" },
+  { name: "السفر", icon: Globe, bg: "from-teal-100 to-teal-200 dark:from-teal-900/30 dark:to-teal-800/30", description: "قوالب للتخطيط للسفر والسياحة" },
+  { name: "الطعام", icon: Utensils, bg: "from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30", description: "قوالب للطبخ والطعام" },
+  { name: "الرياضة", icon: Dumbbell, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30", description: "قوالب للرياضة واللياقة البدنية" },
+  { name: "الترفيه", icon: Gamepad2, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30", description: "قوالب للترفيه والألعاب" },
+  { name: "الموضة", icon: Shirt, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30", description: "قوالب للموضة والأزياء" },
+  { name: "الجمال", icon: Sparkles, bg: "from-rose-100 to-rose-200 dark:from-rose-900/30 dark:to-rose-800/30", description: "قوالب للعناية والجمال" },
+  { name: "المنزل", icon: Home, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30", description: "قوالب لتنظيم المنزل" },
+  { name: "الحديقة", icon: TreePine, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30", description: "قوالب للحدائق والنباتات" },
+  { name: "الحيوانات الأليفة", icon: PawPrint, bg: "from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/30", description: "قوالب لرعاية الحيوانات الأليفة" },
+  { name: "السيارات", icon: Car, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30", description: "قوالب للسيارات والنقل" },
+  { name: "التكنولوجيا", icon: Smartphone, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30", description: "قوالب للتكنولوجيا والأجهزة" },
+  { name: "البرمجة", icon: Terminal, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب للبرمجة والتطوير" },
+  { name: "قواعد البيانات", icon: Database, bg: "from-cyan-100 to-cyan-200 dark:from-cyan-900/30 dark:to-cyan-800/30", description: "قوالب لقواعد البيانات" },
+  { name: "الأمان السيبراني", icon: Shield, bg: "from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30", description: "قوالب للأمان السيبراني" },
+  { name: "الذكاء الاصطناعي", icon: Bot, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30", description: "قوالب للذكاء الاصطناعي" },
+  { name: "البلوك تشين", icon: HardDrive, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30", description: "قوالب للبلوك تشين" },
+  { name: "التجارة الإلكترونية", icon: ShoppingCart, bg: "from-emerald-100 to-emerald-200 dark:from-emerald-900/30 dark:to-emerald-800/30", description: "قوالب للتجارة الإلكترونية" },
+  { name: "المبيعات", icon: TrendingUp, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30", description: "قوالب للمبيعات" },
+  { name: "خدمة العملاء", icon: Users, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب لخدمة العملاء" },
+  { name: "الموارد البشرية", icon: UserCheck, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30", description: "قوالب للموارد البشرية" },
+  { name: "المحاسبة", icon: FileSpreadsheet, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30", description: "قوالب للمحاسبة" },
+  { name: "الاستثمار", icon: DollarSign, bg: "from-yellow-100 to-yellow-200 dark:from-yellow-900/30 dark:to-yellow-800/30", description: "قوالب للاستثمار" },
+  { name: "العقارات", icon: BuildingIcon, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30", description: "قوالب للعقارات" },
+  { name: "التأمين", icon: ShieldCheck, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب للتأمين" },
+  { name: "القانون", icon: FileText, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30", description: "قوالب للقانون" },
+  { name: "الطب", icon: Stethoscope, bg: "from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30", description: "قوالب للطب" },
+  { name: "التمريض", icon: HeartHandshake, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30", description: "قوالب للتمريض" },
+  { name: "العلاج الطبيعي", icon: Activity, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30", description: "قوالب للعلاج الطبيعي" },
+  { name: "التغذية", icon: Apple, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30", description: "قوالب للتغذية" },
+  { name: "الطبخ", icon: ChefHat, bg: "from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30", description: "قوالب للطبخ" },
+  { name: "الحلويات", icon: Cake, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30", description: "قوالب للحلويات" },
+  { name: "المشروبات", icon: Coffee, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب للمشروبات" },
+  { name: "المطاعم", icon: RestaurantIcon, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30", description: "قوالب للمطاعم" },
+  { name: "الفنون", icon: Palette, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30", description: "قوالب للفنون" },
+  { name: "الموسيقى", icon: Music, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30", description: "قوالب للموسيقى" },
+  { name: "الرسم", icon: Paintbrush, bg: "from-cyan-100 to-cyan-200 dark:from-cyan-900/30 dark:to-cyan-800/30", description: "قوالب للرسم" },
+  { name: "النحت", icon: Hammer, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30", description: "قوالب للنحت" },
+  { name: "التصوير", icon: Camera, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب للتصوير" },
+  { name: "الفيديو", icon: Video, bg: "from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30", description: "قوالب للفيديو" },
+  { name: "الكتابة", icon: PenTool, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30", description: "قوالب للكتابة" },
+  { name: "الترجمة", icon: Languages, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30", description: "قوالب للترجمة" },
+  { name: "اللغات", icon: BookOpenCheck, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30", description: "قوالب لتعلم اللغات" },
+  { name: "التاريخ", icon: Scroll, bg: "from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/30", description: "قوالب للتاريخ" },
+  { name: "الجغرافيا", icon: Map, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب للجغرافيا" },
+  { name: "العلوم", icon: Microscope, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30", description: "قوالب للعلوم" },
+  { name: "الرياضيات", icon: Calculator, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب للرياضيات" },
+  { name: "الفيزياء", icon: Atom, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30", description: "قوالب للفيزياء" },
+  { name: "الكيمياء", icon: FlaskConical, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30", description: "قوالب للكيمياء" },
+  { name: "الأحياء", icon: Dna, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30", description: "قوالب للأحياء" },
+  { name: "علم النفس", icon: Brain, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30", description: "قوالب لعلم النفس" },
+  { name: "علم الاجتماع", icon: UserGroup, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب لعلم الاجتماع" },
+  { name: "الفلسفة", icon: Lightbulb, bg: "from-yellow-100 to-yellow-200 dark:from-yellow-900/30 dark:to-yellow-800/30", description: "قوالب للفلسفة" },
+  { name: "الأدب", icon: BookMarked, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30", description: "قوالب للأدب" },
+  { name: "الشعر", icon: Quote, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30", description: "قوالب للشعر" },
+  { name: "المسرح", icon: Theater, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30", description: "قوالب للمسرح" },
+  { name: "السينما", icon: Film, bg: "from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30", description: "قوالب للسينما" },
+  { name: "الألعاب", icon: Gamepad2, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30", description: "قوالب للألعاب" },
+  { name: "الرياضة الإلكترونية", icon: GamepadIcon, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب للرياضة الإلكترونية" },
+  { name: "السياحة", icon: Plane, bg: "from-teal-100 to-teal-200 dark:from-teal-900/30 dark:to-teal-800/30", description: "قوالب للسياحة" },
+  { name: "الفندقة", icon: Hotel, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30", description: "قوالب للفندقة" },
+  { name: "النقل", icon: Truck, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30", description: "قوالب للنقل" },
+  { name: "الطيران", icon: Plane, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب للطيران" },
+  { name: "البحرية", icon: Ship, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب للبحرية" },
+  { name: "الزراعة", icon: Wheat, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30", description: "قوالب للزراعة" },
+  { name: "البيئة", icon: Leaf, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30", description: "قوالب للبيئة" },
+  { name: "الطاقة", icon: Zap, bg: "from-yellow-100 to-yellow-200 dark:from-yellow-900/30 dark:to-yellow-800/30", description: "قوالب للطاقة" },
+  { name: "البناء", icon: Hammer, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30", description: "قوالب للبناء" },
+  { name: "الهندسة", icon: Wrench, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30", description: "قوالب للهندسة" },
+  { name: "العمارة", icon: Building2, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب للعمارة" },
+  { name: "الديكور", icon: Paintbrush, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30", description: "قوالب للديكور" },
+  { name: "الأثاث", icon: Sofa, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30", description: "قوالب للأثاث" },
+  { name: "الأدوات", icon: Tool, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30", description: "قوالب للأدوات" },
+  { name: "الأجهزة", icon: Monitor, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب للأجهزة" },
+  { name: "البرامج", icon: Laptop, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30", description: "قوالب للبرامج" },
+  { name: "التطبيقات", icon: Smartphone, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30", description: "قوالب للتطبيقات" },
+  { name: "المواقع", icon: Globe, bg: "from-teal-100 to-teal-200 dark:from-teal-900/30 dark:to-teal-800/30", description: "قوالب للمواقع" },
+  { name: "التطوير الويب", icon: Code2, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب لتطوير الويب" },
+  { name: "تطوير التطبيقات", icon: Smartphone, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30", description: "قوالب لتطوير التطبيقات" },
+  { name: "التعليم الإلكتروني", icon: Laptop, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب للتعليم الإلكتروني" },
+  { name: "الاجتماعات", icon: Users, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30", description: "قوالب للاجتماعات" },
+  { name: "التواصل", icon: MessageSquare, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب للتواصل" },
+  { name: "الشبكات الاجتماعية", icon: Share2, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30", description: "قوالب للشبكات الاجتماعية" },
+  { name: "المحتوى", icon: FileText, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30", description: "قوالب للمحتوى" },
+  { name: "الإعلان", icon: Megaphone, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30", description: "قوالب للإعلان" },
+  { name: "العلاقات العامة", icon: Handshake, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب للعلاقات العامة" },
+  { name: "العلامة التجارية", icon: Badge, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30", description: "قوالب للعلامة التجارية" },
+  { name: "الاستراتيجية", icon: Chess, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30", description: "قوالب للاستراتيجية" },
+  { name: "القيادة", icon: CrownIcon, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب للقيادة" },
+  { name: "الإدارة", icon: Settings, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30", description: "قوالب للإدارة" },
+  { name: "المشاريع", icon: FolderTree, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30", description: "قوالب للمشاريع" },
+  { name: "العمليات", icon: Cog, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب للعمليات" },
+  { name: "الجودة", icon: CheckCircle, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30", description: "قوالب للجودة" },
+  { name: "الابتكار", icon: Rocket, bg: "from-yellow-100 to-yellow-200 dark:from-yellow-900/30 dark:to-yellow-800/30", description: "قوالب للابتكار" },
+  { name: "البحث والتطوير", icon: Search, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30", description: "قوالب للبحث والتطوير" },
+  { name: "التحليل", icon: BarChart3, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب للتحليل" },
+  { name: "الإحصاء", icon: PieChart, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30", description: "قوالب للإحصاء" },
+  { name: "البيانات", icon: Database, bg: "from-cyan-100 to-cyan-200 dark:from-cyan-900/30 dark:to-cyan-800/30", description: "قوالب للبيانات" },
+  { name: "التقارير", icon: FileText, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30", description: "قوالب للتقارير" },
+  { name: "العروض التقديمية", icon: Presentation, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب للعروض التقديمية" },
+  { name: "التدريب", icon: BookOpen, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30", description: "قوالب للتدريب" },
+  { name: "التطوير المهني", icon: TrendingUp, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30", description: "قوالب للتطوير المهني" },
+  { name: "الاستشارات", icon: UserCheck, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب للاستشارات" },
+  { name: "الخدمات", icon: Cog, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30", description: "قوالب للخدمات" },
+  { name: "المنتجات", icon: Package, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30", description: "قوالب للمنتجات" },
+  { name: "التصنيع", icon: Factory, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30", description: "قوالب للتصنيع" },
+  { name: "التوزيع", icon: TruckIcon, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30", description: "قوالب للتوزيع" },
+  { name: "المخازن", icon: WarehouseIcon, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30", description: "قوالب للمخازن" },
+  { name: "اللوجستيات", icon: TruckIcon, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30", description: "قوالب للوجستيات" }
+];
+
+export default function CategoriesPage() {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Filter categories based on search term
+  const filteredCategories = allCategories.filter(category =>
+    category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    category.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-primary">
+      {/* Header */}
+      <div className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-accent-500 dark:text-dark-text-primary mb-4">
+              جميع التصنيفات
+            </h1>
+            <p className="text-lg sm:text-xl text-accent-600 dark:text-dark-text-secondary max-w-3xl mx-auto leading-relaxed">
+              اكتشف جميع التصنيفات المتاحة لإنشاء قوالب نوشن مخصصة. اختر التصنيف المناسب لاحتياجاتك
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Search Bar */}
+        <div className="mb-8">
+          <div className="relative max-w-2xl mx-auto">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="ابحث عن التصنيف..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-white dark:bg-dark-tertiary border border-gray-200 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-colors duration-200 text-accent-700 dark:text-dark-text-primary placeholder-accent-400 dark:placeholder-accent-500"
+            />
+          </div>
+        </div>
+
+        {/* Categories Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+          {filteredCategories.map((category, idx) => (
+            <Link
+              key={idx}
+              href={`/templates?category=${encodeURIComponent(category.name)}`}
+              className="group"
+            >
+              <div className="bg-white dark:bg-dark-tertiary rounded-xl p-4 shadow-sm border border-gray-200 dark:border-dark-card-border hover:shadow-md hover:border-accent-300 dark:hover:border-accent-400 transition-all duration-300 h-full flex flex-col">
+                {/* Icon */}
+                <div className="flex justify-center mb-3">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br ${category.bg} backdrop-blur-sm border border-white/20 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}>
+                    <category.icon className="w-6 h-6 text-white drop-shadow-sm group-hover:scale-110 transition-transform duration-300" />
+                  </div>
+                </div>
+
+                {/* Category Name */}
+                <h3 className="font-bold text-sm sm:text-base text-accent-500 dark:text-dark-text-primary text-center mb-2 group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
+                  {category.name}
+                </h3>
+
+                {/* Description */}
+                <p className="text-xs text-accent-600 dark:text-dark-text-secondary text-center leading-relaxed flex-1">
+                  {category.description}
+                </p>
+
+                {/* View Templates Button */}
+                <div className="mt-3 pt-3 border-t border-gray-100 dark:border-dark-card-border">
+                  <div className="flex items-center justify-center text-accent-500 dark:text-accent-400 text-xs font-medium group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
+                    <span>عرض القوالب</span>
+                    <ChevronLeft className="w-3 h-3 mr-1 group-hover:translate-x-1 transition-transform duration-200" />
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* No Results */}
+        {filteredCategories.length === 0 && (
+          <div className="text-center py-12">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+              <Search className="w-8 h-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-dark-text-primary mb-2">
+              لم يتم العثور على تصنيفات
+            </h3>
+            <p className="text-gray-500 dark:text-dark-text-secondary">
+              جرب البحث بكلمات مختلفة أو تصفح جميع التصنيفات
+            </p>
+          </div>
+        )}
+
+        {/* Help Section */}
+        <div className="mt-16 bg-white dark:bg-dark-secondary rounded-2xl p-6 sm:p-8 border border-gray-200 dark:border-dark-card-border">
+          <div className="text-center max-w-3xl mx-auto">
+            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-accent-100 to-accent-200 dark:from-accent-900/30 dark:to-accent-800/30 flex items-center justify-center">
+              <HelpCircle className="w-8 h-8 text-accent-600 dark:text-accent-400" />
+            </div>
+            <h2 className="text-2xl font-bold text-accent-500 dark:text-dark-text-primary mb-4">
+              كيف تستخدم التصنيفات؟
+            </h2>
+            <p className="text-accent-600 dark:text-dark-text-secondary leading-relaxed mb-6">
+              عند إنشاء قالب جديد، يمكنك اختيار تصنيف واحد أو أكثر من هذه التصنيفات. هذا يساعد المستخدمين الآخرين في العثور على قالبك بسهولة ويحسن من تجربة البحث والتصفح.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div className="flex items-center justify-center space-x-2 rtl:space-x-reverse">
+                <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                  <span className="text-blue-600 dark:text-blue-400 font-bold">1</span>
+                </div>
+                <span className="text-accent-600 dark:text-dark-text-secondary">اختر التصنيف المناسب</span>
+              </div>
+              <div className="flex items-center justify-center space-x-2 rtl:space-x-reverse">
+                <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                  <span className="text-green-600 dark:text-green-400 font-bold">2</span>
+                </div>
+                <span className="text-accent-600 dark:text-dark-text-secondary">أنشئ قالبك المميز</span>
+              </div>
+              <div className="flex items-center justify-center space-x-2 rtl:space-x-reverse">
+                <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                  <span className="text-purple-600 dark:text-purple-400 font-bold">3</span>
+                </div>
+                <span className="text-accent-600 dark:text-dark-text-secondary">شاركه مع المجتمع</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

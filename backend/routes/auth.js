@@ -13,6 +13,18 @@ const auth = require('../middleware/auth');
 
 const router = express.Router();
 
+// @route   GET /api/auth/test
+// @desc    Test endpoint to verify backend is working
+// @access  Public
+router.get('/test', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Backend auth service is working',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
 // Temporary storage for unverified users (in production, use Redis or database)
 const tempUserStorage = new Map();
 
@@ -174,13 +186,6 @@ router.post('/signup', [
     .trim()
     .isLength({ min: 2, max: 50 })
     .withMessage('الاسم يجب أن يكون بين 2 و 50 حرف'),
-  body('username')
-    .optional()
-    .trim()
-    .isLength({ min: 3, max: 20 })
-    .withMessage('اسم المستخدم يجب أن يكون بين 3 و 20 حرف')
-    .matches(/^[a-zA-Z0-9_]+$/)
-    .withMessage('اسم المستخدم يجب أن يحتوي على أحرف وأرقام وشرطة سفلية فقط'),
   body('email')
     .isEmail()
     .normalizeEmail()
@@ -190,9 +195,16 @@ router.post('/signup', [
     .withMessage('كلمة المرور يجب أن تكون 6 أحرف على الأقل')
 ], async (req, res) => {
   try {
+    console.log('Signup request received:', { 
+      name: req.body.name, 
+      email: req.body.email, 
+      hasPassword: !!req.body.password 
+    });
+
     // Check validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Validation errors:', errors.array());
       return res.status(400).json({
         success: false,
         message: 'بيانات غير صحيحة',
@@ -200,7 +212,7 @@ router.post('/signup', [
       });
     }
 
-    const { name, username, email, password } = req.body;
+    const { name, email, password } = req.body;
 
     // Check if user already exists by email
     const existingUserByEmail = await User.findOne({ email });
@@ -209,19 +221,6 @@ router.post('/signup', [
         success: false,
         message: 'البريد الإلكتروني مستخدم بالفعل'
       });
-    }
-
-    // Check if username already exists (only if username is provided)
-    if (username) {
-      const existingUserByUsername = await User.findOne({
-        username: username.toLowerCase()
-      });
-      if (existingUserByUsername) {
-        return res.status(400).json({
-          success: false,
-          message: 'اسم المستخدم مستخدم بالفعل'
-        });
-      }
     }
 
     // Validate email domain - block common fake email domains
@@ -280,7 +279,6 @@ router.post('/signup', [
       // Store user data temporarily (not in database yet)
       const tempUserData = {
         name,
-        username: username ? username.toLowerCase() : undefined,
         email,
         password,
         emailVerificationToken,
@@ -311,11 +309,6 @@ router.post('/signup', [
             isEmailVerified: true, // Skip verification if email service is down
             isActive: true
           };
-
-          // Only include username if it's provided
-          if (username) {
-            userData.username = username.toLowerCase();
-          }
 
           const user = new User(userData);
           await user.save();
@@ -357,6 +350,11 @@ router.post('/signup', [
     }
   } catch (error) {
     console.error('Signup error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     res.status(500).json({
       success: false,
       message: 'خطأ في الخادم'
@@ -1111,11 +1109,6 @@ router.post('/verify-email', [
         isEmailVerified: true,
         isActive: true
       };
-
-      // Only include username if it's not undefined
-      if (tempUserData.username !== undefined) {
-        userData.username = tempUserData.username;
-      }
 
       user = new User(userData);
 

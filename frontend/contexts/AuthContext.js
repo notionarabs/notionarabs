@@ -194,7 +194,9 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (name, email, password) => {
     try {
+      console.log('Attempting signup for:', { name, email });
       const response = await api.post('/auth/signup', { name, email, password });
+      console.log('Signup response:', response.data);
 
       const { requiresVerification, verificationToken, user, token } = response.data;
 
@@ -229,6 +231,8 @@ export const AuthProvider = ({ children }) => {
       return { success: true };
     } catch (error) {
       console.error('Signup error:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
       return {
         success: false,
         error: error.response?.data?.message || 'فشل في إنشاء الحساب',

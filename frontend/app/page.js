@@ -46,18 +46,78 @@ export default function HomePage() {
   const [categoryTotals, setCategoryTotals] = useState({});
   const [loadingCreators, setLoadingCreators] = useState(true);
 
-  // Fetch featured templates from API
+  // Fetch featured templates from API (most famous and highest-rated)
   useEffect(() => {
     const fetchFeaturedTemplates = async () => {
       try {
         setLoading(true);
-        const response = await api.get('/templates?limit=6&sortBy=downloads&sortOrder=desc');
 
-        if (response.data.success) {
-          setFeaturedTemplates(response.data.templates || []);
+        // First try to get high-rated templates
+        const ratingResponse = await api.get('/templates?limit=30&sortBy=rating&sortOrder=desc');
+        let featuredTemplates = [];
+
+        if (ratingResponse.data.success) {
+          const highRatedTemplates = ratingResponse.data.templates || [];
+
+          // Filter for templates with good ratings and some activity
+          featuredTemplates = highRatedTemplates
+            .filter(template =>
+              template.rating >= 3.5 && // At least 3.5 stars
+              (template.reviewsCount >= 1 || template.downloads >= 5) // Some validation
+            )
+            .slice(0, 6);
         }
+
+        // If we don't have enough high-rated templates, get popular ones
+        if (featuredTemplates.length < 6) {
+          const downloadResponse = await api.get('/templates?limit=20&sortBy=downloads&sortOrder=desc');
+          if (downloadResponse.data.success) {
+            const popularTemplates = downloadResponse.data.templates || [];
+            const existingIds = new Set(featuredTemplates.map(t => t._id || t.id));
+
+            const additionalTemplates = popularTemplates
+              .filter(t => !existingIds.has(t._id || t.id))
+              .slice(0, 6 - featuredTemplates.length);
+
+            featuredTemplates.push(...additionalTemplates);
+          }
+        }
+
+        // Final fallback: get any approved templates
+        if (featuredTemplates.length < 6) {
+          const fallbackResponse = await api.get('/templates?limit=10&sortBy=createdAt&sortOrder=desc');
+          if (fallbackResponse.data.success) {
+            const fallbackTemplates = fallbackResponse.data.templates || [];
+            const existingIds = new Set(featuredTemplates.map(t => t._id || t.id));
+
+            const finalTemplates = fallbackTemplates
+              .filter(t => !existingIds.has(t._id || t.id))
+              .slice(0, 6 - featuredTemplates.length);
+
+            featuredTemplates.push(...finalTemplates);
+          }
+        }
+
+        // Sort final selection by a combination of factors
+        featuredTemplates.sort((a, b) => {
+          const scoreA = (a.rating || 0) * 0.5 + (a.downloads || 0) * 0.3 + (a.reviewsCount || 0) * 0.2;
+          const scoreB = (b.rating || 0) * 0.5 + (b.downloads || 0) * 0.3 + (b.reviewsCount || 0) * 0.2;
+          return scoreB - scoreA;
+        });
+
+        setFeaturedTemplates(featuredTemplates);
       } catch (error) {
         console.error('Error fetching featured templates:', error);
+        // Fallback to simple download-based selection
+        try {
+          const response = await api.get('/templates?limit=6&sortBy=downloads&sortOrder=desc');
+          if (response.data.success) {
+            setFeaturedTemplates(response.data.templates || []);
+          }
+        } catch (fallbackError) {
+          console.error('Fallback fetch failed:', fallbackError);
+          setFeaturedTemplates([]);
+        }
       } finally {
         setLoading(false);
       }
@@ -81,7 +141,7 @@ export default function HomePage() {
         ];
 
         const templatesCountReq = api.get('/templates?limit=1');
-        const creatorsReq = api.get('/creators?limit=4&sortBy=popular&includeStats=true');
+        const creatorsReq = api.get('/creators?limit=20&sortBy=popular&includeStats=true');
         const specialtiesCountReq = api.get('/creators/stats/specialties');
         const downloadsCountReq = api.get('/creators/stats/downloads');
         const categoryCountReqs = categoriesArabic.map((name) =>
@@ -107,7 +167,7 @@ export default function HomePage() {
 
         const creatorsList = creatorsRes?.data?.creators || [];
 
-        // If creators don't have stats, fetch them individually
+        // Fetch detailed stats for all creators to find the most famous ones
         const creatorsWithStats = await Promise.all(
           creatorsList.map(async (creator) => {
             try {
@@ -126,6 +186,7 @@ export default function HomePage() {
                 ...creator,
                 templatesCount: templateCount,
                 averageRating: averageRating,
+                ratingsCount: ratings.length,
                 followersCount: creator.followersCount || creator.followers || 0
               };
             } catch (error) {
@@ -134,13 +195,49 @@ export default function HomePage() {
                 ...creator,
                 templatesCount: 0,
                 averageRating: 0,
+                ratingsCount: 0,
                 followersCount: creator.followersCount || creator.followers || 0
               };
             }
           })
         );
 
-        setTopCreators(creatorsWithStats);
+        // Filter and sort for the most famous creators
+        const featuredCreators = creatorsWithStats
+          .filter(creator =>
+            creator.followersCount >= 5 && // At least 5 followers
+            creator.templatesCount >= 1 && // At least 1 template
+            (creator.averageRating >= 3.0 || creator.followersCount >= 10) // Good rating OR many followers
+          )
+          .sort((a, b) => {
+            // Sort by a combination of followers, ratings, and template count
+            const scoreA = (a.followersCount * 0.5) + (a.averageRating * 10 * 0.3) + (Math.min(a.templatesCount, 20) * 0.2);
+            const scoreB = (b.followersCount * 0.5) + (b.averageRating * 10 * 0.3) + (Math.min(b.templatesCount, 20) * 0.2);
+            return scoreB - scoreA;
+          })
+          .slice(0, 4); // Take top 4
+
+        // If we don't have enough famous creators, fill with most followed
+        if (featuredCreators.length < 4) {
+          const mostFollowed = creatorsWithStats
+            .filter(creator => !featuredCreators.some(fc => fc.id === creator.id || fc._id === creator._id))
+            .sort((a, b) => (b.followersCount || 0) - (a.followersCount || 0))
+            .slice(0, 4 - featuredCreators.length);
+
+          featuredCreators.push(...mostFollowed);
+        }
+
+        // Final fallback: get creators with most templates
+        if (featuredCreators.length < 4) {
+          const mostProductive = creatorsWithStats
+            .filter(creator => !featuredCreators.some(fc => fc.id === creator.id || fc._id === creator._id))
+            .sort((a, b) => (b.templatesCount || 0) - (a.templatesCount || 0))
+            .slice(0, 4 - featuredCreators.length);
+
+          featuredCreators.push(...mostProductive);
+        }
+
+        setTopCreators(featuredCreators);
 
         const totalsMap = {};
         categoryTotalsArr.forEach(({ name, total }) => {

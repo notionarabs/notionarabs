@@ -355,10 +355,10 @@ export default function CategoriesPage() {
       <div className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-accent-500 dark:text-dark-text-primary mb-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
               جميع التصنيفات
             </h1>
-            <p className="text-lg sm:text-xl text-accent-600 dark:text-dark-text-secondary max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl text-accent-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
               اكتشف جميع التصنيفات المتاحة لإنشاء قوالب نوشن مخصصة. اختر التصنيف المناسب لاحتياجاتك
             </p>
           </div>
@@ -378,7 +378,7 @@ export default function CategoriesPage() {
               placeholder="ابحث عن التصنيف..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white dark:bg-dark-tertiary border border-gray-200 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-colors duration-200 text-accent-700 dark:text-dark-text-primary placeholder-accent-400 dark:placeholder-accent-500"
+              className="w-full pl-10 pr-4 py-3 bg-white dark:bg-dark-tertiary border border-gray-200 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-accent-500 dark:focus:ring-orange-400 focus:border-transparent transition-colors duration-200 text-accent-700 dark:text-dark-text-primary placeholder-accent-400 dark:placeholder-gray-400"
             />
           </div>
         </div>
@@ -391,7 +391,7 @@ export default function CategoriesPage() {
               href={`/templates/category/${categorySlugMap[category.name] || category.name.toLowerCase()}`}
               className="group"
             >
-              <div className="bg-white dark:bg-dark-tertiary rounded-xl p-4 shadow-sm border border-gray-200 dark:border-dark-card-border hover:shadow-md hover:border-accent-300 dark:hover:border-accent-400 transition-all duration-300 h-full flex flex-col">
+              <div className="bg-white dark:bg-dark-tertiary rounded-xl p-4 shadow-sm border border-gray-200 dark:border-dark-card-border hover:shadow-md hover:border-accent-300 dark:hover:border-orange-500/50 transition-all duration-300 h-full flex flex-col">
                 {/* Icon */}
                 <div className="flex justify-center mb-3">
                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br ${category.bg} backdrop-blur-sm border border-white/20 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}>
@@ -400,18 +400,18 @@ export default function CategoriesPage() {
                 </div>
 
                 {/* Category Name */}
-                <h3 className="font-bold text-sm sm:text-base text-accent-500 dark:text-dark-text-primary text-center mb-2 group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
+                <h3 className="font-bold text-sm sm:text-base text-accent-500 dark:text-orange-400 text-center mb-2 group-hover:text-accent-600 dark:group-hover:text-orange-300 transition-colors">
                   {category.name}
                 </h3>
 
                 {/* Description */}
-                <p className="text-xs text-accent-600 dark:text-dark-text-secondary text-center leading-relaxed flex-1">
+                <p className="text-xs text-accent-600 dark:text-gray-300 text-center leading-relaxed flex-1">
                   {category.description}
                 </p>
 
                 {/* View Templates Button */}
                 <div className="mt-3 pt-3 border-t border-gray-100 dark:border-dark-card-border">
-                  <div className="flex items-center justify-center text-accent-500 dark:text-accent-400 text-xs font-medium group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
+                  <div className="flex items-center justify-center text-accent-500 dark:text-orange-400 text-xs font-medium group-hover:text-accent-600 dark:group-hover:text-orange-300 transition-colors">
                     <span>عرض القوالب</span>
                     <ChevronLeft className="w-3 h-3 mr-1 group-hover:translate-x-1 transition-transform duration-200" />
                   </div>

@@ -37,7 +37,9 @@ router.get('/test-email', async (req, res) => {
         message: 'Email configuration missing',
         details: {
           EMAIL_USER: process.env.EMAIL_USER ? 'Set' : 'Missing',
-          EMAIL_PASS: process.env.EMAIL_PASS ? 'Set' : 'Missing'
+          EMAIL_PASS: process.env.EMAIL_PASS ? 'Set' : 'Missing',
+          NODE_ENV: process.env.NODE_ENV,
+          FRONTEND_URL: process.env.FRONTEND_URL ? 'Set' : 'Missing'
         }
       });
     }

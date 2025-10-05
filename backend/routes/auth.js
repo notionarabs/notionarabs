@@ -186,6 +186,13 @@ router.post('/signup', [
     .trim()
     .isLength({ min: 2, max: 50 })
     .withMessage('الاسم يجب أن يكون بين 2 و 50 حرف'),
+  body('username')
+    .optional()
+    .trim()
+    .isLength({ min: 3, max: 20 })
+    .withMessage('اسم المستخدم يجب أن يكون بين 3 و 20 حرف')
+    .matches(/^[a-zA-Z0-9_]+$/)
+    .withMessage('اسم المستخدم يجب أن يحتوي على أحرف وأرقام وشرطة سفلية فقط'),
   body('email')
     .isEmail()
     .normalizeEmail()
@@ -212,7 +219,7 @@ router.post('/signup', [
       });
     }
 
-    const { name, email, password } = req.body;
+    const { name, username, email, password } = req.body;
 
     // Check if user already exists by email
     const existingUserByEmail = await User.findOne({ email });
@@ -241,6 +248,32 @@ router.post('/signup', [
     }
 
     // Skip DNS validation for faster signup - email verification will catch invalid emails
+
+    // Check username if provided
+    let finalUsername = null;
+    if (username && username.trim()) {
+      const lowerUsername = username.toLowerCase().trim();
+
+      // Check for reserved usernames
+      const reservedUsernames = ['admin', 'api', 'www', 'mail', 'ftp', 'root', 'support', 'help', 'contact', 'about', 'terms', 'privacy', 'login', 'signup', 'register', 'dashboard', 'profile', 'settings', 'account', 'user', 'users', 'creator', 'creators', 'template', 'templates', 'blog', 'news', 'home', 'index', 'main', 'app', 'site', 'web', 'online', 'service', 'services'];
+      if (reservedUsernames.includes(lowerUsername)) {
+        return res.status(400).json({
+          success: false,
+          message: 'هذا الاسم محجوز ولا يمكن استخدامه'
+        });
+      }
+
+      // Check if username already exists
+      const existingUserByUsername = await User.findOne({ username: lowerUsername });
+      if (existingUserByUsername) {
+        return res.status(400).json({
+          success: false,
+          message: 'اسم المستخدم مستخدم بالفعل'
+        });
+      }
+
+      finalUsername = lowerUsername;
+    }
 
     // Generate email verification token
     const emailVerificationToken = crypto.randomBytes(32).toString('hex');
@@ -279,6 +312,7 @@ router.post('/signup', [
       // Store user data temporarily (not in database yet)
       const tempUserData = {
         name,
+        username: finalUsername,
         email,
         password,
         emailVerificationToken,
@@ -304,6 +338,7 @@ router.post('/signup', [
           // Create user directly without email verification
           const userData = {
             name,
+            username: finalUsername,
             email,
             password,
             isEmailVerified: true, // Skip verification if email service is down
@@ -1104,6 +1139,7 @@ router.post('/verify-email', [
     try {
       const userData = {
         name: tempUserData.name,
+        username: tempUserData.username,
         email: tempUserData.email,
         password: tempUserData.password,
         isEmailVerified: true,

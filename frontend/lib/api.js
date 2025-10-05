@@ -5,6 +5,11 @@ const API_BASE_URL = process.env.NODE_ENV === 'production'
   ? 'https://notion-arabs.onrender.com/api'
   : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api');
 
+// Log the API URL for debugging (only in development)
+if (process.env.NODE_ENV === 'development') {
+  console.log('API Base URL:', API_BASE_URL);
+}
+
 // Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -30,7 +35,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     const { response } = error;
-    
+
     // Handle different error types
     if (response?.status === 401) {
       // Token expired or invalid
@@ -52,7 +57,7 @@ api.interceptors.response.use(
     } else if (!response) {
       toast.error('خطأ في الاتصال. تحقق من اتصالك بالإنترنت');
     }
-    
+
     return Promise.reject(error);
   }
 );
@@ -66,13 +71,13 @@ export const apiMethods = {
       ...config.headers,
     },
   }),
-  
+
   post: (url, data, config = {}) => api.post(url, data, config),
-  
+
   put: (url, data, config = {}) => api.put(url, data, config),
-  
+
   patch: (url, data, config = {}) => api.patch(url, data, config),
-  
+
   delete: (url, config = {}) => api.delete(url, config),
 };
 

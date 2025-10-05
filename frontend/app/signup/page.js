@@ -89,6 +89,7 @@ export default function SignupPage() {
         setShowVerificationMessage(true);
         setEmailSendFailed(false);
       } else {
+        // Account created successfully (either with verification or without)
         router.push('/');
       }
     } else {
@@ -96,7 +97,7 @@ export default function SignupPage() {
         setEmailSendFailed(true);
         setError('فشل في إرسال بريد التأكيد. يرجى المحاولة مرة أخرى.');
       } else {
-        setError(result.error);
+        setError(result.error || 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
       }
     }
 

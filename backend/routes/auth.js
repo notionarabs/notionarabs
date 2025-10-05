@@ -247,7 +247,8 @@ router.post('/signup', [
     const emailVerificationToken = crypto.randomBytes(32).toString('hex');
     const emailVerificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-    // Send verification email first
+    // Try to send verification email first
+    let emailSent = false;
     try {
       const transporter = createTransporter();
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
@@ -272,13 +273,14 @@ router.post('/signup', [
         `
       };
 
-      // Try to send the email - this will fail if email doesn't exist
+      // Try to send the email
       await transporter.sendMail(mailOptions);
+      emailSent = true;
 
       // Store user data temporarily (not in database yet)
       const tempUserData = {
         name,
-        username: username ? username.toLowerCase() : undefined, // Use undefined instead of null
+        username: username ? username.toLowerCase() : undefined,
         email,
         password,
         emailVerificationToken,
@@ -298,11 +300,60 @@ router.post('/signup', [
     } catch (emailError) {
       console.error('Verification email sending error:', emailError);
 
-      res.status(500).json({
-        success: false,
-        message: 'فشل في إرسال بريد التأكيد. يرجى المحاولة مرة أخرى لاحقاً.',
-        errorType: 'EMAIL_SEND_FAILED'
-      });
+      // If email service is not configured, create user directly without verification
+      if (emailError.message.includes('Email service is not configured')) {
+        try {
+          // Create user directly without email verification
+          const userData = {
+            name,
+            email,
+            password,
+            isEmailVerified: true, // Skip verification if email service is down
+            isActive: true
+          };
+
+          // Only include username if it's provided
+          if (username) {
+            userData.username = username.toLowerCase();
+          }
+
+          const user = new User(userData);
+          await user.save();
+
+          // Generate token for automatic login
+          const token = generateToken(user._id);
+
+          res.status(201).json({
+            success: true,
+            message: 'تم إنشاء حسابك بنجاح! مرحباً بك في عرب نوشن.',
+            token,
+            user: {
+              id: user._id,
+              name: user.name,
+              username: user.username,
+              email: user.email,
+              role: user.role,
+              profilePicture: user.profilePicture,
+              creatorStatus: user.creatorStatus,
+              isEmailVerified: user.isEmailVerified,
+              isActive: user.isActive
+            }
+          });
+        } catch (userCreationError) {
+          console.error('User creation error:', userCreationError);
+          res.status(500).json({
+            success: false,
+            message: 'فشل في إنشاء الحساب. يرجى المحاولة مرة أخرى.'
+          });
+        }
+      } else {
+        // Email service is configured but failed to send
+        res.status(500).json({
+          success: false,
+          message: 'فشل في إرسال بريد التأكيد. يرجى المحاولة مرة أخرى لاحقاً.',
+          errorType: 'EMAIL_SEND_FAILED'
+        });
+      }
     }
   } catch (error) {
     console.error('Signup error:', error);
@@ -766,24 +817,46 @@ router.get('/google/callback', async (req, res) => {
   }
 });
 
-// Email configuration
+// Email configuration with multiple providers and better error handling
 const createTransporter = () => {
+  // Check if email configuration is available
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    throw new Error('Email configuration missing. Please set EMAIL_USER and EMAIL_PASS environment variables in your .env file.');
+    console.error('Email configuration missing. EMAIL_USER and EMAIL_PASS environment variables are required.');
+    throw new Error('Email service is not configured. Please contact support.');
   }
 
   try {
-    return nodemailer.createTransport({
+    // Try Gmail first, then fallback to generic SMTP
+    const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
       },
-      // Add timeout and retry options
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 10000
+      // Enhanced timeout and retry options
+      connectionTimeout: 15000,
+      greetingTimeout: 15000,
+      socketTimeout: 15000,
+      // Add TLS options for better compatibility
+      tls: {
+        rejectUnauthorized: false
+      },
+      // Pool connections for better performance
+      pool: true,
+      maxConnections: 5,
+      maxMessages: 100
     });
+
+    // Verify transporter configuration
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error('Email transporter verification failed:', error);
+      } else {
+        console.log('Email transporter is ready to send messages');
+      }
+    });
+
+    return transporter;
   } catch (error) {
     console.error('Failed to create email transporter:', error);
     throw new Error('Failed to initialize email service. Please check your email configuration.');

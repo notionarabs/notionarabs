@@ -196,7 +196,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await api.post('/auth/signup', { name, email, password });
 
-      const { requiresVerification, verificationToken, user } = response.data;
+      const { requiresVerification, verificationToken, user, token } = response.data;
 
       // Don't set user or token if verification is required
       if (requiresVerification) {
@@ -208,9 +208,8 @@ export const AuthProvider = ({ children }) => {
         };
       }
 
-      // Only set user and token if no verification is required (shouldn't happen with new flow)
-      const { token } = response.data;
-      if (token) {
+      // If we get a token, user was created successfully without verification
+      if (token && user) {
         // Store token in cookie
         Cookies.set('authToken', token, { expires: 7 }); // 7 days
 
@@ -218,13 +217,22 @@ export const AuthProvider = ({ children }) => {
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
         setUser(user);
+
+        // Cache the user data
+        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('userCacheTimestamp', Date.now().toString());
+
+        // Set loading to false after successful signup
+        setLoading(false);
       }
 
       return { success: true };
     } catch (error) {
+      console.error('Signup error:', error);
       return {
         success: false,
-        error: error.response?.data?.message || 'فشل في إنشاء الحساب'
+        error: error.response?.data?.message || 'فشل في إنشاء الحساب',
+        errorType: error.response?.data?.errorType
       };
     }
   };

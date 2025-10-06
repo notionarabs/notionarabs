@@ -12,7 +12,7 @@ export default function robots() {
           '/_next/',
           '/profile/',
           '/settings/',
-          '/orders/',
+          '/purchases/',
           '/payment/',
           '/auth/',
           '/login',

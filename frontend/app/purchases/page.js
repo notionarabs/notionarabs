@@ -6,12 +6,11 @@ import { useAuth } from '../../contexts/AuthContext';
 import api from '../../lib/api';
 import LoadingIndicator from '../../components/LoadingIndicator';
 
-export default function OrdersPage() {
+export default function PurchasesPage() {
   const { isAuthenticated, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [orders, setOrders] = useState([]);
   const [filter, setFilter] = useState('all'); // not used in simplified UI
-
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -90,7 +89,7 @@ export default function OrdersPage() {
         <div className="container-custom py-12 sm:py-16 md:py-20">
           <div className="text-center">
             <LoadingIndicator />
-            <p className="text-base sm:text-lg text-gray-600 dark:text-dark-text-secondary mt-4">جاري تحميل طلباتك...</p>
+            <p className="text-base sm:text-lg text-gray-600 dark:text-dark-text-secondary mt-4">جاري تحميل مشترياتك...</p>
           </div>
         </div>
       </div>
@@ -102,10 +101,10 @@ export default function OrdersPage() {
       <div className="min-h-screen bg-gray-50 dark:bg-dark-primary">
         <div className="container-custom py-12 sm:py-16 md:py-20 text-center px-4 sm:px-0">
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-dark-text-primary mb-4">
-            يجب تسجيل الدخول لعرض الطلبات
+            يجب تسجيل الدخول لعرض المشتريات
           </h1>
           <p className="text-sm sm:text-base text-gray-600 dark:text-dark-text-secondary">
-            يرجى تسجيل الدخول لعرض تاريخ طلباتك
+            يرجى تسجيل الدخول لعرض تاريخ مشترياتك
           </p>
         </div>
       </div>
@@ -127,7 +126,7 @@ export default function OrdersPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-dark-text-primary mb-2">
-              لا توجد طلبات
+              لا توجد مشتريات
             </h3>
             <p className="text-sm sm:text-base text-gray-500 dark:text-dark-text-terتيary mb-4">
               لم تقم بشراء أي قوالب بعد
@@ -177,3 +176,5 @@ export default function OrdersPage() {
     </div>
   );
 }
+
+

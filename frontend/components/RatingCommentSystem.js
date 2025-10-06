@@ -24,7 +24,11 @@ const RatingCommentSystem = ({
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
   useEffect(() => {
-    if (initialUserRating || initialUserComment) {
+    // Only mark as submitted if there's actual rating data (rating > 0) or comment content
+    const hasActualRating = initialUserRating && initialUserRating.rating > 0;
+    const hasActualComment = initialUserComment && initialUserComment.content;
+
+    if (hasActualRating || hasActualComment) {
       setHasSubmitted(true);
     }
   }, [initialUserRating, initialUserComment]);
@@ -201,8 +205,8 @@ const RatingCommentSystem = ({
 
   return (
     <div className={`space-y-4 ${className}`}>
-      {/* Show submitted message if user has already submitted */}
-      {hasSubmitted && isAuthenticated ? (
+      {/* Show submitted message if user has already submitted (but not if readOnly - creator viewing their own template) */}
+      {hasSubmitted && isAuthenticated && !readOnly ? (
         <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
           <div className="flex items-center gap-2">
             <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -213,6 +217,9 @@ const RatingCommentSystem = ({
             </p>
           </div>
         </div>
+      ) : readOnly ? (
+        // If readOnly (creator viewing their own template), show nothing - parent component handles the message
+        null
       ) : (
         <>
           {/* Rating Section */}

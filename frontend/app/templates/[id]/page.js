@@ -167,6 +167,14 @@ export default function TemplateDetailPage() {
   const [currentUser, setCurrentUser] = useState(null);
   const [hasSeenCreatorWarning, setHasSeenCreatorWarning] = useState(false);
 
+  // Helper: check if the currently authenticated user is the creator of this template
+  const isTemplateCreator = (u, t) => {
+    if (!u || !t) return false;
+    const userId = u._id || u.id;
+    const creatorId = t.creator?._id || t.creator?.id;
+    return Boolean(userId && creatorId && userId === creatorId);
+  };
+
   // Check if user already owns this template
   const checkUserOwnership = async (templateId) => {
     if (!isAuthenticated || !templateId) return;
@@ -434,7 +442,7 @@ export default function TemplateDetailPage() {
 
   // Check if creator has seen the warning message
   useEffect(() => {
-    if (template && user && user._id === template.creator?._id) {
+    if (template && user && isTemplateCreator(user, template)) {
       const warningKey = `creatorWarning_${template._id}_${user._id}`;
       const hasSeen = localStorage.getItem(warningKey);
       setHasSeenCreatorWarning(hasSeen === 'true');
@@ -930,7 +938,7 @@ export default function TemplateDetailPage() {
               )}
 
               {/* Rating and Comments Section */}
-              {(isDownloaded || userHasTemplate) && !hasSubmittedRating && !(user && template && user._id === template.creator?._id) && (
+              {(isDownloaded || userHasTemplate) && !hasSubmittedRating && !isTemplateCreator(user, template) && (
                 <div className="mb-6">
                   <div className="p-6 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
                     <h3 className="text-lg font-semibold text-accent-700 dark:text-dark-text-primary mb-4">
@@ -965,7 +973,7 @@ export default function TemplateDetailPage() {
                         loadRatings(template._id);
                       }}
                       size="large"
-                      readOnly={user && template && user._id === template.creator?._id}
+                      readOnly={isTemplateCreator(user, template)}
                     />
                   </div>
                 </div>

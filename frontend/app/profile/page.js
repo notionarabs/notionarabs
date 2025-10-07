@@ -229,104 +229,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Enhanced Stats Section */}
-        <div className="mb-8 sm:mb-10 md:mb-12 px-4 sm:px-0">
-          <div className="text-center mb-6 sm:mb-8">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 text-primary-600 dark:text-orange-400">
-              {user?.creatorStatus === 'approved' ? 'إحصائياتك' : 'نشاطك'}
-            </h2>
-            <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary">
-              {user?.creatorStatus === 'approved'
-                ? 'تتبع أداءك ونجاحك على المنصة'
-                : 'تتبع نشاطك واستكشافك للقوالب'
-              }
-            </p>
-          </div>
-
-          {user?.creatorStatus === 'approved' ? (
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 max-w-4xl mx-auto">
-              {/* Templates Published */}
-              <div className="card-featured p-4 sm:p-6 text-center group hover:scale-105 transition-all duration-300 hover:shadow-xl w-full sm:w-80">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary-500 to-primary-600 dark:from-orange-500 dark:to-orange-600 rounded-xl sm:rounded-2xl mx-auto mb-3 sm:mb-4 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                  <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                  </svg>
-                </div>
-                <div className="text-2xl sm:text-3xl font-bold text-primary-500 dark:text-orange-500 mb-2 stats-counter">
-                  {templateStats?.total || 0}
-                </div>
-                <div className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary mb-2">القوالب المنشورة</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">إجمالي القوالب المقدمة</div>
-              </div>
-
-              {/* Approved Templates */}
-              <div className="card-featured p-4 sm:p-6 text-center group hover:scale-105 transition-all duration-300 hover:shadow-xl w-full sm:w-80">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-xl sm:rounded-2xl mx-auto mb-3 sm:mb-4 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                  <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="text-2xl sm:text-3xl font-bold text-green-500 mb-2 stats-counter">
-                  {templateStats?.approved || 0}
-                </div>
-                <div className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary mb-2">القوالب المعتمدة</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">جاهزة للبيع</div>
-              </div>
-
-
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              {/* Saved Templates */}
-              <div className="card-featured p-4 sm:p-6 text-center group hover:scale-105 transition-all duration-300 hover:shadow-xl">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary-500 to-primary-600 dark:from-orange-500 dark:to-orange-600 rounded-xl sm:rounded-2xl mx-auto mb-3 sm:mb-4 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                  <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                  </svg>
-                </div>
-                <div className="text-2xl sm:text-3xl font-bold text-primary-500 dark:text-orange-500 mb-2 stats-counter">0</div>
-                <div className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary mb-2">القوالب المحفوظة</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">القوالب التي حفظتها</div>
-              </div>
-
-              {/* Favorites */}
-              <div className="card-featured p-4 sm:p-6 text-center group hover:scale-105 transition-all duration-300 hover:shadow-xl">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-xl sm:rounded-2xl mx-auto mb-3 sm:mb-4 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                  <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                </div>
-                <div className="text-2xl sm:text-3xl font-bold text-red-500 mb-2 stats-counter">0</div>
-                <div className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary mb-2">المفضلة</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">القوالب المفضلة لديك</div>
-              </div>
-
-              {/* Projects */}
-              <div className="card-featured p-4 sm:p-6 text-center group hover:scale-105 transition-all duration-300 hover:shadow-xl">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-xl sm:rounded-2xl mx-auto mb-3 sm:mb-4 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                  <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                  </svg>
-                </div>
-                <div className="text-2xl sm:text-3xl font-bold text-green-500 mb-2 stats-counter">0</div>
-                <div className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary mb-2">المشاريع</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">المشاريع التي تعمل عليها</div>
-              </div>
-
-              {/* Downloads */}
-              <div className="card-featured p-4 sm:p-6 text-center group hover:scale-105 transition-all duration-300 hover:shadow-xl">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl sm:rounded-2xl mx-auto mb-3 sm:mb-4 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                  <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <div className="text-2xl sm:text-3xl font-bold text-blue-500 mb-2 stats-counter">0</div>
-                <div className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary mb-2">التحميلات</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">القوالب التي حملتها</div>
-              </div>
-            </div>
-          )}
-        </div>
+        {/* Enhanced Stats Section removed per request */}
 
         {/* Quick Actions */}
         <div className="card p-4 sm:p-6 md:p-8 shadow-xl border-0 bg-white/80 dark:bg-dark-card-bg/80 backdrop-blur-sm mx-4 sm:mx-0">
@@ -345,67 +248,7 @@ export default function ProfilePage() {
             </p>
           </div>
 
-          {/* Template Status Overview */}
-          {templateStats && (
-            <div className="card p-4 sm:p-6 mb-6 sm:mb-8 bg-gradient-to-br from-primary-50 to-accent-50 dark:from-dark-primary/20 dark:to-dark-secondary/20 border border-primary-200 dark:border-orange-500/20">
-              <div className="text-center mb-4 sm:mb-6">
-                <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-2 text-primary-600 dark:text-orange-400">حالة قوالبي</h3>
-                <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">تتبع حالة قوالبي للمراجعة</p>
-              </div>
-
-              {templateStats.total > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                  <div className="text-center p-4 bg-white dark:bg-dark-card-bg rounded-xl shadow-sm">
-                    <div className="text-2xl font-bold text-primary-500 dark:text-orange-500 mb-1">
-                      {templateStats.total}
-                    </div>
-                    <div className="text-sm text-accent-600 dark:text-dark-text-secondary">إجمالي القوالب</div>
-                  </div>
-                  <div className="text-center p-4 bg-white dark:bg-dark-card-bg rounded-xl shadow-sm">
-                    <div className="text-2xl font-bold text-yellow-500 mb-1">
-                      {templateStats.pending}
-                    </div>
-                    <div className="text-sm text-accent-600 dark:text-dark-text-secondary">قيد المراجعة</div>
-                  </div>
-                  <div className="text-center p-4 bg-white dark:bg-dark-card-bg rounded-xl shadow-sm">
-                    <div className="text-2xl font-bold text-green-500 mb-1">
-                      {templateStats.approved}
-                    </div>
-                    <div className="text-sm text-accent-600 dark:text-dark-text-secondary">موافق عليها</div>
-                  </div>
-                  <div className="text-center p-4 bg-white dark:bg-dark-card-bg rounded-xl shadow-sm">
-                    <div className="text-2xl font-bold text-red-500 mb-1">
-                      {templateStats.rejected}
-                    </div>
-                    <div className="text-sm text-accent-600 dark:text-dark-text-secondary">مرفوضة</div>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <div className="w-20 h-20 bg-gradient-to-br from-primary-100 to-accent-100 dark:from-orange-500/20 dark:to-orange-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <svg className="w-10 h-10 text-primary-500 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-semibold text-primary-600 dark:text-orange-400 mb-3">
-                    لم تقم بإرسال أي قوالب بعد
-                  </h3>
-                  <p className="text-accent-600 dark:text-dark-text-secondary mb-6 max-w-md mx-auto">
-                    ابدأ رحلتك كمبدع وأنشئ قالبك الأول لتبدأ في كسب المال
-                  </p>
-                  <button
-                    onClick={() => router.push('/templates/create')}
-                    className="btn-primary inline-flex items-center gap-2"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                    إنشاء قالب جديد
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+          {/* Template Status Overview removed per request */}
 
           {/* Main Action Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
@@ -440,6 +283,40 @@ export default function ProfilePage() {
                       <p className="body-medium text-accent-600 dark:text-dark-text-secondary">تتبع حالة قوالبي</p>
                     </div>
                     <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-blue-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </div>
+                </Link>
+
+                <Link href="/profile/sales" className="group card-interactive p-6 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3v2m0 14v2m8-10h2M3 11H1m15.364-6.364l1.414 1.414M6.222 17.778l-1.414 1.414M17.778 17.778l1.414-1.414M4.808 4.808L3.394 6.222" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="heading-3 group-hover:text-emerald-500 transition-colors mb-2">سجلات التحميل</h3>
+                      <p className="body-medium text-accent-600 dark:text-dark-text-secondary">مبيعاتك وتنزيلات القوالب</p>
+                    </div>
+                    <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-emerald-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </div>
+                </Link>
+
+                <Link href="/analysis" className="group card-interactive p-6 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-fuchsia-500 to-pink-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 11V3m0 8a4 4 0 100 8 4 4 0 000-8zm4-4h6M3 7h6" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="heading-3 group-hover:text-fuchsia-500 transition-colors mb-2">التحليلات</h3>
+                      <p className="body-medium text-accent-600 dark:text-dark-text-secondary">إحصائيات الأداء والتفاصيل</p>
+                    </div>
+                    <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-fuchsia-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                   </div>

@@ -321,28 +321,7 @@ export default function UserDropdown() {
                   </svg>
                   <span className="text-sm">مشترياتي</span>
                 </Link>
-                {user?.creatorStatus === 'approved' && (
-                  <Link
-                    href="/profile/sales"
-                    onClick={() => setIsOpen(false)}
-                    className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
-                  >
-                    <BarChart3 className="w-5 h-5 text-emerald-500" />
-                    <span className="text-sm">سجلات التحميل</span>
-                  </Link>
-                )}
-                {user?.creatorStatus === 'approved' && (
-                  <Link
-                    href="/analysis"
-                    onClick={() => setIsOpen(false)}
-                    className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
-                  >
-                    <svg className="w-5 h-5 text-fuchsia-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 11V3m0 8a4 4 0 100 8 4 4 0 000-8zm4-4h6M3 7h6" />
-                    </svg>
-                    <span className="text-sm">التحليلات</span>
-                  </Link>
-                )}
+
               </div>
             )}
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import api from '../lib/api';
@@ -89,7 +89,7 @@ export const AuthProvider = ({ children }) => {
   }, [hasCheckedAuth, hasCheckedMaintenance, isMaintenanceMode]); // Added maintenance dependencies
 
 
-  const checkAuthStatus = async () => {
+  const checkAuthStatus = useCallback(async () => {
     try {
       // Skip auth check if maintenance mode is active
       if (isMaintenanceMode) {
@@ -180,7 +180,7 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isMaintenanceMode]);
 
   const login = async (email, password) => {
     try {

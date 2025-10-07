@@ -60,10 +60,11 @@ export const MaintenanceProvider = ({ children }) => {
     // Check maintenance mode immediately on mount
     checkMaintenanceMode();
 
-    // Check for maintenance mode changes every 30 seconds
-    const interval = setInterval(checkMaintenanceMode, 30000);
-
-    return () => clearInterval(interval);
+    // Only set up interval in production
+    if (process.env.NODE_ENV === 'production') {
+      const interval = setInterval(checkMaintenanceMode, 60000);
+      return () => clearInterval(interval);
+    }
   }, []);
 
   const value = {

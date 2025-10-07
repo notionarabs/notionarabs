@@ -25,10 +25,13 @@ export default function AdminTemplatesPage() {
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [bulkAction, setBulkAction] = useState('');
 
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading: authLoading, ensureTokenInHeaders } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
+    // Wait for auth state to resolve to avoid redirecting during reload
+    if (authLoading) return;
+
     if (!isAuthenticated) {
       router.push('/login');
       return;
@@ -41,10 +44,11 @@ export default function AdminTemplatesPage() {
 
     fetchTemplates();
     fetchStats();
-  }, [isAuthenticated, user, router, selectedStatus, currentPage]);
+  }, [authLoading, isAuthenticated, user, router, selectedStatus, currentPage]);
 
   const fetchTemplates = async () => {
     try {
+      ensureTokenInHeaders && ensureTokenInHeaders();
       const response = await api.get(`/admin/templates?status=${selectedStatus}&page=${currentPage}`);
       setTemplates(response.data.templates);
       setTotalPages(response.data.pagination.pages);
@@ -60,6 +64,7 @@ export default function AdminTemplatesPage() {
 
   const fetchStats = async () => {
     try {
+      ensureTokenInHeaders && ensureTokenInHeaders();
       const response = await api.get('/admin/template-stats');
       setStats(response.data.stats);
     } catch (error) {

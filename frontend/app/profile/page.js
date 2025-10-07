@@ -183,10 +183,7 @@ export default function ProfilePage() {
                   </span>
                 </div>
               )}
-              {/* Online Status Indicator */}
-              <div className="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 w-6 h-6 sm:w-8 sm:h-8 bg-green-500 rounded-full border-2 sm:border-4 border-white dark:border-dark-secondary flex items-center justify-center">
-                <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-full"></div>
-              </div>
+              {/* Online Status Indicator removed */}
             </div>
 
             {/* User Info Section */}
@@ -227,40 +224,7 @@ export default function ProfilePage() {
                 )}
               </div>
 
-              {/* Quick Stats Preview */}
-              <div className="grid grid-cols-3 gap-2 sm:gap-4 max-w-sm sm:max-w-md mx-auto md:mx-0">
-                {user?.creatorStatus === 'approved' ? (
-                  <>
-                    <div className="text-center">
-                      <div className="text-lg sm:text-2xl font-bold text-primary-500 dark:text-orange-500">{templateStats?.total || 0}</div>
-                      <div className="text-xs text-accent-600 dark:text-dark-text-secondary">القوالب</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg sm:text-2xl font-bold text-green-500">{templateStats?.approved || 0}</div>
-                      <div className="text-xs text-accent-600 dark:text-dark-text-secondary">المعتمدة</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg sm:text-2xl font-bold text-yellow-500">{templateStats?.pending || 0}</div>
-                      <div className="text-xs text-accent-600 dark:text-dark-text-secondary">قيد المراجعة</div>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-center">
-                      <div className="text-lg sm:text-2xl font-bold text-primary-500 dark:text-orange-500">0</div>
-                      <div className="text-xs text-accent-600 dark:text-dark-text-secondary">القوالب المحفوظة</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg sm:text-2xl font-bold text-green-500">0</div>
-                      <div className="text-xs text-accent-600 dark:text-dark-text-secondary">المفضلة</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg sm:text-2xl font-bold text-yellow-500">0</div>
-                      <div className="text-xs text-accent-600 dark:text-dark-text-secondary">المشاريع</div>
-                    </div>
-                  </>
-                )}
-              </div>
+              {/* Quick Stats Preview removed per request */}
             </div>
           </div>
         </div>

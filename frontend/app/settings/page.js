@@ -865,7 +865,7 @@ export default function SettingsPage() {
                         onChange={(e) => handleInputChange('username', e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
                         disabled={!isEditingUsername}
                         className={`w-full pl-4 pr-8 py-3 border rounded-xl focus:ring-2 focus:border-primary-500 dark:focus:border-orange-500 bg-white dark:bg-dark-primary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-tertiary transition-colors duration-200 ${usernameValidation.isValid
-                          ? 'border-gray-300 dark:border-dark-card-border focus:ring-primary-500 dark:focus:ring-orange-500'
+                          ? 'border-gray-300 dark:border-dark-card-border focus:ring-primary-500 dark:focus:ring-zorange-500'
                           : 'border-red-500 dark:border-red-400 focus:ring-red-500 dark:focus:ring-red-400'
                           } ${!isEditingUsername ? 'bg-gray-50 dark:bg-dark-tertiary cursor-not-allowed' : ''}`}
                         placeholder="username"

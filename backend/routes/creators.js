@@ -2,6 +2,7 @@ const express = require('express');
 const User = require('../models/User');
 const Template = require('../models/Template');
 const DownloadLog = require('../models/DownloadLog');
+const jwt = require('jsonwebtoken');
 const auth = require('../middleware/auth');
 const Fuse = require('fuse.js');
 
@@ -592,6 +593,121 @@ router.get('/me/downloads', auth, async (req, res) => {
   } catch (error) {
     console.error('Creator downloads list error:', error);
     res.status(500).json({ success: false, message: 'خطأ في الخادم' });
+  }
+});
+
+// @route   GET /api/creators/me/downloads/export
+// @desc    Export creator download logs as CSV
+// @access  Private (Creator)
+router.get('/me/downloads/export', auth, async (req, res) => {
+  try {
+    if (req.user.creatorStatus !== 'approved') {
+      return res.status(403).json({ success: false, message: 'يجب أن تكون مبدعاً معتمداً' });
+    }
+
+    const templateId = req.query.templateId;
+    const filter = { creator: req.user._id };
+    if (templateId) {
+      filter.template = templateId;
+    }
+
+    const rows = await DownloadLog.find(filter)
+      .populate('user', 'name email username')
+      .populate('template', 'title')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const header = 'اسم المستخدم,البريد الإلكتروني,القالب,معرّف القالب,التاريخ\n';
+    const csvRows = rows.map((r) => {
+      const name = (r.user?.name || '').replace(/"/g, '""');
+      const email = (r.user?.email || r.userEmailSnapshot || '').replace(/"/g, '""');
+      const templateTitle = (r.template?.title || r.templateTitleSnapshot || '').replace(/"/g, '""');
+      const templateIdStr = (r.template?._id?.toString?.() || r.template?.toString?.() || '').replace(/"/g, '""');
+      const date = new Date(r.createdAt).toISOString();
+      return `"${name}","${email}","${templateTitle}","${templateIdStr}","${date}"`;
+    }).join('\n');
+
+    const csv = header + csvRows;
+
+    const creatorUser = await User.findById(req.user._id).select('username email');
+    const baseName = creatorUser?.username || (creatorUser?.email ? creatorUser.email.split('@')[0] : 'creator');
+    const filename = `${baseName}-downloads-${new Date().toISOString().split('T')[0]}.csv`;
+    if (!res.headersSent) {
+      res.set('Content-Type', 'text/csv; charset=utf-8');
+      res.set('Content-Disposition', `attachment; filename="${filename}"`);
+      return res.status(200).send(`\uFEFF${csv}`);
+    }
+  } catch (error) {
+    console.error('Creator downloads export error:', error);
+    if (!res.headersSent) {
+      return res.status(500).json({ success: false, message: 'خطأ في تصدير البيانات' });
+    }
+  }
+});
+
+// @route   GET /api/creators/me/downloads/export-public?token=JWT
+// @desc    Export creator download logs as CSV using token in query (for direct browser download)
+// @access  Public (valid token required)
+router.get('/me/downloads/export-public', async (req, res) => {
+  try {
+    const { token } = req.query;
+    if (!token) {
+      return res.status(401).json({ success: false, message: 'مصادقة مطلوبة' });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    } catch (e) {
+      return res.status(401).json({ success: false, message: 'رمز غير صالح' });
+    }
+
+    // Support tokens that use different claim names for the user id
+    const requesterId = decoded.id || decoded.userId || decoded._id;
+    if (!requesterId) {
+      return res.status(401).json({ success: false, message: 'رمز غير صالح' });
+    }
+
+    // Mimic creator-only access
+    const user = await User.findById(requesterId).select('creatorStatus');
+    if (!user || user.creatorStatus !== 'approved') {
+      return res.status(403).json({ success: false, message: 'يجب أن تكون مبدعاً معتمداً' });
+    }
+
+    const templateId = req.query.templateId;
+    const filter = { creator: requesterId };
+    if (templateId) filter.template = templateId;
+
+    const rows = await DownloadLog.find(filter)
+      .populate('user', 'name email username')
+      .populate('template', 'title')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const header = 'اسم المستخدم,البريد الإلكتروني,القالب,معرّف القالب,التاريخ\n';
+    const csvRows = rows.map((r) => {
+      const name = (r.user?.name || '').replace(/"/g, '""');
+      const email = (r.user?.email || r.userEmailSnapshot || '').replace(/"/g, '""');
+      const templateTitle = (r.template?.title || r.templateTitleSnapshot || '').replace(/"/g, '""');
+      const templateIdStr = (r.template?._id?.toString?.() || r.template?.toString?.() || '').replace(/"/g, '""');
+      const date = new Date(r.createdAt).toISOString();
+      return `"${name}","${email}","${templateTitle}","${templateIdStr}","${date}"`;
+    }).join('\n');
+
+    const csv = header + csvRows;
+    const creatorUser = await User.findById(requesterId).select('username email');
+    const baseName = creatorUser?.username || (creatorUser?.email ? creatorUser.email.split('@')[0] : 'creator');
+    const filename = `${baseName}-downloads-${new Date().toISOString().split('T')[0]}.csv`;
+    if (!res.headersSent) {
+      res.set('Content-Type', 'text/csv; charset=utf-8');
+      res.set('Content-Disposition', `attachment; filename="${filename}"`);
+      return res.status(200).send(`\uFEFF${csv}`);
+    }
+  } catch (error) {
+    console.error('Creator downloads export-public error:', error);
+    if (!res.headersSent) {
+      return res.status(500).json({ success: false, message: 'خطأ في تصدير البيانات' });
+    }
   }
 });
 

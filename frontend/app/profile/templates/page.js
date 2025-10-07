@@ -15,12 +15,13 @@ export default function CreatorTemplatesPage() {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState('all');
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { showSuccess, showError } = useToast();
   const [confirmingDeleteId, setConfirmingDeleteId] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
+    if (authLoading) return;
     if (!isAuthenticated) {
       router.push('/login');
       return;
@@ -32,7 +33,7 @@ export default function CreatorTemplatesPage() {
     }
 
     fetchTemplates();
-  }, [isAuthenticated, user, router, selectedStatus]);
+  }, [authLoading, isAuthenticated, user, router, selectedStatus]);
 
   const fetchTemplates = async () => {
     try {
@@ -106,7 +107,7 @@ export default function CreatorTemplatesPage() {
     ? templates
     : templates.filter(template => template.status === selectedStatus);
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
         <div className="container-custom py-12 sm:py-16 md:py-20">
@@ -145,9 +146,10 @@ export default function CreatorTemplatesPage() {
             </div>
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <ExportButton
-                endpoint="/templates/export"
-                filename={`my-templates-data-${new Date().toISOString().split('T')[0]}.csv`}
+                endpoint={`/templates/export-public?token=${typeof window !== 'undefined' ? (require('js-cookie').get('authToken') || '') : ''}`}
+                filename={`${(user?.username || (user?.email ? user.email.split('@')[0] : 'templates'))}-templates-${new Date().toISOString().split('T')[0]}.csv`}
                 label="تصدير قوالبى"
+                direct={true}
               />
               <button
                 onClick={() => router.push('/templates/create')}

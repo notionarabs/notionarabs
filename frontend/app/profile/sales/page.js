@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../contexts/AuthContext';
 import api from '../../../lib/api';
 import LoadingIndicator from '../../../components/LoadingIndicator';
+import ExportButton from '../../../components/ExportButton';
+import Cookies from 'js-cookie';
 
 export default function CreatorSalesPage() {
   const { isAuthenticated, user, loading } = useAuth();
@@ -60,6 +62,15 @@ export default function CreatorSalesPage() {
     return Array.from(map.values());
   }, [rows]);
 
+  const exportEndpoint = useMemo(() => {
+    const params = new URLSearchParams();
+    if (templateFilter && templateFilter !== 'all') params.set('templateId', templateFilter);
+    const token = Cookies.get('authToken');
+    if (token) params.set('token', token);
+    const q = params.toString();
+    return `/creators/me/downloads/export-public${q ? `?${q}` : ''}`;
+  }, [templateFilter]);
+
   const handlePageChange = (newPage) => {
     if (newPage < 1 || newPage > pagination.pages) return;
     fetchDownloads(newPage, templateFilter);
@@ -84,16 +95,34 @@ export default function CreatorSalesPage() {
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-dark-text-primary mb-2">سجلات تحميل القوالب</h1>
             <p className="text-sm sm:text-base text-gray-600 dark:text-dark-text-secondary">تتبع المستخدمين الذين قاموا بتحميل قوالبك</p>
           </div>
-          <div className="flex items-center gap-3">
-            <button onClick={() => router.back()} className="btn-outline whitespace-nowrap px-3 py-2 text-sm">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button onClick={() => router.back()} className="btn-outline whitespace-nowrap px-3 py-2 h-9 text-sm">
               العودة
             </button>
-            <select value={templateFilter} onChange={(e) => setTemplateFilter(e.target.value)} className="form-input">
-              <option value="all">كل القوالب</option>
-              {uniqueTemplates.map((t) => (
-                <option key={t.id} value={t.id}>{t.title}</option>
-              ))}
-            </select>
+            <ExportButton
+              endpoint={exportEndpoint}
+              filename={`${(user?.username || 'creator')}-downloads-${new Date().toISOString().split('T')[0]}.csv`}
+              label="تصدير CSV"
+              className="whitespace-nowrap px-3 py-2 h-9 text-sm"
+              direct={true}
+            />
+            <div className="relative">
+              <select
+                value={templateFilter}
+                onChange={(e) => setTemplateFilter(e.target.value)}
+                className="form-input appearance-none text-sm h-9 pr-8 pl-8 py-1 w-auto min-w-[160px]"
+              >
+                <option value="all">كل القوالب</option>
+                {uniqueTemplates.map((t) => (
+                  <option key={t.id} value={t.id}>{t.title}</option>
+                ))}
+              </select>
+              <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
+                <svg className="w-4 h-4 text-accent-400 dark:text-dark-text-quaternary" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.17l3.71-2.94a.75.75 0 01.92 1.18l-4.25 3.37a.75.75 0 01-.92 0L5.21 8.41a.75.75 0 01.02-1.2z" clipRule="evenodd" />
+                </svg>
+              </span>
+            </div>
           </div>
         </div>
 

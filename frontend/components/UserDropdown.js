@@ -36,7 +36,7 @@ export default function UserDropdown() {
       {/* Profile Picture Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-full transition-all duration-200 hover:scale-105 relative ${(user?.creatorStatus === 'approved' || user?.creatorStatus === 'pending') ? 'p-0.5' : ''
+        className={`flex items-center justify-center h-11 w-11 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-full transition-all duration-200 hover:scale-105 relative ${(user?.creatorStatus === 'approved' || user?.creatorStatus === 'pending') ? 'p-0.5' : ''
           }`}
         aria-label="فتح قائمة المستخدم"
       >

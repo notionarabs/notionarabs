@@ -576,9 +576,11 @@ router.get('/export', auth, async (req, res) => {
 
     const csvContent = csvHeader + csvRows;
 
-    // Set headers for CSV download
+    // Set headers for CSV download (use username/email prefix for filename)
+    const authorDoc = await User.findById(req.user._id).select('username email');
+    const baseName = authorDoc?.username || (authorDoc?.email ? authorDoc.email.split('@')[0] : 'blogs');
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-    res.setHeader('Content-Disposition', `attachment; filename="blog-data-${new Date().toISOString().split('T')[0]}.csv"`);
+    res.setHeader('Content-Disposition', `attachment; filename="${baseName}-blogs-${new Date().toISOString().split('T')[0]}.csv"`);
 
     // Add BOM for proper UTF-8 encoding in Excel
     res.write('\uFEFF');
@@ -590,6 +592,67 @@ router.get('/export', auth, async (req, res) => {
       success: false,
       message: 'خطأ في تصدير البيانات'
     });
+  }
+});
+
+// @route   GET /api/blogs/export-public
+// @desc    Export current user's blog data as CSV using token in query (for direct browser download)
+// @access  Public (valid token required)
+router.get('/export-public', async (req, res) => {
+  try {
+    const jwt = require('jsonwebtoken');
+    const { token } = req.query;
+    if (!token) {
+      return res.status(401).json({ success: false, message: 'مصادقة مطلوبة' });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    } catch (e) {
+      return res.status(401).json({ success: false, message: 'رمز غير صالح' });
+    }
+
+    const requesterId = decoded.id || decoded.userId || decoded._id;
+    if (!requesterId) {
+      return res.status(401).json({ success: false, message: 'رمز غير صالح' });
+    }
+
+    // Build query: only export blogs of the token's user
+    const query = { author: requesterId };
+
+    const blogs = await Blog.find(query)
+      .populate('author', 'name email')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const csvHeader = 'العنوان,المؤلف,البريد الإلكتروني,الفئة,الحالة,المشاهدات,الإعجابات,تاريخ النشر,تاريخ الإنشاء\n';
+    const csvRows = blogs.map(blog => {
+      const title = `"${(blog.title || '').replace(/"/g, '""')}"`;
+      const author = `"${(blog.author?.name || '').replace(/"/g, '""')}"`;
+      const email = `"${(blog.author?.email || '').replace(/"/g, '""')}"`;
+      const category = `"${(blog.category || '').replace(/"/g, '""')}"`;
+      const status = `"${(blog.status || '').replace(/"/g, '""')}"`;
+      const views = blog.views || 0;
+      const likes = blog.likes || 0;
+      const publishedAt = blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString('en-US') : '';
+      const createdAt = blog.createdAt ? new Date(blog.createdAt).toLocaleDateString('en-US') : '';
+      return `${title},${author},${email},${category},${status},${views},${likes},${publishedAt},${createdAt}`;
+    }).join('\n');
+
+    const csvContent = csvHeader + csvRows;
+
+    const authorDoc = await User.findById(requesterId).select('username email');
+    const baseName = authorDoc?.username || (authorDoc?.email ? authorDoc.email.split('@')[0] : 'blogs');
+    const filename = `${baseName}-blogs-${new Date().toISOString().split('T')[0]}.csv`;
+    res.set('Content-Type', 'text/csv; charset=utf-8');
+    res.set('Content-Disposition', `attachment; filename="${filename}"`);
+    return res.status(200).send(`\uFEFF${csvContent}`);
+  } catch (error) {
+    console.error('Export blogs public error:', error);
+    if (!res.headersSent) {
+      return res.status(500).json({ success: false, message: 'خطأ في تصدير البيانات' });
+    }
   }
 });
 

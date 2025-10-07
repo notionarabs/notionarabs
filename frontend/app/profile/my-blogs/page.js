@@ -147,9 +147,10 @@ export default function MyBlogsPage() {
             </div>
             <div className="flex gap-3">
               <ExportButton
-                endpoint="/blogs/export"
-                filename={`my-blogs-data-${new Date().toISOString().split('T')[0]}.csv`}
+                endpoint={`/blogs/export-public?token=${typeof window !== 'undefined' ? (require('js-cookie').get('authToken') || '') : ''}`}
+                filename={`${(user?.username || (user?.email ? user.email.split('@')[0] : 'blogs'))}-blogs-${new Date().toISOString().split('T')[0]}.csv`}
                 label="تصدير مقالاتي"
+                direct={true}
               />
               <Link
                 href="/blog/create"

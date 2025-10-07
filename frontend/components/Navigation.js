@@ -45,18 +45,20 @@ export default function Navigation({ activePage = '' }) {
         {/* Auth Buttons / User Menu */}
         <div className="hidden md:flex items-center gap-2 lg:gap-3 xl:gap-4">
           {/* Auth section */}
-          <div className="flex items-center gap-4 justify-end">
+          <div className="flex items-center gap-3 justify-end">
             {loading ? (
               <>
                 {/* Loading skeleton for user info */}
-                <div className="w-20 h-6 bg-white/20 rounded animate-pulse"></div>
-                <div className="w-10 h-10 rounded-full bg-white/20 animate-pulse"></div>
+                <div className="hidden lg:block w-24 h-5 bg-white/20 rounded-md animate-pulse"></div>
+                <div className="w-11 h-11 rounded-full bg-white/20 animate-pulse"></div>
               </>
             ) : isAuthenticated ? (
               <>
                 {/* Notifications and User Dropdown */}
-                <UserNotifications />
-                <UserDropdown />
+                <div className="flex items-center gap-2">
+                  <UserNotifications />
+                  <UserDropdown />
+                </div>
               </>
             ) : (
               <div className="flex items-center gap-3">

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useToast } from '../contexts/ToastContext';
 import api from '../lib/api';
+import Cookies from 'js-cookie';
 
 const ExportButton = ({
   endpoint,
@@ -10,7 +11,8 @@ const ExportButton = ({
   label = "تصدير البيانات",
   className = "",
   icon = true,
-  disabled = false
+  disabled = false,
+  direct = false
 }) => {
   const [isExporting, setIsExporting] = useState(false);
   const { showSuccess, showError } = useToast();
@@ -19,11 +21,33 @@ const ExportButton = ({
     try {
       setIsExporting(true);
 
+      // Direct download (no axios) - best for CSV exports and avoids CORS/auth header issues
+      if (direct) {
+        const base = api.defaults.baseURL?.replace(/\/$/, '') || '';
+        const href = `${base}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+
+        const a = document.createElement('a');
+        a.href = href;
+        a.download = filename || `export-${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showSuccess('تم بدء تنزيل الملف');
+        return;
+      }
+
+      // Ensure auth header is present (in case the page loaded before context set headers)
+      const token = Cookies.get('authToken');
+      if (token) {
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await api.get(endpoint, {
         responseType: 'blob',
         headers: {
           'Accept': 'text/csv'
-        }
+        },
+        timeout: 20000
       });
 
       // Create blob and download
@@ -42,7 +66,21 @@ const ExportButton = ({
       showSuccess('تم تصدير البيانات بنجاح');
     } catch (error) {
       console.error('Export error:', error);
-      showError('فشل في تصدير البيانات');
+      // Fallback to direct download if axios fails (handles CORS/server nuances)
+      try {
+        const base = api.defaults.baseURL?.replace(/\/$/, '') || '';
+        const href = `${base}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+        const a = document.createElement('a');
+        a.href = href;
+        a.download = filename || `export-${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showSuccess('تم بدء تنزيل الملف');
+      } catch (_) {
+        const msg = error?.response?.status === 403 ? 'غير مصرح لك بتصدير هذه البيانات' : 'فشل في تصدير البيانات';
+        showError(msg);
+      }
     } finally {
       setIsExporting(false);
     }

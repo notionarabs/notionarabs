@@ -202,18 +202,18 @@ export default function AdminTemplatesPage() {
     <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
       {/* Header */}
       <div className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300">
-        <div className="container-custom py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="heading-1 mb-2">إدارة القوالب</h1>
-              <p className="body-large text-accent-600 dark:text-dark-text-secondary">
+        <div className="container-custom py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
+            <div className="flex-1">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 text-accent-500 dark:text-dark-text-primary">إدارة القوالب</h1>
+              <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary">
                 مراجعة وموافقة على القوالب المقدمة من المبدعين
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               <button
                 onClick={() => router.push('/admin')}
-                className="btn-outline"
+                className="w-full sm:w-auto bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border text-gray-700 dark:text-dark-text-primary hover:bg-gray-50 dark:hover:bg-dark-tertiary font-medium py-2 sm:py-3 px-4 sm:px-6 rounded-lg sm:rounded-xl transition-colors duration-200 text-sm sm:text-base"
               >
                 العودة للوحة الإدارة
               </button>
@@ -222,34 +222,34 @@ export default function AdminTemplatesPage() {
         </div>
       </div>
 
-      <div className="container-custom py-8">
+      <div className="container-custom py-4 sm:py-6 md:py-8">
         {/* Stats Cards */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="card p-6">
-              <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">إجمالي القوالب</h3>
-              <p className="text-3xl font-bold text-primary-500 dark:text-orange-500">{stats.totalTemplates}</p>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
+            <div className="bg-white dark:bg-dark-secondary rounded-lg sm:rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-4 sm:p-6">
+              <h3 className="text-sm sm:text-base md:text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">إجمالي القوالب</h3>
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-primary-500 dark:text-orange-500">{stats.totalTemplates}</p>
             </div>
-            <div className="card p-6">
-              <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">قيد المراجعة</h3>
-              <p className="text-3xl font-bold text-yellow-500">{stats.pendingTemplates}</p>
+            <div className="bg-white dark:bg-dark-secondary rounded-lg sm:rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-4 sm:p-6">
+              <h3 className="text-sm sm:text-base md:text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">قيد المراجعة</h3>
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-yellow-500">{stats.pendingTemplates}</p>
             </div>
-            <div className="card p-6">
-              <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">موافق عليها</h3>
-              <p className="text-3xl font-bold text-green-500">{stats.approvedTemplates}</p>
+            <div className="bg-white dark:bg-dark-secondary rounded-lg sm:rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-4 sm:p-6">
+              <h3 className="text-sm sm:text-base md:text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">موافق عليها</h3>
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-green-500">{stats.approvedTemplates}</p>
             </div>
-            <div className="card p-6">
-              <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">مرفوضة</h3>
-              <p className="text-3xl font-bold text-red-500">{stats.rejectedTemplates}</p>
+            <div className="bg-white dark:bg-dark-secondary rounded-lg sm:rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-4 sm:p-6">
+              <h3 className="text-sm sm:text-base md:text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">مرفوضة</h3>
+              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-red-500">{stats.rejectedTemplates}</p>
             </div>
           </div>
         )}
 
         {/* Filters */}
-        <div className="card p-6 mb-8">
-          <div className="flex flex-wrap gap-4 items-center">
-            <div>
-              <label className="block text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
+        <div className="bg-white dark:bg-dark-secondary rounded-lg sm:rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-4 sm:p-6 mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4 items-start sm:items-center">
+            <div className="w-full sm:w-auto">
+              <label className="block text-xs sm:text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
                 تصفية حسب الحالة
               </label>
               <select
@@ -258,7 +258,7 @@ export default function AdminTemplatesPage() {
                   setSelectedStatus(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="form-input"
+                className="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-200 dark:border-dark-input-border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200"
               >
                 <option value="all">جميع الحالات</option>
                 <option value="pending">قيد المراجعة</option>
@@ -271,22 +271,22 @@ export default function AdminTemplatesPage() {
 
         {/* Bulk Actions */}
         {selectedTemplates.length > 0 && (
-          <div className="card p-4 mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg sm:rounded-xl p-4 mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                <span className="text-xs sm:text-sm font-medium text-blue-800 dark:text-blue-200">
                   تم تحديد {selectedTemplates.length} قالب
                 </span>
                 <button
                   onClick={() => setShowBulkActions(!showBulkActions)}
-                  className="btn-outline text-sm px-3 py-1"
+                  className="w-full sm:w-auto bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border text-gray-700 dark:text-dark-text-primary hover:bg-gray-50 dark:hover:bg-dark-tertiary font-medium py-2 sm:py-3 px-4 sm:px-6 rounded-lg sm:rounded-xl transition-colors duration-200 text-xs sm:text-sm"
                 >
                   إجراءات جماعية
                 </button>
               </div>
               <button
                 onClick={() => setSelectedTemplates([])}
-                className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 hover:underline text-center sm:text-right"
               >
                 إلغاء التحديد
               </button>
@@ -294,11 +294,11 @@ export default function AdminTemplatesPage() {
 
             {showBulkActions && (
               <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-800">
-                <div className="flex items-center gap-4">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                   <select
                     value={bulkAction}
                     onChange={(e) => setBulkAction(e.target.value)}
-                    className="form-select"
+                    className="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-200 dark:border-dark-input-border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200"
                   >
                     <option value="">اختر الإجراء</option>
                     <option value="approve">موافقة</option>
@@ -309,12 +309,12 @@ export default function AdminTemplatesPage() {
                     onChange={(e) => setAdminNotes(e.target.value)}
                     placeholder="ملاحظات الإدارة (اختياري)"
                     rows={2}
-                    className="form-input flex-1"
+                    className="w-full sm:flex-1 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-200 dark:border-dark-input-border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 resize-none"
                   />
                   <button
                     onClick={handleBulkAction}
                     disabled={!bulkAction || actionLoading}
-                    className="btn-primary"
+                    className="w-full sm:w-auto bg-primary-500 hover:bg-primary-600 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg sm:rounded-xl transition-colors duration-200 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {actionLoading ? 'جاري المعالجة...' : 'تطبيق'}
                   </button>
@@ -325,12 +325,13 @@ export default function AdminTemplatesPage() {
         )}
 
         {/* Templates Table */}
-        <div className="card overflow-hidden">
-          <div className="overflow-x-auto">
+        <div className="bg-white dark:bg-dark-secondary rounded-lg sm:rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border overflow-hidden">
+          {/* Desktop Table View */}
+          <div className="hidden lg:block overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 dark:bg-dark-tertiary">
                 <tr>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">
+                  <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">
                     <input
                       type="checkbox"
                       checked={selectedTemplates.length === templates.length && templates.length > 0}
@@ -338,19 +339,19 @@ export default function AdminTemplatesPage() {
                       className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                     />
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">القالب</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">المبدع</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">الفئة</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">السعر</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">الحالة</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">التاريخ</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">الإجراءات</th>
+                  <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">القالب</th>
+                  <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">المبدع</th>
+                  <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">الفئة</th>
+                  <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">السعر</th>
+                  <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">الحالة</th>
+                  <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">التاريخ</th>
+                  <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">الإجراءات</th>
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-dark-secondary divide-y divide-gray-200 dark:divide-dark-card-border">
                 {templates.map((template) => (
                   <tr key={template._id} className="hover:bg-gray-50 dark:hover:bg-dark-tertiary">
-                    <td className="px-6 py-4">
+                    <td className="px-4 sm:px-6 py-4">
                       <input
                         type="checkbox"
                         checked={selectedTemplates.includes(template._id)}
@@ -358,19 +359,19 @@ export default function AdminTemplatesPage() {
                         className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                       />
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-4">
+                    <td className="px-4 sm:px-6 py-4">
+                      <div className="flex items-center gap-3 sm:gap-4">
                         {/* Preview Image */}
                         <div className="flex-shrink-0">
                           {template.previewImage ? (
                             <img
                               src={template.previewImage}
                               alt={`معاينة ${template.title}`}
-                              className="w-16 h-12 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                              className="w-12 h-10 sm:w-16 sm:h-12 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
                             />
                           ) : (
-                            <div className="w-16 h-12 bg-gray-100 dark:bg-dark-tertiary rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center">
-                              <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="w-12 h-10 sm:w-16 sm:h-12 bg-gray-100 dark:bg-dark-tertiary rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center">
+                              <svg className="w-4 h-4 sm:w-6 sm:h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                               </svg>
                             </div>
@@ -379,10 +380,10 @@ export default function AdminTemplatesPage() {
 
                         {/* Template Info */}
                         <div className="flex-1">
-                          <div className="text-sm font-medium text-accent-500 dark:text-dark-text-primary">
+                          <div className="text-xs sm:text-sm font-medium text-accent-500 dark:text-dark-text-primary">
                             {template.title}
                           </div>
-                          <div className="text-sm text-accent-600 dark:text-dark-text-secondary truncate max-w-xs">
+                          <div className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary truncate max-w-xs">
                             {template.description}
                           </div>
                           <div className="flex items-center gap-2 mt-1">
@@ -395,9 +396,9 @@ export default function AdminTemplatesPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center overflow-hidden">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center overflow-hidden">
                           {template.creator?.profilePicture ? (
                             <Image
                               src={template.creator.profilePicture}
@@ -408,41 +409,41 @@ export default function AdminTemplatesPage() {
                               quality={100}
                             />
                           ) : (
-                            <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
+                            <span className="text-primary-600 dark:text-primary-400 font-medium text-xs sm:text-sm">
                               {template.creator?.name?.charAt(0)?.toUpperCase() || 'م'}
                             </span>
                           )}
                         </div>
-                        <div className="mr-3">
-                          <div className="text-sm font-medium text-accent-500 dark:text-dark-text-primary">
+                        <div className="mr-2 sm:mr-3">
+                          <div className="text-xs sm:text-sm font-medium text-accent-500 dark:text-dark-text-primary">
                             {template.creator?.name}
                           </div>
-                          <div className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                          <div className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">
                             {template.creator?.email}
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                       <span className="px-2 py-1 text-xs bg-gray-100 dark:bg-dark-tertiary text-gray-700 dark:text-dark-text-secondary rounded-full">
                         {template.category}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                       مجاني
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                       {getStatusBadge(template.status)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-accent-600 dark:text-dark-text-secondary">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">
                       {formatDate(template.createdAt)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex flex-col gap-2">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                      <div className="flex flex-col gap-1 sm:gap-2">
                         {/* View Details button (always available) */}
                         <button
                           onClick={() => handleViewDetails(template)}
-                          className="btn-outline text-sm px-3 py-1 text-blue-600 border-blue-600 hover:bg-blue-50"
+                          className="bg-white dark:bg-dark-secondary border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 font-medium py-1 sm:py-2 px-2 sm:px-3 rounded text-xs sm:text-sm transition-colors duration-200"
                         >
                           عرض التفاصيل
                         </button>
@@ -452,7 +453,7 @@ export default function AdminTemplatesPage() {
                           href={template.notionLink}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="btn-outline text-sm px-3 py-1 text-green-600 border-green-600 hover:bg-green-50 text-center"
+                          className="bg-white dark:bg-dark-secondary border border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 font-medium py-1 sm:py-2 px-2 sm:px-3 rounded text-xs sm:text-sm transition-colors duration-200 text-center"
                         >
                           رابط نوشن
                         </a>
@@ -462,13 +463,13 @@ export default function AdminTemplatesPage() {
                           <>
                             <button
                               onClick={() => handleStatusChange(template, 'approved')}
-                              className="btn-primary text-sm px-3 py-1"
+                              className="bg-primary-500 hover:bg-primary-600 text-white font-semibold py-1 sm:py-2 px-2 sm:px-3 rounded text-xs sm:text-sm transition-colors duration-200"
                             >
                               موافقة
                             </button>
                             <button
                               onClick={() => handleStatusChange(template, 'rejected')}
-                              className="btn-outline text-sm px-3 py-1 text-red-600 border-red-600 hover:bg-red-50"
+                              className="bg-white dark:bg-dark-secondary border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 font-medium py-1 sm:py-2 px-2 sm:px-3 rounded text-xs sm:text-sm transition-colors duration-200"
                             >
                               رفض
                             </button>
@@ -477,7 +478,7 @@ export default function AdminTemplatesPage() {
                         {template.status === 'rejected' && (
                           <button
                             onClick={() => handleStatusChange(template, 'approved')}
-                            className="btn-primary text-sm px-3 py-1"
+                            className="bg-primary-500 hover:bg-primary-600 text-white font-semibold py-1 sm:py-2 px-2 sm:px-3 rounded text-xs sm:text-sm transition-colors duration-200"
                           >
                             موافقة
                           </button>
@@ -485,7 +486,7 @@ export default function AdminTemplatesPage() {
                         {template.status === 'approved' && (
                           <button
                             onClick={() => handleStatusChange(template, 'rejected')}
-                            className="btn-outline text-sm px-3 py-1 text-red-600 border-red-600 hover:bg-red-50"
+                            className="bg-white dark:bg-dark-secondary border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 font-medium py-1 sm:py-2 px-2 sm:px-3 rounded text-xs sm:text-sm transition-colors duration-200"
                           >
                             رفض
                           </button>
@@ -498,25 +499,146 @@ export default function AdminTemplatesPage() {
             </table>
           </div>
 
+          {/* Mobile Card View */}
+          <div className="lg:hidden">
+            {templates.map((template) => (
+              <div key={template._id} className="border-b border-gray-200 dark:border-dark-card-border p-4">
+                <div className="flex items-start gap-3 mb-3">
+                  <input
+                    type="checkbox"
+                    checked={selectedTemplates.includes(template._id)}
+                    onChange={() => handleSelectTemplate(template._id)}
+                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500 mt-1"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      {/* Preview Image */}
+                      <div className="flex-shrink-0">
+                        {template.previewImage ? (
+                          <img
+                            src={template.previewImage}
+                            alt={`معاينة ${template.title}`}
+                            className="w-12 h-10 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                          />
+                        ) : (
+                          <div className="w-12 h-10 bg-gray-100 dark:bg-dark-tertiary rounded-lg border border-gray-200 dark:border-gray-700 flex items-center justify-center">
+                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-sm font-medium text-accent-500 dark:text-dark-text-primary mb-1">
+                          {template.title}
+                        </h3>
+                        <p className="text-xs text-accent-600 dark:text-dark-text-secondary line-clamp-2">
+                          {template.description}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center overflow-hidden">
+                          {template.creator?.profilePicture ? (
+                            <Image
+                              src={template.creator.profilePicture}
+                              alt={`صورة ${template.creator.name}`}
+                              width={24}
+                              height={24}
+                              className="w-full h-full object-cover"
+                              quality={100}
+                            />
+                          ) : (
+                            <span className="text-primary-600 dark:text-primary-400 font-medium text-xs">
+                              {template.creator?.name?.charAt(0)?.toUpperCase() || 'م'}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-xs text-accent-600 dark:text-dark-text-secondary">
+                          {template.creator?.name}
+                        </span>
+                      </div>
+                      <span className="text-xs bg-gray-100 dark:bg-dark-tertiary text-gray-700 dark:text-dark-text-secondary px-2 py-1 rounded-full">
+                        {template.category}
+                      </span>
+                      {getStatusBadge(template.status)}
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => handleViewDetails(template)}
+                        className="bg-white dark:bg-dark-secondary border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 font-medium py-1 px-2 rounded text-xs transition-colors duration-200"
+                      >
+                        عرض التفاصيل
+                      </button>
+                      <a
+                        href={template.notionLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-white dark:bg-dark-secondary border border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 font-medium py-1 px-2 rounded text-xs transition-colors duration-200"
+                      >
+                        رابط نوشن
+                      </a>
+                      {template.status === 'pending' && (
+                        <>
+                          <button
+                            onClick={() => handleStatusChange(template, 'approved')}
+                            className="bg-primary-500 hover:bg-primary-600 text-white font-semibold py-1 px-2 rounded text-xs transition-colors duration-200"
+                          >
+                            موافقة
+                          </button>
+                          <button
+                            onClick={() => handleStatusChange(template, 'rejected')}
+                            className="bg-white dark:bg-dark-secondary border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 font-medium py-1 px-2 rounded text-xs transition-colors duration-200"
+                          >
+                            رفض
+                          </button>
+                        </>
+                      )}
+                      {template.status === 'rejected' && (
+                        <button
+                          onClick={() => handleStatusChange(template, 'approved')}
+                          className="bg-primary-500 hover:bg-primary-600 text-white font-semibold py-1 px-2 rounded text-xs transition-colors duration-200"
+                        >
+                          موافقة
+                        </button>
+                      )}
+                      {template.status === 'approved' && (
+                        <button
+                          onClick={() => handleStatusChange(template, 'rejected')}
+                          className="bg-white dark:bg-dark-secondary border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 font-medium py-1 px-2 rounded text-xs transition-colors duration-200"
+                        >
+                          رفض
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="bg-white dark:bg-dark-secondary px-4 py-3 border-t border-gray-200 dark:border-dark-card-border">
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-accent-600 dark:text-dark-text-secondary">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                <div className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary text-center sm:text-right">
                   صفحة {currentPage} من {totalPages}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 justify-center sm:justify-end">
                   <button
                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
-                    className="btn-outline disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border text-gray-700 dark:text-dark-text-primary hover:bg-gray-50 dark:hover:bg-dark-tertiary font-medium py-2 sm:py-3 px-4 sm:px-6 rounded-lg sm:rounded-xl transition-colors duration-200 text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     السابق
                   </button>
                   <button
                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                     disabled={currentPage === totalPages}
-                    className="btn-outline disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border text-gray-700 dark:text-dark-text-primary hover:bg-gray-50 dark:hover:bg-dark-tertiary font-medium py-2 sm:py-3 px-4 sm:px-6 rounded-lg sm:rounded-xl transition-colors duration-200 text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     التالي
                   </button>
@@ -529,46 +651,46 @@ export default function AdminTemplatesPage() {
 
       {/* Status Change Modal */}
       {showModal && selectedTemplate && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-dark-secondary rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-dark-secondary rounded-lg sm:rounded-xl p-4 sm:p-6 max-w-md w-full">
+            <h3 className="text-base sm:text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
               تأكيد {selectedAction === 'approved' ? 'الموافقة على' : 'رفض'} القالب
             </h3>
-            <div className="mb-4 p-3 bg-gray-50 dark:bg-dark-tertiary rounded-lg">
-              <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
+            <div className="mb-3 sm:mb-4 p-3 bg-gray-50 dark:bg-dark-tertiary rounded-lg">
+              <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">
                 <span className="font-medium">القالب:</span> {selectedTemplate.title}
               </p>
-              <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
+              <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">
                 <span className="font-medium">المبدع:</span> {selectedTemplate.creator?.name}
               </p>
 
               {/* Preview Image */}
               {selectedTemplate.previewImage && (
                 <div className="mt-3">
-                  <p className="text-sm font-medium text-accent-600 dark:text-dark-text-secondary mb-2">
+                  <p className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-secondary mb-2">
                     صورة المعاينة:
                   </p>
                   <img
                     src={selectedTemplate.previewImage}
                     alt={`معاينة ${selectedTemplate.title}`}
-                    className="w-full max-w-sm h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                    className="w-full max-w-sm h-32 sm:h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
                   />
                 </div>
               )}
             </div>
-            <div className="mb-4">
-              <label className="block text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
+            <div className="mb-3 sm:mb-4">
+              <label className="block text-xs sm:text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
                 ملاحظات الإدارة (اختياري)
               </label>
               <textarea
                 value={adminNotes}
                 onChange={(e) => setAdminNotes(e.target.value)}
                 rows={3}
-                className="form-input"
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-200 dark:border-dark-input-border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 resize-none"
                 placeholder="أضف ملاحظات حول القرار..."
               />
             </div>
-            <div className="flex gap-3 justify-end">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-end">
               <button
                 onClick={() => {
                   setShowModal(false);
@@ -576,14 +698,14 @@ export default function AdminTemplatesPage() {
                   setSelectedAction(null);
                   setAdminNotes('');
                 }}
-                className="btn-outline"
+                className="w-full sm:w-auto bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border text-gray-700 dark:text-dark-text-primary hover:bg-gray-50 dark:hover:bg-dark-tertiary font-medium py-2 sm:py-3 px-4 sm:px-6 rounded-lg sm:rounded-xl transition-colors duration-200 text-sm sm:text-base"
                 disabled={actionLoading}
               >
                 إلغاء
               </button>
               <button
                 onClick={confirmStatusChange}
-                className="btn-primary"
+                className="w-full sm:w-auto bg-primary-500 hover:bg-primary-600 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg sm:rounded-xl transition-colors duration-200 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={actionLoading}
               >
                 {actionLoading ? 'جاري المعالجة...' : 'تأكيد'}
@@ -595,10 +717,10 @@ export default function AdminTemplatesPage() {
 
       {/* Template Details Modal */}
       {showDetailsModal && selectedTemplateDetails && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-dark-secondary rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold text-accent-500 dark:text-dark-text-primary">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-dark-secondary rounded-lg sm:rounded-xl p-4 sm:p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
+              <h3 className="text-lg sm:text-xl font-semibold text-accent-500 dark:text-dark-text-primary">
                 تفاصيل القالب
               </h3>
               <button
@@ -606,23 +728,23 @@ export default function AdminTemplatesPage() {
                   setShowDetailsModal(false);
                   setSelectedTemplateDetails(null);
                 }}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {/* Left Column - Template Info */}
-              <div className="space-y-6">
-                <div className="card p-4">
-                  <h4 className="font-semibold text-accent-500 dark:text-dark-text-primary mb-4">معلومات القالب</h4>
-                  <div className="space-y-3">
+              <div className="space-y-4 sm:space-y-6">
+                <div className="bg-white dark:bg-dark-secondary rounded-lg sm:rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-3 sm:p-4">
+                  <h4 className="text-sm sm:text-base font-semibold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">معلومات القالب</h4>
+                  <div className="space-y-2 sm:space-y-3">
                     <div>
-                      <span className="font-medium text-accent-600 dark:text-dark-text-secondary">العنوان:</span>
-                      <p className="text-accent-500 dark:text-dark-text-primary">{selectedTemplateDetails.title}</p>
+                      <span className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-secondary">العنوان:</span>
+                      <p className="text-sm sm:text-base text-accent-500 dark:text-dark-text-primary">{selectedTemplateDetails.title}</p>
                     </div>
                     <div>
                       <span className="font-medium text-accent-600 dark:text-dark-text-secondary">الوصف:</span>

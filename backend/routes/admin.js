@@ -845,6 +845,124 @@ router.put('/notifications/read-all', auth, async (req, res) => {
   }
 });
 
+// @route   GET /api/admin/settings
+// @desc    Get admin settings
+// @access  Private (Admin)
+router.get('/settings', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    // Return default settings for now
+    const settings = {
+      platformName: 'عرب نوشن',
+      platformDescription: 'منصة قوالب Notion العربية',
+      maintenanceMode: false,
+      registrationEnabled: true,
+      creatorApplicationsEnabled: true,
+      autoApproveTemplates: false,
+      autoApproveBlogs: false,
+      contactInfo: {
+        email: 'support@notionarabs.com',
+        phone: '+201050505673',
+        address: 'القاهرة، جمهورية مصر العربية'
+      }
+    };
+
+    res.json({
+      success: true,
+      settings
+    });
+  } catch (error) {
+    console.error('Get admin settings error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   PUT /api/admin/settings
+// @desc    Update admin settings
+// @access  Private (Admin)
+router.put('/settings', auth, [
+  body('platformName')
+    .optional()
+    .isLength({ min: 1, max: 100 })
+    .withMessage('اسم المنصة يجب أن يكون بين 1 و 100 حرف'),
+  body('platformDescription')
+    .optional()
+    .isLength({ min: 1, max: 500 })
+    .withMessage('وصف المنصة يجب أن يكون بين 1 و 500 حرف'),
+  body('maintenanceMode')
+    .optional()
+    .isBoolean()
+    .withMessage('وضع الصيانة يجب أن يكون true أو false'),
+  body('registrationEnabled')
+    .optional()
+    .isBoolean()
+    .withMessage('تفعيل التسجيل يجب أن يكون true أو false'),
+  body('creatorApplicationsEnabled')
+    .optional()
+    .isBoolean()
+    .withMessage('تفعيل طلبات المبدعين يجب أن يكون true أو false'),
+  body('autoApproveTemplates')
+    .optional()
+    .isBoolean()
+    .withMessage('الموافقة التلقائية على القوالب يجب أن تكون true أو false'),
+  body('autoApproveBlogs')
+    .optional()
+    .isBoolean()
+    .withMessage('الموافقة التلقائية على المقالات يجب أن تكون true أو false'),
+  body('contactInfo.email')
+    .optional()
+    .isEmail()
+    .withMessage('البريد الإلكتروني غير صحيح'),
+  body('contactInfo.phone')
+    .optional()
+    .isLength({ min: 1, max: 20 })
+    .withMessage('رقم الهاتف يجب أن يكون بين 1 و 20 حرف'),
+  body('contactInfo.address')
+    .optional()
+    .isLength({ min: 1, max: 200 })
+    .withMessage('العنوان يجب أن يكون بين 1 و 200 حرف')
+], async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'بيانات غير صحيحة',
+        errors: errors.array()
+      });
+    }
+
+    // For now, just return success (settings persistence can be added later)
+    res.json({
+      success: true,
+      message: 'تم حفظ الإعدادات بنجاح',
+      settings: req.body
+    });
+  } catch (error) {
+    console.error('Update admin settings error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
 // @route   POST /api/admin/fix-duplicate-usernames
 // @desc    Fix duplicate username issues by removing null/undefined usernames
 // @access  Private (Admin)

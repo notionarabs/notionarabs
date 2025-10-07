@@ -44,8 +44,6 @@ router.post('/', auth, [
       target = await User.findById(targetId);
     } else if (targetType === 'blog') {
       target = await Blog.findById(targetId);
-    } else if (targetType === 'blog') {
-      target = await Blog.findById(targetId);
     }
 
     if (!target) {

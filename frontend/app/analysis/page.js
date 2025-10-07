@@ -125,7 +125,7 @@ export default function AnalysisPage() {
         {/* All Templates with States */}
         <div className="card p-4 sm:p-6 lg:p-8 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
           <div className="flex items-center justify-between gap-4 mb-6">
-            <SectionHeader title="كل القوالب وحالاتها" />
+            <SectionHeader title="القوالب المعتمدة" />
             <div className="flex items-center gap-2">
               <label className="text-sm text-gray-600 dark:text-dark-text-secondary">المدة:</label>
               <div className="relative">
@@ -148,15 +148,14 @@ export default function AnalysisPage() {
               </div>
             </div>
           </div>
-          {filteredTemplates.length === 0 ? (
-            <EmptyState text="لا توجد قوالب حتى الآن" />
+          {filteredTemplates.filter((t) => (t.status || '').toLowerCase() === 'approved').length === 0 ? (
+            <EmptyState text="لا توجد قوالب معتمدة" />
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="text-right text-gray-600 dark:text-dark-text-secondary">
                     <th className="py-2 pr-2 font-medium">العنوان</th>
-                    <th className="py-2 pr-2 font-medium">الحالة</th>
                     <th className="py-2 pr-2 font-medium">المشاهدات</th>
                     <th className="py-2 pr-2 font-medium">التحميلات</th>
                     <th className="py-2 pr-2 font-medium">التقييم</th>
@@ -164,7 +163,7 @@ export default function AnalysisPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-dark-card-border">
-                  {filteredTemplates.map((t) => (
+                  {filteredTemplates.filter((t) => (t.status || '').toLowerCase() === 'approved').map((t) => (
                     <tr key={t._id} className="text-gray-900 dark:text-dark-text-primary">
                       <td className="py-3 pr-2 max-w-[240px]">
                         <div className="flex items-center gap-3">
@@ -182,9 +181,6 @@ export default function AnalysisPage() {
                             <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">{t.category || 'غير مصنف'}</p>
                           </div>
                         </div>
-                      </td>
-                      <td className="py-3 pr-2">
-                        <StatusBadge status={t.status} />
                       </td>
                       <td className="py-3 pr-2">{t.views || 0}</td>
                       <td className="py-3 pr-2">{t.downloads || 0}</td>

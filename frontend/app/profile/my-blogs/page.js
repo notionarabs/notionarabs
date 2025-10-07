@@ -146,6 +146,16 @@ export default function MyBlogsPage() {
               </p>
             </div>
             <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => router.push('/profile')}
+                className="btn-outline inline-flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                العودة للملف الشخصي
+              </button>
               <ExportButton
                 endpoint={`/blogs/export-public?token=${typeof window !== 'undefined' ? (require('js-cookie').get('authToken') || '') : ''}`}
                 filename={`${(user?.username || (user?.email ? user.email.split('@')[0] : 'blogs'))}-blogs-${new Date().toISOString().split('T')[0]}.csv`}
@@ -165,7 +175,7 @@ export default function MyBlogsPage() {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div className="card-interactive p-6">
               <div className="flex items-center justify-between">
                 <div>

@@ -52,8 +52,13 @@ export function middleware(request) {
     return NextResponse.next();
   }
 
-  // If no token and trying to access protected route, redirect to login
+  // If no token and trying to access protected route, handle exceptions
   if (!token) {
+    // In development, allow admin pages to render and let client-side guards handle auth
+    if (process.env.NODE_ENV !== 'production' && pathname.startsWith('/admin')) {
+      return NextResponse.next();
+    }
+
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);

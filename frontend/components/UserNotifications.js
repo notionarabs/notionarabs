@@ -182,10 +182,10 @@ export default function UserNotifications() {
                 >
                   {/* Creator avatar */}
                   <div className={`mt-0.5 w-9 h-9 rounded-full overflow-hidden flex items-center justify-center shadow-sm ring-1 ${n.isRead ? 'ring-gray-200/60 dark:ring-dark-card-border' : 'ring-orange-300/60 dark:ring-orange-500/40'}`}>
-                    {n.metadata?.creatorProfilePicture ? (
+                    {n.metadata?.actorProfilePicture || n.metadata?.creatorProfilePicture ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        src={n.metadata.creatorProfilePicture}
+                        src={n.metadata.actorProfilePicture || n.metadata.creatorProfilePicture}
                         alt="creator"
                         className="w-full h-full object-cover object-center rounded-full"
                         referrerPolicy="no-referrer"

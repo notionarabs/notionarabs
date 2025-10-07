@@ -159,7 +159,7 @@ router.post('/', auth, [
               title: 'تم تقييم قالبك',
               message: `${raterName} قيّم قالبك ${rating} نجوم${review ? `: ${review}` : ''}`,
               link: `/templates/${template.slug || targetId}`,
-              metadata: { templateId: targetId, ratingId: (existingRating?._id || savedRating?._id) || null, raterId: req.user._id }
+              metadata: { templateId: targetId, ratingId: (existingRating?._id || savedRating?._id) || null, raterId: req.user._id, actorProfilePicture: req.user.profilePicture || '' }
             });
           }
         } catch (notifyErr) {

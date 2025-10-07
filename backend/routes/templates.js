@@ -973,7 +973,7 @@ router.post('/:id/download', auth, async (req, res) => {
           title: 'تم تحميل قالبك',
           message: `${downloaderName} قام بتحميل قالبك: ${template.title}`,
           link: `/templates/${template.slug || template._id}`,
-          metadata: { templateId: template._id, downloaderId: req.user._id }
+          metadata: { templateId: template._id, downloaderId: req.user._id, actorProfilePicture: req.user.profilePicture || '' }
         });
       }
     } catch (notifyErr) {

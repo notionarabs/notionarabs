@@ -109,7 +109,7 @@ router.post('/', auth, [
             title: 'تعليق جديد على قالبك',
             message: `${commenterName} علّق على قالبك: ${content.substring(0, 120)}${content.length > 120 ? '…' : ''}`,
             link: `/templates/${template.slug || targetId}`,
-            metadata: { templateId: targetId, commentId: savedComment._id, commenterId: req.user._id }
+            metadata: { templateId: targetId, commentId: savedComment._id, commenterId: req.user._id, actorProfilePicture: req.user.profilePicture || '' }
           });
         }
       }

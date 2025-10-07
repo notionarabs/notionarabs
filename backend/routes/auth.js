@@ -50,7 +50,7 @@ router.get('/test-email', async (req, res) => {
     // Test email sending
     const testEmail = process.env.EMAIL_USER; // Send to yourself for testing
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: `"فريق عرب نوشن" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
       to: testEmail,
       subject: 'Test Email from Notion Arabs',
       html: `
@@ -346,7 +346,7 @@ router.post('/signup', [
       const verificationUrl = `${frontendUrl}/verify-email?token=${emailVerificationToken}&email=${encodeURIComponent(email)}`;
 
       const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: `"فريق عرب نوشن" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
         to: email,
         subject: 'تأكيد البريد الإلكتروني - عرب نوشن',
         html: `
@@ -1009,7 +1009,7 @@ router.post('/forgot-password', [
       const transporter = createTransporter();
 
       const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: `"فريق عرب نوشن" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
         to: email,
         subject: 'إعادة تعيين كلمة المرور - عرب نوشن',
         html: `
@@ -1529,7 +1529,7 @@ router.post('/resend-verification', [
       const verificationUrl = `${frontendUrl}/verify-email?token=${emailVerificationToken}`;
 
       const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: `"فريق عرب نوشن" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
         to: email,
         subject: 'تأكيد البريد الإلكتروني - عرب نوشن',
         html: `

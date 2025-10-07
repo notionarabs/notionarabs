@@ -128,7 +128,7 @@ router.post('/creator', [
           await transporter.verify();
 
           const mailOptions = {
-            from: process.env.EMAIL_USER,
+            from: `"فريق عرب نوشن" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
             to: creator.email,
             subject: `رسالة جديدة من ${name} - ${subject}`,
             html: `
@@ -233,7 +233,7 @@ router.post('/general', [
           await transporter.verify();
 
           const mailOptions = {
-            from: process.env.EMAIL_USER,
+            from: `"فريق عرب نوشن" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
             to: process.env.SUPPORT_EMAIL || process.env.EMAIL_USER,
             subject: `رسالة جديدة من موقع عرب نوشن - ${subject}`,
             html: `

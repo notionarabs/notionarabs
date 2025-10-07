@@ -1401,7 +1401,7 @@ router.post('/send-bulk-emails', auth, async (req, res) => {
 
         const sendPromises = batch.map(email => {
           return transporter.sendMail({
-            from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+            from: `"فريق عرب نوشن" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
             to: email,
             subject: subject,
             html: message.replace(/\n/g, '<br>'),

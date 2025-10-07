@@ -8,6 +8,7 @@ import api from '../../lib/api';
 import { formatDate } from '../../lib/dateUtils';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuthPersistence } from '../../hooks/useAuthPersistence';
+import ExportButton from '../../components/ExportButton';
 
 export default function AdminPage() {
   const [users, setUsers] = useState([]);
@@ -186,6 +187,52 @@ export default function AdminPage() {
     }
   };
 
+  // CSV Export function for filtered users
+  const exportUsersCSV = () => {
+    const csvData = users.map(user => ({
+      name: user.name || '',
+      email: user.email || '',
+      role: user.role === 'admin' ? 'مدير' : user.role === 'creator' ? 'مبدع' : 'مستخدم',
+      registrationType: user.googleId ? 'Google' : 'البريد الإلكتروني',
+      createdAt: formatDate(user.createdAt),
+      status: user.verified ? 'مفعل' : 'غير مفعل'
+    }));
+
+    // Create CSV content
+    const headers = ['الاسم', 'البريد الإلكتروني', 'نوع المستخدم', 'نوع التسجيل', 'تاريخ الإنشاء', 'الحالة'];
+    const csvContent = [
+      headers.join(','),
+      ...csvData.map(row =>
+        Object.values(row).map(value =>
+          `"${value.toString().replace(/"/g, '""')}"`
+        ).join(',')
+      )
+    ].join('\n');
+
+    // Add BOM for proper Arabic display in Excel
+    const BOM = '\uFEFF';
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+
+    // Create download link
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    // Generate filename with current filters
+    const filterSuffix = filterRole !== 'all' ? `_${filterRole}` : '';
+    const searchSuffix = searchTerm ? `_search_${searchTerm.replace(/[^a-zA-Z0-9]/g, '_')}` : '';
+    const filename = `users_export${filterSuffix}${searchSuffix}_${new Date().toISOString().split('T')[0]}.csv`;
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+  };
+
   if (loading || authLoading || persistentLoading) {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center transition-colors duration-300" dir="rtl">
@@ -358,14 +405,27 @@ export default function AdminPage() {
         {/* Users Table */}
         <div className="card overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 dark:border-dark-card-border">
-            <h2 className="heading-3">
-              قائمة المستخدمين ({filteredUserCount})
-              {filterRole !== 'all' && (
-                <span className="text-sm font-normal text-accent-600 dark:text-dark-text-secondary mr-2">
-                  - {filterRole === 'creator' ? 'مبدعون' : filterRole === 'admin' ? 'مديرون' : 'مستخدمون عاديون'}
-                </span>
-              )}
-            </h2>
+            <div className="flex justify-between items-center">
+              <h2 className="heading-3">
+                قائمة المستخدمين ({filteredUserCount})
+                {filterRole !== 'all' && (
+                  <span className="text-sm font-normal text-accent-600 dark:text-dark-text-secondary mr-2">
+                    - {filterRole === 'creator' ? 'مبدعون' : filterRole === 'admin' ? 'مديرون' : 'مستخدمون عاديون'}
+                  </span>
+                )}
+              </h2>
+              <button
+                onClick={exportUsersCSV}
+                disabled={users.length === 0}
+                className="btn-secondary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                dir="rtl"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                تصدير البريد الإلكتروني
+              </button>
+            </div>
           </div>
 
           <div className="overflow-x-auto">

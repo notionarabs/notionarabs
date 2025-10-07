@@ -8,14 +8,7 @@ export default function MaintenanceMode() {
   const { isMaintenanceMode, loading } = useMaintenance();
 
   if (loading) {
-    return (
-      <div className="fixed inset-0 bg-white dark:bg-dark-primary z-50 flex items-center justify-center" dir="rtl">
-        <div className="text-center">
-          <div className="loading-spinner mx-auto mb-4"></div>
-          <p className="text-accent-600 dark:text-dark-text-secondary">جاري التحقق من حالة الموقع...</p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   // Don't show maintenance page if not in maintenance mode

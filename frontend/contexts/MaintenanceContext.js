@@ -15,7 +15,7 @@ export const useMaintenance = () => {
 
 export const MaintenanceProvider = ({ children }) => {
   const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Start as false to prevent initial loading state
   const [hasCheckedMaintenance, setHasCheckedMaintenance] = useState(false);
 
   const checkMaintenanceMode = async () => {
@@ -69,14 +69,21 @@ export const MaintenanceProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    // Check maintenance mode immediately on mount
-    checkMaintenanceMode();
+    // Delay initial check slightly to prevent double load
+    const timeoutId = setTimeout(() => {
+      checkMaintenanceMode();
+    }, 100);
 
     // Only set up interval in production
     if (process.env.NODE_ENV === 'production') {
       const interval = setInterval(checkMaintenanceMode, 60000);
-      return () => clearInterval(interval);
+      return () => {
+        clearTimeout(timeoutId);
+        clearInterval(interval);
+      };
     }
+
+    return () => clearTimeout(timeoutId);
   }, []);
 
   const value = {

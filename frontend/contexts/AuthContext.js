@@ -25,16 +25,24 @@ export const AuthProvider = ({ children }) => {
   const router = useRouter();
 
   useEffect(() => {
-    // Don't check auth until maintenance mode check is complete
-    if (!hasCheckedMaintenance) {
-      return;
-    }
-
     // If maintenance mode is active, skip auth check
     if (isMaintenanceMode) {
       setLoading(false);
       setHasCheckedAuth(true);
       return;
+    }
+
+    // Don't check auth until maintenance mode check is complete (but allow initial load)
+    if (!hasCheckedMaintenance) {
+      // Set a timeout to check auth after a short delay if maintenance check takes too long
+      const timeoutId = setTimeout(() => {
+        if (!hasCheckedMaintenance) {
+          setLoading(false);
+          setHasCheckedAuth(true);
+        }
+      }, 2000);
+      
+      return () => clearTimeout(timeoutId);
     }
 
     // Ensure axios has the token as early as possible

@@ -5,6 +5,7 @@ const Template = require('../models/Template');
 const User = require('../models/User');
 const Blog = require('../models/Blog');
 const auth = require('../middleware/auth');
+const Notification = require('../models/Notification');
 
 const router = express.Router();
 
@@ -95,6 +96,26 @@ router.post('/', auth, [
 
     // Populate user data for response
     await savedComment.populate('user', 'name username displayName profilePicture');
+
+    // Notify creator about comment on template
+    try {
+      if (targetType === 'template') {
+        const template = await Template.findById(targetId).select('creator title slug');
+        if (template && template.creator && template.creator.toString() !== req.user._id.toString()) {
+          const commenterName = req.user.displayName || req.user.name || 'مستخدم';
+          await Notification.create({
+            user: template.creator,
+            type: 'template_commented',
+            title: 'تعليق جديد على قالبك',
+            message: `${commenterName} علّق على قالبك: ${content.substring(0, 120)}${content.length > 120 ? '…' : ''}`,
+            link: `/templates/${template.slug || targetId}`,
+            metadata: { templateId: targetId, commentId: savedComment._id, commenterId: req.user._id }
+          });
+        }
+      }
+    } catch (notifyErr) {
+      console.error('Create comment notification error:', notifyErr?.message || notifyErr);
+    }
 
     res.json({
       success: true,

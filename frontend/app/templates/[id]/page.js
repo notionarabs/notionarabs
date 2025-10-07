@@ -502,6 +502,11 @@ export default function TemplateDetailPage() {
         referrer: window.location.href
       });
 
+      // Trigger notifications refresh for the creator immediately (best effort)
+      try {
+        window.dispatchEvent(new Event('notifications:refresh'));
+      } catch {}
+
       // Create or upsert order entry for this user
       try {
         await api.post('/orders', {

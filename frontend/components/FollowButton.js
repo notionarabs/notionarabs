@@ -55,6 +55,10 @@ const FollowButton = ({
         if (onFollowChange) {
           onFollowChange(response.data.isFollowing);
         }
+        // Trigger notifications refresh for the creator immediately (best effort)
+        try {
+          window.dispatchEvent(new Event('notifications:refresh'));
+        } catch {}
       }
     } catch (error) {
       console.error('Error toggling follow:', error);

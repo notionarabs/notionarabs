@@ -377,6 +377,22 @@ router.put('/templates/:id/status', auth, [
     if (status === 'approved') {
       await template.approve(req.user._id, adminNotes);
 
+      // Notify the creator that their template was approved
+      try {
+        if (template.creator) {
+          await Notification.create({
+            user: template.creator,
+            type: 'template_published',
+            title: 'تمت الموافقة على قالبك',
+            message: `تمت الموافقة على قالبك: ${template.title}`,
+            link: `/templates/${template.slug || template._id}`,
+            metadata: { templateId: template._id }
+          });
+        }
+      } catch (creatorNotifyErr) {
+        console.error('Notify creator approval error:', creatorNotifyErr);
+      }
+
       // Create notifications for followers of the creator
       try {
         const creatorId = template.creator;

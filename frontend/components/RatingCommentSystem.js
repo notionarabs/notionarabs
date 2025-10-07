@@ -130,6 +130,11 @@ const RatingCommentSystem = ({
       // Set hasSubmitted to true after successful submission
       setHasSubmitted(true);
 
+      // Trigger notifications refresh for the creator immediately (best effort)
+      try {
+        window.dispatchEvent(new Event('notifications:refresh'));
+      } catch {}
+
       // Show success message with a friendly notification
       const successMessage = userComment.trim()
         ? 'تم إرسال التقييم والتعليق بنجاح! شكراً لك على مشاركة رأيك.'

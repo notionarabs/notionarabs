@@ -3,6 +3,7 @@ const { body, validationResult } = require('express-validator');
 const Template = require('../models/Template');
 const DownloadLog = require('../models/DownloadLog');
 const User = require('../models/User');
+const Notification = require('../models/Notification');
 const auth = require('../middleware/auth');
 const { generateTemplateSlug } = require('../utils/slugGenerator');
 const Fuse = require('fuse.js');
@@ -961,6 +962,23 @@ router.post('/:id/download', auth, async (req, res) => {
       referrer,
       downloadCount: template.downloads
     });
+
+    // Notify creator about download (non-blocking)
+    try {
+      if (template.creator && template.creator.toString() !== req.user._id.toString()) {
+        const downloaderName = req.user.displayName || req.user.name || 'مستخدم';
+        await Notification.create({
+          user: template.creator,
+          type: 'template_downloaded',
+          title: 'تم تحميل قالبك',
+          message: `${downloaderName} قام بتحميل قالبك: ${template.title}`,
+          link: `/templates/${template.slug || template._id}`,
+          metadata: { templateId: template._id, downloaderId: req.user._id }
+        });
+      }
+    } catch (notifyErr) {
+      console.error('Create download notification error:', notifyErr?.message || notifyErr);
+    }
 
     res.json({
       success: true,

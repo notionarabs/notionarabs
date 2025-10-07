@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const notificationSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true, required: true },
-  type: { type: String, enum: ['template_published'], required: true },
+  type: { type: String, enum: ['template_published', 'template_rated', 'template_commented', 'template_downloaded', 'creator_followed'], required: true },
   title: { type: String, required: true },
   message: { type: String, required: true },
   link: { type: String, default: '' },

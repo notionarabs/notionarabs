@@ -1,5 +1,6 @@
 const express = require('express');
 const User = require('../models/User');
+const Notification = require('../models/Notification');
 const Template = require('../models/Template');
 const DownloadLog = require('../models/DownloadLog');
 const jwt = require('jsonwebtoken');
@@ -440,6 +441,21 @@ router.post('/:id/follow', auth, async (req, res) => {
       await User.findByIdAndUpdate(creatorId, {
         $inc: { followers: 1 }
       });
+
+      // Notify creator about new follower (non-blocking)
+      try {
+        const followerName = req.user.displayName || req.user.name || 'مستخدم';
+        await Notification.create({
+          user: creatorId,
+          type: 'creator_followed',
+          title: 'متابع جديد',
+          message: `${followerName} قام بمتابعتك`,
+          link: `/creators/${req.user.username || req.user._id}`,
+          metadata: { followerId: req.user._id }
+        });
+      } catch (notifyErr) {
+        console.error('Create follow notification error:', notifyErr?.message || notifyErr);
+      }
 
       res.json({
         success: true,

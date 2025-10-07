@@ -48,10 +48,29 @@ export default function UserNotifications() {
     }
   };
 
+  // Fetch on mount/auth change for immediate updates
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchNotifications();
+    } else {
+      setNotifications([]);
+      setUnreadCount(0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
+
   useEffect(() => {
     if (isOpen) fetchNotifications();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
+
+  // Listen for global refresh events to update immediately
+  useEffect(() => {
+    const handler = () => fetchNotifications();
+    window.addEventListener('notifications:refresh', handler);
+    return () => window.removeEventListener('notifications:refresh', handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Close when clicking outside
   useEffect(() => {

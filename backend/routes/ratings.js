@@ -4,6 +4,7 @@ const Rating = require('../models/Rating');
 const Template = require('../models/Template');
 const User = require('../models/User');
 const Blog = require('../models/Blog');
+const Notification = require('../models/Notification');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
@@ -117,7 +118,7 @@ router.post('/', auth, [
       });
 
       // Update creator's median rating based on all their template ratings
-      const template = await Template.findById(targetId).select('creator');
+      const template = await Template.findById(targetId).select('creator title slug');
       if (template && template.creator) {
         const creatorTemplates = await Template.find({
           creator: template.creator,
@@ -147,6 +148,23 @@ router.post('/', auth, [
         await User.findByIdAndUpdate(template.creator, {
           rating: medianRating
         });
+
+        // Notify creator about rating (non-blocking)
+        try {
+          if (template.creator.toString() !== req.user._id.toString()) {
+            const raterName = req.user.displayName || req.user.name || 'مستخدم';
+            await Notification.create({
+              user: template.creator,
+              type: 'template_rated',
+              title: 'تم تقييم قالبك',
+              message: `${raterName} قيّم قالبك ${rating} نجوم${review ? `: ${review}` : ''}`,
+              link: `/templates/${template.slug || targetId}`,
+              metadata: { templateId: targetId, ratingId: (existingRating?._id || savedRating?._id) || null, raterId: req.user._id }
+            });
+          }
+        } catch (notifyErr) {
+          console.error('Create rating notification error:', notifyErr?.message || notifyErr);
+        }
       }
     } else if (targetType === 'creator') {
       await User.findByIdAndUpdate(targetId, {

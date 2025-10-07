@@ -1200,7 +1200,7 @@ router.get('/test-email-config', auth, async (req, res) => {
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS ||
       process.env.EMAIL_USER === 'your-email@gmail.com' ||
       process.env.EMAIL_PASS === 'your-app-password') {
-      
+
       return res.json({
         success: false,
         message: 'Email service not configured properly',
@@ -1353,7 +1353,7 @@ router.post('/send-bulk-emails', auth, async (req, res) => {
     // Production mode - use actual email service
     try {
       console.log('Creating email transporter with user:', process.env.EMAIL_USER);
-      
+
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -1421,7 +1421,7 @@ router.post('/send-bulk-emails', auth, async (req, res) => {
         failed += batchFailed;
 
         console.log(`Batch completed: ${batchSuccessful} successful, ${batchFailed} failed`);
-        
+
         // Log detailed errors for failed emails in this batch
         if (batchFailed > 0) {
           batchResults.forEach((result, index) => {

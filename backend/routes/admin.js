@@ -128,12 +128,12 @@ router.get('/stats', auth, async (req, res) => {
     const pendingApplications = await User.countDocuments({ creatorStatus: 'pending' });
     const approvedCreators = await User.countDocuments({ creatorStatus: 'approved' });
     const rejectedApplications = await User.countDocuments({ creatorStatus: 'rejected' });
-    
+
     const totalTemplates = await Template.countDocuments();
     const pendingTemplates = await Template.countDocuments({ status: 'pending' });
     const approvedTemplates = await Template.countDocuments({ status: 'approved' });
     const rejectedTemplates = await Template.countDocuments({ status: 'rejected' });
-    
+
     const totalBlogs = await Blog.countDocuments();
     const pendingBlogs = await Blog.countDocuments({ status: 'pending' });
     const publishedBlogs = await Blog.countDocuments({ status: 'published' });

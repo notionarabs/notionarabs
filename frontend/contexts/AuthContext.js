@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import api from '../lib/api';
+import api, { emailApi } from '../lib/api';
 import { useMaintenance } from './MaintenanceContext';
 
 const AuthContext = createContext();
@@ -49,6 +49,8 @@ export const AuthProvider = ({ children }) => {
     const existingToken = Cookies.get('authToken');
     if (existingToken) {
       api.defaults.headers.common['Authorization'] = `Bearer ${existingToken}`;
+      // Also set token for emailApi
+      emailApi.defaults.headers.common['Authorization'] = `Bearer ${existingToken}`;
     }
 
     // Check if we have cached data first to minimize loading time
@@ -120,6 +122,9 @@ export const AuthProvider = ({ children }) => {
           const userData = JSON.parse(cachedUser);
           setUser(userData);
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           return;
         }
       }
@@ -127,6 +132,8 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         // Set the token in axios headers
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
         try {
           // Verify token with backend with timeout
@@ -168,6 +175,9 @@ export const AuthProvider = ({ children }) => {
             localStorage.removeItem('user');
             localStorage.removeItem('userCacheTimestamp');
             delete api.defaults.headers.common['Authorization'];
+      delete emailApi.defaults.headers.common['Authorization'];
+        delete emailApi.defaults.headers.common['Authorization'];
+            delete emailApi.defaults.headers.common['Authorization'];
           }
           throw apiError; // Re-throw to be caught by callback
         }
@@ -183,6 +193,8 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('user');
         localStorage.removeItem('userCacheTimestamp');
         delete api.defaults.headers.common['Authorization'];
+      delete emailApi.defaults.headers.common['Authorization'];
+        delete emailApi.defaults.headers.common['Authorization'];
       }
       throw error; // Re-throw to be caught by callback
     } finally {
@@ -200,6 +212,7 @@ export const AuthProvider = ({ children }) => {
 
       // Set token in axios headers
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
       setUser(user);
 
@@ -244,6 +257,8 @@ export const AuthProvider = ({ children }) => {
 
         // Set token in axios headers
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
         setUser(user);
 
@@ -323,6 +338,7 @@ export const AuthProvider = ({ children }) => {
 
         // Set token in axios headers
         api.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
+        emailApi.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
 
         setUser(user);
 
@@ -503,9 +519,15 @@ export const AuthProvider = ({ children }) => {
     const token = Cookies.get('authToken');
     if (token) {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      // Also set token for emailApi
+      emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       return true;
     } else {
       delete api.defaults.headers.common['Authorization'];
+      delete emailApi.defaults.headers.common['Authorization'];
+      // Also remove token from emailApi
+      delete emailApi.defaults.headers.common['Authorization'];
       return false;
     }
   };

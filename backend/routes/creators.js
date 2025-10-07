@@ -456,7 +456,7 @@ router.post('/:id/follow', auth, async (req, res) => {
           title: 'متابع جديد',
           message: `${followerName} قام بمتابعتك`,
           link: `/creators/${followerUsername}`,
-          metadata: { followerId: req.user._id, actorProfilePicture: req.user.profilePicture || '' }
+          metadata: { followerId: req.user._id, followerUsername, actorProfilePicture: req.user.profilePicture || '' }
         });
       } catch (notifyErr) {
         console.error('Create follow notification error:', notifyErr?.message || notifyErr);

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import Link from 'next/link';
 import api from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -174,43 +175,95 @@ export default function UserNotifications() {
               </div>
             ) : (
               notifications.map((n) => (
-                <a
-                  key={n._id}
-                  href={n.link || '#'}
-                  onClick={() => !n.isRead && markAsRead(n._id)}
-                  className={`flex items-start gap-3 p-3 sm:p-4 transition-colors ${n.isRead ? 'bg-transparent' : 'bg-orange-50/40 dark:bg-orange-900/10'}`}
-                >
-                  {/* Creator avatar */}
-                  <div className={`mt-0.5 w-9 h-9 rounded-full overflow-hidden flex items-center justify-center shadow-sm ring-1 ${n.isRead ? 'ring-gray-200/60 dark:ring-dark-card-border' : 'ring-orange-300/60 dark:ring-orange-500/40'}`}>
-                    {n.metadata?.actorProfilePicture || n.metadata?.creatorProfilePicture ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={n.metadata.actorProfilePicture || n.metadata.creatorProfilePicture}
-                        alt="creator"
-                        className="w-full h-full object-cover object-center rounded-full"
-                        referrerPolicy="no-referrer"
-                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                      />
-                    ) : null}
-                    {!n.metadata?.creatorProfilePicture && (
-                      <div className={`w-full h-full flex items-center justify-center ${n.isRead ? 'text-accent-400 dark:text-dark-text-tertiary' : 'text-accent-600 dark:text-orange-300'}`}>
-                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      {!n.isRead && <span className="inline-block w-1.5 h-1.5 rounded-full bg-orange-500" />}
-                      <div className="text-sm font-semibold text-accent-700 dark:text-dark-text-primary truncate">{n.title}</div>
+                n.link ? (
+                  <Link
+                    key={n._id}
+                    href={n.link}
+                    onClick={(e) => {
+                      // For follower notifications, fake-click: mark as read without navigating
+                      if (n.type === 'creator_followed') {
+                        e.preventDefault();
+                        if (!n.isRead) markAsRead(n._id);
+                        return;
+                      }
+                      if (!n.isRead) markAsRead(n._id);
+                    }}
+                    className={`flex items-start gap-3 p-3 sm:p-4 transition-colors ${n.isRead ? 'bg-transparent' : 'bg-orange-50/40 dark:bg-orange-900/10'}`}
+                  >
+                    {/* Creator avatar */}
+                    <div className={`mt-0.5 w-9 h-9 rounded-full overflow-hidden flex items-center justify-center shadow-sm ring-1 ${n.isRead ? 'ring-gray-200/60 dark:ring-dark-card-border' : 'ring-orange-300/60 dark:ring-orange-500/40'}`}>
+                      {n.metadata?.actorProfilePicture || n.metadata?.creatorProfilePicture ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={n.metadata.actorProfilePicture || n.metadata.creatorProfilePicture}
+                          alt="creator"
+                          className="w-full h-full object-cover object-center rounded-full"
+                          referrerPolicy="no-referrer"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      ) : null}
+                      {!n.metadata?.actorProfilePicture && !n.metadata?.creatorProfilePicture && (
+                        <div className={`w-full h-full flex items-center justify-center ${n.isRead ? 'text-accent-400 dark:text-dark-text-tertiary' : 'text-accent-600 dark:text-orange-300'}`}>
+                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                          </svg>
+                        </div>
+                      )}
                     </div>
-                    <div className="text-xs text-accent-600 dark:text-dark-text-secondary mt-0.5 leading-5">{n.message}</div>
-                    <div className="mt-1 text-[10px] text-accent-400">{new Date(n.createdAt).toLocaleString('ar')}</div>
-                  </div>
-                </a>
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        {!n.isRead && <span className="inline-block w-1.5 h-1.5 rounded-full bg-orange-500" />}
+                        <div className="text-sm font-semibold text-accent-700 dark:text-dark-text-primary truncate">{n.title}</div>
+                      </div>
+                      <div className="text-xs text-accent-600 dark:text-dark-text-secondary mt-0.5 leading-5">{n.message}</div>
+                      <div className="mt-1 text-[10px] text-accent-400">{new Date(n.createdAt).toLocaleString('ar')}</div>
+                    </div>
+                  </Link>
+                ) : (
+                  <Link
+                    key={n._id}
+                    href={n.type === 'creator_followed' && n.metadata?.followerId ? `/creators/${(n.metadata?.followerUsername || '')}` : '#'}
+                    onClick={(e) => {
+                      // Always fake-click here: mark read, do not navigate
+                      e.preventDefault();
+                      if (!n.isRead) markAsRead(n._id);
+                    }}
+                    className={`flex items-start gap-3 p-3 sm:p-4 transition-colors ${n.isRead ? 'bg-transparent' : 'bg-orange-50/40 dark:bg-orange-900/10'}`}
+                  >
+                    {/* Creator avatar */}
+                    <div className={`mt-0.5 w-9 h-9 rounded-full overflow-hidden flex items-center justify-center shadow-sm ring-1 ${n.isRead ? 'ring-gray-200/60 dark:ring-dark-card-border' : 'ring-orange-300/60 dark:ring-orange-500/40'}`}>
+                      {n.metadata?.actorProfilePicture || n.metadata?.creatorProfilePicture ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={n.metadata.actorProfilePicture || n.metadata.creatorProfilePicture}
+                          alt="creator"
+                          className="w-full h-full object-cover object-center rounded-full"
+                          referrerPolicy="no-referrer"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      ) : null}
+                      {!n.metadata?.actorProfilePicture && !n.metadata?.creatorProfilePicture && (
+                        <div className={`w-full h-full flex items-center justify-center ${n.isRead ? 'text-accent-400 dark:text-dark-text-tertiary' : 'text-accent-600 dark:text-orange-300'}`}>
+                          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        {!n.isRead && <span className="inline-block w-1.5 h-1.5 rounded-full bg-orange-500" />}
+                        <div className="text-sm font-semibold text-accent-700 dark:text-dark-text-primary truncate">{n.title}</div>
+                      </div>
+                      <div className="text-xs text-accent-600 dark:text-dark-text-secondary mt-0.5 leading-5">{n.message}</div>
+                      <div className="mt-1 text-[10px] text-accent-400">{new Date(n.createdAt).toLocaleString('ar')}</div>
+                    </div>
+                  </Link>
+                )
               ))
             )}
           </div>

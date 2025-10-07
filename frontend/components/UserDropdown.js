@@ -320,6 +320,18 @@ export default function UserDropdown() {
                   </svg>
                   <span className="text-sm">مشترياتي</span>
                 </Link>
+                {user?.creatorStatus === 'approved' && (
+                  <Link
+                    href="/profile/sales"
+                    onClick={() => setIsOpen(false)}
+                    className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
+                  >
+                    <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3v2m0 14v2m8-10h2M3 11H1m15.364-6.364l1.414 1.414M6.222 17.778l-1.414 1.414M17.778 17.778l1.414-1.414M4.808 4.808L3.394 6.222" />
+                    </svg>
+                    <span className="text-sm">سجلات التحميل</span>
+                  </Link>
+                )}
               </div>
             )}
 

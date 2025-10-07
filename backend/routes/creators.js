@@ -1,6 +1,7 @@
 const express = require('express');
 const User = require('../models/User');
 const Template = require('../models/Template');
+const DownloadLog = require('../models/DownloadLog');
 const auth = require('../middleware/auth');
 const Fuse = require('fuse.js');
 
@@ -67,7 +68,7 @@ router.get('/', async (req, res) => {
 
       const fuse = new Fuse(creators, fuseOptions);
       const searchResults = fuse.search(search.trim().toLowerCase());
-      
+
       // Extract the items from Fuse results
       creators = searchResults.map(result => result.item);
     }
@@ -533,6 +534,64 @@ router.get('/stats/downloads', async (req, res) => {
       success: false,
       message: 'خطأ في الخادم'
     });
+  }
+});
+
+// @route   GET /api/creators/me/downloads
+// @desc    List downloads for current creator's templates
+// @access  Private (Creator)
+router.get('/me/downloads', auth, async (req, res) => {
+  try {
+    if (req.user.creatorStatus !== 'approved') {
+      return res.status(403).json({ success: false, message: 'يجب أن تكون مبدعاً معتمداً' });
+    }
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+    const templateId = req.query.templateId;
+
+    const filter = { creator: req.user._id };
+    if (templateId) {
+      filter.template = templateId;
+    }
+
+    const [rows, total] = await Promise.all([
+      DownloadLog.find(filter)
+        .populate('user', 'name email username')
+        .populate('template', 'title previewImage')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      DownloadLog.countDocuments(filter)
+    ]);
+
+    res.json({
+      success: true,
+      downloads: rows.map((r) => ({
+        id: r._id,
+        templateId: r.template?._id || r.template,
+        templateTitle: r.template?.title || r.templateTitleSnapshot,
+        previewImage: r.template?.previewImage || null,
+        userId: r.user?._id || r.user,
+        userName: r.user?.name || null,
+        userEmail: r.user?.email || r.userEmailSnapshot || null,
+        userUsername: r.user?.username || null,
+        userAgent: r.userAgent || null,
+        referrer: r.referrer || null,
+        date: r.createdAt
+      })),
+      pagination: {
+        current: page,
+        pages: Math.ceil(total / limit),
+        total,
+        limit
+      }
+    });
+  } catch (error) {
+    console.error('Creator downloads list error:', error);
+    res.status(500).json({ success: false, message: 'خطأ في الخادم' });
   }
 });
 

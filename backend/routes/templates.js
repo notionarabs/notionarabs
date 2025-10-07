@@ -1,6 +1,7 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Template = require('../models/Template');
+const DownloadLog = require('../models/DownloadLog');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 const { generateTemplateSlug } = require('../utils/slugGenerator');
@@ -745,6 +746,22 @@ router.post('/:id/download', auth, async (req, res) => {
     // Increment download count
     template.downloads = (template.downloads || 0) + 1;
     await template.save();
+
+    // Persist a download log entry for creator analytics
+    try {
+      await DownloadLog.create({
+        template: template._id,
+        creator: template.creator,
+        user: req.user._id,
+        userEmailSnapshot: req.user.email || null,
+        templateTitleSnapshot: template.title || null,
+        userAgent: userAgent || null,
+        referrer: referrer || null
+      });
+    } catch (logErr) {
+      // Non-blocking: logging failure should not fail the request
+      console.error('DownloadLog create error:', logErr?.message || logErr);
+    }
 
     // Log download for analytics (optional)
     console.log(`Template downloaded: ${template.title} (${template._id})`, {

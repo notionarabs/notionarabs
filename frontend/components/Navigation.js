@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '../contexts/AuthContext';
@@ -14,9 +14,40 @@ export default function Navigation({ activePage = '' }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, isAuthenticated, loading, logout } = useAuth();
   const { theme } = useTheme();
+  const menuRef = useRef(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isMenuOpen]);
+
+  // Close menu when clicking on any link
+  const handleLinkClick = () => {
+    setIsMenuOpen(false);
+  };
+
+  // Close menu when logout is clicked
+  const handleLogout = () => {
+    setIsMenuOpen(false);
+    logout();
+  };
 
   return (
-    <header className="w-full bg-accent-500 dark:bg-dark-secondary sticky top-0 z-50 shadow-medium dark:shadow-dark-medium backdrop-blur-sm bg-accent-500/95 dark:bg-dark-secondary/95 transition-colors duration-300">
+    <header ref={menuRef} className="w-full bg-accent-500 dark:bg-dark-secondary sticky top-0 z-50 shadow-medium dark:shadow-dark-medium backdrop-blur-sm bg-accent-500/95 dark:bg-dark-secondary/95 transition-colors duration-300">
       <div className="container-custom flex justify-between items-center py-4">
         <Link href="/" className="flex items-center">
           <Image
@@ -89,25 +120,25 @@ export default function Navigation({ activePage = '' }) {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-accent-500 dark:bg-dark-secondary border-b border-gray-700 dark:border-dark-card-border shadow-large dark:shadow-dark-large backdrop-blur-sm transition-colors duration-300">
+        <div className="md:hidden absolute top-full left-0 right-0 z-40 bg-accent-500 dark:bg-dark-secondary border-b border-gray-700 dark:border-dark-card-border shadow-large dark:shadow-dark-large backdrop-blur-sm transition-colors duration-300">
           <div className="container-custom py-6 space-y-6">
             {/* Mobile Navigation Links */}
             <nav className="space-y-4">
               <div className={`transition-all duration-300 ease-in-out overflow-hidden ${activePage !== 'home' ? 'max-h-16 opacity-100' : 'max-h-0 opacity-0'}`}>
-                <Link href="/" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+                <Link href="/" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
                   الرئيسية
                 </Link>
               </div>
-              <Link href="/templates" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+              <Link href="/templates" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
                 القوالب
               </Link>
-              <Link href="/creators" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+              <Link href="/creators" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
                 المبدعين
               </Link>
-              <Link href="/blog" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+              <Link href="/blog" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
                 المدونة
               </Link>
-              <Link href="/about" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+              <Link href="/about" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
                 من نحن
               </Link>
             </nav>
@@ -128,33 +159,16 @@ export default function Navigation({ activePage = '' }) {
                 </div>
               ) : isAuthenticated ? (
                 <div className="space-y-3">
-                  {/* Mobile User Options */}
-                  <div className="space-y-2">
-                    {/* Creator Application Link Mobile - Only show if not already applied */}
-                    {(!user?.creatorStatus || user?.creatorStatus === 'none' || user?.creatorStatus === 'rejected') && (
-                      <Link href="/creators/apply" className="flex items-center gap-3 py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
-                        <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        <span>{user?.creatorStatus === 'rejected' ? 'إعادة التقديم كمبدع' : 'التسجيل كمبدع'}</span>
-                      </Link>
-                    )}
-
-                    {/* Pending Status Message Mobile */}
-                    {user?.creatorStatus === 'pending' && (
-                      <div className="flex items-center gap-3 py-3 px-4 text-yellow-300 dark:text-yellow-400 bg-yellow-900/20 dark:bg-yellow-900/20 rounded-xl">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span>طلبك قيد المراجعة</span>
-                      </div>
-                    )}
-
-                    {/* Profile Link Mobile - For approved creators and pending applications */}
-                    {(user?.creatorStatus === 'approved' || user?.creatorStatus === 'pending') && (
-                      <Link href="/profile" className="flex items-center gap-3 py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+                  {/* User Info Header */}
+                  <div className="px-4 py-3 bg-white/5 dark:bg-dark-tertiary rounded-xl">
+                    <div className="flex items-center gap-3">
+                      {(user?.creatorStatus === 'approved' || user?.creatorStatus === 'pending') ? (
+                        // Premium styling for approved creators and pending applications
                         <div className="relative">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500 p-0.5 shadow-md">
+                          <div className={`w-9 h-9 rounded-full p-0.5 shadow-md ${user?.creatorStatus === 'approved'
+                            ? 'bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500'
+                            : 'bg-gradient-to-r from-yellow-500 to-orange-500'
+                            }`}>
                             <div className="w-full h-full rounded-full bg-white dark:bg-dark-secondary">
                               {user?.profilePicture ? (
                                 <Image
@@ -167,9 +181,9 @@ export default function Navigation({ activePage = '' }) {
                                 />
                               ) : (
                                 <div className="w-full h-full rounded-full bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 flex items-center justify-center">
-                                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                                  </svg>
+                                  <span className="text-xs font-bold text-white">
+                                    {user?.name?.charAt(0)?.toUpperCase()}
+                                  </span>
                                 </div>
                               )}
                             </div>
@@ -190,20 +204,163 @@ export default function Navigation({ activePage = '' }) {
                             )}
                           </div>
                         </div>
-                        <span>الملف الشخصي</span>
-                      </Link>
+                      ) : (
+                        // Regular styling for non-creators
+                        <>
+                          {user?.profilePicture ? (
+                            <Image
+                              src={user.profilePicture}
+                              alt={`صورة ${user.name}`}
+                              width={32}
+                              height={32}
+                              className="w-8 h-8 rounded-full"
+                              quality={100}
+                            />
+                          ) : (
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 flex items-center justify-center">
+                              <span className="text-sm font-bold text-white">
+                                {user?.name?.charAt(0)?.toUpperCase()}
+                              </span>
+                            </div>
+                          )}
+                        </>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium text-gray-300 dark:text-dark-text-primary truncate">
+                            {user?.name}
+                          </p>
+                          {user?.creatorStatus === 'approved' && (
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 dark:from-yellow-900/30 dark:to-amber-900/30 dark:text-yellow-300">
+                              مبدع
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-400 dark:text-dark-text-tertiary truncate">
+                          {user?.email}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mobile User Options */}
+                  <div className="space-y-2">
+                    {/* Admin Section */}
+                    {user?.role === 'admin' ? (
+                      <>
+                        <div className="px-4 py-2">
+                          <h3 className="text-xs font-semibold text-gray-400 dark:text-dark-text-tertiary uppercase tracking-wider mb-2">
+                            لوحة الإدارة
+                          </h3>
+                        </div>
+
+                        <Link
+                          href="/admin"
+                          onClick={handleLinkClick}
+                          className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
+                        >
+                          <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z" />
+                          </svg>
+                          <span className="text-sm">لوحة الإدارة الرئيسية</span>
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        {/* Profile Link - For approved creators and pending applications (non-admin) */}
+                        {(user?.creatorStatus === 'approved' || user?.creatorStatus === 'pending') && (
+                          <Link
+                            href="/profile"
+                            onClick={handleLinkClick}
+                            className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
+                          >
+                            <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            <span className="text-sm">الملف الشخصي</span>
+                          </Link>
+                        )}
+
+                        {/* Settings Link */}
+                        <Link
+                          href={user?.creatorStatus === 'approved' ? "/settings" : "/user-settings"}
+                          onClick={handleLinkClick}
+                          className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
+                        >
+                          <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <span className="text-sm">الإعدادات</span>
+                        </Link>
+
+                        {/* Orders Section - Only for normal users */}
+                        <Link
+                          href="/purchases"
+                          onClick={handleLinkClick}
+                          className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
+                        >
+                          <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <span className="text-sm">مشترياتي</span>
+                        </Link>
+
+                        {/* Creator Application Section */}
+                        {/* Pending Status */}
+                        {user?.creatorStatus === 'pending' && (
+                          <div className="w-full px-4 py-3 text-right flex items-center gap-3 text-amber-400 dark:text-amber-300 bg-amber-900/20 dark:bg-amber-900/20 rounded-xl">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="text-sm">طلبك قيد المراجعة</span>
+                          </div>
+                        )}
+
+                        {/* Rejected Status - Allow re-application */}
+                        {user?.creatorStatus === 'rejected' && (
+                          <Link
+                            href="/creators/apply"
+                            onClick={handleLinkClick}
+                            className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
+                          >
+                            <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            <span className="text-sm">إعادة التقديم كمبدع</span>
+                          </Link>
+                        )}
+
+                        {/* No Status - First time application */}
+                        {(!user?.creatorStatus || user?.creatorStatus === '' || user?.creatorStatus === 'none') && (
+                          <Link
+                            href="/creators/apply"
+                            onClick={handleLinkClick}
+                            className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
+                          >
+                            <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            <span className="text-sm">التسجيل كمبدع</span>
+                          </Link>
+                        )}
+                      </>
                     )}
 
-                    {/* Sign Out Mobile */}
-                    <button
-                      onClick={logout}
-                      className="w-full flex items-center gap-3 py-3 px-4 text-red-400 hover:text-red-300 hover:bg-red-900/20 transition-all duration-200 rounded-xl"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                      </svg>
-                      <span>تسجيل الخروج</span>
-                    </button>
+                    {/* Sign Out with Theme Toggle */}
+                    <div className="flex items-center justify-between gap-3 py-3 px-4">
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-3 text-red-400 hover:text-red-300 hover:bg-red-900/20 transition-all duration-200 rounded-xl px-3 py-2 flex-1 text-right"
+                      >
+                        <span className="text-sm">تسجيل الخروج</span>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                      </button>
+                      <ThemeToggle />
+                    </div>
                   </div>
                 </div>
               ) : (
@@ -214,10 +371,10 @@ export default function Navigation({ activePage = '' }) {
                     <ThemeToggle />
                   </div>
 
-                  <Link href="/login" className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+                  <Link href="/login" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
                     تسجيل الدخول
                   </Link>
-                  <Link href="/signup" className="block py-3 px-4 text-center bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-xl transition-colors duration-200">
+                  <Link href="/signup" onClick={handleLinkClick} className="block py-3 px-4 text-center bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-xl transition-colors duration-200">
                     إنشاء حساب
                   </Link>
                 </div>

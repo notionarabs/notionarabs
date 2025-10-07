@@ -16,7 +16,7 @@ export default function MaintenanceMode() {
     return null;
   }
 
-  // Don't show maintenance page to admins
+  // Don't show maintenance page to admins - ConditionalLayout handles this
   if (isAuthenticated && user?.role === 'admin') {
     return null;
   }

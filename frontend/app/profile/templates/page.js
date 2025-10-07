@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { CheckCircle, Clock, XCircle } from 'lucide-react';
 import Image from 'next/image';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -63,25 +64,25 @@ export default function CreatorTemplatesPage() {
       pending: {
         label: 'قيد المراجعة',
         className: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
-        icon: '⏳'
+        Icon: Clock
       },
       approved: {
         label: 'موافق عليه',
         className: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-        icon: '✅'
+        Icon: CheckCircle
       },
       rejected: {
         label: 'مرفوض',
         className: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
-        icon: '❌'
+        Icon: XCircle
       }
     };
 
     const config = statusConfig[status] || statusConfig.pending;
     return (
-      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${config.className}`}>
-        <span className="ml-1">{config.icon}</span>
-        {config.label}
+      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${config.className}`}>
+        {config.Icon && <config.Icon className="w-4 h-4" />}
+        <span>{config.label}</span>
       </span>
     );
   };

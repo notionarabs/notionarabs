@@ -72,6 +72,37 @@ export default function UserNotifications() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Lightweight polling and focus/visibility-based refresh for near-real-time badge updates
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    let intervalId;
+
+    const onFocus = () => fetchNotifications();
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') fetchNotifications();
+    };
+
+    // Poll every 10s when dropdown is closed
+    const startPolling = () => {
+      if (intervalId) clearInterval(intervalId);
+      intervalId = setInterval(() => {
+        if (!isOpen) fetchNotifications();
+      }, 10000);
+    };
+
+    startPolling();
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, isOpen]);
+
   // Close when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {

@@ -505,7 +505,7 @@ export default function TemplateDetailPage() {
       // Trigger notifications refresh for the creator immediately (best effort)
       try {
         window.dispatchEvent(new Event('notifications:refresh'));
-      } catch {}
+      } catch { }
 
       // Create or upsert order entry for this user
       try {

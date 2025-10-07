@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
           setHasCheckedAuth(true);
         }
       }, 2000);
-      
+
       return () => clearTimeout(timeoutId);
     }
 

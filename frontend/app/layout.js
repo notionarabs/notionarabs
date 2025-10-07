@@ -3,6 +3,7 @@ import { AuthProvider } from '../contexts/AuthContext'
 import { ThemeProvider } from '../contexts/ThemeContext'
 import { LoadingProvider } from '../contexts/LoadingContext'
 import { ToastProvider } from '../contexts/ToastContext'
+import { MaintenanceProvider } from '../contexts/MaintenanceContext'
 import NavigationWrapper from '../components/NavigationWrapper'
 import NavigationHandler from '../components/NavigationHandler'
 import LoadingIndicator from '../components/LoadingIndicator'
@@ -10,6 +11,8 @@ import { initSmoothScroll } from '../lib/smoothScroll'
 import { OrganizationSchema, WebsiteSchema } from '../components/StructuredData'
 import { GoogleAnalytics } from '../components/SEOOptimizations'
 import { QueryProvider } from '../components/QueryProvider'
+import MaintenanceMode from '../components/MaintenanceMode'
+import QuickMaintenanceToggle from '../components/QuickMaintenanceToggle'
 
 import { generateMetadata as generateBaseMetadata } from '../lib/seo'
 
@@ -132,14 +135,18 @@ export default function RootLayout({ children }) {
         <QueryProvider>
           <ThemeProvider>
             <LoadingProvider>
-              <AuthProvider>
-                <ToastProvider>
-                  <NavigationWrapper />
-                  <NavigationHandler />
-                  <LoadingIndicator />
-                  {children}
-                </ToastProvider>
-              </AuthProvider>
+              <MaintenanceProvider>
+                <AuthProvider>
+                  <ToastProvider>
+                    <MaintenanceMode />
+                    <QuickMaintenanceToggle />
+                    <NavigationWrapper />
+                    <NavigationHandler />
+                    <LoadingIndicator />
+                    {children}
+                  </ToastProvider>
+                </AuthProvider>
+              </MaintenanceProvider>
             </LoadingProvider>
           </ThemeProvider>
         </QueryProvider>

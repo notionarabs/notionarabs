@@ -19,9 +19,26 @@ const api = axios.create({
   },
 });
 
-// Add request interceptor to include auth token
+// Add request interceptor to include auth token and check maintenance mode
 api.interceptors.request.use(
   (config) => {
+    // Check if maintenance mode is active (except for settings/public endpoint)
+    if (typeof window !== 'undefined' &&
+      window.isMaintenanceMode &&
+      !config.url?.includes('/settings/public') &&
+      !config.url?.includes('/health')) {
+      return Promise.reject({
+        response: {
+          status: 503,
+          data: {
+            success: false,
+            message: 'الموقع في وضع الصيانة حالياً',
+            maintenanceMode: true
+          }
+        }
+      });
+    }
+
     // Token will be added by AuthContext
     return config;
   },
@@ -52,6 +69,11 @@ api.interceptors.response.use(
       toast.error('ليس لديك صلاحية للوصول إلى هذا المورد');
     } else if (response?.status === 404) {
       toast.error('المورد المطلوب غير موجود');
+    } else if (response?.status === 503) {
+      // Don't show toast for maintenance mode - the MaintenanceMode component handles this
+      if (!response.data?.maintenanceMode) {
+        toast.error('الموقع في وضع الصيانة حالياً');
+      }
     } else if (response?.status >= 500) {
       toast.error('خطأ في الخادم. يرجى المحاولة مرة أخرى');
     } else if (!response) {

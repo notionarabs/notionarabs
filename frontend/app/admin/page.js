@@ -103,29 +103,28 @@ export default function AdminPage() {
 
   // Calculate filtered user count based on current filters
   const calculateFilteredUserCount = () => {
-    // Use real user count from stats, fallback to 0 if not available
-    const baseCount = stats?.totalUsers || 0;
-    let multiplier = 1;
+    // Get base count based on role filter
+    let baseCount = 0;
 
-    // Search term reduces count
+    if (filterRole === 'creator') {
+      baseCount = stats?.approvedCreators || 0;
+    } else if (filterRole === 'admin') {
+      baseCount = stats?.adminUsers || 0; // Real admin count
+    } else if (filterRole === 'user') {
+      // Regular users (not admins and not approved creators)
+      baseCount = stats?.regularUsers || 0;
+    } else {
+      // All users
+      baseCount = stats?.totalUsers || 0;
+    }
+
+    // Apply search term reduction if searching
     if (searchTerm) {
-      multiplier *= 0.3; // Search significantly reduces results
+      // Search significantly reduces results - apply realistic reduction
+      return Math.max(0, Math.round(baseCount * 0.3));
     }
 
-    // Role filter affects count - use real stats data
-    if (filterRole !== 'all') {
-      if (filterRole === 'creator') {
-        return stats?.approvedCreators || 0; // Real creator count
-      } else if (filterRole === 'admin') {
-        return 1; // Usually just 1 admin
-      } else {
-        // Regular users = total - creators - admins
-        const regularUsers = (stats?.totalUsers || 0) - (stats?.approvedCreators || 0) - 1;
-        return Math.max(0, regularUsers);
-      }
-    }
-
-    return Math.max(0, Math.round(baseCount * multiplier));
+    return baseCount;
   };
 
   const fetchUsers = async () => {
@@ -166,6 +165,8 @@ export default function AdminPage() {
         pendingApplications: 0,
         approvedCreators: 0,
         rejectedApplications: 0,
+        adminUsers: 0,
+        regularUsers: 0,
         totalTemplates: 0,
         pendingTemplates: 0,
         approvedTemplates: 0,

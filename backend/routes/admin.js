@@ -8,6 +8,65 @@ const auth = require('../middleware/auth');
 
 const router = express.Router();
 
+// @route   GET /api/settings/public
+// @desc    Get public settings (maintenance mode, etc.)
+// @access  Public
+router.get('/settings/public', async (req, res) => {
+  try {
+    console.log('Public settings route called');
+    const Settings = require('../models/Settings');
+    const settings = await Settings.getSettings();
+
+    console.log('Settings retrieved:', settings);
+
+    // Only return public settings
+    res.json({
+      success: true,
+      settings: {
+        maintenanceMode: settings.maintenanceMode,
+        platformName: settings.platformName,
+        platformDescription: settings.platformDescription,
+        contactInfo: settings.contactInfo
+      }
+    });
+  } catch (error) {
+    console.error('Get public settings error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// Test route
+router.get('/test', (req, res) => {
+  res.json({ message: 'Test route working' });
+});
+
+// Simple public settings route
+router.get('/public', async (req, res) => {
+  try {
+    const Settings = require('../models/Settings');
+    const settings = await Settings.getSettings();
+
+    res.json({
+      success: true,
+      settings: {
+        maintenanceMode: settings.maintenanceMode,
+        platformName: settings.platformName,
+        platformDescription: settings.platformDescription,
+        contactInfo: settings.contactInfo
+      }
+    });
+  } catch (error) {
+    console.error('Get public settings error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
 // @route   GET /api/admin/users
 // @desc    Get all users with filtering and sorting (Admin only)
 // @access  Private (Admin)
@@ -130,6 +189,21 @@ router.get('/stats', auth, async (req, res) => {
           pendingApplications: { $sum: { $cond: [{ $eq: ['$creatorStatus', 'pending'] }, 1, 0] } },
           approvedCreators: { $sum: { $cond: [{ $eq: ['$creatorStatus', 'approved'] }, 1, 0] } },
           rejectedApplications: { $sum: { $cond: [{ $eq: ['$creatorStatus', 'rejected'] }, 1, 0] } },
+          adminUsers: { $sum: { $cond: [{ $eq: ['$role', 'admin'] }, 1, 0] } },
+          regularUsers: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $ne: ['$role', 'admin'] },
+                    { $ne: ['$creatorStatus', 'approved'] }
+                  ]
+                },
+                1,
+                0
+              ]
+            }
+          },
           recentUsers: {
             $sum: {
               $cond: [
@@ -213,6 +287,8 @@ router.get('/stats', auth, async (req, res) => {
         pendingApplications: userData.pendingApplications || 0,
         approvedCreators: userData.approvedCreators || 0,
         rejectedApplications: userData.rejectedApplications || 0,
+        adminUsers: userData.adminUsers || 0,
+        regularUsers: userData.regularUsers || 0,
         totalTemplates: templateData.totalTemplates || 0,
         pendingTemplates: templateData.pendingTemplates || 0,
         approvedTemplates: templateData.approvedTemplates || 0,
@@ -911,21 +987,8 @@ router.get('/settings', auth, async (req, res) => {
       });
     }
 
-    // Return default settings for now
-    const settings = {
-      platformName: 'عرب نوشن',
-      platformDescription: 'منصة قوالب Notion العربية',
-      maintenanceMode: false,
-      registrationEnabled: true,
-      creatorApplicationsEnabled: true,
-      autoApproveTemplates: false,
-      autoApproveBlogs: false,
-      contactInfo: {
-        email: 'support@notionarabs.com',
-        phone: '+201050505673',
-        address: 'القاهرة، جمهورية مصر العربية'
-      }
-    };
+    const Settings = require('../models/Settings');
+    const settings = await Settings.getSettings();
 
     res.json({
       success: true,
@@ -1002,14 +1065,52 @@ router.put('/settings', auth, [
       });
     }
 
-    // For now, just return success (settings persistence can be added later)
+    const Settings = require('../models/Settings');
+    const updatedSettings = await Settings.updateSettings(req.body);
+
     res.json({
       success: true,
       message: 'تم حفظ الإعدادات بنجاح',
-      settings: req.body
+      settings: updatedSettings
     });
   } catch (error) {
     console.error('Update admin settings error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   POST /api/admin/toggle-maintenance
+// @desc    Toggle maintenance mode (for quick access)
+// @access  Private (Admin)
+router.post('/toggle-maintenance', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    const Settings = require('../models/Settings');
+    const settings = await Settings.getSettings();
+
+    // Toggle maintenance mode
+    const newMaintenanceMode = !settings.maintenanceMode;
+    const updatedSettings = await Settings.updateSettings({
+      maintenanceMode: newMaintenanceMode
+    });
+
+    res.json({
+      success: true,
+      message: `Maintenance mode ${newMaintenanceMode ? 'enabled' : 'disabled'}`,
+      maintenanceMode: newMaintenanceMode,
+      settings: updatedSettings
+    });
+  } catch (error) {
+    console.error('Toggle maintenance mode error:', error);
     res.status(500).json({
       success: false,
       message: 'خطأ في الخادم'

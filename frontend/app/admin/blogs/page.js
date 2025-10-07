@@ -7,7 +7,6 @@ import Link from 'next/link';
 import { formatDate } from '../../../lib/dateUtils';
 import api from '../../../lib/api';
 import LoadingIndicator from '../../../components/LoadingIndicator';
-import ExportButton from '../../../components/ExportButton';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useToast } from '../../../contexts/ToastContext';
 
@@ -205,11 +204,14 @@ export default function AdminBlogsPage() {
                 مراجعة وموافقة على المقالات المقدمة من المبدعين
               </p>
             </div>
-            <ExportButton
-              endpoint="/blogs/export"
-              filename={`blogs-data-${new Date().toISOString().split('T')[0]}.csv`}
-              label="تصدير المقالات"
-            />
+            <div className="flex gap-3">
+              <button
+                onClick={() => router.push('/admin')}
+                className="btn-outline"
+              >
+                العودة للوحة الإدارة
+              </button>
+            </div>
           </div>
         </div>
 

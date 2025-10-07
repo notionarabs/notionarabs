@@ -83,14 +83,36 @@ export default function AdminSettingsPage() {
       const response = await api.put('/admin/settings', settings);
       if (response.data.success) {
         showSuccess('تم حفظ الإعدادات بنجاح! 🎉');
+        // Update settings with the response data
+        if (response.data.settings) {
+          setSettings(response.data.settings);
+        }
       }
     } catch (error) {
       console.error('Error saving settings:', error);
-      // Silently fail - API endpoint not implemented yet
-      showSuccess('تم حفظ الإعدادات محلياً! 🎉 (API غير متاح)');
+      showError('فشل في حفظ الإعدادات. يرجى المحاولة مرة أخرى.');
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleResetToDefaults = () => {
+    const defaultSettings = {
+      platformName: 'عرب نوشن',
+      platformDescription: 'منصة قوالب Notion العربية',
+      maintenanceMode: false,
+      registrationEnabled: true,
+      creatorApplicationsEnabled: true,
+      autoApproveTemplates: false,
+      autoApproveBlogs: false,
+      contactInfo: {
+        email: 'support@notionarabs.com',
+        phone: '+201050505673',
+        address: 'القاهرة، جمهورية مصر العربية'
+      }
+    };
+    setSettings(defaultSettings);
+    showSuccess('تم إعادة تعيين الإعدادات إلى القيم الافتراضية');
   };
 
   const handleInputChange = (section, field, value) => {
@@ -163,6 +185,12 @@ export default function AdminSettingsPage() {
               العودة للوحة الإدارة
             </button>
             <button
+              onClick={handleResetToDefaults}
+              className="btn-outline text-red-600 border-red-600 hover:bg-red-50"
+            >
+              إعادة تعيين
+            </button>
+            <button
               onClick={handleSave}
               disabled={saving}
               className="btn-primary"
@@ -222,9 +250,16 @@ export default function AdminSettingsPage() {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-tertiary rounded-lg">
+                  <div className={`flex items-center justify-between p-4 rounded-lg ${settings.maintenanceMode ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800' : 'bg-gray-50 dark:bg-dark-tertiary'}`}>
                     <div>
-                      <h4 className="font-medium text-accent-700 dark:text-dark-text-primary">وضع الصيانة</h4>
+                      <h4 className="font-medium text-accent-700 dark:text-dark-text-primary">
+                        وضع الصيانة
+                        {settings.maintenanceMode && (
+                          <span className="ml-2 text-xs bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200 px-2 py-1 rounded-full animate-pulse">
+                            🚧 نشط - الموقع مغلق
+                          </span>
+                        )}
+                      </h4>
                       <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
                         إيقاف الموقع مؤقتاً للصيانة
                       </p>
@@ -247,9 +282,12 @@ export default function AdminSettingsPage() {
             <div id="content" className="card p-6">
               <h3 className="heading-3 mb-6">إدارة المحتوى</h3>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-tertiary rounded-lg">
+                <div className={`flex items-center justify-between p-4 rounded-lg ${settings.registrationEnabled ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800' : 'bg-gray-50 dark:bg-dark-tertiary'}`}>
                   <div>
-                    <h4 className="font-medium text-accent-700 dark:text-dark-text-primary">تفعيل التسجيل</h4>
+                    <h4 className="font-medium text-accent-700 dark:text-dark-text-primary">
+                      تفعيل التسجيل
+                      {settings.registrationEnabled && <span className="ml-2 text-xs bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 px-2 py-1 rounded-full">مفعل</span>}
+                    </h4>
                     <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
                       السماح للمستخدمين الجدد بالتسجيل
                     </p>
@@ -265,9 +303,12 @@ export default function AdminSettingsPage() {
                   </label>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-tertiary rounded-lg">
+                <div className={`flex items-center justify-between p-4 rounded-lg ${settings.creatorApplicationsEnabled ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800' : 'bg-gray-50 dark:bg-dark-tertiary'}`}>
                   <div>
-                    <h4 className="font-medium text-accent-700 dark:text-dark-text-primary">طلبات المبدعين</h4>
+                    <h4 className="font-medium text-accent-700 dark:text-dark-text-primary">
+                      طلبات المبدعين
+                      {settings.creatorApplicationsEnabled && <span className="ml-2 text-xs bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 px-2 py-1 rounded-full">مفعل</span>}
+                    </h4>
                     <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
                       السماح بتقديم طلبات الانضمام كمبدع
                     </p>
@@ -283,9 +324,12 @@ export default function AdminSettingsPage() {
                   </label>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-tertiary rounded-lg">
+                <div className={`flex items-center justify-between p-4 rounded-lg ${settings.autoApproveTemplates ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800' : 'bg-gray-50 dark:bg-dark-tertiary'}`}>
                   <div>
-                    <h4 className="font-medium text-accent-700 dark:text-dark-text-primary">الموافقة التلقائية على القوالب</h4>
+                    <h4 className="font-medium text-accent-700 dark:text-dark-text-primary">
+                      الموافقة التلقائية على القوالب
+                      {settings.autoApproveTemplates && <span className="ml-2 text-xs bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full">مفعل</span>}
+                    </h4>
                     <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
                       الموافقة تلقائياً على القوالب الجديدة
                     </p>
@@ -301,9 +345,12 @@ export default function AdminSettingsPage() {
                   </label>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-tertiary rounded-lg">
+                <div className={`flex items-center justify-between p-4 rounded-lg ${settings.autoApproveBlogs ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800' : 'bg-gray-50 dark:bg-dark-tertiary'}`}>
                   <div>
-                    <h4 className="font-medium text-accent-700 dark:text-dark-text-primary">الموافقة التلقائية على المقالات</h4>
+                    <h4 className="font-medium text-accent-700 dark:text-dark-text-primary">
+                      الموافقة التلقائية على المقالات
+                      {settings.autoApproveBlogs && <span className="ml-2 text-xs bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full">مفعل</span>}
+                    </h4>
                     <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
                       الموافقة تلقائياً على المقالات الجديدة
                     </p>

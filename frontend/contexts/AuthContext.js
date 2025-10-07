@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import api from '../lib/api';
+import { useMaintenance } from './MaintenanceContext';
 
 const AuthContext = createContext();
 
@@ -19,10 +20,23 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
+  const { isMaintenanceMode, hasCheckedMaintenance } = useMaintenance();
 
   const router = useRouter();
 
   useEffect(() => {
+    // Don't check auth until maintenance mode check is complete
+    if (!hasCheckedMaintenance) {
+      return;
+    }
+
+    // If maintenance mode is active, skip auth check
+    if (isMaintenanceMode) {
+      setLoading(false);
+      setHasCheckedAuth(true);
+      return;
+    }
+
     // Ensure axios has the token as early as possible
     const existingToken = Cookies.get('authToken');
     if (existingToken) {
@@ -72,11 +86,16 @@ export const AuthProvider = ({ children }) => {
     } else {
       setLoading(false);
     }
-  }, [hasCheckedAuth]); // Only run when hasCheckedAuth changes
+  }, [hasCheckedAuth, hasCheckedMaintenance, isMaintenanceMode]); // Added maintenance dependencies
 
 
   const checkAuthStatus = async () => {
     try {
+      // Skip auth check if maintenance mode is active
+      if (isMaintenanceMode) {
+        return;
+      }
+
       const token = Cookies.get('authToken');
 
       // Check if we have cached user data

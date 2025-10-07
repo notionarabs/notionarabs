@@ -151,10 +151,22 @@ export default function CreatorApplicationsPage() {
       <div className="container-custom py-16">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="heading-1 mb-4">إدارة طلبات المبدعين</h1>
-          <p className="body-large text-accent-600 dark:text-dark-text-secondary">
-            مراجعة وإدارة طلبات الانضمام كمبدعين
-          </p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="heading-1 mb-4">إدارة طلبات المبدعين</h1>
+              <p className="body-large text-accent-600 dark:text-dark-text-secondary">
+                مراجعة وإدارة طلبات الانضمام كمبدعين
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => router.push('/admin')}
+                className="btn-outline"
+              >
+                العودة للوحة الإدارة
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Stats Cards */}

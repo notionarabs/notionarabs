@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import api from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useMaintenance } from '../contexts/MaintenanceContext';
 import StarRating from '../components/StarRating';
 import { Settings, BookOpen, Briefcase, Heart, Palette, Laptop, Dumbbell, PiggyBank, FolderTree, CalendarDays, LayoutDashboard, Users, Check, Youtube, Facebook, Send, Zap, Target, Lightbulb, TrendingUp } from 'lucide-react';
 
@@ -39,6 +40,7 @@ const categorySlugMap = {
 
 export default function HomePage() {
   const { user, isAuthenticated } = useAuth();
+  const { isMaintenanceMode, hasCheckedMaintenance } = useMaintenance();
   const [featuredTemplates, setFeaturedTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ templates: 0, creators: 0, specialties: 0, downloads: 0 });
@@ -48,9 +50,20 @@ export default function HomePage() {
 
   // Fetch featured templates from API (most famous and highest-rated)
   useEffect(() => {
+    // Don't fetch data until maintenance mode check is complete
+    if (!hasCheckedMaintenance) {
+      return;
+    }
+
     const fetchFeaturedTemplates = async () => {
       try {
         setLoading(true);
+
+        // Check if maintenance mode is active before making API calls
+        if (isMaintenanceMode) {
+          setLoading(false);
+          return;
+        }
 
         // First try to get high-rated templates
         const ratingResponse = await api.get('/templates?limit=30&sortBy=rating&sortOrder=desc');
@@ -124,13 +137,24 @@ export default function HomePage() {
     };
 
     fetchFeaturedTemplates();
-  }, []);
+  }, [hasCheckedMaintenance, isMaintenanceMode]);
 
   // Fetch homepage aggregates (totals, top creators, category counts)
   useEffect(() => {
+    // Don't fetch data until maintenance mode check is complete
+    if (!hasCheckedMaintenance) {
+      return;
+    }
+
     const fetchHomepageData = async () => {
       try {
         setLoadingCreators(true);
+
+        // Check if maintenance mode is active before making API calls
+        if (isMaintenanceMode) {
+          setLoadingCreators(false);
+          return;
+        }
         const categoriesArabic = [
           'الإنتاجية',
           'الدراسة',
@@ -251,7 +275,7 @@ export default function HomePage() {
     };
 
     fetchHomepageData();
-  }, []);
+  }, [hasCheckedMaintenance, isMaintenanceMode]);
 
 
 

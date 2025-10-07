@@ -101,8 +101,16 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/notion-ar
   .catch(err => console.error('Database connection error:', err));
 
 // Apply rate limiting to routes
+// Import settings middleware
+const { checkMaintenanceMode, checkRegistrationEnabled, checkCreatorApplicationsEnabled } = require('./middleware/settings');
+
 app.use('/api/auth', authRateLimit);
 app.use('/api', apiRateLimit);
+
+// Apply settings middleware
+app.use(checkMaintenanceMode);
+app.use('/api/auth', checkRegistrationEnabled);
+app.use('/api/auth', checkCreatorApplicationsEnabled);
 app.use('/', generalRateLimit);
 
 // Routes
@@ -120,6 +128,7 @@ const notificationRoutes = require('./routes/notifications');
 const healthRoutes = require('./routes/health');
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/settings', adminRoutes); // Public settings endpoint
 app.use('/api/templates', templateRoutes);
 app.use('/api/screenshot', screenshotRoutes);
 app.use('/api/blogs', blogRoutes);

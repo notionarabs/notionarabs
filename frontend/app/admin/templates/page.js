@@ -5,7 +5,6 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import api from '../../../lib/api';
 import { formatDate } from '../../../lib/dateUtils';
-import ExportButton from '../../../components/ExportButton';
 
 export default function AdminTemplatesPage() {
   const [templates, setTemplates] = useState([]);
@@ -211,11 +210,6 @@ export default function AdminTemplatesPage() {
               </p>
             </div>
             <div className="flex gap-3">
-              <ExportButton
-                endpoint="/templates/export"
-                filename={`templates-data-${new Date().toISOString().split('T')[0]}.csv`}
-                label="تصدير القوالب"
-              />
               <button
                 onClick={() => router.push('/admin')}
                 className="btn-outline"

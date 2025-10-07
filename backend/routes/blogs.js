@@ -314,8 +314,12 @@ router.post('/', auth, [
       });
     }
 
-    // Force status to 'pending' for admin review (except for drafts)
-    const finalStatus = status === 'draft' ? 'draft' : 'pending';
+    // Check if auto-approve is enabled for blogs
+    const { shouldAutoApproveBlogs } = require('../middleware/settings');
+    const autoApprove = await shouldAutoApproveBlogs();
+
+    // Set status based on auto-approve settings (except for drafts)
+    const finalStatus = status === 'draft' ? 'draft' : (autoApprove ? 'published' : 'pending');
 
     // Create blog post
     const blog = new Blog({

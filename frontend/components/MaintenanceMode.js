@@ -22,7 +22,7 @@ export default function MaintenanceMode() {
   }
 
   return (
-    <div className="fixed inset-0 bg-white dark:bg-dark-primary z-50 flex items-center justify-center" dir="rtl">
+    <div className="fixed inset-0 bg-white dark:bg-dark-primary z-[9999] flex items-center justify-center" dir="rtl">
       <div className="max-w-md mx-auto text-center p-8">
         {/* Logo */}
         <div className="mb-8">

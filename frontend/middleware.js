@@ -47,8 +47,11 @@ export function middleware(request) {
     pathname.startsWith('/static') ||
     pathname.includes('.');
 
-  // Allow access to public routes, dynamic public routes, and static assets
-  if (isPublicRoute || isDynamicPublicRoute || isStaticAsset) {
+  // Treat admin pages as public for routing (client guards will enforce role)
+  const isAdminRoute = pathname.startsWith('/admin');
+
+  // Allow access to public routes, dynamic public routes, static assets, and admin pages (guarded client-side)
+  if (isPublicRoute || isDynamicPublicRoute || isStaticAsset || isAdminRoute) {
     return NextResponse.next();
   }
 

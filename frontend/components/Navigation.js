@@ -7,6 +7,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import ThemeToggle from './ThemeToggle';
 import UserDropdown from './UserDropdown';
+import dynamic from 'next/dynamic';
+const UserNotifications = dynamic(() => import('./UserNotifications'), { ssr: false });
 
 export default function Navigation({ activePage = '' }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -52,7 +54,8 @@ export default function Navigation({ activePage = '' }) {
               </>
             ) : isAuthenticated ? (
               <>
-                {/* User Dropdown */}
+                {/* Notifications and User Dropdown */}
+                <UserNotifications />
                 <UserDropdown />
               </>
             ) : (

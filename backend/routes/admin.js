@@ -2,6 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const Template = require('../models/Template');
+const Notification = require('../models/Notification');
 const Blog = require('../models/Blog');
 const auth = require('../middleware/auth');
 
@@ -375,6 +376,26 @@ router.put('/templates/:id/status', auth, [
 
     if (status === 'approved') {
       await template.approve(req.user._id, adminNotes);
+
+      // Create notifications for followers of the creator
+      try {
+        const creatorId = template.creator;
+        const followers = await User.find({ following: creatorId }).select('_id').lean();
+        if (followers && followers.length > 0) {
+          const creator = await User.findById(creatorId).select('name displayName');
+          const notifications = followers.map(f => ({
+            user: f._id,
+            type: 'template_published',
+            title: 'قالب جديد من مبدع تتابعه',
+            message: `${creator?.displayName || creator?.name || 'مبدع'} نشر قالبًا جديدًا: ${template.title}`,
+            link: `/templates/${template.slug || template._id}`,
+            metadata: { templateId: template._id, creatorId }
+          }));
+          await Notification.insertMany(notifications);
+        }
+      } catch (notifyErr) {
+        console.error('Notify followers error:', notifyErr);
+      }
     } else {
       await template.reject(req.user._id, adminNotes);
     }

@@ -120,6 +120,7 @@ const uploadRoutes = require('./routes/upload');
 const contactRoutes = require('./routes/contact');
 const ratingRoutes = require('./routes/ratings');
 const commentRoutes = require('./routes/comments');
+const notificationRoutes = require('./routes/notifications');
 const healthRoutes = require('./routes/health');
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
@@ -131,6 +132,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/ratings', ratingRoutes);
 app.use('/api/comments', commentRoutes);
+app.use('/api/notifications', notificationRoutes);
 app.use('/api/health', healthRoutes);
 
 // Basic route

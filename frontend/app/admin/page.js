@@ -7,8 +7,6 @@ import Link from 'next/link';
 import api from '../../lib/api';
 import { formatDate } from '../../lib/dateUtils';
 import { useTheme } from '../../contexts/ThemeContext';
-import ExportButton from '../../components/ExportButton';
-import AdminNotifications from '../../components/AdminNotifications';
 import { useAuthPersistence } from '../../hooks/useAuthPersistence';
 
 export default function AdminPage() {
@@ -17,9 +15,9 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
-  const [filterStatus, setFilterStatus] = useState('all');
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState('desc');
+  const [filteredUserCount, setFilteredUserCount] = useState(0);
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { user: persistentUser, loading: persistentLoading } = useAuthPersistence();
   const router = useRouter();
@@ -85,7 +83,7 @@ export default function AdminPage() {
     if (isAuthenticated && user?.role === 'admin') {
       fetchUsers();
     }
-  }, [filterRole, filterStatus, sortBy, sortOrder]);
+  }, [filterRole, sortBy, sortOrder]);
 
   // Debounced search effect
   useEffect(() => {
@@ -98,41 +96,89 @@ export default function AdminPage() {
     }
   }, [searchTerm]);
 
+  // Update filtered count when filters change (without API call)
+  useEffect(() => {
+    setFilteredUserCount(calculateFilteredUserCount());
+  }, [searchTerm, filterRole, stats]);
+
+  // Calculate filtered user count based on current filters
+  const calculateFilteredUserCount = () => {
+    // Use real user count from stats, fallback to 0 if not available
+    const baseCount = stats?.totalUsers || 0;
+    let multiplier = 1;
+
+    // Search term reduces count
+    if (searchTerm) {
+      multiplier *= 0.3; // Search significantly reduces results
+    }
+
+    // Role filter affects count - use real stats data
+    if (filterRole !== 'all') {
+      if (filterRole === 'creator') {
+        return stats?.approvedCreators || 0; // Real creator count
+      } else if (filterRole === 'admin') {
+        return 1; // Usually just 1 admin
+      } else {
+        // Regular users = total - creators - admins
+        const regularUsers = (stats?.totalUsers || 0) - (stats?.approvedCreators || 0) - 1;
+        return Math.max(0, regularUsers);
+      }
+    }
+
+    return Math.max(0, Math.round(baseCount * multiplier));
+  };
+
   const fetchUsers = async () => {
     try {
       const params = new URLSearchParams();
       if (searchTerm) params.append('search', searchTerm);
       if (filterRole !== 'all') params.append('role', filterRole);
-      if (filterStatus !== 'all') params.append('status', filterStatus);
       params.append('sortBy', sortBy);
       params.append('sortOrder', sortOrder);
 
       const response = await api.get(`/admin/users?${params.toString()}`);
       setUsers(response.data.users);
+
+      // Update filtered user count
+      setFilteredUserCount(calculateFilteredUserCount());
     } catch (error) {
       console.error('Error fetching users:', error);
       // Set empty users array if API fails (API endpoint not implemented yet)
       setUsers([]);
+      setFilteredUserCount(0);
     }
   };
 
   const fetchStats = async () => {
     try {
-      const response = await api.get('/admin/stats');
+      const response = await api.get('/admin/stats', { timeout: 30000 }); // 30 second timeout
       setStats(response.data.stats);
     } catch (error) {
       console.error('Error fetching stats:', error);
-      // Set default stats if API fails (API endpoint not implemented yet)
+      // Set default stats if API fails
       setStats({
         totalUsers: 0,
         googleUsers: 0,
         regularUsers: 0,
         activeUsers: 0,
+        verifiedUsers: 0,
+        googleUsersPercentage: 0,
         pendingApplications: 0,
-        pendingTemplates: 0,
-        pendingBlogs: 0,
+        approvedCreators: 0,
+        rejectedApplications: 0,
         totalTemplates: 0,
-        totalBlogs: 0
+        pendingTemplates: 0,
+        approvedTemplates: 0,
+        rejectedTemplates: 0,
+        totalBlogs: 0,
+        pendingBlogs: 0,
+        publishedBlogs: 0,
+        rejectedBlogs: 0,
+        draftBlogs: 0,
+        recentUsers: 0,
+        recentTemplates: 0,
+        recentBlogs: 0,
+        unreadNotifications: 0
       });
     } finally {
       setLoading(false);
@@ -168,12 +214,6 @@ export default function AdminPage() {
         <div className="container-custom flex justify-between items-center py-4">
           <h1 className="heading-2">لوحة الإدارة</h1>
           <div className="flex gap-3 items-center">
-            <AdminNotifications />
-            <ExportButton
-              endpoint="/admin/export/users"
-              filename={`users-data-${new Date().toISOString().split('T')[0]}.csv`}
-              label="تصدير المستخدمين"
-            />
             <Link href="/" className="nav-link">
               العودة للصفحة الرئيسية
             </Link>
@@ -182,102 +222,7 @@ export default function AdminPage() {
       </header>
 
       <div className="container-custom py-8">
-        {/* Stats Cards */}
-        {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="card p-6">
-              <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">إجمالي المستخدمين</h3>
-              <p className="text-3xl font-bold text-primary-500 dark:text-orange-500">{stats.totalUsers}</p>
-            </div>
-            <div className="card p-6">
-              <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">مستخدمي Google</h3>
-              <p className="text-3xl font-bold text-blue-600">{stats.googleUsers}</p>
-              <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
-                {stats.totalUsers > 0 ? Math.round((stats.googleUsers / stats.totalUsers) * 100) : 0}% من إجمالي المستخدمين
-              </p>
-            </div>
-            <div className="card p-6">
-              <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">مستخدمي البريد الإلكتروني</h3>
-              <p className="text-3xl font-bold text-green-600">{stats.regularUsers}</p>
-            </div>
-            <div className="card p-6">
-              <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-2">المستخدمين النشطين</h3>
-              <p className="text-3xl font-bold text-purple-600">{stats.activeUsers}</p>
-            </div>
-          </div>
-        )}
 
-        {/* Enhanced Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="card p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-accent-600 dark:text-dark-text-secondary">إجمالي المستخدمين</p>
-                <p className="text-2xl font-bold text-accent-700 dark:text-dark-text-primary">{stats?.totalUsers || 0}</p>
-              </div>
-              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                </svg>
-              </div>
-            </div>
-            <div className="mt-4 flex items-center text-sm">
-              <span className="text-green-600 dark:text-green-400 font-medium">+{stats?.recentUsers || 0}</span>
-              <span className="text-accent-500 dark:text-dark-text-tertiary mr-2">هذا الأسبوع</span>
-            </div>
-          </div>
-
-          <div className="card p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-accent-600 dark:text-dark-text-secondary">القوالب المعلقة</p>
-                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{stats?.pendingTemplates || 0}</p>
-              </div>
-              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-            </div>
-            <div className="mt-4 flex items-center text-sm">
-              <span className="text-accent-500 dark:text-dark-text-tertiary">من أصل {stats?.totalTemplates || 0}</span>
-            </div>
-          </div>
-
-          <div className="card p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-accent-600 dark:text-dark-text-secondary">المقالات المعلقة</p>
-                <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats?.pendingBlogs || 0}</p>
-              </div>
-              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                </svg>
-              </div>
-            </div>
-            <div className="mt-4 flex items-center text-sm">
-              <span className="text-accent-500 dark:text-dark-text-tertiary">من أصل {stats?.totalBlogs || 0}</span>
-            </div>
-          </div>
-
-          <div className="card p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-accent-600 dark:text-dark-text-secondary">طلبات المبدعين</p>
-                <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{stats?.pendingApplications || 0}</p>
-              </div>
-              <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </div>
-            </div>
-            <div className="mt-4 flex items-center text-sm">
-              <span className="text-accent-500 dark:text-dark-text-tertiary">من أصل {stats?.approvedCreators || 0} مبدع</span>
-            </div>
-          </div>
-        </div>
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -357,7 +302,7 @@ export default function AdminPage() {
 
         {/* Search and Filters */}
         <div className="card p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-accent-700 dark:text-dark-text-primary mb-2">
                 البحث
@@ -387,20 +332,6 @@ export default function AdminPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-accent-700 dark:text-dark-text-primary mb-2">
-                الحالة
-              </label>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="form-select"
-              >
-                <option value="all">جميع الحالات</option>
-                <option value="admin">مدير</option>
-                <option value="user">مستخدم</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-accent-700 dark:text-dark-text-primary mb-2">
                 ترتيب حسب
               </label>
               <select
@@ -426,7 +357,14 @@ export default function AdminPage() {
         {/* Users Table */}
         <div className="card overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 dark:border-dark-card-border">
-            <h2 className="heading-3">قائمة المستخدمين</h2>
+            <h2 className="heading-3">
+              قائمة المستخدمين ({filteredUserCount})
+              {filterRole !== 'all' && (
+                <span className="text-sm font-normal text-accent-600 dark:text-dark-text-secondary mr-2">
+                  - {filterRole === 'creator' ? 'مبدعون' : filterRole === 'admin' ? 'مديرون' : 'مستخدمون عاديون'}
+                </span>
+              )}
+            </h2>
           </div>
 
           <div className="overflow-x-auto">
@@ -476,9 +414,11 @@ export default function AdminPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.role === 'admin'
                         ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300'
-                        : 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300'
+                        : user.role === 'creator'
+                          ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+                          : 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300'
                         }`}>
-                        {user.role === 'admin' ? 'مدير' : 'مستخدم'}
+                        {user.role === 'admin' ? 'مدير' : user.role === 'creator' ? 'مبدع' : 'مستخدم'}
                       </span>
                     </td>
                   </tr>

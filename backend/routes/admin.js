@@ -118,39 +118,88 @@ router.get('/stats', auth, async (req, res) => {
       });
     }
 
-    const totalUsers = await User.countDocuments();
-    const googleUsers = await User.countDocuments({ googleId: { $exists: true } });
-    const regularUsers = await User.countDocuments({ googleId: { $exists: false } });
-    const activeUsers = await User.countDocuments({ isActive: true });
-    const verifiedUsers = await User.countDocuments({ isEmailVerified: true });
+    // Use aggregation for better performance
+    const userStats = await User.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalUsers: { $sum: 1 },
+          googleUsers: { $sum: { $cond: [{ $ifNull: ['$googleId', false] }, 1, 0] } },
+          activeUsers: { $sum: { $cond: ['$isActive', 1, 0] } },
+          verifiedUsers: { $sum: { $cond: ['$isEmailVerified', 1, 0] } },
+          pendingApplications: { $sum: { $cond: [{ $eq: ['$creatorStatus', 'pending'] }, 1, 0] } },
+          approvedCreators: { $sum: { $cond: [{ $eq: ['$creatorStatus', 'approved'] }, 1, 0] } },
+          rejectedApplications: { $sum: { $cond: [{ $eq: ['$creatorStatus', 'rejected'] }, 1, 0] } },
+          recentUsers: {
+            $sum: {
+              $cond: [
+                { $gte: ['$createdAt', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)] },
+                1,
+                0
+              ]
+            }
+          }
+        }
+      }
+    ]);
 
-    // Additional stats used by frontend admin home
-    const pendingApplications = await User.countDocuments({ creatorStatus: 'pending' });
-    const approvedCreators = await User.countDocuments({ creatorStatus: 'approved' });
-    const rejectedApplications = await User.countDocuments({ creatorStatus: 'rejected' });
+    const templateStats = await Template.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalTemplates: { $sum: 1 },
+          pendingTemplates: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
+          approvedTemplates: { $sum: { $cond: [{ $eq: ['$status', 'approved'] }, 1, 0] } },
+          rejectedTemplates: { $sum: { $cond: [{ $eq: ['$status', 'rejected'] }, 1, 0] } },
+          recentTemplates: {
+            $sum: {
+              $cond: [
+                { $gte: ['$createdAt', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)] },
+                1,
+                0
+              ]
+            }
+          }
+        }
+      }
+    ]);
 
-    const totalTemplates = await Template.countDocuments();
-    const pendingTemplates = await Template.countDocuments({ status: 'pending' });
-    const approvedTemplates = await Template.countDocuments({ status: 'approved' });
-    const rejectedTemplates = await Template.countDocuments({ status: 'rejected' });
+    const blogStats = await Blog.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalBlogs: { $sum: 1 },
+          pendingBlogs: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
+          publishedBlogs: { $sum: { $cond: [{ $eq: ['$status', 'published'] }, 1, 0] } },
+          rejectedBlogs: { $sum: { $cond: [{ $eq: ['$status', 'rejected'] }, 1, 0] } },
+          draftBlogs: { $sum: { $cond: [{ $eq: ['$status', 'draft'] }, 1, 0] } },
+          recentBlogs: {
+            $sum: {
+              $cond: [
+                { $gte: ['$createdAt', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)] },
+                1,
+                0
+              ]
+            }
+          }
+        }
+      }
+    ]);
 
-    const totalBlogs = await Blog.countDocuments();
-    const pendingBlogs = await Blog.countDocuments({ status: 'pending' });
-    const publishedBlogs = await Blog.countDocuments({ status: 'published' });
-    const rejectedBlogs = await Blog.countDocuments({ status: 'rejected' });
-    const draftBlogs = await Blog.countDocuments({ status: 'draft' });
-
-    // Recent activity (last 7 days)
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const recentUsers = await User.countDocuments({ createdAt: { $gte: sevenDaysAgo } });
-    const recentTemplates = await Template.countDocuments({ createdAt: { $gte: sevenDaysAgo } });
-    const recentBlogs = await Blog.countDocuments({ createdAt: { $gte: sevenDaysAgo } });
-
-    // Notification counts
+    // Get notification count separately (simpler query)
     const unreadNotifications = await Notification.countDocuments({
       type: { $in: ['admin_creator_application', 'admin_template_pending', 'admin_blog_pending', 'admin_user_registered', 'admin_system_alert'] },
       isRead: false
     });
+
+    // Extract results
+    const userData = userStats[0] || {};
+    const templateData = templateStats[0] || {};
+    const blogData = blogStats[0] || {};
+
+    const totalUsers = userData.totalUsers || 0;
+    const googleUsers = userData.googleUsers || 0;
+    const regularUsers = totalUsers - googleUsers;
 
     res.json({
       success: true,
@@ -158,24 +207,24 @@ router.get('/stats', auth, async (req, res) => {
         totalUsers,
         googleUsers,
         regularUsers,
-        activeUsers,
-        verifiedUsers,
+        activeUsers: userData.activeUsers || 0,
+        verifiedUsers: userData.verifiedUsers || 0,
         googleUsersPercentage: totalUsers === 0 ? 0 : Math.round((googleUsers / totalUsers) * 100),
-        pendingApplications,
-        approvedCreators,
-        rejectedApplications,
-        totalTemplates,
-        pendingTemplates,
-        approvedTemplates,
-        rejectedTemplates,
-        totalBlogs,
-        pendingBlogs,
-        publishedBlogs,
-        rejectedBlogs,
-        draftBlogs,
-        recentUsers,
-        recentTemplates,
-        recentBlogs,
+        pendingApplications: userData.pendingApplications || 0,
+        approvedCreators: userData.approvedCreators || 0,
+        rejectedApplications: userData.rejectedApplications || 0,
+        totalTemplates: templateData.totalTemplates || 0,
+        pendingTemplates: templateData.pendingTemplates || 0,
+        approvedTemplates: templateData.approvedTemplates || 0,
+        rejectedTemplates: templateData.rejectedTemplates || 0,
+        totalBlogs: blogData.totalBlogs || 0,
+        pendingBlogs: blogData.pendingBlogs || 0,
+        publishedBlogs: blogData.publishedBlogs || 0,
+        rejectedBlogs: blogData.rejectedBlogs || 0,
+        draftBlogs: blogData.draftBlogs || 0,
+        recentUsers: userData.recentUsers || 0,
+        recentTemplates: templateData.recentTemplates || 0,
+        recentBlogs: blogData.recentBlogs || 0,
         unreadNotifications
       }
     });
@@ -284,10 +333,15 @@ router.put('/creator-applications/:userId/status', auth, [
     // Prepare update data
     const updateData = { creatorStatus: status };
 
-    // If approving and user has a requested name change, update the name
-    if (status === 'approved' && userToUpdate.requestedName) {
-      updateData.name = userToUpdate.requestedName;
-      updateData.requestedName = null; // Clear the requested name after applying it
+    // If approving, set role to 'creator' and handle name change
+    if (status === 'approved') {
+      updateData.role = 'creator';
+
+      // If user has a requested name change, update the name
+      if (userToUpdate.requestedName) {
+        updateData.name = userToUpdate.requestedName;
+        updateData.requestedName = null; // Clear the requested name after applying it
+      }
     }
 
     const user = await User.findByIdAndUpdate(

@@ -29,7 +29,7 @@ router.post('/', auth, [
     }
 
     // Check if user is an approved creator
-    if (req.user.creatorStatus !== 'approved') {
+    if (req.user.creatorStatus !== 'approved' || req.user.role !== 'creator') {
       return res.status(403).json({
         success: false,
         message: 'غير مصرح لك بالوصول إلى هذه الميزة. يجب أن تكون منشئ معتمد لاستخدام هذه الميزة.',

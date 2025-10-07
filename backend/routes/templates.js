@@ -134,7 +134,7 @@ router.post('/', auth, [
 ], async (req, res) => {
   try {
     // Check if user is an approved creator
-    if (req.user.creatorStatus !== 'approved') {
+    if (req.user.creatorStatus !== 'approved' || req.user.role !== 'creator') {
       return res.status(403).json({
         success: false,
         message: 'يجب أن تكون مبدعاً معتمداً لإنشاء قوالب'
@@ -346,7 +346,7 @@ router.get('/', async (req, res) => {
 // @access  Private (Creator)
 router.get('/my-templates', auth, async (req, res) => {
   try {
-    if (req.user.creatorStatus !== 'approved') {
+    if (req.user.creatorStatus !== 'approved' || req.user.role !== 'creator') {
       return res.status(403).json({
         success: false,
         message: 'يجب أن تكون مبدعاً معتمداً'
@@ -707,7 +707,7 @@ router.put('/:id', auth, [
     })
 ], async (req, res) => {
   try {
-    if (req.user.creatorStatus !== 'approved') {
+    if (req.user.creatorStatus !== 'approved' || req.user.role !== 'creator') {
       return res.status(403).json({
         success: false,
         message: 'يجب أن تكون مبدعاً معتمداً'
@@ -765,7 +765,7 @@ router.put('/:id', auth, [
 // @access  Private (Creator - own templates only)
 router.delete('/:id', auth, async (req, res) => {
   try {
-    if (req.user.creatorStatus !== 'approved') {
+    if (req.user.creatorStatus !== 'approved' || req.user.role !== 'creator') {
       return res.status(403).json({
         success: false,
         message: 'يجب أن تكون مبدعاً معتمداً'

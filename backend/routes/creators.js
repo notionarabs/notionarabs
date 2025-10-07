@@ -573,7 +573,7 @@ router.get('/stats/downloads', async (req, res) => {
 // @access  Private (Creator)
 router.get('/me/downloads', auth, async (req, res) => {
   try {
-    if (req.user.creatorStatus !== 'approved') {
+    if (req.user.creatorStatus !== 'approved' || req.user.role !== 'creator') {
       return res.status(403).json({ success: false, message: 'يجب أن تكون مبدعاً معتمداً' });
     }
 
@@ -631,7 +631,7 @@ router.get('/me/downloads', auth, async (req, res) => {
 // @access  Private (Creator)
 router.get('/me/downloads/export', auth, async (req, res) => {
   try {
-    if (req.user.creatorStatus !== 'approved') {
+    if (req.user.creatorStatus !== 'approved' || req.user.role !== 'creator') {
       return res.status(403).json({ success: false, message: 'يجب أن تكون مبدعاً معتمداً' });
     }
 

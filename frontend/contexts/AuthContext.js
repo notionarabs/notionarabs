@@ -122,8 +122,8 @@ export const AuthProvider = ({ children }) => {
           const userData = JSON.parse(cachedUser);
           setUser(userData);
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           return;
         }
@@ -132,7 +132,7 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         // Set the token in axios headers
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
         try {
@@ -175,8 +175,8 @@ export const AuthProvider = ({ children }) => {
             localStorage.removeItem('user');
             localStorage.removeItem('userCacheTimestamp');
             delete api.defaults.headers.common['Authorization'];
-      delete emailApi.defaults.headers.common['Authorization'];
-        delete emailApi.defaults.headers.common['Authorization'];
+            delete emailApi.defaults.headers.common['Authorization'];
+            delete emailApi.defaults.headers.common['Authorization'];
             delete emailApi.defaults.headers.common['Authorization'];
           }
           throw apiError; // Re-throw to be caught by callback
@@ -193,7 +193,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('user');
         localStorage.removeItem('userCacheTimestamp');
         delete api.defaults.headers.common['Authorization'];
-      delete emailApi.defaults.headers.common['Authorization'];
+        delete emailApi.defaults.headers.common['Authorization'];
         delete emailApi.defaults.headers.common['Authorization'];
       }
       throw error; // Re-throw to be caught by callback
@@ -257,7 +257,7 @@ export const AuthProvider = ({ children }) => {
 
         // Set token in axios headers
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
         setUser(user);

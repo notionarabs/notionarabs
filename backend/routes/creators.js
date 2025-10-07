@@ -445,12 +445,17 @@ router.post('/:id/follow', auth, async (req, res) => {
       // Notify creator about new follower (non-blocking)
       try {
         const followerName = req.user.displayName || req.user.name || 'مستخدم';
+        // Build a username-like fallback if username is missing
+        const emailUser = (req.user.email && req.user.email.includes('@')) ? req.user.email.split('@')[0] : null;
+        const nameSlug = (req.user.displayName || req.user.name || '').trim().replace(/\s+/g, '-');
+        const followerUsername = req.user.username || emailUser || nameSlug || req.user._id;
+
         await Notification.create({
           user: creatorId,
           type: 'creator_followed',
           title: 'متابع جديد',
           message: `${followerName} قام بمتابعتك`,
-          link: `/creators/${req.user.username || req.user._id}`,
+          link: `/creators/${followerUsername}`,
           metadata: { followerId: req.user._id, actorProfilePicture: req.user.profilePicture || '' }
         });
       } catch (notifyErr) {

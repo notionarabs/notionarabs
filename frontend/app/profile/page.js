@@ -455,7 +455,7 @@ export default function ProfilePage() {
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-base sm:text-lg md:text-xl font-bold group-hover:text-green-500 transition-colors mb-2">إنشاء قالب جديد</h3>
+                      <h3 className="heading-3 group-hover:text-green-500 transition-colors mb-2">إنشاء قالب جديد</h3>
                       <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary">ابدأ بيع قوالبك المبتكرة</p>
                     </div>
                     <svg className="w-4 h-4 sm:w-5 sm:h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-green-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">

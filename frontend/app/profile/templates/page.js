@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import api from '../../../lib/api';
+import { useToast } from '../../../contexts/ToastContext';
 import { formatDate } from '../../../lib/dateUtils';
 import Navigation from '../../../components/Navigation';
 import ExportButton from '../../../components/ExportButton';
@@ -13,6 +15,8 @@ export default function CreatorTemplatesPage() {
   const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState('all');
   const { user, isAuthenticated } = useAuth();
+  const { showSuccess, showError } = useToast();
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -38,6 +42,19 @@ export default function CreatorTemplatesPage() {
       console.error('Error fetching templates:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (templateId) => {
+    try {
+      await api.delete(`/templates/${templateId}`);
+      setTemplates(prev => prev.filter(t => t._id !== templateId));
+      showSuccess('تم حذف القالب بنجاح');
+      setConfirmingDeleteId(null);
+    } catch (error) {
+      console.error('Error deleting template:', error);
+      const message = error.response?.data?.message || 'تعذر حذف القالب';
+      showError(message);
     }
   };
 
@@ -176,16 +193,23 @@ export default function CreatorTemplatesPage() {
               <label className="block text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
                 تصفية حسب الحالة
               </label>
-              <select
-                value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-                className="form-input w-full sm:w-auto"
-              >
-                <option value="all">جميع الحالات</option>
-                <option value="pending">قيد المراجعة</option>
-                <option value="approved">موافق عليها</option>
-                <option value="rejected">مرفوضة</option>
-              </select>
+              <div className="relative inline-block">
+                <select
+                  value={selectedStatus}
+                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  className="form-input appearance-none pr-10 w-full sm:w-auto"
+                >
+                  <option value="all">جميع الحالات</option>
+                  <option value="pending">قيد المراجعة</option>
+                  <option value="approved">موافق عليها</option>
+                  <option value="rejected">مرفوضة</option>
+                </select>
+                <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                  <svg className="w-4 h-4 text-accent-400 dark:text-dark-text-quaternary" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.17l3.71-2.94a.75.75 0 01.92 1.18l-4.25 3.37a.75.75 0 01-.92 0L5.21 8.41a.75.75 0 01.02-1.2z" clipRule="evenodd" />
+                  </svg>
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -195,114 +219,66 @@ export default function CreatorTemplatesPage() {
           <div className="space-y-4 sm:space-y-6">
             {filteredTemplates.map((template) => (
               <div key={template._id} className="card p-4 sm:p-6">
-                <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-                  {/* Template Info */}
-                  <div className="flex-1">
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
-                      <div className="flex-1">
-                        <h3 className="text-lg sm:text-xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">
-                          {template.title}
-                        </h3>
-                        <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary mb-3 line-clamp-2">
-                          {template.description}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {getStatusBadge(template.status)}
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-3 sm:mb-4">
-                      <div className="flex items-center gap-1 sm:gap-2">
-                        <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">الفئة:</span>
-                        <span className="text-xs sm:text-sm font-medium text-accent-500 dark:text-dark-text-primary">
-                          {template.category}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1 sm:gap-2">
-                          {getDifficultyBadge(template.difficulty)}
-                        </div>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          مجاني
-                        </span>
-                      </div>
-                    </div>
-
-                    {template.tags && template.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 sm:gap-2 mb-3 sm:mb-4">
-                        {template.tags.slice(0, 3).map((tag, index) => (
-                          <span
-                            key={index}
-                            className="px-2 py-1 bg-gray-100 dark:bg-dark-tertiary text-gray-600 dark:text-dark-text-secondary text-xs rounded-full"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                        {template.tags.length > 3 && (
-                          <span className="px-2 py-1 bg-gray-100 dark:bg-dark-tertiary text-gray-600 dark:text-dark-text-secondary text-xs rounded-full">
-                            +{template.tags.length - 3} أخرى
-                          </span>
-                        )}
-                      </div>
-                    )}
-
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">
-                      <span>تاريخ الإرسال: {formatDate(template.createdAt)}</span>
-                      {template.approvedAt && (
-                        <span>تاريخ الموافقة: {formatDate(template.approvedAt)}</span>
-                      )}
-                      {template.rejectedAt && (
-                        <span>تاريخ الرفض: {formatDate(template.rejectedAt)}</span>
-                      )}
-                    </div>
-
-                    {template.adminNotes && (
-                      <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-gray-50 dark:bg-dark-tertiary rounded-lg">
-                        <h4 className="text-xs sm:text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
-                          ملاحظات الإدارة:
-                        </h4>
-                        <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">
-                          {template.adminNotes}
-                        </p>
-                      </div>
+                <div className="flex items-center gap-5">
+                  {/* Image */}
+                  <div className="w-32 h-24 sm:w-48 sm:h-32 rounded-lg overflow-hidden bg-gray-100 dark:bg-dark-tertiary flex-shrink-0">
+                    {template.previewImage ? (
+                      <Image src={template.previewImage} alt={template.title} width={192} height={128} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-dark-text-tertiary">🖼️</div>
                     )}
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex flex-col gap-2 lg:min-w-[180px] sm:min-w-[200px]">
-                    <a
-                      href={template.notionLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-outline text-center text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3"
-                    >
-                      عرض في نوشن
-                    </a>
+                  {/* Title + Small description */}
+                  <div className="flex-1">
+                    <h3 className="text-base sm:text-lg font-bold text-accent-500 dark:text-dark-text-primary mb-1">
+                      {template.title}
+                    </h3>
+                    <div className="mb-2">
+                      {getStatusBadge(template.status)}
+                    </div>
+                    <p className="text-sm text-accent-600 dark:text-dark-text-secondary line-clamp-2">
+                      {template.description}
+                    </p>
+                  </div>
 
-                    {template.status === 'pending' && (
+                  {/* Actions */}
+                  <div className="relative sm:min-w-[200px] text-center">
+                    {/* Default actions */}
+                    <div
+                      className={`${confirmingDeleteId === template._id ? 'opacity-0 scale-95 pointer-events-none absolute inset-0' : 'opacity-100 scale-100 relative'} transition-all duration-300 ease-in-out flex flex-col gap-2`}
+                    >
                       <button
-                        onClick={() => {
-                          if (confirm('هل أنت متأكد من حذف هذا القالب؟')) {
-                            // Add delete functionality here
-                          }
-                        }}
+                        onClick={() => router.push(`/templates/create?edit=${template._id}`)}
+                        className="btn-outline text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3"
+                      >
+                        تعديل
+                      </button>
+                      <button
+                        onClick={() => setConfirmingDeleteId(template._id)}
                         className="btn-outline text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-600 dark:hover:bg-red-900/20 text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3"
                       >
                         حذف القالب
                       </button>
-                    )}
+                    </div>
 
-                    {template.status === 'rejected' && (
+                    {/* Confirmation actions */}
+                    <div
+                      className={`${confirmingDeleteId === template._id ? 'opacity-100 scale-100 relative' : 'opacity-0 scale-95 pointer-events-none absolute inset-0'} transition-all duration-300 ease-in-out flex gap-2`}
+                    >
                       <button
-                        onClick={() => {
-                          // Add edit functionality here
-                        }}
-                        className="btn-outline text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3"
+                        onClick={() => handleDelete(template._id)}
+                        className="btn-outline text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-600 dark:hover:bg-red-900/20 text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3 flex-1"
                       >
-                        تعديل القالب
+                        تأكيد الحذف
                       </button>
-                    )}
+                      <button
+                        onClick={() => setConfirmingDeleteId(null)}
+                        className="btn-outline text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3 flex-1"
+                      >
+                        إلغاء
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

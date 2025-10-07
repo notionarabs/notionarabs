@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useToast } from '../../../contexts/ToastContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import api from '../../../lib/api';
 import SuccessModal from '../../../components/SuccessModal';
@@ -12,11 +12,15 @@ export default function CreateTemplatePage() {
   const { user, isAuthenticated, loading, ensureTokenInHeaders } = useAuth();
   const { showSuccess, showError, showWarning, showInfo } = useToast();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editIdFromQuery = searchParams?.get('edit');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [uploadedImage, setUploadedImage] = useState(null);
   const [uploadedImages, setUploadedImages] = useState([]);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingTemplateId, setEditingTemplateId] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -53,6 +57,43 @@ export default function CreateTemplatePage() {
       router.push('/');
     }
   }, [isAuthenticated, loading, user, router, ensureTokenInHeaders]);
+
+  // Load existing template into the form when editing
+  useEffect(() => {
+    const loadTemplateForEdit = async () => {
+      if (!editIdFromQuery || !isAuthenticated || loading) return;
+      try {
+        const resp = await api.get('/templates/my-templates');
+        const mine = resp.data.templates || [];
+        const toEdit = mine.find(t => t._id === editIdFromQuery);
+        if (toEdit) {
+          setIsEditMode(true);
+          setEditingTemplateId(toEdit._id);
+          setFormData({
+            title: toEdit.title || '',
+            description: toEdit.description || '',
+            category: toEdit.category || '',
+            categories: toEdit.categories || (toEdit.category ? [toEdit.category] : []),
+            notionLink: toEdit.notionLink || '',
+            features: toEdit.features || '',
+            tags: Array.isArray(toEdit.tags) ? toEdit.tags : (toEdit.tags ? [toEdit.tags] : []),
+            previewImage: toEdit.previewImage || '',
+            previewImages: Array.isArray(toEdit.previewImages) ? toEdit.previewImages : [],
+            explanationVideo: toEdit.explanationVideo || ''
+          });
+          setUploadedImage(toEdit.previewImage || null);
+          setUploadedImages(Array.isArray(toEdit.previewImages) ? toEdit.previewImages : []);
+          showInfo && showInfo('تم تحميل بيانات القالب للتعديل');
+        } else {
+          showWarning && showWarning('لم يتم العثور على القالب المطلوب للتعديل');
+        }
+      } catch (err) {
+        console.error('Failed loading template for edit', err);
+        showError && showError('تعذر تحميل بيانات القالب للتعديل');
+      }
+    };
+    loadTemplateForEdit();
+  }, [editIdFromQuery, isAuthenticated, loading]);
 
   // Handle click outside to close dropdown
   useEffect(() => {
@@ -573,7 +614,9 @@ export default function CreateTemplatePage() {
         }
       });
 
-      const response = await api.post('/templates', templateData);
+      const response = (isEditMode && editingTemplateId)
+        ? await api.put(`/templates/${editingTemplateId}`, templateData)
+        : await api.post('/templates', templateData);
 
       if (response.data.success) {
         // Clear all form fields

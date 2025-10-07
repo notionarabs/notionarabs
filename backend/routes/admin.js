@@ -1272,26 +1272,60 @@ router.post('/send-bulk-emails', auth, async (req, res) => {
         auth: {
           user: process.env.EMAIL_USER,
           pass: process.env.EMAIL_PASS
+        },
+        // Optimized timeout settings for bulk email operations
+        connectionTimeout: 10000,  // 10 seconds to establish connection
+        greetingTimeout: 10000,    // 10 seconds for SMTP greeting
+        socketTimeout: 30000,      // 30 seconds for socket operations
+        // Pool connections for better performance
+        pool: true,
+        maxConnections: 10,
+        maxMessages: 100,
+        // Add TLS options for better compatibility
+        tls: {
+          rejectUnauthorized: false
         }
       });
 
-      // Send emails
-      const sendPromises = validEmails.map(email => {
-        return transporter.sendMail({
-          from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-          to: email,
-          subject: subject,
-          html: message.replace(/\n/g, '<br>'),
-          text: message
+      // Send emails in batches to avoid overwhelming the server
+      const batchSize = 50; // Process 50 emails at a time
+      const results = [];
+      let successful = 0;
+      let failed = 0;
+
+      for (let i = 0; i < validEmails.length; i += batchSize) {
+        const batch = validEmails.slice(i, i + batchSize);
+
+        console.log(`Processing batch ${Math.floor(i / batchSize) + 1} of ${Math.ceil(validEmails.length / batchSize)} (${batch.length} emails)`);
+
+        const sendPromises = batch.map(email => {
+          return transporter.sendMail({
+            from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+            to: email,
+            subject: subject,
+            html: message.replace(/\n/g, '<br>'),
+            text: message
+          });
         });
-      });
 
-      // Execute all email sends
-      const results = await Promise.allSettled(sendPromises);
+        // Execute batch email sends
+        const batchResults = await Promise.allSettled(sendPromises);
+        results.push(...batchResults);
 
-      // Count successful and failed sends
-      const successful = results.filter(result => result.status === 'fulfilled').length;
-      const failed = results.filter(result => result.status === 'rejected').length;
+        // Count successful and failed sends in this batch
+        const batchSuccessful = batchResults.filter(result => result.status === 'fulfilled').length;
+        const batchFailed = batchResults.filter(result => result.status === 'rejected').length;
+
+        successful += batchSuccessful;
+        failed += batchFailed;
+
+        console.log(`Batch completed: ${batchSuccessful} successful, ${batchFailed} failed`);
+
+        // Add a small delay between batches to prevent rate limiting
+        if (i + batchSize < validEmails.length) {
+          await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+        }
+      }
 
       // Log failed emails for debugging
       if (failed > 0) {

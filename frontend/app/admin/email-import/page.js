@@ -5,7 +5,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useToast } from '../../../contexts/ToastContext';
 import LoadingIndicator from '../../../components/LoadingIndicator';
-import api from '../../../lib/api';
+import api, { emailApi } from '../../../lib/api';
 
 export default function EmailImportPage() {
   const { user, loading: authLoading } = useAuth();
@@ -153,8 +153,13 @@ export default function EmailImportPage() {
     setSendingEmails(true);
 
     try {
-      // Make the actual API call to send emails using the configured api instance
-      const response = await api.post('/admin/send-bulk-emails', {
+      // Show progress message for large batches
+      if (validEmails.length > 50) {
+        showSuccess(`جاري إرسال ${validEmails.length} بريد إلكتروني... قد يستغرق هذا بعض الوقت`);
+      }
+
+      // Make the actual API call to send emails using the emailApi instance with extended timeout
+      const response = await emailApi.post('/admin/send-bulk-emails', {
         emails: validEmails,
         subject: emailSubject,
         message: emailMessage,

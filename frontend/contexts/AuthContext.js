@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }) => {
     if (!hasCheckedAuth) {
       const timeoutId = setTimeout(() => {
         setLoading(false);
-      }, 1500); // Reduced to 1.5 seconds for faster UX
+      }, 3000); // Increased to 3 seconds for smoother UX
 
       checkAuthStatus().finally(() => {
         clearTimeout(timeoutId);

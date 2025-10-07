@@ -28,10 +28,6 @@ const allowedOrigins = [
   process.env.FRONTEND_URL || 'https://notionarabs.com',
   'https://notionarabs.com',
   'https://www.notionarabs.com',
-  'https://notion-arabs.vercel.app',
-  'https://www.notion-arabs.vercel.app',
-  'https://notion-arabs-git-main-hazemyasserprg.vercel.app',
-  'https://notion-arabs-hazemyasserprg.vercel.app',
   'http://localhost:3000',
   'http://127.0.0.1:3000'
 ];

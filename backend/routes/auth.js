@@ -859,7 +859,8 @@ router.get('/google/callback', async (req, res) => {
   try {
     // Check if we have the required parameters
     if (!req.query.code) {
-      return res.redirect('https://notion-arabs.vercel.app/auth/callback?success=false&error=no_code');
+      const frontendUrl = process.env.FRONTEND_URL || 'https://notionarabs.com';
+      return res.redirect(`${frontendUrl}/auth/callback?success=false&error=no_code`);
     }
 
     // Use passport.authenticate as middleware
@@ -867,28 +868,32 @@ router.get('/google/callback', async (req, res) => {
       try {
         if (err) {
           console.error('Passport authentication error:', err);
-          return res.redirect('https://notion-arabs.vercel.app/auth/callback?success=false&error=passport_error');
+          const frontendUrl = process.env.FRONTEND_URL || 'https://notionarabs.com';
+          return res.redirect(`${frontendUrl}/auth/callback?success=false&error=passport_error`);
         }
 
         if (!user) {
           console.error('No user from Google OAuth');
-          return res.redirect('https://notion-arabs.vercel.app/auth/callback?success=false&error=no_user');
+          const frontendUrl = process.env.FRONTEND_URL || 'https://notionarabs.com';
+          return res.redirect(`${frontendUrl}/auth/callback?success=false&error=no_user`);
         }
 
         // Generate token
         const token = generateToken(user._id);
 
         // Redirect to frontend with token
-        const frontendUrl = process.env.FRONTEND_URL || 'https://notion-arabs.vercel.app';
+        const frontendUrl = process.env.FRONTEND_URL || 'https://notionarabs.com';
         res.redirect(`${frontendUrl}/auth/callback?token=${token}&success=true`);
       } catch (error) {
         console.error('Callback processing error:', error);
-        res.redirect('https://notion-arabs.vercel.app/auth/callback?success=false&error=processing_error');
+        const frontendUrl = process.env.FRONTEND_URL || 'https://notionarabs.com';
+        res.redirect(`${frontendUrl}/auth/callback?success=false&error=processing_error`);
       }
     })(req, res);
   } catch (error) {
     console.error('Google OAuth callback error:', error);
-    res.redirect('https://notion-arabs.vercel.app/auth/callback?success=false&error=callback_error');
+    const frontendUrl = process.env.FRONTEND_URL || 'https://notionarabs.com';
+    res.redirect(`${frontendUrl}/auth/callback?success=false&error=callback_error`);
   }
 });
 

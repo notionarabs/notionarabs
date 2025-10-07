@@ -167,9 +167,17 @@ export default function EmailImportPage() {
 
       if (response.data.success) {
         // Show success message with development mode indicator
-        const message = response.data.devMode
+        let message = response.data.devMode
           ? `${response.data.message}\n\n💡 هذا وضع التطوير - لم يتم إرسال رسائل حقيقية`
           : response.data.message;
+
+        // Add failed emails information if any
+        if (response.data.stats.failed > 0 && response.data.failedEmails) {
+          message += `\n\n❌ فشل في إرسال ${response.data.stats.failed} بريد إلكتروني:`;
+          response.data.failedEmails.forEach(failed => {
+            message += `\n• ${failed.email}: ${failed.error}`;
+          });
+        }
 
         showSuccess(message);
         setShowEmailComposer(false);

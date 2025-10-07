@@ -1183,6 +1183,91 @@ router.post('/fix-duplicate-usernames', auth, async (req, res) => {
   }
 });
 
+// @route   GET /api/admin/test-email-config
+// @desc    Test email configuration
+// @access  Private (Admin only)
+router.get('/test-email-config', auth, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'غير مصرح لك بالوصول لهذه الميزة'
+      });
+    }
+
+    // Check if email service is configured
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS ||
+      process.env.EMAIL_USER === 'your-email@gmail.com' ||
+      process.env.EMAIL_PASS === 'your-app-password') {
+      
+      return res.json({
+        success: false,
+        message: 'Email service not configured properly',
+        details: {
+          EMAIL_USER: process.env.EMAIL_USER ? 'Set' : 'Missing',
+          EMAIL_PASS: process.env.EMAIL_PASS ? 'Set' : 'Missing',
+          NODE_ENV: process.env.NODE_ENV,
+          configured: false
+        }
+      });
+    }
+
+    // Test email transporter
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 30000,
+      pool: true,
+      maxConnections: 5,
+      tls: {
+        rejectUnauthorized: false
+      }
+    });
+
+    // Verify transporter
+    await new Promise((resolve, reject) => {
+      transporter.verify((error, success) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(success);
+        }
+      });
+    });
+
+    res.json({
+      success: true,
+      message: 'Email configuration is working correctly',
+      details: {
+        EMAIL_USER: process.env.EMAIL_USER,
+        EMAIL_PASS: 'Set',
+        NODE_ENV: process.env.NODE_ENV,
+        configured: true
+      }
+    });
+
+  } catch (error) {
+    console.error('Email config test error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Email configuration test failed',
+      error: error.message,
+      details: {
+        EMAIL_USER: process.env.EMAIL_USER ? 'Set' : 'Missing',
+        EMAIL_PASS: process.env.EMAIL_PASS ? 'Set' : 'Missing',
+        NODE_ENV: process.env.NODE_ENV,
+        configured: false
+      }
+    });
+  }
+});
+
 // @route   POST /api/admin/send-bulk-emails
 // @desc    Send bulk emails to a list of users
 // @access  Private (Admin only)
@@ -1267,6 +1352,8 @@ router.post('/send-bulk-emails', auth, async (req, res) => {
 
     // Production mode - use actual email service
     try {
+      console.log('Creating email transporter with user:', process.env.EMAIL_USER);
+      
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -1285,6 +1372,20 @@ router.post('/send-bulk-emails', auth, async (req, res) => {
         tls: {
           rejectUnauthorized: false
         }
+      });
+
+      // Verify transporter configuration before sending emails
+      console.log('Verifying email transporter configuration...');
+      await new Promise((resolve, reject) => {
+        transporter.verify((error, success) => {
+          if (error) {
+            console.error('Email transporter verification failed:', error);
+            reject(new Error(`Email configuration error: ${error.message}`));
+          } else {
+            console.log('Email transporter verified successfully');
+            resolve();
+          }
+        });
       });
 
       // Send emails in batches to avoid overwhelming the server
@@ -1320,6 +1421,15 @@ router.post('/send-bulk-emails', auth, async (req, res) => {
         failed += batchFailed;
 
         console.log(`Batch completed: ${batchSuccessful} successful, ${batchFailed} failed`);
+        
+        // Log detailed errors for failed emails in this batch
+        if (batchFailed > 0) {
+          batchResults.forEach((result, index) => {
+            if (result.status === 'rejected') {
+              console.error(`Email failed for ${batch[index]}:`, result.reason.message);
+            }
+          });
+        }
 
         // Add a small delay between batches to prevent rate limiting
         if (i + batchSize < validEmails.length) {
@@ -1347,7 +1457,11 @@ router.post('/send-bulk-emails', auth, async (req, res) => {
           total: validEmails.length,
           successful,
           failed
-        }
+        },
+        failedEmails: failed > 0 ? results
+          .map((result, index) => ({ result, email: validEmails[index] }))
+          .filter(({ result }) => result.status === 'rejected')
+          .map(({ email, result }) => ({ email, error: result.reason.message })) : []
       });
     } catch (emailError) {
       console.error('Email service error:', emailError);

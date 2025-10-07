@@ -661,6 +661,20 @@ export default function SettingsPage() {
         newSpecialty: undefined
       };
 
+      // Normalize/validate contactEmail: backend treats empty string as invalid; omit if empty or messages disabled
+      const contact = (profileSettings.contactEmail || '').trim();
+      if (!profileSettings.allowMessages || contact === '') {
+        delete cleanedSettings.contactEmail;
+      } else {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(contact)) {
+          showError('البريد الإلكتروني للتواصل غير صحيح');
+          setIsSaving(false);
+          return;
+        }
+        cleanedSettings.contactEmail = contact.toLowerCase();
+      }
+
       await api.put('/auth/profile/settings', cleanedSettings);
       showSuccess('تم حفظ إعدادات الملف الشخصي بنجاح! 🎉');
     } catch (error) {

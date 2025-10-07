@@ -37,8 +37,15 @@ async function main() {
       .toLowerCase();
     const followerUsername = follower.username || emailUser || nameSlug || follower._id.toString();
 
-    // If follower is not an approved creator, clear the link
-    const newLink = follower.creatorStatus === 'approved' ? `/creators/${followerUsername}` : '';
+    // Change link to the creator's own profile instead
+    const creatorUser = await User.findById(notif.user).select('username email displayName name');
+    const creatorEmailUser = (creatorUser?.email && creatorUser.email.includes('@')) ? creatorUser.email.split('@')[0] : null;
+    const creatorNameSlug = (creatorUser?.displayName || creatorUser?.name || '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .toLowerCase();
+    const creatorUsername = creatorUser?.username || creatorEmailUser || creatorNameSlug || (creatorUser?._id?.toString() || '');
+    const newLink = `/creators/${creatorUsername}`;
     let needsSave = false;
     if (notif.link !== newLink) {
       notif.link = newLink;

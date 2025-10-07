@@ -450,12 +450,21 @@ router.post('/:id/follow', auth, async (req, res) => {
         const nameSlug = (req.user.displayName || req.user.name || '').trim().replace(/\s+/g, '-');
         const followerUsername = req.user.username || emailUser || nameSlug || req.user._id;
 
+        // Compute recipient (creator) username for linking to their page
+        const creatorUser = creator; // already fetched above
+        const creatorEmailUser = (creatorUser?.email && creatorUser.email.includes('@')) ? creatorUser.email.split('@')[0] : null;
+        const creatorNameSlug = (creatorUser?.displayName || creatorUser?.name || '')
+          .trim()
+          .replace(/\s+/g, '-')
+          .toLowerCase();
+        const creatorUsername = creatorUser?.username || creatorEmailUser || creatorNameSlug || creatorId;
+
         await Notification.create({
           user: creatorId,
           type: 'creator_followed',
           title: 'متابع جديد',
           message: `${followerName} قام بمتابعتك`,
-          link: `/creators/${followerUsername}`,
+          link: `/creators/${creatorUsername}`,
           metadata: { followerId: req.user._id, followerUsername, actorProfilePicture: req.user.profilePicture || '' }
         });
       } catch (notifyErr) {

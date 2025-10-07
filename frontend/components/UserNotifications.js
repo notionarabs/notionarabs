@@ -179,15 +179,7 @@ export default function UserNotifications() {
                   <Link
                     key={n._id}
                     href={n.link}
-                    onClick={(e) => {
-                      // For follower notifications, fake-click: mark as read without navigating
-                      if (n.type === 'creator_followed') {
-                        e.preventDefault();
-                        if (!n.isRead) markAsRead(n._id);
-                        return;
-                      }
-                      if (!n.isRead) markAsRead(n._id);
-                    }}
+                    onClick={() => { if (!n.isRead) markAsRead(n._id); }}
                     className={`flex items-start gap-3 p-3 sm:p-4 transition-colors ${n.isRead ? 'bg-transparent' : 'bg-orange-50/40 dark:bg-orange-900/10'}`}
                   >
                     {/* Creator avatar */}
@@ -226,8 +218,9 @@ export default function UserNotifications() {
                     key={n._id}
                     href={n.type === 'creator_followed' && n.metadata?.followerId ? `/creators/${(n.metadata?.followerUsername || '')}` : '#'}
                     onClick={(e) => {
-                      // Always fake-click here: mark read, do not navigate
-                      e.preventDefault();
+                      // If no usable link, stay put; otherwise allow navigation
+                      const hasLink = (n.type === 'creator_followed' && n.metadata?.followerUsername);
+                      if (!hasLink) e.preventDefault();
                       if (!n.isRead) markAsRead(n._id);
                     }}
                     className={`flex items-start gap-3 p-3 sm:p-4 transition-colors ${n.isRead ? 'bg-transparent' : 'bg-orange-50/40 dark:bg-orange-900/10'}`}

@@ -13,7 +13,6 @@ import { GoogleAnalytics } from '../components/SEOOptimizations'
 import { QueryProvider } from '../components/QueryProvider'
 import MaintenanceMode from '../components/MaintenanceMode'
 import QuickMaintenanceToggle from '../components/QuickMaintenanceToggle'
-import ConditionalLayout from '../components/ConditionalLayout'
 
 import { generateMetadata as generateBaseMetadata } from '../lib/seo'
 
@@ -141,9 +140,10 @@ export default function RootLayout({ children }) {
                   <ToastProvider>
                     <MaintenanceMode />
                     <QuickMaintenanceToggle />
-                    <ConditionalLayout>
-                      {children}
-                    </ConditionalLayout>
+                    <NavigationWrapper />
+                    <NavigationHandler />
+                    <LoadingIndicator />
+                    {children}
                   </ToastProvider>
                 </AuthProvider>
               </MaintenanceProvider>

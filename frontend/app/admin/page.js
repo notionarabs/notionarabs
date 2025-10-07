@@ -45,6 +45,41 @@ export default function AdminPage() {
     fetchStats();
   }, [isAuthenticated, user, router, authLoading]);
 
+  // Real-time updates for admin dashboard
+  useEffect(() => {
+    if (!isAuthenticated || user?.role !== 'admin') return;
+
+    let intervalId;
+    const onFocus = () => {
+      fetchStats();
+      fetchUsers();
+    };
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchStats();
+        fetchUsers();
+      }
+    };
+
+    const startPolling = () => {
+      if (intervalId) clearInterval(intervalId);
+      intervalId = setInterval(() => {
+        fetchStats();
+        fetchUsers();
+      }, 30000); // Poll every 30 seconds
+    };
+
+    startPolling();
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+  }, [isAuthenticated, user]);
+
   const fetchUsers = async () => {
     try {
       const params = new URLSearchParams();
@@ -153,6 +188,78 @@ export default function AdminPage() {
             </div>
           </div>
         )}
+
+        {/* Enhanced Statistics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="card p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-accent-600 dark:text-dark-text-secondary">إجمالي المستخدمين</p>
+                <p className="text-2xl font-bold text-accent-700 dark:text-dark-text-primary">{stats?.totalUsers || 0}</p>
+              </div>
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                </svg>
+              </div>
+            </div>
+            <div className="mt-4 flex items-center text-sm">
+              <span className="text-green-600 dark:text-green-400 font-medium">+{stats?.recentUsers || 0}</span>
+              <span className="text-accent-500 dark:text-dark-text-tertiary mr-2">هذا الأسبوع</span>
+            </div>
+          </div>
+
+          <div className="card p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-accent-600 dark:text-dark-text-secondary">القوالب المعلقة</p>
+                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{stats?.pendingTemplates || 0}</p>
+              </div>
+              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                <svg className="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+            </div>
+            <div className="mt-4 flex items-center text-sm">
+              <span className="text-accent-500 dark:text-dark-text-tertiary">من أصل {stats?.totalTemplates || 0}</span>
+            </div>
+          </div>
+
+          <div className="card p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-accent-600 dark:text-dark-text-secondary">المقالات المعلقة</p>
+                <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats?.pendingBlogs || 0}</p>
+              </div>
+              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                </svg>
+              </div>
+            </div>
+            <div className="mt-4 flex items-center text-sm">
+              <span className="text-accent-500 dark:text-dark-text-tertiary">من أصل {stats?.totalBlogs || 0}</span>
+            </div>
+          </div>
+
+          <div className="card p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-accent-600 dark:text-dark-text-secondary">طلبات المبدعين</p>
+                <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{stats?.pendingApplications || 0}</p>
+              </div>
+              <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center">
+                <svg className="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+            </div>
+            <div className="mt-4 flex items-center text-sm">
+              <span className="text-accent-500 dark:text-dark-text-tertiary">من أصل {stats?.approvedCreators || 0} مبدع</span>
+            </div>
+          </div>
+        </div>
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

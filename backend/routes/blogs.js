@@ -347,6 +347,30 @@ router.post('/', auth, [
       }
     }
 
+    // Create admin notification for new blog submission (only for pending status)
+    if (finalStatus === 'pending') {
+      try {
+        const Notification = require('../models/Notification');
+        await Notification.create({
+          user: null, // Admin notifications don't have a specific user
+          type: 'admin_blog_pending',
+          title: 'مقال جديد يحتاج مراجعة',
+          message: `${req.user.name} قدم مقالًا جديدًا: ${blog.title}`,
+          link: '/admin/blogs',
+          metadata: {
+            blogId: blog._id,
+            blogTitle: blog.title,
+            authorId: req.user._id,
+            authorName: req.user.name,
+            authorEmail: req.user.email,
+            submissionDate: new Date()
+          }
+        });
+      } catch (notifyErr) {
+        console.error('Create admin notification error:', notifyErr);
+      }
+    }
+
     // Populate author information
     await blog.populate('author', 'name profilePicture');
 

@@ -18,6 +18,34 @@ export default function AdminNotifications() {
     }
   }, [user]);
 
+  // Real-time updates
+  useEffect(() => {
+    if (user?.role !== 'admin') return;
+
+    let intervalId;
+    const onFocus = () => fetchNotifications();
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') fetchNotifications();
+    };
+
+    const startPolling = () => {
+      if (intervalId) clearInterval(intervalId);
+      intervalId = setInterval(() => {
+        if (!isOpen) fetchNotifications();
+      }, 15000); // Poll every 15 seconds when dropdown is closed
+    };
+
+    startPolling();
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+  }, [user, isOpen]);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {

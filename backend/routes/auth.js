@@ -1208,6 +1208,26 @@ router.post('/verify-email', [
     // Remove from temporary storage
     tempUserStorage.delete(verificationToken);
 
+    // Create admin notification for new user registration
+    try {
+      const Notification = require('../models/Notification');
+      await Notification.create({
+        user: null, // Admin notifications don't have a specific user
+        type: 'admin_user_registered',
+        title: 'مستخدم جديد انضم للمنصة',
+        message: `${user.name} (${user.email}) انضم للمنصة`,
+        link: '/admin',
+        metadata: {
+          userId: user._id,
+          userName: user.name,
+          userEmail: user.email,
+          registrationDate: new Date()
+        }
+      });
+    } catch (notifyErr) {
+      console.error('Create admin notification error:', notifyErr);
+    }
+
     // Generate token for automatic login
     try {
       const token = generateToken(user._id);
@@ -1312,6 +1332,26 @@ router.post('/apply-creator', auth, [
       updateData,
       { new: true, runValidators: true }
     ).select('-password');
+
+    // Create admin notification for new creator application
+    try {
+      const Notification = require('../models/Notification');
+      await Notification.create({
+        user: null, // Admin notifications don't have a specific user
+        type: 'admin_creator_application',
+        title: 'طلب انضمام مبدع جديد',
+        message: `${user.name} (${user.email}) قدم طلب انضمام كمبدع`,
+        link: '/admin/creator-applications',
+        metadata: {
+          applicantId: user._id,
+          applicantName: user.name,
+          applicantEmail: user.email,
+          applicationDate: new Date()
+        }
+      });
+    } catch (notifyErr) {
+      console.error('Create admin notification error:', notifyErr);
+    }
 
     res.json({
       success: true,

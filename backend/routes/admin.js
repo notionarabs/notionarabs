@@ -122,13 +122,35 @@ router.get('/stats', auth, async (req, res) => {
     const googleUsers = await User.countDocuments({ googleId: { $exists: true } });
     const regularUsers = await User.countDocuments({ googleId: { $exists: false } });
     const activeUsers = await User.countDocuments({ isActive: true });
+    const verifiedUsers = await User.countDocuments({ isEmailVerified: true });
 
     // Additional stats used by frontend admin home
     const pendingApplications = await User.countDocuments({ creatorStatus: 'pending' });
+    const approvedCreators = await User.countDocuments({ creatorStatus: 'approved' });
+    const rejectedApplications = await User.countDocuments({ creatorStatus: 'rejected' });
+    
     const totalTemplates = await Template.countDocuments();
     const pendingTemplates = await Template.countDocuments({ status: 'pending' });
+    const approvedTemplates = await Template.countDocuments({ status: 'approved' });
+    const rejectedTemplates = await Template.countDocuments({ status: 'rejected' });
+    
     const totalBlogs = await Blog.countDocuments();
     const pendingBlogs = await Blog.countDocuments({ status: 'pending' });
+    const publishedBlogs = await Blog.countDocuments({ status: 'published' });
+    const rejectedBlogs = await Blog.countDocuments({ status: 'rejected' });
+    const draftBlogs = await Blog.countDocuments({ status: 'draft' });
+
+    // Recent activity (last 7 days)
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const recentUsers = await User.countDocuments({ createdAt: { $gte: sevenDaysAgo } });
+    const recentTemplates = await Template.countDocuments({ createdAt: { $gte: sevenDaysAgo } });
+    const recentBlogs = await Blog.countDocuments({ createdAt: { $gte: sevenDaysAgo } });
+
+    // Notification counts
+    const unreadNotifications = await Notification.countDocuments({
+      type: { $in: ['admin_creator_application', 'admin_template_pending', 'admin_blog_pending', 'admin_user_registered', 'admin_system_alert'] },
+      isRead: false
+    });
 
     res.json({
       success: true,
@@ -137,12 +159,24 @@ router.get('/stats', auth, async (req, res) => {
         googleUsers,
         regularUsers,
         activeUsers,
+        verifiedUsers,
         googleUsersPercentage: totalUsers === 0 ? 0 : Math.round((googleUsers / totalUsers) * 100),
         pendingApplications,
-        pendingTemplates,
-        pendingBlogs,
+        approvedCreators,
+        rejectedApplications,
         totalTemplates,
-        totalBlogs
+        pendingTemplates,
+        approvedTemplates,
+        rejectedTemplates,
+        totalBlogs,
+        pendingBlogs,
+        publishedBlogs,
+        rejectedBlogs,
+        draftBlogs,
+        recentUsers,
+        recentTemplates,
+        recentBlogs,
+        unreadNotifications
       }
     });
   } catch (error) {
@@ -706,9 +740,8 @@ router.get('/export/users', auth, async (req, res) => {
 
 module.exports = router;
 
-// Admin notifications placeholder routes (no persistence yet)
 // @route   GET /api/admin/notifications
-// @desc    Get admin notifications (placeholder returns empty list)
+// @desc    Get admin notifications
 // @access  Private (Admin)
 router.get('/notifications', auth, async (req, res) => {
   try {
@@ -719,11 +752,33 @@ router.get('/notifications', auth, async (req, res) => {
       });
     }
 
-    // Placeholder empty response structure expected by frontend
+    const { page = 1, limit = 20 } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Get admin-specific notifications
+    const notifications = await Notification.find({
+      type: { $in: ['admin_creator_application', 'admin_template_pending', 'admin_blog_pending', 'admin_user_registered', 'admin_system_alert'] }
+    })
+      .populate('user', 'name email profilePicture')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const unreadCount = await Notification.countDocuments({
+      type: { $in: ['admin_creator_application', 'admin_template_pending', 'admin_blog_pending', 'admin_user_registered', 'admin_system_alert'] },
+      isRead: false
+    });
+
     res.json({
       success: true,
-      notifications: [],
-      unreadCount: 0
+      notifications,
+      unreadCount,
+      pagination: {
+        current: parseInt(page),
+        pages: Math.ceil(unreadCount / parseInt(limit)),
+        total: unreadCount,
+        limit: parseInt(limit)
+      }
     });
   } catch (error) {
     console.error('Get admin notifications error:', error);
@@ -732,7 +787,7 @@ router.get('/notifications', auth, async (req, res) => {
 });
 
 // @route   PUT /api/admin/notifications/:id/read
-// @desc    Mark a notification as read (placeholder no-op)
+// @desc    Mark a notification as read
 // @access  Private (Admin)
 router.put('/notifications/:id/read', auth, async (req, res) => {
   try {
@@ -743,7 +798,19 @@ router.put('/notifications/:id/read', auth, async (req, res) => {
       });
     }
 
-    // Placeholder success
+    const notification = await Notification.findByIdAndUpdate(
+      req.params.id,
+      { isRead: true },
+      { new: true }
+    );
+
+    if (!notification) {
+      return res.status(404).json({
+        success: false,
+        message: 'الإشعار غير موجود'
+      });
+    }
+
     res.json({ success: true });
   } catch (error) {
     console.error('Mark notification read error:', error);
@@ -752,7 +819,7 @@ router.put('/notifications/:id/read', auth, async (req, res) => {
 });
 
 // @route   PUT /api/admin/notifications/read-all
-// @desc    Mark all notifications as read (placeholder no-op)
+// @desc    Mark all admin notifications as read
 // @access  Private (Admin)
 router.put('/notifications/read-all', auth, async (req, res) => {
   try {
@@ -763,7 +830,14 @@ router.put('/notifications/read-all', auth, async (req, res) => {
       });
     }
 
-    // Placeholder success
+    await Notification.updateMany(
+      {
+        type: { $in: ['admin_creator_application', 'admin_template_pending', 'admin_blog_pending', 'admin_user_registered', 'admin_system_alert'] },
+        isRead: false
+      },
+      { isRead: true }
+    );
+
     res.json({ success: true });
   } catch (error) {
     console.error('Mark all notifications read error:', error);

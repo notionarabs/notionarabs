@@ -193,6 +193,27 @@ router.post('/', auth, [
     const template = new Template(templateData);
     await template.save();
 
+    // Create admin notification for new template submission
+    try {
+      await Notification.create({
+        user: null, // Admin notifications don't have a specific user
+        type: 'admin_template_pending',
+        title: 'قالب جديد يحتاج مراجعة',
+        message: `${req.user.name} قدم قالبًا جديدًا: ${template.title}`,
+        link: '/admin/templates',
+        metadata: {
+          templateId: template._id,
+          templateTitle: template.title,
+          creatorId: req.user._id,
+          creatorName: req.user.name,
+          creatorEmail: req.user.email,
+          submissionDate: new Date()
+        }
+      });
+    } catch (notifyErr) {
+      console.error('Create admin notification error:', notifyErr);
+    }
+
     // Populate creator information
     await template.populate('creator', 'name username displayName email profilePicture');
 

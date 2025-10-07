@@ -25,11 +25,16 @@ export default function AdminSettingsPage() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const router = useRouter();
   const { showSuccess, showError } = useToast();
 
   useEffect(() => {
+    // Don't do anything while authentication is still loading
+    if (authLoading) {
+      return;
+    }
+
     if (!isAuthenticated) {
       router.push('/login');
       return;
@@ -41,7 +46,7 @@ export default function AdminSettingsPage() {
     }
 
     fetchSettings();
-  }, [isAuthenticated, user, router]);
+  }, [isAuthenticated, user, router, authLoading]);
 
   const fetchSettings = async () => {
     try {
@@ -104,6 +109,18 @@ export default function AdminSettingsPage() {
       }));
     }
   };
+
+  // Show loading state while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center transition-colors duration-300" dir="rtl">
+        <div className="text-center">
+          <LoadingIndicator />
+          <p className="loading-text mt-4">جاري التحقق من الصلاحيات...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

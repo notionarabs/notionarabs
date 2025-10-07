@@ -11,10 +11,15 @@ export default function CreatorApplicationsPage() {
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { user, isAuthenticated, refreshUserData } = useAuth();
+  const { user, isAuthenticated, loading: authLoading, refreshUserData } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
+    // Don't do anything while authentication is still loading
+    if (authLoading) {
+      return;
+    }
+
     // Check if user is authenticated and has admin role
     if (isAuthenticated && user?.role === 'admin') {
       fetchApplications();
@@ -27,7 +32,7 @@ export default function CreatorApplicationsPage() {
       router.push('/login');
       setLoading(false);
     }
-  }, [isAuthenticated, user, router]);
+  }, [isAuthenticated, user, router, authLoading]);
 
   const fetchApplications = async () => {
     try {
@@ -87,7 +92,7 @@ export default function CreatorApplicationsPage() {
   };
 
   // Show loading state while checking authentication
-  if (!isAuthenticated) {
+  if (authLoading || (!isAuthenticated && !error)) {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center" dir="rtl">
         <div className="text-center">

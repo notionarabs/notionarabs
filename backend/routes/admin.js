@@ -382,14 +382,14 @@ router.put('/templates/:id/status', auth, [
         const creatorId = template.creator;
         const followers = await User.find({ following: creatorId }).select('_id').lean();
         if (followers && followers.length > 0) {
-          const creator = await User.findById(creatorId).select('name displayName');
+          const creator = await User.findById(creatorId).select('name displayName profilePicture');
           const notifications = followers.map(f => ({
             user: f._id,
             type: 'template_published',
             title: 'قالب جديد من مبدع تتابعه',
             message: `${creator?.displayName || creator?.name || 'مبدع'} نشر قالبًا جديدًا: ${template.title}`,
             link: `/templates/${template.slug || template._id}`,
-            metadata: { templateId: template._id, creatorId }
+            metadata: { templateId: template._id, creatorId, creatorProfilePicture: creator?.profilePicture || '' }
           }));
           await Notification.insertMany(notifications);
         }

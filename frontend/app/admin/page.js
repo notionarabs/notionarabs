@@ -80,6 +80,24 @@ export default function AdminPage() {
     };
   }, [isAuthenticated, user]);
 
+  // Auto-apply filters when filter values change (except search term)
+  useEffect(() => {
+    if (isAuthenticated && user?.role === 'admin') {
+      fetchUsers();
+    }
+  }, [filterRole, filterStatus, sortBy, sortOrder]);
+
+  // Debounced search effect
+  useEffect(() => {
+    if (isAuthenticated && user?.role === 'admin') {
+      const timeoutId = setTimeout(() => {
+        fetchUsers();
+      }, 500); // 500ms delay for search
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [searchTerm]);
+
   const fetchUsers = async () => {
     try {
       const params = new URLSearchParams();
@@ -402,14 +420,6 @@ export default function AdminPage() {
                 <option value="email-desc">البريد الإلكتروني (ي-أ)</option>
               </select>
             </div>
-          </div>
-          <div className="mt-4 flex justify-end">
-            <button
-              onClick={fetchUsers}
-              className="btn-primary"
-            >
-              تطبيق الفلاتر
-            </button>
           </div>
         </div>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, Suspense } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useToast } from '../../../contexts/ToastContext';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 import api from '../../../lib/api';
 import SuccessModal from '../../../components/SuccessModal';
 
-export default function CreateTemplatePage() {
+function CreateTemplatePageContent() {
   const { user, isAuthenticated, loading, ensureTokenInHeaders } = useAuth();
   const { showSuccess, showError, showWarning, showInfo } = useToast();
   const router = useRouter();
@@ -1379,5 +1379,13 @@ export default function CreateTemplatePage() {
         }}
       />
     </div>
+  );
+}
+
+export default function CreateTemplatePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300"></div>}>
+      <CreateTemplatePageContent />
+    </Suspense>
   );
 }

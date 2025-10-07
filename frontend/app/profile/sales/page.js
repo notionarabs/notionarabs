@@ -102,7 +102,7 @@ export default function CreatorSalesPage() {
             <ExportButton
               endpoint={exportEndpoint}
               filename={`${(user?.username || 'creator')}-downloads-${new Date().toISOString().split('T')[0]}.csv`}
-              label="تصدير CSV"
+              label="تصدير المبيعات"
               className="whitespace-nowrap px-3 py-2 h-9 text-sm"
               direct={true}
             />

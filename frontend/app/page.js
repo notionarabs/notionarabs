@@ -137,7 +137,7 @@ export default function HomePage() {
     };
 
     fetchFeaturedTemplates();
-  }, [hasCheckedMaintenance, isMaintenanceMode]);
+  }, [hasCheckedMaintenance]);
 
   // Fetch homepage aggregates (totals, top creators, category counts)
   useEffect(() => {
@@ -275,7 +275,7 @@ export default function HomePage() {
     };
 
     fetchHomepageData();
-  }, [hasCheckedMaintenance, isMaintenanceMode]);
+  }, [hasCheckedMaintenance]);
 
 
 

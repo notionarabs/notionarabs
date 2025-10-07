@@ -86,7 +86,7 @@ export const AuthProvider = ({ children }) => {
     } else {
       setLoading(false);
     }
-  }, [hasCheckedAuth, hasCheckedMaintenance, isMaintenanceMode]); // Added maintenance dependencies
+  }, [hasCheckedAuth, hasCheckedMaintenance]); // Removed isMaintenanceMode to prevent re-renders
 
 
   const checkAuthStatus = useCallback(async () => {

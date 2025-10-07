@@ -35,21 +35,33 @@ export const MaintenanceProvider = ({ children }) => {
 
       if (response.data.success && response.data.settings) {
         const maintenanceMode = response.data.settings.maintenanceMode;
-        setIsMaintenanceMode(maintenanceMode);
 
-        // Set global state for API interceptor
-        if (typeof window !== 'undefined') {
-          window.isMaintenanceMode = maintenanceMode;
-        }
+        // Only update state if value has changed
+        setIsMaintenanceMode(prevMode => {
+          if (prevMode !== maintenanceMode) {
+            // Set global state for API interceptor
+            if (typeof window !== 'undefined') {
+              window.isMaintenanceMode = maintenanceMode;
+            }
+            return maintenanceMode;
+          }
+          return prevMode;
+        });
       }
     } catch (error) {
       // If we can't check settings, assume not in maintenance mode
       console.error('Could not check maintenance mode:', error);
-      setIsMaintenanceMode(false);
 
-      if (typeof window !== 'undefined') {
-        window.isMaintenanceMode = false;
-      }
+      // Only update state if value has changed
+      setIsMaintenanceMode(prevMode => {
+        if (prevMode !== false) {
+          if (typeof window !== 'undefined') {
+            window.isMaintenanceMode = false;
+          }
+          return false;
+        }
+        return prevMode;
+      });
     } finally {
       setLoading(false);
       setHasCheckedMaintenance(true);

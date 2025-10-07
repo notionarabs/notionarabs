@@ -12,7 +12,7 @@ import axios from 'axios';
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { user, isAuthenticated, loading, logout, ensureTokenInHeaders } = useAuth();
+  const { user, isAuthenticated, loading, logout, ensureTokenInHeaders, refreshUserData } = useAuth();
   const { showSuccess, showError, showWarning } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -625,7 +625,9 @@ export default function SettingsPage() {
 
       // Save only the username
       await api.put('/auth/profile/settings', { username: profileSettings.username });
-      showSuccess('تم حفظ اسم المستخدم بنجاح! 🎉');
+      showSuccess('تم حفظ اسم المستخدم بنجاح!');
+      // Ensure auth context reflects the new username
+      try { await refreshUserData(); } catch { }
       setIsEditingUsername(false);
       setUsernameValidation({ isValid: true, message: '', isChecking: false });
     } catch (error) {
@@ -676,7 +678,13 @@ export default function SettingsPage() {
       }
 
       await api.put('/auth/profile/settings', cleanedSettings);
-      showSuccess('تم حفظ إعدادات الملف الشخصي بنجاح! 🎉');
+      showSuccess('تم حفظ إعدادات الملف الشخصي بنجاح!');
+      // Refresh user data so subsequent pages (e.g., /profile) show updated info
+      try { await refreshUserData(); } catch { }
+      // Redirect after a short delay to let the user see the success message
+      setTimeout(() => {
+        router.push('/profile');
+      }, 800);
     } catch (error) {
       console.error('Error saving profile settings:', error);
 

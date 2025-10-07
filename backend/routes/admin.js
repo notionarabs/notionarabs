@@ -5,6 +5,7 @@ const Template = require('../models/Template');
 const Notification = require('../models/Notification');
 const Blog = require('../models/Blog');
 const auth = require('../middleware/auth');
+const nodemailer = require('nodemailer');
 
 const router = express.Router();
 
@@ -869,7 +870,6 @@ router.get('/export/users', auth, async (req, res) => {
 });
 
 module.exports = router;
-
 // @route   GET /api/admin/notifications
 // @desc    Get admin notifications
 // @access  Private (Admin)
@@ -1182,3 +1182,152 @@ router.post('/fix-duplicate-usernames', auth, async (req, res) => {
     });
   }
 });
+
+// @route   POST /api/admin/send-bulk-emails
+// @desc    Send bulk emails to a list of users
+// @access  Private (Admin only)
+router.post('/send-bulk-emails', auth, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'غير مصرح لك بالوصول لهذه الميزة'
+      });
+    }
+
+    const { emails, subject, message } = req.body;
+
+    // Validation
+    if (!emails || !Array.isArray(emails) || emails.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'يرجى توفير قائمة بالبريد الإلكتروني'
+      });
+    }
+
+    if (!subject || !subject.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'عنوان الرسالة مطلوب'
+      });
+    }
+
+    if (!message || !message.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'محتوى الرسالة مطلوب'
+      });
+    }
+
+    if (emails.length > 2000) {
+      return res.status(400).json({
+        success: false,
+        message: 'لا يمكن إرسال أكثر من 2000 بريد إلكتروني في المرة الواحدة'
+      });
+    }
+
+    // Email validation regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const validEmails = emails.filter(email => emailRegex.test(email));
+
+    if (validEmails.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'لا توجد عناوين بريد إلكتروني صحيحة'
+      });
+    }
+
+    // Check if email service is configured
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS ||
+      process.env.EMAIL_USER === 'your-email@gmail.com' ||
+      process.env.EMAIL_PASS === 'your-app-password') {
+
+      // For development/testing - simulate email sending
+      console.log(`[DEV MODE] Simulating email send to ${validEmails.length} emails`);
+      console.log(`Subject: ${subject}`);
+      console.log(`Message: ${message}`);
+      console.log(`Recipients: ${validEmails.join(', ')}`);
+
+      // Simulate processing time
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      res.status(200).json({
+        success: true,
+        message: `[وضع التطوير] تم محاكاة إرسال ${validEmails.length} بريد إلكتروني بنجاح`,
+        stats: {
+          total: validEmails.length,
+          successful: validEmails.length,
+          failed: 0
+        },
+        devMode: true
+      });
+      return;
+    }
+
+    // Production mode - use actual email service
+    try {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS
+        }
+      });
+
+      // Send emails
+      const sendPromises = validEmails.map(email => {
+        return transporter.sendMail({
+          from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+          to: email,
+          subject: subject,
+          html: message.replace(/\n/g, '<br>'),
+          text: message
+        });
+      });
+
+      // Execute all email sends
+      const results = await Promise.allSettled(sendPromises);
+
+      // Count successful and failed sends
+      const successful = results.filter(result => result.status === 'fulfilled').length;
+      const failed = results.filter(result => result.status === 'rejected').length;
+
+      // Log failed emails for debugging
+      if (failed > 0) {
+        const failedEmails = results
+          .map((result, index) => ({ result, email: validEmails[index] }))
+          .filter(({ result }) => result.status === 'rejected')
+          .map(({ email, result }) => ({ email, error: result.reason.message }));
+
+        console.error('Failed email sends:', failedEmails);
+      }
+
+      // Log the bulk email send activity
+      console.log(`Bulk email sent by admin ${req.user.email}: ${successful} successful, ${failed} failed`);
+
+      res.status(200).json({
+        success: true,
+        message: `تم إرسال ${successful} من أصل ${validEmails.length} بريد إلكتروني بنجاح`,
+        stats: {
+          total: validEmails.length,
+          successful,
+          failed
+        }
+      });
+    } catch (emailError) {
+      console.error('Email service error:', emailError);
+      throw new Error('خطأ في خدمة البريد الإلكتروني: ' + emailError.message);
+    }
+
+  } catch (error) {
+    console.error('Send bulk emails error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'حدث خطأ أثناء إرسال الرسائل',
+      error: error.message
+    });
+  }
+});
+
+module.exports = router;

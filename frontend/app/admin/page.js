@@ -328,6 +328,24 @@ export default function AdminPage() {
             </div>
           </Link>
 
+          <Link href="/admin/email-import" className="card-interactive p-6 group">
+            <div className="flex items-center gap-4 mb-3">
+              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg className="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary">استيراد البريد الإلكتروني</h3>
+                <p className="text-accent-600 dark:text-dark-text-secondary text-sm">رفع وإدارة قوائم البريد الإلكتروني</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <span className="text-2xl font-bold text-orange-600 dark:text-orange-400">📧</span>
+              <p className="text-xs text-accent-500 dark:text-dark-text-tertiary">حتى 2000 بريد</p>
+            </div>
+          </Link>
+
           <Link href="/admin/settings" className="card-interactive p-6 group">
             <div className="flex items-center gap-4 mb-3">
               <div className="w-12 h-12 bg-gray-100 dark:bg-gray-900/30 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">

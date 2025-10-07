@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import api from '../../../lib/api';
 import { formatDate } from '../../../lib/dateUtils';
 
@@ -396,10 +397,21 @@ export default function AdminTemplatesPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="w-8 h-8 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full flex items-center justify-center">
-                          <span className="text-white font-bold text-xs">
-                            {template.creator?.name?.charAt(0)?.toUpperCase()}
-                          </span>
+                        <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center overflow-hidden">
+                          {template.creator?.profilePicture ? (
+                            <Image
+                              src={template.creator.profilePicture}
+                              alt={`صورة ${template.creator.name}`}
+                              width={40}
+                              height={40}
+                              className="w-full h-full object-cover"
+                              quality={100}
+                            />
+                          ) : (
+                            <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
+                              {template.creator?.name?.charAt(0)?.toUpperCase() || 'م'}
+                            </span>
+                          )}
                         </div>
                         <div className="mr-3">
                           <div className="text-sm font-medium text-accent-500 dark:text-dark-text-primary">
@@ -425,38 +437,59 @@ export default function AdminTemplatesPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-accent-600 dark:text-dark-text-secondary">
                       {formatDate(template.createdAt)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex gap-2">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex flex-col gap-2">
+                        {/* View Details button (always available) */}
+                        <button
+                          onClick={() => handleViewDetails(template)}
+                          className="btn-outline text-sm px-3 py-1 text-blue-600 border-blue-600 hover:bg-blue-50"
+                        >
+                          عرض التفاصيل
+                        </button>
+
+                        {/* Notion Link button */}
+                        <a
+                          href={template.notionLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-outline text-sm px-3 py-1 text-green-600 border-green-600 hover:bg-green-50 text-center"
+                        >
+                          رابط نوشن
+                        </a>
+
+                        {/* Status-specific actions */}
                         {template.status === 'pending' && (
                           <>
                             <button
                               onClick={() => handleStatusChange(template, 'approved')}
-                              className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
+                              className="btn-primary text-sm px-3 py-1"
                             >
                               موافقة
                             </button>
                             <button
                               onClick={() => handleStatusChange(template, 'rejected')}
-                              className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                              className="btn-outline text-sm px-3 py-1 text-red-600 border-red-600 hover:bg-red-50"
                             >
                               رفض
                             </button>
                           </>
                         )}
-                        <button
-                          onClick={() => handleViewDetails(template)}
-                          className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-                        >
-                          تفاصيل
-                        </button>
-                        <a
-                          href={template.notionLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
-                        >
-                          نوشن
-                        </a>
+                        {template.status === 'rejected' && (
+                          <button
+                            onClick={() => handleStatusChange(template, 'approved')}
+                            className="btn-primary text-sm px-3 py-1"
+                          >
+                            موافقة
+                          </button>
+                        )}
+                        {template.status === 'approved' && (
+                          <button
+                            onClick={() => handleStatusChange(template, 'rejected')}
+                            className="btn-outline text-sm px-3 py-1 text-red-600 border-red-600 hover:bg-red-50"
+                          >
+                            رفض
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -622,14 +655,35 @@ export default function AdminTemplatesPage() {
 
                 <div className="card p-4">
                   <h4 className="font-semibold text-accent-500 dark:text-dark-text-primary mb-4">معلومات المبدع</h4>
-                  <div className="space-y-3">
-                    <div>
-                      <span className="font-medium text-accent-600 dark:text-dark-text-secondary">الاسم:</span>
-                      <p className="text-accent-500 dark:text-dark-text-primary">{selectedTemplateDetails.creator?.name}</p>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center overflow-hidden">
+                      {selectedTemplateDetails.creator?.profilePicture ? (
+                        <Image
+                          src={selectedTemplateDetails.creator.profilePicture}
+                          alt={`صورة ${selectedTemplateDetails.creator.name}`}
+                          width={64}
+                          height={64}
+                          className="w-full h-full object-cover"
+                          quality={100}
+                        />
+                      ) : (
+                        <span className="text-primary-600 dark:text-primary-400 font-medium text-lg">
+                          {selectedTemplateDetails.creator?.name?.charAt(0)?.toUpperCase() || 'م'}
+                        </span>
+                      )}
                     </div>
                     <div>
-                      <span className="font-medium text-accent-600 dark:text-dark-text-secondary">البريد الإلكتروني:</span>
-                      <p className="text-accent-500 dark:text-dark-text-primary">{selectedTemplateDetails.creator?.email}</p>
+                      <p className="font-medium text-accent-500 dark:text-dark-text-primary">
+                        {selectedTemplateDetails.creator?.name}
+                      </p>
+                      <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                        {selectedTemplateDetails.creator?.email}
+                      </p>
+                      {selectedTemplateDetails.creator?.bio && (
+                        <p className="text-xs text-accent-500 dark:text-dark-text-tertiary mt-1 line-clamp-2">
+                          {selectedTemplateDetails.creator.bio}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -777,7 +831,7 @@ export default function AdminTemplatesPage() {
                       setShowDetailsModal(false);
                       handleStatusChange(selectedTemplateDetails, 'approved');
                     }}
-                    className="btn-primary bg-green-600 hover:bg-green-700"
+                    className="btn-primary"
                   >
                     موافقة
                   </button>
@@ -786,11 +840,33 @@ export default function AdminTemplatesPage() {
                       setShowDetailsModal(false);
                       handleStatusChange(selectedTemplateDetails, 'rejected');
                     }}
-                    className="btn-primary bg-red-600 hover:bg-red-700"
+                    className="btn-outline text-red-600 border-red-600 hover:bg-red-50"
                   >
                     رفض
                   </button>
                 </>
+              )}
+              {selectedTemplateDetails.status === 'rejected' && (
+                <button
+                  onClick={() => {
+                    setShowDetailsModal(false);
+                    handleStatusChange(selectedTemplateDetails, 'approved');
+                  }}
+                  className="btn-primary"
+                >
+                  موافقة
+                </button>
+              )}
+              {selectedTemplateDetails.status === 'approved' && (
+                <button
+                  onClick={() => {
+                    setShowDetailsModal(false);
+                    handleStatusChange(selectedTemplateDetails, 'rejected');
+                  }}
+                  className="btn-outline text-red-600 border-red-600 hover:bg-red-50"
+                >
+                  رفض
+                </button>
               )}
             </div>
           </div>

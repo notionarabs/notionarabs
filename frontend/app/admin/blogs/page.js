@@ -39,6 +39,8 @@ export default function AdminBlogsPage() {
   const [showModal, setShowModal] = useState(false);
   const [adminNotes, setAdminNotes] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedBlogDetails, setSelectedBlogDetails] = useState(null);
 
   useEffect(() => {
     if (!authLoading && (!user || user.role !== 'admin')) {
@@ -103,6 +105,11 @@ export default function AdminBlogsPage() {
     setActionLoading(false);
   };
 
+  const handleViewDetails = (blog) => {
+    setSelectedBlogDetails(blog);
+    setShowDetailsModal(true);
+  };
+
   const confirmStatusChange = async () => {
     if (!selectedBlog) return;
 
@@ -144,43 +151,65 @@ export default function AdminBlogsPage() {
   };
 
   const getStatusActions = (blog) => {
-    if (blog.status === 'pending') {
-      return (
-        <div className="flex gap-2">
-          <button
-            onClick={() => handleStatusChange(blog._id, 'published')}
-            className="btn-primary text-sm px-3 py-1"
-          >
-            موافقة
-          </button>
-          <button
-            onClick={() => handleStatusChange(blog._id, 'rejected')}
-            className="btn-outline text-sm px-3 py-1 text-red-600 border-red-600 hover:bg-red-50"
-          >
-            رفض
-          </button>
-        </div>
-      );
-    }
+    const actions = [];
 
-    if (blog.status === 'rejected') {
-      return (
+    // View Details button (always available)
+    actions.push(
+      <button
+        key="view-details"
+        onClick={() => handleViewDetails(blog)}
+        className="btn-outline text-sm px-3 py-1 text-blue-600 border-blue-600 hover:bg-blue-50"
+      >
+        عرض التفاصيل
+      </button>
+    );
+
+    // Status-specific actions
+    if (blog.status === 'pending') {
+      actions.push(
         <button
+          key="approve"
           onClick={() => handleStatusChange(blog._id, 'published')}
           className="btn-primary text-sm px-3 py-1"
         >
           موافقة
         </button>
       );
+      actions.push(
+        <button
+          key="reject"
+          onClick={() => handleStatusChange(blog._id, 'rejected')}
+          className="btn-outline text-sm px-3 py-1 text-red-600 border-red-600 hover:bg-red-50"
+        >
+          رفض
+        </button>
+      );
+    } else if (blog.status === 'rejected') {
+      actions.push(
+        <button
+          key="approve"
+          onClick={() => handleStatusChange(blog._id, 'published')}
+          className="btn-primary text-sm px-3 py-1"
+        >
+          موافقة
+        </button>
+      );
+    } else if (blog.status === 'published') {
+      actions.push(
+        <button
+          key="reject"
+          onClick={() => handleStatusChange(blog._id, 'rejected')}
+          className="btn-outline text-sm px-3 py-1 text-red-600 border-red-600 hover:bg-red-50"
+        >
+          رفض
+        </button>
+      );
     }
 
     return (
-      <button
-        onClick={() => handleStatusChange(blog._id, 'rejected')}
-        className="btn-outline text-sm px-3 py-1 text-red-600 border-red-600 hover:bg-red-50"
-      >
-        رفض
-      </button>
+      <div className="flex flex-col gap-2">
+        {actions}
+      </div>
     );
   };
 
@@ -375,10 +404,21 @@ export default function AdminBlogsPage() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-                            <span className="text-primary-600 dark:text-primary-400 font-medium text-xs">
-                              {blog.author?.name?.charAt(0) || 'م'}
-                            </span>
+                          <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center overflow-hidden">
+                            {blog.author?.profilePicture ? (
+                              <Image
+                                src={blog.author.profilePicture}
+                                alt={`صورة ${blog.author.name}`}
+                                width={40}
+                                height={40}
+                                className="w-full h-full object-cover"
+                                quality={100}
+                              />
+                            ) : (
+                              <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
+                                {blog.author?.name?.charAt(0) || 'م'}
+                              </span>
+                            )}
                           </div>
                           <div>
                             <p className="text-sm font-medium text-accent-900 dark:text-dark-text-primary">
@@ -494,6 +534,214 @@ export default function AdminBlogsPage() {
                 ) : (
                   newStatus === 'published' ? 'موافقة' : 'رفض'
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Blog Details Modal */}
+      {showDetailsModal && selectedBlogDetails && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-dark-secondary rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-dark-card-border flex justify-between items-center">
+              <h3 className="text-xl font-semibold text-accent-900 dark:text-dark-text-primary">
+                تفاصيل المقال
+              </h3>
+              <button
+                onClick={() => setShowDetailsModal(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-dark-text-secondary"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Main Content */}
+                <div className="lg:col-span-2 space-y-6">
+                  {/* Blog Title and Meta */}
+                  <div>
+                    <h1 className="text-2xl font-bold text-accent-900 dark:text-dark-text-primary mb-4">
+                      {selectedBlogDetails.title}
+                    </h1>
+
+                    <div className="flex flex-wrap items-center gap-4 mb-4">
+                      <span className={`px-3 py-1 text-sm font-medium rounded-full ${getStatusBadge(selectedBlogDetails.status).props.className}`}>
+                        {getStatusBadge(selectedBlogDetails.status).props.children}
+                      </span>
+                      <span className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                        تاريخ الإنشاء: {formatDate(selectedBlogDetails.createdAt)}
+                      </span>
+                      {selectedBlogDetails.updatedAt && (
+                        <span className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                          آخر تحديث: {formatDate(selectedBlogDetails.updatedAt)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Featured Image */}
+                  {selectedBlogDetails.featuredImage && (
+                    <div className="rounded-lg overflow-hidden">
+                      <Image
+                        src={selectedBlogDetails.featuredImage}
+                        alt={selectedBlogDetails.title}
+                        width={800}
+                        height={400}
+                        className="w-full h-64 object-cover"
+                      />
+                    </div>
+                  )}
+
+                  {/* Excerpt */}
+                  {selectedBlogDetails.excerpt && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
+                        الملخص
+                      </h3>
+                      <p className="text-accent-700 dark:text-dark-text-secondary leading-relaxed">
+                        {selectedBlogDetails.excerpt}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Content */}
+                  {selectedBlogDetails.content && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-3">
+                        المحتوى
+                      </h3>
+                      <div className="prose prose-gray dark:prose-invert max-w-none">
+                        <div
+                          className="text-accent-700 dark:text-dark-text-secondary leading-relaxed whitespace-pre-wrap"
+                          dangerouslySetInnerHTML={{ __html: selectedBlogDetails.content }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Sidebar */}
+                <div className="space-y-6">
+                  {/* Author Info */}
+                  <div className="card p-4">
+                    <h3 className="text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-4">
+                      معلومات المؤلف
+                    </h3>
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center overflow-hidden">
+                        {selectedBlogDetails.author?.profilePicture ? (
+                          <Image
+                            src={selectedBlogDetails.author.profilePicture}
+                            alt={`صورة ${selectedBlogDetails.author.name}`}
+                            width={64}
+                            height={64}
+                            className="w-full h-full object-cover"
+                            quality={100}
+                          />
+                        ) : (
+                          <span className="text-primary-600 dark:text-primary-400 font-medium text-lg">
+                            {selectedBlogDetails.author?.name?.charAt(0) || 'م'}
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium text-accent-900 dark:text-dark-text-primary">
+                          {selectedBlogDetails.author?.name || 'غير معروف'}
+                        </p>
+                        <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                          {selectedBlogDetails.author?.email}
+                        </p>
+                        {selectedBlogDetails.author?.bio && (
+                          <p className="text-xs text-accent-500 dark:text-dark-text-tertiary mt-1 line-clamp-2">
+                            {selectedBlogDetails.author.bio}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Blog Metadata */}
+                  <div className="card p-4">
+                    <h3 className="text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-4">
+                      معلومات المقال
+                    </h3>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-sm font-medium text-accent-600 dark:text-dark-text-secondary">
+                          الفئة
+                        </label>
+                        <p className="text-accent-900 dark:text-dark-text-primary">
+                          {selectedBlogDetails.category}
+                        </p>
+                      </div>
+
+                      {selectedBlogDetails.tags && selectedBlogDetails.tags.length > 0 && (
+                        <div>
+                          <label className="text-sm font-medium text-accent-600 dark:text-dark-text-secondary">
+                            العلامات
+                          </label>
+                          <div className="flex flex-wrap gap-2 mt-1">
+                            {selectedBlogDetails.tags.map((tag, index) => (
+                              <span key={index} className="px-2 py-1 text-xs bg-gray-100 dark:bg-dark-tertiary text-gray-700 dark:text-dark-text-secondary rounded-full">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedBlogDetails.readTime && (
+                        <div>
+                          <label className="text-sm font-medium text-accent-600 dark:text-dark-text-secondary">
+                            وقت القراءة
+                          </label>
+                          <p className="text-accent-900 dark:text-dark-text-primary">
+                            {selectedBlogDetails.readTime} دقيقة
+                          </p>
+                        </div>
+                      )}
+
+                      {selectedBlogDetails.views && (
+                        <div>
+                          <label className="text-sm font-medium text-accent-600 dark:text-dark-text-secondary">
+                            المشاهدات
+                          </label>
+                          <p className="text-accent-900 dark:text-dark-text-primary">
+                            {selectedBlogDetails.views}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Admin Notes */}
+                  {selectedBlogDetails.adminNotes && (
+                    <div className="card p-4">
+                      <h3 className="text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-4">
+                        ملاحظات الإدارة
+                      </h3>
+                      <p className="text-accent-700 dark:text-dark-text-secondary text-sm">
+                        {selectedBlogDetails.adminNotes}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 border-t border-gray-200 dark:border-dark-card-border flex justify-end">
+              <button
+                onClick={() => setShowDetailsModal(false)}
+                className="btn-primary"
+              >
+                إغلاق
               </button>
             </div>
           </div>

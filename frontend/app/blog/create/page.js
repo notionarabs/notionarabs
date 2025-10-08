@@ -591,17 +591,17 @@ export default function CreateBlogPage() {
   return (
     <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
       {/* Header */}
-      <section className="bg-gradient-to-br from-primary-500 to-primary-700 dark:from-dark-secondary dark:to-dark-tertiary text-white py-16">
-        <div className="container-custom text-center">
-          <h1 className="heading-1 text-white mb-4">إنشاء مقال جديد</h1>
-          <p className="body-large text-primary-100 dark:text-dark-text-secondary max-w-2xl mx-auto">
+      <section className="bg-gradient-to-br from-primary-500 to-primary-700 dark:from-dark-secondary dark:to-dark-tertiary text-white py-8 md:py-12 lg:py-16">
+        <div className="container-custom text-center px-4">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 md:mb-4">إنشاء مقال جديد</h1>
+          <p className="text-sm md:text-base lg:text-lg text-primary-100 dark:text-dark-text-secondary max-w-2xl mx-auto px-4">
             شارك معرفتك وخبرتك مع مجتمع نوشن العرب من خلال إنشاء مقال مفيد ومفيد
           </p>
-          <div className="mt-6 flex items-center justify-center gap-3">
+          <div className="mt-4 md:mt-6 flex flex-col sm:flex-row items-center justify-center gap-2 md:gap-3 px-4">
             <button
               type="button"
               onClick={() => router.push('/profile')}
-              className="btn-outline inline-flex items-center gap-2"
+              className="btn-outline inline-flex items-center gap-2 w-full sm:w-auto text-sm md:text-base"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -611,7 +611,7 @@ export default function CreateBlogPage() {
             <button
               type="button"
               onClick={() => router.push('/profile/my-blogs')}
-              className="btn-secondary inline-flex items-center gap-2"
+              className="btn-secondary inline-flex items-center gap-2 w-full sm:w-auto text-sm md:text-base"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -623,10 +623,10 @@ export default function CreateBlogPage() {
       </section>
 
       {/* Blog Creation Form */}
-      <section className="section-padding">
+      <section className="py-6 md:py-8 lg:py-12 px-4">
         <div className="container-custom max-w-4xl">
-          <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-medium dark:shadow-dark-medium p-8">
-            <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-medium dark:shadow-dark-medium p-4 md:p-6 lg:p-8">
+            <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
               {/* Title */}
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-accent-600 dark:text-dark-text-primary mb-3 flex items-center gap-2">
@@ -640,7 +640,7 @@ export default function CreateBlogPage() {
                   name="title"
                   value={formData.title}
                   onChange={handleInputChange}
-                  className={`form-input text-lg ${errors.title ? 'border-red-500 focus:border-red-500 ring-red-200' : 'focus:ring-primary-200'}`}
+                  className={`form-input text-base md:text-lg ${errors.title ? 'border-red-500 focus:border-red-500 ring-red-200' : 'focus:ring-primary-200'}`}
                   placeholder="اكتب عنوان المقال هنا..."
                   required
                   maxLength={200}
@@ -659,21 +659,21 @@ export default function CreateBlogPage() {
 
                 {/* Blog Preview Card */}
                 {showPreview && (
-                  <div className="mt-6 p-4 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-xl border border-orange-200 dark:border-orange-800">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-6 h-6 bg-orange-500 rounded-lg flex items-center justify-center">
-                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="mt-4 md:mt-6 p-3 md:p-4 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-xl border border-orange-200 dark:border-orange-800">
+                    <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
+                      <div className="w-5 h-5 md:w-6 md:h-6 bg-orange-500 rounded-lg flex items-center justify-center">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                       </div>
-                      <h3 className="text-sm font-semibold text-orange-700 dark:text-orange-300">معاينة المقال</h3>
+                      <h3 className="text-xs md:text-sm font-semibold text-orange-700 dark:text-orange-300">معاينة المقال</h3>
                     </div>
 
                     {/* Blog Card Preview */}
                     <div className="bg-white dark:bg-dark-secondary rounded-lg shadow-lg border border-gray-200 dark:border-dark-card-border overflow-hidden hover:shadow-xl transition-all duration-300">
                       {/* Auto-Generated Featured Image */}
-                      <div className="relative w-full h-48 bg-gradient-to-br from-orange-400 via-orange-500 to-red-500 overflow-hidden">
+                      <div className="relative w-full h-32 md:h-40 lg:h-48 bg-gradient-to-br from-orange-400 via-orange-500 to-red-500 overflow-hidden">
                         {/* Background Pattern */}
                         <div className="absolute inset-0 opacity-20">
                           <div className="absolute top-4 left-4 w-16 h-16 bg-white rounded-full opacity-30"></div>
@@ -687,23 +687,23 @@ export default function CreateBlogPage() {
                         <div className="absolute inset-0 bg-black bg-opacity-20"></div>
 
                         {/* Generated Image Content */}
-                        <div className="absolute inset-0 flex flex-col justify-center items-center p-6 text-center">
+                        <div className="absolute inset-0 flex flex-col justify-center items-center p-3 md:p-4 lg:p-6 text-center">
                           {/* Blog Icon */}
-                          <div className="mb-4">
-                            <div className="w-16 h-16 bg-white bg-opacity-20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white border-opacity-30">
-                              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="mb-2 md:mb-3 lg:mb-4">
+                            <div className="w-10 h-10 md:w-12 md:h-12 lg:w-16 lg:h-16 bg-white bg-opacity-20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white border-opacity-30">
+                              <svg className="w-5 h-5 md:w-6 md:h-6 lg:w-8 lg:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5h-2.5" />
                               </svg>
                             </div>
                           </div>
 
                           {/* Auto-generated Title */}
-                          <h3 className="text-white text-lg font-bold leading-tight mb-2 drop-shadow-lg max-w-full">
+                          <h3 className="text-white text-sm md:text-base lg:text-lg font-bold leading-tight mb-1 md:mb-2 drop-shadow-lg max-w-full px-2">
                             {formData.title || 'مقال جديد'}
                           </h3>
 
                           {/* Auto-generated Subtitle */}
-                          <p className="text-white text-sm opacity-90 max-w-full">
+                          <p className="text-white text-xs md:text-sm opacity-90 max-w-full px-2">
                             {formData.excerpt ?
                               (formData.excerpt.length > 80 ? formData.excerpt.substring(0, 80) + '...' : formData.excerpt) :
                               'اكتشف المزيد في هذا المقال المميز'
@@ -712,8 +712,8 @@ export default function CreateBlogPage() {
                         </div>
 
                         {/* Bottom Info Bar */}
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-                          <div className="flex items-center justify-between">
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 md:p-3 lg:p-4">
+                          <div className="flex items-center justify-between gap-2">
                             {/* Categories */}
                             {formData.categories.length > 0 && (
                               <div className="flex flex-wrap gap-1">
@@ -722,29 +722,29 @@ export default function CreateBlogPage() {
                                   return (
                                     <span
                                       key={index}
-                                      className="inline-flex items-center px-2 py-1 bg-white bg-opacity-20 backdrop-blur-sm text-white rounded-md text-xs font-medium border border-white border-opacity-30"
+                                      className="inline-flex items-center px-1.5 md:px-2 py-0.5 md:py-1 bg-white bg-opacity-20 backdrop-blur-sm text-white rounded-md text-[10px] md:text-xs font-medium border border-white border-opacity-30"
                                     >
                                       {category?.name}
                                     </span>
                                   );
                                 })}
                                 {formData.categories.length > 2 && (
-                                  <span className="inline-flex items-center px-2 py-1 bg-white bg-opacity-20 backdrop-blur-sm text-white rounded-md text-xs font-medium border border-white border-opacity-30">
-                                    +{formData.categories.length - 2} أخرى
+                                  <span className="inline-flex items-center px-1.5 md:px-2 py-0.5 md:py-1 bg-white bg-opacity-20 backdrop-blur-sm text-white rounded-md text-[10px] md:text-xs font-medium border border-white border-opacity-30">
+                                    +{formData.categories.length - 2}
                                   </span>
                                 )}
                               </div>
                             )}
 
                             {/* Author and Date */}
-                            <div className="flex items-center gap-2 text-white text-sm opacity-90">
-                              <div className="w-6 h-6 bg-white bg-opacity-20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white border-opacity-30">
-                                <span className="text-white text-xs font-bold">
+                            <div className="flex items-center gap-1 md:gap-2 text-white text-xs md:text-sm opacity-90">
+                              <div className="w-5 h-5 md:w-6 md:h-6 bg-white bg-opacity-20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white border-opacity-30">
+                                <span className="text-white text-[10px] md:text-xs font-bold">
                                   {user?.name?.charAt(0)?.toUpperCase() || 'ك'}
                                 </span>
                               </div>
-                              <span>{user?.name || 'كاتب المقال'}</span>
-                              <span className="mx-2">•</span>
+                              <span className="hidden sm:inline">{user?.name || 'كاتب المقال'}</span>
+                              <span className="hidden sm:inline mx-1 md:mx-2">•</span>
                               <span>الآن</span>
                             </div>
                           </div>
@@ -752,26 +752,26 @@ export default function CreateBlogPage() {
                       </div>
 
                       {/* Card Content */}
-                      <div className="p-6">
+                      <div className="p-4 md:p-5 lg:p-6">
                         {/* Read More Link */}
                         <div className="flex items-center justify-between">
-                          <button className="inline-flex items-center gap-2 text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium text-sm transition-colors">
+                          <button className="inline-flex items-center gap-1 md:gap-2 text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium text-xs md:text-sm transition-colors">
                             <span>اقرأ المزيد</span>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                             </svg>
                           </button>
 
                           {/* Engagement Stats */}
-                          <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-dark-text-tertiary">
-                            <div className="flex items-center gap-1">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="flex items-center gap-2 md:gap-4 text-[10px] md:text-xs text-gray-500 dark:text-dark-text-tertiary">
+                            <div className="flex items-center gap-0.5 md:gap-1">
+                              <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                               </svg>
                               <span>0</span>
                             </div>
-                            <div className="flex items-center gap-1">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="flex items-center gap-0.5 md:gap-1">
+                              <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                               </svg>
                               <span>0</span>
@@ -781,7 +781,7 @@ export default function CreateBlogPage() {
                       </div>
                     </div>
 
-                    <p className="text-xs text-orange-600 dark:text-orange-400 mt-3 text-center">
+                    <p className="text-[10px] md:text-xs text-orange-600 dark:text-orange-400 mt-2 md:mt-3 text-center">
                       💡 هذا هو شكل مقالك في المدونة
                     </p>
                   </div>
@@ -801,7 +801,7 @@ export default function CreateBlogPage() {
                   value={formData.excerpt}
                   onChange={handleInputChange}
                   rows={3}
-                  className={`form-input resize-none ${errors.excerpt ? 'border-red-500 focus:border-red-500 ring-red-200' : 'focus:ring-primary-200'}`}
+                  className={`form-input resize-none text-sm md:text-base ${errors.excerpt ? 'border-red-500 focus:border-red-500 ring-red-200' : 'focus:ring-primary-200'}`}
                   placeholder="اكتب ملخص مختصر للمقال..."
                   required
                   maxLength={500}
@@ -831,8 +831,8 @@ export default function CreateBlogPage() {
                   name="content"
                   value={formData.content}
                   onChange={handleInputChange}
-                  rows={15}
-                  className={`form-input resize-y ${errors.content ? 'border-red-500 focus:border-red-500 ring-red-200' : 'focus:ring-primary-200'}`}
+                  rows={10}
+                  className={`form-input resize-y text-sm md:text-base min-h-[200px] md:min-h-[300px] ${errors.content ? 'border-red-500 focus:border-red-500 ring-red-200' : 'focus:ring-primary-200'}`}
                   placeholder="اكتب محتوى المقال هنا..."
                   required
                   minLength={100}
@@ -866,14 +866,14 @@ export default function CreateBlogPage() {
 
                 {/* Category Multi-Select Input */}
                 <div className="relative" ref={categoryDropdownRef}>
-                  <div className={`form-input w-full min-h-[3rem] px-4 py-3 pr-12 border-2 border-gray-200 dark:border-dark-input-border focus-within:border-primary-500 dark:focus-within:border-primary-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-primary-400 flex flex-wrap items-center gap-2 ${errors.categories ? 'border-red-500 focus-within:border-red-500' : ''}`}>
+                  <div className={`form-input w-full min-h-[2.5rem] md:min-h-[3rem] px-3 md:px-4 py-2 md:py-3 pr-10 md:pr-12 border-2 border-gray-200 dark:border-dark-input-border focus-within:border-primary-500 dark:focus-within:border-primary-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-primary-400 flex flex-wrap items-center gap-1.5 md:gap-2 ${errors.categories ? 'border-red-500 focus-within:border-red-500' : ''}`}>
                     {/* Selected Categories Inside Input */}
                     {formData.categories.map((categoryValue, index) => {
                       const category = categories.find(c => c.value === categoryValue);
                       return (
                         <span
                           key={index}
-                          className="inline-flex items-center gap-1 px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-md text-sm font-medium"
+                          className="inline-flex items-center gap-1 px-1.5 md:px-2 py-0.5 md:py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-md text-xs md:text-sm font-medium"
                         >
                           {category?.name || categoryValue}
                           <button
@@ -907,7 +907,7 @@ export default function CreateBlogPage() {
                             : "ابحث عن الفئة..."
                       }
                       disabled={formData.categories.length >= 3}
-                      className="flex-1 min-w-[120px] bg-transparent outline-none text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-quaternary disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 min-w-[100px] md:min-w-[120px] bg-transparent outline-none text-sm md:text-base text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-quaternary disabled:opacity-50 disabled:cursor-not-allowed"
                       autoComplete="off"
                     />
                   </div>
@@ -998,12 +998,12 @@ export default function CreateBlogPage() {
 
                 {/* Tag Input */}
                 <div className="relative">
-                  <div className="form-input w-full min-h-[3rem] px-4 py-3 pr-12 border-2 border-gray-200 dark:border-dark-input-border focus-within:border-primary-500 dark:focus-within:border-primary-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-primary-400 flex flex-wrap items-center gap-2">
+                  <div className="form-input w-full min-h-[2.5rem] md:min-h-[3rem] px-3 md:px-4 py-2 md:py-3 pr-10 md:pr-12 border-2 border-gray-200 dark:border-dark-input-border focus-within:border-primary-500 dark:focus-within:border-primary-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-primary-400 flex flex-wrap items-center gap-1.5 md:gap-2">
                     {/* Selected Tags */}
                     {(Array.isArray(formData.tags) ? formData.tags : []).map((tag, index) => (
                       <span
                         key={index}
-                        className="inline-flex items-center gap-1 px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-md text-sm font-medium"
+                        className="inline-flex items-center gap-1 px-1.5 md:px-2 py-0.5 md:py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-md text-xs md:text-sm font-medium"
                       >
                         {tag}
                         <button
@@ -1027,7 +1027,7 @@ export default function CreateBlogPage() {
                       onKeyDown={handleTagKeyDown}
                       placeholder={(Array.isArray(formData.tags) ? formData.tags.length : 0) >= 10 ? "تم الوصول للحد الأقصى (10 علامات)" : (Array.isArray(formData.tags) ? formData.tags.length : 0) > 0 ? "أضف علامة..." : "اكتب علامة واضغط Enter"}
                       disabled={(Array.isArray(formData.tags) ? formData.tags.length : 0) >= 10}
-                      className="flex-1 min-w-[200px] bg-transparent outline-none text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-quaternary disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 min-w-[140px] md:min-w-[200px] bg-transparent outline-none text-sm md:text-base text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-quaternary disabled:opacity-50 disabled:cursor-not-allowed"
                       autoComplete="off"
                     />
                   </div>
@@ -1047,23 +1047,23 @@ export default function CreateBlogPage() {
 
               {/* Save Status */}
               {lastSaved && (
-                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 flex items-center gap-2 text-sm text-green-700 dark:text-green-300">
-                  <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-2 md:p-3 flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-green-700 dark:text-green-300">
+                  <svg className="w-3.5 h-3.5 md:w-4 md:h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
                   <span className="font-medium">تم الحفظ تلقائياً! 💾</span>
                   <span className="text-green-600 dark:text-green-400">•</span>
-                  <span>{lastSaved.toLocaleTimeString('en-US')}</span>
+                  <span className="hidden sm:inline">{lastSaved.toLocaleTimeString('en-US')}</span>
                 </div>
               )}
 
               {/* Submit Buttons */}
-              <div className="flex flex-col gap-4 pt-8 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col gap-3 md:gap-4 pt-6 md:pt-8 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex flex-col sm:flex-row gap-2 md:gap-3">
                   <button
                     type="button"
                     onClick={() => router.back()}
-                    className="px-6 py-3 text-accent-600 dark:text-dark-text-secondary bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-all duration-200 font-medium hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                    className="px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base text-accent-600 dark:text-dark-text-secondary bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-all duration-200 font-medium hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-300"
                   >
                     إلغاء
                   </button>
@@ -1072,7 +1072,7 @@ export default function CreateBlogPage() {
                     type="button"
                     onClick={(e) => handleSubmit(e, 'draft')}
                     disabled={submitting}
-                    className="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-200 font-medium hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    className="flex-1 px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-200 font-medium hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                   >
                     {submitting ? (
                       <div className="flex items-center justify-center gap-2">
@@ -1093,7 +1093,7 @@ export default function CreateBlogPage() {
                     type="button"
                     onClick={(e) => handleSubmit(e, 'review')}
                     disabled={submitting}
-                    className="flex-1 btn-primary py-3 px-6 text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    className="flex-1 btn-primary py-2.5 md:py-3 px-4 md:px-6 text-sm md:text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                   >
                     {submitting ? (
                       <div className="flex items-center justify-center gap-2">
@@ -1111,14 +1111,14 @@ export default function CreateBlogPage() {
                   </button>
                 </div>
 
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 md:p-4">
+                  <div className="flex items-start gap-2 md:gap-3">
+                    <svg className="w-4 h-4 md:w-5 md:h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <div className="text-sm">
+                    <div className="text-xs md:text-sm">
                       <p className="font-medium text-blue-800 dark:text-blue-200 mb-1">معلومات مهمة:</p>
-                      <ul className="text-blue-700 dark:text-blue-300 space-y-1">
+                      <ul className="text-blue-700 dark:text-blue-300 space-y-0.5 md:space-y-1">
                         <li>• <strong>حفظ كمسودة:</strong> يحفظ المقال كمسودة بدون مراجعة (العنوان والمحتوى مطلوبان فقط)</li>
                         <li>• <strong>إرسال للمراجعة:</strong> يرسل المقال للمراجعة والنشر (جميع الحقول مطلوبة)</li>
                       </ul>

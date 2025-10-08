@@ -132,20 +132,20 @@ export default function ProfilePage() {
 
         {/* Payment Notification */}
         <div className="mb-6 sm:mb-8 px-4 sm:px-0">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800/30 rounded-2xl p-6 shadow-lg">
-            <div className="flex items-center gap-4">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800/30 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
               <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
               </div>
               <div className="flex-1 text-right">
-                <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-1">
+                <h3 className="text-base sm:text-lg font-semibold text-blue-800 dark:text-blue-200 mb-1">
                   🎉 ميزة الأرباح للمبدعين قريباً!
                 </h3>
-                <p className="text-sm text-blue-600 dark:text-blue-300">
+                <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-300">
                   ابدأ بإنشاء قوالبك الآن وستتمكن من كسب المال من مبيعاتها قريباً
                 </p>
               </div>
@@ -271,87 +271,87 @@ export default function ProfilePage() {
                   </div>
                 </Link>
 
-                <Link href="/profile/templates" className="group card-interactive p-6 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <Link href="/profile/templates" className="group card-interactive p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <h3 className="heading-3 group-hover:text-blue-500 transition-colors mb-2">قوالبي</h3>
-                      <p className="body-medium text-accent-600 dark:text-dark-text-secondary">تتبع حالة قوالبي</p>
+                      <h3 className="heading-3 group-hover:text-blue-500 transition-colors mb-1 sm:mb-2">قوالبي</h3>
+                      <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary">تتبع حالة قوالبي</p>
                     </div>
-                    <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-blue-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-blue-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                   </div>
                 </Link>
 
-                <Link href="/profile/sales" className="group card-interactive p-6 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <Link href="/profile/sales" className="group card-interactive p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3v2m0 14v2m8-10h2M3 11H1m15.364-6.364l1.414 1.414M6.222 17.778l-1.414 1.414M17.778 17.778l1.414-1.414M4.808 4.808L3.394 6.222" />
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <h3 className="heading-3 group-hover:text-emerald-500 transition-colors mb-2">سجلات التحميل</h3>
-                      <p className="body-medium text-accent-600 dark:text-dark-text-secondary">مبيعاتك وتنزيلات القوالب</p>
+                      <h3 className="heading-3 group-hover:text-emerald-500 transition-colors mb-1 sm:mb-2">سجلات التحميل</h3>
+                      <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary">مبيعاتك وتنزيلات القوالب</p>
                     </div>
-                    <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-emerald-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-emerald-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                   </div>
                 </Link>
 
-                <Link href="/analysis" className="group card-interactive p-6 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-fuchsia-500 to-pink-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <Link href="/analysis" className="group card-interactive p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-fuchsia-500 to-pink-600 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 11V3m0 8a4 4 0 100 8 4 4 0 000-8zm4-4h6M3 7h6" />
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <h3 className="heading-3 group-hover:text-fuchsia-500 transition-colors mb-2">التحليلات</h3>
-                      <p className="body-medium text-accent-600 dark:text-dark-text-secondary">إحصائيات الأداء والتفاصيل</p>
+                      <h3 className="heading-3 group-hover:text-fuchsia-500 transition-colors mb-1 sm:mb-2">التحليلات</h3>
+                      <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary">إحصائيات الأداء والتفاصيل</p>
                     </div>
-                    <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-fuchsia-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-fuchsia-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                   </div>
                 </Link>
 
                 {/* Blog Action Cards */}
-                <Link href="/blog/create" className="group card-interactive p-6 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <Link href="/blog/create" className="group card-interactive p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <h3 className="heading-3 group-hover:text-indigo-500 transition-colors mb-2">كتابة مقال جديد</h3>
-                      <p className="body-medium text-accent-600 dark:text-dark-text-secondary">شارك معرفتك مع المجتمع</p>
+                      <h3 className="heading-3 group-hover:text-indigo-500 transition-colors mb-1 sm:mb-2">كتابة مقال جديد</h3>
+                      <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary">شارك معرفتك مع المجتمع</p>
                     </div>
-                    <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-indigo-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-indigo-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                   </div>
                 </Link>
 
-                <Link href="/profile/my-blogs" className="group card-interactive p-6 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <Link href="/profile/my-blogs" className="group card-interactive p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <h3 className="heading-3 group-hover:text-orange-500 transition-colors mb-2">مقالاتي</h3>
-                      <p className="body-medium text-accent-600 dark:text-dark-text-secondary">إدارة مقالاتك المنشورة</p>
+                      <h3 className="heading-3 group-hover:text-orange-500 transition-colors mb-1 sm:mb-2">مقالاتي</h3>
+                      <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary">إدارة مقالاتك المنشورة</p>
                     </div>
-                    <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-orange-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-orange-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                   </div>
@@ -359,35 +359,35 @@ export default function ProfilePage() {
               </>
             ) : (
               <>
-                <Link href="/templates" className="group card-interactive p-6 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 dark:from-orange-500 dark:to-orange-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <Link href="/templates" className="group card-interactive p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary-500 to-primary-600 dark:from-orange-500 dark:to-orange-600 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <h3 className="heading-3 group-hover:text-primary-500 dark:group-hover:text-orange-500 transition-colors mb-2">استكشاف القوالب</h3>
-                      <p className="body-medium text-accent-600 dark:text-dark-text-secondary">اكتشف قوالب جديدة ومفيدة</p>
+                      <h3 className="heading-3 group-hover:text-primary-500 dark:group-hover:text-orange-500 transition-colors mb-1 sm:mb-2">استكشاف القوالب</h3>
+                      <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary">اكتشف قوالب جديدة ومفيدة</p>
                     </div>
-                    <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-primary-500 dark:group-hover:text-orange-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-primary-500 dark:group-hover:text-orange-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                   </div>
                 </Link>
 
-                <Link href="/creators" className="group card-interactive p-6 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <Link href="/creators" className="group card-interactive p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <h3 className="heading-3 group-hover:text-purple-500 transition-colors mb-2">المبدعين</h3>
-                      <p className="body-medium text-accent-600 dark:text-dark-text-secondary">تعرف على المبدعين المتميزين</p>
+                      <h3 className="heading-3 group-hover:text-purple-500 transition-colors mb-1 sm:mb-2">المبدعين</h3>
+                      <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary">تعرف على المبدعين المتميزين</p>
                     </div>
-                    <svg className="w-5 h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-purple-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-purple-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                   </div>

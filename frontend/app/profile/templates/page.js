@@ -222,9 +222,9 @@ export default function CreatorTemplatesPage() {
           <div className="space-y-4 sm:space-y-6">
             {filteredTemplates.map((template) => (
               <div key={template._id} className="card p-4 sm:p-6">
-                <div className="flex items-center gap-5">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5">
                   {/* Image */}
-                  <div className="w-32 h-24 sm:w-48 sm:h-32 rounded-lg overflow-hidden bg-gray-100 dark:bg-dark-tertiary flex-shrink-0">
+                  <div className="w-full sm:w-32 md:w-48 h-48 sm:h-24 md:h-32 rounded-lg overflow-hidden bg-gray-100 dark:bg-dark-tertiary flex-shrink-0">
                     {template.previewImage ? (
                       <Image src={template.previewImage} alt={template.title} width={192} height={128} className="w-full h-full object-cover" />
                     ) : (
@@ -233,33 +233,33 @@ export default function CreatorTemplatesPage() {
                   </div>
 
                   {/* Title + Small description */}
-                  <div className="flex-1">
-                    <h3 className="text-base sm:text-lg font-bold text-accent-500 dark:text-dark-text-primary mb-1">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg sm:text-xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">
                       {template.title}
                     </h3>
-                    <div className="mb-2">
+                    <div className="mb-2 sm:mb-3">
                       {getStatusBadge(template.status)}
                     </div>
-                    <p className="text-sm text-accent-600 dark:text-dark-text-secondary line-clamp-2">
+                    <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary line-clamp-2">
                       {template.description}
                     </p>
                   </div>
 
                   {/* Actions */}
-                  <div className="relative sm:min-w-[200px] text-center">
+                  <div className="relative w-full sm:w-auto sm:min-w-[200px]">
                     {/* Default actions */}
                     <div
                       className={`${confirmingDeleteId === template._id ? 'opacity-0 scale-95 pointer-events-none absolute inset-0' : 'opacity-100 scale-100 relative'} transition-all duration-300 ease-in-out flex flex-col gap-2`}
                     >
                       <button
                         onClick={() => router.push(`/templates/create?edit=${template._id}`)}
-                        className="btn-outline text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3"
+                        className="btn-outline text-sm px-4 py-2.5 sm:py-3 w-full"
                       >
                         تعديل
                       </button>
                       <button
                         onClick={() => setConfirmingDeleteId(template._id)}
-                        className="btn-outline text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-600 dark:hover:bg-red-900/20 text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3"
+                        className="btn-outline text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-600 dark:hover:bg-red-900/20 text-sm px-4 py-2.5 sm:py-3 w-full"
                       >
                         حذف القالب
                       </button>
@@ -267,17 +267,17 @@ export default function CreatorTemplatesPage() {
 
                     {/* Confirmation actions */}
                     <div
-                      className={`${confirmingDeleteId === template._id ? 'opacity-100 scale-100 relative' : 'opacity-0 scale-95 pointer-events-none absolute inset-0'} transition-all duration-300 ease-in-out flex gap-2`}
+                      className={`${confirmingDeleteId === template._id ? 'opacity-100 scale-100 relative' : 'opacity-0 scale-95 pointer-events-none absolute inset-0'} transition-all duration-300 ease-in-out flex flex-col sm:flex-row gap-2`}
                     >
                       <button
                         onClick={() => handleDelete(template._id)}
-                        className="btn-outline text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-600 dark:hover:bg-red-900/20 text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3 flex-1"
+                        className="btn-outline text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-600 dark:hover:bg-red-900/20 text-sm px-4 py-2.5 sm:py-3 flex-1 w-full sm:w-auto"
                       >
                         تأكيد الحذف
                       </button>
                       <button
                         onClick={() => setConfirmingDeleteId(null)}
-                        className="btn-outline text-xs sm:text-sm px-3 sm:px-4 py-2 sm:py-3 flex-1"
+                        className="btn-outline text-sm px-4 py-2.5 sm:py-3 flex-1 w-full sm:w-auto"
                       >
                         إلغاء
                       </button>

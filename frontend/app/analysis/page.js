@@ -91,31 +91,31 @@ export default function AnalysisPage() {
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
-      <div className="container-custom py-8">
+      <div className="container-custom py-4 sm:py-6 md:py-8 px-4 sm:px-6">
         {/* Header */}
-        <div className="mb-8 flex items-center gap-4">
+        <div className="mb-6 sm:mb-8 flex items-center gap-3 sm:gap-4">
           <Link
             href="/profile"
-            className="group p-3 hover:bg-white dark:hover:bg-dark-secondary rounded-xl transition-all duration-200 border border-gray-200 dark:border-dark-card-border hover:border-primary-300 dark:hover:border-orange-500/30 hover:shadow-sm"
+            className="group p-2 sm:p-3 hover:bg-white dark:hover:bg-dark-secondary rounded-xl transition-all duration-200 border border-gray-200 dark:border-dark-card-border hover:border-primary-300 dark:hover:border-orange-500/30 hover:shadow-sm flex-shrink-0"
           >
             <svg className="w-5 h-5 text-gray-600 dark:text-dark-text-secondary group-hover:text-primary-600 dark:group-hover:text-orange-400 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </Link>
-          <div className="flex-1">
-            <h1 className="heading-1 mb-2">تحليلات المبدع</h1>
-            <p className="body-large text-accent-600 dark:text-dark-text-secondary">كل ما يهمك تتبعه في مكان واحد</p>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary-600 dark:text-orange-400 mb-1 sm:mb-2">تحليلات المبدع</h1>
+            <p className="text-sm sm:text-base lg:text-lg text-accent-600 dark:text-dark-text-secondary">كل ما يهمك تتبعه في مكان واحد</p>
           </div>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300">
+          <div className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm sm:text-base">
             {error}
           </div>
         )}
 
         {/* KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
           <KpiCard title="إجمالي القوالب" value={metrics.totalTemplates} iconBg="from-primary-500 to-accent-500" />
           <KpiCard title="إجمالي المشاهدات" value={metrics.totalViews} iconBg="from-blue-500 to-indigo-500" />
           <KpiCard title="إجمالي التحميلات" value={metrics.totalDownloads} iconBg="from-emerald-500 to-green-600" />
@@ -124,15 +124,15 @@ export default function AnalysisPage() {
 
         {/* All Templates with States */}
         <div className="card p-4 sm:p-6 lg:p-8 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
-          <div className="flex items-center justify-between gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-6">
             <SectionHeader title="القوالب المعتمدة" />
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-gray-600 dark:text-dark-text-secondary">المدة:</label>
+            <div className="flex items-center gap-2 self-end sm:self-auto">
+              <label className="text-xs sm:text-sm text-gray-600 dark:text-dark-text-secondary whitespace-nowrap">المدة:</label>
               <div className="relative">
                 <select
                   value={timeRange}
                   onChange={(e) => setTimeRange(e.target.value)}
-                  className="appearance-none px-3 pl-12 py-2 text-sm border border-gray-300 dark:border-dark-card-border rounded-lg bg-white dark:bg-dark-tertiary text-gray-700 dark:text-dark-text-primary hover:border-primary-300 dark:hover:border-orange-400 transition-colors"
+                  className="appearance-none px-2 sm:px-3 pl-10 sm:pl-12 py-1.5 sm:py-2 text-xs sm:text-sm border border-gray-300 dark:border-dark-card-border rounded-lg bg-white dark:bg-dark-tertiary text-gray-700 dark:text-dark-text-primary hover:border-primary-300 dark:hover:border-orange-400 transition-colors"
                 >
                   <option value="all">كل الوقت</option>
                   <option value="7d">آخر 7 أيام</option>
@@ -140,8 +140,8 @@ export default function AnalysisPage() {
                   <option value="90d">آخر 90 يوم</option>
                   <option value="1y">آخر سنة</option>
                 </select>
-                <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-7 h-7 rounded-full bg-gray-100 dark:bg-dark-tertiary border border-gray-200 dark:border-dark-card-border text-gray-500 shadow-sm transition-colors">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span className="pointer-events-none absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gray-100 dark:bg-dark-tertiary border border-gray-200 dark:border-dark-card-border text-gray-500 shadow-sm transition-colors">
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </span>
@@ -151,48 +151,94 @@ export default function AnalysisPage() {
           {filteredTemplates.filter((t) => (t.status || '').toLowerCase() === 'approved').length === 0 ? (
             <EmptyState text="لا توجد قوالب معتمدة" />
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
-                <thead>
-                  <tr className="text-right text-gray-600 dark:text-dark-text-secondary">
-                    <th className="py-2 pr-2 font-medium">العنوان</th>
-                    <th className="py-2 pr-2 font-medium">المشاهدات</th>
-                    <th className="py-2 pr-2 font-medium">التحميلات</th>
-                    <th className="py-2 pr-2 font-medium">التقييم</th>
-                    <th className="py-2 pr-2 font-medium">الإجراء</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-dark-card-border">
-                  {filteredTemplates.filter((t) => (t.status || '').toLowerCase() === 'approved').map((t) => (
-                    <tr key={t._id} className="text-gray-900 dark:text-dark-text-primary">
-                      <td className="py-3 pr-2 max-w-[240px]">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-dark-tertiary flex items-center justify-center">
-                            {(t.coverImage || t.previewImage) ? (
-                              <Image src={t.coverImage || t.previewImage} alt={t.title} width={40} height={40} className="w-10 h-10 object-cover" />
-                            ) : (
-                              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m0 0l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                              </svg>
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-medium line-clamp-1">{t.title}</p>
-                            <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">{t.category || 'غير مصنف'}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-3 pr-2">{t.views || 0}</td>
-                      <td className="py-3 pr-2">{t.downloads || 0}</td>
-                      <td className="py-3 pr-2">{(t.rating || 0)} ({t.ratingCount || t.numRatings || t.ratingsCount || 0})</td>
-                      <td className="py-3 pr-2">
-                        <Link href={`/templates/${t._id}`} className="text-primary-600 dark:text-orange-400 hover:underline">عرض</Link>
-                      </td>
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="min-w-full text-sm">
+                  <thead>
+                    <tr className="text-right text-gray-600 dark:text-dark-text-secondary">
+                      <th className="py-2 pr-2 font-medium">العنوان</th>
+                      <th className="py-2 pr-2 font-medium">المشاهدات</th>
+                      <th className="py-2 pr-2 font-medium">التحميلات</th>
+                      <th className="py-2 pr-2 font-medium">التقييم</th>
+                      <th className="py-2 pr-2 font-medium">الإجراء</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 dark:divide-dark-card-border">
+                    {filteredTemplates.filter((t) => (t.status || '').toLowerCase() === 'approved').map((t) => (
+                      <tr key={t._id} className="text-gray-900 dark:text-dark-text-primary">
+                        <td className="py-3 pr-2 max-w-[240px]">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-dark-tertiary flex items-center justify-center flex-shrink-0">
+                              {(t.coverImage || t.previewImage) ? (
+                                <Image src={t.coverImage || t.previewImage} alt={t.title} width={40} height={40} className="w-10 h-10 object-cover" />
+                              ) : (
+                                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m0 0l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-medium line-clamp-1">{t.title}</p>
+                              <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">{t.category || 'غير مصنف'}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3 pr-2">{t.views || 0}</td>
+                        <td className="py-3 pr-2">{t.downloads || 0}</td>
+                        <td className="py-3 pr-2">{(t.rating || 0)} ({t.ratingCount || t.numRatings || t.ratingsCount || 0})</td>
+                        <td className="py-3 pr-2">
+                          <Link href={`/templates/${t._id}`} className="text-primary-600 dark:text-orange-400 hover:underline">عرض</Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="md:hidden space-y-3">
+                {filteredTemplates.filter((t) => (t.status || '').toLowerCase() === 'approved').map((t) => (
+                  <div key={t._id} className="p-3 sm:p-4 border border-gray-200 dark:border-dark-card-border rounded-xl bg-gray-50 dark:bg-dark-tertiary hover:border-primary-300 dark:hover:border-orange-400 transition-colors">
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg overflow-hidden bg-gray-100 dark:bg-dark-primary flex items-center justify-center flex-shrink-0">
+                        {(t.coverImage || t.previewImage) ? (
+                          <Image src={t.coverImage || t.previewImage} alt={t.title} width={56} height={56} className="w-full h-full object-cover" />
+                        ) : (
+                          <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m0 0l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-gray-900 dark:text-dark-text-primary text-sm sm:text-base mb-1 line-clamp-2">{t.title}</h3>
+                        <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">{t.category || 'غير مصنف'}</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 mb-3">
+                      <div className="text-center p-2 bg-white dark:bg-dark-secondary rounded-lg border border-gray-200 dark:border-dark-card-border">
+                        <p className="text-xs text-gray-500 dark:text-dark-text-tertiary mb-0.5">المشاهدات</p>
+                        <p className="text-sm font-semibold text-gray-900 dark:text-dark-text-primary">{t.views || 0}</p>
+                      </div>
+                      <div className="text-center p-2 bg-white dark:bg-dark-secondary rounded-lg border border-gray-200 dark:border-dark-card-border">
+                        <p className="text-xs text-gray-500 dark:text-dark-text-tertiary mb-0.5">التحميلات</p>
+                        <p className="text-sm font-semibold text-gray-900 dark:text-dark-text-primary">{t.downloads || 0}</p>
+                      </div>
+                      <div className="text-center p-2 bg-white dark:bg-dark-secondary rounded-lg border border-gray-200 dark:border-dark-card-border">
+                        <p className="text-xs text-gray-500 dark:text-dark-text-tertiary mb-0.5">التقييم</p>
+                        <p className="text-sm font-semibold text-gray-900 dark:text-dark-text-primary">{(t.rating || 0)} ({t.ratingCount || t.numRatings || t.ratingsCount || 0})</p>
+                      </div>
+                    </div>
+                    <Link
+                      href={`/templates/${t._id}`}
+                      className="block w-full text-center py-2 px-4 bg-primary-600 dark:bg-orange-500 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-orange-600 transition-colors text-sm font-medium"
+                    >
+                      عرض القالب
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </div>
@@ -202,14 +248,14 @@ export default function AnalysisPage() {
 
 function KpiCard({ title, value, iconBg }) {
   return (
-    <div className="p-5 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl shadow-sm">
+    <div className="p-4 sm:p-5 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-xl sm:rounded-2xl shadow-sm hover:shadow-md transition-all duration-200">
       <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-gray-500 dark:text-dark-text-tertiary mb-1">{title}</p>
-          <p className="text-2xl font-bold text-primary-600 dark:text-orange-400">{value}</p>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-dark-text-tertiary mb-1 truncate">{title}</p>
+          <p className="text-xl sm:text-2xl font-bold text-primary-600 dark:text-orange-400">{value}</p>
         </div>
-        <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${iconBg} flex items-center justify-center`}>
-          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-r ${iconBg} flex items-center justify-center flex-shrink-0 ml-2`}>
+          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
           </svg>
         </div>
@@ -220,13 +266,13 @@ function KpiCard({ title, value, iconBg }) {
 
 function SectionHeader({ title }) {
   return (
-    <div className="flex items-center gap-3 mb-6">
-      <div className="w-10 h-10 bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 rounded-xl flex items-center justify-center">
-        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div className="flex items-center gap-2 sm:gap-3">
+      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 1.343-3 3v7h6v-7c0-1.657-1.343-3-3-3z" />
         </svg>
       </div>
-      <h2 className="heading-2 text-primary-600 dark:text-orange-400">{title}</h2>
+      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-primary-600 dark:text-orange-400">{title}</h2>
     </div>
   );
 }
@@ -258,7 +304,7 @@ function TemplateRow({ template }) {
 
 function EmptyState({ text }) {
   return (
-    <div className="p-6 text-center text-gray-500 dark:text-dark-text-tertiary border border-dashed border-gray-200 dark:border-dark-card-border rounded-xl">
+    <div className="p-4 sm:p-6 text-center text-sm sm:text-base text-gray-500 dark:text-dark-text-tertiary border border-dashed border-gray-200 dark:border-dark-card-border rounded-lg sm:rounded-xl">
       {text}
     </div>
   );

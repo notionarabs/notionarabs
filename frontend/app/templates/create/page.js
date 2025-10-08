@@ -674,38 +674,38 @@ function CreateTemplatePageContent() {
     <div className="min-h-screen bg-gradient-to-br from-secondary-50 via-white to-primary-50/30 dark:from-dark-primary dark:via-dark-secondary dark:to-dark-tertiary transition-colors duration-300 overflow-visible" dir="rtl">
       {/* Enhanced Header */}
       <div className="bg-white/80 dark:bg-dark-secondary/80 backdrop-blur-sm border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300 shadow-sm">
-        <div className="container-custom py-8">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="flex-1">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 dark:from-orange-500 dark:to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="container-custom py-4 sm:py-6 md:py-8">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-6">
+            <div className="flex-1 w-full md:w-auto">
+              <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary-500 to-primary-600 dark:from-orange-500 dark:to-orange-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
                 </div>
                 <div>
-                  <h1 className="heading-1 mb-2 bg-gradient-to-r from-primary-600 to-accent-600 dark:from-orange-400 dark:to-orange-300 bg-clip-text text-transparent">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 sm:mb-2 bg-gradient-to-r from-primary-600 to-accent-600 dark:from-orange-400 dark:to-orange-300 bg-clip-text text-transparent">
                     إنشاء قالب جديد
                   </h1>
-                  <p className="body-large text-accent-600 dark:text-dark-text-secondary">
+                  <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary">
                     أضف قالبك المبتكر وشاركه مع المجتمع العربي
                   </p>
                 </div>
               </div>
 
               {/* Progress Indicator */}
-              <div className="flex items-center gap-2 text-sm text-accent-600 dark:text-dark-text-secondary">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">
+                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>املأ النموذج أدناه لإرسال قالبك للمراجعة</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 w-full md:w-auto">
               <button
                 onClick={() => router.push('/profile')}
-                className="btn-outline inline-flex items-center gap-2"
+                className="btn-outline inline-flex items-center justify-center gap-2 text-sm sm:text-base w-full md:w-auto"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -718,24 +718,24 @@ function CreateTemplatePageContent() {
       </div>
 
       {/* Form */}
-      <div className="container-custom py-8 overflow-visible">
+      <div className="container-custom py-4 sm:py-6 md:py-8 overflow-visible">
         <div className="max-w-4xl mx-auto overflow-visible">
-          <form onSubmit={handleSubmit} className="space-y-8 overflow-visible">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 md:space-y-8 overflow-visible">
             {/* Basic Information */}
-            <div className="card p-8 shadow-xl border-0 bg-white/80 dark:bg-dark-card-bg/80 backdrop-blur-sm overflow-visible">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 bg-primary-500 dark:bg-orange-500 rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="card p-4 sm:p-6 md:p-8 shadow-xl border-0 bg-white/80 dark:bg-dark-card-bg/80 backdrop-blur-sm overflow-visible">
+              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-primary-500 dark:bg-orange-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <h2 className="heading-2 text-primary-600 dark:text-orange-400">المعلومات الأساسية</h2>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-primary-600 dark:text-orange-400">المعلومات الأساسية</h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-visible">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 overflow-visible">
                 <div className="md:col-span-2">
-                  <label className="flex items-center text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
-                    <svg className="w-4 h-4 text-primary-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <label className="flex items-center text-xs sm:text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2 sm:mb-3">
+                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-500 ml-1.5 sm:ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                     </svg>
                     عنوان القالب *
@@ -747,11 +747,11 @@ function CreateTemplatePageContent() {
                       value={formData.title}
                       onChange={handleInputChange}
                       required
-                      className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400"
+                      className="form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400"
                       placeholder="مثال: مخطط الدراسة الشامل"
                     />
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                       </svg>
                     </div>
@@ -759,9 +759,9 @@ function CreateTemplatePageContent() {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="flex items-center justify-between text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
+                  <label className="flex items-center justify-between text-xs sm:text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2 sm:mb-3">
                     <div className="flex items-center">
-                      <svg className="w-4 h-4 text-primary-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-500 ml-1.5 sm:ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                       </svg>
                       الفئات *
@@ -773,12 +773,12 @@ function CreateTemplatePageContent() {
 
                   {/* Category Multi-Select Input */}
                   <div className="relative">
-                    <div className="form-input w-full min-h-[3rem] px-4 py-3 pr-12 border-2 border-gray-200 dark:border-dark-input-border focus-within:border-primary-500 dark:focus-within:border-orange-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400 flex flex-wrap items-center gap-2">
+                    <div className="form-input w-full min-h-[2.5rem] sm:min-h-[3rem] px-3 sm:px-4 py-2 sm:py-3 pr-10 sm:pr-12 border-2 border-gray-200 dark:border-dark-input-border focus-within:border-primary-500 dark:focus-within:border-orange-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400 flex flex-wrap items-center gap-1.5 sm:gap-2">
                       {/* Selected Categories Inside Input */}
                       {formData.categories.map((category, index) => (
                         <span
                           key={index}
-                          className="inline-flex items-center gap-1 px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-md text-sm font-medium"
+                          className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded text-xs sm:text-sm font-medium"
                         >
                           {category}
                           <button
@@ -786,7 +786,7 @@ function CreateTemplatePageContent() {
                             onClick={() => removeCategory(category)}
                             className="hover:text-primary-900 dark:hover:text-primary-100 transition-colors"
                           >
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             </svg>
                           </button>
@@ -812,20 +812,20 @@ function CreateTemplatePageContent() {
                               : "ابحث عن الفئة..."
                         }
                         disabled={formData.categories.length >= 3}
-                        className="flex-1 min-w-[120px] bg-transparent outline-none text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-quaternary disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex-1 min-w-[100px] sm:min-w-[120px] bg-transparent outline-none text-sm sm:text-base text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-quaternary disabled:opacity-50 disabled:cursor-not-allowed"
                         autoComplete="off"
                       />
                     </div>
 
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                       </svg>
                     </div>
 
                     {/* Dropdown */}
                     {showCategoryDropdown && formData.categories.length < 3 && (
-                      <div ref={categoryDropdownRef} className="absolute z-[9999] w-full mt-2 bg-white dark:bg-dark-card-bg border border-gray-200 dark:border-dark-card-border rounded-xl shadow-2xl max-h-64 overflow-y-auto">
+                      <div ref={categoryDropdownRef} className="absolute z-[9999] w-full mt-2 bg-white dark:bg-dark-card-bg border border-gray-200 dark:border-dark-card-border rounded-lg sm:rounded-xl shadow-2xl max-h-48 sm:max-h-64 overflow-y-auto">
                         {filteredCategories.length > 0 ? (
                           filteredCategories.map((category, index) => (
                             <button
@@ -834,12 +834,12 @@ function CreateTemplatePageContent() {
                               onClick={() => addCategory(category)}
                               onMouseDown={(e) => e.preventDefault()}
                               disabled={formData.categories.includes(category)}
-                              className="w-full text-right px-4 py-3 hover:bg-gray-50 dark:hover:bg-dark-tertiary text-gray-900 dark:text-dark-text-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors border-b border-gray-100 dark:border-dark-card-border last:border-b-0"
+                              className="w-full text-right px-3 sm:px-4 py-2 sm:py-3 hover:bg-gray-50 dark:hover:bg-dark-tertiary text-sm sm:text-base text-gray-900 dark:text-dark-text-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors border-b border-gray-100 dark:border-dark-card-border last:border-b-0"
                             >
                               <div className="flex items-center justify-between">
                                 <span>{category}</span>
                                 {formData.categories.includes(category) && (
-                                  <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                   </svg>
                                 )}
@@ -847,8 +847,8 @@ function CreateTemplatePageContent() {
                             </button>
                           ))
                         ) : (
-                          <div className="px-4 py-6 text-gray-500 dark:text-dark-text-tertiary text-center">
-                            <svg className="w-6 h-6 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="px-3 sm:px-4 py-4 sm:py-6 text-gray-500 dark:text-dark-text-tertiary text-center text-sm sm:text-base">
+                            <svg className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                             لا توجد فئات مطابقة
@@ -860,13 +860,13 @@ function CreateTemplatePageContent() {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="flex items-center text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
-                    <svg className="w-4 h-4 text-primary-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <label className="flex items-center text-xs sm:text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
+                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-500 ml-1.5 sm:ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     وصف القالب *
                   </label>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 sm:mb-3">
                     وصف مختصر للقالب يظهر في صفحة القالب الرئيسية (حد أقصى 300 حرف)
                   </p>
                   <div className="relative">
@@ -877,15 +877,15 @@ function CreateTemplatePageContent() {
                       required
                       maxLength={300}
                       rows={4}
-                      className={`form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400 resize-none ${formData.description.length > 300 ? 'border-red-500' : ''}`}
+                      className={`form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400 resize-none ${formData.description.length > 300 ? 'border-red-500' : ''}`}
                       placeholder="اكتب وصفاً مختصراً عن القالب ومميزاته..."
                     />
-                    <div className="absolute right-4 top-4">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="absolute right-3 sm:right-4 top-3 sm:top-4">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                     </div>
-                    <div className="absolute left-4 bottom-4">
+                    <div className="absolute left-3 sm:left-4 bottom-3 sm:bottom-4">
                       <span className={`text-xs ${formData.description.length > 300 ? 'text-red-500' : formData.description.length > 250 ? 'text-yellow-500' : 'text-gray-400'}`}>
                         {formData.description.length}/300
                       </span>
@@ -896,20 +896,20 @@ function CreateTemplatePageContent() {
             </div>
 
             {/* Link & Image */}
-            <div className="card p-8 shadow-xl border-0 bg-white/80 dark:bg-dark-card-bg/80 backdrop-blur-sm">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="card p-4 sm:p-6 md:p-8 shadow-xl border-0 bg-white/80 dark:bg-dark-card-bg/80 backdrop-blur-sm">
+              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                   </svg>
                 </div>
-                <h2 className="heading-2 text-green-600">الرابط والصورة</h2>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-green-600">الرابط والصورة</h2>
               </div>
 
-              <div className="grid grid-cols-1 gap-6">
+              <div className="grid grid-cols-1 gap-4 sm:gap-6">
                 <div>
-                  <label className="flex items-center text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
-                    <svg className="w-4 h-4 text-green-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <label className="flex items-center text-xs sm:text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2 sm:mb-3">
+                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 ml-1.5 sm:ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                     </svg>
                     رابط قالب نوشن *
@@ -921,11 +921,11 @@ function CreateTemplatePageContent() {
                       value={formData.notionLink}
                       onChange={handleInputChange}
                       required
-                      className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-green-500 dark:focus:border-green-500 rounded-xl transition-all duration-200 hover:border-green-300 dark:hover:border-green-400"
+                      className="form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-green-500 dark:focus:border-green-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-green-300 dark:hover:border-green-400"
                       placeholder="https://notion.so/your-template-link"
                     />
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                       </svg>
                     </div>
@@ -937,8 +937,8 @@ function CreateTemplatePageContent() {
 
                 <div>
                   {/* Image Upload */}
-                  <label className="block text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
-                    <svg className="w-4 h-4 text-green-500 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <label className="flex items-center text-xs sm:text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2 sm:mb-3">
+                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 ml-1.5 sm:ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     لقطة شاشة للقالب *
@@ -949,7 +949,7 @@ function CreateTemplatePageContent() {
                   {/* Manual Upload Option */}
 
                   {!uploadedImage ? (
-                    <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center hover:border-green-400 dark:hover:border-green-500 transition-colors duration-200">
+                    <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center hover:border-green-400 dark:hover:border-green-500 transition-colors duration-200">
                       <input
                         type="file"
                         accept="image/*"
@@ -960,22 +960,22 @@ function CreateTemplatePageContent() {
                       />
                       <label
                         htmlFor="image-upload"
-                        className="cursor-pointer flex flex-col items-center gap-3"
+                        className="cursor-pointer flex flex-col items-center gap-2 sm:gap-3"
                       >
                         {isUploadingImage ? (
-                          <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div>
+                          <div className="flex items-center gap-2 text-green-600 dark:text-green-400 text-sm sm:text-base">
+                            <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-green-600"></div>
                             <span>جاري رفع الصورة...</span>
                           </div>
                         ) : (
                           <>
-                            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                              <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                              <svg className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                               </svg>
                             </div>
                             <div>
-                              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                              <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                                 اضغط لرفع لقطة شاشة للصفحة الرئيسية للقالب
                               </p>
                               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -1036,23 +1036,23 @@ function CreateTemplatePageContent() {
             </div>
 
             {/* Multiple Images Upload Section */}
-            <div className="bg-white dark:bg-dark-secondary rounded-xl p-6 shadow-sm border border-gray-200 dark:border-dark-card-border">
-              <div className="flex items-center gap-2 mb-4">
-                <svg className="w-5 h-5 text-accent-600 dark:text-dark-text-secondary" fill="currentColor" viewBox="0 0 20 20">
+            <div className="bg-white dark:bg-dark-secondary rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-dark-card-border">
+              <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-accent-600 dark:text-dark-text-secondary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
                 </svg>
-                <h3 className="text-lg font-semibold text-accent-700 dark:text-dark-text-primary">
+                <h3 className="text-base sm:text-lg font-semibold text-accent-700 dark:text-dark-text-primary">
                   صور إضافية للقالب (اختياري)
                 </h3>
               </div>
 
               <div className="mb-4">
-                <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-3">
+                <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary mb-3">
                   يمكنك إضافة صور إضافية لعرض جوانب مختلفة من القالب. هذه الصور ستظهر في صفحة تفاصيل القالب.
                 </p>
 
                 {!uploadedImages.length ? (
-                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center hover:border-blue-400 dark:hover:border-blue-500 transition-colors duration-200">
+                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center hover:border-blue-400 dark:hover:border-blue-500 transition-colors duration-200">
                     <input
                       type="file"
                       accept="image/*"
@@ -1064,22 +1064,22 @@ function CreateTemplatePageContent() {
                     />
                     <label
                       htmlFor="multiple-image-upload"
-                      className="cursor-pointer flex flex-col items-center gap-3"
+                      className="cursor-pointer flex flex-col items-center gap-2 sm:gap-3"
                     >
                       {isUploadingImage ? (
-                        <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                        <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 text-sm sm:text-base">
                           <div className="loading-spinner"></div>
                           <span>جاري رفع الصور...</span>
                         </div>
                       ) : (
                         <>
-                          <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-                            <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                             </svg>
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                               اضغط لرفع صور إضافية للقالب
                             </p>
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -1091,14 +1091,14 @@ function CreateTemplatePageContent() {
                     </label>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  <div className="space-y-3 sm:space-y-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
                       {uploadedImages.map((imageUrl, index) => (
                         <div key={index} className="relative group">
                           <img
                             src={imageUrl}
                             alt={`معاينة ${index + 1}`}
-                            className="w-full h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                            className="w-full h-24 sm:h-32 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
                             onError={() => {
                               showError('فشل في تحميل الصورة');
                             }}
@@ -1106,12 +1106,12 @@ function CreateTemplatePageContent() {
                           <button
                             type="button"
                             onClick={() => removeMultipleImage(index)}
-                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                            className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-red-500 text-white rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-xs sm:text-sm hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
                             title="إزالة الصورة"
                           >
                             ×
                           </button>
-                          <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                          <div className="absolute bottom-1 sm:bottom-2 left-1 sm:left-2 bg-black/50 text-white text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded">
                             {index + 1}
                           </div>
                         </div>
@@ -1147,18 +1147,18 @@ function CreateTemplatePageContent() {
             </div>
 
             {/* Video Explanation */}
-            <div className="card p-8 shadow-xl border-0 bg-white/80 dark:bg-dark-card-bg/80 backdrop-blur-sm">
-              <div className="flex items-center gap-2 mb-4">
-                <svg className="w-5 h-5 text-accent-600 dark:text-dark-text-secondary" fill="currentColor" viewBox="0 0 20 20">
+            <div className="card p-4 sm:p-6 md:p-8 shadow-xl border-0 bg-white/80 dark:bg-dark-card-bg/80 backdrop-blur-sm">
+              <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-accent-600 dark:text-dark-text-secondary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
                 </svg>
-                <h3 className="text-lg font-semibold text-accent-700 dark:text-dark-text-primary">
+                <h3 className="text-base sm:text-lg font-semibold text-accent-700 dark:text-dark-text-primary">
                   فيديو توضيحي للقالب (اختياري)
                 </h3>
               </div>
 
               <div className="mb-4">
-                <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-3">
+                <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary mb-3">
                   يمكنك إضافة رابط فيديو يوضح كيفية استخدام القالب. هذا الفيديو سيساعد المستخدمين على فهم القالب بشكل أفضل.
                 </p>
 
@@ -1168,12 +1168,12 @@ function CreateTemplatePageContent() {
                     name="explanationVideo"
                     value={formData.explanationVideo}
                     onChange={handleInputChange}
-                    className="form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-purple-500 dark:focus:border-purple-500 rounded-xl transition-all duration-200 hover:border-purple-300 dark:hover:border-purple-400"
+                    className="form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-purple-500 dark:focus:border-purple-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-purple-300 dark:hover:border-purple-400"
                     placeholder="https://youtube.com/watch?v=... أو https://vimeo.com/..."
                     dir="ltr"
                   />
-                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                    <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
                     </svg>
                   </div>
@@ -1186,25 +1186,25 @@ function CreateTemplatePageContent() {
             </div>
 
             {/* Features & Details */}
-            <div className="card p-8 shadow-xl border-0 bg-white/80 dark:bg-dark-card-bg/80 backdrop-blur-sm">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="card p-4 sm:p-6 md:p-8 shadow-xl border-0 bg-white/80 dark:bg-dark-card-bg/80 backdrop-blur-sm">
+              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
-                <h2 className="heading-2 text-blue-600">المميزات والتفاصيل</h2>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-blue-600">المميزات والتفاصيل</h2>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 <div>
-                  <label className="flex items-center text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
-                    <svg className="w-4 h-4 text-blue-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <label className="flex items-center text-xs sm:text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
+                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500 ml-1.5 sm:ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     مميزات القالب (اختياري)
                   </label>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 sm:mb-3">
                     وصف مفصل لمميزات القالب يظهر في صفحة تفاصيل القالب (حد أقصى 1000 حرف)
                   </p>
                   <div className="relative">
@@ -1214,15 +1214,15 @@ function CreateTemplatePageContent() {
                       onChange={handleInputChange}
                       maxLength={1000}
                       rows={6}
-                      className={`form-input pr-12 pl-4 py-4 text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-blue-500 dark:focus:border-blue-500 rounded-xl transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-400 resize-none ${formData.features.length > 1000 ? 'border-red-500' : ''}`}
+                      className={`form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-blue-500 dark:focus:border-blue-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-400 resize-none ${formData.features.length > 1000 ? 'border-red-500' : ''}`}
                       placeholder="اكتب وصفاً مفصلاً لمميزات القالب..."
                     />
-                    <div className="absolute right-4 top-4">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="absolute right-3 sm:right-4 top-3 sm:top-4">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
-                    <div className="absolute left-4 bottom-4">
+                    <div className="absolute left-3 sm:left-4 bottom-3 sm:bottom-4">
                       <span className={`text-xs ${formData.features.length > 1000 ? 'text-red-500' : formData.features.length > 800 ? 'text-yellow-500' : 'text-gray-400'}`}>
                         {formData.features.length}/1000
                       </span>
@@ -1231,9 +1231,9 @@ function CreateTemplatePageContent() {
                 </div>
 
                 <div>
-                  <label className="flex items-center justify-between text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3">
+                  <label className="flex items-center justify-between text-xs sm:text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2 sm:mb-3">
                     <div className="flex items-center">
-                      <svg className="w-4 h-4 text-blue-500 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500 ml-1.5 sm:ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                       </svg>
                       الكلمات المفتاحية (اختياري)
@@ -1245,12 +1245,12 @@ function CreateTemplatePageContent() {
 
                   {/* Tag Input */}
                   <div className="relative">
-                    <div className="form-input w-full min-h-[3rem] px-4 py-3 pr-12 border-2 border-gray-200 dark:border-dark-input-border focus-within:border-blue-500 dark:focus-within:border-blue-500 rounded-xl transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-400 flex flex-wrap items-center gap-2">
+                    <div className="form-input w-full min-h-[2.5rem] sm:min-h-[3rem] px-3 sm:px-4 py-2 sm:py-3 pr-10 sm:pr-12 border-2 border-gray-200 dark:border-dark-input-border focus-within:border-blue-500 dark:focus-within:border-blue-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-400 flex flex-wrap items-center gap-1.5 sm:gap-2">
                       {/* Selected Tags */}
                       {formData.tags.map((tag, index) => (
                         <span
                           key={index}
-                          className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-md text-sm font-medium"
+                          className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded text-xs sm:text-sm font-medium"
                         >
                           {tag}
                           <button
@@ -1258,7 +1258,7 @@ function CreateTemplatePageContent() {
                             onClick={() => removeTag(tag)}
                             className="hover:text-blue-900 dark:hover:text-blue-100 transition-colors"
                           >
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             </svg>
                           </button>
@@ -1274,13 +1274,13 @@ function CreateTemplatePageContent() {
                         onKeyDown={handleTagKeyDown}
                         placeholder={formData.tags.length >= 10 ? "تم الوصول للحد الأقصى (10 كلمات)" : formData.tags.length > 0 ? "أضف كلمة مفتاحية..." : "اكتب كلمة مفتاحية واضغط Enter"}
                         disabled={formData.tags.length >= 10}
-                        className="flex-1 min-w-[200px] bg-transparent outline-none text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-quaternary disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex-1 min-w-[150px] sm:min-w-[200px] bg-transparent outline-none text-sm sm:text-base text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-quaternary disabled:opacity-50 disabled:cursor-not-allowed"
                         autoComplete="off"
                       />
                     </div>
 
-                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                       </svg>
                     </div>
@@ -1295,69 +1295,69 @@ function CreateTemplatePageContent() {
             </div>
 
             {/* Guidelines */}
-            <div className="card p-8 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-2 border-amber-200 dark:border-amber-800 shadow-lg">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="card p-4 sm:p-6 md:p-8 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-2 border-amber-200 dark:border-amber-800 shadow-lg">
+              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-amber-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <h3 className="heading-3 text-amber-800 dark:text-amber-200">إرشادات مهمة</h3>
+                <h3 className="text-base sm:text-lg md:text-xl font-bold text-amber-800 dark:text-amber-200">إرشادات مهمة</h3>
               </div>
-              <ul className="space-y-4 text-amber-700 dark:text-amber-300">
-                <li className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-white text-sm font-bold">1</span>
+              <ul className="space-y-3 sm:space-y-4 text-amber-700 dark:text-amber-300">
+                <li className="flex items-start gap-2 sm:gap-3">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-white text-xs sm:text-sm font-bold">1</span>
                   </div>
-                  <span className="text-sm leading-relaxed">تأكد من أن قالبك أصلي ولا ينتهك حقوق الملكية الفكرية</span>
+                  <span className="text-xs sm:text-sm leading-relaxed">تأكد من أن قالبك أصلي ولا ينتهك حقوق الملكية الفكرية</span>
                 </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-white text-sm font-bold">2</span>
+                <li className="flex items-start gap-2 sm:gap-3">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-white text-xs sm:text-sm font-bold">2</span>
                   </div>
-                  <span className="text-sm leading-relaxed">رابط نوشن يجب أن يكون قابل للوصول العام</span>
+                  <span className="text-xs sm:text-sm leading-relaxed">رابط نوشن يجب أن يكون قابل للوصول العام</span>
                 </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-white text-sm font-bold">3</span>
+                <li className="flex items-start gap-2 sm:gap-3">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-white text-xs sm:text-sm font-bold">3</span>
                   </div>
-                  <span className="text-sm leading-relaxed">سيتم مراجعة القالب من قبل الإدارة قبل النشر</span>
+                  <span className="text-xs sm:text-sm leading-relaxed">سيتم مراجعة القالب من قبل الإدارة قبل النشر</span>
                 </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-white text-sm font-bold">4</span>
+                <li className="flex items-start gap-2 sm:gap-3">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-white text-xs sm:text-sm font-bold">4</span>
                   </div>
-                  <span className="text-sm leading-relaxed">تأكد من دقة المعلومات المقدمة</span>
+                  <span className="text-xs sm:text-sm leading-relaxed">تأكد من دقة المعلومات المقدمة</span>
                 </li>
               </ul>
             </div>
 
             {/* Submit Buttons */}
-            <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6">
+            <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-4 sm:pt-6">
               <button
                 type="button"
                 onClick={() => router.push('/profile')}
-                className="btn-outline inline-flex items-center justify-center gap-2 px-8 py-4 text-lg"
+                className="btn-outline inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg"
                 disabled={isSubmitting}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
                 إلغاء
               </button>
               <button
                 type="submit"
-                className="btn-primary inline-flex items-center justify-center gap-2 px-8 py-4 text-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                className="btn-primary inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg shadow-lg hover:shadow-xl transition-all duration-300"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
                   <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white"></div>
                     جاري الإرسال...
                   </>
                 ) : (
                   <>
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                     </svg>
                     إرسال للمراجعة

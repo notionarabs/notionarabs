@@ -1,14 +1,43 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const User = require('../models/User');
 
 const router = express.Router();
 
-// Email configuration - Gmail SMTP only
+// Email configuration - Resend with Gmail fallback
 const createTransporter = () => {
+  // Use Resend if API key is available
+  if (process.env.RESEND_API_KEY) {
+    console.log('Using Resend for email service');
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    
+    return {
+      sendMail: async (mailOptions) => {
+        try {
+          const result = await resend.emails.send({
+            from: mailOptions.from || process.env.EMAIL_FROM || 'Notion Arabs <onboarding@resend.dev>',
+            to: mailOptions.to,
+            subject: mailOptions.subject,
+            html: mailOptions.html
+          });
+          
+          return {
+            messageId: result.data?.id,
+            response: 'Email sent via Resend'
+          };
+        } catch (error) {
+          console.error('Resend error:', error);
+          throw error;
+        }
+      }
+    };
+  }
+  
+  // Fallback to Gmail SMTP
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    throw new Error('Email configuration missing. Please set EMAIL_USER and EMAIL_PASS environment variables in your .env file.');
+    throw new Error('Email configuration missing.');
   }
 
   try {
@@ -27,7 +56,7 @@ const createTransporter = () => {
     });
   } catch (error) {
     console.error('Failed to create Gmail transporter:', error);
-    throw new Error('Failed to initialize Gmail service. Please check your email configuration.');
+    throw new Error('Failed to initialize Gmail service.');
   }
 };
 

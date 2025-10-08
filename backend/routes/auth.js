@@ -949,47 +949,83 @@ router.get('/google/callback', async (req, res) => {
   }
 });
 
-// Email configuration - Gmail SMTP only
+// Email configuration - Resend with Gmail fallback
+const { Resend } = require('resend');
+
 const createTransporter = () => {
-  // Check if email configuration is available
+  // Priority 1: Use Resend if API key is available (works on Render free tier)
+  if (process.env.RESEND_API_KEY) {
+    console.log('Using Resend for email service (recommended for Render)');
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    
+    // Return a Resend wrapper that mimics nodemailer interface
+    return {
+      sendMail: async (mailOptions) => {
+        try {
+          const result = await resend.emails.send({
+            from: mailOptions.from || process.env.EMAIL_FROM || 'Notion Arabs <onboarding@resend.dev>',
+            to: mailOptions.to,
+            subject: mailOptions.subject,
+            html: mailOptions.html
+          });
+          
+          console.log('✅ Resend email sent successfully:', result.data?.id);
+          return {
+            messageId: result.data?.id,
+            response: 'Email sent via Resend'
+          };
+        } catch (error) {
+          console.error('❌ Resend error:', error);
+          throw error;
+        }
+      },
+      verify: (callback) => {
+        // Resend doesn't need verification
+        if (process.env.RESEND_API_KEY) {
+          console.log('✅ Resend API key is configured');
+          callback(null, true);
+        } else {
+          callback(new Error('Resend API key not configured'), false);
+        }
+      }
+    };
+  }
+  
+  // Priority 2: Fallback to Gmail SMTP (only works locally or on paid hosting)
+  console.log('Using Gmail SMTP for email service (may not work on free hosting)');
+  
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     console.error('Email configuration missing. EMAIL_USER and EMAIL_PASS environment variables are required.');
     throw new Error('Email service is not configured. Please contact support.');
   }
 
   try {
-    console.log('Configuring Gmail SMTP for email service...');
-
-    // Use Gmail service for simplicity and reliability
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
       },
-      // Enhanced timeout and retry options for production
-      connectionTimeout: 60000,  // 60 seconds
+      connectionTimeout: 60000,
       greetingTimeout: 60000,
       socketTimeout: 60000,
-      // TLS options for better compatibility
       tls: {
         rejectUnauthorized: false
       }
     });
 
-    // Verify transporter configuration
     transporter.verify((error, success) => {
       if (error) {
         console.error('Gmail SMTP verification failed:', error);
       } else {
-        console.log('Gmail SMTP transporter is ready to send messages');
+        console.log('Gmail SMTP transporter is ready');
       }
     });
 
     return transporter;
   } catch (error) {
     console.error('Failed to create Gmail transporter:', error);
-    throw new Error('Failed to initialize Gmail service. Please check your email configuration.');
+    throw new Error('Failed to initialize Gmail service.');
   }
 };
 

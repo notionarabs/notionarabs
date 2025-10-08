@@ -166,7 +166,35 @@ const templateSchema = new mongoose.Schema({
   reviewsCount: {
     type: Number,
     default: 0
-  }
+  },
+  // Badge system
+  badges: [{
+    type: {
+      type: String,
+      enum: ['special'],
+      required: true
+    },
+    label: {
+      type: String,
+      required: true
+    },
+    color: {
+      type: String,
+      default: '#3b82f6' // blue
+    },
+    icon: {
+      type: String,
+      default: '⭐'
+    },
+    addedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    addedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }]
 }, {
   timestamps: true
 });

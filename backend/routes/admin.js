@@ -347,7 +347,8 @@ router.get('/creator-applications', auth, async (req, res) => {
       socialMedia: user.socialMedia,
       availability: user.availability,
       expectedEarnings: user.expectedEarnings,
-      profilePicture: user.profilePicture
+      profilePicture: user.profilePicture,
+      badges: user.badges || []
     }));
 
     res.json({
@@ -1474,6 +1475,338 @@ router.post('/send-bulk-emails', auth, async (req, res) => {
       success: false,
       message: 'حدث خطأ أثناء إرسال الرسائل',
       error: error.message
+    });
+  }
+});
+
+// Badge Management Endpoints
+
+// @route   POST /api/admin/templates/:id/badges
+// @desc    Add badge to a template
+// @access  Private (Admin only)
+router.post('/templates/:id/badges', auth, [
+  body('type')
+    .isIn(['special'])
+    .withMessage('نوع الشارة غير صحيح'),
+  body('label')
+    .notEmpty()
+    .withMessage('تسمية الشارة مطلوبة')
+    .isLength({ max: 50 })
+    .withMessage('تسمية الشارة لا يجب أن تتجاوز 50 حرف'),
+  body('color')
+    .optional()
+    .matches(/^#[0-9A-Fa-f]{6}$/)
+    .withMessage('اللون يجب أن يكون بصيغة hex'),
+  body('icon')
+    .optional()
+    .isLength({ max: 10 })
+    .withMessage('الأيقونة لا يجب أن تتجاوز 10 أحرف')
+], async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'بيانات غير صحيحة',
+        errors: errors.array()
+      });
+    }
+
+    const { type, label, color, icon } = req.body;
+    const { id } = req.params;
+
+    const template = await Template.findById(id);
+    if (!template) {
+      return res.status(404).json({
+        success: false,
+        message: 'القالب غير موجود'
+      });
+    }
+
+    // Check if badge type already exists
+    const existingBadge = template.badges.find(badge => badge.type === type);
+    if (existingBadge) {
+      return res.status(400).json({
+        success: false,
+        message: 'هذه الشارة موجودة بالفعل على القالب'
+      });
+    }
+
+    // Add badge
+    template.badges.push({
+      type,
+      label,
+      color: color || '#3b82f6',
+      icon: icon || '⭐',
+      addedBy: req.user._id,
+      addedAt: new Date()
+    });
+
+    await template.save();
+    await template.populate('creator', 'name username displayName email profilePicture');
+
+    // Create notification for the template creator
+    try {
+      await Notification.create({
+        user: template.creator._id,
+        type: 'template_badge_added',
+        title: 'شارة جديدة لقالبك',
+        message: `تم منح قالبك "${template.title}" شارة "${label}"`,
+        link: `/templates/${template.slug || template._id}`,
+        metadata: {
+          templateId: template._id,
+          templateTitle: template.title,
+          badgeType: type,
+          badgeLabel: label,
+          badgeIcon: icon
+        }
+      });
+    } catch (notifyErr) {
+      console.error('Create template badge notification error:', notifyErr);
+      // Don't fail the request if notification fails
+    }
+
+    res.json({
+      success: true,
+      message: 'تمت إضافة الشارة بنجاح',
+      template
+    });
+  } catch (error) {
+    console.error('Add template badge error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   DELETE /api/admin/templates/:id/badges/:badgeId
+// @desc    Remove badge from a template
+// @access  Private (Admin only)
+router.delete('/templates/:id/badges/:badgeId', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    const { id, badgeId } = req.params;
+
+    const template = await Template.findById(id);
+    if (!template) {
+      return res.status(404).json({
+        success: false,
+        message: 'القالب غير موجود'
+      });
+    }
+
+    // Remove badge
+    template.badges = template.badges.filter(badge => badge._id.toString() !== badgeId);
+
+    await template.save();
+    await template.populate('creator', 'name username displayName email profilePicture');
+
+    res.json({
+      success: true,
+      message: 'تم حذف الشارة بنجاح',
+      template
+    });
+  } catch (error) {
+    console.error('Remove template badge error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   POST /api/admin/users/:id/badges
+// @desc    Add badge to a creator
+// @access  Private (Admin only)
+router.post('/users/:id/badges', auth, [
+  body('type')
+    .isIn(['verified', 'top-creator', 'active', 'community-favorite', 'trusted'])
+    .withMessage('نوع الشارة غير صحيح'),
+  body('label')
+    .notEmpty()
+    .withMessage('تسمية الشارة مطلوبة')
+    .isLength({ max: 50 })
+    .withMessage('تسمية الشارة لا يجب أن تتجاوز 50 حرف'),
+  body('color')
+    .optional()
+    .matches(/^#[0-9A-Fa-f]{6}$/)
+    .withMessage('اللون يجب أن يكون بصيغة hex'),
+  body('icon')
+    .optional()
+    .isLength({ max: 10 })
+    .withMessage('الأيقونة لا يجب أن تتجاوز 10 أحرف')
+], async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'بيانات غير صحيحة',
+        errors: errors.array()
+      });
+    }
+
+    const { type, label, color, icon } = req.body;
+    const { id } = req.params;
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'المستخدم غير موجود'
+      });
+    }
+
+    // Check if badge type already exists
+    const existingBadge = user.badges.find(badge => badge.type === type);
+    if (existingBadge) {
+      return res.status(400).json({
+        success: false,
+        message: 'هذه الشارة موجودة بالفعل على المستخدم'
+      });
+    }
+
+    // Add badge
+    user.badges.push({
+      type,
+      label,
+      color: color || '#3b82f6',
+      icon: icon || '✓',
+      addedBy: req.user._id,
+      addedAt: new Date()
+    });
+
+    await user.save();
+
+    // Create notification for the creator
+    try {
+      await Notification.create({
+        user: user._id,
+        type: 'badge_added',
+        title: 'شارة جديدة',
+        message: `تم منحك شارة "${label}"`,
+        link: '/profile',
+        metadata: {
+          badgeType: type,
+          badgeLabel: label,
+          badgeIcon: icon
+        }
+      });
+    } catch (notifyErr) {
+      console.error('Create badge notification error:', notifyErr);
+      // Don't fail the request if notification fails
+    }
+
+    res.json({
+      success: true,
+      message: 'تمت إضافة الشارة بنجاح',
+      user: user.toJSON()
+    });
+  } catch (error) {
+    console.error('Add user badge error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   DELETE /api/admin/users/:id/badges/:badgeId
+// @desc    Remove badge from a creator
+// @access  Private (Admin only)
+router.delete('/users/:id/badges/:badgeId', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    const { id, badgeId } = req.params;
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'المستخدم غير موجود'
+      });
+    }
+
+    // Remove badge
+    user.badges = user.badges.filter(badge => badge._id.toString() !== badgeId);
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'تم حذف الشارة بنجاح',
+      user: user.toJSON()
+    });
+  } catch (error) {
+    console.error('Remove user badge error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   GET /api/admin/badge-presets
+// @desc    Get badge presets (available badge types)
+// @access  Private (Admin only)
+router.get('/badge-presets', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    const templateBadges = [
+      { type: 'special', label: 'قالب مميز', color: '#f59e0b', icon: '⭐' }
+    ];
+
+    const userBadges = [
+      { type: 'verified', label: 'مبدع معتمد', color: '#10b981', icon: '✔' },
+      { type: 'top-creator', label: 'مبدع مميز', color: '#f59e0b', icon: '⭐' },
+      { type: 'active', label: 'مبدع نشط', color: '#8b5cf6', icon: '⚡' },
+      { type: 'community-favorite', label: 'مبدع محبوب', color: '#ec4899', icon: '❤' },
+      { type: 'trusted', label: 'مبدع موثوق', color: '#3b82f6', icon: '👍' }
+    ];
+
+    res.json({
+      success: true,
+      templateBadges,
+      userBadges
+    });
+  } catch (error) {
+    console.error('Get badge presets error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
     });
   }
 });

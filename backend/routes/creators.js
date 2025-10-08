@@ -35,7 +35,7 @@ router.get('/', async (req, res) => {
 
     // Get all creators first (for Fuse.js search)
     let creators = await User.find(query)
-      .select('name username displayName email bio profilePicture specialties rating followers createdAt templateCount totalEarnings experience motivation')
+      .select('name username displayName email bio profilePicture specialties rating followers createdAt templateCount totalEarnings experience motivation badges')
       .lean();
 
     // Apply Fuse.js search if search term is provided
@@ -122,7 +122,8 @@ router.get('/', async (req, res) => {
           templates: stats.totalTemplates,
           downloads: stats.totalDownloads,
           rating: medianRating || creator.rating || 0,
-          earnings: creator.totalEarnings || 0
+          earnings: creator.totalEarnings || 0,
+          badges: creator.badges || []
         };
       })
     );
@@ -343,6 +344,7 @@ router.get('/:id', async (req, res) => {
         showTemplateCount: creator.showTemplateCount !== false,
         showJoinDate: creator.showJoinDate !== false,
         description: creator.bio,
+        badges: creator.badges || [],
         stats: {
           totalDownloads: creatorStats.totalDownloads,
           averageRating: creatorStats.averageRating || 0,

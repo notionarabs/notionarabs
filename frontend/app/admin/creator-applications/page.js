@@ -5,13 +5,19 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import api from '../../../lib/api';
+import toast from 'react-hot-toast';
 
 export default function CreatorApplicationsPage() {
   const [applications, setApplications] = useState([]);
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { user, isAuthenticated, loading: authLoading, refreshUserData } = useAuth();
+  const [showBadgeModal, setShowBadgeModal] = useState(false);
+  const [selectedCreator, setSelectedCreator] = useState(null);
+  const [badgePresets, setBadgePresets] = useState(null);
+  const [selectedBadgeType, setSelectedBadgeType] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
+  const { user, isAuthenticated, loading: authLoading, refreshUserData, ensureTokenInHeaders } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -88,6 +94,102 @@ export default function CreatorApplicationsPage() {
     } catch (err) {
       console.error('Update status error:', err);
       // Silently fail - API endpoint not implemented yet
+    }
+  };
+
+  const fetchBadgePresets = async () => {
+    try {
+      const response = await api.get('/admin/badge-presets');
+      setBadgePresets(response.data);
+    } catch (error) {
+      console.error('Error fetching badge presets:', error);
+    }
+  };
+
+  const handleManageBadges = (creator) => {
+    setSelectedCreator(creator);
+    setSelectedBadgeType('');
+    setShowBadgeModal(true);
+    if (!badgePresets) {
+      fetchBadgePresets();
+    }
+  };
+
+  const handleAddBadge = async () => {
+    if (!selectedBadgeType || !selectedCreator) return;
+
+    try {
+      setActionLoading(true);
+      const badge = badgePresets.userBadges.find(b => b.type === selectedBadgeType);
+
+      console.log('Adding badge:', {
+        userId: selectedCreator.id,
+        badge: badge
+      });
+
+      ensureTokenInHeaders && ensureTokenInHeaders();
+      await api.post(`/admin/users/${selectedCreator.id}/badges`, {
+        type: badge.type,
+        label: badge.label,
+        color: badge.color,
+        icon: badge.icon
+      });
+
+      // Update local state
+      const updatedApps = applications.map(app =>
+        app.id === selectedCreator.id
+          ? { ...app, badges: [...(app.badges || []), { ...badge, _id: Date.now().toString() }] }
+          : app
+      );
+      setApplications(updatedApps);
+
+      // Also update the selectedCreator state so the modal shows the new badge immediately
+      setSelectedCreator(prev => ({
+        ...prev,
+        badges: [...(prev.badges || []), { ...badge, _id: Date.now().toString() }]
+      }));
+
+      setSelectedBadgeType('');
+      toast.success('تمت إضافة الشارة بنجاح');
+      await fetchApplications();
+    } catch (error) {
+      console.error('Error adding badge:', error);
+      console.error('Error details:', error.response?.data);
+      const errorMsg = error.response?.data?.errors
+        ? error.response.data.errors.map(e => e.msg).join(', ')
+        : error.response?.data?.message || 'خطأ في إضافة الشارة';
+      toast.error(errorMsg);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleRemoveBadge = async (userId, badgeId) => {
+    try {
+      ensureTokenInHeaders && ensureTokenInHeaders();
+      await api.delete(`/admin/users/${userId}/badges/${badgeId}`);
+
+      // Update local state
+      const updatedApps = applications.map(app =>
+        app.id === userId
+          ? { ...app, badges: app.badges.filter(b => b._id !== badgeId) }
+          : app
+      );
+      setApplications(updatedApps);
+
+      // Also update the selectedCreator state so the modal shows the updated badges immediately
+      if (selectedCreator && selectedCreator.id === userId) {
+        setSelectedCreator(prev => ({
+          ...prev,
+          badges: prev.badges.filter(b => b._id !== badgeId)
+        }));
+      }
+
+      toast.success('تم حذف الشارة بنجاح');
+      await fetchApplications();
+    } catch (error) {
+      console.error('Error removing badge:', error);
+      toast.error(error.response?.data?.message || 'خطأ في حذف الشارة');
     }
   };
 
@@ -274,6 +376,21 @@ export default function CreatorApplicationsPage() {
                         <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">
                           {new Date(application.appliedAt).toLocaleDateString('en-US')}
                         </p>
+                        {/* Creator Badges */}
+                        {application.badges && application.badges.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {application.badges.map((badge) => (
+                              <span
+                                key={badge._id}
+                                className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium"
+                                style={{ backgroundColor: badge.color + '20', color: badge.color }}
+                              >
+                                <span>{badge.icon}</span>
+                                <span>{badge.label}</span>
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -348,28 +465,205 @@ export default function CreatorApplicationsPage() {
                   </div>
 
                   {/* Action Buttons */}
-                  {application.creatorStatus === 'pending' && (
-                    <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-dark-card-border">
-                      <button
-                        onClick={() => updateApplicationStatus(application.id, 'approved')}
-                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
-                      >
-                        قبول الطلب
-                      </button>
-                      <button
-                        onClick={() => updateApplicationStatus(application.id, 'rejected')}
-                        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
-                      >
-                        رفض الطلب
-                      </button>
-                    </div>
-                  )}
+                  <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-dark-card-border">
+                    {application.creatorStatus === 'pending' && (
+                      <>
+                        <button
+                          onClick={() => updateApplicationStatus(application.id, 'approved')}
+                          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
+                        >
+                          قبول الطلب
+                        </button>
+                        <button
+                          onClick={() => updateApplicationStatus(application.id, 'rejected')}
+                          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
+                        >
+                          رفض الطلب
+                        </button>
+                      </>
+                    )}
+                    {/* Badge Management Button - Available for all creators */}
+                    <button
+                      onClick={() => handleManageBadges(application)}
+                      className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors"
+                    >
+                      إدارة الشارات
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
           )}
         </div>
       </div>
+
+      {/* Badge Management Modal */}
+      {showBadgeModal && selectedCreator && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-dark-secondary rounded-2xl shadow-2xl p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-dark-card-border">
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h3 className="text-xl sm:text-2xl font-bold text-accent-900 dark:text-dark-text-primary mb-1">
+                  إدارة الشارات
+                </h3>
+                <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                  {selectedCreator.name}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowBadgeModal(false);
+                  setSelectedCreator(null);
+                  setSelectedBadgeType('');
+                }}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2 hover:bg-gray-100 dark:hover:bg-dark-tertiary rounded-lg transition-all"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Current Badges */}
+            <div className="mb-8">
+              <h4 className="text-base font-semibold text-accent-900 dark:text-dark-text-primary mb-4 flex items-center gap-2">
+                <svg className="w-5 h-5 text-primary-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                </svg>
+                الشارات الحالية
+              </h4>
+              {selectedCreator.badges && selectedCreator.badges.length > 0 ? (
+                <div className="flex flex-wrap gap-3">
+                  {selectedCreator.badges.map((badge) => (
+                    <div
+                      key={badge._id}
+                      className="group relative inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl border-2 bg-gradient-to-br hover:shadow-lg transition-all duration-200"
+                      style={{
+                        borderColor: badge.color + '40',
+                        background: `linear-gradient(135deg, ${badge.color}08 0%, ${badge.color}15 100%)`
+                      }}
+                    >
+                      <span className="text-xl">{badge.icon}</span>
+                      <span className="text-sm font-semibold" style={{ color: badge.color }}>
+                        {badge.label}
+                      </span>
+                      <button
+                        onClick={() => handleRemoveBadge(selectedCreator.id, badge._id)}
+                        className="ml-1 p-1 rounded-full hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-all"
+                        title="حذف الشارة"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 px-4 bg-gray-50 dark:bg-dark-tertiary rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700">
+                  <svg className="w-12 h-12 mx-auto mb-3 text-gray-400 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                  </svg>
+                  <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                    لا توجد شارات حالياً
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Add New Badge */}
+            <div className="bg-gradient-to-br from-primary-50 to-orange-50 dark:from-primary-900/10 dark:to-orange-900/10 rounded-xl p-6 border border-primary-200 dark:border-primary-800/30">
+              <h4 className="text-base font-semibold text-accent-900 dark:text-dark-text-primary mb-4 flex items-center gap-2">
+                <svg className="w-5 h-5 text-primary-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                إضافة شارة جديدة
+              </h4>
+              {badgePresets ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-accent-700 dark:text-dark-text-secondary mb-2">
+                      اختر نوع الشارة
+                    </label>
+                    <select
+                      value={selectedBadgeType}
+                      onChange={(e) => setSelectedBadgeType(e.target.value)}
+                      className="w-full px-4 py-3 text-sm bg-white dark:bg-dark-tertiary border-2 border-gray-200 dark:border-dark-input-border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 outline-none"
+                    >
+                      <option value="">اختر شارة...</option>
+                      {badgePresets.userBadges
+                        .filter(badge => !selectedCreator.badges?.some(b => b.type === badge.type))
+                        .map((badge) => (
+                          <option key={badge.type} value={badge.type}>
+                            {badge.icon} {badge.label}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+
+                  {selectedBadgeType && (
+                    <div className="p-4 rounded-xl border-2 border-primary-200 dark:border-primary-800/30 bg-white dark:bg-dark-secondary">
+                      <p className="text-xs font-medium text-accent-600 dark:text-dark-text-secondary mb-3 uppercase tracking-wide">
+                        معاينة الشارة
+                      </p>
+                      {badgePresets.userBadges
+                        .filter(badge => badge.type === selectedBadgeType)
+                        .map((badge) => (
+                          <div
+                            key={badge.type}
+                            className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl border-2 shadow-sm"
+                            style={{
+                              borderColor: badge.color + '40',
+                              background: `linear-gradient(135deg, ${badge.color}08 0%, ${badge.color}15 100%)`
+                            }}
+                          >
+                            <span className="text-xl">{badge.icon}</span>
+                            <span className="text-sm font-semibold" style={{ color: badge.color }}>
+                              {badge.label}
+                            </span>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+
+                  <div className="flex gap-3 justify-end pt-2">
+                    <button
+                      onClick={() => {
+                        setShowBadgeModal(false);
+                        setSelectedCreator(null);
+                        setSelectedBadgeType('');
+                      }}
+                      className="px-5 py-2.5 bg-white dark:bg-dark-tertiary border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-dark-text-primary hover:bg-gray-50 dark:hover:bg-dark-secondary font-medium rounded-xl transition-all duration-200 text-sm"
+                      disabled={actionLoading}
+                    >
+                      إلغاء
+                    </button>
+                    <button
+                      onClick={handleAddBadge}
+                      disabled={!selectedBadgeType || actionLoading}
+                      className="px-5 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-semibold rounded-xl transition-all duration-200 text-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary-500/30"
+                    >
+                      {actionLoading ? (
+                        <span className="flex items-center gap-2">
+                          <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          جاري الإضافة...
+                        </span>
+                      ) : 'إضافة الشارة'}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                  جاري تحميل الشارات المتاحة...
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

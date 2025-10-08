@@ -199,7 +199,35 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: '',
     maxlength: [200, 'الرسالة المخصصة لا يجب أن تتجاوز 200 حرف']
-  }
+  },
+  // Badge system
+  badges: [{
+    type: {
+      type: String,
+      enum: ['verified', 'top-creator', 'active', 'community-favorite', 'trusted'],
+      required: true
+    },
+    label: {
+      type: String,
+      required: true
+    },
+    color: {
+      type: String,
+      default: '#3b82f6' // blue
+    },
+    icon: {
+      type: String,
+      default: '✓'
+    },
+    addedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    addedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }]
 }, {
   timestamps: true
 });

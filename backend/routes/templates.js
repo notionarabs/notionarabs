@@ -642,6 +642,7 @@ router.get('/similar/:id', async (req, res) => {
 router.get('/:identifier', async (req, res) => {
   try {
     const { identifier } = req.params;
+    const mongoose = require('mongoose');
 
     // Try to find by slug first, then by ID
     let template = await Template.findOne({
@@ -649,8 +650,8 @@ router.get('/:identifier', async (req, res) => {
       status: 'approved'
     }).populate('creator', 'name username displayName profilePicture bio');
 
-    // If not found by slug, try by ID
-    if (!template) {
+    // If not found by slug, try by ID (only if it's a valid ObjectId)
+    if (!template && mongoose.Types.ObjectId.isValid(identifier)) {
       template = await Template.findOne({
         _id: identifier,
         status: 'approved'
@@ -673,9 +674,12 @@ router.get('/:identifier', async (req, res) => {
     });
   } catch (error) {
     console.error('Get template error:', error);
+    console.error('Error details:', error.message);
+    console.error('Stack trace:', error.stack);
     res.status(500).json({
       success: false,
-      message: 'خطأ في الخادم'
+      message: 'خطأ في الخادم',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });

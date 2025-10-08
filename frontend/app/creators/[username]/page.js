@@ -4,7 +4,19 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MessageCircle, Mail, UserPlus } from 'lucide-react';
+import { MessageCircle, Mail, UserPlus, Star, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Zap, Download, CheckCircle } from 'lucide-react';
+
+// Map badge types to Lucide icons
+const getBadgeIcon = (badgeType) => {
+  const iconMap = {
+    'verified': CheckCircle,
+    'top-creator': Star,
+    'active': Zap,
+    'community-favorite': Crown,
+    'trusted': Award
+  };
+  return iconMap[badgeType] || Star;
+};
 import LoadingIndicator from '../../../components/LoadingIndicator';
 import { formatDate } from '../../../lib/dateUtils';
 import api from '../../../lib/api';
@@ -289,9 +301,38 @@ export default function PublicProfilePage() {
 
                 {/* Creator Name and Stats */}
                 <div className="flex-1 text-center sm:text-right w-full">
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary leading-tight">
-                    {creator.displayName || creator.name}
-                  </h1>
+                  <div className="flex items-center gap-4 justify-center sm:justify-start flex-wrap">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary">
+                      {creator.displayName || creator.name}
+                    </h1>
+                    {/* Creator Badges */}
+                    {creator.badges && creator.badges.length > 0 && (
+                      <div className="flex items-center gap-1.5">
+                        {creator.badges.map((badge) => {
+                          const BadgeIcon = getBadgeIcon(badge.type);
+                          return (
+                            <div
+                              key={badge._id}
+                              className="group relative"
+                            >
+                              <div className="flex items-center p-1 bg-primary-50 dark:bg-orange-500/10 border border-primary-200 dark:border-orange-500/20 rounded transition-all duration-200 hover:shadow-md">
+                                <BadgeIcon
+                                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-600 dark:text-orange-400"
+                                  strokeWidth={2}
+                                />
+                              </div>
+                              {/* Tooltip */}
+                              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 dark:bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-10">
+                                {badge.label}
+                                <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
                   {/* Stats inline under name */}
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3 mt-3">
                     <div className="flex items-center gap-1 px-2.5 sm:px-3 py-1 bg-gray-100 dark:bg-dark-tertiary rounded-full">
@@ -356,7 +397,7 @@ export default function PublicProfilePage() {
                     }));
                   }}
                   showText={true}
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-dark-tertiary hover:bg-gray-50 dark:hover:bg-dark-quaternary text-accent-500 dark:text-dark-text-primary border border-gray-300 dark:border-dark-card-border hover:border-accent-300 dark:hover:border-accent-400 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 shadow-soft hover:shadow-medium"
+                  className="shadow-soft hover:shadow-medium"
                 />
               </div>
             </div>

@@ -489,9 +489,33 @@ export default function HomePage() {
 
                     {/* Template Info */}
                     <div className="p-4 sm:p-6 relative">
-                      <h3 className="font-semibold text-sm sm:text-base text-accent-900 dark:text-dark-text-primary mb-3 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-2">
-                        {t.title}
-                      </h3>
+                      <div className="flex items-start gap-2 mb-3">
+                        <h3 className="font-semibold text-sm sm:text-base text-accent-900 dark:text-dark-text-primary flex-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-2">
+                          {t.title}
+                        </h3>
+                        {/* Template Badges */}
+                        {t.badges && t.badges.length > 0 && (
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            {t.badges.slice(0, 1).map((badge) => (
+                              <div
+                                key={badge._id}
+                                className="badge-item relative"
+                              >
+                                <div className="flex items-center p-0.5 bg-primary-50 dark:bg-orange-500/10 border border-primary-200 dark:border-orange-500/20 rounded transition-all duration-200 hover:shadow-md peer">
+                                  <svg className="w-3 h-3 text-primary-600 dark:text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                  </svg>
+                                </div>
+                                {/* Tooltip */}
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 bg-gray-900 dark:bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 invisible peer-hover:opacity-100 peer-hover:visible transition-all duration-200 pointer-events-none z-10">
+                                  {badge.label}
+                                  <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-0.5 border-[3px] border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
 
                       {/* Rating */}
                       <div className="mb-3">
@@ -663,9 +687,33 @@ export default function HomePage() {
                           </div>
                         )}
                       </div>
-                      <h3 className="font-bold text-accent-900 dark:text-dark-text-primary group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                        {cr.name}
-                      </h3>
+                      <div className="flex items-center gap-2 justify-center">
+                        <h3 className="font-bold text-accent-900 dark:text-dark-text-primary group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                          {cr.name}
+                        </h3>
+                        {/* Creator Badges */}
+                        {cr.badges && cr.badges.length > 0 && (
+                          <div className="flex items-center gap-1">
+                            {cr.badges.slice(0, 2).map((badge) => (
+                              <div
+                                key={badge._id}
+                                className="badge-item relative"
+                              >
+                                <div className="flex items-center p-0.5 bg-primary-50 dark:bg-orange-500/10 border border-primary-200 dark:border-orange-500/20 rounded transition-all duration-200 hover:shadow-md peer">
+                                  <svg className="w-3 h-3 text-primary-600 dark:text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                  </svg>
+                                </div>
+                                {/* Tooltip */}
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 bg-gray-900 dark:bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 invisible peer-hover:opacity-100 peer-hover:visible transition-all duration-200 pointer-events-none z-10">
+                                  {badge.label}
+                                  <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-0.5 border-[3px] border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <div className="flex-1 flex flex-col justify-between">
                       <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-3 line-clamp-3 leading-relaxed flex-1">

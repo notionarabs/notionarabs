@@ -9,6 +9,19 @@ import Image from 'next/image';
 import api from '../../lib/api';
 import { formatDate, formatTime } from '../../lib/dateUtils';
 import Navigation from '../../components/Navigation';
+import { Star, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Zap, Download, CheckCircle } from 'lucide-react';
+
+// Map badge types to Lucide icons
+const getBadgeIcon = (badgeType) => {
+  const iconMap = {
+    'verified': CheckCircle,
+    'top-creator': Star,
+    'active': Zap,
+    'community-favorite': Crown,
+    'trusted': Award
+  };
+  return iconMap[badgeType] || Star;
+};
 
 
 export default function ProfilePage() {
@@ -223,6 +236,34 @@ export default function ProfilePage() {
                   </div>
                 )}
               </div>
+
+              {/* Earned Badges */}
+              {user?.badges && user.badges.length > 0 && (
+                <div className="mb-4 sm:mb-6">
+                  <h3 className="text-sm font-semibold text-accent-600 dark:text-dark-text-secondary mb-3 text-center md:text-right">
+                    الشارات المكتسبة
+                  </h3>
+                  <div className="flex justify-center md:justify-start">
+                    <div className="inline-flex items-center gap-2 px-2.5 py-2 bg-primary-50 dark:bg-orange-500/10 border border-primary-200 dark:border-orange-500/20 rounded-md">
+                      {user.badges.map((badge) => {
+                        const BadgeIcon = getBadgeIcon(badge.type);
+                        return (
+                          <div
+                            key={badge._id}
+                            title={`${badge.label} - تمت الإضافة في ${formatDate(badge.addedAt)}`}
+                            className="flex items-center"
+                          >
+                            <BadgeIcon
+                              className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600 dark:text-orange-400"
+                              strokeWidth={2}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Quick Stats Preview removed per request */}
             </div>

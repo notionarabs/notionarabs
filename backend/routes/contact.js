@@ -1,63 +1,33 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const nodemailer = require('nodemailer');
-const { Resend } = require('resend');
 const User = require('../models/User');
 
 const router = express.Router();
 
-// Email configuration
+// Email configuration - Gmail SMTP only
 const createTransporter = () => {
-  // If Resend API key is available, use Resend
-  if (process.env.RESEND_API_KEY) {
-    console.log('Using Resend for email service');
-    const resend = new Resend(process.env.RESEND_API_KEY);
-
-    return {
-      sendMail: async (mailOptions) => {
-        try {
-          const result = await resend.emails.send({
-            from: mailOptions.from || `فريق عرب نوشن <${process.env.EMAIL_FROM || 'onboarding@resend.dev'}>`,
-            to: mailOptions.to,
-            subject: mailOptions.subject,
-            html: mailOptions.html
-          });
-
-          return {
-            messageId: result.data?.id,
-            response: 'OK'
-          };
-        } catch (error) {
-          console.error('Resend error:', error);
-          throw error;
-        }
-      }
-    };
-  }
-
-  // Fallback to Gmail SMTP
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     throw new Error('Email configuration missing. Please set EMAIL_USER and EMAIL_PASS environment variables in your .env file.');
   }
 
   try {
-    // Use direct SMTP configuration with SSL port
     return nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465, // Use SSL port instead of TLS
-      secure: true, // Use SSL
+      service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
       },
-      connectionTimeout: 30000,
-      greetingTimeout: 30000,
-      socketTimeout: 30000,
-      pool: false
+      connectionTimeout: 60000,
+      greetingTimeout: 60000,
+      socketTimeout: 60000,
+      tls: {
+        rejectUnauthorized: false
+      }
     });
   } catch (error) {
-    console.error('Failed to create email transporter:', error);
-    throw new Error('Failed to initialize email service. Please check your email configuration.');
+    console.error('Failed to create Gmail transporter:', error);
+    throw new Error('Failed to initialize Gmail service. Please check your email configuration.');
   }
 };
 

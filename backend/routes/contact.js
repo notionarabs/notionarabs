@@ -1,61 +1,30 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const nodemailer = require('nodemailer');
-const sgMail = require('@sendgrid/mail');
 const User = require('../models/User');
 
 const router = express.Router();
 
 // Email configuration
 const createTransporter = () => {
-  // If SendGrid API key is available, use SendGrid (preferred for hosting platforms)
-  if (process.env.SENDGRID_API_KEY) {
-    console.log('Using SendGrid for email service');
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-    
-    // Return a SendGrid-compatible wrapper that mimics nodemailer
-    return {
-      sendMail: async (mailOptions) => {
-        try {
-          const msg = {
-            to: mailOptions.to,
-            from: mailOptions.from,
-            subject: mailOptions.subject,
-            html: mailOptions.html
-          };
-          
-          const result = await sgMail.send(msg);
-          return {
-            messageId: result[0].headers['x-message-id'],
-            response: result[0].statusCode
-          };
-        } catch (error) {
-          console.error('SendGrid error:', error);
-          throw error;
-        }
-      }
-    };
-  }
-  
-  // Fallback to Gmail SMTP
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     throw new Error('Email configuration missing. Please set EMAIL_USER and EMAIL_PASS environment variables in your .env file.');
   }
 
   try {
+    // Use direct SMTP configuration with SSL port
     return nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465, // Use SSL port instead of TLS
+      secure: true, // Use SSL
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
       },
-      // Add timeout and retry options
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 10000,
-      tls: {
-        rejectUnauthorized: false
-      }
+      connectionTimeout: 30000,
+      greetingTimeout: 30000,
+      socketTimeout: 30000,
+      pool: false
     });
   } catch (error) {
     console.error('Failed to create email transporter:', error);

@@ -948,53 +948,7 @@ router.get('/google/callback', async (req, res) => {
 });
 
 // Email configuration with multiple providers and better error handling
-const sgMail = require('@sendgrid/mail');
-
 const createTransporter = () => {
-  // If SendGrid API key is available, use SendGrid (preferred for hosting platforms)
-  if (process.env.SENDGRID_API_KEY) {
-    console.log('Using SendGrid for email service');
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-    
-    // Return a SendGrid-compatible wrapper that mimics nodemailer
-    return {
-      sendMail: async (mailOptions) => {
-        try {
-          const msg = {
-            to: mailOptions.to,
-            from: mailOptions.from,
-            subject: mailOptions.subject,
-            html: mailOptions.html
-          };
-          
-          const result = await sgMail.send(msg);
-          console.log('SendGrid email sent successfully');
-          return {
-            messageId: result[0].headers['x-message-id'],
-            response: result[0].statusCode
-          };
-        } catch (error) {
-          console.error('SendGrid error:', error);
-          if (error.response) {
-            console.error('SendGrid error response:', error.response.body);
-          }
-          throw error;
-        }
-      },
-      verify: (callback) => {
-        // SendGrid doesn't need verification, just check if API key exists
-        if (process.env.SENDGRID_API_KEY) {
-          callback(null, true);
-        } else {
-          callback(new Error('SendGrid API key not configured'), false);
-        }
-      }
-    };
-  }
-  
-  // Fallback to Gmail SMTP
-  console.log('Using Gmail SMTP for email service');
-  
   // Check if email configuration is available
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     console.error('Email configuration missing. EMAIL_USER and EMAIL_PASS environment variables are required.');
@@ -1002,25 +956,26 @@ const createTransporter = () => {
   }
 
   try {
-    // Try Gmail first, then fallback to generic SMTP
+    console.log('Configuring Gmail SMTP for email service...');
+
+    // Use direct SMTP configuration instead of 'service' for better control
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465, // Use SSL port 465 instead of TLS port 587
+      secure: true, // Use SSL
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
       },
-      // Enhanced timeout and retry options for production
-      connectionTimeout: 10000,  // Increased to 10 seconds
-      greetingTimeout: 10000,
-      socketTimeout: 10000,
-      // Add TLS options for better compatibility
-      tls: {
-        rejectUnauthorized: false
-      },
-      // Pool connections for better performance
-      pool: true,
-      maxConnections: 5,
-      maxMessages: 100
+      // Enhanced timeout and retry options
+      connectionTimeout: 30000,  // 30 seconds
+      greetingTimeout: 30000,
+      socketTimeout: 30000,
+      // Disable pool to avoid connection issues
+      pool: false,
+      // Add debug logging
+      debug: process.env.NODE_ENV !== 'production',
+      logger: process.env.NODE_ENV !== 'production'
     });
 
     // Verify transporter configuration

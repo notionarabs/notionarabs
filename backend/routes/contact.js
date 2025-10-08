@@ -12,7 +12,7 @@ const createTransporter = () => {
   if (process.env.RESEND_API_KEY) {
     console.log('Using Resend for email service');
     const resend = new Resend(process.env.RESEND_API_KEY);
-    
+
     return {
       sendMail: async (mailOptions) => {
         try {
@@ -22,7 +22,7 @@ const createTransporter = () => {
             subject: mailOptions.subject,
             html: mailOptions.html
           });
-          
+
           return {
             messageId: result.data?.id,
             response: 'OK'
@@ -34,7 +34,7 @@ const createTransporter = () => {
       }
     };
   }
-  
+
   // Fallback to Gmail SMTP
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     throw new Error('Email configuration missing. Please set EMAIL_USER and EMAIL_PASS environment variables in your .env file.');

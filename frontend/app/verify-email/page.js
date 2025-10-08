@@ -119,49 +119,49 @@ function VerifyEmailForm() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center px-4" dir="rtl">
-        <div className="max-w-md w-full my-8">
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center px-4 sm:px-6 lg:px-8 py-6 sm:py-8" dir="rtl">
+        <div className="max-w-md w-full">
           {/* Header */}
-          <div className="text-center mb-10">
-            <Link href="/" className="flex items-center justify-center mb-6">
+          <div className="text-center mb-6 sm:mb-8 lg:mb-10">
+            <Link href="/" className="flex items-center justify-center mb-4 sm:mb-6">
               <img
                 alt="عرب نوشن"
                 width="120"
                 height="40"
                 decoding="async"
                 data-nimg="1"
-                className="h-12 w-auto"
+                className="h-8 sm:h-10 lg:h-12 w-auto"
                 src="/NavLogoLight.svg"
                 style={{ color: 'transparent' }}
               />
             </Link>
-            <h1 className="heading-2 mb-3">تم تأكيد البريد الإلكتروني</h1>
-            <p className="body-large">تم تأكيد حسابك بنجاح</p>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-3 text-accent-900 dark:text-dark-text-primary">تم تأكيد البريد الإلكتروني</h1>
+            <p className="text-sm sm:text-base lg:text-lg text-accent-600 dark:text-dark-text-secondary">تم تأكيد حسابك بنجاح</p>
           </div>
 
           {/* Success Message */}
-          <div className="card p-8 border-primary-200">
+          <div className="card p-4 sm:p-6 lg:p-8 border-primary-200">
             <div className="text-center">
-              <div className="w-16 h-16 bg-success-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-8 h-8 text-success-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-success-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-5 lg:mb-6">
+                <svg className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-success-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h2 className="heading-2 mb-4">تم تأكيد البريد الإلكتروني بنجاح</h2>
-              <p className="body-large text-accent-600 dark:text-dark-text-secondary mb-8">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 text-accent-900 dark:text-dark-text-primary">تم تأكيد البريد الإلكتروني بنجاح</h2>
+              <p className="text-sm sm:text-base lg:text-lg text-accent-600 dark:text-dark-text-secondary mb-6 sm:mb-7 lg:mb-8">
                 تم تأكيد حسابك بنجاح. مرحباً بك في عرب نوشن! {isAuthenticated ? 'سيتم توجيهك إلى الصفحة الرئيسية خلال ثوانٍ قليلة.' : 'يرجى النقر على الزر أدناه للانتقال إلى الصفحة الرئيسية.'}
               </p>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <button
                   onClick={() => router.push('/')}
-                  className="w-full btn-primary text-lg py-3"
+                  className="w-full btn-primary text-base sm:text-lg py-2.5 sm:py-3"
                 >
                   الذهاب إلى الصفحة الرئيسية
                 </button>
                 <div className="text-center">
                   <Link
                     href="/login"
-                    className="btn-ghost text-sm"
+                    className="btn-ghost text-xs sm:text-sm"
                   >
                     تسجيل الدخول
                   </Link>
@@ -171,9 +171,9 @@ function VerifyEmailForm() {
           </div>
 
           {/* Back to Home */}
-          <div className="text-center mt-10">
-            <Link href="/" className="body-medium hover:text-accent-500 transition-colors flex items-center justify-center">
-              <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="text-center mt-6 sm:mt-8 lg:mt-10">
+            <Link href="/" className="text-sm sm:text-base text-accent-700 dark:text-dark-text-secondary hover:text-accent-500 transition-colors flex items-center justify-center">
+              <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               العودة للصفحة الرئيسية
@@ -187,37 +187,37 @@ function VerifyEmailForm() {
   // Show initial loading state while checking URL params
   if (initialLoad) {
     return (
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center px-4" dir="rtl">
-        <div className="max-w-md w-full my-8">
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center px-4 sm:px-6 lg:px-8 py-6 sm:py-8" dir="rtl">
+        <div className="max-w-md w-full">
           {/* Header */}
-          <div className="text-center mb-10">
-            <Link href="/" className="flex items-center justify-center mb-6">
+          <div className="text-center mb-6 sm:mb-8 lg:mb-10">
+            <Link href="/" className="flex items-center justify-center mb-4 sm:mb-6">
               <img
                 alt="عرب نوشن"
                 width="120"
                 height="40"
                 decoding="async"
                 data-nimg="1"
-                className="h-12 w-auto"
+                className="h-8 sm:h-10 lg:h-12 w-auto"
                 src="/NavLogoLight.svg"
                 style={{ color: 'transparent' }}
               />
             </Link>
-            <h1 className="heading-2 mb-3">تأكيد البريد الإلكتروني</h1>
-            <p className="body-large">جاري التحقق من رابط التأكيد...</p>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-3 text-accent-900 dark:text-dark-text-primary">تأكيد البريد الإلكتروني</h1>
+            <p className="text-sm sm:text-base lg:text-lg text-accent-600 dark:text-dark-text-secondary">جاري التحقق من رابط التأكيد...</p>
           </div>
 
           {/* Loading Message */}
-          <div className="card p-8 border-primary-200">
+          <div className="card p-4 sm:p-6 lg:p-8 border-primary-200">
             <div className="text-center">
-              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="animate-spin h-8 w-8 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-5 lg:mb-6">
+                <svg className="animate-spin h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
               </div>
-              <h2 className="heading-2 mb-4">جاري التحقق...</h2>
-              <p className="body-large text-accent-600 dark:text-dark-text-secondary">يرجى الانتظار بينما نتحقق من صحة الرابط</p>
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 text-accent-900 dark:text-dark-text-primary">جاري التحقق...</h2>
+              <p className="text-sm sm:text-base lg:text-lg text-accent-600 dark:text-dark-text-secondary">يرجى الانتظار بينما نتحقق من صحة الرابط</p>
             </div>
           </div>
         </div>
@@ -228,49 +228,49 @@ function VerifyEmailForm() {
   // Show error state if no token found
   if (!token) {
     return (
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center px-4" dir="rtl">
-        <div className="max-w-md w-full my-8">
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center px-4 sm:px-6 lg:px-8 py-6 sm:py-8" dir="rtl">
+        <div className="max-w-md w-full">
           {/* Header */}
-          <div className="text-center mb-10">
-            <Link href="/" className="flex items-center justify-center mb-6">
+          <div className="text-center mb-6 sm:mb-8 lg:mb-10">
+            <Link href="/" className="flex items-center justify-center mb-4 sm:mb-6">
               <img
                 alt="عرب نوشن"
                 width="120"
                 height="40"
                 decoding="async"
                 data-nimg="1"
-                className="h-12 w-auto"
+                className="h-8 sm:h-10 lg:h-12 w-auto"
                 src="/NavLogoLight.svg"
                 style={{ color: 'transparent' }}
               />
             </Link>
-            <h1 className="heading-2 mb-3">تأكيد البريد الإلكتروني</h1>
-            <p className="body-large">رابط التأكيد غير صحيح</p>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-3 text-accent-900 dark:text-dark-text-primary">تأكيد البريد الإلكتروني</h1>
+            <p className="text-sm sm:text-base lg:text-lg text-accent-600 dark:text-dark-text-secondary">رابط التأكيد غير صحيح</p>
           </div>
 
           {/* Error Message */}
-          <div className="card p-8 border-error-200">
+          <div className="card p-4 sm:p-6 lg:p-8 border-error-200">
             <div className="text-center">
-              <div className="w-16 h-16 bg-error-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-8 h-8 text-error-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-error-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-5 lg:mb-6">
+                <svg className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-error-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </div>
-              <h2 className="heading-2 mb-4">رابط غير صحيح</h2>
-              <p className="body-large text-accent-600 dark:text-dark-text-secondary mb-8">
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 text-accent-900 dark:text-dark-text-primary">رابط غير صحيح</h2>
+              <p className="text-sm sm:text-base lg:text-lg text-accent-600 dark:text-dark-text-secondary mb-6 sm:mb-7 lg:mb-8">
                 رابط تأكيد البريد الإلكتروني غير صحيح أو منتهي الصلاحية. يرجى طلب رابط جديد.
               </p>
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <Link
                   href="/forgot-password"
-                  className="w-full btn-primary text-lg py-3"
+                  className="w-full btn-primary text-base sm:text-lg py-2.5 sm:py-3 block text-center"
                 >
                   طلب رابط جديد
                 </Link>
                 <div className="text-center">
                   <Link
                     href="/login"
-                    className="btn-ghost text-sm"
+                    className="btn-ghost text-xs sm:text-sm"
                   >
                     تسجيل الدخول
                   </Link>
@@ -280,9 +280,9 @@ function VerifyEmailForm() {
           </div>
 
           {/* Back to Home */}
-          <div className="text-center mt-10">
-            <Link href="/" className="body-medium hover:text-accent-500 transition-colors flex items-center justify-center">
-              <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="text-center mt-6 sm:mt-8 lg:mt-10">
+            <Link href="/" className="text-sm sm:text-base text-accent-700 dark:text-dark-text-secondary hover:text-accent-500 transition-colors flex items-center justify-center">
+              <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               العودة للصفحة الرئيسية
@@ -294,85 +294,85 @@ function VerifyEmailForm() {
   }
 
   return (
-    <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center px-4" dir="rtl">
-      <div className="max-w-md w-full my-8">
+    <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center px-4 sm:px-6 lg:px-8 py-6 sm:py-8" dir="rtl">
+      <div className="max-w-md w-full">
         {/* Header */}
-        <div className="text-center mb-10">
-          <Link href="/" className="flex items-center justify-center mb-6">
+        <div className="text-center mb-6 sm:mb-8 lg:mb-10">
+          <Link href="/" className="flex items-center justify-center mb-4 sm:mb-6">
             <img
               alt="عرب نوشن"
               width="120"
               height="40"
               decoding="async"
               data-nimg="1"
-              className="h-12 w-auto"
+              className="h-8 sm:h-10 lg:h-12 w-auto"
               src="/NavLogoLight.svg"
               style={{ color: 'transparent' }}
             />
           </Link>
-          <h1 className="heading-2 mb-3">تأكيد البريد الإلكتروني</h1>
-          <p className="body-large">جاري تأكيد بريدك الإلكتروني...</p>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-3 text-accent-900 dark:text-dark-text-primary">تأكيد البريد الإلكتروني</h1>
+          <p className="text-sm sm:text-base lg:text-lg text-accent-600 dark:text-dark-text-secondary">جاري تأكيد بريدك الإلكتروني...</p>
         </div>
 
         {/* Loading/Error Message */}
-        <div className="card p-8 border-primary-200">
+        <div className="card p-4 sm:p-6 lg:p-8 border-primary-200">
           <div className="text-center">
             {loading ? (
               <>
-                <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <svg className="animate-spin h-8 w-8 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-5 lg:mb-6">
+                  <svg className="animate-spin h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                 </div>
-                <h2 className="heading-2 mb-4">جاري التأكيد...</h2>
-                <p className="body-large text-accent-600 dark:text-dark-text-secondary">يرجى الانتظار بينما نؤكد بريدك الإلكتروني</p>
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 text-accent-900 dark:text-dark-text-primary">جاري التأكيد...</h2>
+                <p className="text-sm sm:text-base lg:text-lg text-accent-600 dark:text-dark-text-secondary">يرجى الانتظار بينما نؤكد بريدك الإلكتروني</p>
               </>
             ) : error ? (
               <>
-                <div className="w-16 h-16 bg-error-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <svg className="w-8 h-8 text-error-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-error-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-5 lg:mb-6">
+                  <svg className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-error-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </div>
-                <h2 className="heading-2 mb-4">
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 text-accent-900 dark:text-dark-text-primary">
                   {errorType === 'ALREADY_VERIFIED' ? 'البريد الإلكتروني مؤكد بالفعل' :
                     errorType === 'EXPIRED_TOKEN' ? 'انتهت صلاحية الرابط' :
                       errorType === 'INVALID_TOKEN' ? 'رابط غير صحيح أو منتهي الصلاحية' :
                         'فشل في التأكيد'}
                 </h2>
-                <p className="body-large text-accent-600 dark:text-dark-text-secondary mb-8">{error}</p>
+                <p className="text-sm sm:text-base lg:text-lg text-accent-600 dark:text-dark-text-secondary mb-6 sm:mb-7 lg:mb-8">{error}</p>
 
                 {errorType === 'ALREADY_VERIFIED' ? (
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     <button
                       onClick={() => router.push('/login')}
-                      className="w-full btn-primary text-lg py-3"
+                      className="w-full btn-primary text-base sm:text-lg py-2.5 sm:py-3"
                     >
                       تسجيل الدخول
                     </button>
                     <div className="text-center">
                       <button
                         onClick={() => router.push('/')}
-                        className="btn-ghost text-sm"
+                        className="btn-ghost text-xs sm:text-sm"
                       >
                         العودة للصفحة الرئيسية
                       </button>
                     </div>
                   </div>
                 ) : errorType === 'EXPIRED_TOKEN' || errorType === 'INVALID_TOKEN' ? (
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     <button
                       onClick={handleResendVerification}
                       disabled={loading}
-                      className="w-full btn-primary text-lg py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full btn-primary text-base sm:text-lg py-2.5 sm:py-3 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loading ? 'جاري الإرسال...' : 'إعادة إرسال رابط التأكيد'}
                     </button>
                     <div className="text-center">
                       <button
                         onClick={() => router.push('/login')}
-                        className="btn-ghost text-sm"
+                        className="btn-ghost text-xs sm:text-sm"
                       >
                         تسجيل الدخول
                       </button>
@@ -380,21 +380,21 @@ function VerifyEmailForm() {
                     <div className="text-center">
                       <button
                         onClick={() => router.push('/signup')}
-                        className="btn-ghost text-sm"
+                        className="btn-ghost text-xs sm:text-sm"
                       >
                         إنشاء حساب جديد
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     <button
                       onClick={() => {
                         setHasAttemptedVerification(false);
                         handleVerifyEmail(token);
                       }}
                       disabled={loading}
-                      className="w-full btn-primary text-lg py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full btn-primary text-base sm:text-lg py-2.5 sm:py-3 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loading ? 'جاري المحاولة...' : 'إعادة المحاولة'}
                     </button>
@@ -402,7 +402,7 @@ function VerifyEmailForm() {
                       <button
                         onClick={handleResendVerification}
                         disabled={loading}
-                        className="btn-ghost text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="btn-ghost text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         إعادة إرسال رابط التأكيد
                       </button>
@@ -415,9 +415,9 @@ function VerifyEmailForm() {
         </div>
 
         {/* Back to Home */}
-        <div className="text-center mt-10">
-          <Link href="/" className="body-medium hover:text-accent-500 transition-colors flex items-center justify-center">
-            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="text-center mt-6 sm:mt-8 lg:mt-10">
+          <Link href="/" className="text-sm sm:text-base text-accent-700 dark:text-dark-text-secondary hover:text-accent-500 transition-colors flex items-center justify-center">
+            <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             العودة للصفحة الرئيسية
@@ -431,31 +431,31 @@ function VerifyEmailForm() {
 export default function VerifyEmailPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center px-4" dir="rtl">
-        <div className="max-w-md w-full my-8">
-          <div className="text-center mb-10">
-            <div className="flex items-center justify-center mb-6">
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center px-4 sm:px-6 lg:px-8 py-6 sm:py-8" dir="rtl">
+        <div className="max-w-md w-full">
+          <div className="text-center mb-6 sm:mb-8 lg:mb-10">
+            <div className="flex items-center justify-center mb-4 sm:mb-6">
               <img
                 alt="عرب نوشن"
                 width="120"
                 height="40"
                 decoding="async"
                 data-nimg="1"
-                className="h-12 w-auto"
+                className="h-8 sm:h-10 lg:h-12 w-auto"
                 src="/NavLogoLight.svg"
                 style={{ color: 'transparent' }}
               />
             </div>
-            <h1 className="heading-2 mb-3">تأكيد البريد الإلكتروني</h1>
-            <p className="body-large">جاري التحميل...</p>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-3 text-accent-900 dark:text-dark-text-primary">تأكيد البريد الإلكتروني</h1>
+            <p className="text-sm sm:text-base lg:text-lg text-accent-600 dark:text-dark-text-secondary">جاري التحميل...</p>
           </div>
-          <div className="card p-8 border-primary-200">
+          <div className="card p-4 sm:p-6 lg:p-8 border-primary-200">
             <div className="text-center">
-              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
+              <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-5 lg:mb-6">
+                <div className="animate-spin rounded-full h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 border-b-2 border-primary-500"></div>
               </div>
-              <h2 className="heading-2 mb-4">جاري التحميل...</h2>
-              <p className="body-large text-accent-600 dark:text-dark-text-secondary">يرجى الانتظار...</p>
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 text-accent-900 dark:text-dark-text-primary">جاري التحميل...</h2>
+              <p className="text-sm sm:text-base lg:text-lg text-accent-600 dark:text-dark-text-secondary">يرجى الانتظار...</p>
             </div>
           </div>
         </div>

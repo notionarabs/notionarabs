@@ -632,11 +632,11 @@ export default function TemplateDetailPage() {
       {/* Template Details */}
       <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
         <div className="container-custom">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 md:gap-8 lg:gap-12">
             {/* Images and Video */}
             <div className="lg:col-span-3">
               <div className="mb-4">
-                <div className="w-full h-96 bg-white dark:bg-gray-900 rounded-xl flex items-center justify-center overflow-hidden relative">
+                <div className="w-full h-64 sm:h-80 md:h-96 bg-white dark:bg-gray-900 rounded-xl flex items-center justify-center overflow-hidden relative">
                   {/* Loading Overlay */}
                   {isImageLoading && (
                     <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 flex items-center justify-center z-10">
@@ -690,7 +690,7 @@ export default function TemplateDetailPage() {
 
               {/* Thumbnail Images and Video - Show if we have multiple images or video */}
               {(template.previewImages && template.previewImages.length > 1) || template.explanationVideo ? (
-                <div className="flex flex-wrap gap-2 justify-end" dir="ltr">
+                <div className="flex flex-wrap gap-2 justify-center lg:justify-end" dir="ltr">
                   {/* Video Thumbnail */}
                   {template.explanationVideo && getVideoEmbedUrl(template.explanationVideo) && (
                     <button
@@ -799,17 +799,17 @@ export default function TemplateDetailPage() {
             {/* Template Info */}
             <div className="lg:col-span-2">
               {/* Breadcrumb */}
-              <nav className="flex items-center gap-2 text-sm text-accent-600 dark:text-dark-text-secondary mb-4">
-                <Link href="/templates" className="hover:text-accent-700 dark:hover:text-dark-text-primary transition-colors">
+              <nav className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary mb-4 overflow-x-auto pb-2">
+                <Link href="/templates" className="hover:text-accent-700 dark:hover:text-dark-text-primary transition-colors whitespace-nowrap">
                   القوالب
                 </Link>
                 <span className="text-accent-400 dark:text-dark-text-quaternary">/</span>
-                <span className="text-accent-400 dark:text-dark-text-quaternary">{template.category}</span>
-                <span className="text-accent-400 dark:text-dark-text-quaternary">/</span>
-                <span className="text-accent-400 dark:text-dark-text-quaternary">{template.title}</span>
+                <span className="text-accent-400 dark:text-dark-text-quaternary whitespace-nowrap truncate max-w-[100px] sm:max-w-none">{template.category}</span>
+                <span className="text-accent-400 dark:text-dark-text-quaternary hidden sm:inline">/</span>
+                <span className="text-accent-400 dark:text-dark-text-quaternary truncate max-w-[120px] sm:max-w-none hidden sm:inline">{template.title}</span>
               </nav>
 
-              <h1 className="heading-1 mb-4">{template.title}</h1>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-900 dark:text-dark-text-primary mb-4">{template.title}</h1>
 
               {/* Creator Info */}
               {(() => {
@@ -818,8 +818,8 @@ export default function TemplateDetailPage() {
                   c.username || c.slug || c.handle || c.user?.username || c.creator?.username || (c.email ? c.email.split('@')[0] : '') || c._id || ''
                 );
                 return (
-                  <div className="flex items-center gap-3 mb-4">
-                    <Link href={`/creators/${creatorSlug}`} className="w-10 h-10 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                  <div className="flex items-center gap-2 sm:gap-3 mb-4">
+                    <Link href={`/creators/${creatorSlug}`} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
                       {template.creator?.profilePicture ? (
                         <Image
                           src={template.creator.profilePicture}
@@ -856,20 +856,20 @@ export default function TemplateDetailPage() {
               })()}
 
               {/* Rating and Reviews */}
-              <div className="flex items-center gap-4 mb-6">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-6">
                 <StarRating rating={ratingsSummary.averageRating || template.rating || 0} showNumber={false} />
-                <span className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary whitespace-nowrap">
                   ({ratingsSummary.totalRatings || 0} تقييم)
                 </span>
-                <span className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary whitespace-nowrap">
                   {(template.downloads || 0).toLocaleString()} تحميل
                 </span>
               </div>
 
 
               {/* Price - All templates are now free */}
-              <div className="flex items-center gap-3 mb-6">
-                <span className="text-3xl font-bold text-green-600 dark:text-green-400">
+              <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                <span className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">
                   مجاني
                 </span>
               </div>
@@ -878,7 +878,7 @@ export default function TemplateDetailPage() {
               <button
                 onClick={handleDownload}
                 disabled={isDownloading || checkingOwnership}
-                className={`w-full py-3 px-6 rounded-xl font-medium transition-all duration-200 mb-6 ${isDownloaded
+                className={`w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 mb-4 sm:mb-6 ${isDownloaded
                   ? 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'
                   : userHasTemplate
                     ? 'bg-blue-500 hover:bg-blue-600 text-white'
@@ -918,21 +918,21 @@ export default function TemplateDetailPage() {
 
               {/* Download Instructions */}
               {isDownloaded && (
-                <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
-                  <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                       </svg>
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+                      <h4 className="text-xs sm:text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
                         كيفية استخدام القالب
                       </h4>
-                      <p className="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
+                      <p className="text-xs sm:text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
                         تم فتح القالب في تبويب جديد. يمكنك الآن:
                       </p>
-                      <ul className="text-sm text-blue-700 dark:text-blue-300 mt-2 space-y-1">
+                      <ul className="text-xs sm:text-sm text-blue-700 dark:text-blue-300 mt-2 space-y-1">
                         <li>• نسخ القالب إلى مساحة العمل الخاصة بك في Notion</li>
                         <li>• تخصيص القالب حسب احتياجاتك</li>
                         <li>• مشاركة القالب مع فريقك</li>
@@ -944,8 +944,8 @@ export default function TemplateDetailPage() {
 
               {/* Rating and Comments Section */}
               {(isDownloaded || userHasTemplate) && !hasSubmittedRating && !isTemplateCreator(user, template) && (
-                <div className="mb-6">
-                  <div className="p-6 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
+                <div className="mb-4 sm:mb-6">
+                  <div className="p-4 sm:p-6 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
                     <h3 className="text-lg font-semibold text-accent-700 dark:text-dark-text-primary mb-4">
                       قيم هذا القالب وشاركنا رأيك
                     </h3>
@@ -993,12 +993,12 @@ export default function TemplateDetailPage() {
       {/* Description and Features */}
       <section className="section-padding bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
         <div className="container-custom">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-12">
             {/* Long Description */}
             <div className="lg:col-span-2">
-              <h2 className="heading-2 mb-6">تفاصيل القالب</h2>
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-900 dark:text-dark-text-primary mb-4 sm:mb-6">تفاصيل القالب</h2>
               <div className="prose prose-accent dark:prose-dark max-w-none">
-                <p className="text-accent-600 dark:text-dark-text-secondary leading-relaxed mb-6">
+                <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed mb-4 sm:mb-6">
                   {template.features || template.description || 'لا يوجد وصف مفصل متاح لهذا القالب.'}
                 </p>
 
@@ -1007,29 +1007,29 @@ export default function TemplateDetailPage() {
 
             {/* Template Stats */}
             <div className="lg:col-span-1">
-              <div className="bg-white dark:bg-dark-secondary rounded-xl p-6 shadow-medium dark:shadow-dark-medium">
-                <h3 className="font-semibold text-accent-700 dark:text-dark-text-primary mb-4">إحصائيات القالب</h3>
+              <div className="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-medium dark:shadow-dark-medium">
+                <h3 className="text-base sm:text-lg font-semibold text-accent-700 dark:text-dark-text-primary mb-4">إحصائيات القالب</h3>
 
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-accent-600 dark:text-dark-text-secondary">التقييم</span>
+                    <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">التقييم</span>
                     <div className="flex items-center gap-2">
                       <StarRating rating={ratingsSummary.averageRating || template.rating || 0} showNumber={false} />
                     </div>
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <span className="text-accent-600 dark:text-dark-text-secondary">عدد التقييمات</span>
-                    <span className="font-medium text-accent-700 dark:text-dark-text-primary">{ratingsSummary.totalRatings || 0}</span>
+                    <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">عدد التقييمات</span>
+                    <span className="text-sm sm:text-base font-medium text-accent-700 dark:text-dark-text-primary">{ratingsSummary.totalRatings || 0}</span>
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <span className="text-accent-600 dark:text-dark-text-secondary">التحميلات</span>
-                    <span className="font-medium text-accent-700 dark:text-dark-text-primary">{(template.downloads || 0).toLocaleString()}</span>
+                    <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">التحميلات</span>
+                    <span className="text-sm sm:text-base font-medium text-accent-700 dark:text-dark-text-primary">{(template.downloads || 0).toLocaleString()}</span>
                   </div>
 
                   <div className="flex justify-between items-start">
-                    <span className="text-accent-600 dark:text-dark-text-secondary">الفئة</span>
+                    <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">الفئة</span>
                     <div className="flex flex-wrap gap-1 justify-end max-w-[200px]">
                       {(template.categories && template.categories.length > 0 ? template.categories : [template.category]).map((category, index) => (
                         <Link
@@ -1044,8 +1044,8 @@ export default function TemplateDetailPage() {
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <span className="text-accent-600 dark:text-dark-text-secondary">تاريخ الإنشاء</span>
-                    <span className="font-medium text-accent-700 dark:text-dark-text-primary">{formatDate(new Date())}</span>
+                    <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">تاريخ الإنشاء</span>
+                    <span className="text-sm sm:text-base font-medium text-accent-700 dark:text-dark-text-primary">{formatDate(new Date())}</span>
                   </div>
                 </div>
               </div>
@@ -1058,9 +1058,9 @@ export default function TemplateDetailPage() {
       {(templateRatings.length > 0 || templateComments.length > 0) && (
         <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
           <div className="container-custom">
-            <h2 className="heading-2 mb-8">تقييمات المستخدمين والتعليقات</h2>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-900 dark:text-dark-text-primary mb-6 sm:mb-8">تقييمات المستخدمين والتعليقات</h2>
 
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {/* Combined Ratings and Comments */}
               {(() => {
                 // Create a map of user reviews combining ratings and comments
@@ -1106,11 +1106,11 @@ export default function TemplateDetailPage() {
                 const reviewsToShow = showAllReviews ? combinedReviews : combinedReviews.slice(0, 5);
 
                 return (
-                  <div className="grid gap-4">
+                  <div className="grid gap-3 sm:gap-4">
                     {reviewsToShow.map((review, index) => (
-                      <div key={review.ratingId || review.commentId || index} className="p-4 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
-                        <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center">
+                      <div key={review.ratingId || review.commentId || index} className="p-3 sm:p-4 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
+                        <div className="flex items-start gap-2 sm:gap-3">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center">
                             {review.user?.profilePicture ? (
                               <Image
                                 src={review.user.profilePicture}
@@ -1133,15 +1133,15 @@ export default function TemplateDetailPage() {
                             </div>
                           </div>
 
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <span className="font-medium text-accent-700 dark:text-dark-text-primary">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+                              <span className="text-sm sm:text-base font-medium text-accent-700 dark:text-dark-text-primary truncate">
                                 {review.user?.name || review.user?.displayName || 'مستخدم'}
                               </span>
                               {review.rating && (
                                 <StarRating rating={review.rating} size="small" showNumber={false} />
                               )}
-                              <span className="text-sm text-gray-500 dark:text-gray-400">
+                              <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
                                 {formatDate(Math.max(new Date(review.ratingDate || 0), new Date(review.commentDate || 0)))}
                               </span>
                             </div>
@@ -1149,7 +1149,7 @@ export default function TemplateDetailPage() {
                             {/* Rating Review */}
                             {review.review && (
                               <div className="mb-2">
-                                <p className="text-sm text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                                <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary leading-relaxed break-words">
                                   {review.review}
                                 </p>
                               </div>
@@ -1157,8 +1157,8 @@ export default function TemplateDetailPage() {
 
                             {/* Comment */}
                             {review.comment && (
-                              <div className={`${review.review ? 'mt-3 pt-3 border-t border-gray-200 dark:border-dark-card-border' : ''}`}>
-                                <p className="text-sm text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                              <div className={`${review.review ? 'mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-gray-200 dark:border-dark-card-border' : ''}`}>
+                                <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary leading-relaxed break-words">
                                   {review.comment}
                                 </p>
                               </div>
@@ -1202,10 +1202,10 @@ export default function TemplateDetailPage() {
                     ))}
 
                     {combinedReviews.length > 5 && (
-                      <div className="text-center">
+                      <div className="text-center mt-4 sm:mt-6">
                         <button
                           onClick={() => setShowAllReviews(!showAllReviews)}
-                          className="px-4 py-2 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-lg hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-colors duration-200 text-sm"
+                          className="px-3 sm:px-4 py-2 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-lg hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-colors duration-200 text-xs sm:text-sm"
                         >
                           {showAllReviews ? 'عرض أقل' : `عرض جميع التقييمات والتعليقات (${combinedReviews.length})`}
                         </button>
@@ -1223,13 +1223,13 @@ export default function TemplateDetailPage() {
       {/* Related Templates */}
       <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
         <div className="container-custom">
-          <h2 className="heading-2 mb-8">قوالب مشابهة</h2>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-900 dark:text-dark-text-primary mb-6 sm:mb-8">قوالب مشابهة</h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {relatedTemplates.map((relatedTemplate) => (
               <div key={relatedTemplate._id || relatedTemplate.id} className="bg-white dark:bg-dark-primary rounded-xl shadow-medium dark:shadow-dark-medium overflow-hidden transition-all duration-200 hover:shadow-large dark:hover:shadow-dark-large hover:-translate-y-1">
                 <Link href={`/templates/${relatedTemplate.slug || relatedTemplate._id || relatedTemplate.id}`}>
-                  <div className="relative h-48 bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-lg">
+                  <div className="relative h-40 sm:h-48 bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-lg">
                     <Image
                       src={relatedTemplate.previewImage || relatedTemplate.imgSrc || '/placeholder-template.jpg'}
                       alt={relatedTemplate.title}
@@ -1240,15 +1240,15 @@ export default function TemplateDetailPage() {
                     />
                   </div>
 
-                  <div className="p-4">
-                    <h3 className="font-semibold text-accent-700 dark:text-dark-text-primary mb-2 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+                  <div className="p-3 sm:p-4">
+                    <h3 className="text-sm sm:text-base font-semibold text-accent-700 dark:text-dark-text-primary mb-2 hover:text-orange-600 dark:hover:text-orange-400 transition-colors line-clamp-2">
                       {relatedTemplate.title}
                     </h3>
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary truncate">
                         بواسطة {relatedTemplate.creator?.name || 'مبدع غير معروف'}
                       </p>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                      <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
                         مجاني
                       </span>
                     </div>
@@ -1263,7 +1263,7 @@ export default function TemplateDetailPage() {
       {/* Lightbox Modal */}
       {isLightboxOpen && (
         <div
-          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-2 sm:p-4"
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsLightboxOpen(false);
           }}
@@ -1272,9 +1272,9 @@ export default function TemplateDetailPage() {
             type="button"
             onClick={() => setIsLightboxOpen(false)}
             aria-label="إغلاق"
-            className="absolute top-4 left-4 text-white/80 hover:text-white"
+            className="absolute top-2 sm:top-4 left-2 sm:left-4 text-white/80 hover:text-white z-10"
           >
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -1292,10 +1292,10 @@ export default function TemplateDetailPage() {
                     return prev > 0 ? prev - 1 : -2; // From additional images to main
                   });
                 }}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white"
+                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white z-10"
                 aria-label="السابق"
               >
-                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
@@ -1309,10 +1309,10 @@ export default function TemplateDetailPage() {
                     return prev < (template.previewImages?.length - 1) ? prev + 1 : -1; // From additional images to video
                   });
                 }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white"
+                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white z-10"
                 aria-label="التالي"
               >
-                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>

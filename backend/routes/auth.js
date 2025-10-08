@@ -38,48 +38,98 @@ router.get('/test-email', async (req, res) => {
         details: {
           EMAIL_USER: process.env.EMAIL_USER ? 'Set' : 'Missing',
           EMAIL_PASS: process.env.EMAIL_PASS ? 'Set' : 'Missing',
+          EMAIL_PASS_LENGTH: process.env.EMAIL_PASS ? process.env.EMAIL_PASS.length : 0,
           NODE_ENV: process.env.NODE_ENV,
-          FRONTEND_URL: process.env.FRONTEND_URL ? 'Set' : 'Missing'
+          FRONTEND_URL: process.env.FRONTEND_URL || 'Missing'
         }
       });
     }
 
+    // Log configuration (without sensitive data)
+    console.log('Email Test - Configuration:', {
+      EMAIL_USER: process.env.EMAIL_USER,
+      EMAIL_PASS_LENGTH: process.env.EMAIL_PASS.length,
+      EMAIL_FROM: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+      FRONTEND_URL: process.env.FRONTEND_URL,
+      NODE_ENV: process.env.NODE_ENV,
+      timestamp: new Date().toISOString()
+    });
+
     // Test email transporter
     const transporter = createTransporter();
+
+    // Verify connection first
+    console.log('Testing SMTP connection...');
+    await new Promise((resolve, reject) => {
+      transporter.verify((error, success) => {
+        if (error) {
+          console.error('SMTP verification failed:', error);
+          reject(error);
+        } else {
+          console.log('SMTP connection verified successfully');
+          resolve(success);
+        }
+      });
+    });
 
     // Test email sending
     const testEmail = process.env.EMAIL_USER; // Send to yourself for testing
     const mailOptions = {
       from: `"فريق عرب نوشن" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
       to: testEmail,
-      subject: 'Test Email from Notion Arabs',
+      subject: 'Test Email from Notion Arabs - ' + new Date().toISOString(),
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
-          <h2 style="color: #333; text-align: center;">اختبار إرسال البريد الإلكتروني</h2>
+          <h2 style="color: #333; text-align: center;">اختبار إرسال البريد الإلكتروني ✅</h2>
           <p>هذا اختبار لإرسال البريد الإلكتروني من منصة عرب نوشن.</p>
           <p>إذا تلقيت هذا البريد، فالإعداد يعمل بشكل صحيح!</p>
+          <p><strong>Server Time:</strong> ${new Date().toLocaleString('ar-EG', { timeZone: 'Asia/Riyadh' })}</p>
+          <p><strong>Environment:</strong> ${process.env.NODE_ENV || 'development'}</p>
           <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
           <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
         </div>
       `
     };
 
-    await transporter.sendMail(mailOptions);
+    console.log('Sending test email to:', testEmail);
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent successfully! Message ID:', info.messageId);
 
     res.json({
       success: true,
       message: 'Email configuration is working! Test email sent.',
       timestamp: new Date().toISOString(),
-      emailSentTo: testEmail
+      emailSentTo: testEmail,
+      messageId: info.messageId,
+      config: {
+        EMAIL_USER: process.env.EMAIL_USER,
+        FRONTEND_URL: process.env.FRONTEND_URL,
+        NODE_ENV: process.env.NODE_ENV
+      }
     });
 
   } catch (error) {
     console.error('Email test error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      command: error.command,
+      response: error.response,
+      responseCode: error.responseCode
+    });
+
     res.status(500).json({
       success: false,
       message: 'Email configuration failed',
       error: error.message,
-      code: error.code
+      code: error.code,
+      responseCode: error.responseCode,
+      details: {
+        EMAIL_USER: process.env.EMAIL_USER ? 'Set' : 'Missing',
+        EMAIL_PASS: process.env.EMAIL_PASS ? 'Set (length: ' + process.env.EMAIL_PASS.length + ')' : 'Missing',
+        FRONTEND_URL: process.env.FRONTEND_URL || 'Missing',
+        NODE_ENV: process.env.NODE_ENV
+      }
     });
   }
 });

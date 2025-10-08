@@ -948,7 +948,53 @@ router.get('/google/callback', async (req, res) => {
 });
 
 // Email configuration with multiple providers and better error handling
+const sgMail = require('@sendgrid/mail');
+
 const createTransporter = () => {
+  // If SendGrid API key is available, use SendGrid (preferred for hosting platforms)
+  if (process.env.SENDGRID_API_KEY) {
+    console.log('Using SendGrid for email service');
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    
+    // Return a SendGrid-compatible wrapper that mimics nodemailer
+    return {
+      sendMail: async (mailOptions) => {
+        try {
+          const msg = {
+            to: mailOptions.to,
+            from: mailOptions.from,
+            subject: mailOptions.subject,
+            html: mailOptions.html
+          };
+          
+          const result = await sgMail.send(msg);
+          console.log('SendGrid email sent successfully');
+          return {
+            messageId: result[0].headers['x-message-id'],
+            response: result[0].statusCode
+          };
+        } catch (error) {
+          console.error('SendGrid error:', error);
+          if (error.response) {
+            console.error('SendGrid error response:', error.response.body);
+          }
+          throw error;
+        }
+      },
+      verify: (callback) => {
+        // SendGrid doesn't need verification, just check if API key exists
+        if (process.env.SENDGRID_API_KEY) {
+          callback(null, true);
+        } else {
+          callback(new Error('SendGrid API key not configured'), false);
+        }
+      }
+    };
+  }
+  
+  // Fallback to Gmail SMTP
+  console.log('Using Gmail SMTP for email service');
+  
   // Check if email configuration is available
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     console.error('Email configuration missing. EMAIL_USER and EMAIL_PASS environment variables are required.');
@@ -964,9 +1010,9 @@ const createTransporter = () => {
         pass: process.env.EMAIL_PASS
       },
       // Enhanced timeout and retry options for production
-      connectionTimeout: 5000,  // Reduced to 5 seconds for faster failure
-      greetingTimeout: 5000,    // Reduced to 5 seconds for faster failure
-      socketTimeout: 5000,      // Reduced to 5 seconds for faster failure
+      connectionTimeout: 10000,  // Increased to 10 seconds
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
       // Add TLS options for better compatibility
       tls: {
         rejectUnauthorized: false

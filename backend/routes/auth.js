@@ -955,7 +955,7 @@ const createTransporter = () => {
   if (process.env.RESEND_API_KEY) {
     console.log('Using Resend for email service');
     const resend = new Resend(process.env.RESEND_API_KEY);
-    
+
     // Return a Resend-compatible wrapper that mimics nodemailer
     return {
       sendMail: async (mailOptions) => {
@@ -966,7 +966,7 @@ const createTransporter = () => {
             subject: mailOptions.subject,
             html: mailOptions.html
           });
-          
+
           console.log('Resend email sent successfully:', result.data?.id);
           return {
             messageId: result.data?.id,
@@ -987,10 +987,10 @@ const createTransporter = () => {
       }
     };
   }
-  
+
   // Fallback to Gmail SMTP
   console.log('Using Gmail SMTP for email service');
-  
+
   // Check if email configuration is available
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     console.error('Email configuration missing. EMAIL_USER and EMAIL_PASS environment variables are required.');

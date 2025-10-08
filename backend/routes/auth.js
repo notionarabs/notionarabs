@@ -959,7 +959,7 @@ const createTransporter = () => {
 
   try {
     console.log('Configuring Gmail SMTP for email service...');
-    
+
     // Use Gmail service for simplicity and reliability
     const transporter = nodemailer.createTransport({
       service: 'gmail',

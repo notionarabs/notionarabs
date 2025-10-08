@@ -6,7 +6,8 @@ const notificationSchema = new mongoose.Schema({
     type: String, 
     enum: [
       'template_published', 'template_rated', 'template_commented', 'template_downloaded', 'creator_followed',
-      'admin_creator_application', 'admin_template_pending', 'admin_blog_pending', 'admin_user_registered', 'admin_system_alert'
+      'admin_creator_application', 'admin_template_pending', 'admin_blog_pending', 'admin_user_registered', 'admin_system_alert',
+      'badge_added', 'template_badge_added'
     ], 
     required: true 
   },

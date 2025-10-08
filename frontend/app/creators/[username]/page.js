@@ -210,19 +210,19 @@ export default function PublicProfilePage() {
 
   if (error || !creator) {
     return (
-      <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300 py-20" dir="rtl">
-        <div className="container-custom">
+      <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300 py-12 sm:py-16 md:py-20" dir="rtl">
+        <div className="container-custom px-4 sm:px-6">
           <div className="text-center">
-            <div className="w-24 h-24 bg-gray-200 dark:bg-dark-secondary rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-200 dark:bg-dark-secondary rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+              <svg className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
               </svg>
             </div>
-            <h1 className="heading-1 mb-4">المبدع غير موجود</h1>
-            <p className="body-large text-accent-600 dark:text-dark-text-secondary mb-8">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">المبدع غير موجود</h1>
+            <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary mb-6 sm:mb-8">
               لم نتمكن من العثور على المبدع المطلوب
             </p>
-            <Link href="/creators" className="btn-primary">
+            <Link href="/creators" className="btn-primary inline-block">
               تصفح المبدعين
             </Link>
           </div>
@@ -236,42 +236,42 @@ export default function PublicProfilePage() {
 
       {/* Header */}
       <div className="bg-white dark:bg-dark-secondary shadow-soft dark:shadow-dark-soft border-b border-gray-200 dark:border-dark-card-border">
-        <div className="container-custom py-4">
-          <nav className="flex items-center gap-3 text-sm text-accent-600 dark:text-dark-text-secondary">
-            <Link href="/creators" className="hover:text-primary-500 dark:hover:text-orange-400 transition-colors flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="container-custom px-4 sm:px-6 py-3 sm:py-4">
+          <nav className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary overflow-x-auto">
+            <Link href="/creators" className="hover:text-primary-500 dark:hover:text-orange-400 transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap flex-shrink-0">
+              <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
               المبدعين
             </Link>
-            <span className="text-gray-400 dark:text-dark-text-quaternary">/</span>
-            <span className="text-accent-500 dark:text-dark-text-primary font-medium">{creator.displayName || creator.name}</span>
+            <span className="text-gray-400 dark:text-dark-text-quaternary flex-shrink-0">/</span>
+            <span className="text-accent-500 dark:text-dark-text-primary font-medium truncate max-w-[200px] sm:max-w-none">{creator.displayName || creator.name}</span>
           </nav>
         </div>
       </div>
 
       {/* Hero Section */}
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
-        <div className="container-custom">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+      <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
+        <div className="container-custom px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 items-start">
 
             {/* Left Column - Creator Identity */}
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* Profile Picture and Name */}
-              <div className="flex items-center gap-6">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
                 {/* Profile Picture */}
-                <div className="relative">
+                <div className="relative flex-shrink-0">
                   {creator.profilePicture ? (
                     <Image
                       src={creator.profilePicture}
                       alt={`صورة ${creator.displayName || creator.name}`}
                       width={120}
                       height={120}
-                      className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-4 border-white dark:border-dark-card-border shadow-lg"
+                      className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full object-cover border-4 border-white dark:border-dark-card-border shadow-lg"
                     />
                   ) : (
-                    <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center shadow-lg border-4 border-white dark:border-dark-card-border">
-                      <span className="text-3xl sm:text-4xl font-bold text-primary-500 dark:text-orange-400">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center shadow-lg border-4 border-white dark:border-dark-card-border">
+                      <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-500 dark:text-orange-400">
                         {(creator.displayName || creator.name)?.charAt(0)?.toUpperCase()}
                       </span>
                     </div>
@@ -279,8 +279,8 @@ export default function PublicProfilePage() {
 
                   {/* Verified Badge */}
                   {creator.creatorStatus === 'approved' && (
-                    <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-lg">
-                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <div className="absolute -top-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-lg">
+                      <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                       </svg>
                     </div>
@@ -288,24 +288,24 @@ export default function PublicProfilePage() {
                 </div>
 
                 {/* Creator Name and Stats */}
-                <div className="flex-1">
-                  <h1 className="text-3xl sm:text-4xl font-bold text-accent-500 dark:text-dark-text-primary leading-tight">
+                <div className="flex-1 text-center sm:text-right w-full">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary leading-tight">
                     {creator.displayName || creator.name}
                   </h1>
                   {/* Stats inline under name */}
-                  <div className="flex items-center gap-3 mt-3">
-                    <div className="flex items-center gap-1 px-3 py-1 bg-gray-100 dark:bg-dark-tertiary rounded-full">
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3 mt-3">
+                    <div className="flex items-center gap-1 px-2.5 sm:px-3 py-1 bg-gray-100 dark:bg-dark-tertiary rounded-full">
                       <span className="text-xs font-medium text-gray-700 dark:text-dark-text-primary">{creator.followers || 0}</span>
                       <span className="text-xs text-gray-500 dark:text-dark-text-secondary">متابع</span>
                     </div>
                     {creator.showTemplateCount !== false && (
-                      <div className="flex items-center gap-1 px-3 py-1 bg-blue-50 dark:bg-blue-900/20 rounded-full">
+                      <div className="flex items-center gap-1 px-2.5 sm:px-3 py-1 bg-blue-50 dark:bg-blue-900/20 rounded-full">
                         <span className="text-xs font-medium text-blue-600 dark:text-blue-400">{creator.templateCount || creatorTemplates.length || 0}</span>
                         <span className="text-xs text-blue-500 dark:text-blue-300">قالب</span>
                       </div>
                     )}
                     {medianRating > 0 && (
-                      <div className="flex items-center gap-1 px-3 py-1 bg-amber-50 dark:bg-amber-900/20 rounded-full">
+                      <div className="flex items-center gap-1 px-2.5 sm:px-3 py-1 bg-amber-50 dark:bg-amber-900/20 rounded-full">
                         <span className="text-xs font-medium text-amber-600 dark:text-amber-400">{medianRating.toFixed(1)}</span>
                         <span className="text-xs text-amber-500 dark:text-amber-300">تقييم</span>
                       </div>
@@ -316,28 +316,28 @@ export default function PublicProfilePage() {
 
               {/* Bio */}
               {(creator.bio || creator.experience) && (
-                <p className="text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed text-center sm:text-right">
                   {creator.bio || creator.experience}
                 </p>
               )}
 
               {/* Recommended Creator Badge */}
               {creator.creatorStatus === 'approved' && (
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg border border-blue-200 dark:border-blue-700">
+                <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg border border-blue-200 dark:border-blue-700 mx-auto sm:mx-0">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M7.493 18.75c-.425 0-.82-.236-.975-.632A7.48 7.48 0 016 15.375c0-1.75.599-3.358 1.602-4.634.151-.192.373-.309.6-.397.473-.183.89-.514 1.212-.924a9.042 9.042 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75 2.25 2.25 0 012.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558-.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H14.23c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23h-.777zM2.331 10.977a11.969 11.969 0 00-.831 4.398 12 12 0 00.52 3.507c.26.85 1.084 1.368 1.973 1.368H4.9c.445 0 .72-.498.523-.898a8.963 8.963 0 01-.924-3.977c0-1.708.476-3.305 1.302-4.666.245-.403-.028-.959-.5-.959H4.25c-.832 0-1.612.453-1.918 1.227z" />
                   </svg>
-                  <span className="text-sm font-medium">مبدع موصى به</span>
+                  <span className="text-xs sm:text-sm font-medium">مبدع موصى به</span>
                 </div>
               )}
 
               {/* Action Buttons */}
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
                 {/* Contact Creator Button */}
                 {creator.allowMessages !== false && creator.email && (
                   <a
                     href={`mailto:${creator.email}`}
-                    className="flex items-center gap-2 px-3 py-2 bg-primary-500 dark:bg-orange-500 hover:bg-primary-600 dark:hover:bg-orange-600 text-white rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 shadow-soft hover:shadow-medium"
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-500 dark:bg-orange-500 hover:bg-primary-600 dark:hover:bg-orange-600 text-white rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 shadow-soft hover:shadow-medium"
                     title="تواصل مع المبدع"
                   >
                     <Mail className="w-4 h-4" />
@@ -356,43 +356,43 @@ export default function PublicProfilePage() {
                     }));
                   }}
                   showText={true}
-                  className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-dark-tertiary hover:bg-gray-50 dark:hover:bg-dark-quaternary text-accent-500 dark:text-dark-text-primary border border-gray-300 dark:border-dark-card-border hover:border-accent-300 dark:hover:border-accent-400 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 shadow-soft hover:shadow-medium"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-dark-tertiary hover:bg-gray-50 dark:hover:bg-dark-quaternary text-accent-500 dark:text-dark-text-primary border border-gray-300 dark:border-dark-card-border hover:border-accent-300 dark:hover:border-accent-400 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 shadow-soft hover:shadow-medium"
                 />
               </div>
             </div>
 
             {/* Right Column - Metadata */}
-            <div className="space-y-8">
+            <div className="space-y-6 sm:space-y-8">
 
 
               {/* Professional Information */}
               {(creator.portfolio || creator.experience || creator.motivation) && (
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-dark-text-quaternary mb-4">المعلومات المهنية</h3>
-                  <div className="space-y-4">
+                <div className="bg-white dark:bg-dark-secondary p-4 sm:p-5 md:p-6 rounded-lg sm:rounded-xl border border-gray-200 dark:border-dark-card-border shadow-sm">
+                  <h3 className="text-sm sm:text-base font-semibold text-gray-700 dark:text-dark-text-primary mb-3 sm:mb-4">المعلومات المهنية</h3>
+                  <div className="space-y-3 sm:space-y-4">
                     {/* Portfolio */}
                     {creator.portfolio && (
-                      <div className="px-4 py-2">
-                        <h4 className="text-xs font-medium text-gray-500 dark:text-dark-text-quaternary mb-2">المعرض</h4>
+                      <div className="pb-3 sm:pb-4 border-b border-gray-100 dark:border-dark-card-border last:border-b-0 last:pb-0">
+                        <h4 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-dark-text-quaternary mb-2">المعرض</h4>
                         <a
                           href={creator.portfolio}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-primary-600 dark:text-orange-400 hover:text-primary-700 dark:hover:text-orange-300 transition-colors text-sm"
+                          className="inline-flex items-center gap-2 text-primary-600 dark:text-orange-400 hover:text-primary-700 dark:hover:text-orange-300 transition-colors text-xs sm:text-sm md:text-base break-all"
                         >
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                           </svg>
-                          {creator.portfolio}
+                          <span className="truncate">{creator.portfolio}</span>
                         </a>
                       </div>
                     )}
 
                     {/* Experience */}
                     {creator.experience && (
-                      <div className="px-4 py-2">
-                        <h4 className="text-xs font-medium text-gray-500 dark:text-dark-text-quaternary mb-2">الخبرة</h4>
-                        <p className="text-xs text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                      <div className="pb-3 sm:pb-4 border-b border-gray-100 dark:border-dark-card-border last:border-b-0 last:pb-0">
+                        <h4 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-dark-text-quaternary mb-2">الخبرة</h4>
+                        <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed">
                           {creator.experience}
                         </p>
                       </div>
@@ -400,9 +400,9 @@ export default function PublicProfilePage() {
 
                     {/* Motivation */}
                     {creator.motivation && (
-                      <div className="px-4 py-2">
-                        <h4 className="text-xs font-medium text-gray-500 dark:text-dark-text-quaternary mb-2">الدافع</h4>
-                        <p className="text-xs text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                      <div className="pb-3 sm:pb-4 border-b border-gray-100 dark:border-dark-card-border last:border-b-0 last:pb-0">
+                        <h4 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-dark-text-quaternary mb-2">الدافع</h4>
+                        <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed">
                           {creator.motivation}
                         </p>
                       </div>
@@ -413,9 +413,9 @@ export default function PublicProfilePage() {
 
               {/* All Social Links */}
               {creator.socialLinks && creator.socialLinks.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-dark-text-quaternary mb-4">الروابط</h3>
-                  <div className="flex gap-3">
+                <div className="bg-white dark:bg-dark-secondary p-4 sm:p-5 md:p-6 rounded-lg sm:rounded-xl border border-gray-200 dark:border-dark-card-border shadow-sm">
+                  <h3 className="text-sm sm:text-base font-semibold text-gray-700 dark:text-dark-text-primary mb-3 sm:mb-4">الروابط الاجتماعية</h3>
+                  <div className="flex flex-wrap gap-2 sm:gap-3">
                     {creator.socialLinks.map((link, index) => {
                       if (!link.url) return null;
                       const platform = detectPlatform(link.url);
@@ -425,10 +425,12 @@ export default function PublicProfilePage() {
                           href={link.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-center w-10 h-10 hover:bg-gray-100 dark:hover:bg-dark-tertiary rounded-lg transition-all duration-200 hover:scale-105 transform"
+                          className="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 bg-gray-50 dark:bg-dark-tertiary hover:bg-gray-100 dark:hover:bg-dark-quaternary rounded-lg sm:rounded-xl transition-all duration-200 hover:scale-110 transform border border-gray-200 dark:border-dark-card-border"
                           title={platform?.name === 'website' ? new URL(link.url).hostname.replace('www.', '') : platform?.name}
                         >
-                          {getPlatformIcon(platform?.icon || 'website')}
+                          <span className={platform?.color}>
+                            {getPlatformIcon(platform?.icon || 'website')}
+                          </span>
                         </a>
                       );
                     })}
@@ -442,15 +444,16 @@ export default function PublicProfilePage() {
 
 
       {/* Templates Section */}
-      <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
-        <div className="container-custom">
+      <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-white dark:bg-dark-secondary transition-colors duration-300">
+        <div className="container-custom px-4 sm:px-6 lg:px-8">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-6 sm:mb-8 md:mb-10">قوالب المبدع</h2>
 
           {creatorTemplates.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {creatorTemplates.map((template) => (
                 <Link key={template._id || template.id} href={`/templates/${template.slug || template._id || template.id}`}>
                   <div className="card-interactive overflow-hidden">
-                    <div className="relative h-48 bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-lg">
+                    <div className="relative h-40 sm:h-48 bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-lg">
                       {template.previewImage ? (
                         <Image
                           src={template.previewImage}
@@ -461,24 +464,24 @@ export default function PublicProfilePage() {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30">
-                          <svg className="w-12 h-12 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-10 h-10 sm:w-12 sm:h-12 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
                           </svg>
                         </div>
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                     </div>
-                    <div className="p-6">
-                      <h3 className="font-bold text-lg text-accent-500 dark:text-dark-text-primary mb-2 group-hover:text-primary-500 dark:group-hover:text-orange-400 transition-colors line-clamp-2">
+                    <div className="p-4 sm:p-6">
+                      <h3 className="font-bold text-base sm:text-lg text-accent-500 dark:text-dark-text-primary mb-2 group-hover:text-primary-500 dark:group-hover:text-orange-400 transition-colors line-clamp-2">
                         {template.title}
                       </h3>
-                      <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center justify-between mb-3 sm:mb-4">
                         <StarRating rating={template.rating || 0} />
                         <span className="text-xs text-gray-500 dark:text-gray-400">
                           مجاني
                         </span>
                       </div>
-                      <button className="w-full btn-primary py-2 px-4 text-base">
+                      <button className="w-full btn-primary py-2 px-3 sm:px-4 text-sm sm:text-base">
                         عرض التفاصيل
                       </button>
                     </div>
@@ -487,17 +490,17 @@ export default function PublicProfilePage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-16">
-              <div className="w-20 h-20 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="text-center py-12 sm:py-16">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                <svg className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <h3 className="heading-3 mb-4 text-accent-500 dark:text-dark-text-primary">لا توجد قوالب متاحة</h3>
-              <p className="body-large text-accent-600 dark:text-dark-text-secondary mb-8">
+              <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">لا توجد قوالب متاحة</h3>
+              <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary mb-6 sm:mb-8 px-4">
                 لم ينشر {creator.displayName || creator.name} أي قوالب بعد
               </p>
-              <Link href="/templates" className="btn-primary">
+              <Link href="/templates" className="btn-primary inline-block">
                 تصفح القوالب الأخرى
               </Link>
             </div>
@@ -507,15 +510,15 @@ export default function PublicProfilePage() {
 
       {/* Reviews Section */}
       {creatorRatings.length > 0 && (
-        <section className="section-padding bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
-          <div className="container-custom">
-            <h2 className="heading-2 mb-8">تقييمات المبدع</h2>
+        <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
+          <div className="container-custom px-4 sm:px-6 lg:px-8">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6 sm:mb-8 md:mb-10 text-accent-500 dark:text-dark-text-primary">تقييمات المبدع</h2>
 
-            <div className="grid gap-6">
+            <div className="grid gap-4 sm:gap-6">
               {creatorRatings.slice(0, showAllReviews ? creatorRatings.length : 3).map((rating, index) => (
-                <div key={rating._id || index} className="p-6 bg-white dark:bg-dark-secondary rounded-xl border border-gray-200 dark:border-dark-card-border shadow-sm">
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center">
+                <div key={rating._id || index} className="p-4 sm:p-6 bg-white dark:bg-dark-secondary rounded-xl border border-gray-200 dark:border-dark-card-border shadow-sm">
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center">
                       {rating.user?.profilePicture ? (
                         <Image
                           src={rating.user.profilePicture}
@@ -530,23 +533,25 @@ export default function PublicProfilePage() {
                         />
                       ) : null}
                       {!rating.user?.profilePicture && (
-                        <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
+                        <span className="text-primary-600 dark:text-primary-400 font-medium text-xs sm:text-sm">
                           {rating.user?.name?.charAt(0)?.toUpperCase() || 'م'}
                         </span>
                       )}
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="font-medium text-accent-700 dark:text-dark-text-primary">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                        <span className="font-medium text-sm sm:text-base text-accent-700 dark:text-dark-text-primary">
                           {rating.user?.name || 'مستخدم'}
                         </span>
-                        <StarRating rating={rating.rating} size="small" showNumber={false} />
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
-                          {formatDate(rating.createdAt)}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <StarRating rating={rating.rating} size="small" showNumber={false} />
+                          <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                            {formatDate(rating.createdAt)}
+                          </span>
+                        </div>
                       </div>
                       {rating.review && (
-                        <p className="text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                        <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed break-words">
                           {rating.review}
                         </p>
                       )}
@@ -556,10 +561,10 @@ export default function PublicProfilePage() {
               ))}
 
               {creatorRatings.length > 3 && (
-                <div className="text-center">
+                <div className="text-center mt-2 sm:mt-4">
                   <button
                     onClick={() => setShowAllReviews(!showAllReviews)}
-                    className="px-6 py-3 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-xl hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-colors duration-200"
+                    className="px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-lg sm:rounded-xl hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-colors duration-200 text-sm sm:text-base font-medium"
                   >
                     {showAllReviews ? 'عرض أقل' : `عرض جميع التقييمات (${creatorRatings.length})`}
                   </button>
@@ -572,9 +577,9 @@ export default function PublicProfilePage() {
 
       {/* Footer */}
       <footer className="bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary transition-colors duration-300">
-        <div className="container-custom section-padding">
+        <div className="container-custom py-8 sm:py-10 md:py-12 px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <p className="body-medium text-gray-400 dark:text-dark-text-tertiary">
+            <p className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary">
               © {new Date().getFullYear()} عرب نوشن. جميع الحقوق محفوظة.
             </p>
           </div>

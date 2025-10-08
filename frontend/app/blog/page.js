@@ -380,55 +380,55 @@ export default function BlogPage() {
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
 
       {/* Page Header */}
-      <section className="relative bg-gradient-to-br from-primary-500 to-primary-700 dark:from-dark-secondary dark:to-dark-tertiary text-white py-20 md:py-24 overflow-hidden">
-        <div className="container-custom text-center relative z-10">
-          <h1 className="heading-1 text-white mb-4">مدونة نوشن العرب</h1>
-          <p className="body-large text-primary-100 dark:text-dark-text-secondary max-w-2xl mx-auto mb-8">
+      <section className="relative bg-gradient-to-br from-primary-500 to-primary-700 dark:from-dark-secondary dark:to-dark-tertiary text-white py-12 sm:py-16 md:py-20 lg:py-24 overflow-hidden">
+        <div className="container-custom text-center relative z-10 px-4 sm:px-6">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3 sm:mb-4">مدونة نوشن العرب</h1>
+          <p className="text-base sm:text-lg md:text-xl text-primary-100 dark:text-dark-text-secondary max-w-2xl mx-auto mb-6 sm:mb-8 px-4">
             اكتشف أحدث النصائح والحيل لاستخدام نوشن بكفاءة أكبر. مقالات متخصصة للمبدعين العرب.
           </p>
         </div>
         {/* Background shapes */}
         <div className="absolute top-0 left-0 w-full h-full">
-          <div className="absolute w-60 h-60 bg-primary-400/20 dark:bg-primary-900/20 rounded-full -top-20 -right-20 animate-blob mix-blend-multiply filter blur-xl opacity-70"></div>
-          <div className="absolute w-60 h-60 bg-primary-300/20 dark:bg-primary-800/20 rounded-full -bottom-20 -left-20 animate-blob animation-delay-2000 mix-blend-multiply filter blur-xl opacity-70"></div>
-          <div className="absolute w-60 h-60 bg-primary-200/20 dark:bg-primary-700/20 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-blob animation-delay-4000 mix-blend-multiply filter blur-xl opacity-70"></div>
+          <div className="absolute w-40 h-40 sm:w-60 sm:h-60 bg-primary-400/20 dark:bg-primary-900/20 rounded-full -top-20 -right-20 animate-blob mix-blend-multiply filter blur-xl opacity-70"></div>
+          <div className="absolute w-40 h-40 sm:w-60 sm:h-60 bg-primary-300/20 dark:bg-primary-800/20 rounded-full -bottom-20 -left-20 animate-blob animation-delay-2000 mix-blend-multiply filter blur-xl opacity-70"></div>
+          <div className="absolute w-40 h-40 sm:w-60 sm:h-60 bg-primary-200/20 dark:bg-primary-700/20 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-blob animation-delay-4000 mix-blend-multiply filter blur-xl opacity-70"></div>
         </div>
       </section>
 
       {/* Search and Filters */}
-      <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
-        <div className="container-custom">
+      <section className="py-6 sm:py-8 md:py-12 bg-white dark:bg-dark-secondary transition-colors duration-300">
+        <div className="container-custom px-4 sm:px-6">
           {/* Search and Filters */}
           <div className="max-w-4xl mx-auto">
             {/* Search Bar */}
-            <div className="relative mb-8">
+            <div className="relative mb-6 sm:mb-8">
               <input
                 type="text"
                 placeholder="ابحث في المقالات... (مثال: نصائح نوشن، إنتاجية، تصميم)"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full form-input pr-12 pl-4 py-4 text-lg"
+                className="w-full form-input pr-10 sm:pr-12 pl-4 py-3 sm:py-4 text-base sm:text-lg"
                 dir="rtl"
               />
-              <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
 
             {/* Filters Row */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
 
               {/* Sort By */}
-              <div className="flex items-center gap-2">
-                <label htmlFor="sort-by" className="text-sm font-medium text-accent-700 dark:text-dark-text-primary">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <label htmlFor="sort-by" className="text-sm font-medium text-accent-700 dark:text-dark-text-primary whitespace-nowrap">
                   الترتيب:
                 </label>
-                <div className="relative">
+                <div className="relative flex-1 sm:flex-initial">
                   <select
                     id="sort-by"
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="form-select text-sm cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 min-w-32 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-ms-expand]:opacity-0 [&::-webkit-calendar-picker-indicator]:text-accent-400 [&::-ms-expand]:text-accent-400 dark:[&::-webkit-calendar-picker-indicator]:text-dark-text-tertiary dark:[&::-ms-expand]:text-dark-text-tertiary"
+                    className="form-select text-sm cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 w-full sm:min-w-32 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-ms-expand]:opacity-0 [&::-webkit-calendar-picker-indicator]:text-accent-400 [&::-ms-expand]:text-accent-400 dark:[&::-webkit-calendar-picker-indicator]:text-dark-text-tertiary dark:[&::-ms-expand]:text-dark-text-tertiary"
                     style={{
                       backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
                       backgroundPosition: 'right 0.5rem center',
@@ -451,13 +451,13 @@ export default function BlogPage() {
       </section>
 
       {/* Blog Posts */}
-      <section className="section-padding">
-        <div className="container-custom">
+      <section className="py-6 sm:py-8 md:py-12">
+        <div className="container-custom px-4 sm:px-6">
           {/* Error Message */}
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
-              <div className="flex items-center gap-2 text-red-700 dark:text-red-300">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
+              <div className="flex items-center gap-2 text-red-700 dark:text-red-300 text-sm sm:text-base">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
                 <span>{error}</span>
@@ -466,19 +466,19 @@ export default function BlogPage() {
           )}
 
           {/* Results Count */}
-          <div className="flex items-center justify-between mb-6">
-            <p className="text-accent-600 dark:text-dark-text-secondary">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary">
               عرض {blogPosts.length} من {pagination.total} مقال
             </p>
           </div>
 
           {/* Blog Posts Grid */}
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
               {[...Array(6)].map((_, index) => (
                 <div key={index} className="card-interactive overflow-hidden animate-pulse">
-                  <div className="h-48 bg-gray-200 dark:bg-gray-700"></div>
-                  <div className="p-6">
+                  <div className="h-40 sm:h-48 bg-gray-200 dark:bg-gray-700"></div>
+                  <div className="p-4 sm:p-6">
                     <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
                     <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded mb-3 w-3/4"></div>
                     <div className="flex justify-between items-center mb-4">
@@ -491,11 +491,11 @@ export default function BlogPage() {
               ))}
             </div>
           ) : blogPosts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
               {blogPosts.map((post) => (
                 <Link key={post._id} href={`/blog/${post.slug}`}>
                   <div className="card-interactive overflow-hidden group">
-                    <div className="relative h-48 overflow-hidden bg-gradient-to-br from-orange-400 via-orange-500 to-red-500">
+                    <div className="relative h-40 sm:h-48 overflow-hidden bg-gradient-to-br from-orange-400 via-orange-500 to-red-500">
                       {/* Background Pattern */}
                       <div className="absolute inset-0 opacity-20">
                         <div className="absolute top-4 left-4 w-16 h-16 bg-white rounded-full opacity-30"></div>
@@ -509,23 +509,23 @@ export default function BlogPage() {
                       <div className="absolute inset-0 bg-black bg-opacity-20"></div>
 
                       {/* Generated Image Content */}
-                      <div className="absolute inset-0 flex flex-col justify-center items-center p-4 text-center">
+                      <div className="absolute inset-0 flex flex-col justify-center items-center p-3 sm:p-4 text-center">
                         {/* Blog Icon */}
-                        <div className="mb-3">
-                          <div className="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white border-opacity-30">
-                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="mb-2 sm:mb-3">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white bg-opacity-20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white border-opacity-30">
+                            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5h-2.5" />
                             </svg>
                           </div>
                         </div>
 
                         {/* Auto-generated Title */}
-                        <h3 className="text-white text-sm font-bold leading-tight mb-2 drop-shadow-lg max-w-full line-clamp-2">
+                        <h3 className="text-white text-xs sm:text-sm font-bold leading-tight mb-1.5 sm:mb-2 drop-shadow-lg max-w-full line-clamp-2 px-1">
                           {post.title}
                         </h3>
 
                         {/* Auto-generated Subtitle */}
-                        <p className="text-white text-xs opacity-90 max-w-full line-clamp-2">
+                        <p className="text-white text-[10px] sm:text-xs opacity-90 max-w-full line-clamp-2 px-1">
                           {post.excerpt ?
                             (post.excerpt.length > 60 ? post.excerpt.substring(0, 60) + '...' : post.excerpt) :
                             'اكتشف المزيد في هذا المقال المميز'
@@ -534,10 +534,10 @@ export default function BlogPage() {
                       </div>
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                     </div>
-                    <div className="p-6">
-                      <div className="flex items-center justify-between text-sm text-accent-500 dark:text-dark-text-tertiary mb-4">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                    <div className="p-4 sm:p-6">
+                      <div className="flex items-center justify-between text-xs sm:text-sm text-accent-500 dark:text-dark-text-tertiary mb-3 sm:mb-4">
+                        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                          <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
                             {post.author?.profilePicture ? (
                               <img
                                 src={post.author.profilePicture}
@@ -550,15 +550,15 @@ export default function BlogPage() {
                               </span>
                             )}
                           </div>
-                          <span>{post.author?.name || 'كاتب غير معروف'}</span>
+                          <span className="truncate">{post.author?.name || 'كاتب غير معروف'}</span>
                         </div>
-                        <span>{formatDate(post.publishedAt || post.createdAt)}</span>
+                        <span className="text-xs whitespace-nowrap">{formatDate(post.publishedAt || post.createdAt)}</span>
                       </div>
 
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4 text-sm text-accent-500 dark:text-dark-text-tertiary">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-accent-500 dark:text-dark-text-tertiary">
                           <span className="flex items-center gap-1">
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
                               <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
                               <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
                             </svg>
@@ -573,7 +573,7 @@ export default function BlogPage() {
                             </div>
                           )}
                         </div>
-                        <span className="text-xs text-accent-500 dark:text-dark-text-tertiary">
+                        <span className="text-xs text-accent-500 dark:text-dark-text-tertiary whitespace-nowrap">
                           {post.readTime || '5 دقائق'}
                         </span>
                       </div>
@@ -583,14 +583,14 @@ export default function BlogPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <svg className="w-16 h-16 text-accent-400 dark:text-dark-text-quaternary mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
+            <div className="text-center py-8 sm:py-12">
+              <svg className="w-12 h-12 sm:w-16 sm:h-16 text-accent-400 dark:text-dark-text-quaternary mx-auto mb-3 sm:mb-4" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
               </svg>
-              <h3 className="text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
+              <h3 className="text-base sm:text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
                 لم يتم العثور على مقالات
               </h3>
-              <p className="text-accent-600 dark:text-dark-text-secondary">
+              <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary">
                 جرب تغيير معايير البحث أو الفلترة
               </p>
             </div>
@@ -600,16 +600,16 @@ export default function BlogPage() {
 
       {/* Featured Post - Only show if we have featured posts */}
       {blogPosts.some(post => post.featured) && (
-        <section className="section-padding bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
-          <div className="container-custom">
-            <div className="mb-8">
-              <h2 className="heading-2 mb-4">المقال المميز</h2>
+        <section className="py-6 sm:py-8 md:py-12 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
+          <div className="container-custom px-4 sm:px-6">
+            <div className="mb-6 sm:mb-8">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">المقال المميز</h2>
             </div>
 
             <div className="card-interactive overflow-hidden max-w-4xl mx-auto">
-              <div className="md:flex">
-                <div className="md:w-1/2">
-                  <div className="relative h-64 md:h-full bg-gradient-to-br from-orange-400 via-orange-500 to-red-500">
+              <div className="flex flex-col md:flex-row">
+                <div className="w-full md:w-1/2">
+                  <div className="relative h-48 sm:h-64 md:h-full min-h-[200px] bg-gradient-to-br from-orange-400 via-orange-500 to-red-500">
                     {/* Background Pattern */}
                     <div className="absolute inset-0 opacity-20">
                       <div className="absolute top-4 left-4 w-16 h-16 bg-white rounded-full opacity-30"></div>
@@ -623,23 +623,23 @@ export default function BlogPage() {
                     <div className="absolute inset-0 bg-black bg-opacity-20"></div>
 
                     {/* Generated Image Content */}
-                    <div className="absolute inset-0 flex flex-col justify-center items-center p-6 text-center">
+                    <div className="absolute inset-0 flex flex-col justify-center items-center p-4 sm:p-6 text-center">
                       {/* Blog Icon */}
-                      <div className="mb-4">
-                        <div className="w-16 h-16 bg-white bg-opacity-20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white border-opacity-30">
-                          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="mb-3 sm:mb-4">
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white bg-opacity-20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white border-opacity-30">
+                          <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5h-2.5" />
                           </svg>
                         </div>
                       </div>
 
                       {/* Auto-generated Title */}
-                      <h3 className="text-white text-lg font-bold leading-tight mb-2 drop-shadow-lg max-w-full line-clamp-2">
+                      <h3 className="text-white text-base sm:text-lg font-bold leading-tight mb-1.5 sm:mb-2 drop-shadow-lg max-w-full line-clamp-2 px-2">
                         {blogPosts.find(post => post.featured)?.title}
                       </h3>
 
                       {/* Auto-generated Subtitle */}
-                      <p className="text-white text-sm opacity-90 max-w-full line-clamp-3">
+                      <p className="text-white text-xs sm:text-sm opacity-90 max-w-full line-clamp-2 sm:line-clamp-3 px-2">
                         {blogPosts.find(post => post.featured)?.excerpt ?
                           (blogPosts.find(post => post.featured)?.excerpt.length > 100 ? blogPosts.find(post => post.featured)?.excerpt.substring(0, 100) + '...' : blogPosts.find(post => post.featured)?.excerpt) :
                           'اكتشف المزيد في هذا المقال المميز'
@@ -647,55 +647,55 @@ export default function BlogPage() {
                       </p>
                     </div>
 
-                    <div className="absolute top-4 right-4">
-                      <span className="px-3 py-1 bg-primary-500 text-white text-sm rounded-full">
+                    <div className="absolute top-3 sm:top-4 right-3 sm:right-4">
+                      <span className="px-2.5 py-1 sm:px-3 bg-primary-500 text-white text-xs sm:text-sm rounded-full">
                         مميز
                       </span>
                     </div>
                   </div>
                 </div>
-                <div className="md:w-1/2 p-8">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="flex flex-wrap gap-2">
+                <div className="w-full md:w-1/2 p-4 sm:p-6 md:p-8">
+                  <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
                       {(blogPosts.find(post => post.featured)?.categories && blogPosts.find(post => post.featured)?.categories.length > 0 ?
                         blogPosts.find(post => post.featured)?.categories :
                         [blogPosts.find(post => post.featured)?.category]).slice(0, 3).map((category, index) => (
-                          <span key={index} className="px-3 py-1 bg-primary-100 dark:bg-orange-500/20 text-primary-800 dark:text-orange-300 text-sm rounded-full">
+                          <span key={index} className="px-2 py-0.5 sm:px-3 sm:py-1 bg-primary-100 dark:bg-orange-500/20 text-primary-800 dark:text-orange-300 text-xs sm:text-sm rounded-full">
                             {category}
                           </span>
                         ))}
                       {((blogPosts.find(post => post.featured)?.categories && blogPosts.find(post => post.featured)?.categories.length > 3) ||
                         (!blogPosts.find(post => post.featured)?.categories && blogPosts.find(post => post.featured)?.category)) && (
-                          <span className="px-3 py-1 bg-primary-100 dark:bg-orange-500/20 text-primary-800 dark:text-orange-300 text-sm rounded-full">
+                          <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-primary-100 dark:bg-orange-500/20 text-primary-800 dark:text-orange-300 text-xs sm:text-sm rounded-full">
                             +{((blogPosts.find(post => post.featured)?.categories && blogPosts.find(post => post.featured)?.categories.length) || 1) - 3} أخرى
                           </span>
                         )}
                     </div>
                   </div>
 
-                  <h3 className="heading-3 mb-4">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4">
                     {blogPosts.find(post => post.featured)?.title}
                   </h3>
 
-                  <p className="body-medium text-accent-600 dark:text-dark-text-secondary mb-6 line-clamp-3">
+                  <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary mb-4 sm:mb-6 line-clamp-3">
                     {blogPosts.find(post => post.featured)?.excerpt}
                   </p>
 
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-                      <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
+                  <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 flex-wrap">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
+                      <span className="text-primary-600 dark:text-primary-400 font-medium text-xs sm:text-sm">
                         {blogPosts.find(post => post.featured)?.author?.name?.charAt(0) || 'م'}
                       </span>
                     </div>
-                    <div>
-                      <p className="text-sm text-accent-600 dark:text-dark-text-secondary">بواسطة</p>
-                      <p className="font-medium text-accent-700 dark:text-dark-text-primary">
+                    <div className="min-w-0">
+                      <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">بواسطة</p>
+                      <p className="font-medium text-sm sm:text-base text-accent-700 dark:text-dark-text-primary truncate">
                         {blogPosts.find(post => post.featured)?.author?.name || 'كاتب غير معروف'}
                       </p>
                     </div>
-                    <div className="flex-1"></div>
+                    <div className="flex-1 hidden sm:block"></div>
                     <div className="text-right">
-                      <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                      <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">
                         {formatDate(blogPosts.find(post => post.featured)?.publishedAt || blogPosts.find(post => post.featured)?.createdAt)}
                       </p>
                       <p className="text-xs text-accent-500 dark:text-dark-text-tertiary">
@@ -704,7 +704,7 @@ export default function BlogPage() {
                     </div>
                   </div>
 
-                  <Link href={`/blog/${blogPosts.find(post => post.featured)?.slug}`} className="btn-primary">
+                  <Link href={`/blog/${blogPosts.find(post => post.featured)?.slug}`} className="btn-primary w-full sm:w-auto text-center">
                     اقرأ المقال
                   </Link>
                 </div>

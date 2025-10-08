@@ -29,6 +29,8 @@ router.get('/test', (req, res) => {
 // @desc    Test email configuration
 // @access  Public
 router.get('/test-email', async (req, res) => {
+  // Allow testing with custom email via query parameter
+  const testEmailAddress = req.query.email || process.env.EMAIL_USER;
   try {
     // Check if email configuration is available
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
@@ -73,7 +75,7 @@ router.get('/test-email', async (req, res) => {
     });
 
     // Test email sending
-    const testEmail = process.env.EMAIL_USER; // Send to yourself for testing
+    const testEmail = testEmailAddress; // Send to specified email
     const mailOptions = {
       from: `"فريق عرب نوشن" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
       to: testEmail,

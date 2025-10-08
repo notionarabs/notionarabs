@@ -1,12 +1,41 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const User = require('../models/User');
 
 const router = express.Router();
 
 // Email configuration
 const createTransporter = () => {
+  // If Resend API key is available, use Resend
+  if (process.env.RESEND_API_KEY) {
+    console.log('Using Resend for email service');
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    
+    return {
+      sendMail: async (mailOptions) => {
+        try {
+          const result = await resend.emails.send({
+            from: mailOptions.from || `فريق عرب نوشن <${process.env.EMAIL_FROM || 'onboarding@resend.dev'}>`,
+            to: mailOptions.to,
+            subject: mailOptions.subject,
+            html: mailOptions.html
+          });
+          
+          return {
+            messageId: result.data?.id,
+            response: 'OK'
+          };
+        } catch (error) {
+          console.error('Resend error:', error);
+          throw error;
+        }
+      }
+    };
+  }
+  
+  // Fallback to Gmail SMTP
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     throw new Error('Email configuration missing. Please set EMAIL_USER and EMAIL_PASS environment variables in your .env file.');
   }

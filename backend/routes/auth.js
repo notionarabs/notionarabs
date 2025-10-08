@@ -947,8 +947,50 @@ router.get('/google/callback', async (req, res) => {
   }
 });
 
-// Email configuration with multiple providers and better error handling
+// Email configuration with Resend and Gmail fallback
+const { Resend } = require('resend');
+
 const createTransporter = () => {
+  // If Resend API key is available, use Resend (preferred for hosting platforms)
+  if (process.env.RESEND_API_KEY) {
+    console.log('Using Resend for email service');
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    
+    // Return a Resend-compatible wrapper that mimics nodemailer
+    return {
+      sendMail: async (mailOptions) => {
+        try {
+          const result = await resend.emails.send({
+            from: mailOptions.from || `فريق عرب نوشن <${process.env.EMAIL_FROM || 'onboarding@resend.dev'}>`,
+            to: mailOptions.to,
+            subject: mailOptions.subject,
+            html: mailOptions.html
+          });
+          
+          console.log('Resend email sent successfully:', result.data?.id);
+          return {
+            messageId: result.data?.id,
+            response: 'OK'
+          };
+        } catch (error) {
+          console.error('Resend error:', error);
+          throw error;
+        }
+      },
+      verify: (callback) => {
+        // Resend doesn't need verification, just check if API key exists
+        if (process.env.RESEND_API_KEY) {
+          callback(null, true);
+        } else {
+          callback(new Error('Resend API key not configured'), false);
+        }
+      }
+    };
+  }
+  
+  // Fallback to Gmail SMTP
+  console.log('Using Gmail SMTP for email service');
+  
   // Check if email configuration is available
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     console.error('Email configuration missing. EMAIL_USER and EMAIL_PASS environment variables are required.');
@@ -956,8 +998,6 @@ const createTransporter = () => {
   }
 
   try {
-    console.log('Configuring Gmail SMTP for email service...');
-
     // Use direct SMTP configuration instead of 'service' for better control
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',

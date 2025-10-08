@@ -248,12 +248,6 @@ export default function Navigation({ activePage = '' }) {
                     {/* Admin Section */}
                     {user?.role === 'admin' ? (
                       <>
-                        <div className="px-4 py-2">
-                          <h3 className="text-xs font-semibold text-gray-400 dark:text-dark-text-tertiary uppercase tracking-wider mb-2">
-                            لوحة الإدارة
-                          </h3>
-                        </div>
-
                         <Link
                           href="/admin"
                           onClick={handleLinkClick}

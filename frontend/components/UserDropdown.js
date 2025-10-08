@@ -201,12 +201,6 @@ export default function UserDropdown() {
               {/* Admin Section */}
               {user?.role === 'admin' ? (
                 <>
-                  <div className="px-4 py-2">
-                    <h3 className="text-xs font-semibold text-gray-500 dark:text-dark-text-tertiary uppercase tracking-wider mb-2">
-                      لوحة الإدارة
-                    </h3>
-                  </div>
-
                   <Link
                     href="/admin"
                     onClick={() => setIsOpen(false)}

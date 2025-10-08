@@ -11,15 +11,7 @@ import RatingCommentSystem from '../../../components/RatingCommentSystem';
 import StarRating from '../../../components/StarRating';
 import { useAuth } from '../../../contexts/AuthContext';
 import { TemplateSchema, BreadcrumbSchema } from '../../../components/StructuredData';
-import { Youtube, Facebook, Send, Users, Star, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Zap, Download, CheckCircle } from 'lucide-react';
-
-// Map badge types to Lucide icons
-const getBadgeIcon = (badgeType) => {
-  const iconMap = {
-    'special': Star
-  };
-  return iconMap[badgeType] || Star;
-};
+import { Youtube, Facebook, Send, Users } from 'lucide-react';
 
 // Map Arabic category names to English slugs
 const arabicToEnglishCategoryMap = {
@@ -817,35 +809,7 @@ export default function TemplateDetailPage() {
                 <span className="text-accent-400 dark:text-dark-text-quaternary truncate max-w-[120px] sm:max-w-none hidden sm:inline">{template.title}</span>
               </nav>
 
-              <div className="flex items-center gap-4 mb-4 flex-wrap">
-                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-900 dark:text-dark-text-primary">{template.title}</h1>
-                {/* Template Badges */}
-                {template.badges && template.badges.length > 0 && (
-                  <div className="flex items-center gap-1.5">
-                    {template.badges.map((badge) => {
-                      const BadgeIcon = getBadgeIcon(badge.type);
-                      return (
-                        <div
-                          key={badge._id}
-                          className="group relative"
-                        >
-                          <div className="flex items-center p-1 bg-primary-50 dark:bg-orange-500/10 border border-primary-200 dark:border-orange-500/20 rounded transition-all duration-200 hover:shadow-md">
-                            <BadgeIcon
-                              className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-600 dark:text-orange-400"
-                              strokeWidth={2}
-                            />
-                          </div>
-                          {/* Tooltip */}
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 dark:bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-10">
-                            {badge.label}
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-900 dark:text-dark-text-primary mb-4">{template.title}</h1>
 
               {/* Creator Info */}
               {(() => {

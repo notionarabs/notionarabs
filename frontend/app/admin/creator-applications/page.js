@@ -6,6 +6,19 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import api from '../../../lib/api';
 import toast from 'react-hot-toast';
+import { Star, Zap, Crown, Award, CheckCircle } from 'lucide-react';
+
+// Map badge types to Lucide icons
+const getBadgeIcon = (badgeType) => {
+  const iconMap = {
+    'verified': CheckCircle,
+    'top-creator': Star,
+    'active': Zap,
+    'community-favorite': Crown,
+    'trusted': Award
+  };
+  return iconMap[badgeType] || Star;
+};
 
 export default function CreatorApplicationsPage() {
   const [applications, setApplications] = useState([]);
@@ -379,16 +392,18 @@ export default function CreatorApplicationsPage() {
                         {/* Creator Badges */}
                         {application.badges && application.badges.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-2">
-                            {application.badges.map((badge) => (
-                              <span
-                                key={badge._id}
-                                className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium"
-                                style={{ backgroundColor: badge.color + '20', color: badge.color }}
-                              >
-                                <span>{badge.icon}</span>
-                                <span>{badge.label}</span>
-                              </span>
-                            ))}
+                            {application.badges.map((badge) => {
+                              const BadgeIcon = getBadgeIcon(badge.type);
+                              return (
+                                <span
+                                  key={badge._id}
+                                  className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary-50 dark:bg-orange-500/10 border border-primary-200 dark:border-orange-500/20 text-primary-700 dark:text-orange-400"
+                                >
+                                  <BadgeIcon className="w-3 h-3" strokeWidth={2} />
+                                  <span>{badge.label}</span>
+                                </span>
+                              );
+                            })}
                           </div>
                         )}
                       </div>

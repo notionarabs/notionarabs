@@ -447,8 +447,17 @@ export default function AdminTemplatesPage() {
                         {template.category}
                       </span>
                     </td>
-                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                      مجاني
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm">
+                      {template.isPaid ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full font-medium">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {template.price} ر.س
+                        </span>
+                      ) : (
+                        <span className="text-gray-500 dark:text-gray-400">مجاني</span>
+                      )}
                     </td>
                     <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
                       {getStatusBadge(template.status)}
@@ -564,7 +573,7 @@ export default function AdminTemplatesPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="flex flex-wrap items-center gap-2 mb-3">
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center overflow-hidden">
                           {template.creator?.profilePicture ? (
@@ -589,6 +598,16 @@ export default function AdminTemplatesPage() {
                       <span className="text-xs bg-gray-100 dark:bg-dark-tertiary text-gray-700 dark:text-dark-text-secondary px-2 py-1 rounded-full">
                         {template.category}
                       </span>
+                      {template.isPaid ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full font-medium text-xs">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {template.price} ر.س
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-500 dark:text-gray-400">مجاني</span>
+                      )}
                       {getStatusBadge(template.status)}
                     </div>
 
@@ -798,7 +817,18 @@ export default function AdminTemplatesPage() {
                     </div>
                     <div>
                       <span className="font-medium text-accent-600 dark:text-dark-text-secondary">السعر:</span>
-                      <p className="text-gray-500 dark:text-gray-400">مجاني</p>
+                      {selectedTemplateDetails.isPaid ? (
+                        <div className="mt-1">
+                          <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg font-semibold text-sm">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            مدفوع - {selectedTemplateDetails.price} ر.س
+                          </span>
+                        </div>
+                      ) : (
+                        <p className="text-gray-500 dark:text-gray-400 mt-1">مجاني</p>
+                      )}
                     </div>
                     {selectedTemplateDetails.tags && selectedTemplateDetails.tags.length > 0 && (
                       <div>

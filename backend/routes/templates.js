@@ -73,7 +73,28 @@ router.post('/', auth, [
       }
       return true;
     }),
-  // Price validation removed - all templates are free
+  body('isPaid')
+    .optional()
+    .isBoolean()
+    .withMessage('قيمة isPaid يجب أن تكون صحيحة أو خاطئة'),
+  body('price')
+    .optional()
+    .custom((value, { req }) => {
+      // If isPaid is true, price must be provided and greater than 0
+      if (req.body.isPaid === true || req.body.isPaid === 'true') {
+        if (!value || value <= 0) {
+          throw new Error('السعر مطلوب للقوالب المدفوعة ويجب أن يكون أكبر من 0');
+        }
+      }
+      // If price is provided, it must be a valid number >= 0
+      if (value !== undefined && value !== null && value !== '') {
+        const numPrice = Number(value);
+        if (isNaN(numPrice) || numPrice < 0) {
+          throw new Error('السعر يجب أن يكون رقماً صحيحاً أكبر من أو يساوي 0');
+        }
+      }
+      return true;
+    }),
   body('notionLink')
     .isURL()
     .withMessage('رابط نوشن غير صحيح'),
@@ -200,15 +221,18 @@ router.post('/', auth, [
     // Create admin notification for new template submission (only if not auto-approved)
     if (!autoApprove) {
       try {
+        const priceInfo = template.isPaid ? ` (مدفوع - ${template.price} ر.س)` : ' (مجاني)';
         await Notification.create({
           user: null, // Admin notifications don't have a specific user
           type: 'admin_template_pending',
           title: 'قالب جديد يحتاج مراجعة',
-          message: `${req.user.name} قدم قالبًا جديدًا: ${template.title}`,
+          message: `${req.user.name} قدم قالبًا جديدًا: ${template.title}${priceInfo}`,
           link: '/admin/templates',
           metadata: {
             templateId: template._id,
             templateTitle: template.title,
+            isPaid: template.isPaid || false,
+            price: template.price || null,
             creatorId: req.user._id,
             creatorName: req.user.name,
             creatorEmail: req.user.email,
@@ -700,6 +724,28 @@ router.put('/:id', auth, [
     .optional()
     .isURL()
     .withMessage('رابط نوشن غير صحيح'),
+  body('isPaid')
+    .optional()
+    .isBoolean()
+    .withMessage('قيمة isPaid يجب أن تكون صحيحة أو خاطئة'),
+  body('price')
+    .optional()
+    .custom((value, { req }) => {
+      // If isPaid is true, price must be provided and greater than 0
+      if (req.body.isPaid === true || req.body.isPaid === 'true') {
+        if (!value || value <= 0) {
+          throw new Error('السعر مطلوب للقوالب المدفوعة ويجب أن يكون أكبر من 0');
+        }
+      }
+      // If price is provided, it must be a valid number >= 0
+      if (value !== undefined && value !== null && value !== '') {
+        const numPrice = Number(value);
+        if (isNaN(numPrice) || numPrice < 0) {
+          throw new Error('السعر يجب أن يكون رقماً صحيحاً أكبر من أو يساوي 0');
+        }
+      }
+      return true;
+    }),
   body('explanationVideo')
     .optional()
     .custom((value) => {

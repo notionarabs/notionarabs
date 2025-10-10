@@ -27,6 +27,8 @@ function CreateTemplatePageContent() {
     category: '',
     categories: [], // New field for multiple categories
     notionLink: '',
+    isPaid: false, // Whether the template is paid
+    price: '', // Price for paid templates
     features: '',
     tags: [], // Changed to array for tag-based input
     previewImage: '',
@@ -75,6 +77,8 @@ function CreateTemplatePageContent() {
             category: toEdit.category || '',
             categories: toEdit.categories || (toEdit.category ? [toEdit.category] : []),
             notionLink: toEdit.notionLink || '',
+            isPaid: toEdit.isPaid || false,
+            price: toEdit.price || '',
             features: toEdit.features || '',
             tags: Array.isArray(toEdit.tags) ? toEdit.tags : (toEdit.tags ? [toEdit.tags] : []),
             previewImage: toEdit.previewImage || '',
@@ -578,7 +582,14 @@ function CreateTemplatePageContent() {
         setIsSubmitting(false);
         return;
       }
-      // Price validation removed - all templates are free
+      // Price validation for paid templates
+      if (formData.isPaid) {
+        if (!formData.price || formData.price <= 0) {
+          showError('يرجى إدخال سعر صحيح للقالب المدفوع');
+          setIsSubmitting(false);
+          return;
+        }
+      }
       if (!formData.notionLink.trim()) {
         showError('يرجى إدخال رابط قالب نوشن');
         setIsSubmitting(false);
@@ -600,6 +611,8 @@ function CreateTemplatePageContent() {
         category: formData.categories[0], // Keep first category for backward compatibility
         categories: formData.categories, // Send all categories
         notionLink: formData.notionLink.trim(),
+        isPaid: formData.isPaid,
+        price: formData.isPaid ? Number(formData.price) : undefined,
         tags: tagsArray.length > 0 ? tagsArray : undefined,
         features: formData.features.trim() || undefined,
         previewImage: formData.previewImage || undefined,
@@ -626,6 +639,8 @@ function CreateTemplatePageContent() {
           category: '',
           categories: [],
           notionLink: '',
+          isPaid: false,
+          price: '',
           features: '',
           tags: [],
           previewImage: '',
@@ -933,6 +948,67 @@ function CreateTemplatePageContent() {
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                     تأكد من أن الرابط قابل للوصول العام
                   </p>
+                </div>
+
+                {/* Paid Template Toggle */}
+                <div>
+                  <label className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
+                    <div className="flex items-center gap-2 flex-1">
+                      <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 ml-1.5 sm:ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      هل هذا قالب مدفوع؟
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name="isPaid"
+                        checked={formData.isPaid}
+                        onChange={(e) => {
+                          setFormData(prev => ({
+                            ...prev,
+                            isPaid: e.target.checked,
+                            price: e.target.checked ? prev.price : ''
+                          }));
+                        }}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
+                    </label>
+                  </label>
+
+                  {/* Price Input - Shows only when isPaid is true */}
+                  {formData.isPaid && (
+                    <div className="mt-3 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
+                      <label className="flex items-center text-xs sm:text-sm font-semibold text-green-700 dark:text-green-300 mb-2 sm:mb-3">
+                        <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 ml-1.5 sm:ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        السعر *
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          name="price"
+                          value={formData.price}
+                          onChange={handleInputChange}
+                          required={formData.isPaid}
+                          min="0"
+                          step="0.01"
+                          className="form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-green-200 dark:border-green-800 focus:border-green-500 dark:focus:border-green-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-green-300 dark:hover:border-green-400 bg-white dark:bg-dark-input"
+                          placeholder="00.00"
+                        />
+                        <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                      </div>
+                      <p className="text-xs text-green-600 dark:text-green-400 mt-2">
+                        أدخل السعر بالريال السعودي (ر.س)
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <div>

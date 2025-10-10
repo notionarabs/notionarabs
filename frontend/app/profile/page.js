@@ -9,15 +9,15 @@ import Image from 'next/image';
 import api from '../../lib/api';
 import { formatDate, formatTime } from '../../lib/dateUtils';
 import Navigation from '../../components/Navigation';
-import { Star, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Zap, Download, CheckCircle } from 'lucide-react';
+import { Star, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Zap, Download, CheckCircle, Heart } from 'lucide-react';
 
 // Map badge types to Lucide icons
 const getBadgeIcon = (badgeType) => {
   const iconMap = {
     'verified': CheckCircle,
-    'top-creator': Star,
+    'top-creator': Crown,
     'active': Zap,
-    'community-favorite': Crown,
+    'community-favorite': Heart,
     'trusted': Award
   };
   return iconMap[badgeType] || Star;
@@ -211,12 +211,31 @@ export default function ProfilePage() {
 
               {/* Status Badges */}
               <div className="flex flex-wrap justify-center md:justify-start gap-2 sm:gap-3 mb-4 sm:mb-6">
-                {user?.creatorStatus === 'approved' && (
-                  <div className="inline-flex items-center px-3 sm:px-4 py-1 sm:py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded-full text-xs sm:text-sm font-medium">
-                    <svg className="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    مبدع معتمد
+                {/* Earned Badges */}
+                {user?.badges && user.badges.length > 0 && user?.creatorStatus === 'approved' && (
+                  <div className="inline-flex items-center gap-1 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800/30 rounded-full">
+                    {user.badges.map((badge, index) => {
+                      const BadgeIcon = getBadgeIcon(badge.type);
+                      return (
+                        <div
+                          key={badge._id}
+                          className="flex items-center gap-1"
+                        >
+                          <div
+                            title={`${badge.label} - تمت الإضافة في ${formatDate(badge.addedAt)}`}
+                            className="flex items-center"
+                          >
+                            <BadgeIcon
+                              className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400"
+                              strokeWidth={2.5}
+                            />
+                          </div>
+                          {index < user.badges.length - 1 && (
+                            <div className="w-px h-4 bg-green-300 dark:bg-green-700 self-center" />
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
                 {user?.creatorStatus === 'pending' && (
@@ -236,34 +255,6 @@ export default function ProfilePage() {
                   </div>
                 )}
               </div>
-
-              {/* Earned Badges */}
-              {user?.badges && user.badges.length > 0 && (
-                <div className="mb-4 sm:mb-6">
-                  <h3 className="text-sm font-semibold text-accent-600 dark:text-dark-text-secondary mb-3 text-center md:text-right">
-                    الشارات المكتسبة
-                  </h3>
-                  <div className="flex justify-center md:justify-start">
-                    <div className="inline-flex items-center gap-2 px-2.5 py-2 bg-primary-50 dark:bg-orange-500/10 border border-primary-200 dark:border-orange-500/20 rounded-md">
-                      {user.badges.map((badge) => {
-                        const BadgeIcon = getBadgeIcon(badge.type);
-                        return (
-                          <div
-                            key={badge._id}
-                            title={`${badge.label} - تمت الإضافة في ${formatDate(badge.addedAt)}`}
-                            className="flex items-center"
-                          >
-                            <BadgeIcon
-                              className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600 dark:text-orange-400"
-                              strokeWidth={2}
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              )}
 
               {/* Quick Stats Preview removed per request */}
             </div>

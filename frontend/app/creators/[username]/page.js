@@ -4,15 +4,15 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MessageCircle, Mail, UserPlus, Star, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Zap, Download, CheckCircle } from 'lucide-react';
+import { MessageCircle, Mail, UserPlus, Star, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Zap, Download, CheckCircle, Heart } from 'lucide-react';
 
 // Map badge types to Lucide icons
 const getBadgeIcon = (badgeType) => {
   const iconMap = {
     'verified': CheckCircle,
-    'top-creator': Star,
+    'top-creator': Crown,
     'active': Zap,
-    'community-favorite': Crown,
+    'community-favorite': Heart,
     'trusted': Award
   };
   return iconMap[badgeType] || Star;

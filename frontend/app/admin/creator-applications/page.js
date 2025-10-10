@@ -6,15 +6,15 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import api from '../../../lib/api';
 import toast from 'react-hot-toast';
-import { Star, Zap, Crown, Award, CheckCircle } from 'lucide-react';
+import { Star, Zap, Crown, Award, CheckCircle, Heart } from 'lucide-react';
 
 // Map badge types to Lucide icons
 const getBadgeIcon = (badgeType) => {
   const iconMap = {
     'verified': CheckCircle,
-    'top-creator': Star,
+    'top-creator': Crown,
     'active': Zap,
-    'community-favorite': Crown,
+    'community-favorite': Heart,
     'trusted': Award
   };
   return iconMap[badgeType] || Star;

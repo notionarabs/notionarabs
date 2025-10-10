@@ -7,16 +7,16 @@ import api from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import FollowButton from '../../components/FollowButton';
-import { Search, Star, User, Youtube, Facebook, Send, X, Users, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Zap, Download, CheckCircle } from 'lucide-react';
+import { Search, Star, User, Youtube, Facebook, Send, X, Users, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Zap, Download, CheckCircle, Heart } from 'lucide-react';
 import Fuse from 'fuse.js';
 
 // Map badge types to Lucide icons
 const getBadgeIcon = (badgeType) => {
   const iconMap = {
     'verified': CheckCircle,
-    'top-creator': Star,
+    'top-creator': Crown,
     'active': Zap,
-    'community-favorite': Crown,
+    'community-favorite': Heart,
     'trusted': Award
   };
   return iconMap[badgeType] || Star;

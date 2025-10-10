@@ -13,9 +13,9 @@ import { Settings, BookOpen, Briefcase, Heart, Palette, Laptop, Dumbbell, PiggyB
 const getBadgeIcon = (badgeType) => {
   const iconMap = {
     'verified': CheckCircle,
-    'top-creator': Star,
+    'top-creator': Crown,
     'active': Zap,
-    'community-favorite': Crown,
+    'community-favorite': Heart,
     'trusted': Award
   };
   return iconMap[badgeType] || Star;

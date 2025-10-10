@@ -717,7 +717,7 @@ export default function HomePage() {
                     </div>
                     <div className="flex-1 flex flex-col justify-between">
                       <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-3 line-clamp-3 leading-relaxed flex-1">
-                        {cr.bio || cr.description || 'مبدع قوالب نوشن متخصص في إنشاء قوالب احترافية وعملية.'}
+                        {cr.bio || cr.experience || cr.motivation || cr.description || 'مبدع قوالب نوشن متخصص في إنشاء قوالب احترافية وعملية.'}
                       </p>
 
                       {/* Creator Stats */}

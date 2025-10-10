@@ -328,9 +328,9 @@ export default function CreatorsPage() {
 
                   {/* Card Content - Flexible */}
                   <div className="flex-1 flex flex-col">
-                    {(creator.bio || creator.experience) && (
+                    {(creator.bio || creator.experience || creator.motivation) && (
                       <p className="text-accent-600 dark:text-dark-text-secondary mb-4 sm:mb-6 text-xs sm:text-sm leading-relaxed">
-                        {creator.bio || creator.experience}
+                        {creator.bio || creator.experience || creator.motivation}
                       </p>
                     )}
 

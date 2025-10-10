@@ -4,7 +4,7 @@ export const siteConfig = {
   title: 'عرب نوشن - قوالب نوشن باللغة العربية',
   description: 'اكتشف وبيع قوالب نوشن باللغة العربية - منصة مخصصة للمبدعين والمشترين العرب',
   url: 'https://www.notionarabs.com',
-  ogImage: '/og-image.jpg',
+  ogImage: '/og-image.png',
   creator: '@notionarabs',
   keywords: [
     'قوالب نوشن',

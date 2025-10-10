@@ -7,7 +7,6 @@ import { MaintenanceProvider } from '../contexts/MaintenanceContext'
 import NavigationWrapper from '../components/NavigationWrapper'
 import NavigationHandler from '../components/NavigationHandler'
 import LoadingIndicator from '../components/LoadingIndicator'
-import { initSmoothScroll } from '../lib/smoothScroll'
 import { OrganizationSchema, WebsiteSchema } from '../components/StructuredData'
 import { GoogleAnalytics } from '../components/SEOOptimizations'
 import { QueryProvider } from '../components/QueryProvider'
@@ -73,8 +72,17 @@ export default function RootLayout({ children }) {
         {/* Web App Manifest */}
         <link rel="manifest" href="/site.webmanifest" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
-        <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap" rel="stylesheet" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap"
+          rel="stylesheet"
+        />
+        <noscript>
+          <link
+            href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap"
+            rel="stylesheet"
+          />
+        </noscript>
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -105,27 +113,11 @@ export default function RootLayout({ children }) {
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              // Initialize smooth scrolling
-              document.addEventListener('DOMContentLoaded', function() {
-                // Enable smooth scrolling for all anchor links
-                const anchors = document.querySelectorAll('a[href^="#"]');
-                anchors.forEach(anchor => {
-                  anchor.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href').substring(1);
-                    const targetElement = document.getElementById(targetId);
-                    
-                    if (targetElement) {
-                      const offset = 80; // Account for fixed header
-                      const elementPosition = targetElement.offsetTop - offset;
-                      window.scrollTo({
-                        top: elementPosition,
-                        behavior: 'smooth'
-                      });
-                    }
-                  });
-                });
-              });
+              (function() {
+                if ('scrollBehavior' in document.documentElement.style) {
+                  document.documentElement.style.scrollBehavior = 'smooth';
+                }
+              })();
             `,
           }}
         />

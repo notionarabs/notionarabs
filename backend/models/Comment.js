@@ -56,10 +56,12 @@ const commentSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for efficient queries
-commentSchema.index({ targetType: 1, targetId: 1 });
-commentSchema.index({ user: 1 });
-commentSchema.index({ createdAt: -1 });
+// Enhanced indexes for efficient queries
+commentSchema.index({ targetType: 1, targetId: 1, isPublic: 1, createdAt: -1 }); // Compound for target listing
+commentSchema.index({ user: 1, createdAt: -1 }); // For user's comments
+commentSchema.index({ targetType: 1, targetId: 1, user: 1 }); // For checking user's existing comment
+commentSchema.index({ 'likes.user': 1 }); // For checking if user liked
+commentSchema.index({ isPublic: 1 }); // For public/private filtering
 
 // Static method to get comments for a target
 commentSchema.statics.getCommentsForTarget = async function (targetType, targetId, page = 1, limit = 10) {

@@ -197,4 +197,16 @@ blogSchema.pre('save', function (next) {
   next();
 });
 
+// Performance indexes for efficient queries
+blogSchema.index({ slug: 1 }); // For slug-based lookups (unique)
+blogSchema.index({ status: 1, publishedAt: -1 }); // For published blogs listing
+blogSchema.index({ author: 1, status: 1 }); // For author's blogs
+blogSchema.index({ category: 1, status: 1, publishedAt: -1 }); // For category pages
+blogSchema.index({ tags: 1, status: 1 }); // For tag-based searches
+blogSchema.index({ views: -1 }); // For popular blogs
+blogSchema.index({ featured: 1, status: 1 }); // For featured content
+blogSchema.index({ createdAt: -1 }); // For recent posts
+// Text index for search functionality
+blogSchema.index({ title: 'text', excerpt: 'text', content: 'text', tags: 'text' });
+
 module.exports = mongoose.model('Blog', blogSchema);

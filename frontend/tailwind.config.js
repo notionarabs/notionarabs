@@ -4,8 +4,12 @@ module.exports = {
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './contexts/**/*.{js,ts,jsx,tsx,mdx}',
+    './lib/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   darkMode: 'class',
+  // Enable important modifier to reduce specificity issues
+  important: false,
   theme: {
     extend: {
       fontFamily: {
@@ -159,4 +163,12 @@ module.exports = {
     },
   },
   plugins: [],
+  // Optimize for production
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
+  // Experimental features for better performance
+  experimental: {
+    optimizeUniversalDefaults: true,
+  },
 }

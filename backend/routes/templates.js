@@ -6,6 +6,7 @@ const User = require('../models/User');
 const Notification = require('../models/Notification');
 const auth = require('../middleware/auth');
 const { generateTemplateSlug } = require('../utils/slugGenerator');
+const { cacheMiddleware, invalidateCache } = require('../utils/redis-cache');
 const Fuse = require('fuse.js');
 
 const router = express.Router();
@@ -218,6 +219,9 @@ router.post('/', auth, [
     const template = new Template(templateData);
     await template.save();
 
+    // Invalidate templates cache
+    await invalidateCache('template');
+
     // Create admin notification for new template submission (only if not auto-approved)
     if (!autoApprove) {
       try {
@@ -266,7 +270,7 @@ router.post('/', auth, [
 // @route   GET /api/templates
 // @desc    Get all approved templates
 // @access  Public
-router.get('/', async (req, res) => {
+router.get('/', cacheMiddleware(300), async (req, res) => {
   try {
     const {
       category,
@@ -551,7 +555,7 @@ router.get('/export-public', async (req, res) => {
 // @route   GET /api/templates/similar/:id
 // @desc    Get similar templates based on content similarity
 // @access  Public
-router.get('/similar/:id', async (req, res) => {
+router.get('/similar/:id', cacheMiddleware(600), async (req, res) => {
   try {
     const { id } = req.params;
     const { limit = 3 } = req.query;
@@ -663,7 +667,7 @@ router.get('/similar/:id', async (req, res) => {
 // @route   GET /api/templates/:identifier
 // @desc    Get single template by ID or slug
 // @access  Public
-router.get('/:identifier', async (req, res) => {
+router.get('/:identifier', cacheMiddleware(600), async (req, res) => {
   try {
     const { identifier } = req.params;
     const mongoose = require('mongoose');
@@ -801,6 +805,9 @@ router.put('/:id', auth, [
 
     Object.assign(template, req.body);
     await template.save();
+
+    // Invalidate templates cache
+    await invalidateCache('template', template._id);
 
     res.json({
       success: true,

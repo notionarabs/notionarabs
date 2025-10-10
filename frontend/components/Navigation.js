@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, memo, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '../contexts/AuthContext';
@@ -8,9 +8,12 @@ import { useTheme } from '../contexts/ThemeContext';
 import ThemeToggle from './ThemeToggle';
 import UserDropdown from './UserDropdown';
 import dynamic from 'next/dynamic';
-const UserNotifications = dynamic(() => import('./UserNotifications'), { ssr: false });
+const UserNotifications = dynamic(() => import('./UserNotifications'), {
+  ssr: false,
+  loading: () => <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse" />
+});
 
-export default function Navigation({ activePage = '' }) {
+const Navigation = memo(function Navigation({ activePage = '' }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, isAuthenticated, loading, logout } = useAuth();
   const { theme } = useTheme();
@@ -45,6 +48,24 @@ export default function Navigation({ activePage = '' }) {
     setIsMenuOpen(false);
     logout();
   };
+
+  // Memoize navigation items to prevent unnecessary re-renders
+  const navItems = useMemo(() => [
+    { href: '/templates', label: 'القوالب', key: 'templates' },
+    { href: '/creators', label: 'المبدعين', key: 'creators' },
+    { href: '/blog', label: 'المدونة', key: 'blog' },
+    { href: '/about', label: 'من نحن', key: 'about' }
+  ], []);
+
+  // Memoize user badge styles
+  const userBadgeClasses = useMemo(() => {
+    if (user?.creatorStatus === 'approved') {
+      return 'bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500';
+    } else if (user?.creatorStatus === 'pending') {
+      return 'bg-gradient-to-r from-yellow-500 to-orange-500';
+    }
+    return '';
+  }, [user?.creatorStatus]);
 
   return (
     <header ref={menuRef} className="w-full bg-accent-500 dark:bg-dark-secondary sticky top-0 z-50 shadow-medium dark:shadow-dark-medium backdrop-blur-sm bg-accent-500/95 dark:bg-dark-secondary/95 transition-colors duration-300">
@@ -379,4 +400,6 @@ export default function Navigation({ activePage = '' }) {
       )}
     </header>
   );
-}
+});
+
+export default Navigation;

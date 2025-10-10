@@ -105,8 +105,14 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 const nextConfig = {
   experimental: {
     optimizeCss: true,
-    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons', 'framer-motion'],
+    // Optimize server components
+    serverComponentsExternalPackages: ['mongoose', 'bcryptjs'],
   },
+  // Enable SWC minification (faster than Terser)
+  swcMinify: true,
+  // Optimize production builds
+  productionBrowserSourceMaps: false,
   images: {
     formats: ['image/webp', 'image/avif'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -158,12 +164,23 @@ const nextConfig = {
     ],
   },
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
+    // Remove React properties in production
+    reactRemoveProperties: process.env.NODE_ENV === 'production',
   },
   poweredByHeader: false,
   compress: true,
   reactStrictMode: true,
   trailingSlash: false,
+  // Generate ETags for better caching
+  generateEtags: true,
+  // Optimize page loading
+  onDemandEntries: {
+    maxInactiveAge: 60 * 1000,
+    pagesBufferLength: 5,
+  },
   async headers() {
     return [
       {

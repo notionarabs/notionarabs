@@ -216,15 +216,23 @@ templateSchema.pre('save', async function (next) {
   next();
 });
 
-// Index for better query performance
+// Enhanced indexes for better query performance
 templateSchema.index({ status: 1, createdAt: -1 });
 templateSchema.index({ creator: 1, status: 1 });
 templateSchema.index({ creator: 1, title: 1 }); // For duplicate title checking
 templateSchema.index({ creator: 1, notionLink: 1 });
-// Slug index is already defined in the schema field definition
-templateSchema.index({ category: 1, status: 1 });
-templateSchema.index({ categories: 1, status: 1 });
-templateSchema.index({ tags: 1 });
+templateSchema.index({ slug: 1 }); // For slug-based lookups (unique)
+templateSchema.index({ category: 1, status: 1, createdAt: -1 }); // Compound index for category pages
+templateSchema.index({ categories: 1, status: 1, createdAt: -1 }); // For multi-category queries
+templateSchema.index({ tags: 1, status: 1 }); // For tag-based searches
+templateSchema.index({ isPaid: 1, status: 1 }); // For filtering free/paid
+templateSchema.index({ views: -1 }); // For popular templates
+templateSchema.index({ downloads: -1 }); // For most downloaded
+templateSchema.index({ rating: -1, reviewsCount: -1 }); // For best rated
+templateSchema.index({ sales: -1 }); // For best sellers
+templateSchema.index({ status: 1, isPaid: 1, category: 1 }); // Multi-field filtering
+// Text index for search functionality
+templateSchema.index({ title: 'text', description: 'text', tags: 'text' });
 
 
 // Virtual for status label in Arabic

@@ -4,14 +4,25 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { formatDate } from '../../../lib/dateUtils';
 import api from '../../../lib/api';
 import LoadingIndicator from '../../../components/LoadingIndicator';
-import RatingCommentSystem from '../../../components/RatingCommentSystem';
 import StarRating from '../../../components/StarRating';
 import { useAuth } from '../../../contexts/AuthContext';
 import { TemplateSchema, BreadcrumbSchema } from '../../../components/StructuredData';
 import { Youtube, Facebook, Send, Users } from 'lucide-react';
+
+// Dynamically import heavy components to reduce initial bundle size
+const RatingCommentSystem = dynamic(() => import('../../../components/RatingCommentSystem'), {
+  ssr: false,
+  loading: () => (
+    <div className="animate-pulse space-y-4 p-6 bg-white dark:bg-dark-card-bg rounded-xl">
+      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+      <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
+    </div>
+  )
+});
 
 // Map Arabic category names to English slugs
 const arabicToEnglishCategoryMap = {

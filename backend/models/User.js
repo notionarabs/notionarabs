@@ -257,4 +257,17 @@ userSchema.methods.toJSON = function () {
   return userObject;
 };
 
+// Performance indexes for common queries
+userSchema.index({ email: 1 }); // For login/auth
+userSchema.index({ googleId: 1 }); // For Google OAuth
+userSchema.index({ username: 1 }); // For profile lookups
+userSchema.index({ creatorStatus: 1, isActive: 1 }); // For creator queries
+userSchema.index({ role: 1, isActive: 1 }); // For role-based queries
+userSchema.index({ isEmailVerified: 1 }); // For verification checks
+userSchema.index({ resetToken: 1 }); // For password reset
+userSchema.index({ emailVerificationToken: 1 }); // For email verification
+userSchema.index({ createdAt: -1 }); // For sorting by join date
+userSchema.index({ followers: -1 }); // For popular creators
+userSchema.index({ rating: -1 }); // For top-rated creators
+
 module.exports = mongoose.model('User', userSchema);

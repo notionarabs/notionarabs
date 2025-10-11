@@ -398,22 +398,72 @@ router.post('/signup', [
       const verificationUrl = `${frontendUrl}/verify-email?token=${emailVerificationToken}&email=${encodeURIComponent(email)}`;
 
       const mailOptions = {
-        from: `"فريق عرب نوشن" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
+        from: process.env.EMAIL_FROM || `"عرب نوشن" <${process.env.EMAIL_USER}>`,
         to: email,
-        subject: 'تأكيد البريد الإلكتروني - عرب نوشن',
+        subject: 'تفعيل حسابك في عرب نوشن - Activate Your Account',
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
-            <h2 style="color: #333; text-align: center;">مرحباً ${name}!</h2>
-            <p>شكراً لانضمامك إلى عرب نوشن. لتأكيد حسابك، يرجى الضغط على الرابط أدناه:</p>
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${verificationUrl}" style="background-color: #000; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">تأكيد البريد الإلكتروني</a>
-            </div>
-            <p>هذا الرابط صالح لمدة 24 ساعة.</p>
-            <p>إذا لم تنشئ هذا الحساب، يمكنك تجاهل هذا البريد الإلكتروني.</p>
-            <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-            <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
-          </div>
-        `
+          <!DOCTYPE html>
+          <html lang="ar" dir="rtl">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>تأكيد البريد الإلكتروني</title>
+          </head>
+          <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+              <tr>
+                <td align="center" style="padding: 40px 20px;">
+                  <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <!-- Header -->
+                    <tr>
+                      <td style="padding: 40px 40px 20px; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px 8px 0 0;">
+                        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">مرحباً ${name}! 👋</h1>
+                      </td>
+                    </tr>
+                    <!-- Body -->
+                    <tr>
+                      <td style="padding: 40px;">
+                        <p style="color: #333; font-size: 16px; line-height: 1.6; margin: 0 0 20px;">شكراً لانضمامك إلى <strong>عرب نوشن</strong> - المنصة العربية الأولى لقوالب Notion!</p>
+                        
+                        <p style="color: #666; font-size: 15px; line-height: 1.6; margin: 0 0 30px;">للبدء في استخدام حسابك، يرجى تأكيد بريدك الإلكتروني بالضغط على الزر أدناه:</p>
+                        
+                        <!-- Button -->
+                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                          <tr>
+                            <td align="center" style="padding: 0 0 30px;">
+                              <a href="${verificationUrl}" style="display: inline-block; background-color: #667eea; color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 6px; font-size: 16px; font-weight: bold;">تأكيد البريد الإلكتروني ✓</a>
+                            </td>
+                          </tr>
+                        </table>
+                        
+                        <p style="color: #666; font-size: 14px; line-height: 1.6; margin: 0 0 20px;">أو انسخ هذا الرابط والصقه في متصفحك:</p>
+                        <p style="color: #667eea; font-size: 13px; word-break: break-all; margin: 0 0 30px; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">${verificationUrl}</p>
+                        
+                        <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 0 0 20px; border-radius: 4px;">
+                          <p style="color: #856404; font-size: 14px; margin: 0;"><strong>⏱️ ملاحظة:</strong> هذا الرابط صالح لمدة 24 ساعة فقط.</p>
+                        </div>
+                        
+                        <p style="color: #999; font-size: 13px; line-height: 1.6; margin: 0;">إذا لم تنشئ هذا الحساب، يمكنك تجاهل هذا البريد بأمان.</p>
+                      </td>
+                    </tr>
+                    <!-- Footer -->
+                    <tr>
+                      <td style="padding: 30px 40px; background-color: #f8f9fa; border-radius: 0 0 8px 8px; text-align: center;">
+                        <p style="color: #666; font-size: 12px; margin: 0 0 10px;">عرب نوشن - منصة القوالب العربية</p>
+                        <p style="color: #999; font-size: 11px; margin: 0;">Notion Arabs - Arabic Templates Platform</p>
+                        <p style="color: #999; font-size: 11px; margin: 10px 0 0;">
+                          <a href="https://www.notionarabs.com" style="color: #667eea; text-decoration: none;">www.notionarabs.com</a>
+                        </p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </body>
+          </html>
+        `,
+        text: `مرحباً ${name}!\n\nشكراً لانضمامك إلى عرب نوشن.\n\nلتأكيد حسابك، يرجى زيارة الرابط التالي:\n${verificationUrl}\n\nهذا الرابط صالح لمدة 24 ساعة.\n\nإذا لم تنشئ هذا الحساب، يمكنك تجاهل هذا البريد.\n\nعرب نوشن - منصة القوالب العربية\nwww.notionarabs.com`
       };
 
       // Try to send the email
@@ -1095,24 +1145,63 @@ router.post('/forgot-password', [
       const transporter = createTransporter();
 
       const mailOptions = {
-        from: `"فريق عرب نوشن" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
+        from: process.env.EMAIL_FROM || `"عرب نوشن" <${process.env.EMAIL_USER}>`,
         to: email,
-        subject: 'إعادة تعيين كلمة المرور - عرب نوشن',
+        subject: 'إعادة تعيين كلمة المرور - Reset Password | عرب نوشن',
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
-            <h2 style="color: #333; text-align: center;">إعادة تعيين كلمة المرور</h2>
-            <p>مرحباً ${user.name}،</p>
-            <p>لقد تلقيت طلباً لإعادة تعيين كلمة المرور لحسابك في عرب نوشن.</p>
-            <p>اضغط على الرابط أدناه لإعادة تعيين كلمة المرور:</p>
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${resetUrl}" style="background-color: #000; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">إعادة تعيين كلمة المرور</a>
-            </div>
-            <p>هذا الرابط صالح لمدة ساعة واحدة فقط.</p>
-            <p>إذا لم تطلب إعادة تعيين كلمة المرور، يمكنك تجاهل هذا البريد الإلكتروني.</p>
-            <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-            <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
-          </div>
-        `
+          <!DOCTYPE html>
+          <html lang="ar" dir="rtl">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>إعادة تعيين كلمة المرور</title>
+          </head>
+          <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+              <tr>
+                <td align="center" style="padding: 40px 20px;">
+                  <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <tr>
+                      <td style="padding: 40px 40px 20px; text-align: center; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 8px 8px 0 0;">
+                        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">إعادة تعيين كلمة المرور 🔒</h1>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 40px;">
+                        <p style="color: #333; font-size: 16px; line-height: 1.6; margin: 0 0 20px;">مرحباً ${user.name}،</p>
+                        <p style="color: #666; font-size: 15px; line-height: 1.6; margin: 0 0 30px;">تلقينا طلباً لإعادة تعيين كلمة المرور لحسابك في عرب نوشن.</p>
+                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                          <tr>
+                            <td align="center" style="padding: 0 0 30px;">
+                              <a href="${resetUrl}" style="display: inline-block; background-color: #f5576c; color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 6px; font-size: 16px; font-weight: bold;">إعادة تعيين كلمة المرور</a>
+                            </td>
+                          </tr>
+                        </table>
+                        <p style="color: #666; font-size: 14px; line-height: 1.6; margin: 0 0 20px;">أو انسخ هذا الرابط:</p>
+                        <p style="color: #f5576c; font-size: 13px; word-break: break-all; margin: 0 0 30px; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">${resetUrl}</p>
+                        <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 0 0 20px; border-radius: 4px;">
+                          <p style="color: #856404; font-size: 14px; margin: 0;"><strong>⏱️ مهم:</strong> هذا الرابط صالح لمدة ساعة واحدة فقط.</p>
+                        </div>
+                        <p style="color: #999; font-size: 13px; line-height: 1.6; margin: 0;">إذا لم تطلب إعادة تعيين كلمة المرور، يرجى تجاهل هذا البريد.</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 30px 40px; background-color: #f8f9fa; border-radius: 0 0 8px 8px; text-align: center;">
+                        <p style="color: #666; font-size: 12px; margin: 0 0 10px;">عرب نوشن - منصة القوالب العربية</p>
+                        <p style="color: #999; font-size: 11px; margin: 0;">Notion Arabs Platform</p>
+                        <p style="color: #999; font-size: 11px; margin: 10px 0 0;">
+                          <a href="https://www.notionarabs.com" style="color: #f5576c; text-decoration: none;">www.notionarabs.com</a>
+                        </p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </body>
+          </html>
+        `,
+        text: `مرحباً ${user.name},\n\nتلقينا طلباً لإعادة تعيين كلمة المرور لحسابك.\n\nلإعادة تعيين كلمة المرور، زر الرابط:\n${resetUrl}\n\nهذا الرابط صالح لمدة ساعة واحدة.\n\nإذا لم تطلب هذا، تجاهل هذا البريد.\n\nعرب نوشن\nwww.notionarabs.com`
       };
 
       await transporter.sendMail(mailOptions);
@@ -1623,24 +1712,63 @@ router.post('/resend-verification', [
       const verificationUrl = `${frontendUrl}/verify-email?token=${emailVerificationToken}`;
 
       const mailOptions = {
-        from: `"فريق عرب نوشن" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
+        from: process.env.EMAIL_FROM || `"عرب نوشن" <${process.env.EMAIL_USER}>`,
         to: email,
-        subject: 'تأكيد البريد الإلكتروني - عرب نوشن',
+        subject: 'تأكيد البريد الإلكتروني - Verify Email | عرب نوشن',
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
-            <h2 style="color: #333; text-align: center;">تأكيد البريد الإلكتروني</h2>
-            <p>مرحباً ${userName}،</p>
-            <p>لقد طلبت إعادة إرسال رابط تأكيد البريد الإلكتروني.</p>
-            <p>اضغط على الرابط أدناه لتأكيد حسابك:</p>
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${verificationUrl}" style="background-color: #000; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">تأكيد البريد الإلكتروني</a>
-            </div>
-            <p>هذا الرابط صالح لمدة 24 ساعة.</p>
-            <p>إذا لم تطلب هذا الرابط، يمكنك تجاهل هذا البريد الإلكتروني.</p>
-            <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-            <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
-          </div>
-        `
+          <!DOCTYPE html>
+          <html lang="ar" dir="rtl">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>تأكيد البريد الإلكتروني</title>
+          </head>
+          <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+              <tr>
+                <td align="center" style="padding: 40px 20px;">
+                  <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <tr>
+                      <td style="padding: 40px 40px 20px; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px 8px 0 0;">
+                        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">تأكيد البريد الإلكتروني ✉️</h1>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 40px;">
+                        <p style="color: #333; font-size: 16px; line-height: 1.6; margin: 0 0 20px;">مرحباً ${userName}،</p>
+                        <p style="color: #666; font-size: 15px; line-height: 1.6; margin: 0 0 30px;">لقد طلبت إعادة إرسال رابط تأكيد البريد الإلكتروني لحسابك في عرب نوشن.</p>
+                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                          <tr>
+                            <td align="center" style="padding: 0 0 30px;">
+                              <a href="${verificationUrl}" style="display: inline-block; background-color: #667eea; color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 6px; font-size: 16px; font-weight: bold;">تأكيد البريد الإلكتروني ✓</a>
+                            </td>
+                          </tr>
+                        </table>
+                        <p style="color: #666; font-size: 14px; line-height: 1.6; margin: 0 0 20px;">أو انسخ هذا الرابط:</p>
+                        <p style="color: #667eea; font-size: 13px; word-break: break-all; margin: 0 0 30px; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">${verificationUrl}</p>
+                        <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 0 0 20px; border-radius: 4px;">
+                          <p style="color: #856404; font-size: 14px; margin: 0;"><strong>⏱️ ملاحظة:</strong> هذا الرابط صالح لمدة 24 ساعة.</p>
+                        </div>
+                        <p style="color: #999; font-size: 13px; line-height: 1.6; margin: 0;">إذا لم تطلب هذا الرابط، يرجى تجاهله.</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 30px 40px; background-color: #f8f9fa; border-radius: 0 0 8px 8px; text-align: center;">
+                        <p style="color: #666; font-size: 12px; margin: 0 0 10px;">عرب نوشن - منصة القوالب العربية</p>
+                        <p style="color: #999; font-size: 11px; margin: 0;">Notion Arabs Platform</p>
+                        <p style="color: #999; font-size: 11px; margin: 10px 0 0;">
+                          <a href="https://www.notionarabs.com" style="color: #667eea; text-decoration: none;">www.notionarabs.com</a>
+                        </p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </body>
+          </html>
+        `,
+        text: `مرحباً ${userName},\n\nطلبت إعادة إرسال رابط تأكيد البريد.\n\nللتأكيد، زر:\n${verificationUrl}\n\nالرابط صالح 24 ساعة.\n\nعرب نوشن\nwww.notionarabs.com`
       };
 
       await transporter.sendMail(mailOptions);

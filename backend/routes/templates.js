@@ -74,6 +74,10 @@ router.post('/', auth, [
       }
       return true;
     }),
+  body('language')
+    .optional()
+    .isIn(['ar', 'en', 'fr', 'ar-en', 'ar-fr'])
+    .withMessage('لغة القالب غير صحيحة'),
   body('isPaid')
     .optional()
     .isBoolean()
@@ -798,7 +802,11 @@ router.put('/:id', auth, [
       } catch (error) {
         throw new Error('رابط الفيديو غير صحيح');
       }
-    })
+    }),
+  body('language')
+    .optional()
+    .isIn(['ar', 'en', 'fr', 'ar-en', 'ar-fr'])
+    .withMessage('لغة القالب غير صحيحة')
 ], async (req, res) => {
   try {
     if (req.user.creatorStatus !== 'approved' || req.user.role !== 'creator') {

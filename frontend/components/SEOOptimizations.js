@@ -179,13 +179,12 @@ export function CanonicalURL({ url }) {
 
 // Hreflang component for multilingual support
 export function HreflangLinks({ currentPath = '' }) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.notionarabs.com';
 
   return (
     <>
       <link rel="alternate" hrefLang="ar" href={`${baseUrl}${currentPath}`} />
       <link rel="alternate" hrefLang="ar-SA" href={`${baseUrl}${currentPath}`} />
-      <link rel="alternate" hrefLang="en" href={`${baseUrl}/en${currentPath}`} />
       <link rel="alternate" hrefLang="x-default" href={`${baseUrl}${currentPath}`} />
     </>
   );

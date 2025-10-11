@@ -19,7 +19,8 @@ export const siteConfig = {
     'قوالب مجانية'
   ],
   locale: 'ar_SA',
-  alternateLocales: ['en_US']
+  currency: 'SAR', // Saudi Riyal
+  currencySymbol: 'ر.س'
 };
 
 export function generateMetadata({
@@ -58,7 +59,7 @@ export function generateMetadata({
       canonical: canonical || fullUrl,
       languages: {
         'ar-SA': fullUrl,
-        'en-US': fullUrl,
+        'x-default': fullUrl,
       },
     },
     openGraph: {

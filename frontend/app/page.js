@@ -390,6 +390,10 @@ export default function HomePage() {
                           width={400}
                           height={300}
                           className="w-full h-full object-cover"
+                          priority={idx < 3}
+                          loading={idx < 3 ? 'eager' : 'lazy'}
+                          quality={85}
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-700">
@@ -420,6 +424,8 @@ export default function HomePage() {
                               width={20}
                               height={20}
                               className="w-5 h-5 rounded-full object-cover"
+                              loading="lazy"
+                              quality={75}
                             />
                           ) : (
                             <div className="w-5 h-5 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
@@ -576,6 +582,8 @@ export default function HomePage() {
                             width={64}
                             height={64}
                             className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md"
+                            loading="lazy"
+                            quality={80}
                           />
                         ) : (
                           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center border-2 border-white shadow-md">
@@ -714,12 +722,12 @@ export default function HomePage() {
               <div className="flex items-center mb-4 sm:mb-6">
                 <Image
                   src="/NavLogoLight.svg"
-                  alt="عرب نوشن"
+                  alt="عرب نوشن - منصة قوالب نوشن العربية"
                   width={60}
                   height={40}
                   className="h-10 sm:h-12 w-auto"
                   quality={100}
-                  priority
+                  loading="lazy"
                   unoptimized
                 />
               </div>

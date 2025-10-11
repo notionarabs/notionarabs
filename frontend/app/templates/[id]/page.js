@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -11,7 +12,9 @@ import LoadingIndicator from '../../../components/LoadingIndicator';
 import StarRating from '../../../components/StarRating';
 import { useAuth } from '../../../contexts/AuthContext';
 import { TemplateSchema, BreadcrumbSchema } from '../../../components/StructuredData';
+import Breadcrumb from '../../../components/Breadcrumb';
 import { Youtube, Facebook, Send, Users } from 'lucide-react';
+import { siteConfig } from '../../../lib/seo';
 
 // Dynamically import heavy components to reduce initial bundle size
 const RatingCommentSystem = dynamic(() => import('../../../components/RatingCommentSystem'), {
@@ -637,863 +640,892 @@ export default function TemplateDetailPage() {
   }
 
   return (
-    <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
-      {template && <TemplateSchema template={template} />}
+    <>
+      {/* Dynamic Head Tags for SEO */}
       {template && (
-        <BreadcrumbSchema
-          items={[
-            { name: 'الرئيسية', url: '/' },
-            { name: 'القوالب', url: '/templates' },
-            { name: template.category, url: `/templates?category=${encodeURIComponent(template.category)}` },
-            { name: template.title, url: `/templates/${template.slug || template._id}` }
-          ]}
-        />
+        <Head>
+          <title>{`${template.title} - قالب نوشن عربي | ${siteConfig.name}`}</title>
+          <meta name="description" content={template.description || template.features || `تحميل قالب ${template.title} باللغة العربية لـ Notion. ${template.category} من ${template.creator?.name || 'مبدع'}.`} />
+          <meta name="keywords" content={`${template.title}, ${template.category}, قالب نوشن, notion template, ${template.creator?.name || ''}, قوالب عربية, مجاني, ${template.tags?.join(', ') || ''}`} />
+          <link rel="canonical" href={`${siteConfig.url}/templates/${template.slug || template._id}`} />
+
+          {/* Open Graph */}
+          <meta property="og:title" content={`${template.title} - قالب نوشن عربي`} />
+          <meta property="og:description" content={template.description || template.features || `تحميل قالب ${template.title} باللغة العربية`} />
+          <meta property="og:image" content={template.previewImage || `${siteConfig.url}${siteConfig.ogImage}`} />
+          <meta property="og:url" content={`${siteConfig.url}/templates/${template.slug || template._id}`} />
+          <meta property="og:type" content="article" />
+
+          {/* Twitter */}
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={`${template.title} - قالب نوشن عربي`} />
+          <meta name="twitter:description" content={template.description || template.features || `تحميل قالب ${template.title}`} />
+          <meta name="twitter:image" content={template.previewImage || `${siteConfig.url}${siteConfig.ogImage}`} />
+        </Head>
       )}
 
-      {/* Template Details */}
-      <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
-        <div className="container-custom">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 md:gap-8 lg:gap-12">
-            {/* Images and Video */}
-            <div className="lg:col-span-3">
-              <div className="mb-4">
-                <div className="w-full h-64 sm:h-80 md:h-96 bg-white dark:bg-gray-900 rounded-xl flex items-center justify-center overflow-hidden relative">
-                  {/* Loading Overlay */}
-                  {isImageLoading && (
-                    <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 flex items-center justify-center z-10">
-                      <div className="loading-spinner"></div>
-                    </div>
-                  )}
+      <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+        {template && <TemplateSchema template={template} />}
+        {template && (
+          <BreadcrumbSchema
+            items={[
+              { name: 'الرئيسية', url: `${siteConfig.url}` },
+              { name: 'القوالب', url: `${siteConfig.url}/templates` },
+              { name: template.category, url: `${siteConfig.url}/templates/category/${arabicToEnglishCategoryMap[template.category] || encodeURIComponent(template.category)}` },
+              { name: template.title, url: `${siteConfig.url}/templates/${template.slug || template._id}` }
+            ]}
+          />
+        )}
 
-                  {/* Video Player */}
-                  {showVideo && template.explanationVideo && getVideoEmbedUrl(template.explanationVideo) ? (
-                    <iframe
-                      src={getVideoEmbedUrl(template.explanationVideo)}
-                      title={`فيديو توضيحي - ${template.title}`}
-                      className="w-full h-full"
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setIsLightboxOpen(true)}
-                      className="absolute inset-0 flex items-center justify-center cursor-zoom-in"
-                      title="عرض بملء الشاشة"
-                    >
-                      <Image
-                        key={`${selectedImage}-${template.previewImages?.[selectedImage] || template.previewImage}`}
-                        src={(() => {
-                          let imageSrc;
-                          if (selectedImage === -2) {
-                            // Main image (previewImage)
-                            imageSrc = template.previewImage || '/placeholder-template.jpg';
-                          } else if (template.previewImages && template.previewImages.length > selectedImage && selectedImage >= 0) {
-                            // Additional images (previewImages)
-                            imageSrc = template.previewImages[selectedImage];
-                          } else {
-                            // Default fallback
-                            imageSrc = template.previewImage || template.imgSrc || '/placeholder-template.jpg';
-                          }
-                          return imageSrc;
-                        })()}
-                        alt={template.title}
-                        width={2400}
-                        height={1800}
-                        className="w-full h-full object-contain animate-fade-in"
-                        quality={100}
-                      />
-                    </button>
-                  )}
-                </div>
-              </div>
+        {/* Visible Breadcrumb Navigation */}
+        {template && (
+          <section className="bg-white dark:bg-dark-secondary transition-colors duration-300 border-b border-gray-200 dark:border-dark-card-border">
+            <div className="container-custom py-3">
+              <Breadcrumb
+                items={[
+                  { name: 'القوالب', url: '/templates' },
+                  { name: template.category, url: `/templates/category/${arabicToEnglishCategoryMap[template.category] || encodeURIComponent(template.category)}` },
+                  { name: template.title, url: `/templates/${template.slug || template._id}` }
+                ]}
+              />
+            </div>
+          </section>
+        )}
 
-              {/* Thumbnail Images and Video - Show if we have multiple images or video */}
-              {(template.previewImages && template.previewImages.length > 1) || template.explanationVideo ? (
-                <div className="flex flex-wrap gap-2 justify-center lg:justify-end" dir="ltr">
-                  {/* Video Thumbnail */}
-                  {template.explanationVideo && getVideoEmbedUrl(template.explanationVideo) && (
-                    <button
-                      onClick={() => {
-                        setShowVideo(true);
-                        setSelectedImage(-1); // Special index for video
-                      }}
-                      className={`relative overflow-hidden rounded-lg transition-all duration-300 transform w-24 h-16 flex-shrink-0 ${showVideo
-                        ? 'ring-2 ring-orange-500 scale-105 shadow-lg'
-                        : 'hover:opacity-80 hover:scale-102 hover:shadow-md'
-                        }`}
-                    >
-                      <div className="w-full h-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative">
-                        {/* Video thumbnail placeholder */}
-                        <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center relative">
-                          {/* Play button overlay */}
-                          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                            <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
-                              <svg className="w-4 h-4 text-gray-700 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-                              </svg>
-                            </div>
-                          </div>
-
-                          {/* Video icon */}
-                          <svg className="w-8 h-8 text-gray-400 dark:text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
-                          </svg>
-                        </div>
+        {/* Template Details */}
+        <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
+          <div className="container-custom">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 md:gap-8 lg:gap-12">
+              {/* Images and Video */}
+              <div className="lg:col-span-3">
+                <div className="mb-4">
+                  <div className="w-full h-64 sm:h-80 md:h-96 bg-white dark:bg-gray-900 rounded-xl flex items-center justify-center overflow-hidden relative">
+                    {/* Loading Overlay */}
+                    {isImageLoading && (
+                      <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 flex items-center justify-center z-10">
+                        <div className="loading-spinner"></div>
                       </div>
-                    </button>
-                  )}
+                    )}
 
-                  {/* Additional Image Thumbnails (previewImages) */}
-                  {template.previewImages && template.previewImages.map((imageSrc, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        setIsImageLoading(true);
-                        setSelectedImage(index);
-                        setShowVideo(false);
-                        setTimeout(() => setIsImageLoading(false), 300);
-                      }}
-                      className={`relative overflow-hidden rounded-lg transition-all duration-300 transform w-24 h-16 flex-shrink-0 ${selectedImage === index && !showVideo
-                        ? 'ring-2 ring-orange-500 scale-105 shadow-lg'
-                        : 'hover:opacity-80 hover:scale-102 hover:shadow-md'
-                        }`}
-                    >
-                      {imageSrc && imageSrc.trim() ? (
+                    {/* Video Player */}
+                    {showVideo && template.explanationVideo && getVideoEmbedUrl(template.explanationVideo) ? (
+                      <iframe
+                        src={getVideoEmbedUrl(template.explanationVideo)}
+                        title={`فيديو توضيحي - ${template.title}`}
+                        className="w-full h-full"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setIsLightboxOpen(true)}
+                        className="absolute inset-0 flex items-center justify-center cursor-zoom-in"
+                        title="عرض بملء الشاشة"
+                      >
                         <Image
-                          src={imageSrc}
-                          alt={`${template.title} - ${index + 1}`}
+                          key={`${selectedImage}-${template.previewImages?.[selectedImage] || template.previewImage}`}
+                          src={(() => {
+                            let imageSrc;
+                            if (selectedImage === -2) {
+                              // Main image (previewImage)
+                              imageSrc = template.previewImage || '/placeholder-template.jpg';
+                            } else if (template.previewImages && template.previewImages.length > selectedImage && selectedImage >= 0) {
+                              // Additional images (previewImages)
+                              imageSrc = template.previewImages[selectedImage];
+                            } else {
+                              // Default fallback
+                              imageSrc = template.previewImage || template.imgSrc || '/placeholder-template.jpg';
+                            }
+                            return imageSrc;
+                          })()}
+                          alt={template.title}
+                          width={2400}
+                          height={1800}
+                          className="w-full h-full object-contain animate-fade-in"
+                          quality={100}
+                        />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Thumbnail Images and Video - Show if we have multiple images or video */}
+                {(template.previewImages && template.previewImages.length > 1) || template.explanationVideo ? (
+                  <div className="flex flex-wrap gap-2 justify-center lg:justify-end" dir="ltr">
+                    {/* Video Thumbnail */}
+                    {template.explanationVideo && getVideoEmbedUrl(template.explanationVideo) && (
+                      <button
+                        onClick={() => {
+                          setShowVideo(true);
+                          setSelectedImage(-1); // Special index for video
+                        }}
+                        className={`relative overflow-hidden rounded-lg transition-all duration-300 transform w-24 h-16 flex-shrink-0 ${showVideo
+                          ? 'ring-2 ring-orange-500 scale-105 shadow-lg'
+                          : 'hover:opacity-80 hover:scale-102 hover:shadow-md'
+                          }`}
+                      >
+                        <div className="w-full h-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative">
+                          {/* Video thumbnail placeholder */}
+                          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center relative">
+                            {/* Play button overlay */}
+                            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                              <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
+                                <svg className="w-4 h-4 text-gray-700 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                  <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                                </svg>
+                              </div>
+                            </div>
+
+                            {/* Video icon */}
+                            <svg className="w-8 h-8 text-gray-400 dark:text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                            </svg>
+                          </div>
+                        </div>
+                      </button>
+                    )}
+
+                    {/* Additional Image Thumbnails (previewImages) */}
+                    {template.previewImages && template.previewImages.map((imageSrc, index) => (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          setIsImageLoading(true);
+                          setSelectedImage(index);
+                          setShowVideo(false);
+                          setTimeout(() => setIsImageLoading(false), 300);
+                        }}
+                        className={`relative overflow-hidden rounded-lg transition-all duration-300 transform w-24 h-16 flex-shrink-0 ${selectedImage === index && !showVideo
+                          ? 'ring-2 ring-orange-500 scale-105 shadow-lg'
+                          : 'hover:opacity-80 hover:scale-102 hover:shadow-md'
+                          }`}
+                      >
+                        {imageSrc && imageSrc.trim() ? (
+                          <Image
+                            src={imageSrc}
+                            alt={`${template.title} - ${index + 1}`}
+                            width={96}
+                            height={64}
+                            className="w-full h-full object-cover"
+                            quality={100}
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center">
+                            <svg className="w-8 h-8 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        )}
+                      </button>
+                    ))}
+
+                    {/* Main Image Thumbnail (previewImage) */}
+                    {template.previewImage && (
+                      <button
+                        onClick={() => {
+                          setIsImageLoading(true);
+                          setSelectedImage(-2); // Special index for main image
+                          setShowVideo(false);
+                          setTimeout(() => setIsImageLoading(false), 300);
+                        }}
+                        className={`relative overflow-hidden rounded-lg transition-all duration-300 transform w-24 h-16 flex-shrink-0 ${selectedImage === -2 && !showVideo
+                          ? 'ring-2 ring-orange-500 scale-105 shadow-lg'
+                          : 'hover:opacity-80 hover:scale-102 hover:shadow-md'
+                          }`}
+                      >
+                        <Image
+                          src={template.previewImage}
+                          alt={`${template.title} - Main`}
                           width={96}
                           height={64}
                           className="w-full h-full object-cover"
                           quality={100}
                         />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center">
-                          <svg className="w-8 h-8 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                      )}
-                    </button>
-                  ))}
-
-                  {/* Main Image Thumbnail (previewImage) */}
-                  {template.previewImage && (
-                    <button
-                      onClick={() => {
-                        setIsImageLoading(true);
-                        setSelectedImage(-2); // Special index for main image
-                        setShowVideo(false);
-                        setTimeout(() => setIsImageLoading(false), 300);
-                      }}
-                      className={`relative overflow-hidden rounded-lg transition-all duration-300 transform w-24 h-16 flex-shrink-0 ${selectedImage === -2 && !showVideo
-                        ? 'ring-2 ring-orange-500 scale-105 shadow-lg'
-                        : 'hover:opacity-80 hover:scale-102 hover:shadow-md'
-                        }`}
-                    >
-                      <Image
-                        src={template.previewImage}
-                        alt={`${template.title} - Main`}
-                        width={96}
-                        height={64}
-                        className="w-full h-full object-cover"
-                        quality={100}
-                      />
-                    </button>
-                  )}
-                </div>
-              ) : (
-                /* Single image - show image info instead of thumbnails */
-                <div className="text-center py-4">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent-100 dark:bg-dark-tertiary rounded-lg">
-                    <svg className="w-5 h-5 text-accent-600 dark:text-dark-text-secondary" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                    </svg>
-                    <span className="text-sm text-accent-600 dark:text-dark-text-secondary">معاينة واحدة متاحة</span>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Template Info */}
-            <div className="lg:col-span-2">
-              {/* Breadcrumb */}
-              <nav className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary mb-4 overflow-x-auto pb-2">
-                <Link href="/templates" className="hover:text-accent-700 dark:hover:text-dark-text-primary transition-colors whitespace-nowrap">
-                  القوالب
-                </Link>
-                <span className="text-accent-400 dark:text-dark-text-quaternary">/</span>
-                <span className="text-accent-400 dark:text-dark-text-quaternary whitespace-nowrap truncate max-w-[100px] sm:max-w-none">{template.category}</span>
-                <span className="text-accent-400 dark:text-dark-text-quaternary hidden sm:inline">/</span>
-                <span className="text-accent-400 dark:text-dark-text-quaternary truncate max-w-[120px] sm:max-w-none hidden sm:inline">{template.title}</span>
-              </nav>
-
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-900 dark:text-dark-text-primary mb-4">{template.title}</h1>
-
-              {/* Creator Info */}
-              {(() => {
-                const c = template.creator || {};
-                const creatorSlug = encodeURIComponent(
-                  c.username || c.slug || c.handle || c.user?.username || c.creator?.username || (c.email ? c.email.split('@')[0] : '') || c._id || ''
-                );
-                return (
-                  <div className="flex items-center gap-2 sm:gap-3 mb-4">
-                    <Link href={`/creators/${creatorSlug}`} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
-                      {template.creator?.profilePicture ? (
-                        <Image
-                          src={template.creator.profilePicture}
-                          alt={template.creator?.name || 'مبدع'}
-                          width={40}
-                          height={40}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            // Fallback to initial letter if image fails to load
-                            e.target.style.display = 'none';
-                            e.target.nextSibling.style.display = 'flex';
-                          }}
-                        />
-                      ) : null}
-
-                      {/* Fallback avatar with initial letter */}
-                      <div className={`w-full h-full flex items-center justify-center ${template.creator?.profilePicture ? 'hidden' : 'flex'} bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30`}>
-                        <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
-                          {template.creator?.name?.charAt(0)?.toUpperCase() || 'م'}
-                        </span>
-                      </div>
-                    </Link>
-                    <div>
-                      <p className="text-sm text-accent-600 dark:text-dark-text-secondary">بواسطة</p>
-                      <Link
-                        href={`/creators/${creatorSlug}`}
-                        className="font-medium text-accent-700 dark:text-dark-text-primary hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
-                      >
-                        {template.creator?.name || 'مبدع غير معروف'}
-                      </Link>
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* Rating and Reviews */}
-              <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-6">
-                <StarRating rating={ratingsSummary.averageRating || template.rating || 0} showNumber={false} />
-                <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary whitespace-nowrap">
-                  ({ratingsSummary.totalRatings || 0} تقييم)
-                </span>
-                <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary whitespace-nowrap">
-                  {(template.downloads || 0).toLocaleString()} تحميل
-                </span>
-              </div>
-
-
-              {/* Price */}
-              <div className="flex items-center gap-3 mb-4 sm:mb-6">
-                {template.isPaid ? (
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">
-                      {template.price} ر.س
-                    </span>
-                  </div>
-                ) : (
-                  <span className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">
-                    مجاني
-                  </span>
-                )}
-              </div>
-
-              {/* Download Button */}
-              <button
-                onClick={handleDownload}
-                disabled={isDownloading || checkingOwnership}
-                className={`w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 mb-4 sm:mb-6 ${isDownloaded
-                  ? 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'
-                  : userHasTemplate
-                    ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                    : isDownloading || checkingOwnership
-                      ? 'bg-green-400 text-white cursor-not-allowed'
-                      : 'bg-green-500 hover:bg-green-600 text-white'
-                  }`}
-              >
-                {isDownloaded ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    تم فتح القالب في تبويب جديد
-                  </span>
-                ) : userHasTemplate ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
-                    </svg>
-                    عرض القالب (لديك هذا القالب)
-                  </span>
-                ) : isDownloading || checkingOwnership ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    {checkingOwnership ? 'جاري التحقق...' : 'جاري التحميل...'}
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                    تحميل
-                  </span>
-                )}
-              </button>
-
-              {/* Download Instructions */}
-              {isDownloaded && (
-                <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
-                  <div className="flex items-start gap-2 sm:gap-3">
-                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 className="text-xs sm:text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
-                        كيفية استخدام القالب
-                      </h4>
-                      <p className="text-xs sm:text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
-                        تم فتح القالب في تبويب جديد. يمكنك الآن:
-                      </p>
-                      <ul className="text-xs sm:text-sm text-blue-700 dark:text-blue-300 mt-2 space-y-1">
-                        <li>• نسخ القالب إلى مساحة العمل الخاصة بك في Notion</li>
-                        <li>• تخصيص القالب حسب احتياجاتك</li>
-                        <li>• مشاركة القالب مع فريقك</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Rating and Comments Section */}
-              {(isDownloaded || userHasTemplate) && !hasSubmittedRating && !isTemplateCreator(user, template) && (
-                <div className="mb-4 sm:mb-6">
-                  <div className="p-4 sm:p-6 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
-                    <h3 className="text-lg font-semibold text-accent-700 dark:text-dark-text-primary mb-4">
-                      قيم هذا القالب وشاركنا رأيك
-                    </h3>
-                    {/* Removed owner warning: owners won't see an alert here */}
-                    <RatingCommentSystem
-                      targetType="template"
-                      targetId={template._id}
-                      initialRating={template.rating || 0}
-                      initialUserRating={userRating ? { rating: userRating.rating, review: userRating.review } : null}
-                      initialUserComment={userComment}
-                      onRatingChange={(data) => {
-                        // Update template rating
-                        setTemplate(prev => ({
-                          ...prev,
-                          rating: data.averageRating,
-                          reviews: data.totalRatings
-                        }));
-                        setRatingsSummary({ averageRating: data.averageRating || 0, totalRatings: data.totalRatings || 0 });
-                        // Update user rating state
-                        setUserRating({ rating: data?.rating || 0, review: data?.review || '' });
-                        // Mark as submitted to hide the section
-                        setHasSubmittedRating(true);
-                        // Reload ratings
-                        loadRatings(template._id);
-                      }}
-                      onCommentChange={(data) => {
-                        // Update user comment state
-                        setUserComment(data.comment);
-                        // Reload ratings and comments
-                        loadRatings(template._id);
-                      }}
-                      size="large"
-                      readOnly={isTemplateCreator(user, template)}
-                    />
-                  </div>
-                </div>
-              )}
-
-
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Description and Features */}
-      <section className="section-padding bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
-        <div className="container-custom">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-12">
-            {/* Long Description */}
-            <div className="lg:col-span-2">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-900 dark:text-dark-text-primary mb-4 sm:mb-6">تفاصيل القالب</h2>
-              <div className="prose prose-accent dark:prose-dark max-w-none">
-                <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed mb-4 sm:mb-6">
-                  {template.features || template.description || 'لا يوجد وصف مفصل متاح لهذا القالب.'}
-                </p>
-
-              </div>
-            </div>
-
-            {/* Template Stats */}
-            <div className="lg:col-span-1">
-              <div className="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-medium dark:shadow-dark-medium">
-                <h3 className="text-base sm:text-lg font-semibold text-accent-700 dark:text-dark-text-primary mb-4">إحصائيات القالب</h3>
-
-                <div className="space-y-3 sm:space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">التقييم</span>
-                    <div className="flex items-center gap-2">
-                      <StarRating rating={ratingsSummary.averageRating || template.rating || 0} showNumber={false} />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">عدد التقييمات</span>
-                    <span className="text-sm sm:text-base font-medium text-accent-700 dark:text-dark-text-primary">{ratingsSummary.totalRatings || 0}</span>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">التحميلات</span>
-                    <span className="text-sm sm:text-base font-medium text-accent-700 dark:text-dark-text-primary">{(template.downloads || 0).toLocaleString()}</span>
-                  </div>
-
-                  <div className="flex justify-between items-start">
-                    <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">الفئة</span>
-                    <div className="flex flex-wrap gap-1 justify-end max-w-[200px]">
-                      {(template.categories && template.categories.length > 0 ? template.categories : [template.category]).map((category, index) => (
-                        <Link
-                          key={index}
-                          href={`/templates/category/${arabicToEnglishCategoryMap[category] || category}`}
-                          className="inline-block px-2 py-1 text-xs font-medium bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-md hover:bg-primary-200 dark:hover:bg-primary-800/50 hover:text-primary-800 dark:hover:text-primary-200 transition-colors duration-200 cursor-pointer"
-                        >
-                          {category}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Template Language */}
-                  {template.language && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">اللغة</span>
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs sm:text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-md">
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-                        </svg>
-                        {template.language === 'ar' && '🇸🇦 العربية'}
-                        {template.language === 'en' && '🇬🇧 الإنجليزية'}
-                        {template.language === 'fr' && '🇫🇷 الفرنسية'}
-                        {template.language === 'ar-en' && '🌍 عربي/إنجليزي'}
-                        {template.language === 'ar-fr' && '🌍 عربي/فرنسي'}
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">تاريخ الإنشاء</span>
-                    <span className="text-sm sm:text-base font-medium text-accent-700 dark:text-dark-text-primary">{formatDate(new Date())}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Reviews and Comments Section */}
-      {(templateRatings.length > 0 || templateComments.length > 0) && (
-        <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
-          <div className="container-custom">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-900 dark:text-dark-text-primary mb-6 sm:mb-8">تقييمات المستخدمين والتعليقات</h2>
-
-            <div className="space-y-3 sm:space-y-4">
-              {/* Combined Ratings and Comments */}
-              {(() => {
-                // Create a map of user reviews combining ratings and comments
-                const userReviews = new Map();
-
-                // Add ratings to the map
-                templateRatings.forEach(rating => {
-                  const userId = rating.user?._id || rating.user?.id;
-                  if (userId) {
-                    userReviews.set(userId, {
-                      ...userReviews.get(userId),
-                      user: rating.user,
-                      rating: rating.rating,
-                      ratingId: rating._id,
-                      ratingDate: rating.createdAt,
-                      review: rating.review
-                    });
-                  }
-                });
-
-                // Add comments to the map
-                templateComments.forEach(comment => {
-                  const userId = comment.user?._id || comment.user?.id;
-                  if (userId) {
-                    userReviews.set(userId, {
-                      ...userReviews.get(userId),
-                      user: comment.user,
-                      comment: comment.content,
-                      commentId: comment._id,
-                      commentDate: comment.createdAt,
-                      likes: comment.likes
-                    });
-                  }
-                });
-
-                // Convert map to array and sort by most recent activity
-                const combinedReviews = Array.from(userReviews.values()).sort((a, b) => {
-                  const aDate = new Date(Math.max(new Date(a.ratingDate || 0), new Date(a.commentDate || 0)));
-                  const bDate = new Date(Math.max(new Date(b.ratingDate || 0), new Date(b.commentDate || 0)));
-                  return bDate - aDate;
-                });
-
-                const reviewsToShow = showAllReviews ? combinedReviews : combinedReviews.slice(0, 5);
-
-                return (
-                  <div className="grid gap-3 sm:gap-4">
-                    {reviewsToShow.map((review, index) => (
-                      <div key={review.ratingId || review.commentId || index} className="p-3 sm:p-4 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
-                        <div className="flex items-start gap-2 sm:gap-3">
-                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center">
-                            {review.user?.profilePicture ? (
-                              <Image
-                                src={review.user.profilePicture}
-                                alt={review.user?.name || 'مستخدم'}
-                                width={40}
-                                height={40}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  e.target.style.display = 'none';
-                                  e.target.nextSibling.style.display = 'flex';
-                                }}
-                              />
-                            ) : null}
-
-                            {/* Fallback avatar with initial letter */}
-                            <div className={`w-full h-full flex items-center justify-center ${review.user?.profilePicture ? 'hidden' : 'flex'}`}>
-                              <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
-                                {review.user?.name?.charAt(0)?.toUpperCase() || 'م'}
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className="flex-1 min-w-0">
-                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
-                              <span className="text-sm sm:text-base font-medium text-accent-700 dark:text-dark-text-primary truncate">
-                                {review.user?.name || review.user?.displayName || 'مستخدم'}
-                              </span>
-                              {review.rating && (
-                                <StarRating rating={review.rating} size="small" showNumber={false} />
-                              )}
-                              <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                                {formatDate(Math.max(new Date(review.ratingDate || 0), new Date(review.commentDate || 0)))}
-                              </span>
-                            </div>
-
-                            {/* Rating Review */}
-                            {review.review && (
-                              <div className="mb-2">
-                                <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary leading-relaxed break-words">
-                                  {review.review}
-                                </p>
-                              </div>
-                            )}
-
-                            {/* Comment */}
-                            {review.comment && (
-                              <div className={`${review.review ? 'mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-gray-200 dark:border-dark-card-border' : ''}`}>
-                                <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary leading-relaxed break-words">
-                                  {review.comment}
-                                </p>
-                              </div>
-                            )}
-
-                            {/* Actions */}
-                            <div className="flex items-center gap-3 mt-2">
-                              {review.commentId && (() => {
-                                const comment = templateComments.find(c => c._id === review.commentId);
-                                const isLiked = comment ? isCommentLikedByUser(comment) : false;
-
-                                return (
-                                  <button
-                                    onClick={() => handleCommentLike(review.commentId)}
-                                    className={`flex items-center gap-1 text-xs transition-colors ${isLiked
-                                      ? 'text-red-500 dark:text-red-400'
-                                      : 'text-gray-500 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400'
-                                      }`}
-                                  >
-                                    <svg
-                                      className="w-3 h-3"
-                                      fill={isLiked ? "currentColor" : "none"}
-                                      stroke="currentColor"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                                      />
-                                    </svg>
-                                    <span>{review.likes?.length || 0}</span>
-                                  </button>
-                                );
-                              })()}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-
-                    {combinedReviews.length > 5 && (
-                      <div className="text-center mt-4 sm:mt-6">
-                        <button
-                          onClick={() => setShowAllReviews(!showAllReviews)}
-                          className="px-3 sm:px-4 py-2 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-lg hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-colors duration-200 text-xs sm:text-sm"
-                        >
-                          {showAllReviews ? 'عرض أقل' : `عرض جميع التقييمات والتعليقات (${combinedReviews.length})`}
-                        </button>
-                      </div>
+                      </button>
                     )}
                   </div>
-                );
-              })()}
+                ) : (
+                  /* Single image - show image info instead of thumbnails */
+                  <div className="text-center py-4">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent-100 dark:bg-dark-tertiary rounded-lg">
+                      <svg className="w-5 h-5 text-accent-600 dark:text-dark-text-secondary" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-sm text-accent-600 dark:text-dark-text-secondary">معاينة واحدة متاحة</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Template Info */}
+              <div className="lg:col-span-2">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-900 dark:text-dark-text-primary mb-4">{template.title}</h1>
+
+                {/* Creator Info */}
+                {(() => {
+                  const c = template.creator || {};
+                  const creatorSlug = encodeURIComponent(
+                    c.username || c.slug || c.handle || c.user?.username || c.creator?.username || (c.email ? c.email.split('@')[0] : '') || c._id || ''
+                  );
+                  return (
+                    <div className="flex items-center gap-2 sm:gap-3 mb-4">
+                      <Link href={`/creators/${creatorSlug}`} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
+                        {template.creator?.profilePicture ? (
+                          <Image
+                            src={template.creator.profilePicture}
+                            alt={template.creator?.name || 'مبدع'}
+                            width={40}
+                            height={40}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              // Fallback to initial letter if image fails to load
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+
+                        {/* Fallback avatar with initial letter */}
+                        <div className={`w-full h-full flex items-center justify-center ${template.creator?.profilePicture ? 'hidden' : 'flex'} bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30`}>
+                          <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
+                            {template.creator?.name?.charAt(0)?.toUpperCase() || 'م'}
+                          </span>
+                        </div>
+                      </Link>
+                      <div>
+                        <p className="text-sm text-accent-600 dark:text-dark-text-secondary">بواسطة</p>
+                        <Link
+                          href={`/creators/${creatorSlug}`}
+                          className="font-medium text-accent-700 dark:text-dark-text-primary hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
+                        >
+                          {template.creator?.name || 'مبدع غير معروف'}
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Rating and Reviews */}
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-6">
+                  <StarRating rating={ratingsSummary.averageRating || template.rating || 0} showNumber={false} />
+                  <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary whitespace-nowrap">
+                    ({ratingsSummary.totalRatings || 0} تقييم)
+                  </span>
+                  <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary whitespace-nowrap">
+                    {(template.downloads || 0).toLocaleString()} تحميل
+                  </span>
+                </div>
+
+
+                {/* Price */}
+                <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                  {template.isPaid ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">
+                        {template.price} ر.س
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">
+                      مجاني
+                    </span>
+                  )}
+                </div>
+
+                {/* Download Button */}
+                <button
+                  onClick={handleDownload}
+                  disabled={isDownloading || checkingOwnership}
+                  className={`w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 mb-4 sm:mb-6 ${isDownloaded
+                    ? 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'
+                    : userHasTemplate
+                      ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                      : isDownloading || checkingOwnership
+                        ? 'bg-green-400 text-white cursor-not-allowed'
+                        : 'bg-green-500 hover:bg-green-600 text-white'
+                    }`}
+                >
+                  {isDownloaded ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      تم فتح القالب في تبويب جديد
+                    </span>
+                  ) : userHasTemplate ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                      </svg>
+                      عرض القالب (لديك هذا القالب)
+                    </span>
+                  ) : isDownloading || checkingOwnership ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      {checkingOwnership ? 'جاري التحقق...' : 'جاري التحميل...'}
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                      تحميل
+                    </span>
+                  )}
+                </button>
+
+                {/* Download Instructions */}
+                {isDownloaded && (
+                  <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+                    <div className="flex items-start gap-2 sm:gap-3">
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 className="text-xs sm:text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+                          كيفية استخدام القالب
+                        </h4>
+                        <p className="text-xs sm:text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
+                          تم فتح القالب في تبويب جديد. يمكنك الآن:
+                        </p>
+                        <ul className="text-xs sm:text-sm text-blue-700 dark:text-blue-300 mt-2 space-y-1">
+                          <li>• نسخ القالب إلى مساحة العمل الخاصة بك في Notion</li>
+                          <li>• تخصيص القالب حسب احتياجاتك</li>
+                          <li>• مشاركة القالب مع فريقك</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Rating and Comments Section */}
+                {(isDownloaded || userHasTemplate) && !hasSubmittedRating && !isTemplateCreator(user, template) && (
+                  <div className="mb-4 sm:mb-6">
+                    <div className="p-4 sm:p-6 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
+                      <h3 className="text-lg font-semibold text-accent-700 dark:text-dark-text-primary mb-4">
+                        قيم هذا القالب وشاركنا رأيك
+                      </h3>
+                      {/* Removed owner warning: owners won't see an alert here */}
+                      <RatingCommentSystem
+                        targetType="template"
+                        targetId={template._id}
+                        initialRating={template.rating || 0}
+                        initialUserRating={userRating ? { rating: userRating.rating, review: userRating.review } : null}
+                        initialUserComment={userComment}
+                        onRatingChange={(data) => {
+                          // Update template rating
+                          setTemplate(prev => ({
+                            ...prev,
+                            rating: data.averageRating,
+                            reviews: data.totalRatings
+                          }));
+                          setRatingsSummary({ averageRating: data.averageRating || 0, totalRatings: data.totalRatings || 0 });
+                          // Update user rating state
+                          setUserRating({ rating: data?.rating || 0, review: data?.review || '' });
+                          // Mark as submitted to hide the section
+                          setHasSubmittedRating(true);
+                          // Reload ratings
+                          loadRatings(template._id);
+                        }}
+                        onCommentChange={(data) => {
+                          // Update user comment state
+                          setUserComment(data.comment);
+                          // Reload ratings and comments
+                          loadRatings(template._id);
+                        }}
+                        size="large"
+                        readOnly={isTemplateCreator(user, template)}
+                      />
+                    </div>
+                  </div>
+                )}
+
+
+              </div>
             </div>
           </div>
         </section>
-      )}
 
+        {/* Description and Features */}
+        <section className="section-padding bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
+          <div className="container-custom">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-12">
+              {/* Long Description */}
+              <div className="lg:col-span-2">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-900 dark:text-dark-text-primary mb-4 sm:mb-6">تفاصيل القالب</h2>
+                <div className="prose prose-accent dark:prose-dark max-w-none">
+                  <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed mb-4 sm:mb-6">
+                    {template.features || template.description || 'لا يوجد وصف مفصل متاح لهذا القالب.'}
+                  </p>
 
-      {/* Related Templates */}
-      <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
-        <div className="container-custom">
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-900 dark:text-dark-text-primary mb-6 sm:mb-8">قوالب مشابهة</h2>
+                </div>
+              </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {relatedTemplates.map((relatedTemplate) => (
-              <div key={relatedTemplate._id || relatedTemplate.id} className="bg-white dark:bg-dark-primary rounded-xl shadow-medium dark:shadow-dark-medium overflow-hidden transition-all duration-200 hover:shadow-large dark:hover:shadow-dark-large hover:-translate-y-1">
-                <Link href={`/templates/${relatedTemplate.slug || relatedTemplate._id || relatedTemplate.id}`}>
-                  <div className="relative h-40 sm:h-48 bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-lg">
-                    <Image
-                      src={relatedTemplate.previewImage || relatedTemplate.imgSrc || '/placeholder-template.jpg'}
-                      alt={relatedTemplate.title}
-                      width={400}
-                      height={300}
-                      className="w-full h-full object-cover"
-                      quality={100}
-                    />
-                  </div>
+              {/* Template Stats */}
+              <div className="lg:col-span-1">
+                <div className="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-medium dark:shadow-dark-medium">
+                  <h3 className="text-base sm:text-lg font-semibold text-accent-700 dark:text-dark-text-primary mb-4">إحصائيات القالب</h3>
 
-                  <div className="p-3 sm:p-4">
-                    <h3 className="text-sm sm:text-base font-semibold text-accent-700 dark:text-dark-text-primary mb-2 hover:text-orange-600 dark:hover:text-orange-400 transition-colors line-clamp-2">
-                      {relatedTemplate.title}
-                    </h3>
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary truncate">
-                        بواسطة {relatedTemplate.creator?.name || 'مبدع غير معروف'}
-                      </p>
-                      {relatedTemplate.isPaid ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full font-semibold text-xs whitespace-nowrap">
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <div className="space-y-3 sm:space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">التقييم</span>
+                      <div className="flex items-center gap-2">
+                        <StarRating rating={ratingsSummary.averageRating || template.rating || 0} showNumber={false} />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">عدد التقييمات</span>
+                      <span className="text-sm sm:text-base font-medium text-accent-700 dark:text-dark-text-primary">{ratingsSummary.totalRatings || 0}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">التحميلات</span>
+                      <span className="text-sm sm:text-base font-medium text-accent-700 dark:text-dark-text-primary">{(template.downloads || 0).toLocaleString()}</span>
+                    </div>
+
+                    <div className="flex justify-between items-start">
+                      <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">الفئة</span>
+                      <div className="flex flex-wrap gap-1 justify-end max-w-[200px]">
+                        {(template.categories && template.categories.length > 0 ? template.categories : [template.category]).map((category, index) => (
+                          <Link
+                            key={index}
+                            href={`/templates/category/${arabicToEnglishCategoryMap[category] || category}`}
+                            className="inline-block px-2 py-1 text-xs font-medium bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-md hover:bg-primary-200 dark:hover:bg-primary-800/50 hover:text-primary-800 dark:hover:text-primary-200 transition-colors duration-200 cursor-pointer"
+                          >
+                            {category}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Template Language */}
+                    {template.language && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">اللغة</span>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs sm:text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-md">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                           </svg>
-                          {relatedTemplate.price} ر.س
+                          {template.language === 'ar' && '🇸🇦 العربية'}
+                          {template.language === 'en' && '🇬🇧 الإنجليزية'}
+                          {template.language === 'fr' && '🇫🇷 الفرنسية'}
+                          {template.language === 'ar-en' && '🌍 عربي/إنجليزي'}
+                          {template.language === 'ar-fr' && '🌍 عربي/فرنسي'}
                         </span>
-                      ) : (
-                        <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                          مجاني
-                        </span>
-                      )}
+                      </div>
+                    )}
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">تاريخ الإنشاء</span>
+                      <span className="text-sm sm:text-base font-medium text-accent-700 dark:text-dark-text-primary">{formatDate(new Date())}</span>
                     </div>
                   </div>
-                </Link>
+                </div>
               </div>
-            ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Lightbox Modal */}
-      {isLightboxOpen && (
-        <div
-          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-2 sm:p-4"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setIsLightboxOpen(false);
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => setIsLightboxOpen(false)}
-            aria-label="إغلاق"
-            className="absolute top-2 sm:top-4 left-2 sm:left-4 text-white/80 hover:text-white z-10"
-          >
-            <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+        {/* Reviews and Comments Section */}
+        {(templateRatings.length > 0 || templateComments.length > 0) && (
+          <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
+            <div className="container-custom">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-900 dark:text-dark-text-primary mb-6 sm:mb-8">تقييمات المستخدمين والتعليقات</h2>
 
-          {((template?.previewImage && template?.previewImages?.length > 0) || template?.previewImages?.length > 1) && (
-            <>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const totalItems = (template.previewImage ? 1 : 0) + (template.previewImages?.length || 0);
-                  setSelectedImage((prev) => {
-                    if (prev === -2) return template.previewImages?.length - 1 || -1; // From main image to last additional
-                    if (prev === -1) return -2; // From video to main image
-                    return prev > 0 ? prev - 1 : -2; // From additional images to main
+              <div className="space-y-3 sm:space-y-4">
+                {/* Combined Ratings and Comments */}
+                {(() => {
+                  // Create a map of user reviews combining ratings and comments
+                  const userReviews = new Map();
+
+                  // Add ratings to the map
+                  templateRatings.forEach(rating => {
+                    const userId = rating.user?._id || rating.user?.id;
+                    if (userId) {
+                      userReviews.set(userId, {
+                        ...userReviews.get(userId),
+                        user: rating.user,
+                        rating: rating.rating,
+                        ratingId: rating._id,
+                        ratingDate: rating.createdAt,
+                        review: rating.review
+                      });
+                    }
                   });
-                }}
-                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white z-10"
-                aria-label="السابق"
-              >
-                <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedImage((prev) => {
-                    if (prev === -2) return 0; // From main image to first additional
-                    if (prev === -1) return -2; // From video to main image
-                    return prev < (template.previewImages?.length - 1) ? prev + 1 : -1; // From additional images to video
-                  });
-                }}
-                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white z-10"
-                aria-label="التالي"
-              >
-                <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </>
-          )}
 
-          <div className="max-w-7xl w-full h-full flex items-center justify-center">
-            {showVideo && template.explanationVideo && getVideoEmbedUrl(template.explanationVideo) ? (
-              <iframe
-                src={getVideoEmbedUrl(template.explanationVideo)}
-                title={`فيديو توضيحي - ${template.title}`}
-                className="max-w-full max-h-full w-full h-full"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            ) : (
-              <img
-                src={(() => {
-                  let imageSrc;
-                  if (selectedImage === -2) {
-                    // Main image (previewImage)
-                    imageSrc = template?.previewImage || '/placeholder-template.jpg';
-                  } else if (template?.previewImages && template.previewImages.length > selectedImage && selectedImage >= 0) {
-                    // Additional images (previewImages)
-                    imageSrc = template.previewImages[selectedImage];
-                  } else {
-                    // Default fallback
-                    imageSrc = template?.previewImage || template?.imgSrc || '/placeholder-template.jpg';
-                  }
-                  return imageSrc;
+                  // Add comments to the map
+                  templateComments.forEach(comment => {
+                    const userId = comment.user?._id || comment.user?.id;
+                    if (userId) {
+                      userReviews.set(userId, {
+                        ...userReviews.get(userId),
+                        user: comment.user,
+                        comment: comment.content,
+                        commentId: comment._id,
+                        commentDate: comment.createdAt,
+                        likes: comment.likes
+                      });
+                    }
+                  });
+
+                  // Convert map to array and sort by most recent activity
+                  const combinedReviews = Array.from(userReviews.values()).sort((a, b) => {
+                    const aDate = new Date(Math.max(new Date(a.ratingDate || 0), new Date(a.commentDate || 0)));
+                    const bDate = new Date(Math.max(new Date(b.ratingDate || 0), new Date(b.commentDate || 0)));
+                    return bDate - aDate;
+                  });
+
+                  const reviewsToShow = showAllReviews ? combinedReviews : combinedReviews.slice(0, 5);
+
+                  return (
+                    <div className="grid gap-3 sm:gap-4">
+                      {reviewsToShow.map((review, index) => (
+                        <div key={review.ratingId || review.commentId || index} className="p-3 sm:p-4 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
+                          <div className="flex items-start gap-2 sm:gap-3">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center">
+                              {review.user?.profilePicture ? (
+                                <Image
+                                  src={review.user.profilePicture}
+                                  alt={review.user?.name || 'مستخدم'}
+                                  width={40}
+                                  height={40}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    e.target.nextSibling.style.display = 'flex';
+                                  }}
+                                />
+                              ) : null}
+
+                              {/* Fallback avatar with initial letter */}
+                              <div className={`w-full h-full flex items-center justify-center ${review.user?.profilePicture ? 'hidden' : 'flex'}`}>
+                                <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
+                                  {review.user?.name?.charAt(0)?.toUpperCase() || 'م'}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+                                <span className="text-sm sm:text-base font-medium text-accent-700 dark:text-dark-text-primary truncate">
+                                  {review.user?.name || review.user?.displayName || 'مستخدم'}
+                                </span>
+                                {review.rating && (
+                                  <StarRating rating={review.rating} size="small" showNumber={false} />
+                                )}
+                                <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                                  {formatDate(Math.max(new Date(review.ratingDate || 0), new Date(review.commentDate || 0)))}
+                                </span>
+                              </div>
+
+                              {/* Rating Review */}
+                              {review.review && (
+                                <div className="mb-2">
+                                  <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary leading-relaxed break-words">
+                                    {review.review}
+                                  </p>
+                                </div>
+                              )}
+
+                              {/* Comment */}
+                              {review.comment && (
+                                <div className={`${review.review ? 'mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-gray-200 dark:border-dark-card-border' : ''}`}>
+                                  <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary leading-relaxed break-words">
+                                    {review.comment}
+                                  </p>
+                                </div>
+                              )}
+
+                              {/* Actions */}
+                              <div className="flex items-center gap-3 mt-2">
+                                {review.commentId && (() => {
+                                  const comment = templateComments.find(c => c._id === review.commentId);
+                                  const isLiked = comment ? isCommentLikedByUser(comment) : false;
+
+                                  return (
+                                    <button
+                                      onClick={() => handleCommentLike(review.commentId)}
+                                      className={`flex items-center gap-1 text-xs transition-colors ${isLiked
+                                        ? 'text-red-500 dark:text-red-400'
+                                        : 'text-gray-500 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400'
+                                        }`}
+                                    >
+                                      <svg
+                                        className="w-3 h-3"
+                                        fill={isLiked ? "currentColor" : "none"}
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth={2}
+                                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                        />
+                                      </svg>
+                                      <span>{review.likes?.length || 0}</span>
+                                    </button>
+                                  );
+                                })()}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                      {combinedReviews.length > 5 && (
+                        <div className="text-center mt-4 sm:mt-6">
+                          <button
+                            onClick={() => setShowAllReviews(!showAllReviews)}
+                            className="px-3 sm:px-4 py-2 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-lg hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-colors duration-200 text-xs sm:text-sm"
+                          >
+                            {showAllReviews ? 'عرض أقل' : `عرض جميع التقييمات والتعليقات (${combinedReviews.length})`}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
                 })()}
-                alt={template?.title}
-                className="max-w-full max-h-full object-contain"
-              />
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Footer */}
-      <footer className="bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary transition-colors duration-300">
-        <div className="container-custom section-padding">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10 mb-12">
-            {/* Brand Section */}
-            <div className="md:col-span-1">
-              <div className="flex items-center mb-4 sm:mb-6">
-                <Image
-                  src="/NavLogoLight.svg"
-                  alt="عرب نوشن"
-                  width={60}
-                  height={40}
-                  className="h-10 sm:h-12 w-auto"
-                  quality={100}
-                  priority
-                  unoptimized
-                />
               </div>
-              <p className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary mb-6 sm:mb-8 leading-relaxed">
-                منصتك العربية الأولى لبيع وشراء قوالب نوشن المبتكرة. انضم إلى مجتمع المبدعين العرب.
-              </p>
-              <div className="flex gap-3 sm:gap-4">
-                <Link href="https://youtube.com/@notionarabs" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft">
-                  <Youtube className="w-4 h-4 sm:w-5 sm:h-5" />
-                </Link>
-                <Link href="https://facebook.com/notionarabs" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft">
-                  <Facebook className="w-4 h-4 sm:w-5 sm:h-5" />
-                </Link>
-                <Link href="https://www.facebook.com/groups/notionarabs/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft" title="مجموعة فيسبوك">
-                  <Users className="w-4 h-4 sm:w-5 sm:h-5" />
-                </Link>
-                <Link href="https://t.me/notionarabs" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft">
-                  <Send className="w-4 h-4 sm:w-5 sm:h-5" />
-                </Link>
-                <Link href="https://twitter.com/notionarabs" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft">
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </div>
+          </section>
+        )}
+
+
+        {/* Related Templates */}
+        <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
+          <div className="container-custom">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-900 dark:text-dark-text-primary mb-6 sm:mb-8">قوالب مشابهة</h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {relatedTemplates.map((relatedTemplate) => (
+                <div key={relatedTemplate._id || relatedTemplate.id} className="bg-white dark:bg-dark-primary rounded-xl shadow-medium dark:shadow-dark-medium overflow-hidden transition-all duration-200 hover:shadow-large dark:hover:shadow-dark-large hover:-translate-y-1">
+                  <Link href={`/templates/${relatedTemplate.slug || relatedTemplate._id || relatedTemplate.id}`}>
+                    <div className="relative h-40 sm:h-48 bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-lg">
+                      <Image
+                        src={relatedTemplate.previewImage || relatedTemplate.imgSrc || '/placeholder-template.jpg'}
+                        alt={relatedTemplate.title}
+                        width={400}
+                        height={300}
+                        className="w-full h-full object-cover"
+                        quality={100}
+                      />
+                    </div>
+
+                    <div className="p-3 sm:p-4">
+                      <h3 className="text-sm sm:text-base font-semibold text-accent-700 dark:text-dark-text-primary mb-2 hover:text-orange-600 dark:hover:text-orange-400 transition-colors line-clamp-2">
+                        {relatedTemplate.title}
+                      </h3>
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary truncate">
+                          بواسطة {relatedTemplate.creator?.name || 'مبدع غير معروف'}
+                        </p>
+                        {relatedTemplate.isPaid ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full font-semibold text-xs whitespace-nowrap">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {relatedTemplate.price} ر.س
+                          </span>
+                        ) : (
+                          <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                            مجاني
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Lightbox Modal */}
+        {isLightboxOpen && (
+          <div
+            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-2 sm:p-4"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setIsLightboxOpen(false);
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setIsLightboxOpen(false)}
+              aria-label="إغلاق"
+              className="absolute top-2 sm:top-4 left-2 sm:left-4 text-white/80 hover:text-white z-10"
+            >
+              <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {((template?.previewImage && template?.previewImages?.length > 0) || template?.previewImages?.length > 1) && (
+              <>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const totalItems = (template.previewImage ? 1 : 0) + (template.previewImages?.length || 0);
+                    setSelectedImage((prev) => {
+                      if (prev === -2) return template.previewImages?.length - 1 || -1; // From main image to last additional
+                      if (prev === -1) return -2; // From video to main image
+                      return prev > 0 ? prev - 1 : -2; // From additional images to main
+                    });
+                  }}
+                  className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white z-10"
+                  aria-label="السابق"
+                >
+                  <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
-                </Link>
-              </div>
-            </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedImage((prev) => {
+                      if (prev === -2) return 0; // From main image to first additional
+                      if (prev === -1) return -2; // From video to main image
+                      return prev < (template.previewImages?.length - 1) ? prev + 1 : -1; // From additional images to video
+                    });
+                  }}
+                  className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white z-10"
+                  aria-label="التالي"
+                >
+                  <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </>
+            )}
 
-            {/* Product & Company Section */}
-            <div className="md:col-span-1">
-              <div className="mb-6 sm:mb-8">
-                <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">المنتج</h4>
-                <ul className="space-y-2 sm:space-y-3">
-                  <li><Link href="/templates" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">القوالب</Link></li>
-                  <li><Link href="/creators" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المبدعين</Link></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">الشركة</h4>
-                <ul className="space-y-2 sm:space-y-3">
-                  <li><Link href="/about" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">من نحن</Link></li>
-                  <li><Link href="/blog" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المدونة</Link></li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Support Section */}
-            <div className="md:col-span-1">
-              <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">الدعم</h4>
-              <ul className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
-                <li><Link href="/contact" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">اتصل بنا</Link></li>
-                <li><Link href="/privacy" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الخصوصية</Link></li>
-                <li><Link href="/terms" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الشروط</Link></li>
-                <li><Link href="/cookies" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">ملفات تعريف الارتباط</Link></li>
-              </ul>
+            <div className="max-w-7xl w-full h-full flex items-center justify-center">
+              {showVideo && template.explanationVideo && getVideoEmbedUrl(template.explanationVideo) ? (
+                <iframe
+                  src={getVideoEmbedUrl(template.explanationVideo)}
+                  title={`فيديو توضيحي - ${template.title}`}
+                  className="max-w-full max-h-full w-full h-full"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <img
+                  src={(() => {
+                    let imageSrc;
+                    if (selectedImage === -2) {
+                      // Main image (previewImage)
+                      imageSrc = template?.previewImage || '/placeholder-template.jpg';
+                    } else if (template?.previewImages && template.previewImages.length > selectedImage && selectedImage >= 0) {
+                      // Additional images (previewImages)
+                      imageSrc = template.previewImages[selectedImage];
+                    } else {
+                      // Default fallback
+                      imageSrc = template?.previewImage || template?.imgSrc || '/placeholder-template.jpg';
+                    }
+                    return imageSrc;
+                  })()}
+                  alt={template?.title}
+                  className="max-w-full max-h-full object-contain"
+                />
+              )}
             </div>
           </div>
+        )}
 
-          <div className="border-t border-gray-700 dark:border-dark-card-border pt-8">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <p className="text-gray-400 dark:text-dark-text-tertiary text-sm">
-                © {new Date().getFullYear()} عرب نوشن. جميع الحقوق محفوظة.
-              </p>
-              <div className="flex gap-6 mt-4 md:mt-0">
-                <Link href="/privacy" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-sm transition-colors">سياسة الخصوصية</Link>
-                <Link href="/terms" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-sm transition-colors">شروط الاستخدام</Link>
-                <Link href="/cookies" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-sm transition-colors">ملفات تعريف الارتباط</Link>
+        {/* Footer */}
+        <footer className="bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary transition-colors duration-300">
+          <div className="container-custom section-padding">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10 mb-12">
+              {/* Brand Section */}
+              <div className="md:col-span-1">
+                <div className="flex items-center mb-4 sm:mb-6">
+                  <Image
+                    src="/NavLogoLight.svg"
+                    alt="عرب نوشن"
+                    width={60}
+                    height={40}
+                    className="h-10 sm:h-12 w-auto"
+                    quality={100}
+                    priority
+                    unoptimized
+                  />
+                </div>
+                <p className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary mb-6 sm:mb-8 leading-relaxed">
+                  منصتك العربية الأولى لبيع وشراء قوالب نوشن المبتكرة. انضم إلى مجتمع المبدعين العرب.
+                </p>
+                <div className="flex gap-3 sm:gap-4">
+                  <Link href="https://youtube.com/@notionarabs" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft">
+                    <Youtube className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </Link>
+                  <Link href="https://facebook.com/notionarabs" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft">
+                    <Facebook className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </Link>
+                  <Link href="https://www.facebook.com/groups/notionarabs/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft" title="مجموعة فيسبوك">
+                    <Users className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </Link>
+                  <Link href="https://t.me/notionarabs" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft">
+                    <Send className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </Link>
+                  <Link href="https://twitter.com/notionarabs" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                    </svg>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Product & Company Section */}
+              <div className="md:col-span-1">
+                <div className="mb-6 sm:mb-8">
+                  <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">المنتج</h4>
+                  <ul className="space-y-2 sm:space-y-3">
+                    <li><Link href="/templates" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">القوالب</Link></li>
+                    <li><Link href="/creators" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المبدعين</Link></li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">الشركة</h4>
+                  <ul className="space-y-2 sm:space-y-3">
+                    <li><Link href="/about" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">من نحن</Link></li>
+                    <li><Link href="/blog" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المدونة</Link></li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Support Section */}
+              <div className="md:col-span-1">
+                <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">الدعم</h4>
+                <ul className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
+                  <li><Link href="/contact" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">اتصل بنا</Link></li>
+                  <li><Link href="/privacy" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الخصوصية</Link></li>
+                  <li><Link href="/terms" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الشروط</Link></li>
+                  <li><Link href="/cookies" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">ملفات تعريف الارتباط</Link></li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-700 dark:border-dark-card-border pt-8">
+              <div className="flex flex-col md:flex-row justify-between items-center">
+                <p className="text-gray-400 dark:text-dark-text-tertiary text-sm">
+                  © {new Date().getFullYear()} عرب نوشن. جميع الحقوق محفوظة.
+                </p>
+                <div className="flex gap-6 mt-4 md:mt-0">
+                  <Link href="/privacy" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-sm transition-colors">سياسة الخصوصية</Link>
+                  <Link href="/terms" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-sm transition-colors">شروط الاستخدام</Link>
+                  <Link href="/cookies" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-sm transition-colors">ملفات تعريف الارتباط</Link>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </footer>
-    </main>
+        </footer>
+      </main>
+    </>
   );
 }

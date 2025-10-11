@@ -1561,6 +1561,10 @@ router.post('/resend-verification', [
 
     const { email } = req.body;
 
+    // Variables to store token and user data
+    let emailVerificationToken;
+    let userName;
+
     // Check if user exists in database first
     const user = await User.findOne({ email });
     if (user) {
@@ -1573,12 +1577,14 @@ router.post('/resend-verification', [
       }
 
       // Generate new verification token for existing user
-      const emailVerificationToken = crypto.randomBytes(32).toString('hex');
+      emailVerificationToken = crypto.randomBytes(32).toString('hex');
       const emailVerificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
       user.emailVerificationToken = emailVerificationToken;
       user.emailVerificationExpiry = emailVerificationExpiry;
       await user.save();
+
+      userName = user.name;
     } else {
       // Check if user exists in temporary storage
       let tempUserData = null;
@@ -1599,13 +1605,15 @@ router.post('/resend-verification', [
       }
 
       // Generate new verification token for temp user
-      const emailVerificationToken = crypto.randomBytes(32).toString('hex');
+      emailVerificationToken = crypto.randomBytes(32).toString('hex');
       const emailVerificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
       // Update temp user data with new token
       tempUserData.emailVerificationToken = emailVerificationToken;
       tempUserData.emailVerificationExpiry = emailVerificationExpiry;
       tempUserStorage.set(emailVerificationToken, tempUserData);
+
+      userName = tempUserData.name;
     }
 
     // Send verification email
@@ -1621,7 +1629,7 @@ router.post('/resend-verification', [
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
             <h2 style="color: #333; text-align: center;">تأكيد البريد الإلكتروني</h2>
-            <p>مرحباً ${user ? user.name : tempUserData.name}،</p>
+            <p>مرحباً ${userName}،</p>
             <p>لقد طلبت إعادة إرسال رابط تأكيد البريد الإلكتروني.</p>
             <p>اضغط على الرابط أدناه لتأكيد حسابك:</p>
             <div style="text-align: center; margin: 30px 0;">

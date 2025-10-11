@@ -72,25 +72,61 @@ export function WebsiteSchema() {
   )
 }
 
-// Template structured data
+// Template structured data (for paid templates, uses Product schema; for free, uses SoftwareApplication)
 export function TemplateSchema({ template }) {
-  const schema = {
+  // Use Product schema for paid templates for better e-commerce SEO
+  const schema = template.isPaid ? {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": template.title,
+    "description": template.description || template.features || `قالب ${template.title} - قالب نوشن احترافي`,
+    "image": template.previewImage || template.previewImages?.[0],
+    "brand": {
+      "@type": "Brand",
+      "name": siteConfig.name
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": template.price,
+      "priceCurrency": "SAR",
+      "availability": "https://schema.org/InStock",
+      "url": `${siteConfig.url}/templates/${template.slug || template._id}`,
+      "seller": {
+        "@type": "Person",
+        "name": template.creator?.name || "مبدع",
+        "url": template.creator?.username ? `${siteConfig.url}/creators/${template.creator.username}` : undefined
+      },
+      "priceValidUntil": new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0]
+    },
+    "aggregateRating": template.rating ? {
+      "@type": "AggregateRating",
+      "ratingValue": template.rating,
+      "reviewCount": template.reviewsCount || template.reviews || 1,
+      "bestRating": 5,
+      "worstRating": 1
+    } : undefined,
+    "category": template.category,
+    "sku": template._id,
+    "url": `${siteConfig.url}/templates/${template.slug || template._id}`,
+    "inLanguage": "ar"
+  } : {
+    // SoftwareApplication schema for free templates
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": template.title,
-    "description": template.description,
+    "description": template.description || template.features || `قالب ${template.title} - قالب نوشن مجاني`,
     "url": `${siteConfig.url}/templates/${template.slug || template._id}`,
     "applicationCategory": "ProductivityApplication",
     "operatingSystem": "Web",
     "offers": {
       "@type": "Offer",
-      "price": template.price || 0,
-      "priceCurrency": "USD",
+      "price": "0",
+      "priceCurrency": "SAR",
       "availability": "https://schema.org/InStock"
     },
     "author": {
       "@type": "Person",
-      "name": template.creator?.name || "Unknown Creator",
+      "name": template.creator?.name || "مبدع",
       "url": template.creator?.username ? `${siteConfig.url}/creators/${template.creator.username}` : undefined
     },
     "datePublished": template.createdAt,
@@ -98,7 +134,7 @@ export function TemplateSchema({ template }) {
     "aggregateRating": template.rating ? {
       "@type": "AggregateRating",
       "ratingValue": template.rating,
-      "ratingCount": template.reviews || template.downloads || 1,
+      "ratingCount": template.reviewsCount || template.reviews || template.downloads || 1,
       "bestRating": 5,
       "worstRating": 1
     } : undefined,
@@ -114,6 +150,15 @@ export function TemplateSchema({ template }) {
       delete schema[key]
     }
   })
+
+  // Clean nested objects
+  if (schema.offers) {
+    Object.keys(schema.offers).forEach(key => {
+      if (schema.offers[key] === undefined) {
+        delete schema.offers[key]
+      }
+    })
+  }
 
   return (
     <script
@@ -217,6 +262,63 @@ export function BreadcrumbSchema({ items }) {
       "position": index + 1,
       "name": item.name,
       "item": item.url
+    }))
+  }
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  )
+}
+
+// FAQ structured data for support/help pages
+export function FAQSchema({ faqs }) {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map((faq) => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer
+      }
+    }))
+  }
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  )
+}
+
+// Collection/ItemList structured data for template listings
+export function ItemListSchema({ items, listName = 'قوالب نوشن' }) {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": listName,
+    "itemListElement": items.map((item, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": item.isPaid ? "Product" : "SoftwareApplication",
+        "name": item.title,
+        "url": `${siteConfig.url}/templates/${item.slug || item._id}`,
+        "image": item.previewImage,
+        "description": item.description,
+        ...(item.rating && {
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": item.rating,
+            "bestRating": 5
+          }
+        })
+      }
     }))
   }
 

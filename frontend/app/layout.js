@@ -8,7 +8,7 @@ import NavigationWrapper from '../components/NavigationWrapper'
 import NavigationHandler from '../components/NavigationHandler'
 import LoadingIndicator from '../components/LoadingIndicator'
 import { OrganizationSchema, WebsiteSchema } from '../components/StructuredData'
-import { GoogleAnalytics } from '../components/SEOOptimizations'
+import { GoogleAnalytics, HreflangLinks } from '../components/SEOOptimizations'
 import { QueryProvider } from '../components/QueryProvider'
 import MaintenanceMode from '../components/MaintenanceMode'
 
@@ -37,6 +37,7 @@ export default function RootLayout({ children }) {
       <head>
         <OrganizationSchema />
         <WebsiteSchema />
+        <HreflangLinks currentPath="" />
         <GoogleAnalytics GA_TRACKING_ID={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID} />
         {/* Favicon - Multiple formats for better compatibility */}
         <link rel="icon" href="/favicon.ico" sizes="any" />

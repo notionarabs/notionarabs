@@ -31,8 +31,52 @@ export default function CreatorApplicationsPage() {
   const [badgePresets, setBadgePresets] = useState(null);
   const [selectedBadgeType, setSelectedBadgeType] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+  const [expandedApplications, setExpandedApplications] = useState({});
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('date-desc');
+  const [showFilters, setShowFilters] = useState(false);
   const { user, isAuthenticated, loading: authLoading, refreshUserData, ensureTokenInHeaders } = useAuth();
   const router = useRouter();
+
+  const toggleApplicationDetails = (applicationId) => {
+    setExpandedApplications(prev => ({
+      ...prev,
+      [applicationId]: !prev[applicationId]
+    }));
+  };
+
+  // Filter and search applications
+  const filteredApplications = applications.filter(app => {
+    // Search filter
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = searchTerm === '' ||
+      app.name?.toLowerCase().includes(searchLower) ||
+      app.email?.toLowerCase().includes(searchLower) ||
+      app.phone?.toLowerCase().includes(searchLower) ||
+      app.specialties?.some(s => s.toLowerCase().includes(searchLower));
+
+    // Status filter
+    const matchesStatus = statusFilter === 'all' || app.creatorStatus === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
+
+  // Sort applications
+  const sortedApplications = [...filteredApplications].sort((a, b) => {
+    switch (sortBy) {
+      case 'date-desc':
+        return new Date(b.appliedAt) - new Date(a.appliedAt);
+      case 'date-asc':
+        return new Date(a.appliedAt) - new Date(b.appliedAt);
+      case 'name-asc':
+        return (a.name || '').localeCompare(b.name || '');
+      case 'name-desc':
+        return (b.name || '').localeCompare(a.name || '');
+      default:
+        return 0;
+    }
+  });
 
   useEffect(() => {
     // Don't do anything while authentication is still loading
@@ -344,6 +388,124 @@ export default function CreatorApplicationsPage() {
           </div>
         </div>
 
+        {/* Advanced Search and Filters */}
+        <div className="card p-6 mb-6">
+          <div className="flex flex-col gap-4">
+            {/* Search Bar */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  placeholder="البحث بالاسم، البريد الإلكتروني، الهاتف، أو التخصص..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full px-4 py-2.5 pr-10 bg-white dark:bg-dark-tertiary border border-gray-300 dark:border-dark-input-border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-sm"
+                />
+                <svg
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2 justify-center ${showFilters || statusFilter !== 'all' || sortBy !== 'date-desc'
+                    ? 'bg-primary-500 hover:bg-primary-600 text-white'
+                    : 'bg-gray-100 dark:bg-dark-tertiary hover:bg-gray-200 dark:hover:bg-dark-quaternary text-gray-700 dark:text-dark-text-primary'
+                  }`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+                <span className="hidden sm:inline">فلترة متقدمة</span>
+                {(statusFilter !== 'all' || sortBy !== 'date-desc') && (
+                  <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs">نشط</span>
+                )}
+              </button>
+            </div>
+
+            {/* Filter Options - Collapsible */}
+            {showFilters && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 border-t border-gray-200 dark:border-dark-card-border">
+                {/* Status Filter */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 dark:text-dark-text-secondary mb-2">
+                    حالة الطلب
+                  </label>
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="w-full px-3 py-2 bg-white dark:bg-dark-tertiary border border-gray-300 dark:border-dark-input-border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-sm"
+                  >
+                    <option value="all">الكل ({applications.length})</option>
+                    <option value="pending">قيد المراجعة ({stats.pending || 0})</option>
+                    <option value="approved">مقبول ({stats.approved || 0})</option>
+                    <option value="rejected">مرفوض ({stats.rejected || 0})</option>
+                  </select>
+                </div>
+
+                {/* Sort By */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 dark:text-dark-text-secondary mb-2">
+                    ترتيب حسب
+                  </label>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="w-full px-3 py-2 bg-white dark:bg-dark-tertiary border border-gray-300 dark:border-dark-input-border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-sm"
+                  >
+                    <option value="date-desc">الأحدث أولاً</option>
+                    <option value="date-asc">الأقدم أولاً</option>
+                    <option value="name-asc">الاسم (أ - ي)</option>
+                    <option value="name-desc">الاسم (ي - أ)</option>
+                  </select>
+                </div>
+
+                {/* Clear Filters Button */}
+                <div className="flex items-end">
+                  <button
+                    onClick={() => {
+                      setSearchTerm('');
+                      setStatusFilter('all');
+                      setSortBy('date-desc');
+                    }}
+                    disabled={searchTerm === '' && statusFilter === 'all' && sortBy === 'date-desc'}
+                    className="w-full px-4 py-2 bg-red-100 dark:bg-red-900/20 hover:bg-red-200 dark:hover:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    مسح الفلاتر
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Results Count */}
+            <div className="flex items-center justify-between pt-2">
+              <p className="text-sm text-gray-600 dark:text-dark-text-secondary">
+                عرض <span className="font-semibold text-primary-600 dark:text-orange-400">{sortedApplications.length}</span> من أصل <span className="font-semibold">{applications.length}</span> طلب
+              </p>
+              {sortedApplications.length > 0 && (
+                <button
+                  onClick={() => {
+                    const allExpanded = sortedApplications.every(app => expandedApplications[app.id]);
+                    const newState = {};
+                    sortedApplications.forEach(app => {
+                      newState[app.id] = !allExpanded;
+                    });
+                    setExpandedApplications(newState);
+                  }}
+                  className="text-xs text-primary-600 dark:text-orange-400 hover:underline font-medium"
+                >
+                  {sortedApplications.every(app => expandedApplications[app.id]) ? 'طي الكل' : 'توسيع الكل'}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* Applications List */}
         <div className="card p-6">
           <h2 className="heading-3 mb-6">طلبات المبدعين</h2>
@@ -354,45 +516,128 @@ export default function CreatorApplicationsPage() {
             </div>
           )}
 
-          {applications.length === 0 ? (
+          {sortedApplications.length === 0 ? (
             <div className="text-center py-12">
               <svg className="w-16 h-16 text-accent-400 dark:text-dark-text-tertiary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                {searchTerm || statusFilter !== 'all' ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                )}
               </svg>
-              <p className="text-accent-600 dark:text-dark-text-secondary">لا توجد طلبات مبدعين</p>
+              <p className="text-accent-600 dark:text-dark-text-secondary mb-4">
+                {searchTerm || statusFilter !== 'all' ? 'لا توجد نتائج تطابق البحث' : 'لا توجد طلبات مبدعين'}
+              </p>
+              {(searchTerm || statusFilter !== 'all') && (
+                <button
+                  onClick={() => {
+                    setSearchTerm('');
+                    setStatusFilter('all');
+                  }}
+                  className="text-sm text-primary-600 dark:text-orange-400 hover:underline"
+                >
+                  مسح الفلاتر
+                </button>
+              )}
             </div>
           ) : (
-            <div className="space-y-6">
-              {applications.map((application) => (
-                <div key={application.id} className="border border-gray-200 dark:border-dark-card-border rounded-lg p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-4">
+            <div className="space-y-4">
+              {sortedApplications.map((application) => (
+                <div key={application.id} className="border border-gray-200 dark:border-dark-card-border rounded-lg overflow-hidden hover:border-primary-300 dark:hover:border-orange-600/50 transition-all">
+                  {/* Compact One-Line View */}
+                  <div className="flex items-center justify-between p-4 gap-4">
+                    {/* Left: Profile Picture + Name + Email */}
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
                       {application.profilePicture ? (
                         <img
                           src={application.profilePicture}
                           alt={application.name}
-                          className="w-12 h-12 rounded-full"
+                          className="w-10 h-10 rounded-full flex-shrink-0"
                         />
                       ) : (
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 flex items-center justify-center">
-                          <span className="text-white font-bold">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 flex items-center justify-center flex-shrink-0">
+                          <span className="text-white font-bold text-sm">
                             {application.name?.charAt(0)?.toUpperCase()}
                           </span>
                         </div>
                       )}
-                      <div>
-                        <h3 className="font-semibold text-gray-900 dark:text-dark-text-primary">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-gray-900 dark:text-dark-text-primary text-sm truncate">
                           {application.name}
                         </h3>
-                        <p className="text-sm text-gray-600 dark:text-dark-text-secondary">
+                        <p className="text-xs text-gray-600 dark:text-dark-text-secondary truncate">
                           {application.email}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">
-                          {new Date(application.appliedAt).toLocaleDateString('en-US')}
-                        </p>
-                        {/* Creator Badges */}
-                        {application.badges && application.badges.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-2">
+                      </div>
+                    </div>
+
+                    {/* Middle: Date + Status + Badges */}
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <span className="text-xs text-gray-500 dark:text-dark-text-tertiary hidden sm:block">
+                        {new Date(application.appliedAt).toLocaleDateString('ar-EG')}
+                      </span>
+
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${application.creatorStatus === 'pending'
+                        ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+                        : application.creatorStatus === 'approved'
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                          : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                        }`}>
+                        {application.creatorStatus === 'pending' && 'قيد المراجعة'}
+                        {application.creatorStatus === 'approved' && 'مقبول'}
+                        {application.creatorStatus === 'rejected' && 'مرفوض'}
+                      </span>
+
+                      {application.badges && application.badges.length > 0 && (
+                        <div className="hidden md:flex items-center gap-1">
+                          {application.badges.slice(0, 2).map((badge) => {
+                            const BadgeIcon = getBadgeIcon(badge.type);
+                            return (
+                              <div
+                                key={badge._id}
+                                className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-50 dark:bg-orange-500/10 border border-primary-200 dark:border-orange-500/20"
+                                title={badge.label}
+                              >
+                                <BadgeIcon className="w-3 h-3 text-primary-600 dark:text-orange-400" strokeWidth={2} />
+                              </div>
+                            );
+                          })}
+                          {application.badges.length > 2 && (
+                            <span className="text-xs text-gray-500 dark:text-dark-text-tertiary">
+                              +{application.badges.length - 2}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Right: Details Button */}
+                    <button
+                      onClick={() => toggleApplicationDetails(application.id)}
+                      className="px-3 py-1.5 bg-gray-100 dark:bg-dark-tertiary hover:bg-gray-200 dark:hover:bg-dark-quaternary text-gray-700 dark:text-dark-text-primary rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 flex-shrink-0"
+                    >
+                      <span>التفاصيل</span>
+                      <svg
+                        className={`w-4 h-4 transition-transform duration-200 ${expandedApplications[application.id] ? 'rotate-180' : ''}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* Expandable Details Section */}
+                  {expandedApplications[application.id] && (
+                    <div className="border-t border-gray-200 dark:border-dark-card-border bg-gray-50 dark:bg-dark-tertiary p-4">
+                      {/* All Badges */}
+                      {application.badges && application.badges.length > 0 && (
+                        <div className="mb-4">
+                          <label className="block text-xs font-medium text-gray-700 dark:text-dark-text-secondary mb-2">
+                            الشارات
+                          </label>
+                          <div className="flex flex-wrap gap-1.5">
                             {application.badges.map((badge) => {
                               const BadgeIcon = getBadgeIcon(badge.type);
                               return (
@@ -406,106 +651,94 @@ export default function CreatorApplicationsPage() {
                               );
                             })}
                           </div>
+                        </div>
+                      )}
+
+                      {/* Application Details */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-dark-text-secondary mb-1">
+                            المعرض
+                          </label>
+                          <a
+                            href={application.portfolio}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary-600 dark:text-orange-400 hover:underline text-sm break-all"
+                          >
+                            {application.portfolio}
+                          </a>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-dark-text-secondary mb-1">
+                            الهاتف
+                          </label>
+                          <p className="text-sm text-gray-900 dark:text-dark-text-primary">
+                            {application.phone}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mb-4">
+                        <label className="block text-xs font-medium text-gray-700 dark:text-dark-text-secondary mb-1">
+                          الخبرة
+                        </label>
+                        <p className="text-sm text-gray-900 dark:text-dark-text-primary">
+                          {application.experience}
+                        </p>
+                      </div>
+
+                      <div className="mb-4">
+                        <label className="block text-xs font-medium text-gray-700 dark:text-dark-text-secondary mb-1">
+                          التخصصات
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                          {application.specialties?.map((specialty, index) => (
+                            <span key={index} className="px-2 py-1 bg-white dark:bg-dark-secondary text-gray-700 dark:text-dark-text-secondary rounded text-xs border border-gray-200 dark:border-dark-card-border">
+                              {specialty}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="mb-4">
+                        <label className="block text-xs font-medium text-gray-700 dark:text-dark-text-secondary mb-1">
+                          الدافع
+                        </label>
+                        <p className="text-sm text-gray-900 dark:text-dark-text-primary">
+                          {application.motivation}
+                        </p>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200 dark:border-dark-card-border">
+                        {application.creatorStatus === 'pending' && (
+                          <>
+                            <button
+                              onClick={() => updateApplicationStatus(application.id, 'approved')}
+                              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
+                            >
+                              قبول الطلب
+                            </button>
+                            <button
+                              onClick={() => updateApplicationStatus(application.id, 'rejected')}
+                              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
+                            >
+                              رفض الطلب
+                            </button>
+                          </>
                         )}
+                        {/* Badge Management Button - Available for all creators */}
+                        <button
+                          onClick={() => handleManageBadges(application)}
+                          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors"
+                        >
+                          إدارة الشارات
+                        </button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${application.creatorStatus === 'pending'
-                        ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
-                        : application.creatorStatus === 'approved'
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                          : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-                        }`}>
-                        {application.creatorStatus === 'pending' && 'قيد المراجعة'}
-                        {application.creatorStatus === 'approved' && 'مقبول'}
-                        {application.creatorStatus === 'rejected' && 'مرفوض'}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Application Details */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-1">
-                        المعرض
-                      </label>
-                      <a
-                        href={application.portfolio}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary-600 dark:text-orange-400 hover:underline text-sm"
-                      >
-                        {application.portfolio}
-                      </a>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-1">
-                        الهاتف
-                      </label>
-                      <p className="text-sm text-gray-900 dark:text-dark-text-primary">
-                        {application.phone}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-1">
-                      الخبرة
-                    </label>
-                    <p className="text-sm text-gray-900 dark:text-dark-text-primary">
-                      {application.experience}
-                    </p>
-                  </div>
-
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-1">
-                      التخصصات
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {application.specialties?.map((specialty, index) => (
-                        <span key={index} className="px-2 py-1 bg-gray-100 dark:bg-dark-tertiary text-gray-700 dark:text-dark-text-secondary rounded text-xs">
-                          {specialty}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-dark-text-secondary mb-1">
-                      الدافع
-                    </label>
-                    <p className="text-sm text-gray-900 dark:text-dark-text-primary">
-                      {application.motivation}
-                    </p>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-dark-card-border">
-                    {application.creatorStatus === 'pending' && (
-                      <>
-                        <button
-                          onClick={() => updateApplicationStatus(application.id, 'approved')}
-                          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
-                        >
-                          قبول الطلب
-                        </button>
-                        <button
-                          onClick={() => updateApplicationStatus(application.id, 'rejected')}
-                          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
-                        >
-                          رفض الطلب
-                        </button>
-                      </>
-                    )}
-                    {/* Badge Management Button - Available for all creators */}
-                    <button
-                      onClick={() => handleManageBadges(application)}
-                      className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors"
-                    >
-                      إدارة الشارات
-                    </button>
-                  </div>
+                  )}
                 </div>
               ))}
             </div>

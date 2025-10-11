@@ -287,29 +287,58 @@ templateSchema.methods.reject = function (adminId, notes = '') {
 };
 
 // Method to increment views
-templateSchema.methods.incrementViews = function () {
+templateSchema.methods.incrementViews = async function () {
+  // Use atomic update to avoid triggering validation
+  await mongoose.model('Template').updateOne(
+    { _id: this._id },
+    { $inc: { views: 1 } }
+  );
   this.views += 1;
-  return this.save();
+  return this;
 };
 
 // Method to increment downloads
-templateSchema.methods.incrementDownloads = function () {
+templateSchema.methods.incrementDownloads = async function () {
+  // Use atomic update to avoid triggering validation
+  await mongoose.model('Template').updateOne(
+    { _id: this._id },
+    { $inc: { downloads: 1 } }
+  );
   this.downloads += 1;
-  return this.save();
+  return this;
 };
 
 // Method to increment sales
-templateSchema.methods.incrementSales = function () {
+templateSchema.methods.incrementSales = async function () {
+  // Use atomic update to avoid triggering validation
+  await mongoose.model('Template').updateOne(
+    { _id: this._id },
+    { $inc: { sales: 1 } }
+  );
   this.sales += 1;
-  return this.save();
+  return this;
 };
 
 // Method to update rating
-templateSchema.methods.updateRating = function (newRating) {
+templateSchema.methods.updateRating = async function (newRating) {
   const totalRating = (this.rating * this.reviewsCount) + newRating;
-  this.reviewsCount += 1;
-  this.rating = totalRating / this.reviewsCount;
-  return this.save();
+  const newReviewsCount = this.reviewsCount + 1;
+  const newRatingValue = totalRating / newReviewsCount;
+
+  // Use atomic update to avoid triggering validation
+  await mongoose.model('Template').updateOne(
+    { _id: this._id },
+    {
+      $set: {
+        rating: newRatingValue,
+        reviewsCount: newReviewsCount
+      }
+    }
+  );
+
+  this.rating = newRatingValue;
+  this.reviewsCount = newReviewsCount;
+  return this;
 };
 
 module.exports = mongoose.model('Template', templateSchema);

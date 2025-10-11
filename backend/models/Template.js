@@ -60,6 +60,11 @@ const templateSchema = new mongoose.Schema({
     ],
     maxlength: [50, 'كل فئة لا يجب أن تتجاوز 50 حرف']
   }],
+  language: {
+    type: String,
+    enum: ['ar', 'en', 'fr', 'ar-en', 'ar-fr'],
+    default: 'ar'
+  },
   isPaid: {
     type: Boolean,
     default: false

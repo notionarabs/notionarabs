@@ -1,11 +1,33 @@
 'use client';
 
+import { useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatCurrentDate } from '../../lib/dateUtils';
 import { Youtube, Facebook, Send, X, Users } from 'lucide-react';
 
 export default function TermsPage() {
+  // Set page metadata dynamically
+  useEffect(() => {
+    document.title = 'شروط الاستخدام | عرب نوشن';
+
+    // Set canonical URL
+    const canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (canonicalLink) {
+      canonicalLink.setAttribute('href', 'https://www.notionarabs.com/terms');
+    } else {
+      const newCanonical = document.createElement('link');
+      newCanonical.setAttribute('rel', 'canonical');
+      newCanonical.setAttribute('href', 'https://www.notionarabs.com/terms');
+      document.head.appendChild(newCanonical);
+    }
+
+    // Set meta description
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'شروط وأحكام استخدام منصة عرب نوشن - قم بقراءة الشروط قبل استخدام المنصة');
+    }
+  }, []);
 
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">

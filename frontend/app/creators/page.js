@@ -55,6 +55,20 @@ export default function CreatorsPage() {
   });
   const { user, isAuthenticated } = useAuth();
 
+  // Set page metadata
+  useEffect(() => {
+    document.title = 'المبدعون | عرب نوشن';
+    const canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (canonicalLink) {
+      canonicalLink.setAttribute('href', 'https://www.notionarabs.com/creators');
+    } else {
+      const newCanonical = document.createElement('link');
+      newCanonical.setAttribute('rel', 'canonical');
+      newCanonical.setAttribute('href', 'https://www.notionarabs.com/creators');
+      document.head.appendChild(newCanonical);
+    }
+  }, []);
+
   // Fuse.js configuration for creators
   const fuseOptions = useMemo(() => ({
     keys: [

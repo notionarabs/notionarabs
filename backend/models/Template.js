@@ -78,6 +78,24 @@ const templateSchema = new mongoose.Schema({
       message: 'السعر مطلوب للقوالب المدفوعة'
     }
   },
+  purchaseLink: {
+    type: String,
+    trim: true,
+    validate: {
+      validator: function (v) {
+        // If isPaid is true, purchaseLink is required
+        if (this.isPaid && (!v || v.trim() === '')) {
+          return false;
+        }
+        // If purchaseLink is provided, it must be a valid URL
+        if (v && v.trim() !== '') {
+          return /^https?:\/\/.+/.test(v);
+        }
+        return true;
+      },
+      message: 'رابط الشراء مطلوب للقوالب المدفوعة ويجب أن يكون رابطاً صحيحاً'
+    }
+  },
   notionLink: {
     type: String,
     required: [true, 'رابط نوشن مطلوب'],

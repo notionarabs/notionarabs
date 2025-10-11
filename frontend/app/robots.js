@@ -20,6 +20,8 @@ export default function robots() {
           '/forgot-password',
           '/reset-password',
           '/verify-email',
+          '/pricing',
+          '/help',
         ],
       },
       {

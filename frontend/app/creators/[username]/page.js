@@ -407,10 +407,27 @@ export default function PublicProfilePage() {
 
 
               {/* Professional Information */}
-              {(creator.portfolio || creator.experience || creator.motivation) && (
+              {(creator.portfolio || creator.experience || creator.motivation || (creator.specialties && creator.specialties.length > 0)) && (
                 <div className="bg-white dark:bg-dark-secondary p-4 sm:p-5 md:p-6 rounded-lg sm:rounded-xl border border-gray-200 dark:border-dark-card-border shadow-sm">
                   <h3 className="text-sm sm:text-base font-semibold text-gray-700 dark:text-dark-text-primary mb-3 sm:mb-4">المعلومات المهنية</h3>
                   <div className="space-y-3 sm:space-y-4">
+                    {/* Specialties */}
+                    {creator.specialties && creator.specialties.length > 0 && (
+                      <div className="pb-3 sm:pb-4 border-b border-gray-100 dark:border-dark-card-border last:border-b-0 last:pb-0">
+                        <h4 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-dark-text-quaternary mb-2">المجالات التي يختص بها</h4>
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                          {creator.specialties.map((specialty, index) => (
+                            <span
+                              key={index}
+                              className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-primary-100 dark:bg-orange-900/30 text-primary-800 dark:text-orange-300 border border-primary-200 dark:border-orange-700"
+                            >
+                              {specialty}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Portfolio */}
                     {creator.portfolio && (
                       <div className="pb-3 sm:pb-4 border-b border-gray-100 dark:border-dark-card-border last:border-b-0 last:pb-0">

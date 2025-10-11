@@ -46,6 +46,20 @@ function ContactForm() {
     message: '',
     category: 'general'
   });
+
+  // Set page metadata
+  useEffect(() => {
+    document.title = 'اتصل بنا | عرب نوشن';
+    const canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (canonicalLink) {
+      canonicalLink.setAttribute('href', 'https://www.notionarabs.com/contact');
+    } else {
+      const newCanonical = document.createElement('link');
+      newCanonical.setAttribute('rel', 'canonical');
+      newCanonical.setAttribute('href', 'https://www.notionarabs.com/contact');
+      document.head.appendChild(newCanonical);
+    }
+  }, []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
   const [creator, setCreator] = useState(null);

@@ -96,6 +96,23 @@ router.post('/', auth, [
       }
       return true;
     }),
+  body('purchaseLink')
+    .optional()
+    .custom((value, { req }) => {
+      // If isPaid is true, purchaseLink must be provided
+      if (req.body.isPaid === true || req.body.isPaid === 'true') {
+        if (!value || value.trim() === '') {
+          throw new Error('رابط الشراء مطلوب للقوالب المدفوعة');
+        }
+      }
+      // If purchaseLink is provided, it must be a valid URL
+      if (value && value.trim() !== '') {
+        if (!/^https?:\/\/.+/.test(value)) {
+          throw new Error('رابط الشراء غير صحيح');
+        }
+      }
+      return true;
+    }),
   body('notionLink')
     .isURL()
     .withMessage('رابط نوشن غير صحيح'),
@@ -746,6 +763,23 @@ router.put('/:id', auth, [
         const numPrice = Number(value);
         if (isNaN(numPrice) || numPrice < 0) {
           throw new Error('السعر يجب أن يكون رقماً صحيحاً أكبر من أو يساوي 0');
+        }
+      }
+      return true;
+    }),
+  body('purchaseLink')
+    .optional()
+    .custom((value, { req }) => {
+      // If isPaid is true, purchaseLink must be provided
+      if (req.body.isPaid === true || req.body.isPaid === 'true') {
+        if (!value || value.trim() === '') {
+          throw new Error('رابط الشراء مطلوب للقوالب المدفوعة');
+        }
+      }
+      // If purchaseLink is provided, it must be a valid URL
+      if (value && value.trim() !== '') {
+        if (!/^https?:\/\/.+/.test(value)) {
+          throw new Error('رابط الشراء غير صحيح');
         }
       }
       return true;

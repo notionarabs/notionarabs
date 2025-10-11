@@ -1,11 +1,33 @@
 'use client';
 
+import { useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatCurrentDate } from '../../lib/dateUtils';
 import { Youtube, Facebook, Send, X, Users } from 'lucide-react';
 
 export default function PrivacyPage() {
+  // Set page metadata dynamically
+  useEffect(() => {
+    document.title = 'سياسة الخصوصية | عرب نوشن';
+
+    // Set canonical URL
+    const canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (canonicalLink) {
+      canonicalLink.setAttribute('href', 'https://www.notionarabs.com/privacy');
+    } else {
+      const newCanonical = document.createElement('link');
+      newCanonical.setAttribute('rel', 'canonical');
+      newCanonical.setAttribute('href', 'https://www.notionarabs.com/privacy');
+      document.head.appendChild(newCanonical);
+    }
+
+    // Set meta description
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'سياسة الخصوصية لمنصة عرب نوشن - تعرف على كيفية حماية بياناتك الشخصية وخصوصيتك');
+    }
+  }, []);
 
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">

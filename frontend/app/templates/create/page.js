@@ -29,6 +29,7 @@ function CreateTemplatePageContent() {
     notionLink: '',
     isPaid: false, // Whether the template is paid
     price: '', // Price for paid templates
+    purchaseLink: '', // Purchase link for paid templates
     features: '',
     tags: [], // Changed to array for tag-based input
     previewImage: '',
@@ -79,6 +80,7 @@ function CreateTemplatePageContent() {
             notionLink: toEdit.notionLink || '',
             isPaid: toEdit.isPaid || false,
             price: toEdit.price || '',
+            purchaseLink: toEdit.purchaseLink || '',
             features: toEdit.features || '',
             tags: Array.isArray(toEdit.tags) ? toEdit.tags : (toEdit.tags ? [toEdit.tags] : []),
             previewImage: toEdit.previewImage || '',
@@ -582,10 +584,15 @@ function CreateTemplatePageContent() {
         setIsSubmitting(false);
         return;
       }
-      // Price validation for paid templates
+      // Price and purchase link validation for paid templates
       if (formData.isPaid) {
         if (!formData.price || formData.price <= 0) {
           showError('يرجى إدخال سعر صحيح للقالب المدفوع');
+          setIsSubmitting(false);
+          return;
+        }
+        if (!formData.purchaseLink || !formData.purchaseLink.trim()) {
+          showError('يرجى إدخال رابط الشراء للقالب المدفوع');
           setIsSubmitting(false);
           return;
         }
@@ -613,6 +620,7 @@ function CreateTemplatePageContent() {
         notionLink: formData.notionLink.trim(),
         isPaid: formData.isPaid,
         price: formData.isPaid ? Number(formData.price) : undefined,
+        purchaseLink: formData.isPaid ? formData.purchaseLink.trim() : undefined,
         tags: tagsArray.length > 0 ? tagsArray : undefined,
         features: formData.features.trim() || undefined,
         previewImage: formData.previewImage || undefined,
@@ -641,6 +649,7 @@ function CreateTemplatePageContent() {
           notionLink: '',
           isPaid: false,
           price: '',
+          purchaseLink: '',
           features: '',
           tags: [],
           previewImage: '',
@@ -968,7 +977,8 @@ function CreateTemplatePageContent() {
                           setFormData(prev => ({
                             ...prev,
                             isPaid: e.target.checked,
-                            price: e.target.checked ? prev.price : ''
+                            price: e.target.checked ? prev.price : '',
+                            purchaseLink: e.target.checked ? prev.purchaseLink : ''
                           }));
                         }}
                         className="sr-only peer"
@@ -977,36 +987,69 @@ function CreateTemplatePageContent() {
                     </label>
                   </label>
 
-                  {/* Price Input - Shows only when isPaid is true */}
+                  {/* Price and Purchase Link Inputs - Show only when isPaid is true */}
                   {formData.isPaid && (
-                    <div className="mt-3 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
-                      <label className="flex items-center text-xs sm:text-sm font-semibold text-green-700 dark:text-green-300 mb-2 sm:mb-3">
-                        <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 ml-1.5 sm:ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        السعر *
-                      </label>
-                      <div className="relative">
-                        <input
-                          type="number"
-                          name="price"
-                          value={formData.price}
-                          onChange={handleInputChange}
-                          required={formData.isPaid}
-                          min="0"
-                          step="0.01"
-                          className="form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-green-200 dark:border-green-800 focus:border-green-500 dark:focus:border-green-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-green-300 dark:hover:border-green-400 bg-white dark:bg-dark-input"
-                          placeholder="00.00"
-                        />
-                        <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
-                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="mt-3 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl space-y-4">
+                      {/* Price Input */}
+                      <div>
+                        <label className="flex items-center text-xs sm:text-sm font-semibold text-green-700 dark:text-green-300 mb-2 sm:mb-3">
+                          <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 ml-1.5 sm:ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
+                          السعر *
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            name="price"
+                            value={formData.price}
+                            onChange={handleInputChange}
+                            required={formData.isPaid}
+                            min="0"
+                            step="0.01"
+                            className="form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-green-200 dark:border-green-800 focus:border-green-500 dark:focus:border-green-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-green-300 dark:hover:border-green-400 bg-white dark:bg-dark-input"
+                            placeholder="00.00"
+                          />
+                          <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
+                            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
                         </div>
+                        <p className="text-xs text-green-600 dark:text-green-400 mt-2">
+                          أدخل السعر بالريال السعودي (ر.س)
+                        </p>
                       </div>
-                      <p className="text-xs text-green-600 dark:text-green-400 mt-2">
-                        أدخل السعر بالريال السعودي (ر.س)
-                      </p>
+
+                      {/* Purchase Link Input */}
+                      <div>
+                        <label className="flex items-center text-xs sm:text-sm font-semibold text-green-700 dark:text-green-300 mb-2 sm:mb-3">
+                          <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 ml-1.5 sm:ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                          </svg>
+                          رابط الشراء *
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="url"
+                            name="purchaseLink"
+                            value={formData.purchaseLink}
+                            onChange={handleInputChange}
+                            required={formData.isPaid}
+                            className="form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-green-200 dark:border-green-800 focus:border-green-500 dark:focus:border-green-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-green-300 dark:hover:border-green-400 bg-white dark:bg-dark-input"
+                            placeholder="https://example.com/purchase-link"
+                            dir="ltr"
+                          />
+                          <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
+                            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
+                          </div>
+                        </div>
+                        <p className="text-xs text-green-600 dark:text-green-400 mt-2">
+                          أدخل الرابط الذي سيستخدمه المشترون لشراء القالب
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>

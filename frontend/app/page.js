@@ -177,127 +177,28 @@ export default function HomePage() {
           setLoadingCreators(false);
           return;
         }
-        const categoriesArabic = [
-          'الإنتاجية',
-          'الدراسة',
-          'الأعمال',
-          'الحياة الشخصية',
-          'الإبداع',
-          'التخطيط'
-        ];
 
-        const templatesCountReq = api.get('/templates?limit=1');
-        const creatorsReq = api.get('/creators?limit=20&sortBy=popular&includeStats=true');
-        const specialtiesCountReq = api.get('/creators/stats/specialties');
-        const downloadsCountReq = api.get('/creators/stats/downloads');
-        const categoryCountReqs = categoriesArabic.map((name) =>
-          api
-            .get(`/templates?category=${encodeURIComponent(name)}&limit=1`)
-            .then((res) => ({ name, total: res?.data?.pagination?.total || 0 }))
-            .catch(() => ({ name, total: 0 }))
-        );
+        // Use optimized single endpoint for all homepage stats
+        const response = await api.get('/stats/homepage');
 
-        const [templatesRes, creatorsRes, specialtiesRes, downloadsRes, categoryTotalsArr] = await Promise.all([
-          templatesCountReq,
-          creatorsReq,
-          specialtiesCountReq,
-          downloadsCountReq,
-          Promise.all(categoryCountReqs)
-        ]);
-
-        const totalTemplates = templatesRes?.data?.pagination?.total || 0;
-        const totalCreators = creatorsRes?.data?.pagination?.total || 0;
-        const totalSpecialties = specialtiesRes?.data?.count || 0;
-        const totalDownloads = downloadsRes?.data?.count || 0;
-        setStats({ templates: totalTemplates, creators: totalCreators, specialties: totalSpecialties, downloads: totalDownloads });
-
-        const creatorsList = creatorsRes?.data?.creators || [];
-
-        // Fetch detailed stats for all creators to find the most famous ones
-        const creatorsWithStats = await Promise.all(
-          creatorsList.map(async (creator) => {
-            try {
-              // Fetch creator's template count
-              const templatesResponse = await api.get(`/templates?creator=${creator.id || creator._id}&limit=1`);
-              const templateCount = templatesResponse?.data?.pagination?.total || 0;
-
-              // Fetch creator's ratings
-              const ratingsResponse = await api.get(`/ratings/creator/${creator.id || creator._id}?limit=1`);
-              const ratings = ratingsResponse?.data?.ratings || [];
-              const averageRating = ratings.length > 0
-                ? ratings.reduce((sum, rating) => sum + rating.rating, 0) / ratings.length
-                : 0;
-
-              return {
-                ...creator,
-                templatesCount: templateCount,
-                averageRating: averageRating,
-                ratingsCount: ratings.length,
-                followersCount: creator.followersCount || creator.followers || 0
-              };
-            } catch (error) {
-              // Return creator with default values if stats fetch fails
-              return {
-                ...creator,
-                templatesCount: 0,
-                averageRating: 0,
-                ratingsCount: 0,
-                followersCount: creator.followersCount || creator.followers || 0
-              };
-            }
-          })
-        );
-
-        // Filter and sort for the most famous creators
-        const featuredCreators = creatorsWithStats
-          .filter(creator =>
-            creator.followersCount >= 5 && // At least 5 followers
-            creator.templatesCount >= 1 && // At least 1 template
-            (creator.averageRating >= 3.0 || creator.followersCount >= 10) // Good rating OR many followers
-          )
-          .sort((a, b) => {
-            // Sort by a combination of followers, ratings, and template count
-            const scoreA = (a.followersCount * 0.5) + (a.averageRating * 10 * 0.3) + (Math.min(a.templatesCount, 20) * 0.2);
-            const scoreB = (b.followersCount * 0.5) + (b.averageRating * 10 * 0.3) + (Math.min(b.templatesCount, 20) * 0.2);
-            return scoreB - scoreA;
-          })
-          .slice(0, 4); // Take top 4
-
-        // If we don't have enough famous creators, fill with most followed
-        if (featuredCreators.length < 4) {
-          const mostFollowed = creatorsWithStats
-            .filter(creator => !featuredCreators.some(fc => fc.id === creator.id || fc._id === creator._id))
-            .sort((a, b) => (b.followersCount || 0) - (a.followersCount || 0))
-            .slice(0, 4 - featuredCreators.length);
-
-          featuredCreators.push(...mostFollowed);
+        if (response.data.success) {
+          setStats(response.data.stats);
+          setCategoryTotals(response.data.categoryTotals);
+          setTopCreators(response.data.topCreators);
         }
-
-        // Final fallback: get creators with most templates
-        if (featuredCreators.length < 4) {
-          const mostProductive = creatorsWithStats
-            .filter(creator => !featuredCreators.some(fc => fc.id === creator.id || fc._id === creator._id))
-            .sort((a, b) => (b.templatesCount || 0) - (a.templatesCount || 0))
-            .slice(0, 4 - featuredCreators.length);
-
-          featuredCreators.push(...mostProductive);
-        }
-
-        setTopCreators(featuredCreators);
-
-        const totalsMap = {};
-        categoryTotalsArr.forEach(({ name, total }) => {
-          totalsMap[name] = total;
-        });
-        setCategoryTotals(totalsMap);
       } catch (error) {
+        console.error('Error fetching homepage data:', error);
+        // Fallback to default values
+        setStats({ templates: 0, creators: 0, specialties: 0, downloads: 0 });
+        setCategoryTotals({});
+        setTopCreators([]);
       } finally {
         setLoadingCreators(false);
       }
     };
 
     fetchHomepageData();
-  }, [hasCheckedMaintenance]);
+  }, [hasCheckedMaintenance, isMaintenanceMode]);
 
 
 

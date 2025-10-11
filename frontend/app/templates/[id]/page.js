@@ -587,11 +587,14 @@ export default function TemplateDetailPage() {
       }, 8000);
 
     } catch (error) {
+      console.error('Download error:', error);
+
       if (error.response?.status === 401) {
         // Authentication error - redirect to login
         window.location.href = '/login';
       } else {
-        // Other errors - could add a toast notification here
+        // Other errors - show user-friendly message
+        alert(`خطأ في التحميل: ${error.response?.data?.message || 'حدث خطأ غير متوقع'}`);
       }
       setIsDownloaded(false);
     } finally {

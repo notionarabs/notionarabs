@@ -254,8 +254,20 @@ templateSchema.index({ downloads: -1 }); // For most downloaded
 templateSchema.index({ rating: -1, reviewsCount: -1 }); // For best rated
 templateSchema.index({ sales: -1 }); // For best sellers
 templateSchema.index({ status: 1, isPaid: 1, category: 1 }); // Multi-field filtering
-// Text index for search functionality
-templateSchema.index({ title: 'text', description: 'text', tags: 'text' });
+// Optimized compound indexes for common query patterns
+templateSchema.index({ status: 1, rating: -1, reviewsCount: -1 }); // For fetching top-rated approved templates
+templateSchema.index({ status: 1, downloads: -1 }); // For fetching popular approved templates
+templateSchema.index({ status: 1, views: -1 }); // For fetching most viewed approved templates
+templateSchema.index({ creator: 1, status: 1, downloads: -1 }); // For creator analytics
+// Text index for search functionality with explicit language override field
+// This prevents MongoDB from using the 'language' field as a text search language override
+templateSchema.index(
+  { title: 'text', description: 'text', tags: 'text' },
+  {
+    default_language: 'none',
+    language_override: 'textSearchLanguage' // Use a different field name for language override
+  }
+);
 
 
 // Virtual for status label in Arabic

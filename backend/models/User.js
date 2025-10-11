@@ -269,5 +269,8 @@ userSchema.index({ emailVerificationToken: 1 }); // For email verification
 userSchema.index({ createdAt: -1 }); // For sorting by join date
 userSchema.index({ followers: -1 }); // For popular creators
 userSchema.index({ rating: -1 }); // For top-rated creators
+// Optimized compound indexes for creator queries
+userSchema.index({ role: 1, creatorStatus: 1, followers: -1 }); // For fetching top creators
+userSchema.index({ role: 1, creatorStatus: 1, isActive: 1 }); // For active approved creators
 
 module.exports = mongoose.model('User', userSchema);

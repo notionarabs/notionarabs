@@ -30,7 +30,7 @@ export function OptimizedImage({
 
   if (hasError) {
     return (
-      <div 
+      <div
         className={`bg-gray-200 dark:bg-gray-700 flex items-center justify-center ${className}`}
         style={{ width, height }}
       >
@@ -49,7 +49,7 @@ export function OptimizedImage({
           transition={{ duration: 0.3, delay: 0.5 }}
         />
       )}
-      
+
       <Image
         src={src}
         alt={alt}
@@ -58,11 +58,7 @@ export function OptimizedImage({
         quality={quality}
         priority={priority}
         placeholder={placeholder}
-        blurDataURL={blurDataURL || `data:image/svg+xml;base64,${Buffer.from(
-          `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-            <rect width="100%" height="100%" fill="#f3f4f6"/>
-          </svg>`
-        ).toString('base64')}`}
+        blurDataURL={blurDataURL || `data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${width}' height='${height}'%3E%3Crect width='100%25' height='100%25' fill='%23f3f4f6'/%3E%3C/svg%3E`}
         onLoad={handleLoad}
         onError={handleError}
         className="transition-opacity duration-300"

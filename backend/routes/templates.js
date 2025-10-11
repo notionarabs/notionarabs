@@ -314,13 +314,14 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
       filter.creator = creator;
     }
 
-    // Get all templates first (for Fuse.js search)
-    let templates = await Template.find(filter)
-      .populate('creator', 'name username displayName profilePicture')
-      .lean();
-
-    // Apply Fuse.js search if search term is provided
+    // If search is provided, use Fuse.js (requires loading all data)
     if (search && search.trim()) {
+      // Get all templates for Fuse.js search
+      let templates = await Template.find(filter)
+        .select('title description category tags creator previewImage slug rating reviewsCount downloads isPaid price createdAt')
+        .populate('creator', 'name username displayName profilePicture')
+        .lean();
+
       const fuseOptions = {
         keys: [
           { name: 'title', weight: 0.4 },
@@ -331,18 +332,15 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
           { name: 'creator.username', weight: 0.1 },
           { name: 'creator.displayName', weight: 0.1 }
         ],
-        threshold: 0.4, // Lower threshold for more strict matching
+        threshold: 0.4,
         includeScore: true,
         includeMatches: true,
         minMatchCharLength: 2,
-        // Support both Arabic and English
         ignoreLocation: true,
         findAllMatches: true,
-        // Custom search function to handle both languages
         getFn: (obj, path) => {
           const value = Fuse.config.getFn(obj, path);
           if (typeof value === 'string') {
-            // Normalize text for better matching
             return value.toLowerCase().trim();
           }
           return value;
@@ -351,39 +349,61 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
 
       const fuse = new Fuse(templates, fuseOptions);
       const searchResults = fuse.search(search.trim().toLowerCase());
-
-      // Extract the items from Fuse results
       templates = searchResults.map(result => result.item);
+
+      // Apply sorting
+      templates.sort((a, b) => {
+        const aValue = a[sortBy];
+        const bValue = b[sortBy];
+        if (sortOrder === 'desc') {
+          return bValue > aValue ? 1 : -1;
+        } else {
+          return aValue > bValue ? 1 : -1;
+        }
+      });
+
+      // Apply pagination
+      const total = templates.length;
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+      const paginatedTemplates = templates.slice(skip, skip + parseInt(limit));
+
+      return res.json({
+        success: true,
+        templates: paginatedTemplates,
+        pagination: {
+          current: parseInt(page),
+          pages: Math.ceil(total / parseInt(limit)),
+          total,
+          limit: parseInt(limit)
+        }
+      });
     }
 
-    // Apply sorting
+    // Optimized path: Use database-level pagination when no search
     const sort = {};
     sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
 
-    // Sort the templates array
-    templates.sort((a, b) => {
-      const aValue = a[sortBy];
-      const bValue = b[sortBy];
-
-      if (sortOrder === 'desc') {
-        return bValue > aValue ? 1 : -1;
-      } else {
-        return aValue > bValue ? 1 : -1;
-      }
-    });
-
-    // Apply pagination
-    const total = templates.length;
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    const paginatedTemplates = templates.slice(skip, skip + parseInt(limit));
+
+    // Use aggregation for better performance with pagination
+    const [templates, totalCount] = await Promise.all([
+      Template.find(filter)
+        .select('title description category tags creator previewImage slug rating reviewsCount downloads isPaid price createdAt')
+        .populate('creator', 'name username displayName profilePicture')
+        .sort(sort)
+        .skip(skip)
+        .limit(parseInt(limit))
+        .lean(),
+      Template.countDocuments(filter)
+    ]);
 
     res.json({
       success: true,
-      templates: paginatedTemplates,
+      templates,
       pagination: {
         current: parseInt(page),
-        pages: Math.ceil(total / parseInt(limit)),
-        total,
+        pages: Math.ceil(totalCount / parseInt(limit)),
+        total: totalCount,
         limit: parseInt(limit)
       }
     });

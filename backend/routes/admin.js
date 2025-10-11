@@ -1486,7 +1486,7 @@ router.post('/send-bulk-emails', auth, async (req, res) => {
 // @access  Private (Admin only)
 router.post('/users/:id/badges', auth, [
   body('type')
-    .isIn(['verified', 'top-creator', 'active', 'community-favorite', 'trusted'])
+    .isIn(['verified', 'top-creator', 'best-creator', 'active', 'community-favorite', 'trusted'])
     .withMessage('نوع الشارة غير صحيح'),
   body('label')
     .notEmpty()
@@ -1640,6 +1640,7 @@ router.get('/badge-presets', auth, async (req, res) => {
     const userBadges = [
       { type: 'verified', label: 'مبدع معتمد', color: '#10b981', icon: '✔' },
       { type: 'top-creator', label: 'مبدع مميز', color: '#f59e0b', icon: '⭐' },
+      { type: 'best-creator', label: 'المبدع الافضل', color: '#fbbf24', icon: '👑' },
       { type: 'active', label: 'مبدع نشط', color: '#8b5cf6', icon: '⚡' },
       { type: 'community-favorite', label: 'مبدع محبوب', color: '#ec4899', icon: '❤' },
       { type: 'trusted', label: 'مبدع موثوق', color: '#3b82f6', icon: '👍' }

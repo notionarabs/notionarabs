@@ -204,7 +204,7 @@ const userSchema = new mongoose.Schema({
   badges: [{
     type: {
       type: String,
-      enum: ['verified', 'top-creator', 'active', 'community-favorite', 'trusted'],
+      enum: ['verified', 'top-creator', 'best-creator', 'active', 'community-favorite', 'trusted'],
       required: true
     },
     label: {

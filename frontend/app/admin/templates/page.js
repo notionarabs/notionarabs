@@ -13,7 +13,8 @@ import { Star, Zap, Crown, Award, CheckCircle, Heart } from 'lucide-react';
 const getBadgeIcon = (badgeType) => {
   const iconMap = {
     'verified': CheckCircle,
-    'top-creator': Crown,
+    'top-creator': Star,
+    'best-creator': Crown,
     'active': Zap,
     'community-favorite': Heart,
     'trusted': Award,

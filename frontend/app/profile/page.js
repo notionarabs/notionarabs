@@ -15,7 +15,8 @@ import { Star, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Zap, Download, C
 const getBadgeIcon = (badgeType) => {
   const iconMap = {
     'verified': CheckCircle,
-    'top-creator': Crown,
+    'top-creator': Star,
+    'best-creator': Crown,
     'active': Zap,
     'community-favorite': Heart,
     'trusted': Award

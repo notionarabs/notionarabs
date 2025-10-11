@@ -10,7 +10,8 @@ import { MessageCircle, Mail, UserPlus, Star, TrendingUp, Crown, Sparkles, Award
 const getBadgeIcon = (badgeType) => {
   const iconMap = {
     'verified': CheckCircle,
-    'top-creator': Crown,
+    'top-creator': Star,
+    'best-creator': Crown,
     'active': Zap,
     'community-favorite': Heart,
     'trusted': Award
@@ -409,12 +410,11 @@ export default function PublicProfilePage() {
               {/* Professional Information */}
               {(creator.portfolio || creator.experience || creator.motivation || (creator.specialties && creator.specialties.length > 0)) && (
                 <div className="bg-white dark:bg-dark-secondary p-4 sm:p-5 md:p-6 rounded-lg sm:rounded-xl border border-gray-200 dark:border-dark-card-border shadow-sm">
-                  <h3 className="text-sm sm:text-base font-semibold text-gray-700 dark:text-dark-text-primary mb-3 sm:mb-4">المعلومات المهنية</h3>
+                  <h3 className="text-sm sm:text-base font-semibold text-gray-700 dark:text-dark-text-primary mb-3 sm:mb-4">المجالات التي يختص بها</h3>
                   <div className="space-y-3 sm:space-y-4">
                     {/* Specialties */}
                     {creator.specialties && creator.specialties.length > 0 && (
                       <div className="pb-3 sm:pb-4 border-b border-gray-100 dark:border-dark-card-border last:border-b-0 last:pb-0">
-                        <h4 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-dark-text-quaternary mb-2">المجالات التي يختص بها</h4>
                         <div className="flex flex-wrap gap-1.5 sm:gap-2">
                           {creator.specialties.map((specialty, index) => (
                             <span

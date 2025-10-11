@@ -27,6 +27,7 @@ function CreateTemplatePageContent() {
     category: '',
     categories: [], // New field for multiple categories
     notionLink: '',
+    language: 'ar', // Template language (ar, en, or both)
     isPaid: false, // Whether the template is paid
     price: '', // Price for paid templates
     purchaseLink: '', // Purchase link for paid templates
@@ -78,6 +79,7 @@ function CreateTemplatePageContent() {
             category: toEdit.category || '',
             categories: toEdit.categories || (toEdit.category ? [toEdit.category] : []),
             notionLink: toEdit.notionLink || '',
+            language: toEdit.language || 'ar',
             isPaid: toEdit.isPaid || false,
             price: toEdit.price || '',
             purchaseLink: toEdit.purchaseLink || '',
@@ -956,6 +958,42 @@ function CreateTemplatePageContent() {
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                     تأكد من أن الرابط قابل للوصول العام
+                  </p>
+                </div>
+
+                {/* Template Language */}
+                <div>
+                  <label className="flex items-center text-xs sm:text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2 sm:mb-3">
+                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 ml-1.5 sm:ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                    </svg>
+                    لغة القالب *
+                  </label>
+                  <div className="relative">
+                    <select
+                      name="language"
+                      value={formData.language}
+                      onChange={handleInputChange}
+                      required
+                      className="form-input py-3 sm:py-4 pr-10 sm:pr-12 pl-3 sm:pl-4 text-base sm:text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-green-500 dark:focus:border-green-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-green-300 dark:hover:border-green-400 appearance-none cursor-pointer"
+                    >
+                      <option value="ar">العربية فقط</option>
+                      <option value="en">الإنجليزية فقط</option>
+                      <option value="fr">الفرنسية فقط</option>
+                      <option value="ar-en">ثنائي اللغة (عربي/إنجليزي)</option>
+                      <option value="ar-fr">ثنائي اللغة (عربي/فرنسي)</option>
+                    </select>
+                    <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-start gap-2">
+                    <svg className="w-3.5 h-3.5 text-blue-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                    <span>اختر اللغة المستخدمة في محتوى القالب لمساعدة المستخدمين في العثور على القوالب المناسبة</span>
                   </p>
                 </div>
 

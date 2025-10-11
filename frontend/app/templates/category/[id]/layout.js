@@ -25,7 +25,9 @@ export async function generateMetadata({ params }) {
 
   try {
     // Fetch template count for this category
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+    const apiUrl = process.env.NODE_ENV === 'production'
+      ? 'https://notion-arabs.onrender.com/api'
+      : 'http://localhost:5000/api';
     const response = await fetch(`${apiUrl}/templates?category=${categoryName}&limit=1`, {
       cache: 'no-store',
     });

@@ -3,7 +3,9 @@ import { generateCreatorMetadata } from '../../../lib/seo'
 export async function generateMetadata({ params }) {
   try {
     // Fetch creator data from API for metadata
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+    const apiUrl = process.env.NODE_ENV === 'production'
+      ? 'https://notion-arabs.onrender.com/api'
+      : 'http://localhost:5000/api';
     const response = await fetch(`${apiUrl}/creators/${params.username}`, {
       cache: 'no-store', // Always fetch fresh data for metadata
     });

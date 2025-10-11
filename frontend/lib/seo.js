@@ -125,11 +125,17 @@ export function generateTemplateMetadata(template) {
     'عربي'
   ];
 
+  // Ensure image URL is absolute
+  let imageUrl = template.previewImage;
+  if (imageUrl && !imageUrl.startsWith('http')) {
+    imageUrl = `${siteConfig.url}${imageUrl}`;
+  }
+
   return generateMetadata({
     title,
     description,
     keywords,
-    image: template.previewImage,
+    image: imageUrl || `${siteConfig.url}${siteConfig.ogImage}`,
     url: `/templates/${template.slug || template._id}`,
     type: 'article',
     publishedTime: template.createdAt,
@@ -155,11 +161,17 @@ export function generateBlogMetadata(blog) {
     'إنتاجية'
   ];
 
+  // Ensure image URL is absolute
+  let imageUrl = blog.featuredImage;
+  if (imageUrl && !imageUrl.startsWith('http')) {
+    imageUrl = `${siteConfig.url}${imageUrl}`;
+  }
+
   return generateMetadata({
     title,
     description,
     keywords,
-    image: blog.featuredImage,
+    image: imageUrl || `${siteConfig.url}${siteConfig.ogImage}`,
     url: `/blog/${blog.slug}`,
     type: 'article',
     publishedTime: blog.publishedAt,
@@ -170,24 +182,32 @@ export function generateBlogMetadata(blog) {
 
 // Creator-specific SEO metadata
 export function generateCreatorMetadata(creator) {
-  const title = `${creator.name} - مبدع قوالب نوشن`;
-  const description = creator.bio || `تعرف على ${creator.name}، مبدع قوالب Notion باللغة العربية. ${creator.templates || 0} قالب متاح.`;
+  const displayName = creator.displayName || creator.name;
+  const title = `${displayName} - مبدع قوالب نوشن`;
+  const description = creator.bio || creator.experience || `تعرف على ${displayName}، مبدع قوالب Notion باللغة العربية. ${creator.templateCount || creator.templates || 0} قالب متاح.`;
 
   const keywords = [
-    creator.name,
+    displayName,
     'مبدع',
     'creator',
     'قوالب نوشن',
     'notion templates',
     'عربي',
+    ...(creator.specialties || []),
     creator.specialty || creator.bio?.split(' ').slice(0, 3).join(' ')
-  ];
+  ].filter(Boolean);
+
+  // Ensure image URL is absolute - profile pictures are usually external URLs (e.g., Google)
+  let imageUrl = creator.profilePicture;
+  if (imageUrl && !imageUrl.startsWith('http')) {
+    imageUrl = `${siteConfig.url}${imageUrl}`;
+  }
 
   return generateMetadata({
     title,
     description,
     keywords,
-    image: creator.profilePicture,
+    image: imageUrl || `${siteConfig.url}${siteConfig.ogImage}`,
     url: `/creators/${creator.username || creator._id}`,
     type: 'profile',
   });

@@ -499,7 +499,9 @@ export default function TemplateDetailPage() {
 
     // If user already has the template, just open it
     if (userHasTemplate) {
-      window.open(template.notionLink, '_blank');
+      // Use purchaseLink for paid templates, notionLink for free templates
+      const linkToOpen = template.isPaid && template.purchaseLink ? template.purchaseLink : template.notionLink;
+      window.open(linkToOpen, '_blank');
       return;
     }
 
@@ -520,6 +522,8 @@ export default function TemplateDetailPage() {
 
       // Create or upsert order entry for this user
       try {
+        // Use purchaseLink for paid templates, notionLink for free templates
+        const linkToStore = template.isPaid && template.purchaseLink ? template.purchaseLink : template.notionLink;
         await api.post('/orders', {
           items: [
             {
@@ -529,7 +533,7 @@ export default function TemplateDetailPage() {
               quantity: 1,
               downloaded: true,
               previewImage: template.previewImage || template.previewImages?.[0] || '',
-              notionLink: template.notionLink || '',
+              notionLink: linkToStore || '',
             },
           ],
           total: template.price || 0,
@@ -543,6 +547,8 @@ export default function TemplateDetailPage() {
 
       // Optimistic: store in localStorage so /orders shows immediately even if backend is unavailable
       try {
+        // Use purchaseLink for paid templates, notionLink for free templates
+        const linkToStore = template.isPaid && template.purchaseLink ? template.purchaseLink : template.notionLink;
         const localOrdersRaw = typeof window !== 'undefined' ? localStorage.getItem('orders') : null;
         const localOrders = localOrdersRaw ? JSON.parse(localOrdersRaw) : [];
         const newOrder = {
@@ -559,7 +565,7 @@ export default function TemplateDetailPage() {
               quantity: 1,
               downloaded: true,
               previewImage: template.previewImage || template.previewImages?.[0] || '',
-              notionLink: template.notionLink || '',
+              notionLink: linkToStore || '',
             },
           ],
         };
@@ -567,8 +573,9 @@ export default function TemplateDetailPage() {
         localStorage.setItem('orders', JSON.stringify(localOrders));
       } catch (_) { }
 
-      // Open the Notion template link in a new tab
-      window.open(template.notionLink, '_blank');
+      // Open the appropriate link in a new tab (purchaseLink for paid templates, notionLink for free templates)
+      const linkToOpen = template.isPaid && template.purchaseLink ? template.purchaseLink : template.notionLink;
+      window.open(linkToOpen, '_blank');
 
       // Show success state
       setIsDownloaded(true);

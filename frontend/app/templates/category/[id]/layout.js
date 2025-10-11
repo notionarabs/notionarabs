@@ -22,14 +22,14 @@ const categoryMap = {
 export async function generateMetadata({ params }) {
   const categorySlug = params.id;
   const categoryName = categoryMap[categorySlug] || categorySlug;
-  
+
   try {
     // Fetch template count for this category
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
     const response = await fetch(`${apiUrl}/templates?category=${categoryName}&limit=1`, {
       cache: 'no-store',
     });
-    
+
     if (response.ok) {
       const data = await response.json();
       const count = data.pagination?.total || 0;

@@ -1,5 +1,4 @@
 import { generateCategoryMetadata } from '../../../../lib/seo'
-import api from '../../../../lib/api'
 
 // Map category slugs to Arabic names
 const categoryMap = {
@@ -25,11 +24,15 @@ export async function generateMetadata({ params }) {
   const categoryName = categoryMap[categorySlug] || categorySlug;
   
   try {
-    // Try to fetch template count for this category
-    const response = await api.get(`/templates?category=${categoryName}&limit=1`);
+    // Fetch template count for this category
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+    const response = await fetch(`${apiUrl}/templates?category=${categoryName}&limit=1`, {
+      cache: 'no-store',
+    });
     
-    if (response.data.success) {
-      const count = response.data.pagination?.total || 0;
+    if (response.ok) {
+      const data = await response.json();
+      const count = data.pagination?.total || 0;
       return generateCategoryMetadata(categoryName, count);
     }
   } catch (error) {
@@ -38,5 +41,9 @@ export async function generateMetadata({ params }) {
 
   // Fallback metadata
   return generateCategoryMetadata(categoryName, 0);
+}
+
+export default function CategoryLayout({ children }) {
+  return children;
 }
 

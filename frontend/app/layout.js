@@ -8,14 +8,13 @@ import NavigationWrapper from '../components/NavigationWrapper'
 import NavigationHandler from '../components/NavigationHandler'
 import LoadingIndicator from '../components/LoadingIndicator'
 import { OrganizationSchema, WebsiteSchema } from '../components/StructuredData'
-import { GoogleAnalytics, HreflangLinks } from '../components/SEOOptimizations'
+import { GoogleAnalytics, HreflangLinks, TwitterCardMeta } from '../components/SEOOptimizations'
 import { QueryProvider } from '../components/QueryProvider'
 import MaintenanceMode from '../components/MaintenanceMode'
 
 import { generateMetadata as generateBaseMetadata } from '../lib/seo'
 
 export const metadata = generateBaseMetadata({
-  title: 'عرب نوشن - قوالب نوشن باللغة العربية',
   description: 'اكتشف وبيع قوالب نوشن باللغة العربية - منصة مخصصة للمبدعين والمشترين العرب',
   keywords: [
     'قوالب نوشن',
@@ -38,6 +37,11 @@ export default function RootLayout({ children }) {
         <OrganizationSchema />
         <WebsiteSchema />
         <HreflangLinks currentPath="" />
+        <TwitterCardMeta
+          title="عرب نوشن - قوالب نوشن باللغة العربية"
+          description="اكتشف وبيع قوالب نوشن باللغة العربية - منصة مخصصة للمبدعين والمشترين العرب"
+          image="/og-image.png"
+        />
         <GoogleAnalytics GA_TRACKING_ID={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID} />
         {/* Favicon - Multiple formats for better compatibility */}
         <link rel="icon" href="/favicon.ico" sizes="any" />

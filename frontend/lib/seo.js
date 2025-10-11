@@ -87,7 +87,10 @@ export function generateMetadata({
       creator: siteConfig.creator,
       title: fullTitle,
       description: fullDescription,
-      images: [fullImage],
+      images: {
+        url: fullImage,
+        alt: fullTitle,
+      },
     },
     robots: {
       index: !noindex,

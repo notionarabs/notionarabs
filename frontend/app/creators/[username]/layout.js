@@ -48,6 +48,7 @@ export async function generateMetadata({ params }) {
 }
 
 export default function CreatorLayout({ children }) {
+  // Server component wrapper for creator pages with dynamic metadata
   return children;
 }
 

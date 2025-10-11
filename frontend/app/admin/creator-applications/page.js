@@ -34,6 +34,7 @@ export default function CreatorApplicationsPage() {
   const [expandedApplications, setExpandedApplications] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [badgeFilter, setBadgeFilter] = useState('all');
   const [sortBy, setSortBy] = useState('date-desc');
   const [showFilters, setShowFilters] = useState(false);
   const [imageErrors, setImageErrors] = useState({});
@@ -64,7 +65,18 @@ export default function CreatorApplicationsPage() {
     // Status filter
     const matchesStatus = statusFilter === 'all' || app.creatorStatus === statusFilter;
 
-    return matchesSearch && matchesStatus;
+    // Badge filter
+    let matchesBadge = true;
+    if (badgeFilter === 'with-badges') {
+      matchesBadge = app.badges && app.badges.length > 0;
+    } else if (badgeFilter === 'no-badges') {
+      matchesBadge = !app.badges || app.badges.length === 0;
+    } else if (badgeFilter !== 'all') {
+      // Specific badge type filter
+      matchesBadge = app.badges?.some(badge => badge.type === badgeFilter);
+    }
+
+    return matchesSearch && matchesStatus && matchesBadge;
   });
 
   // Sort applications
@@ -92,6 +104,7 @@ export default function CreatorApplicationsPage() {
     // Check if user is authenticated and has admin role
     if (isAuthenticated && user?.role === 'admin') {
       fetchApplications();
+      fetchBadgePresets(); // Load badge presets for filters
     } else if (isAuthenticated && user?.role !== 'admin') {
       // User is authenticated but not admin
       setError('ليس لديك صلاحية للوصول إلى لوحة تحكم المدير');
@@ -418,7 +431,7 @@ export default function CreatorApplicationsPage() {
 
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2 justify-center ${showFilters || statusFilter !== 'all' || sortBy !== 'date-desc'
+                className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2 justify-center ${showFilters || statusFilter !== 'all' || badgeFilter !== 'all' || sortBy !== 'date-desc'
                   ? 'bg-primary-500 hover:bg-primary-600 text-white'
                   : 'bg-gray-100 dark:bg-dark-tertiary hover:bg-gray-200 dark:hover:bg-dark-quaternary text-gray-700 dark:text-dark-text-primary'
                   }`}
@@ -427,7 +440,7 @@ export default function CreatorApplicationsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                 </svg>
                 <span className="hidden sm:inline">فلترة متقدمة</span>
-                {(statusFilter !== 'all' || sortBy !== 'date-desc') && (
+                {(statusFilter !== 'all' || badgeFilter !== 'all' || sortBy !== 'date-desc') && (
                   <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs">نشط</span>
                 )}
               </button>
@@ -435,7 +448,7 @@ export default function CreatorApplicationsPage() {
 
             {/* Filter Options - Collapsible */}
             {showFilters && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 border-t border-gray-200 dark:border-dark-card-border">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-gray-200 dark:border-dark-card-border">
                 {/* Status Filter */}
                 <div>
                   <label className="block text-xs font-medium text-gray-700 dark:text-dark-text-secondary mb-2">
@@ -450,6 +463,32 @@ export default function CreatorApplicationsPage() {
                     <option value="pending">قيد المراجعة ({stats.pending || 0})</option>
                     <option value="approved">مقبول ({stats.approved || 0})</option>
                     <option value="rejected">مرفوض ({stats.rejected || 0})</option>
+                  </select>
+                </div>
+
+                {/* Badge Filter */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 dark:text-dark-text-secondary mb-2">
+                    فلتر الشارات
+                  </label>
+                  <select
+                    value={badgeFilter}
+                    onChange={(e) => setBadgeFilter(e.target.value)}
+                    className="w-full px-3 py-2 bg-white dark:bg-dark-tertiary border border-gray-300 dark:border-dark-input-border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-sm"
+                  >
+                    <option value="all">الكل</option>
+                    <option value="with-badges">لديهم شارات</option>
+                    <option value="no-badges">بدون شارات</option>
+                    {badgePresets?.userBadges && (
+                      <>
+                        <option disabled>───────────</option>
+                        {badgePresets.userBadges.map((badge) => (
+                          <option key={badge.type} value={badge.type}>
+                            {badge.icon} {badge.label}
+                          </option>
+                        ))}
+                      </>
+                    )}
                   </select>
                 </div>
 
@@ -476,9 +515,10 @@ export default function CreatorApplicationsPage() {
                     onClick={() => {
                       setSearchTerm('');
                       setStatusFilter('all');
+                      setBadgeFilter('all');
                       setSortBy('date-desc');
                     }}
-                    disabled={searchTerm === '' && statusFilter === 'all' && sortBy === 'date-desc'}
+                    disabled={searchTerm === '' && statusFilter === 'all' && badgeFilter === 'all' && sortBy === 'date-desc'}
                     className="w-full px-4 py-2 bg-red-100 dark:bg-red-900/20 hover:bg-red-200 dark:hover:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     مسح الفلاتر
@@ -524,20 +564,21 @@ export default function CreatorApplicationsPage() {
           {sortedApplications.length === 0 ? (
             <div className="text-center py-12">
               <svg className="w-16 h-16 text-accent-400 dark:text-dark-text-tertiary mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {searchTerm || statusFilter !== 'all' ? (
+                {searchTerm || statusFilter !== 'all' || badgeFilter !== 'all' ? (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 ) : (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 )}
               </svg>
               <p className="text-accent-600 dark:text-dark-text-secondary mb-4">
-                {searchTerm || statusFilter !== 'all' ? 'لا توجد نتائج تطابق البحث' : 'لا توجد طلبات مبدعين'}
+                {searchTerm || statusFilter !== 'all' || badgeFilter !== 'all' ? 'لا توجد نتائج تطابق البحث' : 'لا توجد طلبات مبدعين'}
               </p>
-              {(searchTerm || statusFilter !== 'all') && (
+              {(searchTerm || statusFilter !== 'all' || badgeFilter !== 'all') && (
                 <button
                   onClick={() => {
                     setSearchTerm('');
                     setStatusFilter('all');
+                    setBadgeFilter('all');
                   }}
                   className="text-sm text-primary-600 dark:text-orange-400 hover:underline"
                 >

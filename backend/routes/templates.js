@@ -318,7 +318,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
     if (search && search.trim()) {
       // Get all templates for Fuse.js search
       let templates = await Template.find(filter)
-        .select('title description category tags creator previewImage slug rating reviewsCount downloads isPaid price createdAt')
+        .select('title description category tags creator previewImage slug rating reviewsCount downloads isPaid price createdAt isPinned pinnedAt')
         .populate('creator', 'name username displayName profilePicture')
         .lean();
 
@@ -388,7 +388,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
     // Use aggregation for better performance with pagination
     const [templates, totalCount] = await Promise.all([
       Template.find(filter)
-        .select('title description category tags creator previewImage slug rating reviewsCount downloads isPaid price createdAt')
+        .select('title description category tags creator previewImage slug rating reviewsCount downloads isPaid price createdAt isPinned pinnedAt')
         .populate('creator', 'name username displayName profilePicture')
         .sort(sort)
         .skip(skip)
@@ -924,146 +924,6 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
-// @route   GET /api/templates/export
-// @desc    Export template data as CSV
-// @access  Private (Admin or Creator)
-router.get('/export', auth, async (req, res) => {
-  try {
-    // Check if user is admin or requesting their own data
-    const isAdmin = req.user.role === 'admin';
-    const creatorId = req.query.creatorId;
-
-    if (!isAdmin && creatorId && creatorId !== req.user._id) {
-      return res.status(403).json({
-        success: false,
-        message: 'غير مصرح لك بتصدير بيانات الآخرين'
-      });
-    }
-
-    // Build query
-    const query = {};
-    if (!isAdmin && !creatorId) {
-      query.creator = req.user._id; // User can only export their own templates
-    } else if (creatorId) {
-      query.creator = creatorId;
-    }
-
-    // Get templates with creator information
-    const templates = await Template.find(query)
-      .populate('creator', 'name username displayName email')
-      .sort({ createdAt: -1 })
-      .lean();
-
-    // Convert to CSV format
-    const csvHeader = 'العنوان,المنشئ,البريد الإلكتروني,الفئة,السعر,الحالة,المشاهدات,التحميلات,المبيعات,التقييم,تاريخ الموافقة,تاريخ الإنشاء\n';
-
-    const csvRows = templates.map(template => {
-      const title = `"${(template.title || '').replace(/"/g, '""')}"`;
-      const creator = `"${(template.creator?.name || '').replace(/"/g, '""')}"`;
-      const email = `"${(template.creator?.email || '').replace(/"/g, '""')}"`;
-      const category = `"${(template.category || '').replace(/"/g, '""')}"`;
-      const price = 'مجاني'; // All templates are now free
-      const status = `"${(template.status || '').replace(/"/g, '""')}"`;
-      const views = template.views || 0;
-      const downloads = template.downloads || 0;
-      const sales = template.sales || 0;
-      const rating = template.rating || 0;
-      const approvedAt = template.approvedAt ? new Date(template.approvedAt).toLocaleDateString('en-US') : '';
-      const createdAt = template.createdAt ? new Date(template.createdAt).toLocaleDateString('en-US') : '';
-
-      return `${title},${creator},${email},${category},${price},${status},${views},${downloads},${sales},${rating},${approvedAt},${createdAt}`;
-    }).join('\n');
-
-    const csvContent = csvHeader + csvRows;
-
-    // Set headers for CSV download
-    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-    res.setHeader('Content-Disposition', `attachment; filename="template-data-${new Date().toISOString().split('T')[0]}.csv"`);
-
-    // Add BOM for proper UTF-8 encoding in Excel
-    res.write('\uFEFF');
-    res.end(csvContent);
-
-  } catch (error) {
-    console.error('Export templates error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'خطأ في تصدير البيانات'
-    });
-  }
-});
-
-// @route   GET /api/templates/export-public
-// @desc    Export templates as CSV using token in query (direct download)
-// @access  Public (valid token required)
-router.get('/export-public', async (req, res) => {
-  try {
-    const jwt = require('jsonwebtoken');
-    const { token, creatorId } = req.query;
-    if (!token) {
-      return res.status(401).json({ success: false, message: 'مصادقة مطلوبة' });
-    }
-
-    let decoded;
-    try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
-    } catch (e) {
-      return res.status(401).json({ success: false, message: 'رمز غير صالح' });
-    }
-
-    const requesterId = decoded.id || decoded.userId || decoded._id;
-    if (!requesterId) {
-      return res.status(401).json({ success: false, message: 'رمز غير صالح' });
-    }
-
-    const isAdmin = false; // public export is for self only
-    const query = {};
-    if (!isAdmin && !creatorId) {
-      query.creator = requesterId;
-    } else if (creatorId) {
-      // Allow specifying creatorId only if matches requester
-      if (creatorId !== requesterId) {
-        return res.status(403).json({ success: false, message: 'غير مصرح لك بتصدير بيانات الآخرين' });
-      }
-      query.creator = creatorId;
-    }
-
-    const templates = await Template.find(query)
-      .populate('creator', 'name username displayName email')
-      .sort({ createdAt: -1 })
-      .lean();
-
-    const csvHeader = 'العنوان,المنشئ,البريد الإلكتروني,الفئة,السعر,الحالة,المشاهدات,التحميلات,التقييم,تاريخ الموافقة,تاريخ الإنشاء\n';
-    const csvRows = templates.map(template => {
-      const title = `"${(template.title || '').replace(/\"/g, '\"\"')}"`;
-      const creator = `"${(template.creator?.name || '').replace(/\"/g, '\"\"')}"`;
-      const email = `"${(template.creator?.email || '').replace(/\"/g, '\"\"')}"`;
-      const category = `"${(template.category || '').replace(/\"/g, '\"\"')}"`;
-      const price = 'مجاني';
-      const status = `"${(template.status || '').replace(/\"/g, '\"\"')}"`;
-      const views = template.views || 0;
-      const downloads = template.downloads || 0;
-      const rating = template.rating || 0;
-      const approvedAt = template.approvedAt ? new Date(template.approvedAt).toLocaleDateString('en-US') : '';
-      const createdAt = template.createdAt ? new Date(template.createdAt).toLocaleDateString('en-US') : '';
-      return `${title},${creator},${email},${category},${price},${status},${views},${downloads},${rating},${approvedAt},${createdAt}`;
-    }).join('\n');
-
-    const csvContent = csvHeader + csvRows;
-    const authorDoc = await User.findById(requesterId).select('username email');
-    const baseName = authorDoc?.username || (authorDoc?.email ? authorDoc.email.split('@')[0] : 'templates');
-    const filename = `${baseName}-templates-${new Date().toISOString().split('T')[0]}.csv`;
-    res.set('Content-Type', 'text/csv; charset=utf-8');
-    res.set('Content-Disposition', `attachment; filename="${filename}"`);
-    return res.status(200).send(`\uFEFF${csvContent}`);
-  } catch (error) {
-    console.error('Export templates public error:', error);
-    if (!res.headersSent) {
-      return res.status(500).json({ success: false, message: 'خطأ في تصدير البيانات' });
-    }
-  }
-});
-
 // @route   POST /api/templates/:id/download
 // @desc    Track template download
 // @access  Private
@@ -1100,14 +960,6 @@ router.post('/:id/download', auth, async (req, res) => {
       // Non-blocking: logging failure should not fail the request
       console.error('DownloadLog create error:', logErr?.message || logErr);
     }
-
-    // Log download for analytics (optional)
-    console.log(`Template downloaded: ${template.title} (${template._id})`, {
-      timestamp,
-      userAgent,
-      referrer,
-      downloadCount: template.downloads
-    });
 
     // Notify creator about download (non-blocking)
     try {

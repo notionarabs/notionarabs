@@ -49,7 +49,7 @@ router.get('/homepage', cacheMiddleware(600), async (req, res) => {
         )
       ),
 
-      // Top creators with their stats
+      // Top creators with their stats (prioritizing pinned creators)
       User.aggregate([
         { $match: { role: 'creator', creatorStatus: 'approved' } },
         {
@@ -90,11 +90,13 @@ router.get('/homepage', cacheMiddleware(600), async (req, res) => {
                 { $multiply: [{ $ifNull: ['$templateStats.avgRating', 0] }, 10, 0.3] },
                 { $multiply: [{ $min: [{ $ifNull: ['$templateStats.count', 0] }, 20] }, 0.2] }
               ]
-            }
+            },
+            isPinned: { $ifNull: ['$isPinned', false] },
+            pinnedAt: { $ifNull: ['$pinnedAt', new Date(0)] }
           }
         },
-        // Remove the restrictive filter - just get all creators with at least some activity
-        { $sort: { fameScore: -1, followers: -1 } },
+        // Sort pinned first (by pinnedAt desc), then by fameScore
+        { $sort: { isPinned: -1, pinnedAt: -1, fameScore: -1, followers: -1 } },
         { $limit: 4 },
         {
           $project: {
@@ -113,7 +115,8 @@ router.get('/homepage', cacheMiddleware(600), async (req, res) => {
             templatesCount: 1,
             templateCount: 1,
             averageRating: 1,
-            totalDownloads: 1
+            totalDownloads: 1,
+            isPinned: 1
           }
         }
       ])

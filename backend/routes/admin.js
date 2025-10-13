@@ -1417,6 +1417,108 @@ router.post('/send-bulk-emails', auth, async (req, res) => {
   }
 });
 
+// Pin/Unpin Templates
+// @route   PUT /api/admin/templates/:id/pin
+// @desc    Pin or unpin a template on the home page
+// @access  Private (Admin only)
+router.put('/templates/:id/pin', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    const { id } = req.params;
+    const template = await Template.findById(id);
+
+    if (!template) {
+      return res.status(404).json({
+        success: false,
+        message: 'القالب غير موجود'
+      });
+    }
+
+    // Toggle pin status
+    template.isPinned = !template.isPinned;
+    template.pinnedAt = template.isPinned ? new Date() : null;
+    template.pinnedBy = template.isPinned ? req.user._id : null;
+
+    await template.save();
+
+    res.json({
+      success: true,
+      message: template.isPinned ? 'تم تثبيت القالب بنجاح' : 'تم إلغاء تثبيت القالب',
+      template: {
+        _id: template._id,
+        isPinned: template.isPinned,
+        pinnedAt: template.pinnedAt
+      }
+    });
+  } catch (error) {
+    console.error('Pin template error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   PUT /api/admin/users/:id/pin
+// @desc    Pin or unpin a creator on the home page
+// @access  Private (Admin only)
+router.put('/users/:id/pin', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    const { id } = req.params;
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'المستخدم غير موجود'
+      });
+    }
+
+    if (user.creatorStatus !== 'approved') {
+      return res.status(400).json({
+        success: false,
+        message: 'يمكن تثبيت المبدعين المعتمدين فقط'
+      });
+    }
+
+    // Toggle pin status
+    user.isPinned = !user.isPinned;
+    user.pinnedAt = user.isPinned ? new Date() : null;
+    user.pinnedBy = user.isPinned ? req.user._id : null;
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: user.isPinned ? 'تم تثبيت المبدع بنجاح' : 'تم إلغاء تثبيت المبدع',
+      user: {
+        _id: user._id,
+        isPinned: user.isPinned,
+        pinnedAt: user.pinnedAt
+      }
+    });
+  } catch (error) {
+    console.error('Pin user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
 // Badge Management Endpoints
 
 // @route   POST /api/admin/users/:id/badges

@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import LoadingLink from '../../components/LoadingLink';
 import api from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -274,7 +275,7 @@ export default function CreatorsPage() {
           ) : creatorsData.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 items-stretch">
               {creatorsData.map((creator) => (
-                <Link
+                <LoadingLink
                   key={creator.id}
                   href={`/creators/${creator.username || creator.email?.split('@')[0] || creator.displayName || creator.name || creator.id}`}
                   className="group card-interactive p-4 sm:p-6 md:p-8 h-full flex flex-col max-h-[600px]"
@@ -394,7 +395,7 @@ export default function CreatorsPage() {
                       showText={true}
                     />
                   </div>
-                </Link>
+                </LoadingLink>
               ))}
             </div>
           ) : (

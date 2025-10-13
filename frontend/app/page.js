@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import LoadingLink from '../components/LoadingLink';
 import api from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useMaintenance } from '../contexts/MaintenanceContext';
@@ -70,7 +71,7 @@ export default function HomePage() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Fetch featured templates from API (most famous and highest-rated)
+  // Fetch featured templates from API (prioritizing pinned, then most famous and highest-rated)
   useEffect(() => {
     // Don't fetch data until maintenance mode check is complete
     if (!hasCheckedMaintenance) {
@@ -87,60 +88,65 @@ export default function HomePage() {
           return;
         }
 
-        // First try to get high-rated templates
-        const ratingResponse = await api.get('/templates?limit=30&sortBy=rating&sortOrder=desc');
-        let featuredTemplates = [];
+        let pinnedTemplates = [];
+        let regularTemplates = [];
 
-        if (ratingResponse.data.success) {
-          const highRatedTemplates = ratingResponse.data.templates || [];
+        // Step 1: Fetch ALL templates to get pinned ones (we'll filter client-side)
+        // This ensures pinned templates are always included
+        const allTemplatesResponse = await api.get('/templates?limit=100&sortBy=createdAt&sortOrder=desc');
 
-          // Filter for templates with good ratings and some activity
-          featuredTemplates = highRatedTemplates
-            .filter(template =>
-              template.rating >= 3.5 && // At least 3.5 stars
-              (template.reviewsCount >= 1 || template.downloads >= 5) // Some validation
-            )
-            .slice(0, 6);
+        if (allTemplatesResponse.data.success) {
+          const allTemplates = allTemplatesResponse.data.templates || [];
+
+          // Separate pinned from regular templates
+          pinnedTemplates = allTemplates.filter(t => t.isPinned);
+          const pinnedIds = new Set(pinnedTemplates.map(t => t._id));
+
+          // Get high-rated templates (excluding already pinned ones)
+          regularTemplates = allTemplates
+            .filter(t => !pinnedIds.has(t._id) && (
+              (t.rating >= 3.5 && (t.reviewsCount >= 1 || t.downloads >= 5)) ||
+              t.downloads >= 10
+            ))
+            .slice(0, 30);
         }
 
-        // If we don't have enough high-rated templates, get popular ones
-        if (featuredTemplates.length < 6) {
-          const downloadResponse = await api.get('/templates?limit=20&sortBy=downloads&sortOrder=desc');
-          if (downloadResponse.data.success) {
-            const popularTemplates = downloadResponse.data.templates || [];
-            const existingIds = new Set(featuredTemplates.map(t => t._id || t.id));
-
-            const additionalTemplates = popularTemplates
-              .filter(t => !existingIds.has(t._id || t.id))
-              .slice(0, 6 - featuredTemplates.length);
-
-            featuredTemplates.push(...additionalTemplates);
-          }
-        }
-
-        // Final fallback: get any approved templates
-        if (featuredTemplates.length < 6) {
-          const fallbackResponse = await api.get('/templates?limit=10&sortBy=createdAt&sortOrder=desc');
+        // If we don't have enough regular templates, just take the first non-pinned ones
+        if (regularTemplates.length < 6) {
+          const fallbackResponse = await api.get('/templates?limit=20&sortBy=downloads&sortOrder=desc');
           if (fallbackResponse.data.success) {
             const fallbackTemplates = fallbackResponse.data.templates || [];
-            const existingIds = new Set(featuredTemplates.map(t => t._id || t.id));
+            const existingIds = new Set([
+              ...pinnedTemplates.map(t => t._id),
+              ...regularTemplates.map(t => t._id)
+            ]);
 
-            const finalTemplates = fallbackTemplates
-              .filter(t => !existingIds.has(t._id || t.id))
-              .slice(0, 6 - featuredTemplates.length);
+            const additionalTemplates = fallbackTemplates
+              .filter(t => !existingIds.has(t._id))
+              .slice(0, 6 - regularTemplates.length);
 
-            featuredTemplates.push(...finalTemplates);
+            regularTemplates.push(...additionalTemplates);
           }
         }
 
-        // Sort final selection by a combination of factors
-        featuredTemplates.sort((a, b) => {
+        // Sort pinned templates by pinnedAt date (most recently pinned first)
+        pinnedTemplates.sort((a, b) => {
+          const dateA = a.pinnedAt ? new Date(a.pinnedAt) : new Date(0);
+          const dateB = b.pinnedAt ? new Date(b.pinnedAt) : new Date(0);
+          return dateB - dateA;
+        });
+
+        // Sort regular templates by a combination of factors
+        regularTemplates.sort((a, b) => {
           const scoreA = (a.rating || 0) * 0.5 + (a.downloads || 0) * 0.3 + (a.reviewsCount || 0) * 0.2;
           const scoreB = (b.rating || 0) * 0.5 + (b.downloads || 0) * 0.3 + (b.reviewsCount || 0) * 0.2;
           return scoreB - scoreA;
         });
 
-        setFeaturedTemplates(featuredTemplates);
+        // Combine: pinned first, then regular templates (limit to 6 total)
+        const combinedTemplates = [...pinnedTemplates, ...regularTemplates].slice(0, 6);
+
+        setFeaturedTemplates(combinedTemplates);
       } catch (error) {
         console.error('Error fetching featured templates:', error);
         // Fallback to simple download-based selection

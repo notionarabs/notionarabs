@@ -7,7 +7,7 @@ import Image from 'next/image';
 import api from '../../../lib/api';
 import { formatDate } from '../../../lib/dateUtils';
 import toast from 'react-hot-toast';
-import { Star, Zap, Crown, Award, CheckCircle, Heart } from 'lucide-react';
+import { Star, Zap, Crown, Award, CheckCircle, Heart, Pin, PinOff } from 'lucide-react';
 
 // Map badge types to Lucide icons
 const getBadgeIcon = (badgeType) => {
@@ -40,6 +40,7 @@ export default function AdminTemplatesPage() {
   const [selectedTemplates, setSelectedTemplates] = useState([]);
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [bulkAction, setBulkAction] = useState('');
+  const [pinLoading, setPinLoading] = useState(null);
 
   const { user, isAuthenticated, loading: authLoading, ensureTokenInHeaders } = useAuth();
   const router = useRouter();
@@ -176,6 +177,36 @@ export default function AdminTemplatesPage() {
       alert('حدث خطأ أثناء تحديث حالة القالب');
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  const handlePinTemplate = async (templateId) => {
+    try {
+      setPinLoading(templateId);
+      ensureTokenInHeaders && ensureTokenInHeaders();
+      const response = await api.put(`/admin/templates/${templateId}/pin`);
+
+      if (response.data.success) {
+        toast.success(response.data.message);
+
+        // Update local state immediately to reflect the change
+        setTemplates(prev =>
+          prev.map(template =>
+            template._id === templateId
+              ? {
+                ...template,
+                isPinned: response.data.template.isPinned,
+                pinnedAt: response.data.template.pinnedAt
+              }
+              : template
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Error pinning template:', error);
+      toast.error('حدث خطأ أثناء تثبيت القالب');
+    } finally {
+      setPinLoading(null);
     }
   };
 
@@ -486,6 +517,26 @@ export default function AdminTemplatesPage() {
                           </div>
                         )}
 
+                        {/* Pin/Unpin button */}
+                        <button
+                          type="button"
+                          onClick={() => handlePinTemplate(template._id)}
+                          disabled={pinLoading === template._id}
+                          className={`flex items-center gap-1 justify-center font-medium py-1 sm:py-2 px-2 sm:px-3 rounded text-xs sm:text-sm transition-colors duration-200 ${template.isPinned
+                            ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800 hover:bg-orange-200 dark:hover:bg-orange-900/50'
+                            : 'bg-white dark:bg-dark-secondary border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-dark-text-primary hover:bg-gray-50 dark:hover:bg-dark-tertiary'
+                            }`}
+                        >
+                          {pinLoading === template._id ? (
+                            <span className="loading-spinner w-3 h-3"></span>
+                          ) : template.isPinned ? (
+                            <PinOff className="w-3 h-3 sm:w-4 sm:h-4" />
+                          ) : (
+                            <Pin className="w-3 h-3 sm:w-4 sm:h-4" />
+                          )}
+                          {template.isPinned ? 'إلغاء التثبيت' : 'تثبيت'}
+                        </button>
+
                         {/* View Details button (always available) */}
                         <button
                           onClick={() => handleViewDetails(template)}
@@ -630,16 +681,28 @@ export default function AdminTemplatesPage() {
 
                     <div className="flex flex-wrap gap-2">
                       <button
+                        type="button"
+                        onClick={() => handlePinTemplate(template._id)}
+                        disabled={pinLoading === template._id}
+                        className={`flex items-center gap-1 justify-center font-medium py-1 px-2 rounded text-xs transition-colors duration-200 ${template.isPinned
+                          ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800'
+                          : 'bg-white dark:bg-dark-secondary border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-dark-text-primary'
+                          }`}
+                      >
+                        {pinLoading === template._id ? (
+                          <span className="loading-spinner w-3 h-3"></span>
+                        ) : template.isPinned ? (
+                          <PinOff className="w-3 h-3" />
+                        ) : (
+                          <Pin className="w-3 h-3" />
+                        )}
+                        {template.isPinned ? 'إلغاء' : 'تثبيت'}
+                      </button>
+                      <button
                         onClick={() => handleViewDetails(template)}
                         className="bg-white dark:bg-dark-secondary border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 font-medium py-1 px-2 rounded text-xs transition-colors duration-200"
                       >
                         عرض التفاصيل
-                      </button>
-                      <button
-                        onClick={() => handleManageBadges(template)}
-                        className="bg-white dark:bg-dark-secondary border border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 font-medium py-1 px-2 rounded text-xs transition-colors duration-200"
-                      >
-                        الشارات
                       </button>
                       {template.status === 'pending' && (
                         <>

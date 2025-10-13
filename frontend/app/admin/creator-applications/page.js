@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import api from '../../../lib/api';
 import toast from 'react-hot-toast';
-import { Star, Zap, Crown, Award, CheckCircle, Heart } from 'lucide-react';
+import { Star, Zap, Crown, Award, CheckCircle, Heart, Pin, PinOff } from 'lucide-react';
 
 // Map badge types to Lucide icons
 const getBadgeIcon = (badgeType) => {
@@ -38,6 +38,7 @@ export default function CreatorApplicationsPage() {
   const [sortBy, setSortBy] = useState('date-desc');
   const [showFilters, setShowFilters] = useState(false);
   const [imageErrors, setImageErrors] = useState({});
+  const [pinLoading, setPinLoading] = useState(null);
   const { user, isAuthenticated, loading: authLoading, refreshUserData, ensureTokenInHeaders } = useAuth();
   const router = useRouter();
 
@@ -266,6 +267,36 @@ export default function CreatorApplicationsPage() {
     } catch (error) {
       console.error('Error removing badge:', error);
       toast.error(error.response?.data?.message || 'خطأ في حذف الشارة');
+    }
+  };
+
+  const handlePinCreator = async (userId) => {
+    try {
+      setPinLoading(userId);
+      ensureTokenInHeaders && ensureTokenInHeaders();
+      const response = await api.put(`/admin/users/${userId}/pin`);
+
+      if (response.data.success) {
+        toast.success(response.data.message);
+
+        // Update local state immediately to reflect the change
+        setApplications(prev =>
+          prev.map(app =>
+            app.id === userId
+              ? {
+                ...app,
+                isPinned: response.data.user.isPinned,
+                pinnedAt: response.data.user.pinnedAt
+              }
+              : app
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Error pinning creator:', error);
+      toast.error('حدث خطأ أثناء تثبيت المبدع');
+    } finally {
+      setPinLoading(null);
     }
   };
 
@@ -567,7 +598,7 @@ export default function CreatorApplicationsPage() {
                 {searchTerm || statusFilter !== 'all' || badgeFilter !== 'all' ? (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 )}
               </svg>
               <p className="text-accent-600 dark:text-dark-text-secondary mb-4">
@@ -596,19 +627,19 @@ export default function CreatorApplicationsPage() {
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 flex items-center justify-center flex-shrink-0 overflow-hidden">
                         {application.profilePicture && !imageErrors[application.id] ? (
-                        <img
-                          src={application.profilePicture}
+                          <img
+                            src={application.profilePicture}
                             alt={application.name || 'Creator'}
                             className="w-full h-full object-cover"
                             onError={() => handleImageError(application.id)}
                             referrerPolicy="no-referrer"
-                        />
-                      ) : (
+                          />
+                        ) : (
                           <span className="text-white font-bold text-sm">
                             {application.name?.charAt(0)?.toUpperCase() || 'U'}
                           </span>
                         )}
-                        </div>
+                      </div>
                       <div className="min-w-0 flex-1">
                         <h3 className="font-semibold text-gray-900 dark:text-dark-text-primary text-sm truncate">
                           {application.name}
@@ -680,7 +711,7 @@ export default function CreatorApplicationsPage() {
                   {expandedApplications[application.id] && (
                     <div className="border-t border-gray-200 dark:border-dark-card-border bg-gray-50 dark:bg-dark-tertiary p-4">
                       {/* All Badges */}
-                        {application.badges && application.badges.length > 0 && (
+                      {application.badges && application.badges.length > 0 && (
                         <div className="mb-4">
                           <label className="block text-xs font-medium text-gray-700 dark:text-dark-text-secondary mb-2">
                             الشارات
@@ -699,92 +730,113 @@ export default function CreatorApplicationsPage() {
                               );
                             })}
                           </div>
-                          </div>
-                        )}
+                        </div>
+                      )}
 
-                  {/* Application Details */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
+                      {/* Application Details */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
                           <label className="block text-xs font-medium text-gray-700 dark:text-dark-text-secondary mb-1">
-                        المعرض
-                      </label>
-                      <a
-                        href={application.portfolio}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                            المعرض
+                          </label>
+                          <a
+                            href={application.portfolio}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="text-primary-600 dark:text-orange-400 hover:underline text-sm break-all"
-                      >
-                        {application.portfolio}
-                      </a>
-                    </div>
+                          >
+                            {application.portfolio}
+                          </a>
+                        </div>
 
-                    <div>
+                        <div>
                           <label className="block text-xs font-medium text-gray-700 dark:text-dark-text-secondary mb-1">
-                        الهاتف
-                      </label>
-                      <p className="text-sm text-gray-900 dark:text-dark-text-primary">
-                        {application.phone}
-                      </p>
-                    </div>
-                  </div>
+                            الهاتف
+                          </label>
+                          <p className="text-sm text-gray-900 dark:text-dark-text-primary">
+                            {application.phone}
+                          </p>
+                        </div>
+                      </div>
 
-                  <div className="mb-4">
+                      <div className="mb-4">
                         <label className="block text-xs font-medium text-gray-700 dark:text-dark-text-secondary mb-1">
-                      الخبرة
-                    </label>
-                    <p className="text-sm text-gray-900 dark:text-dark-text-primary">
-                      {application.experience}
-                    </p>
-                  </div>
+                          الخبرة
+                        </label>
+                        <p className="text-sm text-gray-900 dark:text-dark-text-primary">
+                          {application.experience}
+                        </p>
+                      </div>
 
-                  <div className="mb-4">
+                      <div className="mb-4">
                         <label className="block text-xs font-medium text-gray-700 dark:text-dark-text-secondary mb-1">
-                      التخصصات
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {application.specialties?.map((specialty, index) => (
+                          التخصصات
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                          {application.specialties?.map((specialty, index) => (
                             <span key={index} className="px-2 py-1 bg-white dark:bg-dark-secondary text-gray-700 dark:text-dark-text-secondary rounded text-xs border border-gray-200 dark:border-dark-card-border">
-                          {specialty}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                              {specialty}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
 
-                  <div className="mb-4">
+                      <div className="mb-4">
                         <label className="block text-xs font-medium text-gray-700 dark:text-dark-text-secondary mb-1">
-                      الدافع
-                    </label>
-                    <p className="text-sm text-gray-900 dark:text-dark-text-primary">
-                      {application.motivation}
-                    </p>
-                  </div>
+                          الدافع
+                        </label>
+                        <p className="text-sm text-gray-900 dark:text-dark-text-primary">
+                          {application.motivation}
+                        </p>
+                      </div>
 
-                  {/* Action Buttons */}
+                      {/* Action Buttons */}
                       <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-200 dark:border-dark-card-border">
-                    {application.creatorStatus === 'pending' && (
-                      <>
+                        {application.creatorStatus === 'pending' && (
+                          <>
+                            <button
+                              onClick={() => updateApplicationStatus(application.id, 'approved')}
+                              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
+                            >
+                              قبول الطلب
+                            </button>
+                            <button
+                              onClick={() => updateApplicationStatus(application.id, 'rejected')}
+                              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
+                            >
+                              رفض الطلب
+                            </button>
+                          </>
+                        )}
+                        {/* Badge Management Button - Available for all creators */}
                         <button
-                          onClick={() => updateApplicationStatus(application.id, 'approved')}
-                          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
+                          onClick={() => handleManageBadges(application)}
+                          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors"
                         >
-                          قبول الطلب
+                          إدارة الشارات
                         </button>
-                        <button
-                          onClick={() => updateApplicationStatus(application.id, 'rejected')}
-                          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
-                        >
-                          رفض الطلب
-                        </button>
-                      </>
-                    )}
-                    {/* Badge Management Button - Available for all creators */}
-                    <button
-                      onClick={() => handleManageBadges(application)}
-                      className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors"
-                    >
-                      إدارة الشارات
-                    </button>
-                  </div>
+                        {/* Pin Button - Only for approved creators */}
+                        {application.creatorStatus === 'approved' && (
+                          <button
+                            type="button"
+                            onClick={() => handlePinCreator(application.id)}
+                            disabled={pinLoading === application.id}
+                            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${application.isPinned
+                              ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800 hover:bg-orange-200 dark:hover:bg-orange-900/50'
+                              : 'bg-gray-100 dark:bg-dark-tertiary text-gray-700 dark:text-dark-text-primary border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-dark-quaternary'
+                              }`}
+                          >
+                            {pinLoading === application.id ? (
+                              <span className="loading-spinner w-4 h-4"></span>
+                            ) : application.isPinned ? (
+                              <PinOff className="w-4 h-4" />
+                            ) : (
+                              <Pin className="w-4 h-4" />
+                            )}
+                            {application.isPinned ? 'إلغاء التثبيت' : 'تثبيت في الصفحة الرئيسية'}
+                          </button>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>

@@ -151,24 +151,79 @@ router.post('/creator', [
             to: creator.email,
             subject: `رسالة جديدة من ${name} - ${subject}`,
             html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
-              <h2 style="color: #333; text-align: center;">رسالة جديدة من موقع عرب نوشن</h2>
-              <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                <h3 style="color: #495057; margin-bottom: 15px;">تفاصيل الرسالة:</h3>
-                <p><strong>المرسل:</strong> ${name}</p>
-                <p><strong>البريد الإلكتروني:</strong> <a href="mailto:${email}" style="color: #007bff;">${email}</a></p>
-                <p><strong>الموضوع:</strong> ${subject}</p>
-              </div>
-              <div style="background-color: #ffffff; padding: 20px; border: 1px solid #dee2e6; border-radius: 8px; margin: 20px 0;">
-                <h3 style="color: #495057; margin-bottom: 15px;">محتوى الرسالة:</h3>
-                <p style="line-height: 1.6; color: #333;">${message.replace(/\n/g, '<br>')}</p>
-              </div>
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="mailto:${email}" style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">الرد على الرسالة</a>
-              </div>
-              <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-              <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
-            </div>
+            <!DOCTYPE html>
+            <html lang="ar" dir="rtl">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>رسالة جديدة من موقع عرب نوشن</title>
+              <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+            </head>
+            <body style="margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; background-color: #f8f9fa;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f8f9fa;">
+                <tr>
+                  <td align="center" style="padding: 40px 20px;">
+                    <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                      
+                      <!-- Header -->
+                      <tr>
+                      <td style="padding: 40px; text-align: center; background-color: #f5631e; border-radius: 12px 12px 0 0;">
+                        <img src="https://www.notionarabs.com/notionarabsemailimage.png" alt="عرب نوشن" style="height: 40px; width: auto;" />
+                        <h1 style="color: #ffffff; margin: 20px 0 10px; font-size: 24px; font-weight: 700;">رسالة جديدة</h1>
+                        <p style="color: #ffffff; margin: 0; font-size: 16px;">من موقع عرب نوشن</p>
+                      </td>
+                      </tr>
+                      
+                      <!-- Body -->
+                      <tr>
+                        <td style="padding: 40px; text-align: right; direction: rtl;">
+                          <h2 style="color: #132859; font-size: 20px; margin: 0 0 20px; font-weight: 600; text-align: right;">تفاصيل الرسالة</h2>
+                          
+                          <!-- Message Details -->
+                          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: right;">
+                            <div style="margin-bottom: 15px;">
+                              <p style="color: #5f6368; font-size: 14px; margin: 0 0 5px; font-weight: 500; text-align: right;">المرسل:</p>
+                              <p style="color: #132859; font-size: 16px; margin: 0; font-weight: 600; text-align: right;">${name}</p>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                              <p style="color: #5f6368; font-size: 14px; margin: 0 0 5px; font-weight: 500; text-align: right;">البريد الإلكتروني:</p>
+                              <p style="color: #132859; font-size: 16px; margin: 0; font-weight: 600; text-align: right;"><a href="mailto:${email}" style="color: #f5631e; text-decoration: none;">${email}</a></p>
+                            </div>
+                            <div>
+                              <p style="color: #5f6368; font-size: 14px; margin: 0 0 5px; font-weight: 500; text-align: right;">الموضوع:</p>
+                              <p style="color: #132859; font-size: 16px; margin: 0; font-weight: 600; text-align: right;">${subject}</p>
+                            </div>
+                          </div>
+                          
+                          <!-- Message Content -->
+                          <h2 style="color: #132859; font-size: 20px; margin: 20px 0; font-weight: 600; text-align: right;">محتوى الرسالة</h2>
+                          <div style="background-color: #ffffff; border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: right;">
+                            <p style="line-height: 1.6; color: #132859; font-size: 16px; margin: 0; text-align: right;">${message.replace(/\n/g, '<br>')}</p>
+                          </div>
+                          
+                          <!-- Reply Button -->
+                          <div style="text-align: center; margin: 30px 0;">
+                            <a href="mailto:${email}" style="display: inline-block; background-color: #f5631e; color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-size: 16px; font-weight: 600;">
+                              الرد على الرسالة
+                            </a>
+                          </div>
+                        </td>
+                      </tr>
+                      
+                      <!-- Footer -->
+                      <tr>
+                        <td style="padding: 30px; background-color: #132859; text-align: center; border-radius: 0 0 12px 12px;">
+                          <h3 style="color: #ffffff; font-size: 18px; margin: 0 0 10px; font-weight: 700;">عرب نوشن</h3>
+                          <p style="color: #9aa0a6; font-size: 14px; margin: 0 0 15px;">منصة القوالب العربية</p>
+                          <a href="https://www.notionarabs.com" style="color: #f5631e; text-decoration: none; font-weight: 600;">www.notionarabs.com</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </body>
+            </html>
           `
           };
 

@@ -284,26 +284,30 @@ router.post('/signup', [
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>تأكيد البريد الإلكتروني</title>
+            <title>تأكيد البريد الإلكتروني - عرب نوشن</title>
           </head>
-          <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
-            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f5f5f5;">
+          <body style="margin: 0; padding: 0; font-family: 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f8f9fa;">
               <tr>
                 <td align="center" style="padding: 40px 20px;">
-                  <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                  <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
                     
-                    <!-- Header -->
+                    <!-- Header with Logo -->
                     <tr>
-                      <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                        <h1 style="color: #ffffff; margin: 0 0 10px; font-size: 28px; font-weight: 600;">مرحباً ${name}! 👋</h1>
-                        <p style="color: rgba(255,255,255,0.95); margin: 0; font-size: 16px;">شكراً لانضمامك إلى عرب نوشن</p>
+                      <td style="padding: 40px 40px 20px; text-align: center; background: linear-gradient(135deg, #f5631e 0%, #e55a1b 100%); position: relative;">
+                        <!-- Logo -->
+                        <div style="margin-bottom: 20px;">
+                          <img src="https://www.notionarabs.com/notionarabs.png" alt="عرب نوشن" style="height: 60px; width: auto; max-width: 200px;" />
+                        </div>
+                        <h1 style="color: #ffffff; margin: 0 0 10px; font-size: 28px; font-weight: 700;">مرحباً ${name}! 👋</h1>
+                        <p style="color: rgba(255,255,255,0.95); margin: 0; font-size: 16px; font-weight: 400;">شكراً لانضمامك إلى عرب نوشن</p>
                       </td>
                     </tr>
                     
                     <!-- Body -->
                     <tr>
                       <td style="padding: 40px;">
-                        <p style="color: #333; font-size: 16px; line-height: 1.6; margin: 0 0 30px; text-align: center;">
+                        <p style="color: #132859; font-size: 18px; line-height: 1.6; margin: 0 0 30px; text-align: center; font-weight: 600;">
                           لإكمال التسجيل، يرجى تأكيد بريدك الإلكتروني بالضغط على الزر أدناه:
                         </p>
                         
@@ -311,7 +315,7 @@ router.post('/signup', [
                         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                           <tr>
                             <td align="center" style="padding: 0 0 30px;">
-                              <a href="${verificationUrl}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                              <a href="${verificationUrl}" style="display: inline-block; background: linear-gradient(135deg, #f5631e 0%, #e55a1b 100%); color: #ffffff; text-decoration: none; padding: 18px 50px; border-radius: 12px; font-size: 16px; font-weight: 700; box-shadow: 0 8px 25px rgba(245, 99, 30, 0.4); transition: all 0.3s ease;">
                                 تأكيد البريد الإلكتروني ✓
                               </a>
                             </td>
@@ -319,14 +323,21 @@ router.post('/signup', [
                         </table>
                         
                         <!-- Info Box -->
-                        <div style="background-color: #f8f9fa; border-right: 4px solid #667eea; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                          <p style="color: #555; font-size: 14px; margin: 0; line-height: 1.6;">
-                            ⏱️ <strong>ملاحظة:</strong> الرابط صالح لمدة 24 ساعة
+                        <div style="background: linear-gradient(135deg, #fef7f0 0%, #fdeee0 100%); border-right: 4px solid #f5631e; padding: 25px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(245, 99, 30, 0.1);">
+                          <p style="color: #132859; font-size: 14px; margin: 0; line-height: 1.6; font-weight: 500;">
+                            ⏱️ <strong>ملاحظة مهمة:</strong> الرابط صالح لمدة 24 ساعة فقط
+                          </p>
+                        </div>
+                        
+                        <!-- Security Note -->
+                        <div style="background-color: #f8f9fa; border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                          <p style="color: #666; font-size: 13px; margin: 0; line-height: 1.5; text-align: center;">
+                            🔒 <strong>أمانك مهم لنا:</strong> لم نطلب منك كلمة المرور أو أي معلومات شخصية أخرى
                           </p>
                         </div>
                         
                         <!-- Link -->
-                        <p style="color: #999; font-size: 13px; text-align: center; margin: 20px 0 0; line-height: 1.6;">
+                        <p style="color: #9aa0a6; font-size: 13px; text-align: center; margin: 20px 0 0; line-height: 1.6;">
                           لم تطلب هذا الحساب؟ يمكنك تجاهل هذا البريد بأمان
                         </p>
                       </td>
@@ -334,10 +345,11 @@ router.post('/signup', [
                     
                     <!-- Footer -->
                     <tr>
-                      <td style="padding: 30px; background-color: #f8f9fa; text-align: center; border-top: 1px solid #e9ecef;">
-                        <p style="color: #666; font-size: 14px; margin: 0 0 5px; font-weight: 600;">عرب نوشن</p>
-                        <p style="color: #999; font-size: 12px; margin: 0;">
-                          <a href="https://www.notionarabs.com" style="color: #667eea; text-decoration: none;">www.notionarabs.com</a>
+                      <td style="padding: 30px; background: linear-gradient(135deg, #132859 0%, #0f2047 100%); text-align: center;">
+                        <p style="color: #ffffff; font-size: 16px; margin: 0 0 10px; font-weight: 700;">عرب نوشن</p>
+                        <p style="color: #9aa0a6; font-size: 12px; margin: 0 0 15px;">منصة القوالب العربية</p>
+                        <p style="color: #f5631e; font-size: 12px; margin: 0;">
+                          <a href="https://www.notionarabs.com" style="color: #f5631e; text-decoration: none; font-weight: 600;">www.notionarabs.com</a>
                         </p>
                       </td>
                     </tr>
@@ -1579,43 +1591,63 @@ router.post('/resend-verification', [
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>تأكيد البريد الإلكتروني</title>
+            <title>تأكيد البريد الإلكتروني - عرب نوشن</title>
           </head>
-          <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
-            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+          <body style="margin: 0; padding: 0; font-family: 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f8f9fa;">
               <tr>
                 <td align="center" style="padding: 40px 20px;">
-                  <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                  <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+                    
+                    <!-- Header with Logo -->
                     <tr>
-                      <td style="padding: 40px 40px 20px; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px 8px 0 0;">
-                        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">تأكيد البريد الإلكتروني ✉️</h1>
+                      <td style="padding: 40px 40px 20px; text-align: center; background: linear-gradient(135deg, #f5631e 0%, #e55a1b 100%);">
+                        <!-- Logo -->
+                        <div style="margin-bottom: 20px;">
+                          <img src="https://www.notionarabs.com/notionarabs.png" alt="عرب نوشن" style="height: 60px; width: auto; max-width: 200px;" />
+                        </div>
+                        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">تأكيد البريد الإلكتروني ✉️</h1>
                       </td>
                     </tr>
+                    
+                    <!-- Body -->
                     <tr>
                       <td style="padding: 40px;">
-                        <p style="color: #333; font-size: 16px; line-height: 1.6; margin: 0 0 20px;">مرحباً ${userName}،</p>
-                        <p style="color: #666; font-size: 15px; line-height: 1.6; margin: 0 0 30px;">لقد طلبت إعادة إرسال رابط تأكيد البريد الإلكتروني لحسابك في عرب نوشن.</p>
+                        <p style="color: #132859; font-size: 16px; line-height: 1.6; margin: 0 0 20px; font-weight: 600;">مرحباً ${userName}،</p>
+                        <p style="color: #5f6368; font-size: 15px; line-height: 1.6; margin: 0 0 30px;">لقد طلبت إعادة إرسال رابط تأكيد البريد الإلكتروني لحسابك في عرب نوشن.</p>
+                        
+                        <!-- Button -->
                         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                           <tr>
                             <td align="center" style="padding: 0 0 30px;">
-                              <a href="${verificationUrl}" style="display: inline-block; background-color: #667eea; color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 6px; font-size: 16px; font-weight: bold;">تأكيد البريد الإلكتروني ✓</a>
+                              <a href="${verificationUrl}" style="display: inline-block; background: linear-gradient(135deg, #f5631e 0%, #e55a1b 100%); color: #ffffff; text-decoration: none; padding: 18px 50px; border-radius: 12px; font-size: 16px; font-weight: 700; box-shadow: 0 8px 25px rgba(245, 99, 30, 0.4);">
+                                تأكيد البريد الإلكتروني ✓
+                              </a>
                             </td>
                           </tr>
                         </table>
-                        <p style="color: #666; font-size: 14px; line-height: 1.6; margin: 0 0 20px;">أو انسخ هذا الرابط:</p>
-                        <p style="color: #667eea; font-size: 13px; word-break: break-all; margin: 0 0 30px; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">${verificationUrl}</p>
-                        <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 0 0 20px; border-radius: 4px;">
-                          <p style="color: #856404; font-size: 14px; margin: 0;"><strong>⏱️ ملاحظة:</strong> هذا الرابط صالح لمدة 24 ساعة.</p>
+                        
+                        <p style="color: #5f6368; font-size: 14px; line-height: 1.6; margin: 0 0 20px; text-align: center;">أو انسخ هذا الرابط:</p>
+                        <p style="color: #f5631e; font-size: 13px; word-break: break-all; margin: 0 0 30px; padding: 15px; background: linear-gradient(135deg, #fef7f0 0%, #fdeee0 100%); border-radius: 8px; border-right: 3px solid #f5631e;">${verificationUrl}</p>
+                        
+                        <!-- Info Box -->
+                        <div style="background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%); border-right: 4px solid #ffc107; padding: 20px; margin: 0 0 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(255, 193, 7, 0.1);">
+                          <p style="color: #132859; font-size: 14px; margin: 0; line-height: 1.6; font-weight: 500;">
+                            ⏱️ <strong>ملاحظة مهمة:</strong> هذا الرابط صالح لمدة 24 ساعة فقط
+                          </p>
                         </div>
-                        <p style="color: #999; font-size: 13px; line-height: 1.6; margin: 0;">إذا لم تطلب هذا الرابط، يرجى تجاهله.</p>
+                        
+                        <p style="color: #9aa0a6; font-size: 13px; line-height: 1.6; margin: 0; text-align: center;">إذا لم تطلب هذا الرابط، يرجى تجاهله.</p>
                       </td>
                     </tr>
+                    
+                    <!-- Footer -->
                     <tr>
-                      <td style="padding: 30px 40px; background-color: #f8f9fa; border-radius: 0 0 8px 8px; text-align: center;">
-                        <p style="color: #666; font-size: 12px; margin: 0 0 10px;">عرب نوشن - منصة القوالب العربية</p>
-                        <p style="color: #999; font-size: 11px; margin: 0;">Notion Arabs Platform</p>
-                        <p style="color: #999; font-size: 11px; margin: 10px 0 0;">
-                          <a href="https://www.notionarabs.com" style="color: #667eea; text-decoration: none;">www.notionarabs.com</a>
+                      <td style="padding: 30px; background: linear-gradient(135deg, #132859 0%, #0f2047 100%); text-align: center;">
+                        <p style="color: #ffffff; font-size: 16px; margin: 0 0 10px; font-weight: 700;">عرب نوشن</p>
+                        <p style="color: #9aa0a6; font-size: 12px; margin: 0 0 15px;">منصة القوالب العربية</p>
+                        <p style="color: #f5631e; font-size: 12px; margin: 0;">
+                          <a href="https://www.notionarabs.com" style="color: #f5631e; text-decoration: none; font-weight: 600;">www.notionarabs.com</a>
                         </p>
                       </td>
                     </tr>

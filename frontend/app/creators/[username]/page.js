@@ -218,7 +218,16 @@ export default function PublicProfilePage() {
 
 
   if (loading) {
-    return <LoadingIndicator />;
+    return (
+      <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+        <div className="container-custom py-20">
+          <div className="text-center">
+            <LoadingIndicator />
+            <p className="text-lg text-accent-600 dark:text-dark-text-secondary mt-4">جاري تحميل بيانات المبدع...</p>
+          </div>
+        </div>
+      </main>
+    );
   }
 
   if (error || !creator) {

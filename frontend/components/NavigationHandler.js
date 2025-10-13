@@ -6,11 +6,21 @@ import { useLoading } from '../contexts/LoadingContext';
 
 export default function NavigationHandler() {
   const pathname = usePathname();
-  const { setLoading } = useLoading();
+  const { setLoading, getLoadingStartTime } = useLoading();
 
   useEffect(() => {
-    // Set loading to false when pathname changes (page has loaded)
-    setLoading(false);
+    // Calculate how long the loading state has been active
+    const startTime = getLoadingStartTime();
+    const loadingDuration = startTime ? Date.now() - startTime : 0;
+
+    // Minimum loading duration in milliseconds (500ms for better UX)
+    const minLoadingDuration = 500;
+    const remainingTime = Math.max(0, minLoadingDuration - loadingDuration);
+
+    // Set loading to false after minimum duration
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, remainingTime);
 
     // Exact pages where we don't want automatic scroll to top (not sub-pages)
     const noScrollPages = [
@@ -42,7 +52,10 @@ export default function NavigationHandler() {
         window.scrollTo(0, 0);
       }
     }
-  }, [pathname, setLoading]);
+
+    // Cleanup timer on unmount or pathname change
+    return () => clearTimeout(timer);
+  }, [pathname, setLoading, getLoadingStartTime]);
 
   // Handle browser navigation events
   useEffect(() => {

@@ -5,6 +5,7 @@ const Template = require('../models/Template');
 const Notification = require('../models/Notification');
 const Blog = require('../models/Blog');
 const auth = require('../middleware/auth');
+const { invalidateCache } = require('../utils/redis-cache');
 
 const router = express.Router();
 
@@ -1447,6 +1448,10 @@ router.put('/templates/:id/pin', auth, async (req, res) => {
 
     await template.save();
 
+    // Invalidate cache to reflect changes immediately
+    await invalidateCache('template', id);
+    await invalidateCache('stats');
+
     res.json({
       success: true,
       message: template.isPinned ? 'تم تثبيت القالب بنجاح' : 'تم إلغاء تثبيت القالب',
@@ -1500,6 +1505,11 @@ router.put('/users/:id/pin', auth, async (req, res) => {
     user.pinnedBy = user.isPinned ? req.user._id : null;
 
     await user.save();
+
+    // Invalidate cache to reflect changes immediately
+    await invalidateCache('user', id);
+    await invalidateCache('creators');
+    await invalidateCache('stats');
 
     res.json({
       success: true,

@@ -271,7 +271,7 @@ router.post('/signup', [
     let emailSent = false;
     try {
       const transporter = createTransporter();
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      const frontendUrl = process.env.FRONTEND_URL || 'https://notionarabs.com';
       const verificationUrl = `${frontendUrl}/verify-email?token=${emailVerificationToken}&email=${encodeURIComponent(email)}`;
 
       const mailOptions = {
@@ -995,7 +995,7 @@ router.post('/forgot-password', [
     await user.save();
 
     // Create reset URL
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const frontendUrl = process.env.FRONTEND_URL || 'https://notionarabs.com';
     const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
 
     // Send email
@@ -1566,7 +1566,7 @@ router.post('/resend-verification', [
     // Send verification email
     try {
       const transporter = createTransporter();
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      const frontendUrl = process.env.FRONTEND_URL || 'https://notionarabs.com';
       const verificationUrl = `${frontendUrl}/verify-email?token=${emailVerificationToken}`;
 
       const mailOptions = {

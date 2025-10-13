@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
+import { securityConfig } from './security-fix';
 
 function VerifyEmailForm() {
   const [loading, setLoading] = useState(true); // Start with loading true
@@ -59,8 +60,32 @@ function VerifyEmailForm() {
       return;
     }
 
+    // Enforce HTTPS for security
+    if (securityConfig.enforceHttps()) {
+      return;
+    }
+
     const tokenFromUrl = searchParams.get('token');
+    const emailFromUrl = searchParams.get('email');
+
     hasInitialized.current = true;
+
+    // Validate token format for security
+    if (tokenFromUrl && !securityConfig.validateToken(tokenFromUrl)) {
+      setInitialLoad(false);
+      setLoading(false);
+      setError('رمز التأكيد غير صحيح');
+      return;
+    }
+
+    // Sanitize email parameter
+    const sanitizedEmail = emailFromUrl ? securityConfig.sanitizeEmail(emailFromUrl) : null;
+    if (emailFromUrl && !sanitizedEmail) {
+      setInitialLoad(false);
+      setLoading(false);
+      setError('البريد الإلكتروني غير صحيح');
+      return;
+    }
 
     if (tokenFromUrl) {
       setToken(tokenFromUrl);

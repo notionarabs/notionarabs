@@ -288,8 +288,8 @@ export default function HomePage() {
               {/* Main Heading */}
               <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-accent-500 dark:text-dark-text-primary mb-4 sm:mb-6 ${!animationsPlayedRef.current ? 'text-reveal-delayed' : ''} leading-tight tracking-tight`}>
                 <div className="block">
-                  <div className="block">المنصة العربية الأولى لقوالب</div>
-                  <div className="block mt-2 md:mt-3 lg:mt-4">نوشن</div>
+                  <div className="block">المنصة العربية الأولى</div>
+                  <div className="block mt-2 md:mt-3 lg:mt-4"><span className="whitespace-nowrap">لقوالب نوشن</span></div>
                 </div>
               </h1>
 

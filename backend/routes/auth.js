@@ -275,7 +275,7 @@ router.post('/signup', [
       const verificationUrl = `${frontendUrl}/verify-email?token=${emailVerificationToken}&email=${encodeURIComponent(email)}`;
 
       const mailOptions = {
-        from: process.env.EMAIL_FROM || `"عرب نوشن" <${process.env.EMAIL_USER}>`,
+        from: process.env.EMAIL_FROM || `"عرب نوشن" <support@notionarabs.com>`,
         to: email,
         subject: 'تأكيد حسابك في عرب نوشن',
         html: `
@@ -936,7 +936,7 @@ const createTransporter = () => {
           },
           body: JSON.stringify({
             sender: {
-              email: process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL
+              email: process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL || 'support@notionarabs.com'
             },
             to: [{ email: mailOptions.to }],
             subject: mailOptions.subject,
@@ -1033,7 +1033,7 @@ router.post('/forgot-password', [
       const transporter = createTransporter();
 
       const mailOptions = {
-        from: process.env.EMAIL_FROM || `"عرب نوشن" <${process.env.EMAIL_USER}>`,
+        from: process.env.EMAIL_FROM || `"عرب نوشن" <support@notionarabs.com>`,
         to: email,
         subject: 'إعادة تعيين كلمة المرور - Reset Password | عرب نوشن',
         html: `
@@ -1600,7 +1600,7 @@ router.post('/resend-verification', [
       const verificationUrl = `${frontendUrl}/verify-email?token=${emailVerificationToken}`;
 
       const mailOptions = {
-        from: process.env.EMAIL_FROM || `"عرب نوشن" <${process.env.EMAIL_USER}>`,
+        from: process.env.EMAIL_FROM || `"عرب نوشن" <support@notionarabs.com>`,
         to: email,
         subject: 'تأكيد البريد الإلكتروني - Verify Email | عرب نوشن',
         html: `

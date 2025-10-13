@@ -106,11 +106,9 @@ const nextConfig = {
   experimental: {
     optimizeCss: true,
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons', 'framer-motion'],
-    // Optimize server components
-    serverComponentsExternalPackages: ['mongoose', 'bcryptjs'],
   },
-  // Enable SWC minification (faster than Terser)
-  swcMinify: true,
+  // External packages for server components
+  serverExternalPackages: ['mongoose', 'bcryptjs'],
   // Optimize production builds
   productionBrowserSourceMaps: false,
   images: {

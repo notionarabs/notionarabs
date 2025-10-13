@@ -4,7 +4,34 @@ import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
-import { securityConfig } from './security-fix';
+
+// Security configuration and utilities
+const securityConfig = {
+  // Validate email verification token format
+  validateToken: (token) => {
+    // Email verification tokens should be 64 characters (32 bytes hex)
+    return token && typeof token === 'string' && token.length === 64 && /^[a-f0-9]+$/i.test(token);
+  },
+
+  // Sanitize email parameter
+  sanitizeEmail: (email) => {
+    if (!email || typeof email !== 'string') return null;
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email) ? email.toLowerCase().trim() : null;
+  },
+
+  // Enforce HTTPS for security
+  enforceHttps: () => {
+    if (typeof window !== 'undefined' && window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
+      const httpsUrl = window.location.href.replace('http://', 'https://');
+      window.location.replace(httpsUrl);
+      return true;
+    }
+    return false;
+  }
+};
 
 function VerifyEmailForm() {
   const [loading, setLoading] = useState(true); // Start with loading true

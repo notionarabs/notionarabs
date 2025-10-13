@@ -299,7 +299,12 @@ router.post('/signup', [
                         <div style="margin-bottom: 20px;">
                           <img src="https://www.notionarabs.com/notionarabs.png" alt="عرب نوشن" style="height: 60px; width: auto; max-width: 200px;" />
                         </div>
-                        <h1 style="color: #ffffff; margin: 0 0 10px; font-size: 28px; font-weight: 700;">مرحباً ${name}! 👋</h1>
+                        <h1 style="color: #ffffff; margin: 0 0 10px; font-size: 28px; font-weight: 700;">
+                          مرحباً ${name}! 
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
+                            <path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                          </svg>
+                        </h1>
                         <p style="color: rgba(255,255,255,0.95); margin: 0; font-size: 16px; font-weight: 400;">شكراً لانضمامك إلى عرب نوشن</p>
                       </td>
                     </tr>
@@ -316,7 +321,11 @@ router.post('/signup', [
                           <tr>
                             <td align="center" style="padding: 0 0 30px;">
                               <a href="${verificationUrl}" style="display: inline-block; background: linear-gradient(135deg, #f5631e 0%, #e55a1b 100%); color: #ffffff; text-decoration: none; padding: 18px 50px; border-radius: 12px; font-size: 16px; font-weight: 700; box-shadow: 0 8px 25px rgba(245, 99, 30, 0.4); transition: all 0.3s ease;">
-                                تأكيد البريد الإلكتروني ✓
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-left: 8px;">
+                                  <path d="M9 12l2 2 4-4"/>
+                                  <path d="M21 12c.552 0 1-.448 1-1V5c0-.552-.448-1-1-1H3c-.552 0-1 .448-1 1v6c0 .552.448 1 1 1h18z"/>
+                                </svg>
+                                تأكيد البريد الإلكتروني
                               </a>
                             </td>
                           </tr>
@@ -325,14 +334,23 @@ router.post('/signup', [
                         <!-- Info Box -->
                         <div style="background: linear-gradient(135deg, #fef7f0 0%, #fdeee0 100%); border-right: 4px solid #f5631e; padding: 25px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(245, 99, 30, 0.1);">
                           <p style="color: #132859; font-size: 14px; margin: 0; line-height: 1.6; font-weight: 500;">
-                            ⏱️ <strong>ملاحظة مهمة:</strong> الرابط صالح لمدة 24 ساعة فقط
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-left: 8px;">
+                              <circle cx="12" cy="12" r="10"/>
+                              <polyline points="12,6 12,12 16,14"/>
+                            </svg>
+                            <strong>ملاحظة مهمة:</strong> الرابط صالح لمدة 24 ساعة فقط
                           </p>
                         </div>
                         
                         <!-- Security Note -->
                         <div style="background-color: #f8f9fa; border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
                           <p style="color: #666; font-size: 13px; margin: 0; line-height: 1.5; text-align: center;">
-                            🔒 <strong>أمانك مهم لنا:</strong> لم نطلب منك كلمة المرور أو أي معلومات شخصية أخرى
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-left: 8px;">
+                              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                              <circle cx="12" cy="16" r="1"/>
+                              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                            <strong>أمانك مهم لنا:</strong> لم نطلب منك كلمة المرور أو أي معلومات شخصية أخرى
                           </p>
                         </div>
                         
@@ -1606,7 +1624,13 @@ router.post('/resend-verification', [
                         <div style="margin-bottom: 20px;">
                           <img src="https://www.notionarabs.com/notionarabs.png" alt="عرب نوشن" style="height: 60px; width: auto; max-width: 200px;" />
                         </div>
-                        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">تأكيد البريد الإلكتروني ✉️</h1>
+                        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">
+                          تأكيد البريد الإلكتروني
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                          </svg>
+                        </h1>
                       </td>
                     </tr>
                     
@@ -1621,7 +1645,11 @@ router.post('/resend-verification', [
                           <tr>
                             <td align="center" style="padding: 0 0 30px;">
                               <a href="${verificationUrl}" style="display: inline-block; background: linear-gradient(135deg, #f5631e 0%, #e55a1b 100%); color: #ffffff; text-decoration: none; padding: 18px 50px; border-radius: 12px; font-size: 16px; font-weight: 700; box-shadow: 0 8px 25px rgba(245, 99, 30, 0.4);">
-                                تأكيد البريد الإلكتروني ✓
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-left: 8px;">
+                                  <path d="M9 12l2 2 4-4"/>
+                                  <path d="M21 12c.552 0 1-.448 1-1V5c0-.552-.448-1-1-1H3c-.552 0-1 .448-1 1v6c0 .552.448 1 1 1h18z"/>
+                                </svg>
+                                تأكيد البريد الإلكتروني
                               </a>
                             </td>
                           </tr>
@@ -1633,7 +1661,11 @@ router.post('/resend-verification', [
                         <!-- Info Box -->
                         <div style="background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%); border-right: 4px solid #ffc107; padding: 20px; margin: 0 0 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(255, 193, 7, 0.1);">
                           <p style="color: #132859; font-size: 14px; margin: 0; line-height: 1.6; font-weight: 500;">
-                            ⏱️ <strong>ملاحظة مهمة:</strong> هذا الرابط صالح لمدة 24 ساعة فقط
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-left: 8px;">
+                              <circle cx="12" cy="12" r="10"/>
+                              <polyline points="12,6 12,12 16,14"/>
+                            </svg>
+                            <strong>ملاحظة مهمة:</strong> هذا الرابط صالح لمدة 24 ساعة فقط
                           </p>
                         </div>
                         

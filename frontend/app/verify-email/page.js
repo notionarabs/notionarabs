@@ -87,14 +87,9 @@ function VerifyEmailForm() {
       return;
     }
 
-    // Enforce HTTPS for security
-    if (securityConfig.enforceHttps()) {
-      return;
-    }
-
     const tokenFromUrl = searchParams.get('token');
     const emailFromUrl = searchParams.get('email');
-
+    
     hasInitialized.current = true;
 
     // Validate token format for security

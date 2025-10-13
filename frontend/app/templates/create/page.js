@@ -1138,6 +1138,12 @@ function CreateTemplatePageContent() {
                               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 PNG, JPG, GIF حتى 2 ميجابايت - مطلوب كصورة مصغرة
                               </p>
+                              <p className="text-xs text-green-600 dark:text-green-400 mt-1 font-medium flex items-center gap-1 justify-center">
+                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 3h6m0 0v6m0-6l-7 7M9 21H3m0 0v-6m0 6l7-7" />
+                                </svg>
+                                القياس المُوصى به: 1600×900 بكسل
+                              </p>
                             </div>
                           </>
                         )}

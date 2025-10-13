@@ -285,118 +285,63 @@ router.post('/signup', [
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>تأكيد البريد الإلكتروني</title>
-            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
           </head>
-          <body style="margin: 0; padding: 0; font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh;">
-            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+          <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f5f5f5;">
               <tr>
-                <td align="center" style="padding: 60px 20px;">
-                  <!-- Main Container -->
-                  <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); overflow: hidden;">
+                <td align="center" style="padding: 40px 20px;">
+                  <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
                     
-                    <!-- Header with Gradient -->
+                    <!-- Header -->
                     <tr>
-                      <td style="padding: 0; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: relative;">
-                        <div style="padding: 50px 40px 40px;">
-                          <!-- Logo -->
-                          <img src="https://notionarabs.com/notionarabs.png" alt="عرب نوشن" style="max-width: 120px; height: auto; margin-bottom: 20px; filter: brightness(0) invert(1);" />
-                          
-                          <!-- Welcome Icon -->
-                          <div style="width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
-                            <span style="font-size: 40px;">👋</span>
-                          </div>
-                          
-                          <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">مرحباً ${name}!</h1>
-                          <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0; font-size: 16px; font-weight: 400;">نحن سعداء بانضمامك إلينا</p>
-                        </div>
-                        
-                        <!-- Wave Divider -->
-                        <svg style="display: block; width: 100%; height: 30px;" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                          <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="#ffffff"></path>
-                        </svg>
+                      <td style="padding: 40px 40px 30px; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <h1 style="color: #ffffff; margin: 0 0 10px; font-size: 28px; font-weight: 600;">مرحباً ${name}! 👋</h1>
+                        <p style="color: rgba(255,255,255,0.95); margin: 0; font-size: 16px;">شكراً لانضمامك إلى عرب نوشن</p>
                       </td>
                     </tr>
                     
-                    <!-- Body Content -->
+                    <!-- Body -->
                     <tr>
-                      <td style="padding: 50px 40px;">
-                        <!-- Welcome Message -->
-                        <div style="text-align: center; margin-bottom: 40px;">
-                          <h2 style="color: #1a202c; font-size: 24px; font-weight: 600; margin: 0 0 15px;">شكراً لانضمامك! 🎉</h2>
-                          <p style="color: #4a5568; font-size: 16px; line-height: 1.8; margin: 0;">انضممت إلى <strong style="color: #667eea;">عرب نوشن</strong> - المنصة العربية الأولى لقوالب Notion الاحترافية</p>
-                        </div>
+                      <td style="padding: 40px;">
+                        <p style="color: #333; font-size: 16px; line-height: 1.6; margin: 0 0 30px; text-align: center;">
+                          لإكمال التسجيل، يرجى تأكيد بريدك الإلكتروني بالضغط على الزر أدناه:
+                        </p>
+                        
+                        <!-- Button -->
+                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                          <tr>
+                            <td align="center" style="padding: 0 0 30px;">
+                              <a href="${verificationUrl}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                                تأكيد البريد الإلكتروني ✓
+                              </a>
+                            </td>
+                          </tr>
+                        </table>
                         
                         <!-- Info Box -->
-                        <div style="background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%); border-radius: 15px; padding: 30px; margin-bottom: 35px; border: 1px solid #e2e8f0;">
-                          <p style="color: #2d3748; font-size: 15px; line-height: 1.8; margin: 0 0 25px; text-align: center;">لإكمال التسجيل وتفعيل حسابك، يرجى تأكيد بريدك الإلكتروني:</p>
-                          
-                          <!-- CTA Button -->
-                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-                            <tr>
-                              <td align="center">
-                                <a href="${verificationUrl}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 18px 50px; border-radius: 50px; font-size: 16px; font-weight: 600; box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3); transition: all 0.3s ease;">
-                                  ✓ تأكيد البريد الإلكتروني
-                                </a>
-                              </td>
-                            </tr>
-                          </table>
-                        </div>
-                        
-                        <!-- Alternative Link -->
-                        <div style="background: #fff; border: 2px dashed #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 30px;">
-                          <p style="color: #718096; font-size: 13px; margin: 0 0 10px; text-align: center; font-weight: 600;">أو انسخ هذا الرابط:</p>
-                          <p style="color: #667eea; font-size: 12px; word-break: break-all; margin: 0; padding: 12px; background-color: #f7fafc; border-radius: 8px; text-align: center; font-family: monospace;">${verificationUrl}</p>
-                        </div>
-                        
-                        <!-- Warning Box -->
-                        <div style="background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 20%); border-right: 4px solid #fc8181; padding: 20px; border-radius: 12px; margin-bottom: 30px;">
-                          <p style="color: #742a2a; font-size: 14px; margin: 0; display: flex; align-items: center;">
-                            <span style="font-size: 20px; margin-left: 10px;">⏱️</span>
-                            <span><strong>ملاحظة هامة:</strong> هذا الرابط صالح لمدة 24 ساعة فقط</span>
+                        <div style="background-color: #f8f9fa; border-right: 4px solid #667eea; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                          <p style="color: #555; font-size: 14px; margin: 0; line-height: 1.6;">
+                            ⏱️ <strong>ملاحظة:</strong> الرابط صالح لمدة 24 ساعة
                           </p>
                         </div>
                         
-                        <!-- Features -->
-                        <div style="margin: 40px 0;">
-                          <h3 style="color: #2d3748; font-size: 18px; font-weight: 600; margin: 0 0 20px; text-align: center;">ماذا يمكنك فعله في عرب نوشن؟</h3>
-                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-                            <tr>
-                              <td style="padding: 15px; text-align: center;">
-                                <div style="font-size: 32px; margin-bottom: 10px;">🎨</div>
-                                <p style="color: #4a5568; font-size: 14px; margin: 0; font-weight: 500;">تصفح قوالب احترافية</p>
-                              </td>
-                              <td style="padding: 15px; text-align: center;">
-                                <div style="font-size: 32px; margin-bottom: 10px;">⬇️</div>
-                                <p style="color: #4a5568; font-size: 14px; margin: 0; font-weight: 500;">تحميل مجاني وسريع</p>
-                              </td>
-                              <td style="padding: 15px; text-align: center;">
-                                <div style="font-size: 32px; margin-bottom: 10px;">💬</div>
-                                <p style="color: #4a5568; font-size: 14px; margin: 0; font-weight: 500;">تواصل مع المبدعين</p>
-                              </td>
-                            </tr>
-                          </table>
-                        </div>
-                        
-                        <!-- Disclaimer -->
-                        <p style="color: #a0aec0; font-size: 13px; line-height: 1.6; margin: 30px 0 0; text-align: center; padding-top: 20px; border-top: 1px solid #e2e8f0;">لم تطلب هذا الحساب؟ يمكنك تجاهل هذا البريد بأمان.</p>
+                        <!-- Link -->
+                        <p style="color: #999; font-size: 13px; text-align: center; margin: 20px 0 0; line-height: 1.6;">
+                          لم تطلب هذا الحساب؟ يمكنك تجاهل هذا البريد بأمان
+                        </p>
                       </td>
                     </tr>
                     
                     <!-- Footer -->
                     <tr>
-                      <td style="padding: 40px; background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%); text-align: center;">
-                        <img src="https://notionarabs.com/notionarabs.png" alt="عرب نوشن" style="max-width: 100px; height: auto; margin-bottom: 20px; filter: brightness(0) invert(1); opacity: 0.8;" />
-                        <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 0 0 8px; font-weight: 600;">عرب نوشن - منصة القوالب العربية</p>
-                        <p style="color: rgba(255,255,255,0.6); font-size: 12px; margin: 0 0 20px;">Notion Arabs - Arabic Templates Platform</p>
-                        <p style="margin: 20px 0 0;">
-                          <a href="https://www.notionarabs.com" style="color: #667eea; text-decoration: none; font-size: 14px; font-weight: 500;">www.notionarabs.com</a>
+                      <td style="padding: 30px; background-color: #f8f9fa; text-align: center; border-top: 1px solid #e9ecef;">
+                        <p style="color: #666; font-size: 14px; margin: 0 0 5px; font-weight: 600;">عرب نوشن</p>
+                        <p style="color: #999; font-size: 12px; margin: 0;">
+                          <a href="https://www.notionarabs.com" style="color: #667eea; text-decoration: none;">www.notionarabs.com</a>
                         </p>
                       </td>
                     </tr>
                   </table>
-                  
-                  <!-- Copyright -->
-                  <p style="color: #718096; font-size: 12px; margin: 30px 0 0; text-align: center;">© 2025 Notion Arabs. جميع الحقوق محفوظة.</p>
                 </td>
               </tr>
             </table>

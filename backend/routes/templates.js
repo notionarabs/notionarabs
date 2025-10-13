@@ -307,7 +307,11 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
     const filter = { status: 'approved' };
 
     if (category && category !== 'all') {
-      filter.category = category;
+      // Check both the main category field and the categories array
+      filter.$or = [
+        { category: category },
+        { categories: category }
+      ];
     }
 
     if (creator) {
@@ -318,7 +322,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
     if (search && search.trim()) {
       // Get all templates for Fuse.js search
       let templates = await Template.find(filter)
-        .select('title description category tags creator previewImage slug rating reviewsCount downloads isPaid price createdAt isPinned pinnedAt')
+        .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price createdAt isPinned pinnedAt')
         .populate('creator', 'name username displayName profilePicture')
         .lean();
 
@@ -327,6 +331,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
           { name: 'title', weight: 0.4 },
           { name: 'description', weight: 0.3 },
           { name: 'category', weight: 0.2 },
+          { name: 'categories', weight: 0.2 },
           { name: 'tags', weight: 0.1 },
           { name: 'creator.name', weight: 0.1 },
           { name: 'creator.username', weight: 0.1 },
@@ -388,7 +393,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
     // Use aggregation for better performance with pagination
     const [templates, totalCount] = await Promise.all([
       Template.find(filter)
-        .select('title description category tags creator previewImage slug rating reviewsCount downloads isPaid price createdAt isPinned pinnedAt')
+        .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price createdAt isPinned pinnedAt')
         .populate('creator', 'name username displayName profilePicture')
         .sort(sort)
         .skip(skip)

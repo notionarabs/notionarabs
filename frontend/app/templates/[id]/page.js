@@ -671,7 +671,7 @@ export default function TemplateDetailPage() {
             items={[
               { name: 'الرئيسية', url: `${siteConfig.url}` },
               { name: 'القوالب', url: `${siteConfig.url}/templates` },
-              { name: template.category, url: `${siteConfig.url}/templates/category/${arabicToEnglishCategoryMap[template.category] || encodeURIComponent(template.category)}` },
+              { name: template.category, url: `${siteConfig.url}/categories/${arabicToEnglishCategoryMap[template.category] || encodeURIComponent(template.category)}` },
               { name: template.title, url: `${siteConfig.url}/templates/${template.slug || template._id}` }
             ]}
           />
@@ -684,7 +684,7 @@ export default function TemplateDetailPage() {
               <Breadcrumb
                 items={[
                   { name: 'القوالب', url: '/templates' },
-                  { name: template.category, url: `/templates/category/${arabicToEnglishCategoryMap[template.category] || encodeURIComponent(template.category)}` },
+                  { name: template.category, url: `/categories/${arabicToEnglishCategoryMap[template.category] || encodeURIComponent(template.category)}` },
                   { name: template.title, url: `/templates/${template.slug || template._id}` }
                 ]}
               />
@@ -1094,7 +1094,7 @@ export default function TemplateDetailPage() {
                         {(template.categories && template.categories.length > 0 ? template.categories : [template.category]).map((category, index) => (
                           <Link
                             key={index}
-                            href={`/templates/category/${arabicToEnglishCategoryMap[category] || category}`}
+                            href={`/categories/${arabicToEnglishCategoryMap[category] || category}`}
                             className="inline-block px-2 py-1 text-xs font-medium bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-md hover:bg-primary-200 dark:hover:bg-primary-800/50 hover:text-primary-800 dark:hover:text-primary-200 transition-colors duration-200 cursor-pointer"
                           >
                             {category}

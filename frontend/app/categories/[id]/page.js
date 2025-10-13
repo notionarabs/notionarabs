@@ -5,9 +5,9 @@ import Image from 'next/image';
 import { LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import api from '../../../../lib/api';
-import LoadingIndicator from '../../../../components/LoadingIndicator';
-import StarRating from '../../../../components/StarRating';
+import api from '../../../lib/api';
+import LoadingIndicator from '../../../components/LoadingIndicator';
+import StarRating from '../../../components/StarRating';
 
 // Map category slugs to Arabic names
 const categoryMap = {
@@ -475,3 +475,4 @@ export default function CategoryTemplatesPage() {
     </Suspense>
   );
 }
+

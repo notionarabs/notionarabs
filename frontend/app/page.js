@@ -486,7 +486,7 @@ export default function HomePage() {
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
             {categories.slice(0, 8).map((c, idx) => (
-              <Link href={`/templates/category/${categorySlugMap[c.name] || c.name.toLowerCase()}`} key={idx} className="group">
+              <Link href={`/categories/${categorySlugMap[c.name] || c.name.toLowerCase()}`} key={idx} className="group">
                 <div className="bg-white dark:bg-dark-tertiary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-dark-card-border hover:shadow-md hover:border-accent-300 dark:hover:border-accent-400 transition-all duration-300 h-full flex flex-col">
                   {/* Icon */}
                   <div className="flex justify-center mb-4">

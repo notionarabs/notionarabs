@@ -388,7 +388,7 @@ export default function CategoriesPage() {
           {filteredCategories.map((category, idx) => (
             <Link
               key={idx}
-              href={`/templates/category/${categorySlugMap[category.name] || category.name.toLowerCase()}`}
+              href={`/categories/${categorySlugMap[category.name] || category.name.toLowerCase()}`}
               className="group"
             >
               <div className="bg-white dark:bg-dark-tertiary rounded-xl p-4 shadow-sm border border-gray-200 dark:border-dark-card-border hover:shadow-md hover:border-accent-300 dark:hover:border-orange-500/50 transition-all duration-300 h-full flex flex-col">

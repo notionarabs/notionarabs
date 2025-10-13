@@ -1,4 +1,4 @@
-import { generateCategoryMetadata } from '../../../../lib/seo'
+import { generateCategoryMetadata } from '../../../lib/seo'
 
 // Map category slugs to Arabic names
 const categoryMap = {

@@ -13,129 +13,6 @@ const auth = require('../middleware/auth');
 
 const router = express.Router();
 
-// @route   GET /api/auth/test
-// @desc    Test endpoint to verify backend is working
-// @access  Public
-router.get('/test', (req, res) => {
-  res.json({
-    success: true,
-    message: 'Backend auth service is working',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
-  });
-});
-
-// @route   GET /api/auth/test-email
-// @desc    Test email configuration
-// @access  Public
-router.get('/test-email', async (req, res) => {
-  // Allow testing with custom email via query parameter
-  const testEmailAddress = req.query.email || process.env.EMAIL_USER;
-  try {
-    // Check if email configuration is available
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      return res.status(500).json({
-        success: false,
-        message: 'Email configuration missing',
-        details: {
-          EMAIL_USER: process.env.EMAIL_USER ? 'Set' : 'Missing',
-          EMAIL_PASS: process.env.EMAIL_PASS ? 'Set' : 'Missing',
-          EMAIL_PASS_LENGTH: process.env.EMAIL_PASS ? process.env.EMAIL_PASS.length : 0,
-          NODE_ENV: process.env.NODE_ENV,
-          FRONTEND_URL: process.env.FRONTEND_URL || 'Missing'
-        }
-      });
-    }
-
-    // Log configuration (without sensitive data)
-    console.log('Email Test - Configuration:', {
-      EMAIL_USER: process.env.EMAIL_USER,
-      EMAIL_PASS_LENGTH: process.env.EMAIL_PASS.length,
-      EMAIL_FROM: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-      FRONTEND_URL: process.env.FRONTEND_URL,
-      NODE_ENV: process.env.NODE_ENV,
-      timestamp: new Date().toISOString()
-    });
-
-    // Test email transporter
-    const transporter = createTransporter();
-
-    // Verify connection first
-    console.log('Testing SMTP connection...');
-    await new Promise((resolve, reject) => {
-      transporter.verify((error, success) => {
-        if (error) {
-          console.error('SMTP verification failed:', error);
-          reject(error);
-        } else {
-          console.log('SMTP connection verified successfully');
-          resolve(success);
-        }
-      });
-    });
-
-    // Test email sending
-    const testEmail = testEmailAddress; // Send to specified email
-    const mailOptions = {
-      from: `"فريق عرب نوشن" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
-      to: testEmail,
-      subject: 'Test Email from Notion Arabs - ' + new Date().toISOString(),
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
-          <h2 style="color: #333; text-align: center;">اختبار إرسال البريد الإلكتروني ✅</h2>
-          <p>هذا اختبار لإرسال البريد الإلكتروني من منصة عرب نوشن.</p>
-          <p>إذا تلقيت هذا البريد، فالإعداد يعمل بشكل صحيح!</p>
-          <p><strong>Server Time:</strong> ${new Date().toLocaleString('ar-EG', { timeZone: 'Asia/Riyadh' })}</p>
-          <p><strong>Environment:</strong> ${process.env.NODE_ENV || 'development'}</p>
-          <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-          <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
-        </div>
-      `
-    };
-
-    console.log('Sending test email to:', testEmail);
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully! Message ID:', info.messageId);
-
-    res.json({
-      success: true,
-      message: 'Email configuration is working! Test email sent.',
-      timestamp: new Date().toISOString(),
-      emailSentTo: testEmail,
-      messageId: info.messageId,
-      config: {
-        EMAIL_USER: process.env.EMAIL_USER,
-        FRONTEND_URL: process.env.FRONTEND_URL,
-        NODE_ENV: process.env.NODE_ENV
-      }
-    });
-
-  } catch (error) {
-    console.error('Email test error:', error);
-    console.error('Error details:', {
-      message: error.message,
-      code: error.code,
-      command: error.command,
-      response: error.response,
-      responseCode: error.responseCode
-    });
-
-    res.status(500).json({
-      success: false,
-      message: 'Email configuration failed',
-      error: error.message,
-      code: error.code,
-      responseCode: error.responseCode,
-      details: {
-        EMAIL_USER: process.env.EMAIL_USER ? 'Set' : 'Missing',
-        EMAIL_PASS: process.env.EMAIL_PASS ? 'Set (length: ' + process.env.EMAIL_PASS.length + ')' : 'Missing',
-        FRONTEND_URL: process.env.FRONTEND_URL || 'Missing',
-        NODE_ENV: process.env.NODE_ENV
-      }
-    });
-  }
-});
-
 // Temporary storage for unverified users (in production, use Redis or database)
 const tempUserStorage = new Map();
 
@@ -400,7 +277,7 @@ router.post('/signup', [
       const mailOptions = {
         from: process.env.EMAIL_FROM || `"عرب نوشن" <${process.env.EMAIL_USER}>`,
         to: email,
-        subject: 'تفعيل حسابك في عرب نوشن - Activate Your Account',
+        subject: 'تأكيد حسابك في عرب نوشن',
         html: `
           <!DOCTYPE html>
           <html lang="ar" dir="rtl">
@@ -408,55 +285,118 @@ router.post('/signup', [
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>تأكيد البريد الإلكتروني</title>
+            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
           </head>
-          <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
-            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+          <body style="margin: 0; padding: 0; font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
               <tr>
-                <td align="center" style="padding: 40px 20px;">
-                  <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    <!-- Header -->
+                <td align="center" style="padding: 60px 20px;">
+                  <!-- Main Container -->
+                  <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); overflow: hidden;">
+                    
+                    <!-- Header with Gradient -->
                     <tr>
-                      <td style="padding: 40px 40px 20px; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px 8px 0 0;">
-                        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">مرحباً ${name}! 👋</h1>
-                      </td>
-                    </tr>
-                    <!-- Body -->
-                    <tr>
-                      <td style="padding: 40px;">
-                        <p style="color: #333; font-size: 16px; line-height: 1.6; margin: 0 0 20px;">شكراً لانضمامك إلى <strong>عرب نوشن</strong> - المنصة العربية الأولى لقوالب Notion!</p>
-                        
-                        <p style="color: #666; font-size: 15px; line-height: 1.6; margin: 0 0 30px;">للبدء في استخدام حسابك، يرجى تأكيد بريدك الإلكتروني بالضغط على الزر أدناه:</p>
-                        
-                        <!-- Button -->
-                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-                          <tr>
-                            <td align="center" style="padding: 0 0 30px;">
-                              <a href="${verificationUrl}" style="display: inline-block; background-color: #667eea; color: #ffffff; text-decoration: none; padding: 14px 40px; border-radius: 6px; font-size: 16px; font-weight: bold;">تأكيد البريد الإلكتروني ✓</a>
-                            </td>
-                          </tr>
-                        </table>
-                        
-                        <p style="color: #666; font-size: 14px; line-height: 1.6; margin: 0 0 20px;">أو انسخ هذا الرابط والصقه في متصفحك:</p>
-                        <p style="color: #667eea; font-size: 13px; word-break: break-all; margin: 0 0 30px; padding: 10px; background-color: #f8f9fa; border-radius: 4px;">${verificationUrl}</p>
-                        
-                        <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 0 0 20px; border-radius: 4px;">
-                          <p style="color: #856404; font-size: 14px; margin: 0;"><strong>⏱️ ملاحظة:</strong> هذا الرابط صالح لمدة 24 ساعة فقط.</p>
+                      <td style="padding: 0; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: relative;">
+                        <div style="padding: 50px 40px 40px;">
+                          <!-- Logo -->
+                          <img src="https://notionarabs.com/notionarabs.png" alt="عرب نوشن" style="max-width: 120px; height: auto; margin-bottom: 20px; filter: brightness(0) invert(1);" />
+                          
+                          <!-- Welcome Icon -->
+                          <div style="width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+                            <span style="font-size: 40px;">👋</span>
+                          </div>
+                          
+                          <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">مرحباً ${name}!</h1>
+                          <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0; font-size: 16px; font-weight: 400;">نحن سعداء بانضمامك إلينا</p>
                         </div>
                         
-                        <p style="color: #999; font-size: 13px; line-height: 1.6; margin: 0;">إذا لم تنشئ هذا الحساب، يمكنك تجاهل هذا البريد بأمان.</p>
+                        <!-- Wave Divider -->
+                        <svg style="display: block; width: 100%; height: 30px;" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                          <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="#ffffff"></path>
+                        </svg>
                       </td>
                     </tr>
+                    
+                    <!-- Body Content -->
+                    <tr>
+                      <td style="padding: 50px 40px;">
+                        <!-- Welcome Message -->
+                        <div style="text-align: center; margin-bottom: 40px;">
+                          <h2 style="color: #1a202c; font-size: 24px; font-weight: 600; margin: 0 0 15px;">شكراً لانضمامك! 🎉</h2>
+                          <p style="color: #4a5568; font-size: 16px; line-height: 1.8; margin: 0;">انضممت إلى <strong style="color: #667eea;">عرب نوشن</strong> - المنصة العربية الأولى لقوالب Notion الاحترافية</p>
+                        </div>
+                        
+                        <!-- Info Box -->
+                        <div style="background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%); border-radius: 15px; padding: 30px; margin-bottom: 35px; border: 1px solid #e2e8f0;">
+                          <p style="color: #2d3748; font-size: 15px; line-height: 1.8; margin: 0 0 25px; text-align: center;">لإكمال التسجيل وتفعيل حسابك، يرجى تأكيد بريدك الإلكتروني:</p>
+                          
+                          <!-- CTA Button -->
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td align="center">
+                                <a href="${verificationUrl}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 18px 50px; border-radius: 50px; font-size: 16px; font-weight: 600; box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3); transition: all 0.3s ease;">
+                                  ✓ تأكيد البريد الإلكتروني
+                                </a>
+                              </td>
+                            </tr>
+                          </table>
+                        </div>
+                        
+                        <!-- Alternative Link -->
+                        <div style="background: #fff; border: 2px dashed #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 30px;">
+                          <p style="color: #718096; font-size: 13px; margin: 0 0 10px; text-align: center; font-weight: 600;">أو انسخ هذا الرابط:</p>
+                          <p style="color: #667eea; font-size: 12px; word-break: break-all; margin: 0; padding: 12px; background-color: #f7fafc; border-radius: 8px; text-align: center; font-family: monospace;">${verificationUrl}</p>
+                        </div>
+                        
+                        <!-- Warning Box -->
+                        <div style="background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 20%); border-right: 4px solid #fc8181; padding: 20px; border-radius: 12px; margin-bottom: 30px;">
+                          <p style="color: #742a2a; font-size: 14px; margin: 0; display: flex; align-items: center;">
+                            <span style="font-size: 20px; margin-left: 10px;">⏱️</span>
+                            <span><strong>ملاحظة هامة:</strong> هذا الرابط صالح لمدة 24 ساعة فقط</span>
+                          </p>
+                        </div>
+                        
+                        <!-- Features -->
+                        <div style="margin: 40px 0;">
+                          <h3 style="color: #2d3748; font-size: 18px; font-weight: 600; margin: 0 0 20px; text-align: center;">ماذا يمكنك فعله في عرب نوشن؟</h3>
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td style="padding: 15px; text-align: center;">
+                                <div style="font-size: 32px; margin-bottom: 10px;">🎨</div>
+                                <p style="color: #4a5568; font-size: 14px; margin: 0; font-weight: 500;">تصفح قوالب احترافية</p>
+                              </td>
+                              <td style="padding: 15px; text-align: center;">
+                                <div style="font-size: 32px; margin-bottom: 10px;">⬇️</div>
+                                <p style="color: #4a5568; font-size: 14px; margin: 0; font-weight: 500;">تحميل مجاني وسريع</p>
+                              </td>
+                              <td style="padding: 15px; text-align: center;">
+                                <div style="font-size: 32px; margin-bottom: 10px;">💬</div>
+                                <p style="color: #4a5568; font-size: 14px; margin: 0; font-weight: 500;">تواصل مع المبدعين</p>
+                              </td>
+                            </tr>
+                          </table>
+                        </div>
+                        
+                        <!-- Disclaimer -->
+                        <p style="color: #a0aec0; font-size: 13px; line-height: 1.6; margin: 30px 0 0; text-align: center; padding-top: 20px; border-top: 1px solid #e2e8f0;">لم تطلب هذا الحساب؟ يمكنك تجاهل هذا البريد بأمان.</p>
+                      </td>
+                    </tr>
+                    
                     <!-- Footer -->
                     <tr>
-                      <td style="padding: 30px 40px; background-color: #f8f9fa; border-radius: 0 0 8px 8px; text-align: center;">
-                        <p style="color: #666; font-size: 12px; margin: 0 0 10px;">عرب نوشن - منصة القوالب العربية</p>
-                        <p style="color: #999; font-size: 11px; margin: 0;">Notion Arabs - Arabic Templates Platform</p>
-                        <p style="color: #999; font-size: 11px; margin: 10px 0 0;">
-                          <a href="https://www.notionarabs.com" style="color: #667eea; text-decoration: none;">www.notionarabs.com</a>
+                      <td style="padding: 40px; background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%); text-align: center;">
+                        <img src="https://notionarabs.com/notionarabs.png" alt="عرب نوشن" style="max-width: 100px; height: auto; margin-bottom: 20px; filter: brightness(0) invert(1); opacity: 0.8;" />
+                        <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 0 0 8px; font-weight: 600;">عرب نوشن - منصة القوالب العربية</p>
+                        <p style="color: rgba(255,255,255,0.6); font-size: 12px; margin: 0 0 20px;">Notion Arabs - Arabic Templates Platform</p>
+                        <p style="margin: 20px 0 0;">
+                          <a href="https://www.notionarabs.com" style="color: #667eea; text-decoration: none; font-size: 14px; font-weight: 500;">www.notionarabs.com</a>
                         </p>
                       </td>
                     </tr>
                   </table>
+                  
+                  <!-- Copyright -->
+                  <p style="color: #718096; font-size: 12px; margin: 30px 0 0; text-align: center;">© 2025 Notion Arabs. جميع الحقوق محفوظة.</p>
                 </td>
               </tr>
             </table>
@@ -999,84 +939,57 @@ router.get('/google/callback', async (req, res) => {
   }
 });
 
-// Email configuration - Resend with Gmail fallback
-const { Resend } = require('resend');
-
+// Email configuration - Brevo only
 const createTransporter = () => {
-  // Priority 1: Use Resend if API key is available (works on Render free tier)
-  if (process.env.RESEND_API_KEY) {
-    console.log('Using Resend for email service (recommended for Render)');
-    const resend = new Resend(process.env.RESEND_API_KEY);
+  if (!process.env.BREVO_API_KEY) {
+    console.error('❌ BREVO_API_KEY is not configured!');
+    throw new Error('Email service is not configured. Please set BREVO_API_KEY.');
+  }
 
-    // Return a Resend wrapper that mimics nodemailer interface
-    return {
-      sendMail: async (mailOptions) => {
-        try {
-          const result = await resend.emails.send({
-            from: mailOptions.from || process.env.EMAIL_FROM || 'Notion Arabs <onboarding@resend.dev>',
-            to: mailOptions.to,
+  console.log('✅ Using Brevo for email service');
+
+  return {
+    sendMail: async (mailOptions) => {
+      try {
+        const fetch = require('node-fetch');
+        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'api-key': process.env.BREVO_API_KEY
+          },
+          body: JSON.stringify({
+            sender: {
+              email: process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL
+            },
+            to: [{ email: mailOptions.to }],
             subject: mailOptions.subject,
-            html: mailOptions.html
-          });
+            htmlContent: mailOptions.html
+          })
+        });
 
-          console.log('✅ Resend email sent successfully:', result.data?.id);
-          return {
-            messageId: result.data?.id,
-            response: 'Email sent via Resend'
-          };
-        } catch (error) {
-          console.error('❌ Resend error:', error);
-          throw error;
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(`Brevo error: ${JSON.stringify(errorData)}`);
         }
-      },
-      verify: (callback) => {
-        // Resend doesn't need verification
-        if (process.env.RESEND_API_KEY) {
-          console.log('✅ Resend API key is configured');
-          callback(null, true);
-        } else {
-          callback(new Error('Resend API key not configured'), false);
-        }
+
+        const result = await response.json();
+        console.log('✅ Brevo email sent successfully:', result.messageId);
+        return {
+          messageId: result.messageId,
+          response: 'Email sent via Brevo'
+        };
+      } catch (error) {
+        console.error('❌ Brevo error:', error);
+        throw error;
       }
-    };
-  }
-
-  // Priority 2: Fallback to Gmail SMTP (only works locally or on paid hosting)
-  console.log('Using Gmail SMTP for email service (may not work on free hosting)');
-
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.error('Email configuration missing. EMAIL_USER and EMAIL_PASS environment variables are required.');
-    throw new Error('Email service is not configured. Please contact support.');
-  }
-
-  try {
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      },
-      connectionTimeout: 60000,
-      greetingTimeout: 60000,
-      socketTimeout: 60000,
-      tls: {
-        rejectUnauthorized: false
-      }
-    });
-
-    transporter.verify((error, success) => {
-      if (error) {
-        console.error('Gmail SMTP verification failed:', error);
-      } else {
-        console.log('Gmail SMTP transporter is ready');
-      }
-    });
-
-    return transporter;
-  } catch (error) {
-    console.error('Failed to create Gmail transporter:', error);
-    throw new Error('Failed to initialize Gmail service.');
-  }
+    },
+    verify: (callback) => {
+      console.log('✅ Brevo API key is configured');
+      callback(null, true);
+    }
+  };
 };
 
 // @route   POST /api/auth/forgot-password

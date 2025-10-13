@@ -258,9 +258,7 @@ userSchema.methods.toJSON = function () {
 };
 
 // Performance indexes for common queries
-userSchema.index({ email: 1 }); // For login/auth
-userSchema.index({ googleId: 1 }); // For Google OAuth
-userSchema.index({ username: 1 }); // For profile lookups
+// Note: email, googleId, username already have indexes via unique: true
 userSchema.index({ creatorStatus: 1, isActive: 1 }); // For creator queries
 userSchema.index({ role: 1, isActive: 1 }); // For role-based queries
 userSchema.index({ isEmailVerified: 1 }); // For verification checks

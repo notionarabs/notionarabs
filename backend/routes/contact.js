@@ -1,73 +1,61 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const nodemailer = require('nodemailer');
-const { Resend } = require('resend');
 const User = require('../models/User');
 
 const router = express.Router();
 
-// Email configuration - Resend with Gmail fallback
+// Email configuration - Brevo only
 const createTransporter = () => {
-  // Use Resend if API key is available
-  if (process.env.RESEND_API_KEY) {
-    console.log('Using Resend for email service');
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    
-    return {
-      sendMail: async (mailOptions) => {
-        try {
-          const result = await resend.emails.send({
-            from: mailOptions.from || process.env.EMAIL_FROM || 'Notion Arabs <onboarding@resend.dev>',
-            to: mailOptions.to,
+  if (!process.env.BREVO_API_KEY) {
+    console.error('❌ BREVO_API_KEY is not configured!');
+    throw new Error('Email service is not configured. Please set BREVO_API_KEY.');
+  }
+
+  console.log('✅ Using Brevo for email service');
+
+  return {
+    sendMail: async (mailOptions) => {
+      try {
+        const fetch = require('node-fetch');
+        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'api-key': process.env.BREVO_API_KEY
+          },
+          body: JSON.stringify({
+            sender: {
+              email: process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL
+            },
+            to: [{ email: mailOptions.to }],
             subject: mailOptions.subject,
-            html: mailOptions.html
-          });
-          
-          return {
-            messageId: result.data?.id,
-            response: 'Email sent via Resend'
-          };
-        } catch (error) {
-          console.error('Resend error:', error);
-          throw error;
+            htmlContent: mailOptions.html
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(`Brevo error: ${JSON.stringify(errorData)}`);
         }
-      }
-    };
-  }
-  
-  // Fallback to Gmail SMTP
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    throw new Error('Email configuration missing.');
-  }
 
-  try {
-    return nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      },
-      connectionTimeout: 60000,
-      greetingTimeout: 60000,
-      socketTimeout: 60000,
-      tls: {
-        rejectUnauthorized: false
+        const result = await response.json();
+        console.log('✅ Brevo email sent successfully:', result.messageId);
+        return {
+          messageId: result.messageId,
+          response: 'Email sent via Brevo'
+        };
+      } catch (error) {
+        console.error('❌ Brevo error:', error);
+        throw error;
       }
-    });
-  } catch (error) {
-    console.error('Failed to create Gmail transporter:', error);
-    throw new Error('Failed to initialize Gmail service.');
-  }
+    },
+    verify: (callback) => {
+      console.log('✅ Brevo API key is configured');
+      callback(null, true);
+    }
+  };
 };
-
-// Test endpoint to verify route is working
-router.get('/test', (req, res) => {
-  res.json({
-    success: true,
-    message: 'Contact route is working',
-    timestamp: new Date().toISOString()
-  });
-});
 
 // @route   POST /api/contact/creator
 // @desc    Send message to creator

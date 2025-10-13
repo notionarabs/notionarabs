@@ -240,11 +240,11 @@ templateSchema.pre('save', async function (next) {
 });
 
 // Enhanced indexes for better query performance
+// Note: slug index is automatically created by unique: true property
 templateSchema.index({ status: 1, createdAt: -1 });
 templateSchema.index({ creator: 1, status: 1 });
 templateSchema.index({ creator: 1, title: 1 }); // For duplicate title checking
 templateSchema.index({ creator: 1, notionLink: 1 });
-templateSchema.index({ slug: 1 }); // For slug-based lookups (unique)
 templateSchema.index({ category: 1, status: 1, createdAt: -1 }); // Compound index for category pages
 templateSchema.index({ categories: 1, status: 1, createdAt: -1 }); // For multi-category queries
 templateSchema.index({ tags: 1, status: 1 }); // For tag-based searches

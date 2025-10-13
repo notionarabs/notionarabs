@@ -5,9 +5,62 @@ const Template = require('../models/Template');
 const Notification = require('../models/Notification');
 const Blog = require('../models/Blog');
 const auth = require('../middleware/auth');
-const nodemailer = require('nodemailer');
 
 const router = express.Router();
+
+// Email configuration - Brevo only
+const createTransporter = () => {
+  if (!process.env.BREVO_API_KEY) {
+    console.error('❌ BREVO_API_KEY is not configured!');
+    throw new Error('Email service is not configured. Please set BREVO_API_KEY.');
+  }
+
+  console.log('✅ Using Brevo for email service');
+
+  return {
+    sendMail: async (mailOptions) => {
+      try {
+        const fetch = require('node-fetch');
+        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'api-key': process.env.BREVO_API_KEY
+          },
+          body: JSON.stringify({
+            sender: {
+              email: process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL
+            },
+            to: [{ email: mailOptions.to }],
+            subject: mailOptions.subject,
+            htmlContent: mailOptions.html,
+            textContent: mailOptions.text
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(`Brevo error: ${JSON.stringify(errorData)}`);
+        }
+
+        const result = await response.json();
+        console.log('✅ Brevo email sent successfully:', result.messageId);
+        return {
+          messageId: result.messageId,
+          response: 'Email sent via Brevo'
+        };
+      } catch (error) {
+        console.error('❌ Brevo error:', error);
+        throw error;
+      }
+    },
+    verify: async () => {
+      console.log('✅ Brevo API key is configured');
+      return true;
+    }
+  };
+};
 
 // @route   GET /api/settings/public
 // @desc    Get public settings (maintenance mode, etc.)
@@ -37,11 +90,6 @@ router.get('/settings/public', async (req, res) => {
       message: 'خطأ في الخادم'
     });
   }
-});
-
-// Test route
-router.get('/test', (req, res) => {
-  res.json({ message: 'Test route working' });
 });
 
 // Simple public settings route
@@ -1184,91 +1232,6 @@ router.post('/fix-duplicate-usernames', auth, async (req, res) => {
   }
 });
 
-// @route   GET /api/admin/test-email-config
-// @desc    Test email configuration
-// @access  Private (Admin only)
-router.get('/test-email-config', auth, async (req, res) => {
-  try {
-    // Check if user is admin
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({
-        success: false,
-        message: 'غير مصرح لك بالوصول لهذه الميزة'
-      });
-    }
-
-    // Check if email service is configured
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS ||
-      process.env.EMAIL_USER === 'your-email@gmail.com' ||
-      process.env.EMAIL_PASS === 'your-app-password') {
-
-      return res.json({
-        success: false,
-        message: 'Email service not configured properly',
-        details: {
-          EMAIL_USER: process.env.EMAIL_USER ? 'Set' : 'Missing',
-          EMAIL_PASS: process.env.EMAIL_PASS ? 'Set' : 'Missing',
-          NODE_ENV: process.env.NODE_ENV,
-          configured: false
-        }
-      });
-    }
-
-    // Test email transporter
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      },
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 30000,
-      pool: true,
-      maxConnections: 5,
-      tls: {
-        rejectUnauthorized: false
-      }
-    });
-
-    // Verify transporter
-    await new Promise((resolve, reject) => {
-      transporter.verify((error, success) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(success);
-        }
-      });
-    });
-
-    res.json({
-      success: true,
-      message: 'Email configuration is working correctly',
-      details: {
-        EMAIL_USER: process.env.EMAIL_USER,
-        EMAIL_PASS: 'Set',
-        NODE_ENV: process.env.NODE_ENV,
-        configured: true
-      }
-    });
-
-  } catch (error) {
-    console.error('Email config test error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Email configuration test failed',
-      error: error.message,
-      details: {
-        EMAIL_USER: process.env.EMAIL_USER ? 'Set' : 'Missing',
-        EMAIL_PASS: process.env.EMAIL_PASS ? 'Set' : 'Missing',
-        NODE_ENV: process.env.NODE_ENV,
-        configured: false
-      }
-    });
-  }
-});
-
 // @route   POST /api/admin/send-bulk-emails
 // @desc    Send bulk emails to a list of users
 // @access  Private (Admin only)
@@ -1324,11 +1287,8 @@ router.post('/send-bulk-emails', auth, async (req, res) => {
       });
     }
 
-    // Check if email service is configured
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS ||
-      process.env.EMAIL_USER === 'your-email@gmail.com' ||
-      process.env.EMAIL_PASS === 'your-app-password') {
-
+    // Check if Brevo is configured
+    if (!process.env.BREVO_API_KEY) {
       // For development/testing - simulate email sending
       console.log(`[DEV MODE] Simulating email send to ${validEmails.length} emails`);
       console.log(`Subject: ${subject}`);
@@ -1353,41 +1313,19 @@ router.post('/send-bulk-emails', auth, async (req, res) => {
 
     // Production mode - use actual email service
     try {
-      console.log('Creating email transporter with user:', process.env.EMAIL_USER);
+      console.log('Creating email transporter...');
+      const transporter = createTransporter();
 
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS
-        },
-        // Optimized timeout settings for bulk email operations
-        connectionTimeout: 10000,  // 10 seconds to establish connection
-        greetingTimeout: 10000,    // 10 seconds for SMTP greeting
-        socketTimeout: 30000,      // 30 seconds for socket operations
-        // Pool connections for better performance
-        pool: true,
-        maxConnections: 10,
-        maxMessages: 100,
-        // Add TLS options for better compatibility
-        tls: {
-          rejectUnauthorized: false
+      // Verify transporter configuration before sending emails (if supported)
+      if (transporter.verify && typeof transporter.verify === 'function') {
+        console.log('Verifying email transporter configuration...');
+        try {
+          await transporter.verify();
+          console.log('Email transporter verified successfully');
+        } catch (verifyError) {
+          console.log('Transporter verification skipped or not supported');
         }
-      });
-
-      // Verify transporter configuration before sending emails
-      console.log('Verifying email transporter configuration...');
-      await new Promise((resolve, reject) => {
-        transporter.verify((error, success) => {
-          if (error) {
-            console.error('Email transporter verification failed:', error);
-            reject(new Error(`Email configuration error: ${error.message}`));
-          } else {
-            console.log('Email transporter verified successfully');
-            resolve();
-          }
-        });
-      });
+      }
 
       // Send emails in batches to avoid overwhelming the server
       const batchSize = 50; // Process 50 emails at a time

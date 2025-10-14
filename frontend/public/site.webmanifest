@@ -4,6 +4,12 @@
   "description": "اكتشف وبيع قوالب نوشن باللغة العربية - منصة مخصصة للمبدعين والمشترين العرب",
   "icons": [
     {
+      "src": "/favicon.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
       "src": "/favicon-16x16.png",
       "sizes": "16x16",
       "type": "image/png"

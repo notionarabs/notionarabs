@@ -14,21 +14,37 @@ import MaintenanceMode from '../components/MaintenanceMode'
 
 import { generateMetadata as generateBaseMetadata } from '../lib/seo'
 
-export const metadata = generateBaseMetadata({
-  description: 'اكتشف وبيع قوالب نوشن باللغة العربية - منصة مخصصة للمبدعين والمشترين العرب',
-  keywords: [
-    'قوالب نوشن',
-    'notion templates',
-    'قوالب عربية',
-    'منظمات',
-    'إنتاجية',
-    'دراسة',
-    'أعمال',
-    'templates arabic',
-    'notion arabic',
-    'قوالب مجانية'
-  ]
-})
+export const metadata = {
+  ...generateBaseMetadata({
+    description: 'اكتشف وبيع قوالب نوشن باللغة العربية - منصة مخصصة للمبدعين والمشترين العرب',
+    keywords: [
+      'قوالب نوشن',
+      'notion templates',
+      'قوالب عربية',
+      'منظمات',
+      'إنتاجية',
+      'دراسة',
+      'أعمال',
+      'templates arabic',
+      'notion arabic',
+      'قوالب مجانية'
+    ]
+  }),
+  icons: {
+    icon: [
+      { url: '/favicon.png', type: 'image/png' },
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' }
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png' },
+      { url: '/apple-touch-icon-180x180.png', sizes: '180x180' }
+    ]
+  }
+}
 
 export default function RootLayout({ children }) {
   return (
@@ -43,30 +59,6 @@ export default function RootLayout({ children }) {
           image="/og-image.png"
         />
         <GoogleAnalytics GA_TRACKING_ID={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID} />
-        {/* Favicon - Multiple formats for better compatibility */}
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png" />
-        <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png" />
-        <link rel="icon" href="/favicon-48x48.png" sizes="48x48" type="image/png" />
-        <link rel="icon" href="/favicon-96x96.png" sizes="96x96" type="image/png" />
-        <link rel="icon" href="/favicon-192x192.png" sizes="192x192" type="image/png" />
-
-        {/* Apple Touch Icons */}
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png" />
-        <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png" />
-        <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png" />
-        <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png" />
-        <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png" />
-        <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png" />
-        <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png" />
-        <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png" />
-
-        {/* Android Chrome Icons */}
-        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
-        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
 
         {/* Microsoft Tiles */}
         <meta name="msapplication-TileColor" content="#ffffff" />

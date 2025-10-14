@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Youtube, Facebook, Send, Users, Mail, Wrench } from 'lucide-react';
+import { Youtube, Facebook, Send, Users, Mail } from 'lucide-react';
 
 const contactMethods = [
   {
@@ -12,13 +12,6 @@ const contactMethods = [
     contact: "support@notionarabs.com",
     Icon: Mail,
     bg: "from-primary-100 to-primary-200 dark:from-orange-900/30 dark:to-orange-800/30"
-  },
-  {
-    title: "الدعم الفني",
-    description: "للحصول على مساعدة فنية سريعة",
-    contact: "support@notionarabs.com",
-    Icon: Wrench,
-    bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30"
   }
 ];
 

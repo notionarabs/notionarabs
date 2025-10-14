@@ -179,9 +179,6 @@ export default function PrivacyPage() {
                   <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary mb-2 sm:mb-3 leading-relaxed">
                     <strong className="font-semibold">العنوان:</strong> القاهرة، جمهورية مصر العربية
                   </p>
-                  <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary leading-relaxed">
-                    <strong className="font-semibold">الهاتف:</strong> +201050505673
-                  </p>
                 </div>
               </section>
             </div>

@@ -46,7 +46,7 @@ const SuccessModal = ({ isOpen, onClose, onContinue, title, message, continueBut
           </h3>
 
           <p className="text-gray-600 dark:text-dark-text-secondary mb-6 leading-relaxed">
-            {message || 'شكراً لك على مشاركة قالبك المبتكر مع مجتمع نوشن العرب. سيتم مراجعة القالب واللقطة المرفقة من قبل فريقنا المتخصص وسيتم إشعارك بالنتيجة قريباً.'}
+            {message || 'شكراً لك على مشاركة قالبك المبتكر مع مجتمع عرب نوشن. سيتم مراجعة القالب واللقطة المرفقة من قبل فريقنا المتخصص وسيتم إشعارك بالنتيجة قريباً.'}
           </p>
 
           {/* Additional Info */}

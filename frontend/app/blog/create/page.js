@@ -595,7 +595,7 @@ export default function CreateBlogPage() {
         <div className="container-custom text-center px-4">
           <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 md:mb-4">إنشاء مقال جديد</h1>
           <p className="text-sm md:text-base lg:text-lg text-primary-100 dark:text-dark-text-secondary max-w-2xl mx-auto px-4">
-            شارك معرفتك وخبرتك مع مجتمع نوشن العرب من خلال إنشاء مقال مفيد ومفيد
+            شارك معرفتك وخبرتك مع مجتمع عرب نوشن من خلال إنشاء مقال مفيد ومفيد
           </p>
           <div className="mt-4 md:mt-6 flex flex-col sm:flex-row items-center justify-center gap-2 md:gap-3 px-4">
             <button

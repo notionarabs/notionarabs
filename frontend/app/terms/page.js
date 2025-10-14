@@ -202,9 +202,6 @@ export default function TermsPage() {
                   <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary mb-2 sm:mb-3">
                     <strong className="font-semibold">العنوان:</strong> القاهرة، جمهورية مصر العربية
                   </p>
-                  <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary">
-                    <strong className="font-semibold">الهاتف:</strong> +201050505673
-                  </p>
                 </div>
               </section>
             </div>

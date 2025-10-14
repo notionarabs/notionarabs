@@ -18,8 +18,8 @@ export const siteConfig = {
     'notion arabic',
     'قوالب مجانية'
   ],
-  locale: 'ar_SA',
-  currency: 'SAR', // Saudi Riyal
+  locale: 'ar_EG',
+  currency: 'SAR', // Saudi Riyal (used for pricing)
   currencySymbol: 'ر.س'
 };
 
@@ -58,7 +58,8 @@ export function generateMetadata({
     alternates: {
       canonical: canonical || fullUrl,
       languages: {
-        'ar-SA': fullUrl,
+        'ar-EG': fullUrl,
+        'ar': fullUrl,
         'x-default': fullUrl,
       },
     },

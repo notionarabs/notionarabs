@@ -29,7 +29,7 @@ export async function GET() {
         <image:loc>${imageUrl}</image:loc>
         <image:caption>${template.title} - قالب نوشن عربي</image:caption>
         <image:title>${template.title}</image:title>
-        <image:geo_location>Saudi Arabia</image:geo_location>
+        <image:geo_location>Egypt</image:geo_location>
       </image:image>
     </url>`
           })
@@ -61,7 +61,7 @@ export async function GET() {
         <image:loc>${imageUrl}</image:loc>
         <image:caption>${displayName} - مبدع قوالب نوشن</image:caption>
         <image:title>${displayName}</image:title>
-        <image:geo_location>Saudi Arabia</image:geo_location>
+        <image:geo_location>Egypt</image:geo_location>
       </image:image>
     </url>`
           })
@@ -91,7 +91,7 @@ export async function GET() {
         <image:loc>${imageUrl}</image:loc>
         <image:caption>${blog.title}</image:caption>
         <image:title>${blog.title}</image:title>
-        <image:geo_location>Saudi Arabia</image:geo_location>
+        <image:geo_location>Egypt</image:geo_location>
       </image:image>
     </url>`
           })

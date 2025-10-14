@@ -60,7 +60,6 @@ export default function MaintenanceMode() {
           </h3>
           <div className="space-y-2 text-sm text-accent-600 dark:text-dark-text-secondary">
             <p>📧 البريد الإلكتروني: support@notionarabs.com</p>
-            <p>📱 الهاتف: +201050505673</p>
           </div>
         </div>
 

@@ -382,7 +382,7 @@ export default function BlogPage() {
       {/* Page Header */}
       <section className="relative bg-gradient-to-br from-primary-500 to-primary-700 dark:from-dark-secondary dark:to-dark-tertiary text-white py-12 sm:py-16 md:py-20 lg:py-24 overflow-hidden">
         <div className="container-custom text-center relative z-10 px-4 sm:px-6">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3 sm:mb-4">مدونة نوشن العرب</h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3 sm:mb-4">مدونة عرب نوشن</h1>
           <p className="text-base sm:text-lg md:text-xl text-primary-100 dark:text-dark-text-secondary max-w-2xl mx-auto mb-6 sm:mb-8 px-4">
             اكتشف أحدث النصائح والحيل لاستخدام نوشن بكفاءة أكبر. مقالات متخصصة للمبدعين العرب.
           </p>

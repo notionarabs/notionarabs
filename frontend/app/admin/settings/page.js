@@ -18,7 +18,7 @@ export default function AdminSettingsPage() {
     autoApproveBlogs: false,
     contactInfo: {
       email: 'support@notionarabs.com',
-      phone: '+201050505673',
+      phone: '',
       address: 'القاهرة، جمهورية مصر العربية'
     }
   });
@@ -107,7 +107,7 @@ export default function AdminSettingsPage() {
       autoApproveBlogs: false,
       contactInfo: {
         email: 'support@notionarabs.com',
-        phone: '+201050505673',
+        phone: '',
         address: 'القاهرة، جمهورية مصر العربية'
       }
     };

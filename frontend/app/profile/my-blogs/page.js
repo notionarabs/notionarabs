@@ -269,7 +269,7 @@ export default function MyBlogsPage() {
                   لا توجد مقالات بعد
                 </h3>
                 <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary mb-6 px-4">
-                  ابدأ بإنشاء أول مقال لك ومشاركته مع مجتمع نوشن العرب
+                  ابدأ بإنشاء أول مقال لك ومشاركته مع مجتمع عرب نوشن
                 </p>
                 <Link href="/blog/create" className="btn-primary text-sm sm:text-base">
                   إنشاء مقال جديد

@@ -18,10 +18,10 @@ async function updateBlogSlugs() {
 
     for (const blog of blogs) {
       const oldSlug = blog.slug;
-      
+
       // Generate new English slug
       let newSlug = blog.generateSlug();
-      
+
       // Ensure slug is not empty
       if (!newSlug || newSlug.trim() === '') {
         newSlug = `blog-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -47,7 +47,7 @@ async function updateBlogSlugs() {
 
         blog.slug = finalSlug;
         await blog.save();
-        
+
         console.log(`✅ Updated: "${blog.title}"`);
         console.log(`   Old slug: ${oldSlug}`);
         console.log(`   New slug: ${finalSlug}`);

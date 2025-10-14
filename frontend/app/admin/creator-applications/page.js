@@ -124,8 +124,7 @@ export default function CreatorApplicationsPage() {
       setApplications(response.data.applications);
       setStats(response.data.stats);
     } catch (err) {
-      console.error('Fetch applications error:', err);
-      // Set empty state if API fails (API endpoint not implemented yet)
+      // Set empty state if API fails
       setApplications([]);
       setStats({ total: 0, pending: 0, approved: 0, rejected: 0 });
     } finally {
@@ -164,13 +163,12 @@ export default function CreatorApplicationsPage() {
           try {
             await refreshUserData();
           } catch (refreshError) {
-            console.error('Failed to refresh user data after approval:', refreshError);
+            // Silent failure
           }
         }
       }
     } catch (err) {
-      console.error('Update status error:', err);
-      // Silently fail - API endpoint not implemented yet
+      // Silent failure
     }
   };
 
@@ -179,7 +177,7 @@ export default function CreatorApplicationsPage() {
       const response = await api.get('/admin/badge-presets');
       setBadgePresets(response.data);
     } catch (error) {
-      console.error('Error fetching badge presets:', error);
+      // Silent failure
     }
   };
 
@@ -198,11 +196,6 @@ export default function CreatorApplicationsPage() {
     try {
       setActionLoading(true);
       const badge = badgePresets.userBadges.find(b => b.type === selectedBadgeType);
-
-      console.log('Adding badge:', {
-        userId: selectedCreator.id,
-        badge: badge
-      });
 
       ensureTokenInHeaders && ensureTokenInHeaders();
       await api.post(`/admin/users/${selectedCreator.id}/badges`, {
@@ -230,8 +223,6 @@ export default function CreatorApplicationsPage() {
       toast.success('تمت إضافة الشارة بنجاح');
       await fetchApplications();
     } catch (error) {
-      console.error('Error adding badge:', error);
-      console.error('Error details:', error.response?.data);
       const errorMsg = error.response?.data?.errors
         ? error.response.data.errors.map(e => e.msg).join(', ')
         : error.response?.data?.message || 'خطأ في إضافة الشارة';
@@ -265,7 +256,6 @@ export default function CreatorApplicationsPage() {
       toast.success('تم حذف الشارة بنجاح');
       await fetchApplications();
     } catch (error) {
-      console.error('Error removing badge:', error);
       toast.error(error.response?.data?.message || 'خطأ في حذف الشارة');
     }
   };
@@ -293,7 +283,6 @@ export default function CreatorApplicationsPage() {
         );
       }
     } catch (error) {
-      console.error('Error pinning creator:', error);
       toast.error('حدث خطأ أثناء تثبيت المبدع');
     } finally {
       setPinLoading(null);

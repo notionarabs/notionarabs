@@ -5,11 +5,6 @@ const API_BASE_URL = process.env.NODE_ENV === 'production'
   ? 'https://notion-arabs.onrender.com/api'
   : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api');
 
-// Log the API URL for debugging (only in development)
-if (process.env.NODE_ENV === 'development') {
-  console.log('API Base URL:', API_BASE_URL);
-}
-
 // Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,

@@ -17,8 +17,6 @@ const checkMaintenanceMode = async (req, res, next) => {
     const isPublicSettings = req.path === '/api/settings/public' || req.path === '/settings/public' || req.path.includes('/settings/');
     const isHealthCheck = req.path === '/api/health';
 
-    console.log('Maintenance check - Path:', req.path, 'isAdminRoute:', isAdminRoute, 'isAuthRoute:', isAuthRoute, 'isPublicSettings:', isPublicSettings, 'isHealthCheck:', isHealthCheck);
-
     if (settings.maintenanceMode && !isAdminRoute && !isAuthRoute && !isPublicSettings && !isHealthCheck) {
       return res.status(503).json({
         success: false,

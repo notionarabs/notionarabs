@@ -234,9 +234,7 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (name, email, password) => {
     try {
-      console.log('Attempting signup for:', { name, email });
       const response = await api.post('/auth/signup', { name, email, password });
-      console.log('Signup response:', response.data);
 
       const { requiresVerification, verificationToken, user, token } = response.data;
 
@@ -272,9 +270,6 @@ export const AuthProvider = ({ children }) => {
 
       return { success: true };
     } catch (error) {
-      console.error('Signup error:', error);
-      console.error('Error response:', error.response?.data);
-      console.error('Error status:', error.response?.status);
       return {
         success: false,
         error: error.response?.data?.message || 'فشل في إنشاء الحساب',
@@ -433,7 +428,7 @@ export const AuthProvider = ({ children }) => {
       try {
         await refreshUserData();
       } catch (error) {
-        console.error('Failed to refresh user status:', error);
+        // Silent failure
       }
     }, 30000); // Check every 30 seconds
 
@@ -449,7 +444,7 @@ export const AuthProvider = ({ children }) => {
         try {
           await refreshUserData();
         } catch (error) {
-          console.error('Failed to refresh user status on visibility change:', error);
+          // Silent failure
         }
       }
     };
@@ -468,7 +463,7 @@ export const AuthProvider = ({ children }) => {
           try {
             await checkAuthStatus();
           } catch (error) {
-            console.error('Failed to re-check auth on visibility change:', error);
+            // Silent failure
           }
         }
       }
@@ -482,7 +477,7 @@ export const AuthProvider = ({ children }) => {
           try {
             await checkAuthStatus();
           } catch (error) {
-            console.error('Failed to re-check auth on focus:', error);
+            // Silent failure
           }
         }
       }
@@ -497,7 +492,7 @@ export const AuthProvider = ({ children }) => {
           try {
             await checkAuthStatus();
           } catch (error) {
-            console.error('Failed to re-check auth on page show:', error);
+            // Silent failure
           }
         }
       }

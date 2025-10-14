@@ -135,7 +135,6 @@ export default function UserSettingsPage() {
         setPasswordErrors({});
       }
     } catch (error) {
-      console.error('Change password error:', error);
       const errorMessage = error.response?.data?.message || 'حدث خطأ أثناء تغيير كلمة المرور';
       showError(errorMessage);
     } finally {
@@ -151,20 +150,16 @@ export default function UserSettingsPage() {
 
     try {
       setIsDeleting(true);
-      console.log('Starting account deletion process...');
 
-      // Debug: Check if token is set
+      // Check if token is set
       const token = document.cookie
         .split('; ')
         .find(row => row.startsWith('authToken='))
         ?.split('=')[1];
-      console.log('Auth token present:', !!token);
-      console.log('API headers:', api.defaults.headers.common);
 
       // Ensure token is set in headers
       if (token) {
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        console.log('Token set in headers:', api.defaults.headers.common['Authorization']);
       } else {
         throw new Error('No authentication token found');
       }
@@ -172,7 +167,6 @@ export default function UserSettingsPage() {
       const response = await api.delete('/auth/account');
 
       if (response.data.success) {
-        console.log('Account deletion successful');
         showSuccess('تم حذف حسابك بنجاح');
         setShowDeleteModal(false);
 
@@ -184,13 +178,6 @@ export default function UserSettingsPage() {
         }, 1000);
       }
     } catch (error) {
-      console.error('Delete account error:', error);
-      console.error('Error details:', {
-        status: error.response?.status,
-        data: error.response?.data,
-        message: error.message
-      });
-
       const errorMessage = error.response?.data?.message || 'حدث خطأ أثناء حذف الحساب';
       showError(errorMessage);
     } finally {

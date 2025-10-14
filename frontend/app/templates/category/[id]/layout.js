@@ -127,7 +127,9 @@ const categoryMap = {
 };
 
 export async function generateMetadata({ params }) {
-  const categorySlug = params.id;
+  // Await params before accessing its properties (Next.js 15+)
+  const resolvedParams = await params;
+  const categorySlug = resolvedParams.id;
   const categoryName = categoryMap[categorySlug] || categorySlug;
 
   try {

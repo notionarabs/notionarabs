@@ -1,12 +1,15 @@
 import { generateBlogMetadata } from '../../../lib/seo'
 
 export async function generateMetadata({ params }) {
+  // Await params before accessing its properties (Next.js 15+)
+  const resolvedParams = await params;
+
   try {
     // Fetch blog data from API for metadata
     const apiUrl = process.env.NODE_ENV === 'production'
       ? 'https://notion-arabs.onrender.com/api'
       : 'http://localhost:5000/api';
-    const response = await fetch(`${apiUrl}/blogs/${params.slug}`, {
+    const response = await fetch(`${apiUrl}/blogs/${resolvedParams.slug}`, {
       cache: 'no-store', // Always fetch fresh data for metadata
     });
 

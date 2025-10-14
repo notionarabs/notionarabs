@@ -52,14 +52,6 @@ const createRateLimit = (windowMs, max, message) => {
       const isLocalNetwork = req.ip?.startsWith('192.168.') || req.ip?.startsWith('10.') || req.ip?.startsWith('172.');
       const isTemplatesEndpoint = req.originalUrl?.includes('/templates') && req.method === 'GET';
 
-      console.log('Rate limit check:', {
-        NODE_ENV: process.env.NODE_ENV,
-        ip: req.ip,
-        url: req.originalUrl,
-        method: req.method,
-        skip: isDevelopment || isLocalhost || isLocalNetwork || isTemplatesEndpoint
-      });
-
       return isDevelopment || isLocalhost || isLocalNetwork || isTemplatesEndpoint;
     }
   });

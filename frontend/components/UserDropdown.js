@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import Image from 'next/image';
 import Link from 'next/link';
+import LoadingLink from './LoadingLink';
 import ThemeToggle from './ThemeToggle';
 import { BarChart3 } from 'lucide-react';
 
@@ -244,7 +245,7 @@ export default function UserDropdown() {
             {/* General Section */}
             <div className="space-y-1">
               {/* Settings Link */}
-              <Link
+              <LoadingLink
                 href={user?.creatorStatus === 'approved' ? "/settings" : "/user-settings"}
                 onClick={() => setIsOpen(false)}
                 className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
@@ -254,7 +255,7 @@ export default function UserDropdown() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
                 <span className="text-sm">الإعدادات</span>
-              </Link>
+              </LoadingLink>
             </div>
 
             {/* Orders Section - Only for normal users */}

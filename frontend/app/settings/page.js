@@ -684,7 +684,7 @@ export default function SettingsPage() {
       // Redirect after a short delay to let the user see the success message
       setTimeout(() => {
         router.push('/profile');
-      }, 800);
+      }, 300);
     } catch (error) {
       console.error('Error saving profile settings:', error);
 

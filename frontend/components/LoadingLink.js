@@ -4,11 +4,16 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLoading } from '../contexts/LoadingContext';
 
-export default function LoadingLink({ href, children, className, ...props }) {
+export default function LoadingLink({ href, children, className, onClick, ...props }) {
   const router = useRouter();
   const { setLoading } = useLoading();
 
   const handleClick = (e) => {
+    // Call the original onClick if provided
+    if (onClick) {
+      onClick(e);
+    }
+
     // Don't show loading for external links or anchor links
     if (href.startsWith('http') || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) {
       return;

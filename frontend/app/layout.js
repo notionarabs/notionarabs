@@ -32,16 +32,10 @@ export const metadata = {
   }),
   icons: {
     icon: [
-      { url: '/favicon.png', type: 'image/png' },
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/favicon.svg', type: 'image/svg+xml' },
-      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
-      { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' }
+      { url: '/favicon.svg', type: 'image/svg+xml' }
     ],
-    apple: [
-      { url: '/apple-touch-icon.png' },
-      { url: '/apple-touch-icon-180x180.png', sizes: '180x180' }
+    shortcut: [
+      { url: '/favicon.svg', type: 'image/svg+xml' }
     ]
   }
 }
@@ -60,12 +54,11 @@ export default function RootLayout({ children }) {
         />
         <GoogleAnalytics GA_TRACKING_ID={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID} />
 
-        {/* Microsoft Tiles */}
-        <meta name="msapplication-TileColor" content="#ffffff" />
-        <meta name="msapplication-TileImage" content="/mstile-144x144.png" />
-        <meta name="msapplication-config" content="/browserconfig.xml" />
+        {/* Favicon - Using SVG for best quality on all devices */}
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="shortcut icon" href="/favicon.svg" />
 
-        {/* Web App Manifest */}
+        {/* Web App Manifest - PWA Support */}
         <link rel="manifest" href="/site.webmanifest" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { generateSlug } = require('../utils/slugGenerator');
 
 const blogSchema = new mongoose.Schema({
   title: {
@@ -138,14 +139,9 @@ blogSchema.methods.incrementViews = function () {
   return this.save();
 };
 
-// Method to generate slug from title
+// Method to generate slug from title (transliterates Arabic to English)
 blogSchema.methods.generateSlug = function () {
-  return this.title
-    .toLowerCase()
-    .replace(/[^\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFFa-zA-Z0-9\s]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .trim('-');
+  return generateSlug(this.title);
 };
 
 // Pre-save middleware to generate slug if not provided

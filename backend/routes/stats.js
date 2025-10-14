@@ -31,9 +31,27 @@ router.get('/homepage', cacheMiddleware(600), async (req, res) => {
       ]),
 
       // Get ALL categories with their counts using aggregation
+      // This counts templates across all their categories (primary + secondary + tertiary)
       Template.aggregate([
         { $match: { status: 'approved' } },
-        { $group: { _id: '$category', count: { $sum: 1 } } },
+        // First, create an array that includes the primary category and all categories from the categories array
+        {
+          $project: {
+            allCategories: {
+              // Use $setUnion to combine and remove duplicates
+              $setUnion: [
+                // Include primary category if it exists
+                { $cond: [{ $ifNull: ['$category', false] }, ['$category'], []] },
+                // Include all categories from the categories array if it exists
+                { $ifNull: ['$categories', []] }
+              ]
+            }
+          }
+        },
+        // Unwind the combined categories array to count each category separately
+        { $unwind: '$allCategories' },
+        // Group by category and count
+        { $group: { _id: '$allCategories', count: { $sum: 1 } } },
         { $project: { category: '$_id', count: 1, _id: 0 } }
       ]),
 

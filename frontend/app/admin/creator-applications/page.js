@@ -293,9 +293,13 @@ export default function CreatorApplicationsPage() {
   if (authLoading || (!isAuthenticated && !error)) {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center" dir="rtl">
-        <div className="text-center">
-          <div className="loading-spinner mx-auto mb-4"></div>
-          <p className="loading-text">جاري التحقق من الصلاحيات...</p>
+        <div className="flex flex-col items-center justify-center gap-6">
+          {/* Elegant Three-Dot Loader */}
+          <div className="flex gap-2">
+            <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+            <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+            <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+          </div>
         </div>
       </div>
     );
@@ -336,9 +340,13 @@ export default function CreatorApplicationsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center" dir="rtl">
-        <div className="text-center">
-          <div className="loading-spinner mx-auto mb-4"></div>
-          <p className="loading-text">جاري التحميل...</p>
+        <div className="flex flex-col items-center justify-center gap-6">
+          {/* Elegant Three-Dot Loader */}
+          <div className="flex gap-2">
+            <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+            <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+            <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+          </div>
         </div>
       </div>
     );

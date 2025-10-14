@@ -354,7 +354,7 @@ export default function HomePage() {
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-2 sm:mb-4">القوالب المميزة</h2>
               <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary">اكتشف أفضل القوالب المصممة من قبل مجتمعنا العربي</p>
             </div>
-            <a
+            <Link
               href="/templates"
               className="btn-outline inline-flex items-center text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3"
             >
@@ -362,7 +362,7 @@ export default function HomePage() {
               <svg className="mr-2 w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
-            </a>
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">

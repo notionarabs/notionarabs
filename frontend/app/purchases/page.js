@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../lib/api';
 import LoadingIndicator from '../../components/LoadingIndicator';
@@ -87,9 +88,13 @@ export default function PurchasesPage() {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-dark-primary">
         <div className="container-custom py-12 sm:py-16 md:py-20">
-          <div className="text-center">
-            <LoadingIndicator />
-            <p className="text-base sm:text-lg text-gray-600 dark:text-dark-text-secondary mt-4">جاري تحميل مشترياتك...</p>
+          <div className="flex flex-col items-center justify-center gap-6">
+            {/* Elegant Three-Dot Loader */}
+            <div className="flex gap-2">
+              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+            </div>
           </div>
         </div>
       </div>
@@ -131,7 +136,7 @@ export default function PurchasesPage() {
             <p className="text-sm sm:text-base text-gray-500 dark:text-dark-text-terتيary mb-4">
               لم تقم بشراء أي قوالب بعد
             </p>
-            <a href="/templates" className="btn-primary inline-block text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3">تصفح القوالب</a>
+            <Link href="/templates" className="btn-primary inline-block text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3">تصفح القوالب</Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 px-4 sm:px-0">

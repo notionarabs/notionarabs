@@ -111,9 +111,13 @@ export default function CreatorTemplatesPage() {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
         <div className="container-custom py-12 sm:py-16 md:py-20">
-          <div className="text-center">
-            <div className="loading-spinner mx-auto mb-4"></div>
-            <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary">جاري تحميل قوالبك...</p>
+          <div className="flex flex-col items-center justify-center gap-6">
+            {/* Elegant Three-Dot Loader */}
+            <div className="flex gap-2">
+              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+            </div>
           </div>
         </div>
       </div>

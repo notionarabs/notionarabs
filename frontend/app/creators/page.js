@@ -250,7 +250,11 @@ export default function CreatorsPage() {
             {/* Results Count */}
             <div className="flex justify-between items-center mb-4 sm:mb-6">
               {loading ? (
-                <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary">جاري التحميل...</p>
+                <div className="flex gap-2">
+                  <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                </div>
               ) : error ? (
                 <p className="text-sm sm:text-base text-red-500">{error}</p>
               ) : (
@@ -267,9 +271,13 @@ export default function CreatorsPage() {
       <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
         <div className="container-custom pr-2 sm:pr-4">
           {loading ? (
-            <div className="text-center py-12 sm:py-16">
-              <div className="loading-spinner mx-auto mb-4"></div>
-              <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary">جاري تحميل المبدعين...</p>
+            <div className="flex flex-col items-center justify-center py-12 sm:py-16 gap-6">
+              {/* Elegant Three-Dot Loader */}
+              <div className="flex gap-2">
+                <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              </div>
             </div>
           ) : creatorsData.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 items-stretch">

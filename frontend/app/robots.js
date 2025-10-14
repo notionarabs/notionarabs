@@ -25,11 +25,28 @@ export default function robots() {
         ],
       },
       {
+        userAgent: 'Googlebot-Image',
+        allow: '/',
+        disallow: [
+          '/admin/',
+          '/api/',
+          '/_next/',
+          '/profile/',
+          '/settings/',
+          '/purchases/',
+          '/payment/',
+          '/auth/',
+        ],
+      },
+      {
         userAgent: 'GPTBot',
         disallow: '/',
       },
     ],
-    sitemap: `${siteConfig.url}/sitemap.xml`,
+    sitemap: [
+      `${siteConfig.url}/sitemap.xml`,
+      `${siteConfig.url}/image-sitemap.xml`
+    ],
     host: siteConfig.url,
   }
 }

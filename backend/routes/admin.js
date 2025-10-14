@@ -397,7 +397,9 @@ router.get('/creator-applications', auth, async (req, res) => {
       availability: user.availability,
       expectedEarnings: user.expectedEarnings,
       profilePicture: user.profilePicture,
-      badges: user.badges || []
+      badges: user.badges || [],
+      isPinned: user.isPinned || false,
+      pinnedAt: user.pinnedAt || null
     }));
 
     res.json({

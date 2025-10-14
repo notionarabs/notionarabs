@@ -105,9 +105,8 @@ export default function AboutPage() {
       <section className="py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-secondary-50 via-primary-50/30 to-accent-100 dark:from-dark-primary dark:via-dark-secondary dark:to-dark-secondary transition-colors duration-300">
         <div className="container-custom">
           <div className="text-center mb-8 sm:mb-10 md:mb-12">
-            <div className="flex items-center justify-center gap-3 mb-4 sm:mb-6">
-              <Globe className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-primary-500 dark:text-orange-500" />
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold">من نحن | عرب نوشن</h1>
+            <div className="text-center mb-4 sm:mb-6">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">من نحن | عرب نوشن</h1>
             </div>
             <p className="text-lg sm:text-xl md:text-2xl text-accent-700 dark:text-dark-text-secondary font-semibold max-w-3xl mx-auto px-4 mb-4">
               منصة تعليمية.. ومجتمع متكامل لعشّاق نوشن
@@ -131,8 +130,8 @@ export default function AboutPage() {
         <div className="container-custom">
           <div className="max-w-5xl mx-auto">
             <div className="flex items-center gap-3 justify-center mb-6 sm:mb-8">
-              <Target className="w-8 h-8 sm:w-10 sm:h-10 text-primary-500 dark:text-orange-500" />
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center">رؤيتنا</h2>
+              <Target className="w-8 h-8 sm:w-10 sm:h-10 text-primary-500 dark:text-orange-500 flex-shrink-0" />
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center leading-tight">رؤيتنا</h2>
             </div>
             <div className="card p-6 sm:p-8 md:p-10">
               <p className="text-base sm:text-lg md:text-xl text-accent-600 dark:text-dark-text-secondary leading-relaxed text-center">
@@ -150,8 +149,8 @@ export default function AboutPage() {
         <div className="container-custom">
           <div className="max-w-5xl mx-auto">
             <div className="flex items-center gap-3 justify-center mb-6 sm:mb-8">
-              <Lightbulb className="w-8 h-8 sm:w-10 sm:h-10 text-primary-500 dark:text-orange-500" />
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center">رسالتنا</h2>
+              <Lightbulb className="w-8 h-8 sm:w-10 sm:h-10 text-primary-500 dark:text-orange-500 flex-shrink-0" />
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center leading-tight">رسالتنا</h2>
             </div>
             <div className="card p-6 sm:p-8 md:p-10">
               <p className="text-base sm:text-lg md:text-xl text-accent-600 dark:text-dark-text-secondary leading-relaxed text-center mb-4">
@@ -171,8 +170,8 @@ export default function AboutPage() {
         <div className="container-custom">
           <div className="text-center mb-8 sm:mb-10 md:mb-12">
             <div className="flex items-center gap-3 justify-center mb-4">
-              <Trophy className="w-8 h-8 sm:w-10 sm:h-10 text-primary-500 dark:text-orange-500" />
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">ما الذي يميز عرب نوشن؟</h2>
+              <Trophy className="w-8 h-8 sm:w-10 sm:h-10 text-primary-500 dark:text-orange-500 flex-shrink-0" />
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">ما الذي يميز عرب نوشن؟</h2>
             </div>
           </div>
 
@@ -197,8 +196,8 @@ export default function AboutPage() {
         <div className="container-custom">
           <div className="text-center mb-8 sm:mb-10 md:mb-12">
             <div className="flex items-center gap-3 justify-center mb-4">
-              <BookOpen className="w-8 h-8 sm:w-10 sm:h-10 text-primary-500 dark:text-orange-500" />
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">كيف نعمل؟</h2>
+              <BookOpen className="w-8 h-8 sm:w-10 sm:h-10 text-primary-500 dark:text-orange-500 flex-shrink-0" />
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">كيف نعمل؟</h2>
             </div>
           </div>
 
@@ -243,8 +242,8 @@ export default function AboutPage() {
         <div className="container-custom">
           <div className="max-w-5xl mx-auto">
             <div className="flex items-center gap-3 justify-center mb-6 sm:mb-8">
-              <Rocket className="w-8 h-8 sm:w-10 sm:h-10 text-primary-500 dark:text-orange-500" />
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center">رحلتنا</h2>
+              <Rocket className="w-8 h-8 sm:w-10 sm:h-10 text-primary-500 dark:text-orange-500 flex-shrink-0" />
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center leading-tight">رحلتنا</h2>
             </div>
             <div className="card p-6 sm:p-8 md:p-10">
               <p className="text-base sm:text-lg md:text-xl text-accent-600 dark:text-dark-text-secondary leading-relaxed text-center mb-4">
@@ -264,8 +263,8 @@ export default function AboutPage() {
         <div className="container-custom">
           <div className="text-center mb-8 sm:mb-10 md:mb-12">
             <div className="flex items-center gap-3 justify-center mb-4">
-              <Star className="w-8 h-8 sm:w-10 sm:h-10 text-primary-500 dark:text-orange-500" />
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">رؤيتنا للمستقبل</h2>
+              <Star className="w-8 h-8 sm:w-10 sm:h-10 text-primary-500 dark:text-orange-500 flex-shrink-0" />
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">رؤيتنا للمستقبل</h2>
             </div>
           </div>
 
@@ -290,8 +289,8 @@ export default function AboutPage() {
       <section className="py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-primary-500 to-accent-500 dark:from-orange-600 dark:to-orange-700 transition-colors duration-300">
         <div className="container-custom text-center">
           <div className="flex items-center gap-3 justify-center mb-6">
-            <MessageSquare className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white">
+            <MessageSquare className="w-8 h-8 sm:w-10 sm:h-10 text-white flex-shrink-0" />
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
               انضم إلينا
             </h2>
           </div>

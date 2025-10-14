@@ -36,6 +36,9 @@ export const metadata = {
     ],
     shortcut: [
       { url: '/favicon.svg', type: 'image/svg+xml' }
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }
     ]
   }
 }
@@ -57,6 +60,12 @@ export default function RootLayout({ children }) {
         {/* Favicon - Using SVG for best quality on all devices */}
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <link rel="shortcut icon" href="/favicon.svg" />
+
+        {/* Apple Touch Icon for iOS devices */}
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="عرب نوشن" />
 
         {/* Web App Manifest - PWA Support */}
         <link rel="manifest" href="/site.webmanifest" />

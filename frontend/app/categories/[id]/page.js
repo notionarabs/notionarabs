@@ -291,9 +291,17 @@ function CategoryTemplatesContent() {
 
           {/* Results Count */}
           <div className="flex items-center justify-between mt-4 sm:mt-6">
-            <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">
-              عرض {paginatedTemplates.length} من {pagination.total} قالب في {categoryName}
-            </p>
+            {loading ? (
+              <div className="flex gap-2">
+                <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              </div>
+            ) : (
+              <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards]">
+                عرض {paginatedTemplates.length} من {pagination.total} قالب في {categoryName}
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -314,27 +322,22 @@ function CategoryTemplatesContent() {
           )}
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {[...Array(8)].map((_, index) => (
-                <div key={index} className="card p-3 sm:p-4 md:p-5 lg:p-6 animate-pulse">
-                  <div className="h-40 sm:h-44 md:h-48 lg:h-52 bg-gray-200 dark:bg-gray-700 rounded-lg mb-2 sm:mb-3"></div>
-                  <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 sm:mb-3"></div>
-                  <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 sm:mb-3 w-3/4"></div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 sm:gap-2">
-                      <div className="w-4 h-4 sm:w-5 sm:h-5 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
-                      <div className="h-2 sm:h-3 bg-gray-200 dark:bg-gray-700 rounded w-12 sm:w-16"></div>
-                    </div>
-                    <div className="h-2 sm:h-3 bg-gray-200 dark:bg-gray-700 rounded w-6 sm:w-8"></div>
-                  </div>
-                </div>
-              ))}
+            <div className="flex flex-col items-center justify-center py-12 sm:py-16 gap-6">
+              {/* Elegant Three-Dot Loader */}
+              <div className="flex gap-2">
+                <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              </div>
             </div>
           ) : paginatedTemplates.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {paginatedTemplates.map((template) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]">
+              {paginatedTemplates.map((template, index) => (
                 <Link key={template._id} href={`/templates/${template.slug || template._id}`}>
-                  <div className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
+                  <div
+                    className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards]"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
                     {/* Template Image */}
                     <div className="relative overflow-hidden rounded-lg h-40 sm:h-44 md:h-48 lg:h-52">
                       {template.previewImage ? (
@@ -394,7 +397,7 @@ function CategoryTemplatesContent() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 sm:py-12 md:py-16 px-4">
+            <div className="text-center py-8 sm:py-12 md:py-16 px-4 opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards]">
               <svg className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-accent-400 dark:text-dark-text-quaternary mx-auto mb-3 sm:mb-4" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
               </svg>
@@ -414,8 +417,8 @@ function CategoryTemplatesContent() {
           )}
 
           {/* Pagination */}
-          {pagination.pages > 1 && (
-            <div className="flex justify-center mt-6 sm:mt-8 md:mt-10 lg:mt-12 px-4">
+          {pagination.pages > 1 && !loading && (
+            <div className="flex justify-center mt-6 sm:mt-8 md:mt-10 lg:mt-12 px-4 opacity-0 animate-[fadeIn_0.5s_ease-in-out_0.3s_forwards]">
               <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 flex-wrap justify-center">
                 <button
                   onClick={() => handlePageChange(pagination.current - 1)}

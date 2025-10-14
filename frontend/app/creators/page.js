@@ -258,7 +258,7 @@ export default function CreatorsPage() {
               ) : error ? (
                 <p className="text-sm sm:text-base text-red-500">{error}</p>
               ) : (
-                <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary">
+                <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards]">
                   عرض {creatorsData.length} من {pagination.total} مبدع
                 </p>
               )}
@@ -280,12 +280,13 @@ export default function CreatorsPage() {
               </div>
             </div>
           ) : creatorsData.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 items-stretch">
-              {creatorsData.map((creator) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 items-stretch opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]">
+              {creatorsData.map((creator, index) => (
                 <Link
                   key={creator.id}
                   href={`/creators/${creator.username || creator.email?.split('@')[0] || creator.displayName || creator.name || creator.id}`}
-                  className="group card-interactive p-4 sm:p-6 md:p-8 h-full flex flex-col max-h-[600px]"
+                  className="group card-interactive p-4 sm:p-6 md:p-8 h-full flex flex-col max-h-[600px] opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards]"
+                  style={{ animationDelay: `${index * 50}ms` }}
                 >
                   {/* Card Header */}
                   <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
@@ -406,7 +407,7 @@ export default function CreatorsPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 sm:py-16">
+            <div className="text-center py-12 sm:py-16 opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards]">
               <User className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 dark:text-dark-text-quaternary mx-auto mb-4" />
               <h3 className="text-lg sm:text-xl font-semibold text-accent-500 dark:text-dark-text-primary mb-2">لم نجد مبدعين مطابقين</h3>
               <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary mb-6">جرب تغيير معايير البحث أو الفلاتر</p>

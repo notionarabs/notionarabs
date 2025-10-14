@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import api, { emailApi } from '../lib/api';
@@ -21,14 +21,21 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
   const { isMaintenanceMode, hasCheckedMaintenance } = useMaintenance();
+  const authCheckRef = useRef(false);
 
   const router = useRouter();
 
   useEffect(() => {
+    // Prevent double execution in React StrictMode
+    if (authCheckRef.current) {
+      return;
+    }
+
     // If maintenance mode is active, skip auth check
     if (isMaintenanceMode) {
       setLoading(false);
       setHasCheckedAuth(true);
+      authCheckRef.current = true;
       return;
     }
 
@@ -39,11 +46,14 @@ export const AuthProvider = ({ children }) => {
         if (!hasCheckedMaintenance) {
           setLoading(false);
           setHasCheckedAuth(true);
+          authCheckRef.current = true;
         }
       }, 2000);
 
       return () => clearTimeout(timeoutId);
     }
+
+    authCheckRef.current = true;
 
     // Ensure axios has the token as early as possible
     const existingToken = Cookies.get('authToken');
@@ -96,7 +106,7 @@ export const AuthProvider = ({ children }) => {
     } else {
       setLoading(false);
     }
-  }, [hasCheckedAuth, hasCheckedMaintenance]); // Removed isMaintenanceMode to prevent re-renders
+  }, [hasCheckedMaintenance]); // Only depend on maintenance check completion
 
 
   const checkAuthStatus = useCallback(async () => {
@@ -390,7 +400,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const refreshUserData = async () => {
+  const refreshUserData = useCallback(async () => {
     try {
       const token = Cookies.get('authToken');
       if (!token) {
@@ -418,11 +428,11 @@ export const AuthProvider = ({ children }) => {
         error: error.response?.data?.message || 'فشل في تحديث بيانات المستخدم'
       };
     }
-  };
+  }, []);
 
   // Periodic status check for pending users
   useEffect(() => {
-    if (!user || user.creatorStatus !== 'pending') return;
+    if (!user || user.creatorStatus !== 'pending' || !hasCheckedAuth) return;
 
     const interval = setInterval(async () => {
       try {
@@ -433,11 +443,11 @@ export const AuthProvider = ({ children }) => {
     }, 30000); // Check every 30 seconds
 
     return () => clearInterval(interval);
-  }, [user?.creatorStatus, refreshUserData]);
+  }, [user?.creatorStatus, refreshUserData, hasCheckedAuth]);
 
   // Check status when page becomes visible (user switches tabs back)
   useEffect(() => {
-    if (!user || user.creatorStatus !== 'pending') return;
+    if (!user || user.creatorStatus !== 'pending' || !hasCheckedAuth) return;
 
     const handleVisibilityChange = async () => {
       if (document.visibilityState === 'visible') {
@@ -451,10 +461,13 @@ export const AuthProvider = ({ children }) => {
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [user?.creatorStatus, refreshUserData]);
+  }, [user?.creatorStatus, refreshUserData, hasCheckedAuth]);
 
   // Re-check authentication when page becomes visible (for browser back navigation)
   useEffect(() => {
+    // Only set up listeners after initial auth check is complete
+    if (!hasCheckedAuth) return;
+
     const handleVisibilityChange = async () => {
       if (document.visibilityState === 'visible' && !loading) {
         const token = Cookies.get('authToken');
@@ -507,7 +520,7 @@ export const AuthProvider = ({ children }) => {
       window.removeEventListener('focus', handleFocus);
       window.removeEventListener('pageshow', handlePageShow);
     };
-  }, [loading, user]);
+  }, [loading, user, hasCheckedAuth, checkAuthStatus]);
 
   // Function to ensure token is set in API headers
   const ensureTokenInHeaders = () => {

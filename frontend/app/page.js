@@ -299,6 +299,8 @@ export default function HomePage() {
   const [loadingCreators, setLoadingCreators] = useState(true);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const animationsPlayedRef = useRef(false);
+  const hasFetchedRef = useRef(false);
+  const hasFetchedTemplatesRef = useRef(false);
 
   // Mark animations as played after they complete
   useEffect(() => {
@@ -315,6 +317,12 @@ export default function HomePage() {
     if (!hasCheckedMaintenance) {
       return;
     }
+
+    // Prevent double fetching in React StrictMode
+    if (hasFetchedTemplatesRef.current) {
+      return;
+    }
+    hasFetchedTemplatesRef.current = true;
 
     const fetchFeaturedTemplates = async () => {
       try {
@@ -411,6 +419,12 @@ export default function HomePage() {
     if (!hasCheckedMaintenance) {
       return;
     }
+
+    // Prevent double fetching in React StrictMode
+    if (hasFetchedRef.current) {
+      return;
+    }
+    hasFetchedRef.current = true;
 
     const fetchHomepageData = async () => {
       try {
@@ -566,19 +580,19 @@ export default function HomePage() {
 
               {/* Enhanced Stats with Better Visual Hierarchy and Consistent Shadows */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
-                <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30">
+                <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '0ms' }}>
                   <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-500 dark:text-orange-500 mb-1 sm:mb-2">{stats.templates}</div>
                   <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">قالب متاح</div>
                 </div>
-                <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30">
+                <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '100ms' }}>
                   <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">{stats.creators}</div>
                   <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">مبدع نشط</div>
                 </div>
-                <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30">
+                <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '200ms' }}>
                   <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">{stats.downloads}</div>
                   <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">تحميل</div>
                 </div>
-                <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30">
+                <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '300ms' }}>
                   <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">{stats.specialties}</div>
                   <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">مجال متخصص</div>
                 </div>
@@ -627,7 +641,10 @@ export default function HomePage() {
             ) : (
               featuredTemplates.map((t, idx) => (
                 <Link key={t._id || idx} href={`/templates/${t.slug || t._id}`}>
-                  <div className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
+                  <div
+                    className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards]"
+                    style={{ animationDelay: `${idx * 80}ms` }}
+                  >
                     {/* Template Image */}
                     <div className="relative overflow-hidden rounded-lg h-40">
                       {t.previewImage ? (
@@ -765,7 +782,10 @@ export default function HomePage() {
                   const slug = categorySlugMap[c.name] || encodeURIComponent(c.name);
                   return (
                     <Link href={`/categories/${slug}`} key={idx} className="group">
-                      <div className="bg-white dark:bg-dark-tertiary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-dark-card-border hover:shadow-md hover:border-accent-300 dark:hover:border-accent-400 transition-all duration-300 h-full flex flex-col">
+                      <div
+                        className="bg-white dark:bg-dark-tertiary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-dark-card-border hover:shadow-md hover:border-accent-300 dark:hover:border-accent-400 transition-all duration-300 h-full flex flex-col opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards]"
+                        style={{ animationDelay: `${idx * 80}ms` }}
+                      >
                         {/* Icon */}
                         <div className="flex justify-center mb-4">
                           <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br ${c.bg} backdrop-blur-sm border border-white/20 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}>
@@ -857,7 +877,10 @@ export default function HomePage() {
             ) : (topCreators && topCreators.length > 0) ? (
               topCreators.slice(0, 4).map((cr, idx) => (
                 <Link key={cr.id || idx} href={`/creators/${cr.username || cr.email?.split('@')[0] || cr.displayName || cr.name || cr.id || cr._id || idx}`}>
-                  <div className="group bg-white dark:bg-dark-tertiary rounded-xl p-6 shadow-sm border border-gray-200 dark:border-dark-card-border hover:shadow-md hover:border-primary-300 dark:hover:border-primary-400 transition-all duration-300 h-full flex flex-col">
+                  <div
+                    className="group bg-white dark:bg-dark-tertiary rounded-xl p-6 shadow-sm border border-gray-200 dark:border-dark-card-border hover:shadow-md hover:border-primary-300 dark:hover:border-primary-400 transition-all duration-300 h-full flex flex-col opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards]"
+                    style={{ animationDelay: `${idx * 100}ms` }}
+                  >
                     <div className="text-center mb-4 flex-shrink-0">
                       <div className="relative w-16 h-16 mx-auto mb-3">
                         {cr.profilePicture ? (

@@ -467,34 +467,37 @@ export default function BlogPage() {
 
           {/* Results Count */}
           <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary">
-              عرض {blogPosts.length} من {pagination.total} مقال
-            </p>
+            {loading ? (
+              <div className="flex gap-2">
+                <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-2 h-2 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              </div>
+            ) : (
+              <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards]">
+                عرض {blogPosts.length} من {pagination.total} مقال
+              </p>
+            )}
           </div>
 
           {/* Blog Posts Grid */}
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-              {[...Array(6)].map((_, index) => (
-                <div key={index} className="card-interactive overflow-hidden animate-pulse">
-                  <div className="h-40 sm:h-48 bg-gray-200 dark:bg-gray-700"></div>
-                  <div className="p-4 sm:p-6">
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded mb-3 w-3/4"></div>
-                    <div className="flex justify-between items-center mb-4">
-                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
-                    </div>
-                    <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                  </div>
-                </div>
-              ))}
+            <div className="flex flex-col items-center justify-center py-12 sm:py-16 gap-6">
+              {/* Elegant Three-Dot Loader */}
+              <div className="flex gap-2">
+                <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              </div>
             </div>
           ) : blogPosts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-              {blogPosts.map((post) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]">
+              {blogPosts.map((post, index) => (
                 <Link key={post._id} href={`/blog/${post.slug}`}>
-                  <div className="card-interactive overflow-hidden group">
+                  <div
+                    className="card-interactive overflow-hidden group opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards]"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
                     <div className="relative h-40 sm:h-48 overflow-hidden bg-gradient-to-br from-orange-400 via-orange-500 to-red-500">
                       {/* Background Pattern */}
                       <div className="absolute inset-0 opacity-20">
@@ -583,7 +586,7 @@ export default function BlogPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 sm:py-12">
+            <div className="text-center py-8 sm:py-12 opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards]">
               <svg className="w-12 h-12 sm:w-16 sm:h-16 text-accent-400 dark:text-dark-text-quaternary mx-auto mb-3 sm:mb-4" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
               </svg>

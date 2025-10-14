@@ -462,7 +462,22 @@ export default function AdminPage() {
                   <tr key={user._id} className="hover:bg-gray-50 dark:hover:bg-dark-card-hover">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="w-10 h-10 bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 rounded-full flex items-center justify-center">
+                        {user.profilePicture && user.profilePicture.trim() !== '' ? (
+                          <img
+                            src={user.profilePicture}
+                            alt={user.name}
+                            className="w-10 h-10 rounded-full object-cover"
+                            onError={(e) => {
+                              // If image fails to load, hide it and show placeholder instead
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <div
+                          className="w-10 h-10 bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 rounded-full flex items-center justify-center"
+                          style={{ display: user.profilePicture && user.profilePicture.trim() !== '' ? 'none' : 'flex' }}
+                        >
                           <span className="text-white font-bold text-sm">
                             {user.name?.charAt(0)?.toUpperCase()}
                           </span>

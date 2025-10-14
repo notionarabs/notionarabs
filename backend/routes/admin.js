@@ -162,8 +162,16 @@ router.get('/users', auth, async (req, res) => {
     sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
 
     const users = await User.find(filter)
-      .select('-password')
+      .select('-password -resetToken')
       .sort(sort);
+
+    // Debug: Log profile pictures for troubleshooting
+    console.log('Admin users query - Profile pictures:', users.map(u => ({
+      name: u.name,
+      email: u.email,
+      profilePicture: u.profilePicture,
+      googleId: !!u.googleId
+    })));
 
     res.json({
       success: true,

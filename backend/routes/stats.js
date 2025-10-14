@@ -10,17 +10,6 @@ const router = express.Router();
 // @access  Public
 router.get('/homepage', cacheMiddleware(600), async (req, res) => {
   try {
-    const categoriesArabic = [
-      'الإنتاجية',
-      'الدراسة',
-      'الأعمال',
-      'الحياة الشخصية',
-      'الإبداع',
-      'التخطيط',
-      'المراجعة',
-      'التسويق'
-    ];
-
     // Parallel execution of all queries
     const [
       totalTemplates,
@@ -41,13 +30,12 @@ router.get('/homepage', cacheMiddleware(600), async (req, res) => {
         { $group: { _id: null, totalDownloads: { $sum: '$downloads' } } }
       ]),
 
-      // Category counts in parallel
-      Promise.all(
-        categoriesArabic.map(category =>
-          Template.countDocuments({ status: 'approved', category })
-            .then(count => ({ category, count }))
-        )
-      ),
+      // Get ALL categories with their counts using aggregation
+      Template.aggregate([
+        { $match: { status: 'approved' } },
+        { $group: { _id: '$category', count: { $sum: 1 } } },
+        { $project: { category: '$_id', count: 1, _id: 0 } }
+      ]),
 
       // Top creators with their stats (prioritizing pinned creators)
       User.aggregate([

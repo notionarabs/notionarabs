@@ -22,32 +22,270 @@ const getBadgeIcon = (badgeType) => {
   return iconMap[badgeType] || Star;
 };
 
-// Most important categories with better icons
+// All categories with icons and styling
 const categories = [
-  { name: "الإنتاجية", count: 0, Icon: Zap, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30" },
-  { name: "الدراسة", count: 0, Icon: BookOpen, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
-  { name: "الأعمال", count: 0, Icon: TrendingUp, bg: "from-emerald-100 to-emerald-200 dark:from-emerald-900/30 dark:to-emerald-800/30" },
-  { name: "الحياة الشخصية", count: 0, Icon: Heart, bg: "from-rose-100 to-rose-200 dark:from-rose-900/30 dark:to-rose-800/30" },
-  { name: "الإبداع", count: 0, Icon: Lightbulb, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
-  { name: "التخطيط", count: 0, Icon: Target, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30" },
-  { name: "المراجعة", count: 0, Icon: Check, bg: "from-teal-100 to-teal-200 dark:from-teal-900/30 dark:to-teal-800/30" },
-  { name: "التسويق", count: 0, Icon: Users, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30" },
+  { name: "الإنتاجية", Icon: Zap, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30" },
+  { name: "الدراسة", Icon: BookOpen, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
+  { name: "الأعمال", Icon: TrendingUp, bg: "from-emerald-100 to-emerald-200 dark:from-emerald-900/30 dark:to-emerald-800/30" },
+  { name: "الحياة الشخصية", Icon: Heart, bg: "from-rose-100 to-rose-200 dark:from-rose-900/30 dark:to-rose-800/30" },
+  { name: "الإبداع", Icon: Lightbulb, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
+  { name: "التقنية", Icon: Laptop, bg: "from-cyan-100 to-cyan-200 dark:from-cyan-900/30 dark:to-cyan-800/30" },
+  { name: "الصحة", Icon: Dumbbell, bg: "from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30" },
+  { name: "المالية", Icon: PiggyBank, bg: "from-yellow-100 to-yellow-200 dark:from-yellow-900/30 dark:to-yellow-800/30" },
+  { name: "التنظيم", Icon: FolderTree, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30" },
+  { name: "التخطيط", Icon: Target, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30" },
+  { name: "ديني", Icon: BookOpen, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30" },
+  { name: "التسويق", Icon: Users, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30" },
+  { name: "التصميم", Icon: Palette, bg: "from-fuchsia-100 to-fuchsia-200 dark:from-fuchsia-900/30 dark:to-fuchsia-800/30" },
+  { name: "التطوير", Icon: Laptop, bg: "from-violet-100 to-violet-200 dark:from-violet-900/30 dark:to-violet-800/30" },
+  { name: "التعليم", Icon: BookOpen, bg: "from-sky-100 to-sky-200 dark:from-sky-900/30 dark:to-sky-800/30" },
+  { name: "السفر", Icon: Target, bg: "from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/30" },
+  { name: "الطعام", Icon: Heart, bg: "from-lime-100 to-lime-200 dark:from-lime-900/30 dark:to-lime-800/30" },
+  { name: "الرياضة", Icon: Trophy, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30" },
+  { name: "الترفيه", Icon: Sparkles, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30" },
+  { name: "الموضة", Icon: Gem, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
+  { name: "الجمال", Icon: Sparkles, bg: "from-rose-100 to-rose-200 dark:from-rose-900/30 dark:to-rose-800/30" },
+  { name: "المنزل", Icon: Settings, bg: "from-teal-100 to-teal-200 dark:from-teal-900/30 dark:to-teal-800/30" },
+  { name: "الحديقة", Icon: Target, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30" },
+  { name: "الحيوانات الأليفة", Icon: Heart, bg: "from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/30" },
+  { name: "السيارات", Icon: Zap, bg: "from-slate-100 to-slate-200 dark:from-slate-900/30 dark:to-slate-800/30" },
+  { name: "التكنولوجيا", Icon: Laptop, bg: "from-cyan-100 to-cyan-200 dark:from-cyan-900/30 dark:to-cyan-800/30" },
+  { name: "البرمجة", Icon: Laptop, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30" },
+  { name: "قواعد البيانات", Icon: FolderTree, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
+  { name: "الأمان السيبراني", Icon: Award, bg: "from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30" },
+  { name: "الذكاء الاصطناعي", Icon: Zap, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
+  { name: "البلوك تشين", Icon: Award, bg: "from-yellow-100 to-yellow-200 dark:from-yellow-900/30 dark:to-yellow-800/30" },
+  { name: "التجارة الإلكترونية", Icon: TrendingUp, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30" },
+  { name: "المبيعات", Icon: TrendingUp, bg: "from-emerald-100 to-emerald-200 dark:from-emerald-900/30 dark:to-emerald-800/30" },
+  { name: "خدمة العملاء", Icon: Users, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
+  { name: "الموارد البشرية", Icon: Users, bg: "from-violet-100 to-violet-200 dark:from-violet-900/30 dark:to-violet-800/30" },
+  { name: "المحاسبة", Icon: PiggyBank, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30" },
+  { name: "الاستثمار", Icon: TrendingUp, bg: "from-yellow-100 to-yellow-200 dark:from-yellow-900/30 dark:to-yellow-800/30" },
+  { name: "العقارات", Icon: Settings, bg: "from-brown-100 to-brown-200 dark:from-brown-900/30 dark:to-brown-800/30" },
+  { name: "التأمين", Icon: Award, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
+  { name: "القانون", Icon: BookOpen, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30" },
+  { name: "الطب", Icon: Heart, bg: "from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30" },
+  { name: "التمريض", Icon: Heart, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30" },
+  { name: "العلاج الطبيعي", Icon: Dumbbell, bg: "from-teal-100 to-teal-200 dark:from-teal-900/30 dark:to-teal-800/30" },
+  { name: "التغذية", Icon: Heart, bg: "from-lime-100 to-lime-200 dark:from-lime-900/30 dark:to-lime-800/30" },
+  { name: "الطبخ", Icon: Heart, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30" },
+  { name: "الحلويات", Icon: Sparkles, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30" },
+  { name: "المشروبات", Icon: Heart, bg: "from-cyan-100 to-cyan-200 dark:from-cyan-900/30 dark:to-cyan-800/30" },
+  { name: "المطاعم", Icon: Settings, bg: "from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/30" },
+  { name: "الفنون", Icon: Palette, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
+  { name: "الموسيقى", Icon: Sparkles, bg: "from-violet-100 to-violet-200 dark:from-violet-900/30 dark:to-violet-800/30" },
+  { name: "الرسم", Icon: Palette, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30" },
+  { name: "النحت", Icon: Palette, bg: "from-stone-100 to-stone-200 dark:from-stone-900/30 dark:to-stone-800/30" },
+  { name: "التصوير", Icon: Sparkles, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
+  { name: "الفيديو", Icon: Sparkles, bg: "from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30" },
+  { name: "الكتابة", Icon: BookOpen, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30" },
+  { name: "الترجمة", Icon: BookOpen, bg: "from-teal-100 to-teal-200 dark:from-teal-900/30 dark:to-teal-800/30" },
+  { name: "اللغات", Icon: BookOpen, bg: "from-sky-100 to-sky-200 dark:from-sky-900/30 dark:to-sky-800/30" },
+  { name: "التاريخ", Icon: BookOpen, bg: "from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/30" },
+  { name: "الجغرافيا", Icon: Target, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30" },
+  { name: "العلوم", Icon: Lightbulb, bg: "from-cyan-100 to-cyan-200 dark:from-cyan-900/30 dark:to-cyan-800/30" },
+  { name: "الرياضيات", Icon: Target, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
+  { name: "الفيزياء", Icon: Zap, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30" },
+  { name: "الكيمياء", Icon: Lightbulb, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
+  { name: "الأحياء", Icon: Heart, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30" },
+  { name: "علم النفس", Icon: Lightbulb, bg: "from-violet-100 to-violet-200 dark:from-violet-900/30 dark:to-violet-800/30" },
+  { name: "علم الاجتماع", Icon: Users, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
+  { name: "الفلسفة", Icon: Lightbulb, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30" },
+  { name: "الأدب", Icon: BookOpen, bg: "from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/30" },
+  { name: "الشعر", Icon: BookOpen, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30" },
+  { name: "المسرح", Icon: Sparkles, bg: "from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30" },
+  { name: "السينما", Icon: Sparkles, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
+  { name: "الألعاب", Icon: Trophy, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30" },
+  { name: "الرياضة الإلكترونية", Icon: Trophy, bg: "from-cyan-100 to-cyan-200 dark:from-cyan-900/30 dark:to-cyan-800/30" },
+  { name: "السياحة", Icon: Target, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
+  { name: "الفندقة", Icon: Settings, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30" },
+  { name: "النقل", Icon: Zap, bg: "from-slate-100 to-slate-200 dark:from-slate-900/30 dark:to-slate-800/30" },
+  { name: "الطيران", Icon: Zap, bg: "from-sky-100 to-sky-200 dark:from-sky-900/30 dark:to-sky-800/30" },
+  { name: "البحرية", Icon: Target, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
+  { name: "الزراعة", Icon: Heart, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30" },
+  { name: "البيئة", Icon: Heart, bg: "from-emerald-100 to-emerald-200 dark:from-emerald-900/30 dark:to-emerald-800/30" },
+  { name: "الطاقة", Icon: Zap, bg: "from-yellow-100 to-yellow-200 dark:from-yellow-900/30 dark:to-yellow-800/30" },
+  { name: "البناء", Icon: Settings, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30" },
+  { name: "الهندسة", Icon: Target, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30" },
+  { name: "العمارة", Icon: Settings, bg: "from-stone-100 to-stone-200 dark:from-stone-900/30 dark:to-stone-800/30" },
+  { name: "الديكور", Icon: Palette, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30" },
+  { name: "الأثاث", Icon: Settings, bg: "from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/30" },
+  { name: "الأدوات", Icon: Settings, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30" },
+  { name: "الأجهزة", Icon: Laptop, bg: "from-slate-100 to-slate-200 dark:from-slate-900/30 dark:to-slate-800/30" },
+  { name: "البرامج", Icon: Laptop, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
+  { name: "التطبيقات", Icon: Laptop, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
+  { name: "المواقع", Icon: Laptop, bg: "from-cyan-100 to-cyan-200 dark:from-cyan-900/30 dark:to-cyan-800/30" },
+  { name: "التطوير الويب", Icon: Laptop, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30" },
+  { name: "تطوير التطبيقات", Icon: Laptop, bg: "from-violet-100 to-violet-200 dark:from-violet-900/30 dark:to-violet-800/30" },
+  { name: "التعليم الإلكتروني", Icon: BookOpen, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30" },
+  { name: "الاجتماعات", Icon: Users, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
+  { name: "التواصل", Icon: Users, bg: "from-teal-100 to-teal-200 dark:from-teal-900/30 dark:to-teal-800/30" },
+  { name: "الشبكات الاجتماعية", Icon: Users, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30" },
+  { name: "المحتوى", Icon: BookOpen, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
+  { name: "الإعلان", Icon: TrendingUp, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30" },
+  { name: "العلاقات العامة", Icon: Users, bg: "from-sky-100 to-sky-200 dark:from-sky-900/30 dark:to-sky-800/30" },
+  { name: "العلامة التجارية", Icon: Award, bg: "from-violet-100 to-violet-200 dark:from-violet-900/30 dark:to-violet-800/30" },
+  { name: "الاستراتيجية", Icon: Target, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30" },
+  { name: "القيادة", Icon: Crown, bg: "from-yellow-100 to-yellow-200 dark:from-yellow-900/30 dark:to-yellow-800/30" },
+  { name: "الإدارة", Icon: Settings, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
+  { name: "المشاريع", Icon: FolderTree, bg: "from-emerald-100 to-emerald-200 dark:from-emerald-900/30 dark:to-emerald-800/30" },
+  { name: "العمليات", Icon: Settings, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30" },
+  { name: "الجودة", Icon: Award, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30" },
+  { name: "الابتكار", Icon: Lightbulb, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
+  { name: "البحث والتطوير", Icon: Lightbulb, bg: "from-cyan-100 to-cyan-200 dark:from-cyan-900/30 dark:to-cyan-800/30" },
+  { name: "التحليل", Icon: Target, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
+  { name: "الإحصاء", Icon: Target, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30" },
+  { name: "البيانات", Icon: FolderTree, bg: "from-violet-100 to-violet-200 dark:from-violet-900/30 dark:to-violet-800/30" },
+  { name: "التقارير", Icon: BookOpen, bg: "from-slate-100 to-slate-200 dark:from-slate-900/30 dark:to-slate-800/30" },
+  { name: "العروض التقديمية", Icon: Sparkles, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30" },
+  { name: "التدريب", Icon: BookOpen, bg: "from-teal-100 to-teal-200 dark:from-teal-900/30 dark:to-teal-800/30" },
+  { name: "التطوير المهني", Icon: TrendingUp, bg: "from-emerald-100 to-emerald-200 dark:from-emerald-900/30 dark:to-emerald-800/30" },
+  { name: "الاستشارات", Icon: Lightbulb, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
+  { name: "الخدمات", Icon: Settings, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30" },
+  { name: "المنتجات", Icon: Award, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
+  { name: "التصنيع", Icon: Settings, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30" },
+  { name: "التوزيع", Icon: TrendingUp, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30" },
+  { name: "المخازن", Icon: FolderTree, bg: "from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/30" },
+  { name: "اللوجستيات", Icon: Target, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
+  // Aliases and variations
+  { name: "المراجعة", Icon: Check, bg: "from-teal-100 to-teal-200 dark:from-teal-900/30 dark:to-teal-800/30" },
+  { name: "الصحة واللياقة", Icon: Dumbbell, bg: "from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30" },
+  { name: "الدينية", Icon: BookOpen, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30" },
 ];
 
 // Map Arabic category names to English slugs for URLs
 const categorySlugMap = {
+  // Main categories
   'الإنتاجية': 'productivity',
   'الدراسة': 'study',
   'الأعمال': 'business',
   'الحياة الشخصية': 'personal',
   'الإبداع': 'creativity',
+  'التقنية': 'technology',
+  'الصحة': 'health',
+  'المالية': 'finance',
+  'التنظيم': 'organization',
   'التخطيط': 'planning',
-  'المراجعة': 'review',
+  'ديني': 'religious',
+  'الدينية': 'religious',
   'التسويق': 'marketing',
-  // Fallbacks for simpler labels used in this grid
+  'التصميم': 'design',
+  'التطوير': 'development',
+  'التعليم': 'education',
+  'السفر': 'travel',
+  'الطعام': 'food',
+  'الرياضة': 'sports',
+  'الترفيه': 'entertainment',
+  'الموضة': 'fashion',
+  'الجمال': 'beauty',
+  'المنزل': 'home',
+  'الحديقة': 'garden',
+  'الحيوانات الأليفة': 'pets',
+  'السيارات': 'cars',
+  'التكنولوجيا': 'technology',
+  'البرمجة': 'programming',
+  'قواعد البيانات': 'databases',
+  'الأمان السيبراني': 'cybersecurity',
+  'الذكاء الاصطناعي': 'ai',
+  'البلوك تشين': 'blockchain',
+  'التجارة الإلكترونية': 'ecommerce',
+  'المبيعات': 'sales',
+  'خدمة العملاء': 'customer-service',
+  'الموارد البشرية': 'hr',
+  'المحاسبة': 'accounting',
+  'الاستثمار': 'investment',
+  'العقارات': 'real-estate',
+  'التأمين': 'insurance',
+  'القانون': 'law',
+  'الطب': 'medicine',
+  'التمريض': 'nursing',
+  'العلاج الطبيعي': 'physiotherapy',
+  'التغذية': 'nutrition',
+  'الطبخ': 'cooking',
+  'الحلويات': 'desserts',
+  'المشروبات': 'beverages',
+  'المطاعم': 'restaurants',
+  'الفنون': 'arts',
+  'الموسيقى': 'music',
+  'الرسم': 'drawing',
+  'النحت': 'sculpture',
+  'التصوير': 'photography',
+  'الفيديو': 'video',
+  'الكتابة': 'writing',
+  'الترجمة': 'translation',
+  'اللغات': 'languages',
+  'التاريخ': 'history',
+  'الجغرافيا': 'geography',
+  'العلوم': 'science',
+  'الرياضيات': 'mathematics',
+  'الفيزياء': 'physics',
+  'الكيمياء': 'chemistry',
+  'الأحياء': 'biology',
+  'علم النفس': 'psychology',
+  'علم الاجتماع': 'sociology',
+  'الفلسفة': 'philosophy',
+  'الأدب': 'literature',
+  'الشعر': 'poetry',
+  'المسرح': 'theater',
+  'السينما': 'cinema',
+  'الألعاب': 'games',
+  'الرياضة الإلكترونية': 'esports',
+  'السياحة': 'tourism',
+  'الفندقة': 'hospitality',
+  'النقل': 'transportation',
+  'الطيران': 'aviation',
+  'البحرية': 'maritime',
+  'الزراعة': 'agriculture',
+  'البيئة': 'environment',
+  'الطاقة': 'energy',
+  'البناء': 'construction',
+  'الهندسة': 'engineering',
+  'العمارة': 'architecture',
+  'الديكور': 'decoration',
+  'الأثاث': 'furniture',
+  'الأدوات': 'tools',
+  'الأجهزة': 'devices',
+  'البرامج': 'software',
+  'التطبيقات': 'applications',
+  'المواقع': 'websites',
+  'التطوير الويب': 'web-development',
+  'تطوير التطبيقات': 'app-development',
+  'التعليم الإلكتروني': 'elearning',
+  'الاجتماعات': 'meetings',
+  'التواصل': 'communication',
+  'الشبكات الاجتماعية': 'social-media',
+  'المحتوى': 'content',
+  'الإعلان': 'advertising',
+  'العلاقات العامة': 'public-relations',
+  'العلامة التجارية': 'branding',
+  'الاستراتيجية': 'strategy',
+  'القيادة': 'leadership',
+  'الإدارة': 'management',
+  'المشاريع': 'projects',
+  'العمليات': 'operations',
+  'الجودة': 'quality',
+  'الابتكار': 'innovation',
+  'البحث والتطوير': 'research-development',
+  'التحليل': 'analysis',
+  'الإحصاء': 'statistics',
+  'البيانات': 'data',
+  'التقارير': 'reports',
+  'العروض التقديمية': 'presentations',
+  'التدريب': 'training',
+  'التطوير المهني': 'professional-development',
+  'الاستشارات': 'consulting',
+  'الخدمات': 'services',
+  'المنتجات': 'products',
+  'التصنيع': 'manufacturing',
+  'التوزيع': 'distribution',
+  'المخازن': 'warehouses',
+  'اللوجستيات': 'logistics',
+  // Fallbacks for simpler labels
   'العمل': 'business',
   'الحياة': 'personal',
-  'الشخصي': 'personal'
+  'الشخصي': 'personal',
+  'المراجعة': 'review',
+  'الصحة واللياقة': 'health-fitness'
 };
 
 export default function HomePage() {
@@ -59,6 +297,7 @@ export default function HomePage() {
   const [topCreators, setTopCreators] = useState([]);
   const [categoryTotals, setCategoryTotals] = useState({});
   const [loadingCreators, setLoadingCreators] = useState(true);
+  const [loadingCategories, setLoadingCategories] = useState(true);
   const animationsPlayedRef = useRef(false);
 
   // Mark animations as played after they complete
@@ -176,10 +415,12 @@ export default function HomePage() {
     const fetchHomepageData = async () => {
       try {
         setLoadingCreators(true);
+        setLoadingCategories(true);
 
         // Check if maintenance mode is active before making API calls
         if (isMaintenanceMode) {
           setLoadingCreators(false);
+          setLoadingCategories(false);
           return;
         }
 
@@ -199,6 +440,7 @@ export default function HomePage() {
         setTopCreators([]);
       } finally {
         setLoadingCreators(false);
+        setLoadingCategories(false);
       }
     };
 
@@ -485,29 +727,67 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
-            {categories.slice(0, 8).map((c, idx) => (
-              <Link href={`/categories/${categorySlugMap[c.name] || c.name.toLowerCase()}`} key={idx} className="group">
-                <div className="bg-white dark:bg-dark-tertiary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-dark-card-border hover:shadow-md hover:border-accent-300 dark:hover:border-accent-400 transition-all duration-300 h-full flex flex-col">
-                  {/* Icon */}
+            {loadingCategories ? (
+              [...Array(8)].map((_, idx) => (
+                <div key={idx} className="bg-white dark:bg-dark-tertiary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-dark-card-border h-full flex flex-col overflow-hidden">
+                  {/* Icon Skeleton */}
                   <div className="flex justify-center mb-4">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br ${c.bg} backdrop-blur-sm border border-white/20 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}>
-                      <c.Icon className="w-6 h-6 text-white drop-shadow-sm group-hover:scale-110 transition-transform duration-300" />
-                    </div>
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
                   </div>
 
-                  {/* Category Name */}
-                  <h3 className="font-bold text-sm sm:text-base text-accent-500 dark:text-dark-text-primary text-center mb-2 group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
-                    {c.name}
-                  </h3>
+                  {/* Category Name Skeleton */}
+                  <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-3/4 mx-auto mb-2 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
 
-                  {/* Template Count */}
-                  <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary text-center mb-4">
-                    {categoryTotals[c.name] ?? 0} قالب
-                  </p>
-
+                  {/* Template Count Skeleton */}
+                  <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-1/2 mx-auto bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
                 </div>
-              </Link>
-            ))}
+              ))
+            ) : (
+              Object.entries(categoryTotals)
+                .map(([categoryName, count]) => {
+                  // Find matching category info for icon and styling
+                  const categoryInfo = categories.find(c => c.name === categoryName) || {
+                    name: categoryName,
+                    Icon: Target,
+                    bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30"
+                  };
+                  return {
+                    name: categoryName,
+                    count: count,
+                    Icon: categoryInfo.Icon,
+                    bg: categoryInfo.bg
+                  };
+                })
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 8)
+                .map((c, idx) => {
+                  // Generate URL-safe slug
+                  const slug = categorySlugMap[c.name] || encodeURIComponent(c.name);
+                  return (
+                    <Link href={`/categories/${slug}`} key={idx} className="group">
+                      <div className="bg-white dark:bg-dark-tertiary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-dark-card-border hover:shadow-md hover:border-accent-300 dark:hover:border-accent-400 transition-all duration-300 h-full flex flex-col">
+                        {/* Icon */}
+                        <div className="flex justify-center mb-4">
+                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br ${c.bg} backdrop-blur-sm border border-white/20 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}>
+                            <c.Icon className="w-6 h-6 text-white drop-shadow-sm group-hover:scale-110 transition-transform duration-300" />
+                          </div>
+                        </div>
+
+                        {/* Category Name */}
+                        <h3 className="font-bold text-sm sm:text-base text-accent-500 dark:text-dark-text-primary text-center mb-2 group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
+                          {c.name}
+                        </h3>
+
+                        {/* Template Count */}
+                        <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary text-center mb-4">
+                          {c.count} قالب
+                        </p>
+
+                      </div>
+                    </Link>
+                  );
+                })
+            )}
           </div>
         </div>
       </section>

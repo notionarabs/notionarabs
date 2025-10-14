@@ -230,7 +230,7 @@ export default function CreatorTemplatesPage() {
                   {/* Image */}
                   <div className="w-full sm:w-32 md:w-48 h-48 sm:h-24 md:h-32 rounded-lg overflow-hidden bg-gray-100 dark:bg-dark-tertiary flex-shrink-0">
                     {template.previewImage ? (
-                      <Image src={template.previewImage} alt={template.title} width={192} height={128} className="w-full h-full object-cover" />
+                      <Image src={template.previewImage} alt={template.title} width={192} height={128} className="w-full h-full object-cover object-[50%_30%]" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-dark-text-tertiary">🖼️</div>
                     )}

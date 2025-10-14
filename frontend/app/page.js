@@ -370,7 +370,7 @@ export default function HomePage() {
               // Loading skeleton
               [...Array(6)].map((_, idx) => (
                 <div key={idx} className="card-interactive overflow-hidden animate-pulse">
-                  <div className="h-32 sm:h-40 md:h-48 bg-gray-200 dark:bg-gray-700"></div>
+                  <div className="h-40 bg-gray-200 dark:bg-gray-700"></div>
                   <div className="p-4 sm:p-6">
                     <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
                     <div className="h-2 sm:h-3 bg-gray-200 dark:bg-gray-700 rounded mb-3 w-3/4"></div>
@@ -387,14 +387,14 @@ export default function HomePage() {
                 <Link key={t._id || idx} href={`/templates/${t.slug || t._id}`}>
                   <div className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
                     {/* Template Image */}
-                    <div className="relative overflow-hidden rounded-lg h-48">
+                    <div className="relative overflow-hidden rounded-lg h-40">
                       {t.previewImage ? (
                         <Image
                           src={t.previewImage}
                           alt={t.title}
                           width={400}
                           height={300}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover object-[50%_30%]"
                           priority={idx < 3}
                           loading={idx < 3 ? 'eager' : 'lazy'}
                           quality={85}

@@ -85,7 +85,7 @@ export default function PublicProfilePage() {
 
       // Fetch creator's templates
       try {
-        const templatesResponse = await api.get(`/templates?creator=${response.data.creator.id}&limit=6`);
+        const templatesResponse = await api.get(`/templates?creator=${response.data.creator.id}&limit=1000`);
         if (templatesResponse.data.success) {
           setCreatorTemplates(templatesResponse.data.templates);
         }
@@ -577,14 +577,14 @@ export default function PublicProfilePage() {
               {creatorTemplates.map((template) => (
                 <Link key={template._id || template.id} href={`/templates/${template.slug || template._id || template.id}`}>
                   <div className="card-interactive overflow-hidden">
-                    <div className="relative h-40 sm:h-48 bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-lg">
+                    <div className="relative h-48 bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-lg">
                       {template.previewImage ? (
                         <Image
                           src={template.previewImage}
                           alt={template.title}
                           width={400}
                           height={300}
-                          className="w-full h-full object-cover bg-white dark:bg-dark-secondary group-hover:scale-105 transition-transform duration-500"
+                          className="w-full h-full object-cover object-[50%_50%] bg-white dark:bg-dark-secondary group-hover:scale-105 transition-transform duration-500"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30">

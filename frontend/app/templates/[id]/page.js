@@ -1310,13 +1310,13 @@ export default function TemplateDetailPage() {
               {relatedTemplates.map((relatedTemplate) => (
                 <div key={relatedTemplate._id || relatedTemplate.id} className="bg-white dark:bg-dark-primary rounded-xl shadow-medium dark:shadow-dark-medium overflow-hidden transition-all duration-200 hover:shadow-large dark:hover:shadow-dark-large hover:-translate-y-1">
                   <Link href={`/templates/${relatedTemplate.slug || relatedTemplate._id || relatedTemplate.id}`}>
-                    <div className="relative h-40 sm:h-48 bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-lg">
+                    <div className="relative h-48 bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-lg">
                       <Image
                         src={relatedTemplate.previewImage || relatedTemplate.imgSrc || '/placeholder-template.jpg'}
                         alt={relatedTemplate.title}
                         width={400}
                         height={300}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover object-[50%_85%]"
                         quality={100}
                       />
                     </div>

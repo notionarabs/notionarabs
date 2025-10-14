@@ -287,7 +287,7 @@ function TemplatesPageContent() {
                           alt={template.title}
                           width={400}
                           height={300}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover object-[50%_30%]"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-700">

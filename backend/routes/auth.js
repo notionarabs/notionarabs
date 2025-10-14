@@ -296,7 +296,7 @@ router.post('/signup', [
                     <!-- Header -->
                     <tr>
                       <td style="padding: 40px; text-align: center; background-color: #f5631e; border-radius: 12px 12px 0 0;">
-                        <img src="https://www.notionarabs.com/notionarabsemailimage.png" alt="عرب نوشن" style="height: 40px; width: auto;" />
+                        <img src="https://www.notionarabs.com/favicon.png" alt="عرب نوشن" style="height: 60px; width: auto;" />
                         <h1 style="color: #ffffff; margin: 20px 0 10px; font-size: 24px; font-weight: 700;">مرحباً ${name}!</h1>
                         <p style="color: #ffffff; margin: 0; font-size: 16px;">شكراً لانضمامك إلى عرب نوشن</p>
                       </td>
@@ -1022,7 +1022,7 @@ router.post('/forgot-password', [
                     <!-- Header -->
                     <tr>
                       <td style="padding: 40px; text-align: center; background-color: #f5631e; border-radius: 12px 12px 0 0;">
-                        <img src="https://www.notionarabs.com/notionarabsemailimage.png" alt="عرب نوشن" style="height: 40px; width: auto;" />
+                        <img src="https://www.notionarabs.com/apple-touch-icon.png" alt="عرب نوشن" style="height: 60px; width: auto;" />
                         <h1 style="color: #ffffff; margin: 20px 0 10px; font-size: 24px; font-weight: 700;">إعادة تعيين كلمة المرور</h1>
                         <p style="color: #ffffff; margin: 0; font-size: 16px;">أمانك هو أولويتنا</p>
                       </td>
@@ -1610,7 +1610,7 @@ router.post('/resend-verification', [
                     <!-- Header -->
                     <tr>
                       <td style="padding: 40px; text-align: center; background-color: #f5631e; border-radius: 12px 12px 0 0;">
-                        <img src="https://www.notionarabs.com/notionarabsemailimage.png" alt="عرب نوشن" style="height: 40px; width: auto;" />
+                        <img src="https://www.notionarabs.com/apple-touch-icon.png" alt="عرب نوشن" style="height: 60px; width: auto;" />
                         <h1 style="color: #ffffff; margin: 20px 0 10px; font-size: 24px; font-weight: 700;">تأكيد البريد الإلكتروني</h1>
                         <p style="color: #ffffff; margin: 0; font-size: 16px;">رابط جديد لتأكيد حسابك</p>
                       </td>

@@ -11,7 +11,6 @@ import { OrganizationSchema, WebsiteSchema } from '../components/StructuredData'
 import { GoogleAnalytics, HreflangLinks, TwitterCardMeta } from '../components/SEOOptimizations'
 import { QueryProvider } from '../components/QueryProvider'
 import MaintenanceMode from '../components/MaintenanceMode'
-import CookieBanner from '../components/CookieBanner'
 
 import { generateMetadata as generateBaseMetadata } from '../lib/seo'
 
@@ -133,7 +132,6 @@ export default function RootLayout({ children }) {
                     <NavigationHandler />
                     <LoadingIndicator />
                     {children}
-                    <CookieBanner />
                   </ToastProvider>
                 </AuthProvider>
               </MaintenanceProvider>

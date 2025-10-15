@@ -39,7 +39,7 @@ export function generateMetadata({
   const fullTitle = title ? `${title} | ${siteConfig.name}` : siteConfig.title;
   const fullDescription = description || siteConfig.description;
   const fullKeywords = [...siteConfig.keywords, ...keywords].join(', ');
-  const fullImage = image || `${siteConfig.url}${siteConfig.ogImage}`;
+  const fullImage = image || `${siteConfig.url}/og-image.png`;
   const fullUrl = url ? `${siteConfig.url}${url}` : siteConfig.url;
 
   const metadata = {
@@ -130,17 +130,14 @@ export function generateTemplateMetadata(template) {
     'عربي'
   ];
 
-  // Ensure image URL is absolute
-  let imageUrl = template.previewImage;
-  if (imageUrl && !imageUrl.startsWith('http')) {
-    imageUrl = `${siteConfig.url}${imageUrl}`;
-  }
+  // Use dynamic OG image for templates
+  const dynamicOgImage = `${siteConfig.url}/templates/${template.slug || template._id}/og-image`;
 
   return generateMetadata({
     title,
     description,
     keywords,
-    image: imageUrl || `${siteConfig.url}${siteConfig.ogImage}`,
+    image: dynamicOgImage,
     url: `/templates/${template.slug || template._id}`,
     type: 'article',
     publishedTime: template.createdAt,
@@ -166,17 +163,14 @@ export function generateBlogMetadata(blog) {
     'إنتاجية'
   ];
 
-  // Ensure image URL is absolute
-  let imageUrl = blog.featuredImage;
-  if (imageUrl && !imageUrl.startsWith('http')) {
-    imageUrl = `${siteConfig.url}${imageUrl}`;
-  }
+  // Use dynamic OG image for blogs
+  const dynamicOgImage = `${siteConfig.url}/blog/${blog.slug}/og-image`;
 
   return generateMetadata({
     title,
     description,
     keywords,
-    image: imageUrl || `${siteConfig.url}${siteConfig.ogImage}`,
+    image: dynamicOgImage,
     url: `/blog/${blog.slug}`,
     type: 'article',
     publishedTime: blog.publishedAt,
@@ -357,10 +351,14 @@ export function generateCategoryMetadata(category, count = 0) {
 
   const categorySlug = categorySlugMap[category] || category.toLowerCase().replace(/\s+/g, '-');
 
+  // Use dynamic OG image for categories
+  const dynamicOgImage = `${siteConfig.url}/categories/${encodeURIComponent(category)}/og-image`;
+
   return generateMetadata({
     title,
     description,
     keywords,
+    image: dynamicOgImage,
     url: `/categories/${categorySlug}`,
   });
 }

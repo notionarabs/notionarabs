@@ -23,6 +23,15 @@ export const siteConfig = {
   currencySymbol: 'ر.س'
 };
 
+// Utility function to add cache-busting parameter to image URLs
+function addCacheBuster(imageUrl, timestamp) {
+  if (!imageUrl) return imageUrl;
+  
+  const cacheBuster = timestamp || Date.now();
+  const separator = imageUrl.includes('?') ? '&' : '?';
+  return `${imageUrl}${separator}v=${cacheBuster}`;
+}
+
 export function generateMetadata({
   title,
   description,
@@ -130,10 +139,15 @@ export function generateTemplateMetadata(template) {
     'عربي'
   ];
 
-  // Ensure image URL is absolute for templates
+  // Ensure image URL is absolute for templates and add cache-busting
   let imageUrl = template.previewImage;
   if (imageUrl && !imageUrl.startsWith('http')) {
     imageUrl = `${siteConfig.url}${imageUrl}`;
+  }
+
+  // Add cache-busting parameter to force social media refresh when template is updated
+  if (imageUrl) {
+    imageUrl = addCacheBuster(imageUrl, template.updatedAt || template._id);
   }
 
   return generateMetadata({
@@ -166,10 +180,22 @@ export function generateBlogMetadata(blog) {
     'إنتاجية'
   ];
 
+  // Ensure image URL is absolute for blogs and add cache-busting
+  let imageUrl = blog.featuredImage;
+  if (imageUrl && !imageUrl.startsWith('http')) {
+    imageUrl = `${siteConfig.url}${imageUrl}`;
+  }
+
+  // Add cache-busting parameter to force social media refresh when blog is updated
+  if (imageUrl) {
+    imageUrl = addCacheBuster(imageUrl, blog.updatedAt || blog._id);
+  }
+
   return generateMetadata({
     title,
     description,
     keywords,
+    image: imageUrl || `${siteConfig.url}${siteConfig.ogImage}`,
     url: `/blog/${blog.slug}`,
     type: 'article',
     publishedTime: blog.publishedAt,
@@ -195,10 +221,15 @@ export function generateCreatorMetadata(creator) {
     creator.specialty || creator.bio?.split(' ').slice(0, 3).join(' ')
   ].filter(Boolean);
 
-  // Ensure image URL is absolute for creators
+  // Ensure image URL is absolute for creators and add cache-busting
   let imageUrl = creator.profilePicture;
   if (imageUrl && !imageUrl.startsWith('http')) {
     imageUrl = `${siteConfig.url}${imageUrl}`;
+  }
+
+  // Add cache-busting parameter to force social media refresh when profile is updated
+  if (imageUrl) {
+    imageUrl = addCacheBuster(imageUrl, creator.updatedAt || creator._id);
   }
 
   return generateMetadata({

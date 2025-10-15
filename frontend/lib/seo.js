@@ -130,14 +130,17 @@ export function generateTemplateMetadata(template) {
     'عربي'
   ];
 
-  // Use dynamic OG image for templates
-  const dynamicOgImage = `${siteConfig.url}/templates/${template.slug || template._id}/og-image`;
+  // Ensure image URL is absolute for templates
+  let imageUrl = template.previewImage;
+  if (imageUrl && !imageUrl.startsWith('http')) {
+    imageUrl = `${siteConfig.url}${imageUrl}`;
+  }
 
   return generateMetadata({
     title,
     description,
     keywords,
-    image: dynamicOgImage,
+    image: imageUrl || `${siteConfig.url}${siteConfig.ogImage}`,
     url: `/templates/${template.slug || template._id}`,
     type: 'article',
     publishedTime: template.createdAt,
@@ -163,14 +166,10 @@ export function generateBlogMetadata(blog) {
     'إنتاجية'
   ];
 
-  // Use dynamic OG image for blogs
-  const dynamicOgImage = `${siteConfig.url}/blog/${blog.slug}/og-image`;
-
   return generateMetadata({
     title,
     description,
     keywords,
-    image: dynamicOgImage,
     url: `/blog/${blog.slug}`,
     type: 'article',
     publishedTime: blog.publishedAt,
@@ -196,14 +195,17 @@ export function generateCreatorMetadata(creator) {
     creator.specialty || creator.bio?.split(' ').slice(0, 3).join(' ')
   ].filter(Boolean);
 
-  // Use dynamic OG image for creators
-  const dynamicOgImage = `${siteConfig.url}/creators/${creator.username || creator._id}/og-image`;
+  // Ensure image URL is absolute for creators
+  let imageUrl = creator.profilePicture;
+  if (imageUrl && !imageUrl.startsWith('http')) {
+    imageUrl = `${siteConfig.url}${imageUrl}`;
+  }
 
   return generateMetadata({
     title,
     description,
     keywords,
-    image: dynamicOgImage,
+    image: imageUrl || `${siteConfig.url}${siteConfig.ogImage}`,
     url: `/creators/${creator.username || creator._id}`,
     type: 'profile',
   });
@@ -351,14 +353,10 @@ export function generateCategoryMetadata(category, count = 0) {
 
   const categorySlug = categorySlugMap[category] || category.toLowerCase().replace(/\s+/g, '-');
 
-  // Use dynamic OG image for categories
-  const dynamicOgImage = `${siteConfig.url}/categories/${encodeURIComponent(category)}/og-image`;
-
   return generateMetadata({
     title,
     description,
     keywords,
-    image: dynamicOgImage,
     url: `/categories/${categorySlug}`,
   });
 }

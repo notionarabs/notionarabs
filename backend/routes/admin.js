@@ -31,12 +31,24 @@ const createTransporter = () => {
           },
           body: JSON.stringify({
             sender: {
+              name: 'عرب نوشن',
               email: process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL
             },
             to: [{ email: mailOptions.to }],
             subject: mailOptions.subject,
             htmlContent: mailOptions.html,
-            textContent: mailOptions.text
+            textContent: mailOptions.text,
+            headers: {
+              'List-Unsubscribe': '<https://www.notionarabs.com/unsubscribe?email=' + encodeURIComponent(mailOptions.to) + '>',
+              'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+              'X-Mailer': 'NotionArabs Platform',
+              'X-Priority': '3',
+              'Precedence': 'bulk',
+              'Reply-To': process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL,
+              'Return-Path': process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL,
+              'Message-ID': `<${Date.now()}-${Math.random().toString(36).substr(2, 9)}@notionarabs.com>`
+            },
+            tags: ['newsletter', 'notionarabs', 'arabic']
           })
         });
 
@@ -1349,13 +1361,267 @@ router.post('/send-bulk-emails', auth, async (req, res) => {
 
         console.log(`Processing batch ${Math.floor(i / batchSize) + 1} of ${Math.ceil(validEmails.length / batchSize)} (${batch.length} emails)`);
 
-        const sendPromises = batch.map(email => {
+        const sendPromises = batch.map(async email => {
+          // Check if user has unsubscribed from emails
+          const user = await User.findOne({ email: email.toLowerCase().trim() });
+          if (user && !user.emailNotifications) {
+            console.log(`⚠️ Skipping ${email} - user has unsubscribed`);
+            return { status: 'skipped', reason: 'unsubscribed', email };
+          }
+          // Create HTML email template with logo
+          const htmlContent = `
+            <!DOCTYPE html>
+            <html dir="rtl" lang="ar">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+              <style>
+                body {
+                  font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                  background-color: #fafafa;
+                  margin: 0;
+                  padding: 0;
+                  direction: rtl;
+                }
+                .email-container {
+                  max-width: 600px;
+                  margin: 20px auto;
+                  background-color: #ffffff;
+                  border-radius: 16px;
+                  overflow: hidden;
+                  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
+                }
+                .email-header {
+                  background: linear-gradient(135deg, #132859 0%, #1e3a8a 100%);
+                  padding: 40px 20px;
+                  text-align: center;
+                  position: relative;
+                }
+                .email-header::after {
+                  content: '';
+                  position: absolute;
+                  bottom: 0;
+                  left: 0;
+                  right: 0;
+                  height: 4px;
+                  background: linear-gradient(90deg, #0f172a, #1e293b, #334155, #1e293b, #0f172a);
+                  background-size: 200% 100%;
+                }
+                .email-logo {
+                  width: 90px;
+                  height: 90px;
+                  margin: 0 auto 20px;
+                  box-shadow: 0 8px 16px rgba(19, 40, 89, 0.4);
+                }
+                .email-logo img {
+                  width: 100%;
+                  height: 100%;
+                  object-fit: contain;
+                }
+                .email-title {
+                  color: #ffffff;
+                  font-size: 28px;
+                  font-weight: bold;
+                  margin: 0;
+                  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                }
+                .email-body {
+                  padding: 40px 30px;
+                  line-height: 1.9;
+                  color: #132859;
+                  font-size: 16px;
+                  background-color: #ffffff;
+                }
+                .email-footer {
+                  background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);
+                  padding: 30px 20px;
+                  text-align: center;
+                  color: #5f6368;
+                  font-size: 14px;
+                  border-top: 2px solid #fdeee0;
+                }
+                .email-footer p {
+                  margin: 8px 0;
+                }
+                .footer-signature {
+                  color: #132859;
+                  font-weight: 700;
+                  font-size: 18px;
+                  margin: 15px 0 5px;
+                }
+                .footer-tagline {
+                  color: #f5631e;
+                  font-weight: 600;
+                  font-size: 14px;
+                  margin: 5px 0 20px;
+                }
+                .social-links {
+                  margin-top: 20px;
+                }
+                .social-links a {
+                  display: inline-block;
+                  margin: 0 8px;
+                  padding: 10px 20px;
+                  background-color: #ffffff;
+                  border: 2px solid #f5631e;
+                  color: #f5631e;
+                  text-decoration: none;
+                  border-radius: 8px;
+                  font-weight: 600;
+                  font-size: 13px;
+                  transition: all 0.3s ease;
+                }
+                .social-links a:hover {
+                  background-color: #f5631e;
+                  color: #ffffff;
+                }
+                @media only screen and (max-width: 600px) {
+                  .email-container {
+                    margin: 10px;
+                    border-radius: 12px;
+                  }
+                  .email-body {
+                    padding: 25px 20px;
+                  }
+                  .email-title {
+                    font-size: 24px;
+                  }
+                  .social-links a {
+                    margin: 5px;
+                    padding: 8px 15px;
+                    font-size: 12px;
+                  }
+                }
+              </style>
+            </head>
+            <body>
+              <div class="email-container">
+                <div class="email-header">
+                  <div class="email-logo">
+                    <img src="https://www.notionarabs.com/favicon.png" alt="عرب نوشن">
+                  </div>
+                  <h1 class="email-title">عرب نوشن</h1>
+                </div>
+                <div class="email-body">
+                  <div style="text-align: right; margin-bottom: 30px;">
+                    <h2 style="font-size: 26px; color: #132859; margin-bottom: 12px; font-weight: 700;">مرحبًا بك</h2>
+                    <p style="font-size: 17px; color: #5f6368; margin: 0; line-height: 1.6;">نسعد بمشاركتك خبرًا مميزًا</p>
+                  </div>
+                  
+                  <div style="background: linear-gradient(135deg, #132859 0%, #1e3a8a 100%); border-radius: 12px; padding: 30px; margin: 25px 0; text-align: center; box-shadow: 0 4px 15px rgba(19, 40, 89, 0.15);">
+                    <p style="font-size: 18px; font-weight: 700; color: #ffffff; margin-bottom: 10px; line-height: 1.6;">انطلقت رسميًا منصة</p>
+                    <p style="font-size: 32px; font-weight: 900; color: #f5631e; margin: 10px 0; text-shadow: 0 2px 8px rgba(245, 99, 30, 0.3);">عرب نوشن</p>
+                    <p style="font-size: 16px; color: #e2e8f0; margin-top: 10px; line-height: 1.6;">أول وأكبر منصة عربية مخصصة لعالم نوشن</p>
+                  </div>
+                  
+                  <h3 style="margin: 35px 0 20px 0; font-weight: 700; color: #132859; font-size: 20px; text-align: right; border-right: 4px solid #f5631e; padding-right: 15px;">ما الذي يميز عرب نوشن؟</h3>
+                  
+                   <div style="display: flex; flex-direction: column; gap: 20px; margin: 30px 0;">
+                     <!-- Feature 1 -->
+                     <div style="background: linear-gradient(135deg, #ffffff 0%, #fef7f0 100%); border-radius: 16px; padding: 25px; box-shadow: 0 4px 20px rgba(245, 99, 30, 0.1); border: 1px solid #fdeee0;">
+                       <div style="text-align: center; margin-bottom: 20px; display: flex; justify-content: center; align-items: center;">
+                         <div style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; background: linear-gradient(135deg, #f5631e, #e55a1b); border-radius: 50%; font-size: 28px; color: white; box-shadow: 0 6px 16px rgba(245, 99, 30, 0.3);">📖</div>
+                       </div>
+                       <h4 style="color: #132859; font-size: 18px; font-weight: 700; margin: 0 0 8px 0; text-align: center;">تعلّم وطوّر مهاراتك</h4>
+                       <p style="color: #5f6368; font-size: 15px; line-height: 1.6; margin: 0; text-align: center;">قوالب تعليمية تفاعلية في مختلف المجالات</p>
+                     </div>
+                     
+                     <!-- Feature 2 -->
+                     <div style="background: linear-gradient(135deg, #ffffff 0%, #fef7f0 100%); border-radius: 16px; padding: 25px; box-shadow: 0 4px 20px rgba(245, 99, 30, 0.1); border: 1px solid #fdeee0;">
+                       <div style="text-align: center; margin-bottom: 20px; display: flex; justify-content: center; align-items: center;">
+                         <div style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; background: linear-gradient(135deg, #f5631e, #e55a1b); border-radius: 50%; font-size: 28px; color: white; box-shadow: 0 6px 16px rgba(245, 99, 30, 0.3);">⚡</div>
+                       </div>
+                       <h4 style="color: #132859; font-size: 18px; font-weight: 700; margin: 0 0 8px 0; text-align: center;">اكتشف قوالب جاهزة</h4>
+                       <p style="color: #5f6368; font-size: 15px; line-height: 1.6; margin: 0; text-align: center;">نظّم حياتك وعملك بسهولة وفعالية</p>
+                     </div>
+                     
+                     <!-- Feature 3 -->
+                     <div style="background: linear-gradient(135deg, #ffffff 0%, #fef7f0 100%); border-radius: 16px; padding: 25px; box-shadow: 0 4px 20px rgba(245, 99, 30, 0.1); border: 1px solid #fdeee0;">
+                       <div style="text-align: center; margin-bottom: 20px; display: flex; justify-content: center; align-items: center;">
+                         <div style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; background: linear-gradient(135deg, #f5631e, #e55a1b); border-radius: 50%; font-size: 28px; color: white; box-shadow: 0 6px 16px rgba(245, 99, 30, 0.3);">👥</div>
+                       </div>
+                       <h4 style="color: #132859; font-size: 18px; font-weight: 700; margin: 0 0 8px 0; text-align: center;">انضم للمجتمع</h4>
+                       <p style="color: #5f6368; font-size: 15px; line-height: 1.6; margin: 0; text-align: center;">تواصل مع المبدعين العرب وشارك خبرتك</p>
+                     </div>
+                   </div>
+                  
+                  <div style="background: linear-gradient(135deg, #fef7f0 0%, #fff8f0 100%); border-radius: 20px; padding: 35px; margin: 35px 0; text-align: center; box-shadow: 0 8px 25px rgba(245, 99, 30, 0.1); border: 2px solid #fdeee0; position: relative;">
+                    <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #f5631e, #e55a1b); border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; box-shadow: 0 4px 12px rgba(245, 99, 30, 0.3);">💡</div>
+                    <h3 style="color: #132859; font-size: 20px; font-weight: 700; margin: 15px 0 20px 0;">رؤيتنا</h3>
+                    <p style="color: #132859; line-height: 1.8; font-size: 16px; margin: 0; font-weight: 500;">أن نكون الوجهة العربية الأولى لعشّاق نوشن<br>حيث يتحوّل كل خبير إلى معلّم، وكل فكرة إلى قالب حيّ</p>
+                  </div>
+                  
+                  <div style="text-align: center; margin: 45px 0; padding: 30px; background: linear-gradient(135deg, #fef7f0 0%, #ffffff 100%); border-radius: 20px; box-shadow: 0 6px 20px rgba(245, 99, 30, 0.08);">
+                    <div style="margin-bottom: 25px;">
+                      <p style="font-size: 20px; font-weight: 700; color: #132859; margin: 0 0 8px 0;">ابدأ رحلتك معنا الآن</p>
+                      <p style="font-size: 15px; color: #5f6368; margin: 0;">واكتشف عالمًا جديدًا من الإبداع والتنظيم</p>
+                    </div>
+                    <a href="https://www.notionarabs.com" style="display: inline-block; padding: 20px 50px; background: linear-gradient(135deg, #f5631e 0%, #e55a1b 100%); color: #ffffff !important; text-decoration: none; border-radius: 15px; font-weight: 700; font-size: 18px; box-shadow: 0 10px 30px rgba(245, 99, 30, 0.4); transition: all 0.3s ease; position: relative; overflow: hidden;">
+                      <span style="position: relative; z-index: 1;">استكشف عرب نوشن الآن →</span>
+                    </a>
+                    <p style="margin-top: 20px; color: #80868b; font-size: 14px; font-weight: 500;">اكتشف كيف يمكن لقالب واحد أن يغيّر طريقة عملك بالكامل</p>
+                  </div>
+                </div>
+                <div class="email-footer">
+                  <p class="footer-signature">تحيات فريق<br>عرب نوشن</p>
+                  <p class="footer-tagline">"شارك. تعلّم. ابتكر."</p>
+                   <div style="margin: 30px 0; text-align: center;">
+                     <p style="color: #132859; font-size: 16px; font-weight: 600; margin-bottom: 20px;">تواصل معنا</p>
+                     <div style="display: flex; justify-content: center; gap: 15px; align-items: center;">
+                       <a href="https://www.notionarabs.com" style="display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; background: linear-gradient(135deg, #f5631e, #e55a1b); border-radius: 12px; text-decoration: none; color: white; font-size: 22px; box-shadow: 0 4px 12px rgba(245, 99, 30, 0.3); transition: all 0.3s ease;">🌐</a>
+                       <a href="https://t.me/notionarabs" style="display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; background: linear-gradient(135deg, #0088cc, #0066aa); border-radius: 12px; text-decoration: none; color: white; font-size: 22px; box-shadow: 0 4px 12px rgba(0, 136, 204, 0.3); transition: all 0.3s ease;">✈️</a>
+                       <a href="https://twitter.com/notionarabs" style="display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; background: linear-gradient(135deg, #1da1f2, #0d7bb8); border-radius: 12px; text-decoration: none; color: white; font-size: 22px; box-shadow: 0 4px 12px rgba(29, 161, 242, 0.3); transition: all 0.3s ease;">𝕏</a>
+                     </div>
+                   </div>
+                  <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center;">
+                    <p style="color: #94a3b8; font-size: 12px; margin: 0 0 10px 0;">© 2025 عرب نوشن. جميع الحقوق محفوظة.</p>
+                    <p style="color: #94a3b8; font-size: 11px; margin: 0;">
+                      <a href="https://www.notionarabs.com/unsubscribe?email=${encodeURIComponent(email)}" style="color: #94a3b8; text-decoration: underline;">إلغاء الاشتراك</a> 
+                      | 
+                      <a href="https://www.notionarabs.com/privacy" style="color: #94a3b8; text-decoration: underline;">سياسة الخصوصية</a>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </body>
+            </html>
+          `;
+
+          // Create text version of the email
+          const textContent = `
+عرب نوشن - منصة المبدعين العرب في عالم نوشن
+
+مرحباً!
+
+نحن سعداء بمشاركتك خبر انطلاق منصة عرب نوشن - أول وأكبر منصة عربية مخصصة لعالم نوشن.
+
+ما الذي يميز عرب نوشن؟
+• تعلّم وطوّر مهاراتك من خلال قوالب تعليمية تفاعلية
+• اكتشف قوالب جاهزة تساعدك على تنظيم حياتك وعملك
+• انضم لمجتمع المبدعين العرب وشارك خبرتك
+
+رؤيتنا: أن نكون الوجهة العربية الأولى لعشّاق نوشن حيث يتحوّل كل خبير إلى معلّم، وكل فكرة إلى قالب حيّ.
+
+ابدأ رحلتك معنا الآن: https://www.notionarabs.com
+
+تواصل معنا:
+الموقع: https://www.notionarabs.com
+تليجرام: https://t.me/notionarabs
+تويتر: https://twitter.com/notionarabs
+
+تحيات فريق عرب نوشن
+"شارك. تعلّم. ابتكر."
+
+إذا كنت لا ترغب في تلقي هذه الرسائل، يمكنك إلغاء الاشتراك هنا: https://www.notionarabs.com/unsubscribe?email=${encodeURIComponent(email)}
+          `.trim();
+
           return transporter.sendMail({
-            from: `"فريق عرب نوشن" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
+            from: `"عرب نوشن" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
             to: email,
             subject: subject,
-            html: message.replace(/\n/g, '<br>'),
-            text: message
+            html: htmlContent,
+            text: textContent
           });
         });
 

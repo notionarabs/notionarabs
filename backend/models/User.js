@@ -59,6 +59,14 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false // Changed to false - accounts are inactive until email verified
   },
+  emailNotifications: {
+    type: Boolean,
+    default: true // Default to true - users receive emails unless they unsubscribe
+  },
+  unsubscribeDate: {
+    type: Date,
+    default: null
+  },
   profilePicture: {
     type: String,
     default: null

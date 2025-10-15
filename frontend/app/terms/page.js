@@ -1,34 +1,18 @@
-'use client';
-
-import { useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatCurrentDate } from '../../lib/dateUtils';
-import { Youtube, Facebook, Send, X, Users } from 'lucide-react';
+import { Youtube, Facebook, Send, Users } from 'lucide-react';
+
+export const metadata = {
+  title: 'شروط الاستخدام | عرب نوشن',
+  description:
+    'شروط وأحكام استخدام منصة عرب نوشن - قم بقراءة الشروط قبل استخدام المنصة',
+  alternates: {
+    canonical: 'https://www.notionarabs.com/terms',
+  },
+};
 
 export default function TermsPage() {
-  // Set page metadata dynamically
-  useEffect(() => {
-    document.title = 'شروط الاستخدام | عرب نوشن';
-
-    // Set canonical URL
-    const canonicalLink = document.querySelector('link[rel="canonical"]');
-    if (canonicalLink) {
-      canonicalLink.setAttribute('href', 'https://www.notionarabs.com/terms');
-    } else {
-      const newCanonical = document.createElement('link');
-      newCanonical.setAttribute('rel', 'canonical');
-      newCanonical.setAttribute('href', 'https://www.notionarabs.com/terms');
-      document.head.appendChild(newCanonical);
-    }
-
-    // Set meta description
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content', 'شروط وأحكام استخدام منصة عرب نوشن - قم بقراءة الشروط قبل استخدام المنصة');
-    }
-  }, []);
-
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
 
@@ -58,13 +42,15 @@ export default function TermsPage() {
               <section>
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">2. وصف الخدمة</h2>
                 <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary mb-3 sm:mb-4 leading-relaxed">
-                  عرب نوشن هي منصة إلكترونية تتيح للمستخدمين:
+                  عرب نوشن هي منصة إلكترونية عربية تتيح للمستخدمين:
                 </p>
                 <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary">
-                  <li>تصفح وشراء قوالب نوشن</li>
-                  <li>رفع وبيع قوالب نوشن (للمبدعين)</li>
-                  <li>الوصول إلى موارد تعليمية حول نوشن</li>
-                  <li>التفاعل مع مجتمع المستخدمين</li>
+                  <li>تصفح وتحميل قوالب نوشن مجاناً</li>
+                  <li>رفع ومشاركة قوالب نوشن (للمبدعين المعتمدين)</li>
+                  <li>الوصول إلى المدونة والمحتوى التعليمي</li>
+                  <li>التفاعل مع مجتمع المبدعين والمستخدمين</li>
+                  <li>إنشاء ملفات شخصية ومتابعة المبدعين</li>
+                  <li>تقييم القوالب وترك التعليقات</li>
                 </ul>
               </section>
 
@@ -83,13 +69,14 @@ export default function TermsPage() {
 
                 <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-dark-text-secondary">3.2 حساب المبدع</h3>
                 <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary mb-3 sm:mb-4 leading-relaxed">
-                  لرفع وبيع القوالب، تحتاج إلى:
+                  لرفع ومشاركة القوالب، تحتاج إلى:
                 </p>
                 <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary">
-                  <li>إنشاء حساب مبدع</li>
-                  <li>تقديم معلومات دفع صحيحة</li>
+                  <li>التقدم بطلب انضمام كمبدع</li>
+                  <li>تقديم معرض أعمال وخبرة مهنية</li>
                   <li>الالتزام بإرشادات جودة المحتوى</li>
                   <li>احترام حقوق الملكية الفكرية</li>
+                  <li>الحصول على موافقة إدارية</li>
                 </ul>
               </section>
 
@@ -118,7 +105,7 @@ export default function TermsPage() {
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">5. المحتوى وحقوق الملكية</h2>
                 <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-dark-text-secondary">5.1 محتوى المستخدمين</h3>
                 <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary mb-3 sm:mb-4 leading-relaxed">
-                  أنت تحتفظ بحقوق الملكية لمحتواك. عند رفع المحتوى، تمنحنا ترخيصاً غير حصري لاستخدامه وتوزيعه.
+                  أنت تحتفظ بحقوق الملكية لمحتواك. عند رفع المحتوى، تمنحنا ترخيصاً غير حصري لاستخدامه وتوزيعه على المنصة.
                 </p>
 
                 <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-dark-text-secondary">5.2 حقوق المنصة</h3>
@@ -128,23 +115,26 @@ export default function TermsPage() {
 
                 <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-dark-text-secondary">5.3 قوالب نوشن</h3>
                 <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary mb-3 sm:mb-4 leading-relaxed">
-                  القوالب المباعة على المنصة مملوكة للمبدعين. عند شراء قالب، تحصل على رخصة للاستخدام الشخصي والتجاري.
+                  جميع القوالب على المنصة مجانية ومملوكة للمبدعين. عند تحميل قالب، تحصل على رخصة للاستخدام الشخصي والتجاري.
                 </p>
               </section>
 
               <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">6. المدفوعات والاسترداد</h2>
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-dark-text-secondary">6.1 المدفوعات</h3>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">6. المحتوى والجودة</h2>
+                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-dark-text-secondary">6.1 معايير المحتوى</h3>
                 <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary mb-3 sm:mb-4 leading-relaxed">
-                  جميع المدفوعات تتم عبر قنوات آمنة. الأسعار تشمل الضرائب المطبقة.
+                  نحن نراجع جميع القوالب المرفوعة لضمان الجودة والملاءمة. نحتفظ بالحق في رفض أو إزالة أي محتوى لا يلبي معاييرنا.
                 </p>
 
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-dark-text-secondary">6.2 الاسترداد</h3>
+                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-dark-text-secondary">6.2 التقييمات والتعليقات</h3>
                 <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary mb-3 sm:mb-4 leading-relaxed">
-                  يمكن طلب استرداد خلال 30 يوماً من الشراء. الاسترداد يتم عبر نفس طريقة الدفع الأصلية.
+                  يمكن للمستخدمين تقييم القوالب وترك التعليقات. يجب أن تكون التقييمات صادقة ومفيدة. نحتفظ بالحق في إزالة التعليقات غير المناسبة.
                 </p>
 
-
+                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-dark-text-secondary">6.3 الملكية الفكرية</h3>
+                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary mb-3 sm:mb-4 leading-relaxed">
+                  يجب أن تكون جميع القوالب المرفوعة أصلية أو مرخصة للاستخدام. نحن لا نتحمل مسؤولية انتهاك حقوق الملكية الفكرية.
+                </p>
               </section>
 
               <section>
@@ -156,7 +146,8 @@ export default function TermsPage() {
                   <li>ستفقد الوصول لجميع القوالب المحملة</li>
                   <li>سيتم حذف معلوماتك الشخصية</li>
                   <li>لن تتمكن من استرداد المحتوى المحذوف</li>
-                  <li>ستستمر التزاماتك المالية حتى نهاية فترة الاشتراك</li>
+                  <li>ستفقد جميع التقييمات والتعليقات</li>
+                  <li>ستفقد متابعيك ومتابعاتك</li>
                 </ul>
               </section>
 

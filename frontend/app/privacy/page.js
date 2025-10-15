@@ -1,34 +1,18 @@
-'use client';
-
-import { useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatCurrentDate } from '../../lib/dateUtils';
-import { Youtube, Facebook, Send, X, Users } from 'lucide-react';
+import { Youtube, Facebook, Send, Users } from 'lucide-react';
+
+export const metadata = {
+  title: 'سياسة الخصوصية | عرب نوشن',
+  description:
+    'سياسة الخصوصية لمنصة عرب نوشن - تعرف على كيفية حماية بياناتك الشخصية وخصوصيتك',
+  alternates: {
+    canonical: 'https://www.notionarabs.com/privacy',
+  },
+};
 
 export default function PrivacyPage() {
-  // Set page metadata dynamically
-  useEffect(() => {
-    document.title = 'سياسة الخصوصية | عرب نوشن';
-
-    // Set canonical URL
-    const canonicalLink = document.querySelector('link[rel="canonical"]');
-    if (canonicalLink) {
-      canonicalLink.setAttribute('href', 'https://www.notionarabs.com/privacy');
-    } else {
-      const newCanonical = document.createElement('link');
-      newCanonical.setAttribute('rel', 'canonical');
-      newCanonical.setAttribute('href', 'https://www.notionarabs.com/privacy');
-      document.head.appendChild(newCanonical);
-    }
-
-    // Set meta description
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content', 'سياسة الخصوصية لمنصة عرب نوشن - تعرف على كيفية حماية بياناتك الشخصية وخصوصيتك');
-    }
-  }, []);
-
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
 
@@ -57,24 +41,38 @@ export default function PrivacyPage() {
               <section>
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">المعلومات التي نجمعها</h2>
 
-                <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-2 sm:mb-3 text-accent-500 dark:text-dark-text-primary">المعلومات الشخصية</h3>
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-2 sm:mb-3 text-accent-500 dark:text-dark-text-primary">المعلومات الشخصية الأساسية</h3>
                 <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary mb-3 sm:mb-4 leading-relaxed">
-                  نجمع المعلومات التي تقدمها لنا مباشرة، مثل:
+                  نجمع المعلومات التي تقدمها لنا مباشرة عند التسجيل، مثل:
                 </p>
                 <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary pr-4">
-                  <li className="leading-relaxed">الاسم الكامل</li>
+                  <li className="leading-relaxed">الاسم الكامل واسم المستخدم</li>
                   <li className="leading-relaxed">عنوان البريد الإلكتروني</li>
                   <li className="leading-relaxed">كلمة المرور (مشفرة)</li>
-                  <li className="leading-relaxed">معلومات الدفع (عند الاشتراك)</li>
-                  <li className="leading-relaxed">معلومات الملف الشخصي</li>
+                  <li className="leading-relaxed">صورة الملف الشخصي</li>
+                  <li className="leading-relaxed">النبذة الشخصية والسيرة الذاتية</li>
                 </ul>
 
-                <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-2 sm:mb-3 text-accent-500 dark:text-dark-text-primary">معلومات الاستخدام</h3>
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-2 sm:mb-3 text-accent-500 dark:text-dark-text-primary">معلومات المبدعين</h3>
                 <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary mb-3 sm:mb-4 leading-relaxed">
-                  نجمع معلومات حول كيفية استخدامك للمنصة، مثل:
+                  عند التقدم لتصبح مبدعاً، نجمع معلومات إضافية:
+                </p>
+                <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary pr-4">
+                  <li className="leading-relaxed">معرض الأعمال والملف المهني</li>
+                  <li className="leading-relaxed">الخبرة والمجالات المتخصصة</li>
+                  <li className="leading-relaxed">روابط وسائل التواصل الاجتماعي</li>
+                  <li className="leading-relaxed">رقم الهاتف (اختياري)</li>
+                  <li className="leading-relaxed">الدوافع والاهتمامات</li>
+                </ul>
+
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-2 sm:mb-3 text-accent-500 dark:text-dark-text-primary">معلومات الاستخدام والتفاعل</h3>
+                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary mb-3 sm:mb-4 leading-relaxed">
+                  نجمع معلومات حول كيفية استخدامك للمنصة:
                 </p>
                 <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary pr-4">
                   <li className="leading-relaxed">القوالب التي تتصفحها وتحمّلها</li>
+                  <li className="leading-relaxed">التقييمات والتعليقات التي تتركها</li>
+                  <li className="leading-relaxed">المبدعين الذين تتابعهم</li>
                   <li className="leading-relaxed">وقت ومدة استخدامك للمنصة</li>
                   <li className="leading-relaxed">معلومات الجهاز والمتصفح</li>
                   <li className="leading-relaxed">عنوان IP والموقع الجغرافي</li>
@@ -87,11 +85,12 @@ export default function PrivacyPage() {
                   نستخدم معلوماتك للأغراض التالية:
                 </p>
                 <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary pr-4">
-                  <li className="leading-relaxed">تقديم وتحسين خدماتنا</li>
-                  <li className="leading-relaxed">معالجة المدفوعات والاشتراكات</li>
+                  <li className="leading-relaxed">تقديم وتحسين خدمات المنصة (تصفح القوالب، الملفات الشخصية، المدونة)</li>
+                  <li className="leading-relaxed">معالجة طلبات الانضمام كمبدع ومراجعة المحتوى</li>
+                  <li className="leading-relaxed">إدارة نظام المتابعة والتقييمات</li>
                   <li className="leading-relaxed">التواصل معك حول حسابك وخدماتنا</li>
-                  <li className="leading-relaxed">إرسال التحديثات والإشعارات</li>
-                  <li className="leading-relaxed">تحليل استخدام المنصة لتحسينها</li>
+                  <li className="leading-relaxed">إرسال التحديثات والإشعارات (يمكن إلغاؤها في أي وقت)</li>
+                  <li className="leading-relaxed">تحليل استخدام المنصة لتحسينها وتطوير ميزات جديدة</li>
                   <li className="leading-relaxed">منع الاحتيال وإساءة الاستخدام</li>
                   <li className="leading-relaxed">الامتثال للقوانين واللوائح</li>
                 </ul>
@@ -144,13 +143,17 @@ export default function PrivacyPage() {
                   لديك الحقوق التالية فيما يتعلق بمعلوماتك الشخصية:
                 </p>
                 <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary pr-4">
-                  <li className="leading-relaxed">الوصول إلى معلوماتك الشخصية</li>
-                  <li className="leading-relaxed">تصحيح المعلومات غير الصحيحة</li>
-                  <li className="leading-relaxed">حذف معلوماتك الشخصية</li>
-                  <li className="leading-relaxed">تقييد معالجة معلوماتك</li>
-                  <li className="leading-relaxed">نقل معلوماتك إلى خدمة أخرى</li>
-                  <li className="leading-relaxed">الاعتراض على معالجة معلوماتك</li>
+                  <li className="leading-relaxed">الوصول إلى معلوماتك الشخصية وتحميلها</li>
+                  <li className="leading-relaxed">تصحيح أو تحديث المعلومات غير الصحيحة</li>
+                  <li className="leading-relaxed">حذف حسابك ومعلوماتك الشخصية</li>
+                  <li className="leading-relaxed">تقييد معالجة معلوماتك أو الاعتراض عليها</li>
+                  <li className="leading-relaxed">نقل معلوماتك إلى خدمة أخرى (قابلية النقل)</li>
+                  <li className="leading-relaxed">إلغاء الاشتراك في الإشعارات الإلكترونية</li>
+                  <li className="leading-relaxed">سحب الموافقة على معالجة البيانات في أي وقت</li>
                 </ul>
+                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary mb-3 sm:mb-4 leading-relaxed">
+                  يمكنك ممارسة هذه الحقوق من خلال إعدادات حسابك أو بالتواصل معنا مباشرة.
+                </p>
               </section>
 
               <section>

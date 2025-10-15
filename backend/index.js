@@ -127,6 +127,7 @@ const commentRoutes = require('./routes/comments');
 const notificationRoutes = require('./routes/notifications');
 const healthRoutes = require('./routes/health');
 const statsRoutes = require('./routes/stats');
+const unsubscribeRoutes = require('./routes/unsubscribe');
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/settings', adminRoutes); // Public settings endpoint
@@ -141,6 +142,7 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/health', healthRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/unsubscribe', unsubscribeRoutes);
 
 // Basic route
 app.get('/', (req, res) => {

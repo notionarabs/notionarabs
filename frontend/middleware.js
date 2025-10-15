@@ -33,7 +33,11 @@ export function middleware(request) {
   const isDynamicPublicRoute =
     (pathname.match(/^\/templates\/[^\/]+$/) && pathname !== '/templates/create') || // /templates/[id] but not /templates/create
     (pathname.match(/^\/blog\/[^\/]+$/) && !pathname.startsWith('/blog/create') && !pathname.startsWith('/blog/edit/')) || // /blog/[id] but not /blog/create or /blog/edit/[id]
-    pathname.match(/^\/creators\/[^\/]+$/); // /creators/[username] - public creator profiles
+    pathname.match(/^\/creators\/[^\/]+$/) || // /creators/[username] - public creator profiles
+    pathname.match(/^\/templates\/[^\/]+\/og-image$/) || // /templates/[id]/og-image - OG images for templates
+    pathname.match(/^\/creators\/[^\/]+\/og-image$/) || // /creators/[username]/og-image - OG images for creators
+    pathname.match(/^\/blog\/[^\/]+\/og-image$/) || // /blog/[slug]/og-image - OG images for blog posts
+    pathname.match(/^\/categories\/[^\/]+\/og-image$/); // /categories/[id]/og-image - OG images for categories
 
   // Check if it's a static asset or Next.js internal route
   const isStaticAsset =

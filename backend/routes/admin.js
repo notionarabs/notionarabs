@@ -1416,6 +1416,8 @@ router.post('/send-bulk-emails', auth, async (req, res) => {
                   line-height: 1.6;
                   color: #333;
                   font-size: 16px;
+                  text-align: right;
+                  direction: rtl;
                 }
                 .email-footer {
                   padding: 20px;
@@ -1429,7 +1431,7 @@ router.post('/send-bulk-emails', auth, async (req, res) => {
                   display: inline-block;
                   padding: 12px 30px;
                   background-color: #f5631e;
-                  color: #ffffff;
+                  color: #ffffff !important;
                   text-decoration: none;
                   border-radius: 6px;
                   font-weight: 600;

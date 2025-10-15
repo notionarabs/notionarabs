@@ -37,6 +37,7 @@ export default function PublicProfilePage() {
   const [creatorRatings, setCreatorRatings] = useState([]);
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [medianRating, setMedianRating] = useState(0);
+  const [profileImageError, setProfileImageError] = useState(false);
 
   useEffect(() => {
     if (username) {
@@ -340,13 +341,15 @@ export default function PublicProfilePage() {
               <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
                 {/* Profile Picture */}
                 <div className="relative flex-shrink-0">
-                  {creator.profilePicture ? (
+                  {creator.profilePicture && !profileImageError ? (
                     <Image
                       src={creator.profilePicture}
                       alt={`صورة ${creator.displayName || creator.name}`}
                       width={120}
                       height={120}
                       className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full object-cover border-4 border-white dark:border-dark-card-border shadow-lg"
+                      unoptimized
+                      onError={() => setProfileImageError(true)}
                     />
                   ) : (
                     <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center shadow-lg border-4 border-white dark:border-dark-card-border">

@@ -31,6 +31,12 @@ export default async function sitemap() {
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/categories`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
       url: `${baseUrl}/about`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
@@ -62,13 +68,28 @@ export default async function sitemap() {
     },
   ]
 
-  // Category pages
-  const categories = [
-    'الإنتاجية', 'الدراسة', 'الأعمال', 'الحياة الشخصية',
-    'الإبداع', 'التقنية', 'الصحة', 'المالية', 'التنظيم', 'التخطيط'
+  // Category pages - using English slugs that match the routing
+  const categorySlugs = [
+    'productivity', 'study', 'business', 'personal', 'creativity', 'technology', 'health', 'finance',
+    'organization', 'planning', 'religious', 'marketing', 'design', 'development', 'education',
+    'travel', 'food', 'sports', 'entertainment', 'fashion', 'beauty', 'home', 'garden', 'pets',
+    'cars', 'programming', 'database', 'cybersecurity', 'ai', 'blockchain', 'ecommerce', 'sales',
+    'customer-service', 'hr', 'accounting', 'investment', 'real-estate', 'insurance', 'law', 'medicine',
+    'nursing', 'physical-therapy', 'nutrition', 'cooking', 'desserts', 'beverages', 'restaurants',
+    'arts', 'music', 'drawing', 'sculpture', 'photography', 'video', 'writing', 'translation',
+    'languages', 'history', 'geography', 'science', 'mathematics', 'physics', 'chemistry', 'biology',
+    'psychology', 'sociology', 'philosophy', 'literature', 'poetry', 'theater', 'cinema', 'gaming',
+    'esports', 'tourism', 'hospitality', 'transportation', 'aviation', 'maritime', 'agriculture',
+    'environment', 'energy', 'construction', 'engineering', 'architecture', 'decoration', 'furniture',
+    'tools', 'devices', 'software', 'applications', 'websites', 'web-development', 'app-development',
+    'e-learning', 'meetings', 'social-networks', 'content', 'advertising', 'public-relations',
+    'branding', 'strategy', 'leadership', 'management', 'projects', 'operations', 'quality',
+    'innovation', 'research-development', 'analysis', 'statistics', 'data', 'reports', 'presentations',
+    'training', 'professional-development', 'consulting', 'services', 'products', 'manufacturing',
+    'distribution', 'warehouses', 'logistics'
   ]
-  const categoryPages = categories.map((category) => ({
-    url: `${baseUrl}/categories/${encodeURIComponent(category)}`,
+  const categoryPages = categorySlugs.map((slug) => ({
+    url: `${baseUrl}/categories/${slug}`,
     lastModified: new Date(),
     changeFrequency: 'weekly',
     priority: 0.6,
@@ -90,7 +111,7 @@ export default async function sitemap() {
         signal: controller.signal,
         next: { revalidate: 3600 }
       }),
-      fetch(`${apiUrl}/auth/creators?limit=1000`, {
+      fetch(`${apiUrl}/creators?limit=1000`, {
         signal: controller.signal,
         next: { revalidate: 3600 }
       })

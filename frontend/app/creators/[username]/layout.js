@@ -39,6 +39,8 @@ export async function generateMetadata({ params }) {
   });
 }
 
+export const dynamic = 'force-dynamic'
+
 export default function CreatorLayout({ children }) {
   // Server component wrapper for creator pages with dynamic metadata
   return children;

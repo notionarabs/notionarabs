@@ -50,11 +50,6 @@ export default function RootLayout({ children }) {
         <OrganizationSchema />
         <WebsiteSchema />
         <HreflangLinks currentPath="" />
-        <TwitterCardMeta
-          title="عرب نوشن - قوالب نوشن باللغة العربية"
-          description="اكتشف وبيع قوالب نوشن باللغة العربية - منصة مخصصة للمبدعين والمشترين العرب"
-          image="/og-image.png"
-        />
         <GoogleAnalytics GA_TRACKING_ID={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID} />
 
         {/* Favicon - Using SVG for best quality on all devices */}

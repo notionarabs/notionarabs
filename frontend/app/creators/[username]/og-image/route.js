@@ -74,14 +74,23 @@ export async function GET(request, { params }) {
               gap: '12px',
             }}
           >
-            <img
-              src={`${process.env.NODE_ENV === 'production' ? 'https://www.notionarabs.com' : 'http://localhost:3000'}/favicon.png`}
-              alt="عرب نوشن"
+            {/* Favicon placeholder */}
+            <div
               style={{
                 height: '40px',
                 width: '40px',
+                backgroundColor: '#3b82f6',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontSize: '20px',
+                fontWeight: 'bold',
               }}
-            />
+            >
+              ع
+            </div>
             <span
               style={{
                 fontSize: '24px',
@@ -179,7 +188,7 @@ export async function GET(request, { params }) {
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
             }}
           >
-            {creator.profilePicture ? (
+            {false && creator.profilePicture ? (
               <img
                 src={creator.profilePicture}
                 alt={displayName}
@@ -244,14 +253,23 @@ export async function GET(request, { params }) {
               gap: '12px',
             }}
           >
-            <img
-              src={`${process.env.NODE_ENV === 'production' ? 'https://www.notionarabs.com' : 'http://localhost:3000'}/favicon.png`}
-              alt="عرب نوشن"
+            {/* Favicon placeholder */}
+            <div
               style={{
                 height: '40px',
                 width: '40px',
+                backgroundColor: '#3b82f6',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontSize: '20px',
+                fontWeight: 'bold',
               }}
-            />
+            >
+              ع
+            </div>
             <span
               style={{
                 fontSize: '24px',

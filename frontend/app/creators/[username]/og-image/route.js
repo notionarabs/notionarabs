@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 export async function GET(request, { params }) {
   try {
     console.log('Starting OG image generation...');
-    
+
     return new ImageResponse(
       (
         <div
@@ -32,9 +32,9 @@ export async function GET(request, { params }) {
     )
   } catch (error) {
     console.error('Error generating OG image:', error);
-    
+
     // Return a simple text response if ImageResponse fails
-    return new Response('OG Image Generation Failed', { 
+    return new Response('OG Image Generation Failed', {
       status: 500,
       headers: {
         'Content-Type': 'text/plain'

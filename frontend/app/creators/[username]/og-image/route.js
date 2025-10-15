@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 export async function GET(request, { params }) {
   try {
     const { username } = await params;
-    
+
     // Fetch creator data
     const apiUrl = process.env.NODE_ENV === 'production'
       ? 'https://notion-arabs.onrender.com/api'

@@ -5,6 +5,7 @@ import { X, Settings, Check, XCircle } from 'lucide-react';
 
 const CookieBanner = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [preferences, setPreferences] = useState({
     essential: true, // Always true, can't be disabled
@@ -16,7 +17,16 @@ const CookieBanner = () => {
     // Check if user has already made a choice
     const cookieConsent = localStorage.getItem('cookieConsent');
     if (!cookieConsent) {
-      setIsVisible(true);
+      // Add delay before showing the banner
+      const timer = setTimeout(() => {
+        setIsVisible(true);
+        // Trigger animation after a brief delay
+        setTimeout(() => {
+          setIsAnimating(true);
+        }, 150);
+      }, 2000); // 2 seconds delay
+
+      return () => clearTimeout(timer);
     }
   }, []);
 
@@ -28,7 +38,11 @@ const CookieBanner = () => {
     };
     setPreferences(newPreferences);
     savePreferences(newPreferences);
-    setIsVisible(false);
+    // Animate out before hiding
+    setIsAnimating(false);
+    setTimeout(() => {
+      setIsVisible(false);
+    }, 300);
   };
 
   const handleAcceptNecessary = () => {
@@ -39,13 +53,21 @@ const CookieBanner = () => {
     };
     setPreferences(newPreferences);
     savePreferences(newPreferences);
-    setIsVisible(false);
+    // Animate out before hiding
+    setIsAnimating(false);
+    setTimeout(() => {
+      setIsVisible(false);
+    }, 300);
   };
 
   const handleSavePreferences = () => {
     savePreferences(preferences);
-    setIsVisible(false);
-    setShowSettings(false);
+    // Animate out before hiding
+    setIsAnimating(false);
+    setTimeout(() => {
+      setIsVisible(false);
+      setShowSettings(false);
+    }, 300);
   };
 
   const savePreferences = (prefs) => {
@@ -90,7 +112,10 @@ const CookieBanner = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-dark-secondary border-t border-gray-200 dark:border-dark-card-border shadow-lg">
+    <div className={`fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-dark-secondary border-t border-gray-200 dark:border-dark-card-border shadow-lg transition-all duration-700 ease-out transform ${isAnimating
+      ? 'translate-y-0 opacity-100 scale-100'
+      : 'translate-y-full opacity-0 scale-95'
+      }`}>
       <div className="container-custom px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         <div className="max-w-6xl mx-auto">
           {!showSettings ? (

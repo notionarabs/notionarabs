@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 export async function GET(request, { params }) {
   try {
     const { id } = await params;
-    
+
     // Fetch template data
     const apiUrl = process.env.NODE_ENV === 'production'
       ? 'https://notion-arabs.onrender.com/api'
@@ -20,7 +20,7 @@ export async function GET(request, { params }) {
           'Accept': 'application/json',
         },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.template) {
@@ -275,7 +275,7 @@ export async function GET(request, { params }) {
     )
   } catch (error) {
     console.error('Error generating template OG image:', error);
-    
+
     // Fallback OG image
     return new ImageResponse(
       (

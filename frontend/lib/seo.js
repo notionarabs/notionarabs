@@ -26,7 +26,7 @@ export const siteConfig = {
 // Utility function to add cache-busting parameter to image URLs
 function addCacheBuster(imageUrl, timestamp) {
   if (!imageUrl) return imageUrl;
-  
+
   const cacheBuster = timestamp || Date.now();
   const separator = imageUrl.includes('?') ? '&' : '?';
   return `${imageUrl}${separator}v=${cacheBuster}`;

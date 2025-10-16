@@ -26,12 +26,8 @@ export default function RatingPopup({
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Show popup with a slight delay for better UX
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, 1000);
-
-    return () => clearTimeout(timer);
+    // Show popup instantly
+    setIsVisible(true);
   }, []);
 
   const handleClose = () => {

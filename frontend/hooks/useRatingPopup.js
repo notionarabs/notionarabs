@@ -44,10 +44,10 @@ export function useRatingPopup(template, user, isAuthenticated) {
             const hasRated = localStorage.getItem(ratingKey);
 
             if (!hasRated) {
-              // Show popup after a delay - but only if they haven't used the inline rating
+              // Show popup after 1 second
               setTimeout(() => {
                 setShowPopup(true);
-              }, 5000); // 5 second delay to give time for inline rating
+              }, 1000); // 1 second delay
             }
           }
         }
@@ -58,24 +58,22 @@ export function useRatingPopup(template, user, isAuthenticated) {
       }
     };
 
-    // Add a small delay to ensure the page is fully loaded
-    const timer = setTimeout(checkShouldShowPopup, 1000);
-    return () => clearTimeout(timer);
+    // Check immediately for instant popup
+    checkShouldShowPopup();
   }, [template?._id, user, isAuthenticated, hasCheckedPopup]);
 
   // Listen for download events to show popup
   useEffect(() => {
     const handleDownload = (event) => {
       if (event.detail?.templateId === template?._id) {
-        // Wait longer for the download to complete and give user time to use inline rating
+        // Show popup after 1 second
         setTimeout(() => {
-          // Double check if user hasn't rated yet before showing popup
           const ratingKey = `userRating_${template._id}_${user?._id || user?.id}`;
           const hasRated = localStorage.getItem(ratingKey);
           if (!hasRated) {
             setShowPopup(true);
           }
-        }, 8000); // 8 second delay after download
+        }, 1000); // 1 second delay
       }
     };
 

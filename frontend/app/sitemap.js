@@ -103,15 +103,15 @@ export default async function sitemap() {
     const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
 
     const [templatesRes, blogsRes, creatorsRes] = await Promise.allSettled([
-      fetch(`${apiUrl}/templates?limit=1000`, {
+      fetch(`${apiUrl}/templates?limit=500`, {
         signal: controller.signal,
         next: { revalidate: 3600 } // Cache for 1 hour
       }),
-      fetch(`${apiUrl}/blogs?limit=1000`, {
+      fetch(`${apiUrl}/blogs?limit=500`, {
         signal: controller.signal,
         next: { revalidate: 3600 }
       }),
-      fetch(`${apiUrl}/creators?limit=1000`, {
+      fetch(`${apiUrl}/creators?limit=500`, {
         signal: controller.signal,
         next: { revalidate: 3600 }
       })

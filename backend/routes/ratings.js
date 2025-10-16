@@ -6,6 +6,7 @@ const User = require('../models/User');
 const Blog = require('../models/Blog');
 const Notification = require('../models/Notification');
 const auth = require('../middleware/auth');
+const { cacheMiddleware } = require('../utils/redis-cache');
 
 const router = express.Router();
 
@@ -190,7 +191,7 @@ router.post('/', auth, [
 // @route   GET /api/ratings/:targetType/:targetId
 // @desc    Get ratings for a specific template or creator
 // @access  Public
-router.get('/:targetType/:targetId', async (req, res) => {
+router.get('/:targetType/:targetId', cacheMiddleware(300), async (req, res) => {
   try {
     const { targetType, targetId } = req.params;
     const page = parseInt(req.query.page) || 1;

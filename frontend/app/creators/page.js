@@ -7,8 +7,9 @@ import api from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import FollowButton from '../../components/FollowButton';
-import { Search, Star, User, Youtube, Facebook, Send, X, Users, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Zap, Download, CheckCircle, Heart } from 'lucide-react';
-import Fuse from 'fuse.js';
+// Optimized icon imports - only import what's needed
+import { Search, Star, User, Youtube, Facebook, Send, Users, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Zap, Download, CheckCircle, Heart } from 'lucide-react';
+// Removed Fuse.js import - now using server-side search
 
 // Map badge types to Lucide icons
 const getBadgeIcon = (badgeType) => {
@@ -45,6 +46,7 @@ export default function CreatorsPage() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('popular');
+  const [selectedSpecialty, setSelectedSpecialty] = useState('all');
   const [allCreators, setAllCreators] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -70,65 +72,8 @@ export default function CreatorsPage() {
     }
   }, []);
 
-  // Fuse.js configuration for creators
-  const fuseOptions = useMemo(() => ({
-    keys: [
-      { name: 'name', weight: 0.4 },
-      { name: 'username', weight: 0.3 },
-      { name: 'displayName', weight: 0.3 },
-      { name: 'bio', weight: 0.2 },
-      { name: 'specialties', weight: 0.2 },
-      { name: 'experience', weight: 0.1 },
-      { name: 'motivation', weight: 0.1 }
-    ],
-    threshold: 0.4,
-    includeScore: true,
-    includeMatches: true,
-    minMatchCharLength: 2,
-    // Support both Arabic and English
-    ignoreLocation: true,
-    findAllMatches: true,
-    // Custom search function to handle both languages
-    getFn: (obj, path) => {
-      const value = Fuse.config.getFn(obj, path);
-      if (typeof value === 'string') {
-        // Normalize text for better matching
-        return value.toLowerCase().trim();
-      }
-      return value;
-    }
-  }), []);
-
-  // Create Fuse instance
-  const fuse = useMemo(() => {
-    return new Fuse(allCreators, fuseOptions);
-  }, [allCreators, fuseOptions]);
-
-  // Filtered and sorted creators
-  const creatorsData = useMemo(() => {
-    let filteredCreators = allCreators;
-
-    // Apply search filter
-    if (searchTerm.trim()) {
-      const searchResults = fuse.search(searchTerm.trim().toLowerCase());
-      filteredCreators = searchResults.map(result => result.item);
-    }
-
-    // Apply sorting
-    const sortedCreators = [...filteredCreators].sort((a, b) => {
-      const aValue = a[sortBy] || a.followers;
-      const bValue = b[sortBy] || b.followers;
-
-      if (sortBy === 'popular' || sortBy === 'rating' || sortBy === 'templates') {
-        return (bValue || 0) - (aValue || 0);
-      } else if (sortBy === 'newest') {
-        return new Date(b.createdAt) - new Date(a.createdAt);
-      }
-      return 0;
-    });
-
-    return sortedCreators;
-  }, [allCreators, searchTerm, sortBy, fuse]);
+  // Creators are now sorted and filtered server-side
+  const creatorsData = allCreators;
 
   const StarRating = ({ rating }) => {
     return (
@@ -148,33 +93,56 @@ export default function CreatorsPage() {
     );
   };
 
-  // Fetch all creators from API (no server-side search)
-  useEffect(() => {
-    const fetchCreators = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  // Fetch creators from API with server-side search and pagination
+  const fetchCreators = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        const params = new URLSearchParams({
-          limit: '1000' // Get all creators for client-side search
-        });
+      const params = new URLSearchParams({
+        page: pagination.current.toString(),
+        limit: pagination.limit.toString(),
+        sortBy,
+        sortOrder: 'desc'
+      });
 
-        const response = await api.get(`/creators?${params.toString()}`);
-
-        if (response.data.success) {
-          setAllCreators(response.data.creators);
-        } else {
-          setError('فشل في تحميل المبدعين');
-        }
-      } catch (err) {
-        setError('حدث خطأ في تحميل المبدعين');
-      } finally {
-        setLoading(false);
+      // Add search parameter if there's a search term
+      if (searchTerm.trim()) {
+        params.append('search', searchTerm.trim());
       }
-    };
 
+      // Add specialty filter if selected
+      if (selectedSpecialty && selectedSpecialty !== 'all') {
+        params.append('specialty', selectedSpecialty);
+      }
+
+      const response = await api.get(`/creators?${params.toString()}`);
+
+      if (response.data.success) {
+        setAllCreators(response.data.creators);
+        // Update pagination from server response
+        if (response.data.pagination) {
+          setPagination(prev => ({
+            ...prev,
+            current: response.data.pagination.current,
+            pages: response.data.pagination.pages,
+            total: response.data.pagination.total
+          }));
+        }
+      } else {
+        setError('فشل في تحميل المبدعين');
+      }
+    } catch (err) {
+      setError('حدث خطأ في تحميل المبدعين');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initial load and refetch when search/sort changes
+  useEffect(() => {
     fetchCreators();
-  }, []);
+  }, [searchTerm, sortBy, selectedSpecialty, pagination.current]);
 
   // Update pagination when creators change
   useEffect(() => {
@@ -298,6 +266,10 @@ export default function CreatorsPage() {
                           width={80}
                           height={80}
                           className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-white shadow-md"
+                          loading="lazy"
+                          quality={80}
+                          placeholder="blur"
+                          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                         />
                       ) : (
                         <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center border-2 border-white shadow-md">

@@ -95,13 +95,13 @@ export default async function sitemapDynamic() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
 
     const [templatesRes, blogsRes, creatorsRes] = await Promise.allSettled([
-      fetch(`${apiUrl}/templates?limit=1000`, {
+      fetch(`${apiUrl}/templates?limit=500`, {
         next: { revalidate: 3600 } // Cache for 1 hour
       }),
-      fetch(`${apiUrl}/blogs?limit=1000`, {
+      fetch(`${apiUrl}/blogs?limit=500`, {
         next: { revalidate: 3600 }
       }),
-      fetch(`${apiUrl}/creators?limit=1000`, {
+      fetch(`${apiUrl}/creators?limit=500`, {
         next: { revalidate: 3600 }
       })
     ])

@@ -8,7 +8,7 @@ export async function GET() {
 
   try {
     // Fetch templates with images
-    const templatesRes = await fetch(`${apiUrl}/templates?limit=1000`, {
+    const templatesRes = await fetch(`${apiUrl}/templates?limit=500`, {
       next: { revalidate: 3600 }
     })
 
@@ -38,7 +38,7 @@ export async function GET() {
     }
 
     // Fetch creators with profile pictures
-    const creatorsRes = await fetch(`${apiUrl}/auth/creators?limit=1000`, {
+    const creatorsRes = await fetch(`${apiUrl}/auth/creators?limit=500`, {
       next: { revalidate: 3600 }
     })
 
@@ -70,7 +70,7 @@ export async function GET() {
     }
 
     // Fetch blogs with featured images
-    const blogsRes = await fetch(`${apiUrl}/blogs?limit=1000`, {
+    const blogsRes = await fetch(`${apiUrl}/blogs?limit=500`, {
       next: { revalidate: 3600 }
     })
 

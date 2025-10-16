@@ -96,8 +96,23 @@ app.use(passport.initialize());
 require('./config/passport');
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/notion-arabs')
-  .then(() => { })
+// Optimized MongoDB connection with connection pooling
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/notion-arabs', {
+  // Connection pooling optimizations
+  maxPoolSize: 10, // Maximum number of connections in the pool
+  minPoolSize: 5,  // Minimum number of connections in the pool
+  maxIdleTimeMS: 30000, // Close connections after 30 seconds of inactivity
+  serverSelectionTimeoutMS: 5000, // How long to try to connect
+  socketTimeoutMS: 45000, // How long to wait for a response
+  // Performance optimizations
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  // Read preferences for better performance
+  readPreference: 'secondaryPreferred'
+})
+  .then(() => {
+    console.log('✅ Database connected successfully');
+  })
   .catch(err => console.error('Database connection error:', err));
 
 // Apply rate limiting to routes

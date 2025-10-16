@@ -1,5 +1,6 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
+const mongoose = require('mongoose');
 const Template = require('../models/Template');
 const DownloadLog = require('../models/DownloadLog');
 const User = require('../models/User');
@@ -10,6 +11,54 @@ const { cacheMiddleware, invalidateCache } = require('../utils/redis-cache');
 const Fuse = require('fuse.js');
 
 const router = express.Router();
+
+// Optimized pagination handler for templates without search
+async function handleOptimizedPagination(req, res, options) {
+  const { category, creator, sortBy, sortOrder, page, limit } = options;
+
+  // Build filter object
+  const filter = { status: 'approved' };
+
+  if (category && category !== 'all') {
+    filter.$or = [
+      { category: category },
+      { categories: category }
+    ];
+  }
+
+  if (creator) {
+    filter.creator = creator;
+  }
+
+  // Build sort object
+  const sort = {};
+  sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+
+  // Use aggregation for better performance with pagination
+  const [templates, totalCount] = await Promise.all([
+    Template.find(filter)
+      .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price createdAt isPinned pinnedAt')
+      .populate('creator', 'name username displayName profilePicture')
+      .sort(sort)
+      .skip(skip)
+      .limit(parseInt(limit))
+      .lean(),
+    Template.countDocuments(filter)
+  ]);
+
+  res.json({
+    success: true,
+    templates,
+    pagination: {
+      current: parseInt(page),
+      pages: Math.ceil(totalCount / parseInt(limit)),
+      total: totalCount,
+      limit: parseInt(limit)
+    }
+  });
+}
 
 // @route   POST /api/templates
 // @desc    Create a new template
@@ -289,7 +338,7 @@ router.post('/', auth, [
 });
 
 // @route   GET /api/templates
-// @desc    Get all approved templates
+// @desc    Get all approved templates with optimized server-side pagination
 // @access  Public
 router.get('/', cacheMiddleware(300), async (req, res) => {
   try {
@@ -302,6 +351,18 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
       page = 1,
       limit = 12
     } = req.query;
+
+    // If no search term, use optimized server-side pagination
+    if (!search || !search.trim()) {
+      return await handleOptimizedPagination(req, res, {
+        category,
+        creator,
+        sortBy,
+        sortOrder,
+        page,
+        limit
+      });
+    }
 
     // Build filter object
     const filter = { status: 'approved' };
@@ -320,10 +381,11 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
 
     // If search is provided, use Fuse.js (requires loading all data)
     if (search && search.trim()) {
-      // Get all templates for Fuse.js search
+      // Get all templates for Fuse.js search with limit to prevent memory issues
       let templates = await Template.find(filter)
         .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price createdAt isPinned pinnedAt')
         .populate('creator', 'name username displayName profilePicture')
+        .limit(500) // Limit search results to prevent memory issues
         .lean();
 
       const fuseOptions = {
@@ -384,34 +446,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
       });
     }
 
-    // Optimized path: Use database-level pagination when no search
-    const sort = {};
-    sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
-
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-
-    // Use aggregation for better performance with pagination
-    const [templates, totalCount] = await Promise.all([
-      Template.find(filter)
-        .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price createdAt isPinned pinnedAt')
-        .populate('creator', 'name username displayName profilePicture')
-        .sort(sort)
-        .skip(skip)
-        .limit(parseInt(limit))
-        .lean(),
-      Template.countDocuments(filter)
-    ]);
-
-    res.json({
-      success: true,
-      templates,
-      pagination: {
-        current: parseInt(page),
-        pages: Math.ceil(totalCount / parseInt(limit)),
-        total: totalCount,
-        limit: parseInt(limit)
-      }
-    });
+    // This code is now handled by handleOptimizedPagination function above
   } catch (error) {
     console.error('Get templates error:', error);
     res.status(500).json({
@@ -424,7 +459,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
 // @route   GET /api/templates/my-templates
 // @desc    Get current user's templates
 // @access  Private (Creator)
-router.get('/my-templates', auth, async (req, res) => {
+router.get('/my-templates', auth, cacheMiddleware(120), async (req, res) => {
   try {
     if (req.user.creatorStatus !== 'approved' || req.user.role !== 'creator') {
       return res.status(403).json({
@@ -452,7 +487,7 @@ router.get('/my-templates', auth, async (req, res) => {
 // @route   GET /api/templates/creator/:creatorId
 // @desc    Get templates by creator
 // @access  Public
-router.get('/creator/:creatorId', async (req, res) => {
+router.get('/creator/:creatorId', cacheMiddleware(600), async (req, res) => {
   try {
     const { status = 'approved' } = req.query;
 
@@ -635,11 +670,13 @@ router.get('/similar/:id', cacheMiddleware(600), async (req, res) => {
       });
     }
 
-    // Get all approved templates except the current one
+    // Get all approved templates except the current one with limit for performance
     const allTemplates = await Template.find({
       status: 'approved',
       _id: { $ne: currentTemplate._id }
-    }).populate('creator', 'name username displayName profilePicture');
+    })
+      .populate('creator', 'name username displayName profilePicture')
+      .limit(100); // Limit to prevent performance issues
 
     if (allTemplates.length === 0) {
       return res.json({
@@ -716,7 +753,6 @@ router.get('/similar/:id', cacheMiddleware(600), async (req, res) => {
 router.get('/:identifier', cacheMiddleware(600), async (req, res) => {
   try {
     const { identifier } = req.params;
-    const mongoose = require('mongoose');
 
     // Try to find by slug first, then by ID
     let template = await Template.findOne({

@@ -8,10 +8,6 @@ import api from '../../lib/api';
 import LoadingIndicator from '../../components/LoadingIndicator';
 import StarRating from '../../components/StarRating';
 import { useSearchParams } from 'next/navigation';
-import Fuse from 'fuse.js';
-
-
-
 const sortOptions = [
   { name: "الأحدث", value: "createdAt" },
   { name: "الأكثر شعبية", value: "downloads" },
@@ -32,80 +28,40 @@ function TemplatesPageContent() {
     limit: 12
   });
 
-  // Fuse.js configuration for templates
-  const fuseOptions = useMemo(() => ({
-    keys: [
-      { name: 'title', weight: 0.4 },
-      { name: 'description', weight: 0.3 },
-      { name: 'category', weight: 0.2 },
-      { name: 'tags', weight: 0.1 },
-      { name: 'creator.name', weight: 0.1 },
-      { name: 'creator.username', weight: 0.1 },
-      { name: 'creator.displayName', weight: 0.1 }
-    ],
-    threshold: 0.4,
-    includeScore: true,
-    includeMatches: true,
-    minMatchCharLength: 2,
-    // Support both Arabic and English
-    ignoreLocation: true,
-    findAllMatches: true,
-    // Custom search function to handle both languages
-    getFn: (obj, path) => {
-      const value = Fuse.config.getFn(obj, path);
-      if (typeof value === 'string') {
-        // Normalize text for better matching
-        return value.toLowerCase().trim();
-      }
-      return value;
-    }
-  }), []);
+  // Templates are now sorted and filtered server-side
+  const templates = allTemplates;
 
-  // Create Fuse instance
-  const fuse = useMemo(() => {
-    return new Fuse(allTemplates, fuseOptions);
-  }, [allTemplates, fuseOptions]);
-
-  // Filtered and sorted templates
-  const templates = useMemo(() => {
-    let filteredTemplates = allTemplates;
-
-    // Apply search filter
-    if (searchTerm.trim()) {
-      const searchResults = fuse.search(searchTerm.trim().toLowerCase());
-      filteredTemplates = searchResults.map(result => result.item);
-    }
-
-    // Apply sorting
-    const sortedTemplates = [...filteredTemplates].sort((a, b) => {
-      const aValue = a[sortBy];
-      const bValue = b[sortBy];
-
-      if (sortBy === 'createdAt') {
-        return new Date(bValue) - new Date(aValue);
-      } else if (sortBy === 'downloads' || sortBy === 'rating') {
-        return (bValue || 0) - (aValue || 0);
-      }
-      return 0;
-    });
-
-    return sortedTemplates;
-  }, [allTemplates, searchTerm, sortBy, fuse]);
-
-  // Fetch all templates from API (no server-side search)
+  // Fetch templates from API with server-side search and pagination
   const fetchTemplates = async () => {
     try {
       setLoading(true);
       setError(null);
 
       const params = new URLSearchParams({
-        limit: '1000' // Get all templates for client-side search
+        page: pagination.current.toString(),
+        limit: pagination.limit.toString(),
+        sortBy,
+        sortOrder: 'desc'
       });
+
+      // Add search parameter if there's a search term
+      if (searchTerm.trim()) {
+        params.append('search', searchTerm.trim());
+      }
 
       const response = await api.get(`/templates?${params.toString()}`);
 
       if (response.data.success) {
         setAllTemplates(response.data.templates || []);
+        // Update pagination from server response
+        if (response.data.pagination) {
+          setPagination(prev => ({
+            ...prev,
+            current: response.data.pagination.current,
+            pages: response.data.pagination.pages,
+            total: response.data.pagination.total
+          }));
+        }
       } else {
         setError('فشل في تحميل القوالب');
       }
@@ -117,17 +73,13 @@ function TemplatesPageContent() {
     }
   };
 
-  // Initial load
+  // Initial load and refetch when search/sort changes
   useEffect(() => {
     fetchTemplates();
-  }, []);
+  }, [searchTerm, sortBy, pagination.current]);
 
-  // Paginated templates for display
-  const paginatedTemplates = useMemo(() => {
-    const startIndex = (pagination.current - 1) * pagination.limit;
-    const endIndex = startIndex + pagination.limit;
-    return templates.slice(startIndex, endIndex);
-  }, [templates, pagination.current, pagination.limit]);
+  // Templates are already paginated from server
+  const paginatedTemplates = templates;
 
   // Update pagination when templates change
   useEffect(() => {
@@ -275,6 +227,10 @@ function TemplatesPageContent() {
                           width={400}
                           height={300}
                           className="w-full h-full object-cover object-[50%_30%]"
+                          loading="lazy"
+                          quality={75}
+                          placeholder="blur"
+                          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-700">

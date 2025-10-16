@@ -8,7 +8,7 @@ import api from '../../lib/api';
 import LoadingIndicator from '../../components/LoadingIndicator';
 import { useToast } from '../../contexts/ToastContext';
 import StarRating from '../../components/StarRating';
-import Fuse from 'fuse.js';
+// Removed Fuse.js import - now using server-side search
 
 
 const categories = [
@@ -265,106 +265,62 @@ export default function BlogPage() {
   });
   const { showError } = useToast();
 
-  // Fuse.js configuration for blogs
-  const fuseOptions = useMemo(() => ({
-    keys: [
-      { name: 'title', weight: 0.4 },
-      { name: 'excerpt', weight: 0.3 },
-      { name: 'category', weight: 0.15 },
-      { name: 'categories', weight: 0.15 },
-      { name: 'tags', weight: 0.1 },
-      { name: 'author.name', weight: 0.1 }
-    ],
-    threshold: 0.4,
-    includeScore: true,
-    includeMatches: true,
-    minMatchCharLength: 2,
-    // Support both Arabic and English
-    ignoreLocation: true,
-    findAllMatches: true,
-    // Custom search function to handle both languages
-    getFn: (obj, path) => {
-      const value = Fuse.config.getFn(obj, path);
-      if (typeof value === 'string') {
-        // Normalize text for better matching
-        return value.toLowerCase().trim();
-      }
-      return value;
-    }
-  }), []);
+  // Blog posts are now sorted and filtered server-side
+  const blogPosts = allBlogPosts;
 
-  // Create Fuse instance
-  const fuse = useMemo(() => {
-    return new Fuse(allBlogPosts, fuseOptions);
-  }, [allBlogPosts, fuseOptions]);
+  // Fetch blog posts from API with server-side search and pagination
+  const fetchBlogPosts = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-  // Filtered and sorted blog posts
-  const blogPosts = useMemo(() => {
-    let filteredPosts = allBlogPosts;
-
-    // Apply category filter - check both single category and multiple categories
-    if (selectedCategory !== 'all') {
-      filteredPosts = filteredPosts.filter(post => {
-        // Check if post has multiple categories
-        if (post.categories && post.categories.length > 0) {
-          return post.categories.includes(selectedCategory);
-        }
-        // Fallback to single category
-        return post.category === selectedCategory;
+      const params = new URLSearchParams({
+        page: pagination.current.toString(),
+        limit: pagination.limit.toString(),
+        sortBy,
+        sortOrder: 'desc'
       });
-    }
 
-    // Apply search filter
-    if (searchTerm.trim()) {
-      const searchResults = fuse.search(searchTerm.trim().toLowerCase());
-      filteredPosts = searchResults.map(result => result.item);
-    }
-
-    // Apply sorting
-    const sortedPosts = [...filteredPosts].sort((a, b) => {
-      if (sortBy === 'newest') {
-        return new Date(b.publishedAt || b.createdAt) - new Date(a.publishedAt || a.createdAt);
-      } else if (sortBy === 'oldest') {
-        return new Date(a.publishedAt || a.createdAt) - new Date(b.publishedAt || b.createdAt);
-      } else if (sortBy === 'views') {
-        return (b.views || 0) - (a.views || 0);
+      // Add search parameter if there's a search term
+      if (searchTerm.trim()) {
+        params.append('search', searchTerm.trim());
       }
-      return 0;
-    });
 
-    return sortedPosts;
-  }, [allBlogPosts, selectedCategory, searchTerm, sortBy, fuse]);
+      // Add category filter if selected
+      if (selectedCategory && selectedCategory !== 'all') {
+        params.append('category', selectedCategory);
+      }
 
-  // Fetch all blog posts from API (no server-side search)
-  useEffect(() => {
-    const fetchBlogPosts = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+      const response = await api.get(`/blogs?${params.toString()}`);
 
-        const params = new URLSearchParams({
-          limit: '1000' // Get all blogs for client-side search
-        });
-
-        const response = await api.get(`/blogs?${params.toString()}`);
-
-        if (response.data.success) {
-          setAllBlogPosts(response.data.blogs || []);
-        } else {
-          setError('فشل في تحميل المقالات');
-          showError('فشل في تحميل المقالات');
+      if (response.data.success) {
+        setAllBlogPosts(response.data.blogs || []);
+        // Update pagination from server response
+        if (response.data.pagination) {
+          setPagination(prev => ({
+            ...prev,
+            current: response.data.pagination.current,
+            pages: response.data.pagination.pages,
+            total: response.data.pagination.total
+          }));
         }
-      } catch (err) {
-        console.error('Error fetching blog posts:', err);
+      } else {
         setError('فشل في تحميل المقالات');
         showError('فشل في تحميل المقالات');
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (err) {
+      console.error('Error fetching blog posts:', err);
+      setError('فشل في تحميل المقالات');
+      showError('فشل في تحميل المقالات');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  // Initial load and refetch when search/sort changes
+  useEffect(() => {
     fetchBlogPosts();
-  }, [showError]);
+  }, [searchTerm, selectedCategory, sortBy, pagination.current]);
 
   // Update pagination when blog posts change
   useEffect(() => {

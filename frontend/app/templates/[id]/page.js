@@ -418,22 +418,26 @@ export default function TemplateDetailPage() {
             setSelectedImage(0); // Default to first additional image
           }
 
-          // Load ratings
-          await loadRatings(response.data.template._id);
+          // Make all API calls in parallel for better performance
+          const templateId = response.data.template._id;
 
-          // Check if user already owns this template
-          await checkUserOwnership(response.data.template._id);
-
-          // Fetch truly similar templates using the new similarity API
           try {
-            // Use the template ID instead of the identifier to avoid slug issues
-            const relatedResponse = await api.get(`/templates/similar/${response.data.template._id}?limit=3`);
-            if (relatedResponse.data.success) {
-              setRelatedTemplates(relatedResponse.data.templates);
+            const [ratingsResult, ownershipResult, relatedResult] = await Promise.allSettled([
+              loadRatings(templateId),
+              checkUserOwnership(templateId),
+              api.get(`/templates/similar/${templateId}?limit=3`)
+            ]);
+
+            // Handle similar templates result
+            if (relatedResult.status === 'fulfilled' && relatedResult.value.data.success) {
+              setRelatedTemplates(relatedResult.value.data.templates);
+            } else {
+              setRelatedTemplates([]);
             }
-          } catch (similarError) {
-            console.error('Similar templates error:', similarError);
-            // If similar templates fail, just set empty array - don't fail the whole page
+
+            // Ratings and ownership are handled by their respective functions
+          } catch (error) {
+            console.error('Parallel API calls error:', error);
             setRelatedTemplates([]);
           }
         } else {
@@ -758,7 +762,10 @@ export default function TemplateDetailPage() {
                           width={2400}
                           height={1800}
                           className="w-full h-full object-contain animate-fade-in"
-                          quality={100}
+                          quality={85}
+                          priority={selectedImage === -2}
+                          placeholder="blur"
+                          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                         />
                       </button>
                     )}

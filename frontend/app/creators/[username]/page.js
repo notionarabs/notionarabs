@@ -86,7 +86,7 @@ export default function PublicProfilePage() {
 
       // Fetch creator's templates
       try {
-        const templatesResponse = await api.get(`/templates?creator=${response.data.creator.id}&limit=1000`);
+        const templatesResponse = await api.get(`/templates?creator=${response.data.creator.id}&limit=20`);
         if (templatesResponse.data.success) {
           setCreatorTemplates(templatesResponse.data.templates);
         }

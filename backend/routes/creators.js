@@ -1,10 +1,12 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
 const Template = require('../models/Template');
 const DownloadLog = require('../models/DownloadLog');
 const jwt = require('jsonwebtoken');
 const auth = require('../middleware/auth');
+const { cacheMiddleware, invalidateCache } = require('../utils/redis-cache');
 const Fuse = require('fuse.js');
 
 const router = express.Router();
@@ -13,7 +15,7 @@ const router = express.Router();
 // @route   GET /api/creators
 // @desc    Get all approved creators with their stats
 // @access  Public
-router.get('/', async (req, res) => {
+router.get('/', cacheMiddleware(300), async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 12;
@@ -75,58 +77,66 @@ router.get('/', async (req, res) => {
       creators = searchResults.map(result => result.item);
     }
 
-    // Get template counts for each creator
-    const creatorsWithStats = await Promise.all(
-      creators.map(async (creator) => {
-        const templateStats = await Template.aggregate([
-          { $match: { creator: creator._id, status: 'approved' } },
-          {
-            $group: {
-              _id: null,
-              totalTemplates: { $sum: 1 },
-              totalDownloads: { $sum: '$downloads' },
-              templateRatings: { $push: '$rating' }
-            }
+    // Optimized: Get template stats for all creators in one aggregation
+    const creatorIds = creators.map(c => c._id);
+    const templateStatsMap = new Map();
+
+    if (creatorIds.length > 0) {
+      const templateStats = await Template.aggregate([
+        { $match: { creator: { $in: creatorIds }, status: 'approved' } },
+        {
+          $group: {
+            _id: '$creator',
+            totalTemplates: { $sum: 1 },
+            totalDownloads: { $sum: { $ifNull: ['$downloads', 0] } },
+            templateRatings: { $push: { $ifNull: ['$rating', 0] } }
           }
-        ]);
+        }
+      ]);
 
-        const stats = templateStats[0] || {
-          totalTemplates: 0,
-          totalDownloads: 0,
-          templateRatings: []
-        };
-
+      // Create a map for O(1) lookup
+      templateStats.forEach(stat => {
         // Calculate median rating from template ratings
         let medianRating = 0;
-        if (stats.templateRatings && stats.templateRatings.length > 0) {
-          // Filter out null/undefined ratings and sort
-          const validRatings = stats.templateRatings.filter(rating => rating && rating > 0).sort((a, b) => a - b);
-
+        if (stat.templateRatings && stat.templateRatings.length > 0) {
+          const validRatings = stat.templateRatings.filter(rating => rating && rating > 0).sort((a, b) => a - b);
           if (validRatings.length > 0) {
             const mid = Math.floor(validRatings.length / 2);
             if (validRatings.length % 2 === 0) {
-              // Even number of ratings - average of two middle values
               medianRating = (validRatings[mid - 1] + validRatings[mid]) / 2;
             } else {
-              // Odd number of ratings - middle value
               medianRating = validRatings[mid];
             }
           }
         }
 
-        return {
-          ...creator,
-          id: creator._id,
-          username: creator.username || creator.email?.split('@')[0], // Use email username part as fallback
-          displayName: creator.displayName || creator.name, // Use name as fallback for displayName
-          templates: stats.totalTemplates,
-          downloads: stats.totalDownloads,
-          rating: medianRating || creator.rating || 0,
-          earnings: creator.totalEarnings || 0,
-          badges: creator.badges || []
-        };
-      })
-    );
+        templateStatsMap.set(stat._id.toString(), {
+          totalTemplates: stat.totalTemplates,
+          totalDownloads: stat.totalDownloads,
+          medianRating
+        });
+      });
+    }
+
+    const creatorsWithStats = creators.map(creator => {
+      const stats = templateStatsMap.get(creator._id.toString()) || {
+        totalTemplates: 0,
+        totalDownloads: 0,
+        medianRating: 0
+      };
+
+      return {
+        ...creator,
+        id: creator._id,
+        username: creator.username || creator.email?.split('@')[0],
+        displayName: creator.displayName || creator.name,
+        templates: stats.totalTemplates,
+        downloads: stats.totalDownloads,
+        rating: stats.medianRating || creator.rating || 0,
+        earnings: creator.totalEarnings || 0,
+        badges: creator.badges || []
+      };
+    });
 
     // Apply sorting
     let sort = {};
@@ -190,13 +200,12 @@ router.get('/', async (req, res) => {
 // @route   GET /api/creators/:id
 // @desc    Get single creator by ID with detailed stats
 // @access  Public
-router.get('/:id', async (req, res) => {
+router.get('/:id', cacheMiddleware(600), async (req, res) => {
 
   try {
     const { id } = req.params;
 
     // Check if id is a valid ObjectId
-    const mongoose = require('mongoose');
     const isValidObjectId = mongoose.Types.ObjectId.isValid(id);
 
     let creator = null;
@@ -430,6 +439,9 @@ router.post('/:id/follow', auth, async (req, res) => {
         $inc: { followers: -1 }
       });
 
+      // Invalidate cache for creators
+      await invalidateCache('creators');
+
       res.json({
         success: true,
         message: 'تم إلغاء المتابعة',
@@ -443,6 +455,9 @@ router.post('/:id/follow', auth, async (req, res) => {
       await User.findByIdAndUpdate(creatorId, {
         $inc: { followers: 1 }
       });
+
+      // Invalidate cache for creators
+      await invalidateCache('creators');
 
       // Notify creator about new follower (non-blocking)
       try {

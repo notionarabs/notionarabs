@@ -5,12 +5,22 @@ import Head from 'next/head';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { formatDate } from '../../../lib/dateUtils';
 import api from '../../../lib/api';
 import LoadingIndicator from '../../../components/LoadingIndicator';
 import { useToast } from '../../../contexts/ToastContext';
 import { useAuth } from '../../../contexts/AuthContext';
-import RatingCommentSystem from '../../../components/RatingCommentSystem';
+// Dynamic import for heavy component
+const RatingCommentSystem = dynamic(() => import('../../../components/RatingCommentSystem'), {
+  ssr: false,
+  loading: () => (
+    <div className="animate-pulse space-y-4 p-6 bg-white dark:bg-dark-card-bg rounded-xl">
+      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+      <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
+    </div>
+  )
+});
 import { BlogPostSchema, BreadcrumbSchema } from '../../../components/StructuredData';
 import Breadcrumb from '../../../components/Breadcrumb';
 import { siteConfig } from '../../../lib/seo';
@@ -316,6 +326,9 @@ export default function BlogPostPage() {
                       height={400}
                       className="w-full h-full object-cover"
                       priority
+                      quality={85}
+                      placeholder="blur"
+                      blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                   </div>

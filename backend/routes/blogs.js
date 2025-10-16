@@ -3,7 +3,7 @@ const { body, validationResult } = require('express-validator');
 const Blog = require('../models/Blog');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
-const Fuse = require('fuse.js');
+const { cacheMiddleware, invalidateCache } = require('../utils/redis-cache');
 
 const router = express.Router();
 
@@ -407,7 +407,7 @@ router.post('/', auth, [
 // @route   GET /api/blogs
 // @desc    Get all published blog posts with pagination and filtering
 // @access  Public
-router.get('/', async (req, res) => {
+router.get('/', cacheMiddleware(300), async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -423,87 +423,112 @@ router.get('/', async (req, res) => {
       query.category = category;
     }
 
-    // Get all blogs first (for Fuse.js search)
-    let blogs = await Blog.find(query)
-      .populate('author', 'name profilePicture')
-      .lean();
+    // Optimized: Use server-side search and pagination
+    let blogs;
+    let totalCount;
 
-    // Add rating data to each blog
-    const Rating = require('../models/Rating');
-    for (let blog of blogs) {
-      const { averageRating, totalRatings } = await Rating.getAverageRating('blog', blog._id);
-      blog.rating = averageRating;
-      blog.totalRatings = totalRatings;
-    }
-
-    // Apply Fuse.js search if search term is provided
     if (search && search.trim()) {
-      const fuseOptions = {
-        keys: [
-          { name: 'title', weight: 0.4 },
-          { name: 'excerpt', weight: 0.3 },
-          { name: 'category', weight: 0.2 },
-          { name: 'tags', weight: 0.1 },
-          { name: 'author.name', weight: 0.1 }
-        ],
-        threshold: 0.4, // Lower threshold for more strict matching
-        includeScore: true,
-        includeMatches: true,
-        minMatchCharLength: 2,
-        // Support both Arabic and English
-        ignoreLocation: true,
-        findAllMatches: true,
-        // Custom search function to handle both languages
-        getFn: (obj, path) => {
-          const value = Fuse.config.getFn(obj, path);
-          if (typeof value === 'string') {
-            // Normalize text for better matching
-            return value.toLowerCase().trim();
-          }
-          return value;
-        }
-      };
+      // Server-side text search using MongoDB with fallback
+      try {
+        const searchQuery = {
+          ...query,
+          $text: { $search: search.trim() }
+        };
 
-      const fuse = new Fuse(blogs, fuseOptions);
-      const searchResults = fuse.search(search.trim().toLowerCase());
+        [blogs, totalCount] = await Promise.all([
+          Blog.find(searchQuery)
+            .populate('author', 'name profilePicture')
+            .sort({ score: { $meta: 'textScore' }, publishedAt: -1 })
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .lean(),
+          Blog.countDocuments(searchQuery)
+        ]);
+      } catch (textSearchError) {
+        // Fallback to regex search if text search fails
+        console.warn('Text search failed, falling back to regex search:', textSearchError.message);
+        const regexQuery = {
+          ...query,
+          $or: [
+            { title: { $regex: search.trim(), $options: 'i' } },
+            { excerpt: { $regex: search.trim(), $options: 'i' } },
+            { tags: { $in: [new RegExp(search.trim(), 'i')] } }
+          ]
+        };
 
-      // Extract the items from Fuse results
-      blogs = searchResults.map(result => result.item);
+        const sort = {};
+        sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
+        [blogs, totalCount] = await Promise.all([
+          Blog.find(regexQuery)
+            .populate('author', 'name profilePicture')
+            .sort(sort)
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .lean(),
+          Blog.countDocuments(regexQuery)
+        ]);
+      }
+    } else {
+      // Regular pagination without search
+      const sort = {};
+      sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
+      [blogs, totalCount] = await Promise.all([
+        Blog.find(query)
+          .populate('author', 'name profilePicture')
+          .sort(sort)
+          .skip((page - 1) * limit)
+          .limit(limit)
+          .lean(),
+        Blog.countDocuments(query)
+      ]);
     }
 
-    // Apply sorting
-    const sort = {};
-    sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
+    // Optimized: Get rating data for all blogs in one query
+    const Rating = require('../models/Rating');
+    if (blogs.length > 0) {
+      const blogIds = blogs.map(blog => blog._id);
+      const ratingsMap = new Map();
 
-    // Sort the blogs array
-    blogs.sort((a, b) => {
-      const aValue = a[sortBy];
-      const bValue = b[sortBy];
+      // Get all ratings for these blogs in one aggregation
+      const ratings = await Rating.aggregate([
+        { $match: { targetType: 'blog', targetId: { $in: blogIds } } },
+        {
+          $group: {
+            _id: '$targetId',
+            averageRating: { $avg: '$rating' },
+            totalRatings: { $sum: 1 }
+          }
+        }
+      ]);
 
-      if (sortBy === 'publishedAt' || sortBy === 'createdAt') {
-        return sortOrder === 'asc'
-          ? new Date(aValue) - new Date(bValue)
-          : new Date(bValue) - new Date(aValue);
-      } else if (sortBy === 'views' || sortBy === 'likes') {
-        return sortOrder === 'asc'
-          ? (aValue || 0) - (bValue || 0)
-          : (bValue || 0) - (aValue || 0);
-      }
-      return 0;
-    });
+      // Create a map for O(1) lookup
+      ratings.forEach(rating => {
+        ratingsMap.set(rating._id.toString(), {
+          rating: rating.averageRating || 0,
+          totalRatings: rating.totalRatings || 0
+        });
+      });
 
-    // Apply pagination
-    const total = blogs.length;
-    const skip = (page - 1) * limit;
-    const paginatedBlogs = blogs.slice(skip, skip + limit);
+      // Add rating data to each blog
+      blogs.forEach(blog => {
+        const ratingData = ratingsMap.get(blog._id.toString()) || { rating: 0, totalRatings: 0 };
+        blog.rating = ratingData.rating;
+        blog.totalRatings = ratingData.totalRatings;
+      });
+    }
+
+
+    // Blogs are already paginated and sorted by the database query
 
     res.json({
       success: true,
-      blogs: paginatedBlogs,
+      blogs: blogs,
       pagination: {
         current: page,
-        pages: Math.ceil(total / limit),
-        total,
+        pages: Math.ceil(totalCount / limit),
+        total: totalCount,
         limit
       }
     });
@@ -687,7 +712,7 @@ router.get('/export-public', async (req, res) => {
 // @route   GET /api/blogs/:slug
 // @desc    Get single blog post by slug
 // @access  Public
-router.get('/:slug', async (req, res) => {
+router.get('/:slug', cacheMiddleware(600), async (req, res) => {
   try {
     const blog = await Blog.findOne({
       slug: req.params.slug,
@@ -728,11 +753,34 @@ router.get('/:slug', async (req, res) => {
       .limit(3)
       .lean();
 
-    // Add rating data to related blogs
-    for (let relatedBlog of relatedBlogs) {
-      const { averageRating, totalRatings } = await Rating.getAverageRating('blog', relatedBlog._id);
-      relatedBlog.rating = averageRating;
-      relatedBlog.totalRatings = totalRatings;
+    // Optimized: Get rating data for related blogs in one query
+    if (relatedBlogs.length > 0) {
+      const relatedBlogIds = relatedBlogs.map(blog => blog._id);
+      const ratingsMap = new Map();
+
+      const relatedRatings = await Rating.aggregate([
+        { $match: { targetType: 'blog', targetId: { $in: relatedBlogIds } } },
+        {
+          $group: {
+            _id: '$targetId',
+            averageRating: { $avg: '$rating' },
+            totalRatings: { $sum: 1 }
+          }
+        }
+      ]);
+
+      relatedRatings.forEach(rating => {
+        ratingsMap.set(rating._id.toString(), {
+          rating: rating.averageRating || 0,
+          totalRatings: rating.totalRatings || 0
+        });
+      });
+
+      relatedBlogs.forEach(blog => {
+        const ratingData = ratingsMap.get(blog._id.toString()) || { rating: 0, totalRatings: 0 };
+        blog.rating = ratingData.rating;
+        blog.totalRatings = ratingData.totalRatings;
+      });
     }
 
     res.json({
@@ -787,7 +835,7 @@ router.post('/:slug/increment-view', async (req, res) => {
 // @route   GET /api/blogs/author/:authorId
 // @desc    Get blog posts by specific author
 // @access  Public
-router.get('/author/:authorId', async (req, res) => {
+router.get('/author/:authorId', cacheMiddleware(300), async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -806,12 +854,35 @@ router.get('/author/:authorId', async (req, res) => {
       .limit(limit)
       .lean();
 
-    // Add rating data to each blog
+    // Optimized: Get rating data for all blogs in one query
     const Rating = require('../models/Rating');
-    for (let blog of blogs) {
-      const { averageRating, totalRatings } = await Rating.getAverageRating('blog', blog._id);
-      blog.rating = averageRating;
-      blog.totalRatings = totalRatings;
+    if (blogs.length > 0) {
+      const blogIds = blogs.map(blog => blog._id);
+      const ratingsMap = new Map();
+
+      const ratings = await Rating.aggregate([
+        { $match: { targetType: 'blog', targetId: { $in: blogIds } } },
+        {
+          $group: {
+            _id: '$targetId',
+            averageRating: { $avg: '$rating' },
+            totalRatings: { $sum: 1 }
+          }
+        }
+      ]);
+
+      ratings.forEach(rating => {
+        ratingsMap.set(rating._id.toString(), {
+          rating: rating.averageRating || 0,
+          totalRatings: rating.totalRatings || 0
+        });
+      });
+
+      blogs.forEach(blog => {
+        const ratingData = ratingsMap.get(blog._id.toString()) || { rating: 0, totalRatings: 0 };
+        blog.rating = ratingData.rating;
+        blog.totalRatings = ratingData.totalRatings;
+      });
     }
 
     const total = await Blog.countDocuments(query);

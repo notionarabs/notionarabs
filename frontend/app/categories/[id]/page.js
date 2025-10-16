@@ -166,7 +166,8 @@ function CategoryTemplatesContent() {
 
       const params = new URLSearchParams({
         category: categoryName,
-        limit: '1000', // Get all templates for client-side pagination
+        page: '1',
+        limit: '20', // Use server-side pagination
         sortBy,
         sortOrder: 'desc'
       });

@@ -15,6 +15,8 @@ import { TemplateSchema, BreadcrumbSchema } from '../../../components/Structured
 import Breadcrumb from '../../../components/Breadcrumb';
 import { Youtube, Facebook, Send, Users } from 'lucide-react';
 import { siteConfig } from '../../../lib/seo';
+import RatingPopup from '../../../components/RatingPopup';
+import { useRatingPopup } from '../../../hooks/useRatingPopup';
 
 // Dynamically import heavy components to reduce initial bundle size
 const RatingCommentSystem = dynamic(() => import('../../../components/RatingCommentSystem'), {
@@ -180,6 +182,9 @@ export default function TemplateDetailPage() {
   const [hasSubmittedRating, setHasSubmittedRating] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [hasSeenCreatorWarning, setHasSeenCreatorWarning] = useState(false);
+
+  // Rating popup hook
+  const { showPopup, closePopup, markAsRated } = useRatingPopup(template, user, isAuthenticated);
 
   // Helper: check if the currently authenticated user is the creator of this template
   const isTemplateCreator = (u, t) => {
@@ -583,6 +588,11 @@ export default function TemplateDetailPage() {
       // Show success state
       setIsDownloaded(true);
       setUserHasTemplate(true);
+
+      // Dispatch event for popup system
+      window.dispatchEvent(new CustomEvent('templateDownloaded', {
+        detail: { templateId: template._id }
+      }));
 
       // Reset download state after 8 seconds
       setTimeout(() => {
@@ -1032,6 +1042,8 @@ export default function TemplateDetailPage() {
                           setUserRating({ rating: data?.rating || 0, review: data?.review || '' });
                           // Mark as submitted to hide the section
                           setHasSubmittedRating(true);
+                          // Mark as rated in localStorage to prevent popup
+                          markAsRated();
                           // Reload ratings
                           loadRatings(template._id);
                         }}
@@ -1047,7 +1059,6 @@ export default function TemplateDetailPage() {
                     </div>
                   </div>
                 )}
-
 
               </div>
             </div>
@@ -1529,6 +1540,57 @@ export default function TemplateDetailPage() {
             </div>
           </div>
         </footer>
+
+        {/* Rating Popup */}
+        {showPopup && template && (
+          <RatingPopup
+            template={template}
+            userRating={userRating}
+            userComment={userComment}
+            onRatingChange={(data) => {
+              // Update template rating
+              setTemplate(prev => ({
+                ...prev,
+                rating: data.averageRating,
+                reviews: data.totalRatings
+              }));
+              setRatingsSummary({ averageRating: data.averageRating || 0, totalRatings: data.totalRatings || 0 });
+              // Update user rating state
+              setUserRating({ rating: data?.rating || 0, review: data?.review || '' });
+              // Mark as submitted and rated
+              setHasSubmittedRating(true);
+              markAsRated();
+              // Also mark popup as seen
+              if (typeof window !== 'undefined' && template?._id) {
+                const dismissedPopups = JSON.parse(localStorage.getItem('dismissedRatingPopups') || '[]');
+                if (!dismissedPopups.includes(template._id)) {
+                  dismissedPopups.push(template._id);
+                  localStorage.setItem('dismissedRatingPopups', JSON.stringify(dismissedPopups));
+                }
+              }
+              // Reload ratings
+              loadRatings(template._id);
+            }}
+            onCommentChange={(data) => {
+              // Update user comment state
+              setUserComment(data.comment);
+              // Reload ratings and comments
+              loadRatings(template._id);
+            }}
+            onClose={() => {
+              closePopup();
+              // Mark popup as seen when closed
+              if (typeof window !== 'undefined' && template?._id) {
+                const dismissedPopups = JSON.parse(localStorage.getItem('dismissedRatingPopups') || '[]');
+                if (!dismissedPopups.includes(template._id)) {
+                  dismissedPopups.push(template._id);
+                  localStorage.setItem('dismissedRatingPopups', JSON.stringify(dismissedPopups));
+                }
+              }
+            }}
+            isTemplateCreator={isTemplateCreator(user, template)}
+          />
+        )}
       </main>
     </>
   );

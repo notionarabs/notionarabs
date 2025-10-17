@@ -192,13 +192,70 @@ export default function BlogPostPage() {
   if (loading) {
     return (
       <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
-        <div className="container-custom py-20">
-          <div className="flex flex-col items-center justify-center gap-6">
-            {/* Elegant Three-Dot Loader */}
-            <div className="flex gap-2">
-              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+        <div className="container-custom py-8 sm:py-12">
+          {/* Header Skeleton */}
+          <div className="mb-8 sm:mb-12">
+            <div className="animate-pulse">
+              {/* Breadcrumb Skeleton */}
+              <div className="flex items-center gap-2 mb-4">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+              </div>
+
+              {/* Title Skeleton */}
+              <div className="h-8 sm:h-10 bg-gray-200 dark:bg-gray-700 rounded mb-4 w-3/4"></div>
+              <div className="h-6 sm:h-8 bg-gray-200 dark:bg-gray-700 rounded mb-6 w-1/2"></div>
+
+              {/* Meta Info Skeleton */}
+              <div className="flex items-center gap-4 mb-6">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                </div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+              </div>
+
+              {/* Featured Image Skeleton */}
+              <div className="h-64 sm:h-80 bg-gray-200 dark:bg-gray-700 rounded-lg mb-8"></div>
+            </div>
+          </div>
+
+          {/* Content Skeleton */}
+          <div className="max-w-4xl mx-auto">
+            <div className="animate-pulse space-y-6">
+              {/* Article Content Skeleton */}
+              <div className="space-y-4">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-4/5"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+              </div>
+
+              {/* Paragraph Spacing */}
+              <div className="h-8"></div>
+
+              {/* More Content Skeleton */}
+              <div className="space-y-4">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-4/5"></div>
+              </div>
+
+              {/* Call to Action Skeleton */}
+              <div className="mt-12 p-6 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-4 w-1/3"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-4 w-2/3"></div>
+                <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+              </div>
             </div>
           </div>
         </div>

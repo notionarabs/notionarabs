@@ -298,16 +298,18 @@ function CategoryTemplatesContent() {
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {[...Array(8)].map((_, index) => (
-                <div key={index} className="card p-3 sm:p-4 md:p-5 lg:p-6 animate-pulse">
-                  <div className="h-40 sm:h-44 md:h-48 lg:h-52 bg-gray-200 dark:bg-gray-700 rounded-lg mb-2 sm:mb-3"></div>
-                  <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 sm:mb-3"></div>
-                  <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 sm:mb-3 w-3/4"></div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 sm:gap-2">
-                      <div className="w-4 h-4 sm:w-5 sm:h-5 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
-                      <div className="h-2 sm:h-3 bg-gray-200 dark:bg-gray-700 rounded w-12 sm:w-16"></div>
+                <div key={index} className="card-interactive overflow-hidden animate-pulse">
+                  <div className="h-40 sm:h-44 md:h-48 lg:h-52 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                  <div className="p-3 sm:p-4 md:p-5 lg:p-6">
+                    <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 sm:mb-3"></div>
+                    <div className="h-2 sm:h-3 bg-gray-200 dark:bg-gray-700 rounded mb-2 sm:mb-3 w-3/4"></div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 sm:gap-2">
+                        <div className="w-4 h-4 sm:w-5 sm:h-5 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                        <div className="h-2 sm:h-3 bg-gray-200 dark:bg-gray-700 rounded w-12 sm:w-16"></div>
+                      </div>
+                      <div className="h-2 sm:h-3 bg-gray-200 dark:bg-gray-700 rounded w-6 sm:w-8"></div>
                     </div>
-                    <div className="h-2 sm:h-3 bg-gray-200 dark:bg-gray-700 rounded w-6 sm:w-8"></div>
                   </div>
                 </div>
               ))}

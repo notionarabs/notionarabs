@@ -339,13 +339,88 @@ export default function CreatorApplicationsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center" dir="rtl">
-        <div className="flex flex-col items-center justify-center gap-6">
-          {/* Elegant Three-Dot Loader */}
-          <div className="flex gap-2">
-            <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-            <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-            <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
+        {/* Header Skeleton */}
+        <div className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300">
+          <div className="container-custom py-4 sm:py-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
+              <div className="flex-1 animate-pulse">
+                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-48"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
+              </div>
+              <div className="animate-pulse">
+                <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="container-custom py-8 sm:py-12">
+          {/* Stats Cards Skeleton */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
+            {[...Array(4)].map((_, index) => (
+              <div key={index} className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-4 sm:p-6 animate-pulse">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-20"></div>
+                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+              </div>
+            ))}
+          </div>
+
+          {/* Applications Table Skeleton */}
+          <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 dark:bg-dark-tertiary">
+                  <tr>
+                    <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white dark:bg-dark-secondary divide-y divide-gray-200 dark:divide-dark-card-border">
+                  {[...Array(5)].map((_, index) => (
+                    <tr key={index} className="animate-pulse">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                          <div className="mr-3">
+                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-1 w-24"></div>
+                            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-16"></div>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                        <div className="flex gap-2">
+                          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

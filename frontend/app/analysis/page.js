@@ -82,7 +82,60 @@ export default function AnalysisPage() {
   }, [filteredTemplates, user?.totalEarnings]);
 
   if (loading || isLoading) {
-    return <LoadingIndicator />;
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
+        <div className="container-custom py-8 sm:py-12">
+          {/* Header Skeleton */}
+          <div className="mb-8 sm:mb-12">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-48"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
+            </div>
+          </div>
+
+          {/* Stats Cards Skeleton */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
+            {[...Array(4)].map((_, index) => (
+              <div key={index} className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-4 sm:p-6 animate-pulse">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-20"></div>
+                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+              </div>
+            ))}
+          </div>
+
+          {/* Charts Section Skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-8">
+            <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-6 sm:p-8 animate-pulse">
+              <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-6 w-32"></div>
+              <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            </div>
+            <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-6 sm:p-8 animate-pulse">
+              <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-6 w-28"></div>
+              <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            </div>
+          </div>
+
+          {/* Recent Activity Skeleton */}
+          <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-6 sm:p-8">
+            <div className="animate-pulse">
+              <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-6 w-40"></div>
+              <div className="space-y-4">
+                {[...Array(5)].map((_, index) => (
+                  <div key={index} className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                    <div className="flex-1">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-1 w-3/4"></div>
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                    </div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!isAuthenticated || user?.creatorStatus !== 'approved') {

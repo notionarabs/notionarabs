@@ -747,7 +747,76 @@ export default function SettingsPage() {
   };
 
   if (loading || isLoading) {
-    return <LoadingIndicator />;
+    return (
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
+        <div className="container-custom py-8 sm:py-12">
+          {/* Header Skeleton */}
+          <div className="mb-8 sm:mb-12">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-48"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
+            </div>
+          </div>
+
+          {/* Settings Tabs Skeleton */}
+          <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border mb-8">
+            <div className="border-b border-gray-200 dark:border-dark-card-border p-4 sm:p-6">
+              <div className="flex gap-4 sm:gap-6 animate-pulse">
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-18"></div>
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+              </div>
+            </div>
+
+            {/* Settings Content Skeleton */}
+            <div className="p-6 sm:p-8">
+              <div className="animate-pulse space-y-8">
+                {/* Profile Section Skeleton */}
+                <div>
+                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-6 w-32"></div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-20"></div>
+                      <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                    </div>
+                    <div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-24"></div>
+                      <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                    </div>
+                    <div className="md:col-span-2">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-16"></div>
+                      <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Notifications Section Skeleton */}
+                <div>
+                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-6 w-40"></div>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                      <div className="h-6 w-12 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-28"></div>
+                      <div className="h-6 w-12 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons Skeleton */}
+                <div className="flex gap-4">
+                  <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                  <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!isAuthenticated || user?.creatorStatus !== 'approved') {

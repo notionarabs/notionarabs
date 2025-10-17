@@ -107,7 +107,7 @@ export default function CreatorTemplatesPage() {
     ? templates
     : templates.filter(template => template.status === selectedStatus);
 
-  if (authLoading || loading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
         <div className="container-custom py-12 sm:py-16 md:py-20">
@@ -222,7 +222,36 @@ export default function CreatorTemplatesPage() {
         </div>
 
         {/* Templates List */}
-        {filteredTemplates.length > 0 ? (
+        {loading ? (
+          <div className="space-y-4 sm:space-y-6">
+            {[...Array(3)].map((_, index) => (
+              <div key={index} className="card p-4 sm:p-6 animate-pulse">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5">
+                  {/* Image Skeleton */}
+                  <div className="w-full sm:w-32 md:w-48 h-48 sm:h-24 md:h-32 rounded-lg bg-gray-200 dark:bg-gray-700 flex-shrink-0"></div>
+
+                  {/* Content Skeleton */}
+                  <div className="flex-1 min-w-0">
+                    <div className="h-5 sm:h-6 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-3/4"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-1/3"></div>
+                    <div className="space-y-2">
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+                    </div>
+                  </div>
+
+                  {/* Actions Skeleton */}
+                  <div className="w-full sm:w-auto sm:min-w-[200px]">
+                    <div className="flex flex-col gap-2">
+                      <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                      <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : filteredTemplates.length > 0 ? (
           <div className="space-y-4 sm:space-y-6">
             {filteredTemplates.map((template) => (
               <div key={template._id} className="card p-4 sm:p-6">

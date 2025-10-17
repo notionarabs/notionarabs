@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Zap, BookOpen, TrendingUp, Heart, Lightbulb, Target,
@@ -342,12 +342,21 @@ const allCategories = [
 
 export default function CategoriesPage() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
 
   // Filter categories based on search term
   const filteredCategories = allCategories.filter(category =>
     category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     category.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Simulate loading for better UX
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-primary">
@@ -384,45 +393,75 @@ export default function CategoriesPage() {
         </div>
 
         {/* Categories Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
-          {filteredCategories.map((category, idx) => (
-            <Link
-              key={idx}
-              href={`/categories/${categorySlugMap[category.name] || category.name.toLowerCase()}`}
-              className="group"
-            >
-              <div className="bg-white dark:bg-dark-tertiary rounded-xl p-4 shadow-sm border border-gray-200 dark:border-dark-card-border hover:shadow-md hover:border-accent-300 dark:hover:border-orange-500/50 transition-all duration-300 h-full flex flex-col">
-                {/* Icon */}
-                <div className="flex justify-center mb-3">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br ${category.bg} backdrop-blur-sm border border-white/20 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}>
-                    <category.icon className="w-6 h-6 text-white drop-shadow-sm group-hover:scale-110 transition-transform duration-300" />
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+            {[...Array(20)].map((_, idx) => (
+              <div key={idx} className="group animate-pulse">
+                <div className="bg-white dark:bg-dark-tertiary rounded-xl p-4 shadow-sm border border-gray-200 dark:border-dark-card-border h-full flex flex-col">
+                  {/* Icon Skeleton */}
+                  <div className="flex justify-center mb-3">
+                    <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-2xl"></div>
                   </div>
-                </div>
 
-                {/* Category Name */}
-                <h3 className="font-bold text-sm sm:text-base text-accent-500 dark:text-orange-400 text-center mb-2 group-hover:text-accent-600 dark:group-hover:text-orange-300 transition-colors">
-                  {category.name}
-                </h3>
+                  {/* Category Name Skeleton */}
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-3/4 mx-auto"></div>
 
-                {/* Description */}
-                <p className="text-xs text-accent-600 dark:text-gray-300 text-center leading-relaxed flex-1">
-                  {category.description}
-                </p>
+                  {/* Description Skeleton */}
+                  <div className="space-y-1 flex-1">
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-5/6 mx-auto"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-4/5 mx-auto"></div>
+                  </div>
 
-                {/* View Templates Button */}
-                <div className="mt-3 pt-3 border-t border-gray-100 dark:border-dark-card-border">
-                  <div className="flex items-center justify-center text-accent-500 dark:text-orange-400 text-xs font-medium group-hover:text-accent-600 dark:group-hover:text-orange-300 transition-colors">
-                    <span>عرض القوالب</span>
-                    <ChevronLeft className="w-3 h-3 mr-1 group-hover:translate-x-1 transition-transform duration-200" />
+                  {/* Button Skeleton */}
+                  <div className="mt-3 pt-3 border-t border-gray-100 dark:border-dark-card-border">
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto"></div>
                   </div>
                 </div>
               </div>
-            </Link>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+            {filteredCategories.map((category, idx) => (
+              <Link
+                key={idx}
+                href={`/categories/${categorySlugMap[category.name] || category.name.toLowerCase()}`}
+                className="group"
+              >
+                <div className="bg-white dark:bg-dark-tertiary rounded-xl p-4 shadow-sm border border-gray-200 dark:border-dark-card-border hover:shadow-md hover:border-accent-300 dark:hover:border-orange-500/50 transition-all duration-300 h-full flex flex-col">
+                  {/* Icon */}
+                  <div className="flex justify-center mb-3">
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br ${category.bg} backdrop-blur-sm border border-white/20 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}>
+                      <category.icon className="w-6 h-6 text-white drop-shadow-sm group-hover:scale-110 transition-transform duration-300" />
+                    </div>
+                  </div>
+
+                  {/* Category Name */}
+                  <h3 className="font-bold text-sm sm:text-base text-accent-500 dark:text-orange-400 text-center mb-2 group-hover:text-accent-600 dark:group-hover:text-orange-300 transition-colors">
+                    {category.name}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-xs text-accent-600 dark:text-gray-300 text-center leading-relaxed flex-1">
+                    {category.description}
+                  </p>
+
+                  {/* View Templates Button */}
+                  <div className="mt-3 pt-3 border-t border-gray-100 dark:border-dark-card-border">
+                    <div className="flex items-center justify-center text-accent-500 dark:text-orange-400 text-xs font-medium group-hover:text-accent-600 dark:group-hover:text-orange-300 transition-colors">
+                      <span>عرض القوالب</span>
+                      <ChevronLeft className="w-3 h-3 mr-1 group-hover:translate-x-1 transition-transform duration-200" />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
 
         {/* No Results */}
-        {filteredCategories.length === 0 && (
+        {!loading && filteredCategories.length === 0 && (
           <div className="text-center py-12">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
               <Search className="w-8 h-8 text-gray-400" />

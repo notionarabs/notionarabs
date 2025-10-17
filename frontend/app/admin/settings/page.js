@@ -150,13 +150,71 @@ export default function AdminSettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center transition-colors duration-300" dir="rtl">
-        <div className="flex flex-col items-center justify-center gap-6">
-          {/* Elegant Three-Dot Loader */}
-          <div className="flex gap-2">
-            <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-            <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-            <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
+        {/* Header Skeleton */}
+        <div className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300">
+          <div className="container-custom py-4 sm:py-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
+              <div className="flex-1 animate-pulse">
+                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-48"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
+              </div>
+              <div className="animate-pulse">
+                <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="container-custom py-8 sm:py-12">
+          {/* Settings Form Skeleton */}
+          <div className="max-w-4xl mx-auto space-y-8">
+            {/* Platform Settings Skeleton */}
+            <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-6 sm:p-8">
+              <div className="animate-pulse">
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-6 w-32"></div>
+                <div className="space-y-6">
+                  <div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-24"></div>
+                    <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                  </div>
+                  <div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-32"></div>
+                    <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="h-5 w-5 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-40"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Information Skeleton */}
+            <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-6 sm:p-8">
+              <div className="animate-pulse">
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-6 w-40"></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-20"></div>
+                    <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                  </div>
+                  <div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-16"></div>
+                    <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                  </div>
+                  <div className="md:col-span-2">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-24"></div>
+                    <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Save Button Skeleton */}
+            <div className="flex justify-end">
+              <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded w-32 animate-pulse"></div>
+            </div>
           </div>
         </div>
       </div>

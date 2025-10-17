@@ -71,14 +71,62 @@ export default function ProfilePage() {
   // Show loading only if we're actually loading and don't have user data
   if (loading && !user) {
     return (
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
-        <div className="container-custom py-12 sm:py-16 md:py-20">
-          <div className="flex flex-col items-center justify-center gap-6">
-            {/* Elegant Three-Dot Loader */}
-            <div className="flex gap-2">
-              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
+        <Navigation activePage="profile" />
+        <div className="container-custom py-8 sm:py-12">
+          {/* Profile Header Skeleton */}
+          <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-6 sm:p-8 mb-6 sm:mb-8">
+            <div className="animate-pulse">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+                {/* Profile Picture Skeleton */}
+                <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+
+                {/* Profile Info Skeleton */}
+                <div className="flex-1">
+                  <div className="h-6 sm:h-8 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-48"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-3 w-32"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
+                </div>
+
+                {/* Action Buttons Skeleton */}
+                <div className="flex gap-3">
+                  <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                  <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Stats Cards Skeleton */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+            {[...Array(4)].map((_, index) => (
+              <div key={index} className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-4 sm:p-6 animate-pulse">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-20"></div>
+                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+              </div>
+            ))}
+          </div>
+
+          {/* Content Tabs Skeleton */}
+          <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border">
+            {/* Tab Headers Skeleton */}
+            <div className="border-b border-gray-200 dark:border-dark-card-border p-4 sm:p-6">
+              <div className="flex gap-4 sm:gap-6 animate-pulse">
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-18"></div>
+              </div>
+            </div>
+
+            {/* Tab Content Skeleton */}
+            <div className="p-4 sm:p-6">
+              <div className="animate-pulse space-y-4">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-4/5"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+              </div>
             </div>
           </div>
         </div>

@@ -120,14 +120,70 @@ function CreateTemplatePageContent() {
   // Show loading only if we're actually loading and don't have user data
   if (loading && !user) {
     return (
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
-        <div className="container-custom py-20">
-          <div className="flex flex-col items-center justify-center gap-6">
-            {/* Elegant Three-Dot Loader */}
-            <div className="flex gap-2">
-              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
+        <div className="container-custom py-8 sm:py-12">
+          {/* Header Skeleton */}
+          <div className="mb-8 sm:mb-12">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-48"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
+            </div>
+          </div>
+
+          {/* Form Skeleton */}
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-6 sm:p-8">
+              <div className="animate-pulse space-y-8">
+                {/* Basic Info Section */}
+                <div>
+                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-6 w-32"></div>
+                  <div className="space-y-6">
+                    <div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-20"></div>
+                      <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                    </div>
+                    <div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-24"></div>
+                      <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-16"></div>
+                        <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                      </div>
+                      <div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-20"></div>
+                        <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Image Upload Section */}
+                <div>
+                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-6 w-40"></div>
+                  <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded-lg border-2 border-dashed"></div>
+                </div>
+
+                {/* Features Section */}
+                <div>
+                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-6 w-28"></div>
+                  <div className="space-y-4">
+                    {[...Array(4)].map((_, index) => (
+                      <div key={index} className="flex items-center gap-3">
+                        <div className="h-5 w-5 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Action Buttons Skeleton */}
+                <div className="flex gap-4 justify-end">
+                  <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                  <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

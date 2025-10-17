@@ -304,13 +304,23 @@ function CategoryTemplatesContent() {
           )}
 
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-12 sm:py-16 gap-6">
-              {/* Elegant Three-Dot Loader */}
-              <div className="flex gap-2">
-                <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {[...Array(8)].map((_, index) => (
+                <div key={index} className="card-interactive overflow-hidden animate-pulse">
+                  <div className="h-40 sm:h-44 md:h-48 lg:h-52 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                  <div className="p-3 sm:p-4 md:p-5 lg:p-6">
+                    <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 sm:mb-3"></div>
+                    <div className="h-2 sm:h-3 bg-gray-200 dark:bg-gray-700 rounded mb-2 sm:mb-3 w-3/4"></div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 sm:gap-2">
+                        <div className="w-4 h-4 sm:w-5 sm:h-5 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                        <div className="h-2 sm:h-3 bg-gray-200 dark:bg-gray-700 rounded w-12 sm:w-16"></div>
+                      </div>
+                      <div className="h-2 sm:h-3 bg-gray-200 dark:bg-gray-700 rounded w-6 sm:w-8"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : paginatedTemplates.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]">

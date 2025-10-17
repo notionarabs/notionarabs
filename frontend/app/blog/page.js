@@ -438,13 +438,29 @@ export default function BlogPage() {
 
           {/* Blog Posts Grid */}
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-12 sm:py-16 gap-6">
-              {/* Elegant Three-Dot Loader */}
-              <div className="flex gap-2">
-                <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+              {[...Array(6)].map((_, index) => (
+                <div key={index} className="card-interactive overflow-hidden group animate-pulse">
+                  <div className="relative h-40 sm:h-48 overflow-hidden bg-gray-200 dark:bg-gray-700"></div>
+                  <div className="p-4 sm:p-6">
+                    <div className="flex items-center justify-between text-xs sm:text-sm mb-3 sm:mb-4">
+                      <div className="flex items-center gap-1.5 sm:gap-2">
+                        <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                      </div>
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                    </div>
+
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm">
+                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-8"></div>
+                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+                      </div>
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : blogPosts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]">

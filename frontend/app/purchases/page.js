@@ -86,15 +86,48 @@ export default function PurchasesPage() {
 
   if (loading || isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-dark-primary">
-        <div className="container-custom py-12 sm:py-16 md:py-20">
-          <div className="flex flex-col items-center justify-center gap-6">
-            {/* Elegant Three-Dot Loader */}
-            <div className="flex gap-2">
-              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-primary" dir="rtl">
+        <div className="container-custom py-8 sm:py-12">
+          {/* Header Skeleton */}
+          <div className="mb-8 sm:mb-12">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-48"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
             </div>
+          </div>
+
+          {/* Stats Cards Skeleton */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
+            {[...Array(4)].map((_, index) => (
+              <div key={index} className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-4 sm:p-6 animate-pulse">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-20"></div>
+                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+              </div>
+            ))}
+          </div>
+
+          {/* Orders List Skeleton */}
+          <div className="space-y-4 sm:space-y-6">
+            {[...Array(3)].map((_, index) => (
+              <div key={index} className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-4 sm:p-6 animate-pulse">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+                  {/* Order Image Skeleton */}
+                  <div className="w-full sm:w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-lg flex-shrink-0"></div>
+
+                  {/* Order Info Skeleton */}
+                  <div className="flex-1 min-w-0">
+                    <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-3/4"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-1/3"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                  </div>
+
+                  {/* Order Status Skeleton */}
+                  <div className="w-full sm:w-auto">
+                    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-20"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

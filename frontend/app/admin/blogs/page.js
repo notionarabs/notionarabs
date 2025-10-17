@@ -344,8 +344,79 @@ export default function AdminBlogsPage() {
         {/* Blogs Table */}
         <div className="card-interactive overflow-hidden">
           {loading ? (
-            <div className="p-8">
-              <LoadingIndicator />
+            <div className="p-6 sm:p-8">
+              <div className="animate-pulse">
+                {/* Header Skeleton */}
+                <div className="mb-6">
+                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-4 w-32"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48"></div>
+                </div>
+
+                {/* Stats Cards Skeleton */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+                  {[...Array(4)].map((_, index) => (
+                    <div key={index} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-20"></div>
+                      <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Table Skeleton */}
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50 dark:bg-gray-800">
+                      <tr>
+                        <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                        </th>
+                        <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                        </th>
+                        <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                        </th>
+                        <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+                        </th>
+                        <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                      {[...Array(5)].map((_, index) => (
+                        <tr key={index}>
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                              <div className="mr-3">
+                                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-1 w-24"></div>
+                                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                          </td>
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-16"></div>
+                          </td>
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                          </td>
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                            <div className="flex gap-2">
+                              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           ) : blogs.length > 0 ? (
             <div className="overflow-x-auto">

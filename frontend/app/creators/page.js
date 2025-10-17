@@ -239,13 +239,45 @@ export default function CreatorsPage() {
       <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
         <div className="container-custom pr-2 sm:pr-4">
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-12 sm:py-16 gap-6">
-              {/* Elegant Three-Dot Loader */}
-              <div className="flex gap-2">
-                <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 items-stretch">
+              {[...Array(6)].map((_, index) => (
+                <div key={index} className="group card-interactive p-4 sm:p-6 md:p-8 h-full flex flex-col max-h-[600px] animate-pulse">
+                  {/* Card Header Skeleton */}
+                  <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                    <div className="flex-1">
+                      <div className="h-4 sm:h-5 bg-gray-200 dark:bg-gray-700 rounded mb-1 w-3/4"></div>
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-1/2"></div>
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
+                    </div>
+                  </div>
+
+                  {/* Card Content Skeleton */}
+                  <div className="flex-1 flex flex-col">
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded mb-4 w-5/6"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded mb-6 w-4/5"></div>
+
+                    {/* Stats Skeleton */}
+                    <div className="grid grid-cols-2 gap-2 sm:gap-4 mb-4 sm:mb-6">
+                      <div className="text-center">
+                        <div className="h-4 sm:h-6 bg-gray-200 dark:bg-gray-700 rounded mb-1"></div>
+                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto"></div>
+                      </div>
+                      <div className="text-center">
+                        <div className="h-4 sm:h-6 bg-gray-200 dark:bg-gray-700 rounded mb-1"></div>
+                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card Footer Skeleton */}
+                  <div className="space-y-2 sm:space-y-3 mt-auto">
+                    <div className="h-8 sm:h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div className="h-8 sm:h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : creatorsData.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 items-stretch opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]">

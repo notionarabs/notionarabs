@@ -280,10 +280,68 @@ export default function EditBlogPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-accent-600 dark:text-dark-text-secondary">جاري التحميل...</p>
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
+        <div className="container-custom py-8 sm:py-12">
+          {/* Header Skeleton */}
+          <div className="mb-8 sm:mb-12">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-48"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
+            </div>
+          </div>
+
+          {/* Form Skeleton */}
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-6 sm:p-8">
+              <div className="animate-pulse space-y-8">
+                {/* Basic Info Section */}
+                <div>
+                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-6 w-32"></div>
+                  <div className="space-y-6">
+                    <div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-20"></div>
+                      <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                    </div>
+                    <div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-24"></div>
+                      <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                    </div>
+                    <div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-16"></div>
+                      <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Image Upload Section */}
+                <div>
+                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-6 w-40"></div>
+                  <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded-lg border-2 border-dashed"></div>
+                </div>
+
+                {/* SEO Section */}
+                <div>
+                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-6 w-28"></div>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-16"></div>
+                      <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                    </div>
+                    <div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-20"></div>
+                      <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons Skeleton */}
+                <div className="flex gap-4 justify-end">
+                  <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                  <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );

@@ -235,10 +235,104 @@ export default function AdminPage() {
 
   if (loading || authLoading || persistentLoading) {
     return (
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center transition-colors duration-300" dir="rtl">
-        <div className="text-center">
-          <div className="loading-spinner mx-auto mb-4"></div>
-          <p className="loading-text">جاري التحميل...</p>
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
+        {/* Header Skeleton */}
+        <div className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300">
+          <div className="container-custom py-4 sm:py-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
+              <div className="flex-1 animate-pulse">
+                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-48"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
+              </div>
+              <div className="animate-pulse">
+                <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="container-custom py-8 sm:py-12">
+          {/* Stats Cards Skeleton */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
+            {[...Array(4)].map((_, index) => (
+              <div key={index} className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-4 sm:p-6 animate-pulse">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-20"></div>
+                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+              </div>
+            ))}
+          </div>
+
+          {/* Filters Skeleton */}
+          <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-4 sm:p-6 mb-6 sm:mb-8 animate-pulse">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4 items-start sm:items-center">
+              <div className="w-full sm:w-auto">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-24"></div>
+                <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+              </div>
+              <div className="w-full sm:w-auto">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-20"></div>
+                <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-28"></div>
+              </div>
+              <div className="w-full sm:w-auto">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-16"></div>
+                <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Users Table Skeleton */}
+          <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 dark:bg-dark-tertiary">
+                  <tr>
+                    <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white dark:bg-dark-secondary divide-y divide-gray-200 dark:divide-dark-card-border">
+                  {[...Array(5)].map((_, index) => (
+                    <tr key={index} className="animate-pulse">
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                          <div className="mr-3">
+                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-1 w-24"></div>
+                            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-20"></div>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-16"></div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -458,65 +552,94 @@ export default function AdminPage() {
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-dark-secondary divide-y divide-gray-200 dark:divide-dark-card-border">
-                {users.map((user) => (
-                  <tr key={user._id} className="hover:bg-gray-50 dark:hover:bg-dark-card-hover">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        {user.profilePicture && user.profilePicture.trim() !== '' ? (
-                          <img
-                            src={user.profilePicture}
-                            alt={user.name}
-                            className="w-10 h-10 rounded-full object-cover"
-                            onError={(e) => {
-                              // If image fails to load, hide it and show placeholder instead
-                              e.target.style.display = 'none';
-                              e.target.nextSibling.style.display = 'flex';
-                            }}
-                          />
-                        ) : null}
-                        <div
-                          className="w-10 h-10 bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 rounded-full flex items-center justify-center"
-                          style={{ display: user.profilePicture && user.profilePicture.trim() !== '' ? 'none' : 'flex' }}
-                        >
-                          <span className="text-white font-bold text-sm">
-                            {user.name?.charAt(0)?.toUpperCase()}
+                {loading ? (
+                  // Skeleton rows
+                  [...Array(5)].map((_, index) => (
+                    <tr key={index} className="animate-pulse">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                          <div className="mr-3">
+                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-1 w-24"></div>
+                            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-20"></div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-16"></div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  users.map((user) => (
+                    <tr key={user._id} className="hover:bg-gray-50 dark:hover:bg-dark-card-hover">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          {user.profilePicture && user.profilePicture.trim() !== '' ? (
+                            <img
+                              src={user.profilePicture}
+                              alt={user.name}
+                              className="w-10 h-10 rounded-full object-cover"
+                              onError={(e) => {
+                                // If image fails to load, hide it and show placeholder instead
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'flex';
+                              }}
+                            />
+                          ) : null}
+                          <div
+                            className="w-10 h-10 bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 rounded-full flex items-center justify-center"
+                            style={{ display: user.profilePicture && user.profilePicture.trim() !== '' ? 'none' : 'flex' }}
+                          >
+                            <span className="text-white font-bold text-sm">
+                              {user.name?.charAt(0)?.toUpperCase()}
+                            </span>
+                          </div>
+                          <div className="mr-3">
+                            <div className="text-sm font-medium text-accent-500 dark:text-dark-text-primary">{user.name}</div>
+                            <div className="text-sm text-accent-600 dark:text-dark-text-secondary">ID: {user._id}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-accent-600 dark:text-dark-text-secondary">
+                        {user.email}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {user.googleId ? (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
+                            Google
                           </span>
-                        </div>
-                        <div className="mr-3">
-                          <div className="text-sm font-medium text-accent-500 dark:text-dark-text-primary">{user.name}</div>
-                          <div className="text-sm text-accent-600 dark:text-dark-text-secondary">ID: {user._id}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-accent-600 dark:text-dark-text-secondary">
-                      {user.email}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {user.googleId ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
-                          Google
+                        ) : (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
+                            البريد الإلكتروني
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-accent-600 dark:text-dark-text-secondary">
+                        {formatDate(user.createdAt)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.role === 'admin'
+                          ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300'
+                          : user.role === 'creator'
+                            ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+                            : 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300'
+                          }`}>
+                          {user.role === 'admin' ? 'مدير' : user.role === 'creator' ? 'مبدع' : 'مستخدم'}
                         </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
-                          البريد الإلكتروني
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-accent-600 dark:text-dark-text-secondary">
-                      {formatDate(user.createdAt)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.role === 'admin'
-                        ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300'
-                        : user.role === 'creator'
-                          ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
-                          : 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300'
-                        }`}>
-                        {user.role === 'admin' ? 'مدير' : user.role === 'creator' ? 'مبدع' : 'مستخدم'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

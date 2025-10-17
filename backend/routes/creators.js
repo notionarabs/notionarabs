@@ -128,24 +128,19 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
 
       // Create a map for O(1) lookup
       templateStats.forEach(stat => {
-        // Calculate median rating from template ratings
-        let medianRating = 0;
+        // Calculate average rating from template ratings
+        let averageRating = 0;
         if (stat.templateRatings && stat.templateRatings.length > 0) {
-          const validRatings = stat.templateRatings.filter(rating => rating && rating > 0).sort((a, b) => a - b);
+          const validRatings = stat.templateRatings.filter(rating => rating && rating > 0);
           if (validRatings.length > 0) {
-            const mid = Math.floor(validRatings.length / 2);
-            if (validRatings.length % 2 === 0) {
-              medianRating = (validRatings[mid - 1] + validRatings[mid]) / 2;
-            } else {
-              medianRating = validRatings[mid];
-            }
+            averageRating = validRatings.reduce((sum, rating) => sum + rating, 0) / validRatings.length;
           }
         }
 
         templateStatsMap.set(stat._id.toString(), {
           totalTemplates: stat.totalTemplates,
           totalDownloads: stat.totalDownloads,
-          medianRating
+          medianRating: averageRating
         });
       });
     }
@@ -292,28 +287,21 @@ router.get('/:id', cacheMiddleware(600), async (req, res) => {
 
       const rawStats = stats[0] || {};
 
-      // Calculate median rating from template ratings
-      let medianRating = 0;
+      // Calculate average rating from template ratings
+      let averageRating = 0;
       if (rawStats.templateRatings && rawStats.templateRatings.length > 0) {
-        // Filter out null/undefined ratings and sort
-        const validRatings = rawStats.templateRatings.filter(rating => rating && rating > 0).sort((a, b) => a - b);
+        // Filter out null/undefined ratings
+        const validRatings = rawStats.templateRatings.filter(rating => rating && rating > 0);
 
         if (validRatings.length > 0) {
-          const mid = Math.floor(validRatings.length / 2);
-          if (validRatings.length % 2 === 0) {
-            // Even number of ratings - average of two middle values
-            medianRating = (validRatings[mid - 1] + validRatings[mid]) / 2;
-          } else {
-            // Odd number of ratings - middle value
-            medianRating = validRatings[mid];
-          }
+          averageRating = validRatings.reduce((sum, rating) => sum + rating, 0) / validRatings.length;
         }
       }
 
       creatorStats = {
         totalTemplates: rawStats.totalTemplates || 0,
         totalDownloads: rawStats.totalDownloads || 0,
-        medianRating: medianRating,
+        medianRating: averageRating,
         totalRevenue: rawStats.totalRevenue || 0
       };
     } catch (statsError) {

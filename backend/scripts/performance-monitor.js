@@ -5,10 +5,7 @@ const Blog = require('../models/Blog');
 const Rating = require('../models/Rating');
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/notion-arabs', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/notion-arabs');
 
 async function analyzePerformance() {
   console.log('🔍 Analyzing database performance...\n');
@@ -28,22 +25,22 @@ async function analyzePerformance() {
 
     // Check indexes
     console.log('🗂️  Database Indexes:');
-    
+
     const userIndexes = await User.collection.getIndexes();
     console.log(`Users indexes: ${Object.keys(userIndexes).length}`);
-    
+
     const templateIndexes = await Template.collection.getIndexes();
     console.log(`Templates indexes: ${Object.keys(templateIndexes).length}`);
-    
+
     const blogIndexes = await Blog.collection.getIndexes();
     console.log(`Blogs indexes: ${Object.keys(blogIndexes).length}`);
-    
+
     const ratingIndexes = await Rating.collection.getIndexes();
     console.log(`Ratings indexes: ${Object.keys(ratingIndexes).length}\n`);
 
     // Performance test queries
     console.log('⚡ Performance Tests:');
-    
+
     const start1 = Date.now();
     await User.find({ creatorStatus: 'approved' }).limit(10).lean();
     const userQueryTime = Date.now() - start1;
@@ -70,19 +67,19 @@ async function analyzePerformance() {
 
     // Recommendations
     console.log('💡 Performance Recommendations:');
-    
+
     if (userQueryTime > 100) {
       console.log('⚠️  User queries are slow - consider adding more indexes');
     }
-    
+
     if (templateQueryTime > 100) {
       console.log('⚠️  Template queries are slow - check category indexes');
     }
-    
+
     if (blogQueryTime > 100) {
       console.log('⚠️  Blog queries are slow - check status indexes');
     }
-    
+
     if (aggQueryTime > 200) {
       console.log('⚠️  Aggregation queries are slow - consider optimizing');
     }

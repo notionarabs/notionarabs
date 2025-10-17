@@ -166,8 +166,8 @@ function CategoryTemplatesContent() {
 
       const params = new URLSearchParams({
         category: categoryName,
-        page: '1',
-        limit: '20', // Use server-side pagination
+        page: pagination.current.toString(),
+        limit: pagination.limit.toString(),
         sortBy,
         sortOrder: 'desc'
       });
@@ -176,11 +176,15 @@ function CategoryTemplatesContent() {
 
       if (response.data.success) {
         setTemplates(response.data.templates || []);
-        setPagination(prev => ({
-          ...prev,
-          total: response.data.pagination?.total || 0,
-          pages: Math.ceil((response.data.pagination?.total || 0) / prev.limit)
-        }));
+        // Update pagination from server response
+        if (response.data.pagination) {
+          setPagination(prev => ({
+            ...prev,
+            current: response.data.pagination.current,
+            pages: response.data.pagination.pages,
+            total: response.data.pagination.total
+          }));
+        }
       } else {
         setError('فشل في تحميل القوالب');
       }
@@ -192,36 +196,13 @@ function CategoryTemplatesContent() {
     }
   };
 
-  // Initial load
+  // Initial load and refetch when search/sort changes
   useEffect(() => {
     fetchTemplates();
-  }, [categorySlug]);
+  }, [categorySlug, sortBy, pagination.current]);
 
-  // Refetch when sort changes
-  useEffect(() => {
-    if (categorySlug) {
-      fetchTemplates();
-    }
-  }, [sortBy]);
-
-  // Sorted templates
-  const sortedTemplates = templates.sort((a, b) => {
-    const aValue = a[sortBy];
-    const bValue = b[sortBy];
-
-    if (sortBy === 'createdAt') {
-      return new Date(bValue) - new Date(aValue);
-    } else if (sortBy === 'downloads' || sortBy === 'rating') {
-      return (bValue || 0) - (aValue || 0);
-    }
-    return 0;
-  });
-
-  // Paginated templates for display
-  const paginatedTemplates = sortedTemplates.slice(
-    (pagination.current - 1) * pagination.limit,
-    pagination.current * pagination.limit
-  );
+  // Templates are already paginated and sorted from server
+  const paginatedTemplates = templates;
 
   const handlePageChange = (newPage) => {
     setPagination(prev => ({ ...prev, current: newPage }));

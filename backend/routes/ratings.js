@@ -124,28 +124,20 @@ router.post('/', auth, [
           status: 'approved'
         }).select('rating');
 
-        // Calculate median rating from all template ratings
-        let medianRating = 0;
+        // Calculate average rating from all template ratings
+        let averageRating = 0;
         if (creatorTemplates.length > 0) {
           const validRatings = creatorTemplates
             .map(t => t.rating)
-            .filter(rating => rating && rating > 0)
-            .sort((a, b) => a - b);
+            .filter(rating => rating && rating > 0);
 
           if (validRatings.length > 0) {
-            const mid = Math.floor(validRatings.length / 2);
-            if (validRatings.length % 2 === 0) {
-              // Even number of ratings - average of two middle values
-              medianRating = (validRatings[mid - 1] + validRatings[mid]) / 2;
-            } else {
-              // Odd number of ratings - middle value
-              medianRating = validRatings[mid];
-            }
+            averageRating = validRatings.reduce((sum, rating) => sum + rating, 0) / validRatings.length;
           }
         }
 
         await User.findByIdAndUpdate(template.creator, {
-          rating: medianRating
+          rating: averageRating
         });
 
         // Notify creator about rating (non-blocking)

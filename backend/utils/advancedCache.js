@@ -45,15 +45,16 @@ const cacheWarmer = {
 
         if (templateStats.length > 0) {
           const stats = templateStats[0];
-          const medianRating = stats.templateRatings.length > 0
-            ? stats.templateRatings.sort((a, b) => a - b)[Math.floor(stats.templateRatings.length / 2)]
+          const validRatings = stats.templateRatings.filter(r => r > 0);
+          const averageRating = validRatings.length > 0
+            ? validRatings.reduce((sum, rating) => sum + rating, 0) / validRatings.length
             : 0;
 
           // Cache the stats
           await this.setCache(`creator_stats_${creatorId}`, {
             totalTemplates: stats.totalTemplates,
             totalDownloads: stats.totalDownloads,
-            medianRating: medianRating
+            medianRating: averageRating
           }, 600); // 10 minutes
         }
       }

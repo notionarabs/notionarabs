@@ -623,16 +623,128 @@ export default function TemplateDetailPage() {
   if (loading) {
     return (
       <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
-        <div className="container-custom py-20">
-          <div className="flex flex-col items-center justify-center gap-6">
-            {/* Elegant Three-Dot Loader */}
-            <div className="flex gap-2">
-              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+        {/* Breadcrumb Skeleton */}
+        <section className="bg-white dark:bg-dark-secondary transition-colors duration-300 border-b border-gray-200 dark:border-dark-card-border">
+          <div className="container-custom py-3">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-16 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+              <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-1 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+              <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-20 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+              <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-1 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+              <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-24 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
             </div>
           </div>
+        </section>
+
+        {/* Template Details Skeleton */}
+        <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
+          <div className="container-custom">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 md:gap-8 lg:gap-12">
+
+              {/* Images and Video Skeleton */}
+              <div className="lg:col-span-3">
+                <div className="mb-4">
+                  <div className="w-full h-64 sm:h-80 md:h-96 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-xl bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
         </div>
+
+                {/* Image Thumbnails Skeleton */}
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {[...Array(4)].map((_, idx) => (
+                    <div key={idx} className="flex-shrink-0 w-16 h-16 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-lg bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                  ))}
+                </div>
+
+                {/* Video Button Skeleton */}
+                <div className="mt-4">
+                  <div className="h-10 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-lg w-32 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                </div>
+              </div>
+
+              {/* Template Info Skeleton */}
+              <div className="lg:col-span-2">
+                <div className="sticky top-6 space-y-6">
+
+                  {/* Title and Category Skeleton */}
+                  <div className="space-y-3">
+                    <div className="h-8 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-3/4 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    <div className="h-6 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-full w-20 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                  </div>
+
+                  {/* Rating Skeleton */}
+                  <div className="flex items-center gap-2">
+                    <div className="h-5 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-20 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-16 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                  </div>
+
+                  {/* Description Skeleton */}
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-full bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-full bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-3/4 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                  </div>
+
+                  {/* Features Skeleton */}
+                  <div className="space-y-3">
+                    <div className="h-5 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-24 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    <div className="space-y-2">
+                      {[...Array(4)].map((_, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <div className="h-4 w-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                          <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-3/4 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Creator Info Skeleton */}
+                  <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-dark-tertiary rounded-lg">
+                    <div className="w-10 h-10 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-full bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    <div className="flex-1">
+                      <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-24 mb-1 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                      <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-16 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    </div>
+                  </div>
+
+                  {/* Download Button Skeleton */}
+                  <div className="h-12 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-xl w-full bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+
+                  {/* Price Skeleton */}
+                  <div className="text-center">
+                    <div className="h-6 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-20 mx-auto bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Related Templates Skeleton */}
+        <section className="py-8 sm:py-12 md:py-16 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
+          <div className="container-custom">
+            <div className="h-8 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-40 mb-6 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {[...Array(3)].map((_, idx) => (
+                <div key={idx} className="bg-white dark:bg-dark-tertiary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-dark-card-border h-full flex flex-col overflow-hidden">
+                  {/* Template Image Skeleton */}
+                  <div className="relative overflow-hidden rounded-lg h-48 mb-4">
+                    <div className="w-full h-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                  </div>
+
+                  {/* Template Info Skeleton */}
+                  <div className="space-y-3">
+                    <div className="h-5 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-3/4 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-1/2 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    <div className="flex items-center justify-between">
+                      <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-16 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                      <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-12 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
     );
   }

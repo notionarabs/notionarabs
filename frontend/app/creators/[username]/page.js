@@ -274,16 +274,114 @@ export default function PublicProfilePage() {
   if (loading) {
     return (
       <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
-        <div className="container-custom py-20">
-          <div className="flex flex-col items-center justify-center gap-6">
-            {/* Elegant Three-Dot Loader */}
-            <div className="flex gap-2">
-              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+        {/* Header Skeleton */}
+        <div className="bg-white dark:bg-dark-secondary shadow-soft dark:shadow-dark-soft border-b border-gray-200 dark:border-dark-card-border">
+          <div className="container-custom px-4 sm:px-6 py-3 sm:py-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-16 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+              <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-1 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+              <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-24 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
             </div>
           </div>
         </div>
+
+        {/* Hero Section Skeleton */}
+        <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
+          <div className="container-custom px-4 sm:px-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 items-start">
+
+              {/* Left Column - Creator Identity Skeleton */}
+              <div className="space-y-4 sm:space-y-6">
+                {/* Profile Picture and Name Skeleton */}
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+                  {/* Profile Picture Skeleton */}
+                  <div className="relative flex-shrink-0">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                  </div>
+
+                  {/* Creator Name and Stats Skeleton */}
+                  <div className="flex-1 text-center sm:text-right w-full">
+                    <div className="flex items-center gap-4 justify-center sm:justify-start flex-wrap mb-3">
+                      <div className="h-8 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-48 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    </div>
+
+                    {/* Stats Skeleton */}
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3">
+                      <div className="h-6 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-full w-16 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                      <div className="h-6 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-full w-16 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                      <div className="h-6 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-full w-16 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bio Skeleton */}
+                <div className="space-y-2">
+                  <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-full bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                  <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-3/4 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                </div>
+
+                {/* Action Buttons Skeleton */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+                  <div className="h-10 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-lg w-24 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                  <div className="h-10 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-lg w-24 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                </div>
+              </div>
+
+              {/* Right Column - Metadata Skeleton */}
+              <div className="space-y-6 sm:space-y-8">
+                {/* Professional Information Skeleton */}
+                <div className="bg-white dark:bg-dark-secondary p-4 sm:p-5 md:p-6 rounded-lg sm:rounded-xl border border-gray-200 dark:border-dark-card-border shadow-sm">
+                  <div className="h-5 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-32 mb-4 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      <div className="h-6 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-full w-16 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                      <div className="h-6 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-full w-20 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                      <div className="h-6 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-full w-18 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Social Links Skeleton */}
+                <div className="bg-white dark:bg-dark-secondary p-4 sm:p-5 md:p-6 rounded-lg sm:rounded-xl border border-gray-200 dark:border-dark-card-border shadow-sm">
+                  <div className="h-5 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-24 mb-4 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                  <div className="flex gap-3">
+                    <div className="h-8 w-8 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-lg bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    <div className="h-8 w-8 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-lg bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    <div className="h-8 w-8 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-lg bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Templates Section Skeleton */}
+        <section className="py-8 sm:py-12 md:py-16 bg-white dark:bg-dark-secondary transition-colors duration-300">
+          <div className="container-custom px-4 sm:px-6">
+            <div className="h-8 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-32 mb-6 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {[...Array(6)].map((_, idx) => (
+                <div key={idx} className="bg-white dark:bg-dark-tertiary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-dark-card-border h-full flex flex-col overflow-hidden">
+                  {/* Template Image Skeleton */}
+                  <div className="relative overflow-hidden rounded-lg h-48 mb-4">
+                    <div className="w-full h-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                  </div>
+
+                  {/* Template Info Skeleton */}
+                  <div className="space-y-3">
+                    <div className="h-5 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-3/4 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-1/2 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    <div className="flex items-center justify-between">
+                      <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-16 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                      <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-12 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+            </div>
+          </div>
+        </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
     );
   }

@@ -104,9 +104,6 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/notion-ar
   maxIdleTimeMS: 30000, // Close connections after 30 seconds of inactivity
   serverSelectionTimeoutMS: 5000, // How long to try to connect
   socketTimeoutMS: 45000, // How long to wait for a response
-  // Performance optimizations
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
   // Read preferences for better performance
   readPreference: 'secondaryPreferred'
 })

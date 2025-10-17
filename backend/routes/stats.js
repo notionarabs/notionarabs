@@ -128,6 +128,30 @@ router.get('/homepage', cacheMiddleware(600), async (req, res) => {
       ])
     ]);
 
+    // Post-process topCreators to calculate correct average ratings
+    const processedTopCreators = await Promise.all(
+      topCreators.map(async (creator) => {
+        // Get template ratings for this creator
+        const templateRatings = await Template.aggregate([
+          { $match: { creator: creator._id, status: 'approved' } },
+          { $group: { _id: null, ratings: { $push: { $ifNull: ['$rating', 0] } } } }
+        ]);
+
+        let correctAverageRating = 0;
+        if (templateRatings.length > 0 && templateRatings[0].ratings) {
+          const validRatings = templateRatings[0].ratings.filter(rating => rating > 0);
+          if (validRatings.length > 0) {
+            correctAverageRating = validRatings.reduce((sum, rating) => sum + rating, 0) / validRatings.length;
+          }
+        }
+
+        return {
+          ...creator,
+          averageRating: correctAverageRating
+        };
+      })
+    );
+
     // Count unique specialties (categories with at least 1 template)
     const specialtiesCount = categoryStats.filter(stat => stat.count > 0).length;
 
@@ -146,7 +170,7 @@ router.get('/homepage', cacheMiddleware(600), async (req, res) => {
         specialties: specialtiesCount
       },
       categoryTotals,
-      topCreators
+      topCreators: processedTopCreators
     });
   } catch (error) {
     console.error('Get homepage stats error:', error);

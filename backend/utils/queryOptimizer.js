@@ -29,14 +29,14 @@ const getCreatorStatsOptimized = async (creatorIds) => {
 
   templateStats.forEach(stat => {
     const ratings = stat.templateRatings.filter(r => r > 0);
-    const medianRating = ratings.length > 0
-      ? ratings.sort((a, b) => a - b)[Math.floor(ratings.length / 2)]
+    const averageRating = ratings.length > 0
+      ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
       : 0;
 
     statsMap.set(stat._id.toString(), {
       totalTemplates: stat.totalTemplates,
       totalDownloads: stat.totalDownloads,
-      medianRating: medianRating,
+      medianRating: averageRating,
       totalViews: stat.totalViews
     });
   });

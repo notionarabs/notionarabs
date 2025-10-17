@@ -81,15 +81,8 @@ function TemplatesPageContent() {
   // Templates are already paginated from server
   const paginatedTemplates = templates;
 
-  // Update pagination when templates change
-  useEffect(() => {
-    setPagination(prev => ({
-      ...prev,
-      current: 1,
-      total: templates.length,
-      pages: Math.ceil(templates.length / prev.limit)
-    }));
-  }, [templates]);
+  // Remove this useEffect as it conflicts with server pagination
+  // The pagination is already set correctly from the server response
 
   const handleSearch = (e) => {
     e.preventDefault();

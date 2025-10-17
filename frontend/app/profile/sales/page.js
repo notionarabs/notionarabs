@@ -7,6 +7,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import api from '../../../lib/api';
 import LoadingIndicator from '../../../components/LoadingIndicator';
 import ExportButton from '../../../components/ExportButton';
+import Navigation from '../../../components/Navigation';
 import Cookies from 'js-cookie';
 
 export default function CreatorSalesPage() {

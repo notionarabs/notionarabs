@@ -480,6 +480,7 @@ router.get('/my-templates', auth, cacheMiddleware(120), async (req, res) => {
     }
 
     const templates = await Template.find({ creator: req.user._id })
+      .select('title description category categories tags previewImage slug rating reviewsCount downloads isPaid price createdAt isPinned pinnedAt status adminNotes rejectedAt rejectedBy approvedAt approvedBy')
       .sort({ createdAt: -1 });
 
     res.json({
@@ -909,11 +910,16 @@ router.put('/:id', auth, [
       });
     }
 
-    // If template is approved, changing it will set it back to pending
-    if (template.status === 'approved') {
+    // Store the previous status before making changes
+    const previousStatus = template.status;
+
+    // If template is approved or rejected, changing it will set it back to pending
+    if (template.status === 'approved' || template.status === 'rejected') {
       template.status = 'pending';
       template.approvedAt = null;
       template.approvedBy = null;
+      template.rejectedAt = null;
+      template.rejectedBy = null;
       template.adminNotes = '';
     }
 
@@ -922,6 +928,30 @@ router.put('/:id', auth, [
 
     // Invalidate templates cache
     await invalidateCache('template', template._id);
+
+    // Create admin notification for template edit (only if status was changed from approved/rejected)
+    if (previousStatus === 'approved' || previousStatus === 'rejected') {
+      try {
+        await Notification.create({
+          user: null, // Admin notifications don't have a specific user
+          type: 'template_edited',
+          title: 'تم تعديل قالب يحتاج مراجعة',
+          message: `${req.user.name} قام بتعديل قالب: ${template.title} (تم إعادة تعيين الحالة من ${previousStatus === 'approved' ? 'موافق عليه' : 'مرفوض'} إلى قيد المراجعة)`,
+          link: '/admin/templates',
+          metadata: {
+            templateId: template._id,
+            templateTitle: template.title,
+            creatorId: req.user._id,
+            creatorName: req.user.name,
+            creatorEmail: req.user.email,
+            editDate: new Date(),
+            previousStatus: previousStatus
+          }
+        });
+      } catch (notifyErr) {
+        console.error('Create admin edit notification error:', notifyErr);
+      }
+    }
 
     res.json({
       success: true,

@@ -651,6 +651,26 @@ router.put('/templates/:id/status', auth, [
       }
     } else {
       await template.reject(req.user._id, adminNotes);
+
+      // Notify the creator that their template was rejected
+      try {
+        if (template.creator) {
+          await Notification.create({
+            user: template.creator,
+            type: 'template_rejected',
+            title: 'تم رفض قالبك',
+            message: `تم رفض قالبك: ${template.title}${adminNotes ? `\n\nملاحظات الإدارة: ${adminNotes}` : ''}`,
+            link: `/templates/${template.slug || template._id}`,
+            metadata: {
+              templateId: template._id,
+              adminNotes: adminNotes || '',
+              rejectedBy: req.user._id
+            }
+          });
+        }
+      } catch (creatorNotifyErr) {
+        console.error('Notify creator rejection error:', creatorNotifyErr);
+      }
     }
 
     await template.populate('creator', 'name username displayName email profilePicture');

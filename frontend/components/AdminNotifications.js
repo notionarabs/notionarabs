@@ -131,9 +131,16 @@ export default function AdminNotifications() {
           </svg>
         );
       case 'template_submission':
+      case 'admin_template_pending':
         return (
           <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        );
+      case 'template_edited':
+        return (
+          <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
           </svg>
         );
       case 'blog_submission':
@@ -162,7 +169,10 @@ export default function AdminNotifications() {
       case 'creator_application':
         return `طلب جديد للانضمام كمبدع من ${notification.data.userName}`;
       case 'template_submission':
+      case 'admin_template_pending':
         return `قالب جديد "${notification.data.templateTitle}" ينتظر المراجعة`;
+      case 'template_edited':
+        return `تم تعديل قالب "${notification.data.templateTitle}" يحتاج مراجعة`;
       case 'blog_submission':
         return `مقال جديد "${notification.data.blogTitle}" ينتظر المراجعة`;
       case 'user_registration':
@@ -177,6 +187,8 @@ export default function AdminNotifications() {
       case 'creator_application':
         return '/admin/creator-applications';
       case 'template_submission':
+      case 'admin_template_pending':
+      case 'template_edited':
         return '/admin/templates';
       case 'blog_submission':
         return '/admin/blogs';

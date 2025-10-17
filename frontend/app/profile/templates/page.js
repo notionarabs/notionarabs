@@ -247,6 +247,27 @@ export default function CreatorTemplatesPage() {
                     <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary line-clamp-2">
                       {template.description}
                     </p>
+
+                    {/* Admin Comments */}
+                    {template.adminNotes && (
+                      <div className="mt-3 p-3 bg-gray-50 dark:bg-dark-tertiary rounded-lg border-l-4 border-primary-500">
+                        <div className="flex items-start gap-2">
+                          <div className="flex-shrink-0 mt-0.5">
+                            <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="text-sm font-semibold text-accent-700 dark:text-dark-text-primary mb-1">
+                              ملاحظات الإدارة:
+                            </h4>
+                            <p className="text-sm text-accent-600 dark:text-dark-text-secondary whitespace-pre-wrap">
+                              {template.adminNotes}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Actions */}

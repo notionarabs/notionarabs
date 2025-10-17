@@ -250,20 +250,30 @@ export default function CreatorTemplatesPage() {
 
                     {/* Admin Comments */}
                     {template.adminNotes && (
-                      <div className="mt-3 p-3 bg-gray-50 dark:bg-dark-tertiary rounded-lg border-l-4 border-primary-500">
-                        <div className="flex items-start gap-2">
-                          <div className="flex-shrink-0 mt-0.5">
-                            <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
+                      <div className="mt-4 p-4 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 rounded-xl border border-red-200 dark:border-red-800/30 shadow-sm">
+                        <div className="flex items-start gap-3">
+                          <div className="flex-shrink-0 mt-1">
+                            <div className="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                              <svg className="w-4 h-4 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                            </div>
                           </div>
-                          <div className="flex-1">
-                            <h4 className="text-sm font-semibold text-accent-700 dark:text-dark-text-primary mb-1">
-                              ملاحظات الإدارة:
-                            </h4>
-                            <p className="text-sm text-accent-600 dark:text-dark-text-secondary whitespace-pre-wrap">
-                              {template.adminNotes}
-                            </p>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h4 className="text-sm font-bold text-red-800 dark:text-red-300">
+                                ملاحظات الإدارة
+                              </h4>
+                              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                            </div>
+                            <div className="bg-white dark:bg-dark-secondary/50 rounded-lg p-3 border border-red-100 dark:border-red-800/20">
+                              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                                {template.adminNotes}
+                              </p>
+                            </div>
+                            <div className="mt-2 text-xs text-red-600 dark:text-red-400 font-medium">
+                              يرجى مراجعة هذه الملاحظات وتعديل القالب وفقاً لها
+                            </div>
                           </div>
                         </div>
                       </div>

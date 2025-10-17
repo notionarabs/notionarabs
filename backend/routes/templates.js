@@ -8,7 +8,6 @@ const Notification = require('../models/Notification');
 const auth = require('../middleware/auth');
 const { generateTemplateSlug } = require('../utils/slugGenerator');
 const { cacheMiddleware, invalidateCache } = require('../utils/redis-cache');
-const Fuse = require('fuse.js');
 
 const router = express.Router();
 
@@ -379,71 +378,83 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
       filter.creator = creator;
     }
 
-    // If search is provided, use Fuse.js (requires loading all data)
+    // If search is provided, use server-side text search
     if (search && search.trim()) {
-      // Get all templates for Fuse.js search with limit to prevent memory issues
-      let templates = await Template.find(filter)
-        .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price createdAt isPinned pinnedAt')
-        .populate('creator', 'name username displayName profilePicture')
-        .limit(500) // Limit search results to prevent memory issues
-        .lean();
+      try {
+        // Server-side text search using MongoDB
+        const searchQuery = {
+          ...filter,
+          $text: { $search: search.trim() }
+        };
 
-      const fuseOptions = {
-        keys: [
-          { name: 'title', weight: 0.4 },
-          { name: 'description', weight: 0.3 },
-          { name: 'category', weight: 0.2 },
-          { name: 'categories', weight: 0.2 },
-          { name: 'tags', weight: 0.1 },
-          { name: 'creator.name', weight: 0.1 },
-          { name: 'creator.username', weight: 0.1 },
-          { name: 'creator.displayName', weight: 0.1 }
-        ],
-        threshold: 0.4,
-        includeScore: true,
-        includeMatches: true,
-        minMatchCharLength: 2,
-        ignoreLocation: true,
-        findAllMatches: true,
-        getFn: (obj, path) => {
-          const value = Fuse.config.getFn(obj, path);
-          if (typeof value === 'string') {
-            return value.toLowerCase().trim();
+        const sort = {
+          score: { $meta: 'textScore' },
+          [sortBy]: sortOrder === 'desc' ? -1 : 1
+        };
+
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+
+        const [templates, totalCount] = await Promise.all([
+          Template.find(searchQuery)
+            .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price createdAt isPinned pinnedAt')
+            .populate('creator', 'name username displayName profilePicture')
+            .sort(sort)
+            .skip(skip)
+            .limit(parseInt(limit))
+            .lean(),
+          Template.countDocuments(searchQuery)
+        ]);
+
+        return res.json({
+          success: true,
+          templates,
+          pagination: {
+            current: parseInt(page),
+            pages: Math.ceil(totalCount / parseInt(limit)),
+            total: totalCount,
+            limit: parseInt(limit)
           }
-          return value;
-        }
-      };
+        });
+      } catch (textSearchError) {
+        // Fallback to regex search if text search fails
+        console.warn('Text search failed, falling back to regex search:', textSearchError.message);
 
-      const fuse = new Fuse(templates, fuseOptions);
-      const searchResults = fuse.search(search.trim().toLowerCase());
-      templates = searchResults.map(result => result.item);
+        const regexQuery = {
+          ...filter,
+          $or: [
+            { title: { $regex: search.trim(), $options: 'i' } },
+            { description: { $regex: search.trim(), $options: 'i' } },
+            { tags: { $in: [new RegExp(search.trim(), 'i')] } },
+            { category: { $regex: search.trim(), $options: 'i' } }
+          ]
+        };
 
-      // Apply sorting
-      templates.sort((a, b) => {
-        const aValue = a[sortBy];
-        const bValue = b[sortBy];
-        if (sortOrder === 'desc') {
-          return bValue > aValue ? 1 : -1;
-        } else {
-          return aValue > bValue ? 1 : -1;
-        }
-      });
+        const sort = {};
+        sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+        const skip = (parseInt(page) - 1) * parseInt(limit);
 
-      // Apply pagination
-      const total = templates.length;
-      const skip = (parseInt(page) - 1) * parseInt(limit);
-      const paginatedTemplates = templates.slice(skip, skip + parseInt(limit));
+        const [templates, totalCount] = await Promise.all([
+          Template.find(regexQuery)
+            .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price createdAt isPinned pinnedAt')
+            .populate('creator', 'name username displayName profilePicture')
+            .sort(sort)
+            .skip(skip)
+            .limit(parseInt(limit))
+            .lean(),
+          Template.countDocuments(regexQuery)
+        ]);
 
-      return res.json({
-        success: true,
-        templates: paginatedTemplates,
-        pagination: {
-          current: parseInt(page),
-          pages: Math.ceil(total / parseInt(limit)),
-          total,
-          limit: parseInt(limit)
-        }
-      });
+        return res.json({
+          success: true,
+          templates,
+          pagination: {
+            current: parseInt(page),
+            pages: Math.ceil(totalCount / parseInt(limit)),
+            total: totalCount,
+            limit: parseInt(limit)
+          }
+        });
+      }
     }
 
     // This code is now handled by handleOptimizedPagination function above

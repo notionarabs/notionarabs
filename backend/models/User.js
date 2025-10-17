@@ -293,4 +293,13 @@ userSchema.index({ rating: -1 }); // For top-rated creators
 userSchema.index({ role: 1, creatorStatus: 1, followers: -1 }); // For fetching top creators
 userSchema.index({ role: 1, creatorStatus: 1, isActive: 1 }); // For active approved creators
 
+// Text search index for creator search optimization
+userSchema.index({
+  name: 'text',
+  username: 'text',
+  displayName: 'text',
+  bio: 'text',
+  specialties: 'text'
+});
+
 module.exports = mongoose.model('User', userSchema);

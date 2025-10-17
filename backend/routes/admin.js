@@ -5,7 +5,7 @@ const Template = require('../models/Template');
 const Notification = require('../models/Notification');
 const Blog = require('../models/Blog');
 const auth = require('../middleware/auth');
-const { invalidateCache } = require('../utils/redis-cache');
+const { cacheMiddleware, invalidateCache } = require('../utils/redis-cache');
 
 const router = express.Router();
 
@@ -78,7 +78,7 @@ const createTransporter = () => {
 // @route   GET /api/settings/public
 // @desc    Get public settings (maintenance mode, etc.)
 // @access  Public
-router.get('/settings/public', async (req, res) => {
+router.get('/settings/public', cacheMiddleware(300), async (req, res) => {
   try {
     console.log('Public settings route called');
     const Settings = require('../models/Settings');
@@ -106,7 +106,7 @@ router.get('/settings/public', async (req, res) => {
 });
 
 // Simple public settings route
-router.get('/public', async (req, res) => {
+router.get('/public', cacheMiddleware(300), async (req, res) => {
   try {
     const Settings = require('../models/Settings');
     const settings = await Settings.getSettings();

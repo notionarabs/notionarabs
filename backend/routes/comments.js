@@ -6,6 +6,7 @@ const User = require('../models/User');
 const Blog = require('../models/Blog');
 const auth = require('../middleware/auth');
 const Notification = require('../models/Notification');
+const { cacheMiddleware, invalidateCache } = require('../utils/redis-cache');
 
 const router = express.Router();
 
@@ -115,6 +116,10 @@ router.post('/', auth, [
       console.error('Create comment notification error:', notifyErr?.message || notifyErr);
     }
 
+    // Invalidate comment cache for this target
+    invalidateCache(`comments:${targetType}:${targetId}`);
+    invalidateCache(`comments:user:${req.user._id}:${targetType}:${targetId}`);
+
     res.json({
       success: true,
       message: existingComment ? 'تم تحديث التعليق بنجاح' : 'تم إضافة التعليق بنجاح',
@@ -133,7 +138,7 @@ router.post('/', auth, [
 // @route   GET /api/comments/:targetType/:targetId
 // @desc    Get comments for a specific template or creator
 // @access  Public
-router.get('/:targetType/:targetId', async (req, res) => {
+router.get('/:targetType/:targetId', cacheMiddleware(300), async (req, res) => {
   try {
     const { targetType, targetId } = req.params;
     const page = parseInt(req.query.page) || 1;
@@ -191,7 +196,7 @@ router.get('/:targetType/:targetId', async (req, res) => {
 // @route   GET /api/comments/user/:targetType/:targetId
 // @desc    Get user's comment for a specific template or creator
 // @access  Private
-router.get('/user/:targetType/:targetId', auth, async (req, res) => {
+router.get('/user/:targetType/:targetId', auth, cacheMiddleware(120), async (req, res) => {
   try {
     const { targetType, targetId } = req.params;
     const userId = req.user._id;

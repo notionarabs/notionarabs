@@ -7,7 +7,6 @@ const DownloadLog = require('../models/DownloadLog');
 const jwt = require('jsonwebtoken');
 const auth = require('../middleware/auth');
 const { cacheMiddleware, invalidateCache } = require('../utils/redis-cache');
-const Fuse = require('fuse.js');
 
 const router = express.Router();
 
@@ -35,46 +34,79 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
       query.specialties = { $in: [specialty] };
     }
 
-    // Get all creators first (for Fuse.js search)
-    let creators = await User.find(query)
-      .select('name username displayName email bio profilePicture specialties rating followers createdAt templateCount totalEarnings experience motivation badges')
-      .lean();
+    // Optimized: Use server-side search and pagination
+    let creators;
+    let totalCount;
 
-    // Apply Fuse.js search if search term is provided
     if (search && search.trim()) {
-      const fuseOptions = {
-        keys: [
-          { name: 'name', weight: 0.4 },
-          { name: 'username', weight: 0.3 },
-          { name: 'displayName', weight: 0.3 },
-          { name: 'bio', weight: 0.2 },
-          { name: 'specialties', weight: 0.2 },
-          { name: 'experience', weight: 0.1 },
-          { name: 'motivation', weight: 0.1 }
-        ],
-        threshold: 0.4, // Lower threshold for more strict matching
-        includeScore: true,
-        includeMatches: true,
-        minMatchCharLength: 2,
-        // Support both Arabic and English
-        ignoreLocation: true,
-        findAllMatches: true,
-        // Custom search function to handle both languages
-        getFn: (obj, path) => {
-          const value = Fuse.config.getFn(obj, path);
-          if (typeof value === 'string') {
-            // Normalize text for better matching
-            return value.toLowerCase().trim();
-          }
-          return value;
-        }
-      };
+      // Server-side search using text index with regex fallback
+      try {
+        const searchQuery = {
+          ...query,
+          $text: { $search: search.trim() }
+        };
 
-      const fuse = new Fuse(creators, fuseOptions);
-      const searchResults = fuse.search(search.trim().toLowerCase());
+        const sort = {
+          score: { $meta: 'textScore' },
+          [sortBy]: 'desc'
+        };
 
-      // Extract the items from Fuse results
-      creators = searchResults.map(result => result.item);
+        const skip = (page - 1) * limit;
+
+        [creators, totalCount] = await Promise.all([
+          User.find(searchQuery)
+            .select('name username displayName email bio profilePicture specialties rating followers createdAt templateCount totalEarnings experience motivation badges')
+            .sort(sort)
+            .skip(skip)
+            .limit(limit)
+            .lean(),
+          User.countDocuments(searchQuery)
+        ]);
+      } catch (textSearchError) {
+        // Fallback to regex search if text search fails
+        console.warn('Text search failed, falling back to regex search:', textSearchError.message);
+
+        const searchQuery = {
+          ...query,
+          $or: [
+            { name: { $regex: search.trim(), $options: 'i' } },
+            { username: { $regex: search.trim(), $options: 'i' } },
+            { displayName: { $regex: search.trim(), $options: 'i' } },
+            { bio: { $regex: search.trim(), $options: 'i' } },
+            { specialties: { $in: [new RegExp(search.trim(), 'i')] } }
+          ]
+        };
+
+        const sort = {};
+        sort[sortBy] = 'desc';
+        const skip = (page - 1) * limit;
+
+        [creators, totalCount] = await Promise.all([
+          User.find(searchQuery)
+            .select('name username displayName email bio profilePicture specialties rating followers createdAt templateCount totalEarnings experience motivation badges')
+            .sort(sort)
+            .skip(skip)
+            .limit(limit)
+            .lean(),
+          User.countDocuments(searchQuery)
+        ]);
+      }
+    } else {
+      // Regular pagination without search
+      const sort = {};
+      sort[sortBy] = 'desc';
+
+      const skip = (page - 1) * limit;
+
+      [creators, totalCount] = await Promise.all([
+        User.find(query)
+          .select('name username displayName email bio profilePicture specialties rating followers createdAt templateCount totalEarnings experience motivation badges')
+          .sort(sort)
+          .skip(skip)
+          .limit(limit)
+          .lean(),
+        User.countDocuments(query)
+      ]);
     }
 
     // Optimized: Get template stats for all creators in one aggregation
@@ -138,52 +170,14 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
       };
     });
 
-    // Apply sorting
-    let sort = {};
-    switch (sortBy) {
-      case 'popular':
-        sort = { followers: -1 };
-        break;
-      case 'newest':
-        sort = { createdAt: -1 };
-        break;
-      case 'rating':
-        sort = { rating: -1 };
-        break;
-      case 'templates':
-        sort = { templates: -1 };
-        break;
-      case 'earnings':
-        sort = { earnings: -1 };
-        break;
-      default:
-        sort = { followers: -1 };
-    }
-
-    // Sort the creators array
-    creatorsWithStats.sort((a, b) => {
-      const aValue = a[sortBy] || a.followers;
-      const bValue = b[sortBy] || b.followers;
-
-      if (sortBy === 'followers' || sortBy === 'rating' || sortBy === 'templates' || sortBy === 'earnings') {
-        return bValue - aValue; // Descending order
-      } else {
-        return new Date(bValue) - new Date(aValue); // For dates, descending order
-      }
-    });
-
-    // Apply pagination
-    const total = creatorsWithStats.length;
-    const skip = (page - 1) * limit;
-    const paginatedCreators = creatorsWithStats.slice(skip, skip + limit);
-
+    // Creators are already sorted and paginated by the database query
     res.json({
       success: true,
-      creators: paginatedCreators,
+      creators: creatorsWithStats,
       pagination: {
         current: page,
-        pages: Math.ceil(total / limit),
-        total,
+        pages: Math.ceil(totalCount / limit),
+        total: totalCount,
         limit
       }
     });

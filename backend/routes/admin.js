@@ -660,7 +660,7 @@ router.put('/templates/:id/status', auth, [
             type: 'template_rejected',
             title: 'تم رفض قالبك',
             message: `تم رفض قالبك: ${template.title}${adminNotes ? `\n\nملاحظات الإدارة: ${adminNotes}` : ''}`,
-            link: `/templates/${template.slug || template._id}`,
+            link: '/profile/templates',
             metadata: {
               templateId: template._id,
               adminNotes: adminNotes || '',

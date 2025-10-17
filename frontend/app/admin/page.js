@@ -241,8 +241,8 @@ export default function AdminPage() {
           <div className="container-custom py-4 sm:py-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
               <div className="flex-1 animate-pulse">
-                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-48"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
+                <div className="h-6 sm:h-8 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-32 sm:w-48"></div>
+                <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded w-48 sm:w-64"></div>
               </div>
               <div className="animate-pulse">
                 <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>

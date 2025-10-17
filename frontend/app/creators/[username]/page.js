@@ -302,7 +302,7 @@ export default function PublicProfilePage() {
                   {/* Creator Name and Stats Skeleton */}
                   <div className="flex-1 text-center sm:text-right w-full">
                     <div className="flex items-center gap-4 justify-center sm:justify-start flex-wrap mb-3">
-                      <div className="h-8 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-48 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                      <div className="h-6 sm:h-8 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-32 sm:w-48 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
                     </div>
 
                     {/* Stats Skeleton */}

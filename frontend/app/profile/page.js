@@ -83,9 +83,9 @@ export default function ProfilePage() {
 
                 {/* Profile Info Skeleton */}
                 <div className="flex-1">
-                  <div className="h-6 sm:h-8 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-48"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-3 w-32"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
+                  <div className="h-6 sm:h-8 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-32 sm:w-48"></div>
+                  <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded mb-3 w-24 sm:w-32"></div>
+                  <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded w-48 sm:w-64"></div>
                 </div>
 
                 {/* Action Buttons Skeleton */}

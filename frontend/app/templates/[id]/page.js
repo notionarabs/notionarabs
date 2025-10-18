@@ -908,29 +908,6 @@ export default function TemplateDetailPage() {
                                   setVideoLoadError(false);
                                 }}
                               />
-                              {/* Retry button overlay */}
-                              <div className="absolute top-2 right-2">
-                                <button
-                                  onClick={() => {
-                                    setVideoLoadError(false);
-                                    // Force iframe reload by changing key
-                                    const iframe = document.querySelector('iframe[title*="فيديو توضيحي"]');
-                                    if (iframe) {
-                                      const src = iframe.src;
-                                      iframe.src = '';
-                                      setTimeout(() => {
-                                        iframe.src = src;
-                                      }, 100);
-                                    }
-                                  }}
-                                  className="p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
-                                  title="إعادة تحميل الفيديو"
-                                >
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                  </svg>
-                                </button>
-                              </div>
                             </div>
                           );
                         } else {
@@ -958,14 +935,6 @@ export default function TemplateDetailPage() {
                                   </svg>
                                   مشاهدة الفيديو
                                 </a>
-                                {videoLoadError && (
-                                  <button
-                                    onClick={() => setVideoLoadError(false)}
-                                    className="block mx-auto mt-3 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                                  >
-                                    محاولة مرة أخرى
-                                  </button>
-                                )}
                               </div>
                             </div>
                           );
@@ -1724,29 +1693,6 @@ export default function TemplateDetailPage() {
                             setVideoLoadError(false);
                           }}
                         />
-                        {/* Retry button overlay */}
-                        <div className="absolute top-4 right-4">
-                          <button
-                            onClick={() => {
-                              setVideoLoadError(false);
-                              // Force iframe reload by changing key
-                              const iframe = document.querySelector('iframe[title*="فيديو توضيحي"]');
-                              if (iframe) {
-                                const src = iframe.src;
-                                iframe.src = '';
-                                setTimeout(() => {
-                                  iframe.src = src;
-                                }, 100);
-                              }
-                            }}
-                            className="p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
-                            title="إعادة تحميل الفيديو"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                            </svg>
-                          </button>
-                        </div>
                       </div>
                     );
                   } else {
@@ -1774,14 +1720,6 @@ export default function TemplateDetailPage() {
                             </svg>
                             مشاهدة الفيديو
                           </a>
-                          {videoLoadError && (
-                            <button
-                              onClick={() => setVideoLoadError(false)}
-                              className="block mx-auto mt-3 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                            >
-                              محاولة مرة أخرى
-                            </button>
-                          )}
                         </div>
                       </div>
                     );

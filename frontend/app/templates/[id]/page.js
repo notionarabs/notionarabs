@@ -182,6 +182,7 @@ export default function TemplateDetailPage() {
   const [hasSubmittedRating, setHasSubmittedRating] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [hasSeenCreatorWarning, setHasSeenCreatorWarning] = useState(false);
+  const [videoLoadError, setVideoLoadError] = useState(false);
 
   // Rating popup hook
   const { showPopup, closePopup, markAsRated } = useRatingPopup(template, user, isAuthenticated);
@@ -377,25 +378,76 @@ export default function TemplateDetailPage() {
 
   // Helper function to get YouTube embed URL
   const getYouTubeEmbedUrl = (url) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return match && match[2].length === 11 ? `https://www.youtube.com/embed/${match[2]}` : null;
+    // Handle various YouTube URL formats
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/|youtube\.com\/shorts\/)([^#&?]*)/,
+      /youtube\.com\/watch\?.*v=([^#&?]*)/,
+      /youtube\.com\/embed\/([^#&?]*)/,
+      /youtu\.be\/([^#&?]*)/
+    ];
+
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match && match[1] && match[1].length === 11) {
+        return `https://www.youtube.com/embed/${match[1]}`;
+      }
+    }
+    return null;
   };
 
   // Helper function to get Vimeo embed URL
   const getVimeoEmbedUrl = (url) => {
-    const regExp = /vimeo\.com\/(\d+)/;
-    const match = url.match(regExp);
-    return match ? `https://player.vimeo.com/video/${match[1]}` : null;
+    // Handle various Vimeo URL formats
+    const patterns = [
+      /vimeo\.com\/(\d+)/,
+      /player\.vimeo\.com\/video\/(\d+)/,
+      /vimeo\.com\/channels\/[^\/]+\/(\d+)/,
+      /vimeo\.com\/groups\/[^\/]+\/videos\/(\d+)/
+    ];
+
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match && match[1]) {
+        return `https://player.vimeo.com/video/${match[1]}`;
+      }
+    }
+    return null;
   };
 
   // Helper function to get video embed URL
   const getVideoEmbedUrl = (url) => {
-    if (url.includes('youtube.com') || url.includes('youtu.be')) {
-      return getYouTubeEmbedUrl(url);
-    } else if (url.includes('vimeo.com')) {
-      return getVimeoEmbedUrl(url);
+    if (!url || typeof url !== 'string') {
+      return null;
     }
+
+    // Clean the URL
+    const cleanUrl = url.trim();
+
+    // Check for YouTube URLs
+    if (cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be')) {
+      return getYouTubeEmbedUrl(cleanUrl);
+    }
+
+    // Check for Vimeo URLs
+    if (cleanUrl.includes('vimeo.com')) {
+      return getVimeoEmbedUrl(cleanUrl);
+    }
+
+    // Check for other video platforms
+    if (cleanUrl.includes('dailymotion.com')) {
+      const match = cleanUrl.match(/dailymotion\.com\/video\/([^\/\?]+)/);
+      if (match) {
+        return `https://www.dailymotion.com/embed/video/${match[1]}`;
+      }
+    }
+
+    if (cleanUrl.includes('twitch.tv')) {
+      const match = cleanUrl.match(/twitch\.tv\/videos\/(\d+)/);
+      if (match) {
+        return `https://player.twitch.tv/?video=${match[1]}&parent=${window.location.hostname}`;
+      }
+    }
+
     return null;
   };
 
@@ -831,15 +883,94 @@ export default function TemplateDetailPage() {
                     )}
 
                     {/* Video Player */}
-                    {showVideo && template.explanationVideo && getVideoEmbedUrl(template.explanationVideo) ? (
-                      <iframe
-                        src={getVideoEmbedUrl(template.explanationVideo)}
-                        title={`فيديو توضيحي - ${template.title}`}
-                        className="w-full h-full"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
+                    {showVideo && template.explanationVideo ? (
+                      (() => {
+                        const embedUrl = getVideoEmbedUrl(template.explanationVideo);
+                        if (embedUrl && !videoLoadError) {
+                          return (
+                            <div className="relative w-full h-full">
+                              <iframe
+                                src={embedUrl}
+                                title={`فيديو توضيحي - ${template.title}`}
+                                className="w-full h-full"
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                allowFullScreen
+                                sandbox="allow-scripts allow-same-origin allow-presentation allow-forms allow-popups allow-popups-to-escape-sandbox"
+                                loading="lazy"
+                                referrerPolicy="no-referrer-when-downgrade"
+                                onError={(e) => {
+                                  console.error('Video iframe failed to load:', e);
+                                  setVideoLoadError(true);
+                                }}
+                                onLoad={(e) => {
+                                  console.log('Video iframe loaded successfully');
+                                  setVideoLoadError(false);
+                                }}
+                              />
+                              {/* Retry button overlay */}
+                              <div className="absolute top-2 right-2">
+                                <button
+                                  onClick={() => {
+                                    setVideoLoadError(false);
+                                    // Force iframe reload by changing key
+                                    const iframe = document.querySelector('iframe[title*="فيديو توضيحي"]');
+                                    if (iframe) {
+                                      const src = iframe.src;
+                                      iframe.src = '';
+                                      setTimeout(() => {
+                                        iframe.src = src;
+                                      }, 100);
+                                    }
+                                  }}
+                                  className="p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
+                                  title="إعادة تحميل الفيديو"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                  </svg>
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        } else {
+                          // Fallback: show link to original video
+                          return (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg">
+                              <div className="text-center p-6">
+                                <svg className="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
+                                  <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                                </svg>
+                                <p className="text-gray-600 dark:text-gray-400 mb-2">
+                                  {videoLoadError ? 'تم حظر عرض الفيديو هنا' : 'لا يمكن عرض الفيديو هنا'}
+                                </p>
+                                <p className="text-sm text-gray-500 dark:text-gray-500 mb-4">
+                                  {videoLoadError ? 'يرجى النقر على الرابط أدناه لمشاهدة الفيديو' : 'يرجى النقر على الرابط أدناه لمشاهدة الفيديو'}
+                                </p>
+                                <a
+                                  href={template.explanationVideo}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors"
+                                >
+                                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                                  </svg>
+                                  مشاهدة الفيديو
+                                </a>
+                                {videoLoadError && (
+                                  <button
+                                    onClick={() => setVideoLoadError(false)}
+                                    className="block mx-auto mt-3 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                                  >
+                                    محاولة مرة أخرى
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        }
+                      })()
                     ) : (
                       <button
                         type="button"
@@ -881,11 +1012,12 @@ export default function TemplateDetailPage() {
                 {(template.previewImages && template.previewImages.length > 1) || template.explanationVideo ? (
                   <div className="flex flex-wrap gap-2 justify-center lg:justify-end" dir="ltr">
                     {/* Video Thumbnail */}
-                    {template.explanationVideo && getVideoEmbedUrl(template.explanationVideo) && (
+                    {template.explanationVideo && (
                       <button
                         onClick={() => {
                           setShowVideo(true);
                           setSelectedImage(-1); // Special index for video
+                          setVideoLoadError(false); // Reset error state
                         }}
                         className={`relative overflow-hidden rounded-lg transition-all duration-300 transform w-24 h-16 flex-shrink-0 ${showVideo
                           ? 'ring-2 ring-orange-500 scale-105 shadow-lg'
@@ -921,6 +1053,7 @@ export default function TemplateDetailPage() {
                           setIsImageLoading(true);
                           setSelectedImage(index);
                           setShowVideo(false);
+                          setVideoLoadError(false); // Reset error state
                           setTimeout(() => setIsImageLoading(false), 300);
                         }}
                         className={`relative overflow-hidden rounded-lg transition-all duration-300 transform w-24 h-16 flex-shrink-0 ${selectedImage === index && !showVideo
@@ -954,6 +1087,7 @@ export default function TemplateDetailPage() {
                           setIsImageLoading(true);
                           setSelectedImage(-2); // Special index for main image
                           setShowVideo(false);
+                          setVideoLoadError(false); // Reset error state
                           setTimeout(() => setIsImageLoading(false), 300);
                         }}
                         className={`relative overflow-hidden rounded-lg transition-all duration-300 transform w-24 h-16 flex-shrink-0 ${selectedImage === -2 && !showVideo
@@ -1565,15 +1699,94 @@ export default function TemplateDetailPage() {
             )}
 
             <div className="max-w-7xl w-full h-full flex items-center justify-center">
-              {showVideo && template.explanationVideo && getVideoEmbedUrl(template.explanationVideo) ? (
-                <iframe
-                  src={getVideoEmbedUrl(template.explanationVideo)}
-                  title={`فيديو توضيحي - ${template.title}`}
-                  className="max-w-full max-h-full w-full h-full"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
+              {showVideo && template.explanationVideo ? (
+                (() => {
+                  const embedUrl = getVideoEmbedUrl(template.explanationVideo);
+                  if (embedUrl && !videoLoadError) {
+                    return (
+                      <div className="relative max-w-full max-h-full w-full h-full">
+                        <iframe
+                          src={embedUrl}
+                          title={`فيديو توضيحي - ${template.title}`}
+                          className="max-w-full max-h-full w-full h-full"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowFullScreen
+                          sandbox="allow-scripts allow-same-origin allow-presentation allow-forms allow-popups allow-popups-to-escape-sandbox"
+                          loading="lazy"
+                          referrerPolicy="no-referrer-when-downgrade"
+                          onError={(e) => {
+                            console.error('Video iframe failed to load in lightbox:', e);
+                            setVideoLoadError(true);
+                          }}
+                          onLoad={(e) => {
+                            console.log('Video iframe loaded successfully in lightbox');
+                            setVideoLoadError(false);
+                          }}
+                        />
+                        {/* Retry button overlay */}
+                        <div className="absolute top-4 right-4">
+                          <button
+                            onClick={() => {
+                              setVideoLoadError(false);
+                              // Force iframe reload by changing key
+                              const iframe = document.querySelector('iframe[title*="فيديو توضيحي"]');
+                              if (iframe) {
+                                const src = iframe.src;
+                                iframe.src = '';
+                                setTimeout(() => {
+                                  iframe.src = src;
+                                }, 100);
+                              }
+                            }}
+                            className="p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-colors"
+                            title="إعادة تحميل الفيديو"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  } else {
+                    // Fallback: show link to original video
+                    return (
+                      <div className="max-w-full max-h-full w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg">
+                        <div className="text-center p-6">
+                          <svg className="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                          </svg>
+                          <p className="text-gray-600 dark:text-gray-400 mb-2">
+                            {videoLoadError ? 'تم حظر عرض الفيديو هنا' : 'لا يمكن عرض الفيديو هنا'}
+                          </p>
+                          <p className="text-sm text-gray-500 dark:text-gray-500 mb-4">
+                            {videoLoadError ? 'يرجى النقر على الرابط أدناه لمشاهدة الفيديو' : 'يرجى النقر على الرابط أدناه لمشاهدة الفيديو'}
+                          </p>
+                          <a
+                            href={template.explanationVideo}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-colors"
+                          >
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                            مشاهدة الفيديو
+                          </a>
+                          {videoLoadError && (
+                            <button
+                              onClick={() => setVideoLoadError(false)}
+                              className="block mx-auto mt-3 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                            >
+                              محاولة مرة أخرى
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  }
+                })()
               ) : (
                 <img
                   src={(() => {

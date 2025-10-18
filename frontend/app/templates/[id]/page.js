@@ -414,6 +414,71 @@ export default function TemplateDetailPage() {
     return null;
   };
 
+  // Helper function to get video thumbnail URL
+  const getVideoThumbnailUrl = (url) => {
+    if (!url || typeof url !== 'string') {
+      return null;
+    }
+
+    const cleanUrl = url.trim();
+
+    // YouTube thumbnail
+    if (cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be')) {
+      const videoId = getYouTubeVideoId(cleanUrl);
+      if (videoId) {
+        return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+      }
+    }
+
+    // Vimeo thumbnail (requires API call, using placeholder for now)
+    if (cleanUrl.includes('vimeo.com')) {
+      const videoId = getVimeoVideoId(cleanUrl);
+      if (videoId) {
+        // For Vimeo, we'd need to make an API call to get the thumbnail
+        // For now, return null to use the fallback design
+        return null;
+      }
+    }
+
+    return null;
+  };
+
+  // Helper function to extract YouTube video ID
+  const getYouTubeVideoId = (url) => {
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/|youtube\.com\/shorts\/)([^#&?]*)/,
+      /youtube\.com\/watch\?.*v=([^#&?]*)/,
+      /youtube\.com\/embed\/([^#&?]*)/,
+      /youtu\.be\/([^#&?]*)/
+    ];
+
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match && match[1] && match[1].length === 11) {
+        return match[1];
+      }
+    }
+    return null;
+  };
+
+  // Helper function to extract Vimeo video ID
+  const getVimeoVideoId = (url) => {
+    const patterns = [
+      /vimeo\.com\/(\d+)/,
+      /player\.vimeo\.com\/video\/(\d+)/,
+      /vimeo\.com\/channels\/[^\/]+\/(\d+)/,
+      /vimeo\.com\/groups\/[^\/]+\/videos\/(\d+)/
+    ];
+
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match && match[1]) {
+        return match[1];
+      }
+    }
+    return null;
+  };
+
   // Helper function to get video embed URL
   const getVideoEmbedUrl = (url) => {
     if (!url || typeof url !== 'string') {
@@ -988,29 +1053,70 @@ export default function TemplateDetailPage() {
                           setSelectedImage(-1); // Special index for video
                           setVideoLoadError(false); // Reset error state
                         }}
-                        className={`relative overflow-hidden rounded-lg transition-all duration-300 transform w-24 h-16 flex-shrink-0 ${showVideo
+                        className={`relative overflow-hidden rounded-xl transition-all duration-300 transform w-24 h-16 flex-shrink-0 group ${showVideo
                           ? 'ring-2 ring-orange-500 scale-105 shadow-lg'
-                          : 'hover:opacity-80 hover:scale-102 hover:shadow-md'
+                          : 'hover:opacity-90 hover:scale-105 hover:shadow-lg'
                           }`}
                       >
-                        <div className="w-full h-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative">
-                          {/* Video thumbnail placeholder */}
-                          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center relative">
-                            {/* Play button overlay */}
-                            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                              <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
-                                <svg className="w-4 h-4 text-gray-700 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                  <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
-                                </svg>
-                              </div>
-                            </div>
+                        {(() => {
+                          const thumbnailUrl = getVideoThumbnailUrl(template.explanationVideo);
 
-                            {/* Video icon */}
-                            <svg className="w-8 h-8 text-gray-400 dark:text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
-                            </svg>
-                          </div>
-                        </div>
+                          if (thumbnailUrl) {
+                            // Show actual video thumbnail
+                            return (
+                              <div className="relative w-full h-full">
+                                <Image
+                                  src={thumbnailUrl}
+                                  alt={`فيديو توضيحي - ${template.title}`}
+                                  width={96}
+                                  height={64}
+                                  className="w-full h-full object-cover"
+                                  quality={100}
+                                  onError={(e) => {
+                                    // Fallback to design if thumbnail fails to load
+                                    e.target.style.display = 'none';
+                                    e.target.nextSibling.style.display = 'flex';
+                                  }}
+                                />
+
+                                {/* Play button overlay */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-black/30 flex items-center justify-center group-hover:from-black/20 group-hover:to-black/40 transition-all duration-300">
+                                  <div className="w-10 h-10 bg-white/95 dark:bg-gray-100 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300">
+                                    <svg className="w-5 h-5 text-orange-600 dark:text-orange-500 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                      <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                                    </svg>
+                                  </div>
+                                </div>
+
+                                {/* Fallback design (hidden by default) */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30 items-center justify-center hidden">
+                                  <div className="w-10 h-10 bg-white/95 dark:bg-gray-100 rounded-full flex items-center justify-center shadow-lg">
+                                    <svg className="w-5 h-5 text-orange-600 dark:text-orange-500 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                      <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                                    </svg>
+                                  </div>
+                                </div>
+
+
+
+                              </div>
+                            );
+                          } else {
+                            // Fallback design for non-YouTube videos or when thumbnail fails
+                            return (
+                              <div className="w-full h-full bg-gradient-to-br from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30 flex items-center justify-center relative">
+                                {/* Play button overlay */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-black/30 flex items-center justify-center group-hover:from-black/20 group-hover:to-black/40 transition-all duration-300">
+                                  <div className="w-10 h-10 bg-white/95 dark:bg-gray-100 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300">
+                                    <svg className="w-5 h-5 text-orange-600 dark:text-orange-500 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                      <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                                    </svg>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          }
+                        })()}
                       </button>
                     )}
 

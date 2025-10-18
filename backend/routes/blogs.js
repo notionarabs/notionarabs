@@ -420,7 +420,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
     const query = { status: 'published' };
 
     if (category && category !== 'all') {
-      query.category = category;
+      query.categories = category;
     }
 
     // Optimized: Use server-side search and pagination

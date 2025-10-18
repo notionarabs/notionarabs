@@ -98,10 +98,7 @@ const userSchema = new mongoose.Schema({
     min: 0,
     max: 5
   },
-  templateCount: {
-    type: Number,
-    default: 0
-  },
+  
   resetToken: {
     type: String,
     default: null

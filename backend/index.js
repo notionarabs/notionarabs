@@ -98,14 +98,17 @@ require('./config/passport');
 // Database connection
 // Optimized MongoDB connection with connection pooling
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/notion-arabs', {
-  // Connection pooling optimizations
-  maxPoolSize: 10, // Maximum number of connections in the pool
-  minPoolSize: 5,  // Minimum number of connections in the pool
-  maxIdleTimeMS: 30000, // Close connections after 30 seconds of inactivity
-  serverSelectionTimeoutMS: 5000, // How long to try to connect
-  socketTimeoutMS: 45000, // How long to wait for a response
+  // Connection pooling optimizations for Render free tier
+  maxPoolSize: 5, // Reduced for free tier
+  minPoolSize: 2,  // Reduced for free tier
+  maxIdleTimeMS: 10000, // Close connections after 10 seconds of inactivity
+  serverSelectionTimeoutMS: 3000, // Faster connection timeout
+  socketTimeoutMS: 20000, // Reduced socket timeout
+  connectTimeoutMS: 10000, // Connection timeout
   // Read preferences for better performance
-  readPreference: 'secondaryPreferred'
+  readPreference: 'primaryPreferred', // Changed to primary for consistency
+  // Additional optimizations
+  bufferCommands: false // Disable mongoose buffering
 })
   .then(() => {
     console.log('✅ Database connected successfully');

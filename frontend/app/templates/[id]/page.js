@@ -511,9 +511,7 @@ export default function TemplateDetailPage() {
 
     // If user already has the template, just open it
     if (userHasTemplate) {
-      // Use purchaseLink for paid templates, notionLink for free templates
-      const linkToOpen = template.isPaid && template.purchaseLink ? template.purchaseLink : template.notionLink;
-      window.open(linkToOpen, '_blank');
+      window.open(template.notionLink, '_blank');
       return;
     }
 
@@ -534,21 +532,19 @@ export default function TemplateDetailPage() {
 
       // Create or upsert order entry for this user
       try {
-        // Use purchaseLink for paid templates, notionLink for free templates
-        const linkToStore = template.isPaid && template.purchaseLink ? template.purchaseLink : template.notionLink;
         await api.post('/orders', {
           items: [
             {
               templateId: template._id,
               name: template.title,
-              price: template.price || 0,
+              price: template.isPaid ? template.price : 0,
               quantity: 1,
               downloaded: true,
               previewImage: template.previewImage || template.previewImages?.[0] || '',
-              notionLink: linkToStore || '',
+              notionLink: template.notionLink || '',
             },
           ],
-          total: template.price || 0,
+          total: template.isPaid ? template.price : 0,
           status: 'completed',
           source: 'download',
           downloaded: true,
@@ -559,25 +555,23 @@ export default function TemplateDetailPage() {
 
       // Optimistic: store in localStorage so /orders shows immediately even if backend is unavailable
       try {
-        // Use purchaseLink for paid templates, notionLink for free templates
-        const linkToStore = template.isPaid && template.purchaseLink ? template.purchaseLink : template.notionLink;
         const localOrdersRaw = typeof window !== 'undefined' ? localStorage.getItem('orders') : null;
         const localOrders = localOrdersRaw ? JSON.parse(localOrdersRaw) : [];
         const newOrder = {
           id: `local-${Date.now()}`,
           date: new Date().toISOString(),
           status: 'completed',
-          total: template.price || 0,
+          total: template.isPaid ? template.price : 0,
           items: [
             {
               id: template._id,
               templateId: template._id,
               name: template.title,
-              price: template.price || 0,
+              price: template.isPaid ? template.price : 0,
               quantity: 1,
               downloaded: true,
               previewImage: template.previewImage || template.previewImages?.[0] || '',
-              notionLink: linkToStore || '',
+              notionLink: template.notionLink || '',
             },
           ],
         };
@@ -585,9 +579,8 @@ export default function TemplateDetailPage() {
         localStorage.setItem('orders', JSON.stringify(localOrders));
       } catch (_) { }
 
-      // Open the appropriate link in a new tab (purchaseLink for paid templates, notionLink for free templates)
-      const linkToOpen = template.isPaid && template.purchaseLink ? template.purchaseLink : template.notionLink;
-      window.open(linkToOpen, '_blank');
+      // Open the template link in a new tab
+      window.open(template.notionLink, '_blank');
 
       // Show success state
       setIsDownloaded(true);
@@ -645,7 +638,7 @@ export default function TemplateDetailPage() {
               <div className="lg:col-span-3">
                 <div className="mb-4">
                   <div className="w-full h-64 sm:h-80 md:h-96 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-xl bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-        </div>
+                </div>
 
                 {/* Image Thumbnails Skeleton */}
                 <div className="flex gap-2 overflow-x-auto pb-2">
@@ -775,8 +768,8 @@ export default function TemplateDetailPage() {
       {template && (
         <Head>
           <title>{`${template.title} - قالب نوشن عربي | ${siteConfig.name}`}</title>
-          <meta name="description" content={template.description || template.features || `تحميل قالب ${template.title} باللغة العربية لـ Notion. ${template.category} من ${template.creator?.name || 'مبدع'}.`} />
-          <meta name="keywords" content={`${template.title}, ${template.category}, قالب نوشن, notion template, ${template.creator?.name || ''}, قوالب عربية, مجاني, ${template.tags?.join(', ') || ''}`} />
+          <meta name="description" content={template.description || template.features || `تحميل قالب ${template.title} باللغة العربية لـ Notion. ${template.categories && template.categories.length > 0 ? template.categories[0] : 'عام'} من ${template.creator?.name || 'مبدع'}.`} />
+          <meta name="keywords" content={`${template.title}, ${template.categories && template.categories.length > 0 ? template.categories[0] : 'عام'}, قالب نوشن, notion template, ${template.creator?.name || ''}, قوالب عربية, مجاني, ${template.tags?.join(', ') || ''}`} />
           <link rel="canonical" href={`${siteConfig.url}/templates/${template.slug || template._id}`} />
 
           {/* Open Graph */}
@@ -801,7 +794,7 @@ export default function TemplateDetailPage() {
             items={[
               { name: 'الرئيسية', url: `${siteConfig.url}` },
               { name: 'القوالب', url: `${siteConfig.url}/templates` },
-              { name: template.category, url: `${siteConfig.url}/categories/${arabicToEnglishCategoryMap[template.category] || encodeURIComponent(template.category)}` },
+              { name: template.categories && template.categories.length > 0 ? template.categories[0] : 'عام', url: `${siteConfig.url}/categories/${arabicToEnglishCategoryMap[template.categories && template.categories.length > 0 ? template.categories[0] : 'عام'] || encodeURIComponent(template.categories && template.categories.length > 0 ? template.categories[0] : 'عام')}` },
               { name: template.title, url: `${siteConfig.url}/templates/${template.slug || template._id}` }
             ]}
           />
@@ -814,7 +807,7 @@ export default function TemplateDetailPage() {
               <Breadcrumb
                 items={[
                   { name: 'القوالب', url: '/templates' },
-                  { name: template.category, url: `/categories/${arabicToEnglishCategoryMap[template.category] || encodeURIComponent(template.category)}` },
+                  { name: template.categories && template.categories.length > 0 ? template.categories[0] : 'عام', url: `/categories/${arabicToEnglishCategoryMap[template.categories && template.categories.length > 0 ? template.categories[0] : 'عام'] || encodeURIComponent(template.categories && template.categories.length > 0 ? template.categories[0] : 'عام')}` },
                   { name: template.title, url: `/templates/${template.slug || template._id}` }
                 ]}
               />
@@ -1052,12 +1045,15 @@ export default function TemplateDetailPage() {
                 </div>
 
 
-                {/* Price */}
+                {/* Price - All templates are free */}
                 <div className="flex items-center gap-3 mb-4 sm:mb-6">
                   {template.isPaid ? (
                     <div className="flex items-center gap-2">
-                      <span className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">
+                      <span className="text-2xl sm:text-3xl font-bold text-primary-600 dark:text-primary-400">
                         {template.price} ر.س
+                      </span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        (مدفوع)
                       </span>
                     </div>
                   ) : (
@@ -1067,47 +1063,85 @@ export default function TemplateDetailPage() {
                   )}
                 </div>
 
-                {/* Download Button */}
-                <button
-                  onClick={handleDownload}
-                  disabled={isDownloading || checkingOwnership}
-                  className={`w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 mb-4 sm:mb-6 ${isDownloaded
-                    ? 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'
-                    : userHasTemplate
-                      ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                      : isDownloading || checkingOwnership
-                        ? 'bg-green-400 text-white cursor-not-allowed'
-                        : 'bg-green-500 hover:bg-green-600 text-white'
-                    }`}
-                >
-                  {isDownloaded ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      تم فتح القالب في تبويب جديد
-                    </span>
-                  ) : userHasTemplate ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
-                      </svg>
-                      عرض القالب (لديك هذا القالب)
-                    </span>
-                  ) : isDownloading || checkingOwnership ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      {checkingOwnership ? 'جاري التحقق...' : 'جاري التحميل...'}
-                    </span>
-                  ) : (
-                    <span className="flex items-center justify-center gap-2">
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-                      </svg>
-                      تحميل
-                    </span>
-                  )}
-                </button>
+                {/* Download/Purchase Button */}
+                {template.isPaid ? (
+                  <div className="space-y-3 mb-4 sm:mb-6">
+                    <button
+                      onClick={() => window.open(template.purchaseLink, '_blank')}
+                      className="w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 bg-primary-500 hover:bg-primary-600 dark:bg-orange-500 dark:hover:bg-orange-600 text-white shadow-lg hover:shadow-xl"
+                    >
+                      <span className="flex items-center justify-center gap-2">
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" clipRule="evenodd" />
+                        </svg>
+                        شراء القالب - {template.price} ر.س
+                      </span>
+                    </button>
+                    <button
+                      onClick={handleDownload}
+                      disabled={isDownloading || checkingOwnership}
+                      className={`w-full py-2 px-4 rounded-lg font-medium text-sm transition-all duration-200 ${isDownloading || checkingOwnership
+                        ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                        }`}
+                    >
+                      {isDownloading || checkingOwnership ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                          {checkingOwnership ? 'جاري التحقق...' : 'جاري التحميل...'}
+                        </span>
+                      ) : (
+                        <span className="flex items-center justify-center gap-2">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                          </svg>
+                          معاينة القالب
+                        </span>
+                      )}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleDownload}
+                    disabled={isDownloading || checkingOwnership}
+                    className={`w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 mb-4 sm:mb-6 ${isDownloaded
+                      ? 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'
+                      : userHasTemplate
+                        ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                        : isDownloading || checkingOwnership
+                          ? 'bg-green-400 text-white cursor-not-allowed'
+                          : 'bg-green-500 hover:bg-green-600 text-white'
+                      }`}
+                  >
+                    {isDownloaded ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        تم فتح القالب في تبويب جديد
+                      </span>
+                    ) : userHasTemplate ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                        </svg>
+                        عرض القالب (لديك هذا القالب)
+                      </span>
+                    ) : isDownloading || checkingOwnership ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        {checkingOwnership ? 'جاري التحقق...' : 'جاري التحميل...'}
+                      </span>
+                    ) : (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                        تحميل
+                      </span>
+                    )}
+                  </button>
+                )}
 
                 {/* Download Instructions */}
                 {isDownloaded && (
@@ -1225,7 +1259,7 @@ export default function TemplateDetailPage() {
                     <div className="flex justify-between items-start">
                       <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">الفئة</span>
                       <div className="flex flex-wrap gap-1 justify-end max-w-[200px]">
-                        {(template.categories && template.categories.length > 0 ? template.categories : [template.category]).map((category, index) => (
+                        {(template.categories && template.categories.length > 0 ? template.categories : ['عام']).map((category, index) => (
                           <Link
                             key={index}
                             href={`/categories/${arabicToEnglishCategoryMap[category] || category}`}
@@ -1459,18 +1493,9 @@ export default function TemplateDetailPage() {
                         <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary truncate">
                           بواسطة {relatedTemplate.creator?.name || 'مبدع غير معروف'}
                         </p>
-                        {relatedTemplate.isPaid ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full font-semibold text-xs whitespace-nowrap">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            {relatedTemplate.price} ر.س
-                          </span>
-                        ) : (
-                          <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                            مجاني
-                          </span>
-                        )}
+                        <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                          {relatedTemplate.isPaid ? `${relatedTemplate.price} ر.س` : 'مجاني'}
+                        </span>
                       </div>
                     </div>
                   </Link>

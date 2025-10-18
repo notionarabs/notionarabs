@@ -119,7 +119,7 @@ router.get('/homepage', cacheMiddleware(600), async (req, res) => {
             followers: 1,
             followersCount: 1,
             templatesCount: 1,
-            templateCount: 1,
+            templatesCount: 1,
             averageRating: 1,
             totalDownloads: 1,
             isPinned: 1

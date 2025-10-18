@@ -55,7 +55,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
 
         [creators, totalCount] = await Promise.all([
           User.find(searchQuery)
-            .select('name username displayName email bio profilePicture specialties rating followers createdAt templateCount totalEarnings experience motivation badges')
+            .select('name username displayName email bio profilePicture specialties rating followers createdAt templatesCount totalEarnings experience motivation badges')
             .sort(sort)
             .skip(skip)
             .limit(limit)
@@ -83,7 +83,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
 
         [creators, totalCount] = await Promise.all([
           User.find(searchQuery)
-            .select('name username displayName email bio profilePicture specialties rating followers createdAt templateCount totalEarnings experience motivation badges')
+            .select('name username displayName email bio profilePicture specialties rating followers createdAt templatesCount totalEarnings experience motivation badges')
             .sort(sort)
             .skip(skip)
             .limit(limit)
@@ -100,7 +100,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
 
       [creators, totalCount] = await Promise.all([
         User.find(query)
-          .select('name username displayName email bio profilePicture specialties rating followers createdAt templateCount totalEarnings experience motivation badges')
+          .select('name username displayName email bio profilePicture specialties rating followers createdAt templatesCount totalEarnings experience motivation badges')
           .sort(sort)
           .skip(skip)
           .limit(limit)
@@ -247,7 +247,7 @@ router.get('/:id', cacheMiddleware(600), async (req, res) => {
         creator: creator._id,
         status: 'approved'
       })
-        .select('title price rating downloads category coverImage')
+        .select('title price rating downloads category coverImage isPaid purchaseLink')
         .sort({ createdAt: -1 })
         .limit(6)
         .lean();
@@ -326,7 +326,7 @@ router.get('/:id', cacheMiddleware(600), async (req, res) => {
         specialties: creator.specialties || [],
         rating: creatorStats.medianRating || creator.rating || 0,
         followers: creator.followers || 0,
-        templateCount: creator.showTemplateCount !== false ? (creatorStats.totalTemplates || creator.templateCount || 0) : null, // Only show if allowed
+        templatesCount: creator.showTemplateCount !== false ? (creatorStats.totalTemplates || creator.templatesCount || 0) : null, // Only show if allowed
         joinDate: creator.showJoinDate ? creator.createdAt : null, // Only include join date if showJoinDate is true
         createdAt: creator.createdAt, // Always include for internal use
         allowMessages: creator.allowMessages !== false, // Default to true if not set

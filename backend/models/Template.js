@@ -21,25 +21,7 @@ const templateSchema = new mongoose.Schema({
     trim: true,
     maxlength: [1000, 'وصف القالب لا يجب أن يتجاوز 1000 حرف']
   },
-  category: {
-    type: String,
-    required: [true, 'فئة القالب مطلوبة'],
-    enum: [
-      'الإنتاجية', 'الدراسة', 'الأعمال', 'الحياة الشخصية', 'الإبداع', 'التقنية', 'الصحة', 'المالية', 'التنظيم', 'التخطيط', 'ديني',
-      'التسويق', 'التصميم', 'التطوير', 'التعليم', 'السفر', 'الطعام', 'الرياضة', 'الترفيه', 'الموضة', 'الجمال', 'المنزل',
-      'الحديقة', 'الحيوانات الأليفة', 'السيارات', 'التكنولوجيا', 'البرمجة', 'قواعد البيانات', 'الأمان السيبراني', 'الذكاء الاصطناعي',
-      'البلوك تشين', 'التجارة الإلكترونية', 'المبيعات', 'خدمة العملاء', 'الموارد البشرية', 'المحاسبة', 'الاستثمار', 'العقارات',
-      'التأمين', 'القانون', 'الطب', 'التمريض', 'العلاج الطبيعي', 'التغذية', 'الطبخ', 'الحلويات', 'المشروبات', 'المطاعم',
-      'الفنون', 'الموسيقى', 'الرسم', 'النحت', 'التصوير', 'الفيديو', 'الكتابة', 'الترجمة', 'اللغات', 'التاريخ', 'الجغرافيا',
-      'العلوم', 'الرياضيات', 'الفيزياء', 'الكيمياء', 'الأحياء', 'علم النفس', 'علم الاجتماع', 'الفلسفة', 'الأدب', 'الشعر',
-      'المسرح', 'السينما', 'الألعاب', 'الرياضة الإلكترونية', 'السياحة', 'الفندقة', 'النقل', 'الطيران', 'البحرية', 'الزراعة',
-      'البيئة', 'الطاقة', 'البناء', 'الهندسة', 'العمارة', 'الديكور', 'الأثاث', 'الأدوات', 'الأجهزة', 'البرامج', 'التطبيقات',
-      'المواقع', 'التطوير الويب', 'تطوير التطبيقات', 'التعليم الإلكتروني', 'الاجتماعات', 'التواصل', 'الشبكات الاجتماعية', 'المحتوى',
-      'الإعلان', 'العلاقات العامة', 'العلامة التجارية', 'الاستراتيجية', 'القيادة', 'الإدارة', 'المشاريع', 'العمليات', 'الجودة',
-      'الابتكار', 'البحث والتطوير', 'التحليل', 'الإحصاء', 'البيانات', 'التقارير', 'العروض التقديمية', 'التدريب', 'التطوير المهني',
-      'الاستشارات', 'الخدمات', 'المنتجات', 'التصنيع', 'التوزيع', 'المخازن', 'اللوجستيات'
-    ]
-  },
+
   categories: [{
     type: String,
     trim: true,
@@ -65,42 +47,6 @@ const templateSchema = new mongoose.Schema({
     enum: ['ar', 'en', 'fr', 'ar-en', 'ar-fr'],
     default: 'ar'
   },
-  isPaid: {
-    type: Boolean,
-    default: false
-  },
-  price: {
-    type: Number,
-    min: [0, 'السعر لا يمكن أن يكون سالباً'],
-    validate: {
-      validator: function (value) {
-        // If isPaid is true, price must be greater than 0
-        if (this.isPaid && (!value || value <= 0)) {
-          return false;
-        }
-        return true;
-      },
-      message: 'السعر مطلوب للقوالب المدفوعة'
-    }
-  },
-  purchaseLink: {
-    type: String,
-    trim: true,
-    validate: {
-      validator: function (v) {
-        // If isPaid is true, purchaseLink is required
-        if (this.isPaid && (!v || v.trim() === '')) {
-          return false;
-        }
-        // If purchaseLink is provided, it must be a valid URL
-        if (v && v.trim() !== '') {
-          return /^https?:\/\/.+/.test(v);
-        }
-        return true;
-      },
-      message: 'رابط الشراء مطلوب للقوالب المدفوعة ويجب أن يكون رابطاً صحيحاً'
-    }
-  },
   notionLink: {
     type: String,
     required: [true, 'رابط نوشن مطلوب'],
@@ -110,6 +56,26 @@ const templateSchema = new mongoose.Schema({
         return /^https?:\/\/.+/.test(v);
       },
       message: 'رابط نوشن غير صحيح'
+    }
+  },
+  isPaid: {
+    type: Boolean,
+    default: false
+  },
+  price: {
+    type: Number,
+    min: [0, 'السعر يجب أن يكون أكبر من أو يساوي 0'],
+    default: 0
+  },
+  purchaseLink: {
+    type: String,
+    trim: true,
+    validate: {
+      validator: function (v) {
+        if (!v) return true; // Optional field
+        return /^https?:\/\/.+/.test(v);
+      },
+      message: 'رابط الشراء غير صحيح'
     }
   },
   features: {
@@ -196,10 +162,7 @@ const templateSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  sales: {
-    type: Number,
-    default: 0
-  },
+
   rating: {
     type: Number,
     default: 0,
@@ -250,6 +213,17 @@ templateSchema.pre('save', async function (next) {
       this.slug = `template-${this._id}`;
     }
   }
+
+  // Validate pricing fields
+  if (this.isPaid) {
+    if (!this.price || this.price <= 0) {
+      return next(new Error('السعر مطلوب للقوالب المدفوعة ويجب أن يكون أكبر من 0'));
+    }
+    if (!this.purchaseLink || this.purchaseLink.trim() === '') {
+      return next(new Error('رابط الشراء مطلوب للقوالب المدفوعة'));
+    }
+  }
+
   next();
 });
 
@@ -262,11 +236,11 @@ templateSchema.index({ creator: 1, notionLink: 1 });
 templateSchema.index({ category: 1, status: 1, createdAt: -1 }); // Compound index for category pages
 templateSchema.index({ categories: 1, status: 1, createdAt: -1 }); // For multi-category queries
 templateSchema.index({ tags: 1, status: 1 }); // For tag-based searches
-templateSchema.index({ isPaid: 1, status: 1 }); // For filtering free/paid
+
 templateSchema.index({ views: -1 }); // For popular templates
 templateSchema.index({ downloads: -1 }); // For most downloaded
 templateSchema.index({ rating: -1, reviewsCount: -1 }); // For best rated
-templateSchema.index({ sales: -1 }); // For best sellers
+
 templateSchema.index({ status: 1, isPaid: 1, category: 1 }); // Multi-field filtering
 // Optimized compound indexes for common query patterns
 templateSchema.index({ status: 1, rating: -1, reviewsCount: -1 }); // For fetching top-rated approved templates
@@ -334,16 +308,7 @@ templateSchema.methods.incrementDownloads = async function () {
   return this;
 };
 
-// Method to increment sales
-templateSchema.methods.incrementSales = async function () {
-  // Use atomic update to avoid triggering validation
-  await mongoose.model('Template').updateOne(
-    { _id: this._id },
-    { $inc: { sales: 1 } }
-  );
-  this.sales += 1;
-  return this;
-};
+
 
 // Method to update rating
 templateSchema.methods.updateRating = async function (newRating) {

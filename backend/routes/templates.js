@@ -19,10 +19,7 @@ async function handleOptimizedPagination(req, res, options) {
   const filter = { status: 'approved' };
 
   if (category && category !== 'all') {
-    filter.$or = [
-      { category: category },
-      { categories: category }
-    ];
+    filter.categories = category;
   }
 
   if (creator) {
@@ -38,7 +35,7 @@ async function handleOptimizedPagination(req, res, options) {
   // Use aggregation for better performance with pagination
   const [templates, totalCount] = await Promise.all([
     Template.find(filter)
-      .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price createdAt isPinned pinnedAt')
+      .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price purchaseLink ')
       .populate('creator', 'name username displayName profilePicture')
       .sort(sort)
       .skip(skip)
@@ -73,7 +70,7 @@ router.post('/', auth, [
     .withMessage('وصف القالب مطلوب')
     .isLength({ max: 1000 })
     .withMessage('وصف القالب لا يجب أن يتجاوز 1000 حرف'),
-  body('category')
+  body('categories')
     .isIn([
       'الإنتاجية', 'الدراسة', 'الأعمال', 'الحياة الشخصية', 'الإبداع', 'التقنية', 'الصحة', 'المالية', 'التنظيم', 'التخطيط', 'ديني',
       'التسويق', 'التصميم', 'التطوير', 'التعليم', 'السفر', 'الطعام', 'الرياضة', 'الترفيه', 'الموضة', 'الجمال', 'المنزل',
@@ -368,10 +365,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
 
     if (category && category !== 'all') {
       // Check both the main category field and the categories array
-      filter.$or = [
-        { category: category },
-        { categories: category }
-      ];
+      filter.categories = category;
     }
 
     if (creator) {
@@ -396,7 +390,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
 
         const [templates, totalCount] = await Promise.all([
           Template.find(searchQuery)
-            .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price createdAt isPinned pinnedAt')
+            .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price purchaseLink ')
             .populate('creator', 'name username displayName profilePicture')
             .sort(sort)
             .skip(skip)
@@ -435,7 +429,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
 
         const [templates, totalCount] = await Promise.all([
           Template.find(regexQuery)
-            .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price createdAt isPinned pinnedAt')
+            .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price purchaseLink ')
             .populate('creator', 'name username displayName profilePicture')
             .sort(sort)
             .skip(skip)
@@ -480,7 +474,7 @@ router.get('/my-templates', auth, cacheMiddleware(120), async (req, res) => {
     }
 
     const templates = await Template.find({ creator: req.user._id })
-      .select('title description category categories tags previewImage slug rating reviewsCount downloads isPaid price createdAt isPinned pinnedAt status adminNotes rejectedAt rejectedBy approvedAt approvedBy')
+      .select('title description category categories tags previewImage slug rating reviewsCount downloads isPaid price purchaseLink ')
       .sort({ createdAt: -1 });
 
     res.json({

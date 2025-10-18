@@ -474,7 +474,7 @@ router.get('/my-templates', auth, cacheMiddleware(120), async (req, res) => {
     }
 
     const templates = await Template.find({ creator: req.user._id })
-      .select('title description category categories tags previewImage slug rating reviewsCount downloads isPaid price purchaseLink ')
+      .select('title description category categories tags previewImage slug rating reviewsCount downloads isPaid price purchaseLink status adminNotes approvedAt rejectedAt approvedBy rejectedBy createdAt updatedAt ')
       .sort({ createdAt: -1 });
 
     res.json({

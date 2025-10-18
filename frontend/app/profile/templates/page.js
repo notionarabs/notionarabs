@@ -272,6 +272,22 @@ export default function CreatorTemplatesPage() {
                     </h3>
                     <div className="mb-2 sm:mb-3">
                       {getStatusBadge(template.status)}
+                      {/* Status Details */}
+                      {template.status === 'approved' && template.approvedAt && (
+                        <div className="mt-2 text-xs text-green-600 dark:text-green-400">
+                          تم الموافقة عليه في {formatDate(template.approvedAt)}
+                        </div>
+                      )}
+                      {template.status === 'rejected' && template.rejectedAt && (
+                        <div className="mt-2 text-xs text-red-600 dark:text-red-400">
+                          تم رفضه في {formatDate(template.rejectedAt)}
+                        </div>
+                      )}
+                      {template.status === 'pending' && (
+                        <div className="mt-2 text-xs text-yellow-600 dark:text-yellow-400">
+                          في انتظار المراجعة منذ {formatDate(template.createdAt)}
+                        </div>
+                      )}
                     </div>
                     <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary line-clamp-2">
                       {template.description}

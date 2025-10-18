@@ -12,7 +12,7 @@ const securityHeaders = helmet({
       imgSrc: ["'self'", "data:", "https:"],
       scriptSrc: ["'self'"],
       connectSrc: ["'self'", "https://notion-arabs.onrender.com", "https://api.brevo.com", "https://www.google-analytics.com", "https://www.googletagmanager.com"],
-      frameSrc: ["'none'"],
+      frameSrc: ["'self'", "https://www.youtube.com", "https://player.vimeo.com", "https://www.dailymotion.com", "https://player.twitch.tv"],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: [],
     },

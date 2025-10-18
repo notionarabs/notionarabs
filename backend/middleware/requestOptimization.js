@@ -39,7 +39,7 @@ const securityMiddleware = helmet({
       connectSrc: ["'self'", "https://notion-arabs.onrender.com", "https://api.brevo.com", "https://www.google-analytics.com", "https://www.googletagmanager.com"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
-      frameSrc: ["'none'"],
+      frameSrc: ["'self'", "https://www.youtube.com", "https://player.vimeo.com", "https://www.dailymotion.com", "https://player.twitch.tv"],
     },
   },
   // Prevent clickjacking

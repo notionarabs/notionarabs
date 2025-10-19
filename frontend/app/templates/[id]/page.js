@@ -13,7 +13,7 @@ import StarRating from '../../../components/StarRating';
 import { useAuth } from '../../../contexts/AuthContext';
 import { TemplateSchema, BreadcrumbSchema } from '../../../components/StructuredData';
 import Breadcrumb from '../../../components/Breadcrumb';
-import { Youtube, Facebook, Send, Users } from 'lucide-react';
+import { Youtube, Facebook, Send, Users, ShoppingCart } from 'lucide-react';
 import { siteConfig } from '../../../lib/seo';
 import RatingPopup from '../../../components/RatingPopup';
 import { useRatingPopup } from '../../../hooks/useRatingPopup';
@@ -1274,41 +1274,15 @@ export default function TemplateDetailPage() {
 
                 {/* Download/Purchase Button */}
                 {template.isPaid ? (
-                  <div className="space-y-3 mb-4 sm:mb-6">
-                    <button
-                      onClick={() => window.open(template.purchaseLink, '_blank')}
-                      className="w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 bg-primary-500 hover:bg-primary-600 dark:bg-orange-500 dark:hover:bg-orange-600 text-white shadow-lg hover:shadow-xl"
-                    >
-                      <span className="flex items-center justify-center gap-2">
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" clipRule="evenodd" />
-                        </svg>
-                        شراء القالب - {template.price} ر.س
-                      </span>
-                    </button>
-                    <button
-                      onClick={handleDownload}
-                      disabled={isDownloading || checkingOwnership}
-                      className={`w-full py-2 px-4 rounded-lg font-medium text-sm transition-all duration-200 ${isDownloading || checkingOwnership
-                        ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                        : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                        }`}
-                    >
-                      {isDownloading || checkingOwnership ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                          {checkingOwnership ? 'جاري التحقق...' : 'جاري التحميل...'}
-                        </span>
-                      ) : (
-                        <span className="flex items-center justify-center gap-2">
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
-                          </svg>
-                          معاينة القالب
-                        </span>
-                      )}
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => window.open(template.purchaseLink, '_blank')}
+                    className="w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 bg-primary-500 hover:bg-primary-600 dark:bg-orange-500 dark:hover:bg-orange-600 text-white shadow-lg hover:shadow-xl mb-4 sm:mb-6"
+                  >
+                    <span className="flex items-center justify-center gap-2">
+                      <ShoppingCart className="w-5 h-5" />
+                      شراء القالب - {template.price} ر.س
+                    </span>
+                  </button>
                 ) : (
                   <button
                     onClick={handleDownload}

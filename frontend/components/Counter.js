@@ -1,0 +1,102 @@
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+
+const Counter = ({
+  end,
+  duration = 2000,
+  start = 0,
+  delay = 0,
+  className = "",
+  suffix = "",
+  prefix = "",
+  separator = ",",
+  decimals = 0
+}) => {
+  const [count, setCount] = useState(start);
+  const [isVisible, setIsVisible] = useState(false);
+  const counterRef = useRef(null);
+  const hasAnimated = useRef(false);
+  const animationRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated.current) {
+          setIsVisible(true);
+          hasAnimated.current = true;
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (counterRef.current) {
+      observer.observe(counterRef.current);
+    }
+
+    return () => {
+      if (counterRef.current) {
+        observer.unobserve(counterRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const timer = setTimeout(() => {
+      const startTime = Date.now();
+      const startValue = start;
+      const endValue = end;
+
+      const animate = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Easing function for smooth animation (ease-out-cubic)
+        const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+
+        const currentValue = startValue + (endValue - startValue) * easeOutCubic;
+
+        setCount(currentValue);
+
+        if (progress < 1) {
+          animationRef.current = requestAnimationFrame(animate);
+        } else {
+          setCount(endValue);
+        }
+      };
+
+      animationRef.current = requestAnimationFrame(animate);
+    }, delay);
+
+    return () => {
+      clearTimeout(timer);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [isVisible, end, duration, delay, start]);
+
+  const formatNumber = (num) => {
+    if (decimals > 0) {
+      return num.toFixed(decimals);
+    }
+
+    const rounded = Math.round(num);
+
+    if (separator && rounded >= 1000) {
+      return rounded.toLocaleString();
+    }
+
+    return rounded.toString();
+  };
+
+  return (
+    <span ref={counterRef} className={className}>
+      {prefix}{formatNumber(count)}{suffix}
+    </span>
+  );
+};
+
+export default Counter;

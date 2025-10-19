@@ -7,6 +7,7 @@ import api from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useMaintenance } from '../contexts/MaintenanceContext';
 import StarRating from '../components/StarRating';
+import Counter from '../components/Counter';
 import { Settings, BookOpen, Briefcase, Heart, Palette, Laptop, Dumbbell, PiggyBank, FolderTree, CalendarDays, LayoutDashboard, Users, Check, Youtube, Facebook, Send, Zap, Target, Lightbulb, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Download, CheckCircle, Star } from 'lucide-react';
 
 // Map badge types to Lucide icons
@@ -581,19 +582,47 @@ export default function HomePage() {
               {/* Enhanced Stats with Better Visual Hierarchy and Consistent Shadows */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
                 <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '0ms' }}>
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-500 dark:text-orange-500 mb-1 sm:mb-2">{stats.templates}</div>
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-500 dark:text-orange-500 mb-1 sm:mb-2">
+                    <Counter
+                      end={stats.templates}
+                      duration={2000}
+                      delay={500}
+                      separator=","
+                    />
+                  </div>
                   <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">قالب متاح</div>
                 </div>
                 <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '100ms' }}>
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">{stats.creators}</div>
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">
+                    <Counter
+                      end={stats.creators}
+                      duration={2000}
+                      delay={600}
+                      separator=","
+                    />
+                  </div>
                   <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">مبدع نشط</div>
                 </div>
                 <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '200ms' }}>
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">{stats.downloads}</div>
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">
+                    <Counter
+                      end={stats.downloads}
+                      duration={2000}
+                      delay={700}
+                      separator=","
+                    />
+                  </div>
                   <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">تحميل</div>
                 </div>
                 <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '300ms' }}>
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">{stats.specialties}</div>
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">
+                    <Counter
+                      end={stats.specialties}
+                      duration={2000}
+                      delay={800}
+                      separator=","
+                    />
+                  </div>
                   <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">مجال متخصص</div>
                 </div>
               </div>

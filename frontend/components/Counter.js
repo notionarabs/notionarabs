@@ -2,24 +2,32 @@
 
 import { useState, useEffect, useRef } from 'react';
 
-const Counter = ({
-  end,
-  duration = 2000,
-  start = 0,
+const Counter = ({ 
+  end, 
+  duration = 2000, 
+  start = 0, 
   delay = 0,
   className = "",
   suffix = "",
   prefix = "",
   separator = ",",
-  decimals = 0
+  decimals = 0,
+  startImmediately = false
 }) => {
   const [count, setCount] = useState(start);
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(startImmediately);
   const counterRef = useRef(null);
   const hasAnimated = useRef(false);
   const animationRef = useRef(null);
+  const [currentEnd, setCurrentEnd] = useState(end);
 
   useEffect(() => {
+    if (startImmediately) {
+      setIsVisible(true);
+      hasAnimated.current = true;
+      return;
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !hasAnimated.current) {
@@ -39,7 +47,12 @@ const Counter = ({
         observer.unobserve(counterRef.current);
       }
     };
-  }, []);
+  }, [startImmediately]);
+
+  // Update currentEnd when end prop changes (when data is fetched)
+  useEffect(() => {
+    setCurrentEnd(end);
+  }, [end]);
 
   useEffect(() => {
     if (!isVisible) return;
@@ -47,17 +60,17 @@ const Counter = ({
     const timer = setTimeout(() => {
       const startTime = Date.now();
       const startValue = start;
-      const endValue = end;
+      const endValue = currentEnd;
 
       const animate = () => {
         const elapsed = Date.now() - startTime;
         const progress = Math.min(elapsed / duration, 1);
-
+        
         // Easing function for smooth animation (ease-out-cubic)
         const easeOutCubic = 1 - Math.pow(1 - progress, 3);
-
+        
         const currentValue = startValue + (endValue - startValue) * easeOutCubic;
-
+        
         setCount(currentValue);
 
         if (progress < 1) {
@@ -76,7 +89,7 @@ const Counter = ({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [isVisible, end, duration, delay, start]);
+  }, [isVisible, currentEnd, duration, delay, start]);
 
   const formatNumber = (num) => {
     if (decimals > 0) {

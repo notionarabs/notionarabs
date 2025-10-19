@@ -52,7 +52,44 @@ const Counter = ({
   // Update currentEnd when end prop changes (when data is fetched)
   useEffect(() => {
     setCurrentEnd(end);
-  }, [end]);
+    
+    // If animation is already running and we get new data, restart animation
+    if (isVisible && hasAnimated.current && end !== currentEnd) {
+      // Cancel current animation
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+      
+      // Restart animation with new end value
+      const timer = setTimeout(() => {
+        const startTime = Date.now();
+        const startValue = count; // Start from current count
+        const endValue = end;
+
+        const animate = () => {
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          
+          // Easing function for smooth animation (ease-out-cubic)
+          const easeOutCubic = 1 - Math.pow(1 - progress, 3);
+          
+          const currentValue = startValue + (endValue - startValue) * easeOutCubic;
+          
+          setCount(currentValue);
+
+          if (progress < 1) {
+            animationRef.current = requestAnimationFrame(animate);
+          } else {
+            setCount(endValue);
+          }
+        };
+
+        animationRef.current = requestAnimationFrame(animate);
+      }, 100); // Small delay to ensure smooth transition
+      
+      return () => clearTimeout(timer);
+    }
+  }, [end, isVisible, currentEnd, count, duration]);
 
   useEffect(() => {
     if (!isVisible) return;

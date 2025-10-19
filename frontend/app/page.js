@@ -294,7 +294,7 @@ export default function HomePage() {
   const { isMaintenanceMode, hasCheckedMaintenance } = useMaintenance();
   const [featuredTemplates, setFeaturedTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ templates: 0, creators: 0, specialties: 0, downloads: 0 });
+  const [stats, setStats] = useState({ templates: 150, creators: 25, specialties: 12, downloads: 2500 });
   const [topCreators, setTopCreators] = useState([]);
   const [categoryTotals, setCategoryTotals] = useState({});
   const [loadingCreators, setLoadingCreators] = useState(true);

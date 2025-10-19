@@ -583,9 +583,9 @@ export default function HomePage() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
                 <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '0ms' }}>
                   <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-500 dark:text-orange-500 mb-1 sm:mb-2">
-                    <Counter 
-                      end={stats.templates} 
-                      duration={2000} 
+                    <Counter
+                      end={stats.templates}
+                      duration={2000}
                       delay={500}
                       separator=","
                       startImmediately={false}
@@ -595,9 +595,9 @@ export default function HomePage() {
                 </div>
                 <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '100ms' }}>
                   <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">
-                    <Counter 
-                      end={stats.creators} 
-                      duration={2000} 
+                    <Counter
+                      end={stats.creators}
+                      duration={2000}
                       delay={600}
                       separator=","
                       startImmediately={false}
@@ -607,9 +607,9 @@ export default function HomePage() {
                 </div>
                 <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '200ms' }}>
                   <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">
-                    <Counter 
-                      end={stats.downloads} 
-                      duration={2000} 
+                    <Counter
+                      end={stats.downloads}
+                      duration={2000}
                       delay={700}
                       separator=","
                       startImmediately={false}
@@ -619,9 +619,9 @@ export default function HomePage() {
                 </div>
                 <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '300ms' }}>
                   <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">
-                    <Counter 
-                      end={stats.specialties} 
-                      duration={2000} 
+                    <Counter
+                      end={stats.specialties}
+                      duration={2000}
                       delay={800}
                       separator=","
                       startImmediately={false}

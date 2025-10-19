@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react';
 
-const Counter = ({ 
-  end, 
-  duration = 2000, 
-  start = 0, 
+const Counter = ({
+  end,
+  duration = 2000,
+  start = 0,
   delay = 0,
   className = "",
   suffix = "",
@@ -65,12 +65,12 @@ const Counter = ({
       const animate = () => {
         const elapsed = Date.now() - startTime;
         const progress = Math.min(elapsed / duration, 1);
-        
+
         // Easing function for smooth animation (ease-out-cubic)
         const easeOutCubic = 1 - Math.pow(1 - progress, 3);
-        
+
         const currentValue = startValue + (endValue - startValue) * easeOutCubic;
-        
+
         setCount(currentValue);
 
         if (progress < 1) {

@@ -16,28 +16,21 @@
       "src": "/favicon.png",
       "sizes": "any",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
-      "src": "/android-chrome-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "src": "/favicon.ico",
+      "sizes": "16x16 32x32 48x48",
+      "type": "image/x-icon"
     },
     {
-      "src": "/android-chrome-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable any"
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
     },
     {
       "src": "/apple-touch-icon.png",
       "sizes": "180x180",
-      "type": "image/png"
-    },
-    {
-      "src": "/favicon-192x192.png",
-      "sizes": "192x192",
       "type": "image/png"
     }
   ],
@@ -49,8 +42,8 @@
       "url": "/templates",
       "icons": [
         {
-          "src": "/android-chrome-192x192.png",
-          "sizes": "192x192"
+          "src": "/favicon.png",
+          "sizes": "any"
         }
       ]
     },
@@ -61,8 +54,8 @@
       "url": "/templates/create",
       "icons": [
         {
-          "src": "/android-chrome-192x192.png",
-          "sizes": "192x192"
+          "src": "/favicon.png",
+          "sizes": "any"
         }
       ]
     },
@@ -73,8 +66,8 @@
       "url": "/blog",
       "icons": [
         {
-          "src": "/android-chrome-192x192.png",
-          "sizes": "192x192"
+          "src": "/favicon.png",
+          "sizes": "any"
         }
       ]
     }

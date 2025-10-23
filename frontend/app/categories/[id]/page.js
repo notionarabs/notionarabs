@@ -140,6 +140,7 @@ export async function generateMetadata({ params }) {
   const categorySlug = resolvedParams.id;
   const categoryName = categoryMap[categorySlug] || categorySlug;
 
+  
   return {
     title: `قوالب ${categoryName} - قوالب نوشن عربية مجانية`,
     description: `اكتشف مجموعة متنوعة من قوالب ${categoryName} المصممة خصيصاً للمستخدمين العرب. قوالب نوشن مجانية ومتخصصة لتحسين إنتاجيتك.`,

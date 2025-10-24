@@ -7,7 +7,7 @@ export async function generateMetadata({ params }) {
   try {
     // Fetch creator data from API for metadata
     const apiUrl = process.env.NODE_ENV === 'production'
-      ? 'http://ec2-50-19-23-245.compute-1.amazonaws.com/api'
+      ? 'http://api.notionarabs.com/api'
       : 'http://localhost:5000/api';
 
     const response = await fetch(`${apiUrl}/creators/${resolvedParams.username}`, {

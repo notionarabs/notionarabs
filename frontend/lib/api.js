@@ -2,7 +2,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 
 const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? 'http://ec2-50-19-23-245.compute-1.amazonaws.com/api'
+  ? 'https://api.notionarabs.com/api'
   : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api');
 
 // Create axios instance

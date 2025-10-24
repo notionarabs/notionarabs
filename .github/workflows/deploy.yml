@@ -20,11 +20,24 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
         port: 22
+        timeout: 60s
+        command_timeout: 10m
         script: |
           echo "🚀 Starting automatic deployment..."
+          echo "Current directory: $(pwd)"
+          echo "User: $(whoami)"
+          echo "Date: $(date)"
+          
+          # Check if repository exists
+          if [ ! -d "~/notion-arabs" ]; then
+            echo "📁 Cloning repository..."
+            cd ~
+            git clone https://github.com/hazemyasserprg/notion-arabs.git
+          fi
           
           # Navigate to project directory
           cd ~/notion-arabs
+          echo "📂 Current directory: $(pwd)"
           
           # Pull latest changes
           echo "📥 Pulling latest changes from GitHub..."
@@ -32,6 +45,14 @@ jobs:
           
           # Navigate to backend
           cd backend
+          echo "📂 Backend directory: $(pwd)"
+          
+          # Check if deploy script exists
+          if [ ! -f "deploy.sh" ]; then
+            echo "❌ deploy.sh not found!"
+            ls -la
+            exit 1
+          fi
           
           # Run deployment script
           echo "🔧 Running deployment script..."
@@ -40,6 +61,10 @@ jobs:
           
           echo "✅ Deployment completed successfully!"
           echo "Backend is running on port 5000"
+          
+          # Verify deployment
+          echo "🔍 Verifying deployment..."
+          pm2 status
           
     - name: Notify deployment status
       if: always()

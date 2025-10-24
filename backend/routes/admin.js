@@ -1363,26 +1363,10 @@ router.post('/send-bulk-emails', auth, async (req, res) => {
 
     // Check if Brevo is configured
     if (!process.env.BREVO_API_KEY) {
-      // For development/testing - simulate email sending
-      console.log(`[DEV MODE] Simulating email send to ${validEmails.length} emails`);
-      console.log(`Subject: ${subject}`);
-      console.log(`Message: ${message}`);
-      console.log(`Recipients: ${validEmails.join(', ')}`);
-
-      // Simulate processing time
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      res.status(200).json({
-        success: true,
-        message: `[وضع التطوير] تم محاكاة إرسال ${validEmails.length} بريد إلكتروني بنجاح`,
-        stats: {
-          total: validEmails.length,
-          successful: validEmails.length,
-          failed: 0
-        },
-        devMode: true
+      return res.status(500).json({
+        success: false,
+        message: 'خدمة البريد الإلكتروني غير مُعدة. يرجى إعداد BREVO_API_KEY'
       });
-      return;
     }
 
     // Production mode - use actual email service

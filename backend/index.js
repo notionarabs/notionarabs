@@ -172,6 +172,33 @@ app.get('/', (req, res) => {
   });
 });
 
+// API base route
+app.get('/api', (req, res) => {
+  res.json({
+    message: 'Notion Arabs API',
+    version: '1.0.0',
+    status: 'running',
+    endpoints: {
+      auth: '/api/auth',
+      admin: '/api/admin',
+      templates: '/api/templates',
+      blogs: '/api/blogs',
+      creators: '/api/creators',
+      health: '/api/health',
+      stats: '/api/stats',
+      contact: '/api/contact',
+      ratings: '/api/ratings',
+      comments: '/api/comments',
+      notifications: '/api/notifications',
+      orders: '/api/orders',
+      upload: '/api/upload',
+      screenshot: '/api/screenshot',
+      unsubscribe: '/api/unsubscribe'
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({

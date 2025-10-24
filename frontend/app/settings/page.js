@@ -243,7 +243,7 @@ export default function SettingsPage() {
 
       // Create a clean axios instance without interceptors for username checking
       const API_BASE_URL = process.env.NODE_ENV === 'production'
-        ? 'http://api.notionarabs.com/api'
+        ? 'https://notionarabs.com/api'
         : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api');
 
       const cleanAxios = axios.create({
@@ -583,7 +583,7 @@ export default function SettingsPage() {
       // Check availability one more time
       try {
         const API_BASE_URL = process.env.NODE_ENV === 'production'
-          ? 'http://api.notionarabs.com/api'
+          ? 'https://notionarabs.com/api'
           : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api');
 
         const cleanAxios = axios.create({

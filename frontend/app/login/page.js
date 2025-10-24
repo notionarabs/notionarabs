@@ -85,7 +85,7 @@ function LoginForm() {
           {/* Social Login Buttons - Moved to beginning */}
           <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
             <a
-              href={`${process.env.NODE_ENV === 'production' ? 'http://api.notionarabs.com/api' : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api')}/auth/google`}
+              href={`${process.env.NODE_ENV === 'production' ? 'https://notionarabs.com/api' : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api')}/auth/google`}
               className="w-full bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border text-gray-700 dark:text-dark-text-primary hover:bg-gray-50 dark:hover:bg-dark-tertiary font-medium py-2 sm:py-3 px-4 sm:px-6 rounded-lg sm:rounded-xl transition-colors duration-200 text-sm sm:text-base flex items-center justify-center"
             >
               <svg className="w-4 h-4 sm:w-5 sm:h-5 ml-2" viewBox="0 0 24 24">

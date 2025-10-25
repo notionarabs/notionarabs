@@ -29,9 +29,9 @@ export default function GoogleCallback() {
     window.location.replace(redirectUrl);
   }, []);
 
-  // Return a loading state that matches the website theme
+  // Return a full-page loading state that matches the login page
   return (
-    <div className="min-h-screen bg-white dark:bg-dark-primary flex items-center justify-center" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary flex items-center justify-center px-4 py-8" dir="rtl">
       <div className="text-center">
         <div className="space-y-6">
           {/* Loading spinner */}

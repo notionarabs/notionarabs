@@ -32,15 +32,15 @@ jobs:
           echo "⏱️  Timeout: 8 minutes max"
           
           # Navigate to project directory (create if doesn't exist)
-          if [ ! -d "~/notion-arabs" ]; then
+          cd ~
+          if [ ! -d "notion-arabs" ]; then
             echo "📁 Cloning repository..."
-            cd ~
             git clone --depth 1 https://github.com/hazemyasserprg/notion-arabs.git
           else
             echo "📁 Repository already exists, updating..."
-            cd ~/notion-arabs
           fi
           
+          cd notion-arabs
           echo "📂 Current directory: $(pwd)"
           
           # Fast git operations

@@ -29,9 +29,21 @@ export default function GoogleCallback() {
     window.location.replace(redirectUrl);
   }, []);
 
-  // Return a full-window loading state
+  // Return a full-window overlay that covers everything
   return (
-    <div className="h-screen w-screen bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary flex items-center justify-center" dir="rtl">
+    <div 
+      className="fixed inset-0 z-[9999] bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary flex items-center justify-center" 
+      dir="rtl"
+      style={{ 
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100vw',
+        height: '100vh'
+      }}
+    >
       <div className="text-center">
         <div className="space-y-6">
           {/* Loading spinner */}

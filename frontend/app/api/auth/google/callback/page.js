@@ -29,38 +29,32 @@ export default function GoogleCallback() {
     window.location.replace(redirectUrl);
   }, []);
 
-  // Return a minimal loading state while redirect happens
+  // Return a loading state that matches the website theme
   return (
-    <div style={{ 
-      position: 'fixed', 
-      top: 0, 
-      left: 0, 
-      width: '100%', 
-      height: '100%', 
-      backgroundColor: '#f8f9fa',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 9999
-    }}>
-      <div style={{ textAlign: 'center' }}>
-        <div style={{
-          width: '40px',
-          height: '40px',
-          border: '4px solid #e3e3e3',
-          borderTop: '4px solid #f5631e',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite',
-          margin: '0 auto 20px'
-        }}></div>
-        <p style={{ color: '#666', fontSize: '14px' }}>جاري التوجيه...</p>
+    <div className="min-h-screen bg-white dark:bg-dark-primary flex items-center justify-center" dir="rtl">
+      <div className="text-center">
+        <div className="space-y-6">
+          {/* Loading spinner */}
+          <div className="w-8 h-8 border-2 border-gray-200 dark:border-gray-700 border-t-primary-500 dark:border-t-orange-500 rounded-full animate-spin mx-auto"></div>
+
+          {/* Loading text */}
+          <div className="space-y-2">
+            <h3 className="text-lg font-medium text-accent-600 dark:text-dark-text-primary">
+              جاري التوجيه...
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-dark-text-tertiary">
+              يرجى الانتظار بينما نقوم بتوجيهك إلى صفحة تسجيل الدخول
+            </p>
+          </div>
+
+          {/* Progress dots */}
+          <div className="flex items-center justify-center space-x-1.5 space-x-reverse">
+            <div className="w-1.5 h-1.5 bg-primary-500 dark:bg-orange-500 rounded-full animate-bounce"></div>
+            <div className="w-1.5 h-1.5 bg-primary-500 dark:bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+            <div className="w-1.5 h-1.5 bg-primary-500 dark:bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+          </div>
+        </div>
       </div>
-      <style jsx>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 }

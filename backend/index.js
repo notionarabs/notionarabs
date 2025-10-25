@@ -29,7 +29,10 @@ const allowedOrigins = [
   'https://notionarabs.com',
   'https://www.notionarabs.com',
   'http://localhost:3000',
-  'http://127.0.0.1:3000'
+  'http://127.0.0.1:3000',
+  // Add common Vercel patterns
+  /^https:\/\/.*\.vercel\.app$/,
+  /^https:\/\/.*\.vercel\.dev$/
 ];
 
 // CORS configuration
@@ -38,12 +41,21 @@ const corsOptions = {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
-    // Check if origin is in allowed list
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    // Check if origin is in allowed list (including regex patterns)
+    const isAllowed = allowedOrigins.some(allowedOrigin => {
+      if (typeof allowedOrigin === 'string') {
+        return allowedOrigin === origin;
+      } else if (allowedOrigin instanceof RegExp) {
+        return allowedOrigin.test(origin);
+      }
+      return false;
+    });
+
+    if (isAllowed) {
       callback(null, true);
     } else {
       // In production, be more permissive for Vercel domains
-      if (process.env.NODE_ENV === 'production' && origin && origin.includes('vercel.app')) {
+      if (process.env.NODE_ENV === 'production' && origin && (origin.includes('vercel.app') || origin.includes('vercel.dev'))) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));

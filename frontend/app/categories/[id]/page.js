@@ -165,7 +165,8 @@ export async function generateMetadata({ params }) {
 // Fetch initial data on the server
 async function getCategoryTemplates(categoryName, page = 1, limit = 12, sortBy = 'createdAt') {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 
+      (process.env.NODE_ENV === 'production' ? 'http://api.notionarabs.com/api' : 'http://localhost:5000/api');
       const params = new URLSearchParams({
         category: categoryName,
       page: page.toString(),

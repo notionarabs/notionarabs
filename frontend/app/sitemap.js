@@ -2,7 +2,8 @@ import { siteConfig } from '../lib/seo'
 
 export default async function sitemap() {
   const baseUrl = siteConfig.url
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 
+    (process.env.NODE_ENV === 'production' ? 'http://api.notionarabs.com/api' : 'http://localhost:5000/api')
 
   // Static pages
   const staticPages = [

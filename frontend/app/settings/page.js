@@ -242,9 +242,8 @@ export default function SettingsPage() {
       ensureTokenInHeaders();
 
       // Create a clean axios instance without interceptors for username checking
-      const API_BASE_URL = process.env.NODE_ENV === 'production'
-        ? 'https://notionarabs.com/api'
-        : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api');
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
+        (process.env.NODE_ENV === 'production' ? 'http://api.notionarabs.com/api' : 'http://localhost:5000/api');
 
       const cleanAxios = axios.create({
         baseURL: API_BASE_URL,
@@ -582,9 +581,8 @@ export default function SettingsPage() {
 
       // Check availability one more time
       try {
-        const API_BASE_URL = process.env.NODE_ENV === 'production'
-          ? 'https://notionarabs.com/api'
-          : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api');
+        const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
+          (process.env.NODE_ENV === 'production' ? 'http://api.notionarabs.com/api' : 'http://localhost:5000/api');
 
         const cleanAxios = axios.create({
           baseURL: API_BASE_URL,

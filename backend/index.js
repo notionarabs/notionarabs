@@ -32,7 +32,11 @@ const allowedOrigins = [
   'http://127.0.0.1:3000',
   // Add common Vercel patterns
   /^https:\/\/.*\.vercel\.app$/,
-  /^https:\/\/.*\.vercel\.dev$/
+  /^https:\/\/.*\.vercel\.dev$/,
+  // Add common deployment patterns
+  /^https:\/\/.*\.netlify\.app$/,
+  /^https:\/\/.*\.herokuapp\.com$/,
+  /^https:\/\/.*\.render\.com$/
 ];
 
 // CORS configuration
@@ -54,10 +58,17 @@ const corsOptions = {
     if (isAllowed) {
       callback(null, true);
     } else {
-      // In production, be more permissive for Vercel domains
-      if (process.env.NODE_ENV === 'production' && origin && (origin.includes('vercel.app') || origin.includes('vercel.dev'))) {
+      // In production, be more permissive for common deployment platforms
+      if (process.env.NODE_ENV === 'production' && origin && (
+        origin.includes('vercel.app') || 
+        origin.includes('vercel.dev') ||
+        origin.includes('netlify.app') ||
+        origin.includes('herokuapp.com') ||
+        origin.includes('render.com')
+      )) {
         callback(null, true);
       } else {
+        console.log(`CORS Error: Origin ${origin} not allowed. Allowed origins:`, allowedOrigins);
         callback(new Error('Not allowed by CORS'));
       }
     }

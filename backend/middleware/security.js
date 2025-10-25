@@ -51,8 +51,9 @@ const createRateLimit = (windowMs, max, message) => {
       const isLocalhost = req.ip === '127.0.0.1' || req.ip === '::1' || req.ip === '::ffff:127.0.0.1';
       const isLocalNetwork = req.ip?.startsWith('192.168.') || req.ip?.startsWith('10.') || req.ip?.startsWith('172.');
       const isTemplatesEndpoint = req.originalUrl?.includes('/templates') && req.method === 'GET';
+      const isGoogleOAuthCallback = req.originalUrl?.includes('/auth/google/callback');
 
-      return isDevelopment || isLocalhost || isLocalNetwork || isTemplatesEndpoint;
+      return isDevelopment || isLocalhost || isLocalNetwork || isTemplatesEndpoint || isGoogleOAuthCallback;
     }
   });
 };
@@ -67,7 +68,7 @@ const generalRateLimit = createRateLimit(
 // Strict rate limit for auth endpoints
 const authRateLimit = createRateLimit(
   15 * 60 * 1000, // 15 minutes
-  20, // limit each IP to 20 requests per windowMs (more generous)
+  50, // limit each IP to 50 requests per windowMs (increased for OAuth)
   'تم تجاوز الحد المسموح من محاولات تسجيل الدخول. يرجى المحاولة مرة أخرى لاحقاً'
 );
 

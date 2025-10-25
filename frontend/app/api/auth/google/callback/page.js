@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import api from '../../../../../lib/api';
 
 export default function GoogleCallback() {
   const router = useRouter();
@@ -32,7 +33,6 @@ export default function GoogleCallback() {
         }
 
         // Forward the code to your EC2 backend
-        const api = (await import('../../../../lib/api')).default;
         const response = await api.post('/auth/google/callback', {
           code: code,
           redirectUri: window.location.origin + '/api/auth/google/callback'

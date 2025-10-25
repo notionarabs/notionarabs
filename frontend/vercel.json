@@ -1,4 +1,5 @@
 {
+  "comment": "Updated CSP for HTTPS API - Force deployment",
   "headers": [
     {
       "source": "/(.*)",

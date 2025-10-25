@@ -26,6 +26,10 @@
         {
           "key": "X-XSS-Protection",
           "value": "1; mode=block"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
         }
       ]
     },
@@ -44,5 +48,10 @@
     }
   ],
   "redirects": [],
-  "rewrites": []
+  "rewrites": [],
+  "functions": {
+    "app/**/*.js": {
+      "maxDuration": 10
+    }
+  }
 }

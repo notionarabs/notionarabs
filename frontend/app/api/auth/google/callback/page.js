@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import api from '../../../../../lib/api';
 
 export default function GoogleCallback() {
   const router = useRouter();
@@ -32,30 +31,16 @@ export default function GoogleCallback() {
           return;
         }
 
-        // Forward the code to your EC2 backend
-        const response = await api.post('/auth/google/callback', {
-          code: code,
-          redirectUri: window.location.origin + '/api/auth/google/callback'
-        });
-
-        if (response.data.success) {
-          setStatus('Login successful! Redirecting...');
-          
-          // Store the auth token
-          if (response.data.token) {
-            document.cookie = `authToken=${response.data.token}; path=/; max-age=${7 * 24 * 60 * 60}`;
-          }
-          
-          // Redirect to dashboard or home page
-          setTimeout(() => {
-            router.push('/');
-          }, 1000);
-        } else {
-          setStatus('Login failed. Please try again.');
-          setTimeout(() => {
-            router.push('/login');
-          }, 2000);
-        }
+        // Redirect to backend Google OAuth endpoint with the code
+        // The backend will handle the OAuth flow and redirect back to /auth/callback
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 
+          (process.env.NODE_ENV === 'production' ? 'https://api.notionarabs.com' : 'http://localhost:5000');
+        
+        const redirectUrl = `${backendUrl}/api/auth/google/callback?code=${encodeURIComponent(code)}`;
+        
+        // Redirect to backend
+        window.location.href = redirectUrl;
+        
       } catch (error) {
         console.error('Google callback error:', error);
         setStatus('Login failed. Please try again.');

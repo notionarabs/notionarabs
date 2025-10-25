@@ -169,6 +169,6 @@ module.exports = {
   },
   // Experimental features for better performance
   experimental: {
-    optimizeUniversalDefaults: true,
+    optimizeUniversalDefaults: false,
   },
 }

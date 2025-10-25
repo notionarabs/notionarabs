@@ -240,23 +240,8 @@ router.get('/:id', cacheMiddleware(600), async (req, res) => {
       });
     }
 
-    // Get creator's templates
+    // Get creator's templates and stats in parallel for better performance
     let templates = [];
-    try {
-      templates = await Template.find({
-        creator: creator._id,
-        status: 'approved'
-      })
-        .select('title price rating downloads category coverImage isPaid purchaseLink')
-        .sort({ createdAt: -1 })
-        .limit(6)
-        .lean();
-    } catch (templateError) {
-      console.error('Error fetching templates:', templateError);
-      // Continue without templates if there's an error
-    }
-
-    // Get detailed stats
     let creatorStats = {
       totalTemplates: 0,
       totalDownloads: 0,
@@ -265,48 +250,68 @@ router.get('/:id', cacheMiddleware(600), async (req, res) => {
     };
 
     try {
-      const stats = await Template.aggregate([
-        { $match: { creator: creator._id, status: 'approved' } },
-        {
-          $group: {
-            _id: null,
-            totalTemplates: { $sum: 1 },
-            totalDownloads: { $sum: { $ifNull: ['$downloads', 0] } },
-            templateRatings: { $push: { $ifNull: ['$rating', 0] } },
-            totalRevenue: {
-              $sum: {
-                $multiply: [
-                  { $ifNull: ['$price', 0] },
-                  { $ifNull: ['$downloads', 0] }
-                ]
+      // Execute templates and stats queries in parallel
+      const [templatesResult, statsResult] = await Promise.allSettled([
+        Template.find({
+          creator: creator._id,
+          status: 'approved'
+        })
+          .select('title price rating downloads category coverImage isPaid purchaseLink')
+          .sort({ createdAt: -1 })
+          .limit(6)
+          .lean(),
+        
+        Template.aggregate([
+          { $match: { creator: creator._id, status: 'approved' } },
+          {
+            $group: {
+              _id: null,
+              totalTemplates: { $sum: 1 },
+              totalDownloads: { $sum: { $ifNull: ['$downloads', 0] } },
+              templateRatings: { $push: { $ifNull: ['$rating', 0] } },
+              totalRevenue: {
+                $sum: {
+                  $multiply: [
+                    { $ifNull: ['$price', 0] },
+                    { $ifNull: ['$downloads', 0] }
+                  ]
+                }
               }
             }
           }
-        }
+        ])
       ]);
 
-      const rawStats = stats[0] || {};
-
-      // Calculate average rating from template ratings
-      let averageRating = 0;
-      if (rawStats.templateRatings && rawStats.templateRatings.length > 0) {
-        // Filter out null/undefined ratings
-        const validRatings = rawStats.templateRatings.filter(rating => rating && rating > 0);
-
-        if (validRatings.length > 0) {
-          averageRating = validRatings.reduce((sum, rating) => sum + rating, 0) / validRatings.length;
-        }
+      // Process templates result
+      if (templatesResult.status === 'fulfilled') {
+        templates = templatesResult.value;
       }
 
-      creatorStats = {
-        totalTemplates: rawStats.totalTemplates || 0,
-        totalDownloads: rawStats.totalDownloads || 0,
-        medianRating: averageRating,
-        totalRevenue: rawStats.totalRevenue || 0
-      };
-    } catch (statsError) {
-      console.error('Error fetching creator stats:', statsError);
-      // Use default stats if there's an error
+      // Process stats result
+      if (statsResult.status === 'fulfilled') {
+        const rawStats = statsResult.value[0] || {};
+
+        // Calculate average rating from template ratings
+        let averageRating = 0;
+        if (rawStats.templateRatings && rawStats.templateRatings.length > 0) {
+          // Filter out null/undefined ratings
+          const validRatings = rawStats.templateRatings.filter(rating => rating && rating > 0);
+
+          if (validRatings.length > 0) {
+            averageRating = validRatings.reduce((sum, rating) => sum + rating, 0) / validRatings.length;
+          }
+        }
+
+        creatorStats = {
+          totalTemplates: rawStats.totalTemplates || 0,
+          totalDownloads: rawStats.totalDownloads || 0,
+          medianRating: averageRating,
+          totalRevenue: rawStats.totalRevenue || 0
+        };
+      }
+    } catch (error) {
+      console.error('Error fetching templates and stats:', error);
+      // Continue with default values if there's an error
     }
 
     res.json({

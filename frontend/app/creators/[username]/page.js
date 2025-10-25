@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import Head from 'next/head';
 import { MessageCircle, Mail, UserPlus, Star, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Zap, Download, CheckCircle, Heart } from 'lucide-react';
+import { generateCreatorMetadata } from '../../../lib/seo';
 
 // Map badge types to Lucide icons
 const getBadgeIcon = (badgeType) => {
@@ -32,6 +34,8 @@ export default function PublicProfilePage() {
   const [creator, setCreator] = useState(null);
   const [creatorTemplates, setCreatorTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [templatesLoading, setTemplatesLoading] = useState(true);
+  const [ratingsLoading, setRatingsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userRating, setUserRating] = useState(null);
   const [creatorRatings, setCreatorRatings] = useState([]);
@@ -72,35 +76,50 @@ export default function PublicProfilePage() {
       }
     } catch (error) {
       // Error loading creator ratings
+    } finally {
+      setRatingsLoading(false);
     }
   };
 
   const fetchCreatorProfile = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/creators/${username}`);
-      setCreator(response.data.creator);
+      
+      // Fetch creator profile and templates in parallel
+      const [creatorResponse, templatesResponse] = await Promise.allSettled([
+        api.get(`/creators/${username}`),
+        // We'll fetch templates after getting creator ID
+        Promise.resolve({ data: { success: false } })
+      ]);
 
-      // Set median rating from creator data
-      setMedianRating(response.data.creator.rating || 0);
+      if (creatorResponse.status === 'fulfilled') {
+        const creator = creatorResponse.value.data.creator;
+        setCreator(creator);
+        setMedianRating(creator.rating || 0);
 
-      // Fetch creator's templates
-      try {
-        const templatesResponse = await api.get(`/templates?creator=${response.data.creator.id}&limit=20`);
-        if (templatesResponse.data.success) {
-          setCreatorTemplates(templatesResponse.data.templates);
+        // Now fetch templates with the creator ID
+        try {
+          const templatesResponse = await api.get(`/templates?creator=${creator.id}&limit=20`);
+          if (templatesResponse.data.success) {
+            setCreatorTemplates(templatesResponse.data.templates);
+          }
+        } catch (templatesError) {
+          setCreatorTemplates([]);
+        } finally {
+          setTemplatesLoading(false);
         }
-      } catch (templatesError) {
-        setCreatorTemplates([]);
+      } else {
+        const error = creatorResponse.reason;
+        if (error.response?.status === 500) {
+          setError('خطأ في الخادم - يرجى المحاولة لاحقاً');
+        } else if (error.response?.status === 404) {
+          setError('المبدع غير موجود');
+        } else {
+          setError('حدث خطأ في تحميل بيانات المبدع');
+        }
       }
     } catch (error) {
-      if (error.response?.status === 500) {
-        setError('خطأ في الخادم - يرجى المحاولة لاحقاً');
-      } else if (error.response?.status === 404) {
-        setError('المبدع غير موجود');
-      } else {
-        setError('حدث خطأ في تحميل بيانات المبدع');
-      }
+      setError('حدث خطأ في تحميل بيانات المبدع');
     } finally {
       setLoading(false);
     }
@@ -271,7 +290,41 @@ export default function PublicProfilePage() {
   };
 
 
-  if (loading) {
+  if (loading && !creator) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
     return (
       <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
         {/* Header Skeleton */}
@@ -410,7 +463,31 @@ export default function PublicProfilePage() {
   }
 
   return (
-    <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+    <>
+      {/* Dynamic Head Tags for SEO */}
+      {creator && (
+        <Head>
+          <title>{`${creator.displayName || creator.name} - مبدع قوالب نوشن | عرب نوشن`}</title>
+          <meta name="description" content={`تعرف على ${creator.displayName || creator.name}، مبدع قوالب Notion باللغة العربية. ${creator.templateCount || creatorTemplates.length || 0} قالب متاح للتحميل المجاني. ${creator.bio || creator.experience || 'مبدع موهوب في إنشاء قوالب إنتاجية احترافية.'}`} />
+          <meta name="keywords" content={`${creator.displayName || creator.name}, مبدع قوالب, notion creator, قوالب عربية, ${creator.specialties?.join(', ') || ''}, مبدعون عرب, قوالب مجانية, إنتاجية, تنظيم`} />
+          <link rel="canonical" href={`https://www.notionarabs.com/creators/${creator.username}`} />
+
+          {/* Open Graph */}
+          <meta property="og:title" content={`${creator.displayName || creator.name} - مبدع قوالب نوشن`} />
+          <meta property="og:description" content={`تعرف على ${creator.displayName || creator.name}، مبدع قوالب Notion باللغة العربية. ${creator.templateCount || creatorTemplates.length || 0} قالب متاح.`} />
+          <meta property="og:image" content={creator.profilePicture || 'https://www.notionarabs.com/og-image.png'} />
+          <meta property="og:url" content={`https://www.notionarabs.com/creators/${creator.username}`} />
+          <meta property="og:type" content="profile" />
+
+          {/* Twitter */}
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={`${creator.displayName || creator.name} - مبدع قوالب نوشن`} />
+          <meta name="twitter:description" content={`تعرف على ${creator.displayName || creator.name}، مبدع قوالب Notion باللغة العربية.`} />
+          <meta name="twitter:image" content={creator.profilePicture || 'https://www.notionarabs.com/og-image.png'} />
+        </Head>
+      )}
+
+      <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
 
       {/* Header */}
       <div className="bg-white dark:bg-dark-secondary shadow-soft dark:shadow-dark-soft border-b border-gray-200 dark:border-dark-card-border">
@@ -452,7 +529,7 @@ export default function PublicProfilePage() {
                   ) : (
                     <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center shadow-lg border-4 border-white dark:border-dark-card-border">
                       <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-500 dark:text-orange-400">
-                        {(creator.displayName || creator.name)?.charAt(0)?.toUpperCase()}
+                        {(creator.displayName || creator.name || 'م')?.charAt(0)?.toUpperCase() || 'م'}
                       </span>
                     </div>
                   )}
@@ -673,7 +750,27 @@ export default function PublicProfilePage() {
         <div className="container-custom px-4 sm:px-6 lg:px-8">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-6 sm:mb-8 md:mb-10">قوالب المبدع</h2>
 
-          {creatorTemplates.length > 0 ? (
+          {templatesLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {[...Array(6)].map((_, idx) => (
+                <div key={idx} className="bg-white dark:bg-dark-tertiary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-dark-card-border h-full flex flex-col overflow-hidden">
+                  {/* Template Image Skeleton */}
+                  <div className="relative overflow-hidden rounded-lg h-48 mb-4">
+                    <div className="w-full h-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                  </div>
+                  {/* Template Info Skeleton */}
+                  <div className="space-y-3">
+                    <div className="h-5 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-3/4 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-1/2 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    <div className="flex items-center justify-between">
+                      <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-16 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                      <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-12 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : creatorTemplates.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {creatorTemplates.map((template) => (
                 <Link key={template._id || template.id} href={`/templates/${template.slug || template._id || template.id}`}>
@@ -820,6 +917,7 @@ export default function PublicProfilePage() {
         </div>
       </footer>
 
-    </main>
+      </main>
+    </>
   );
 }

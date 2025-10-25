@@ -25,6 +25,9 @@ const emailApi = axios.create({
 // Add request interceptor to include auth token and check maintenance mode
 api.interceptors.request.use(
   (config) => {
+    // Add timestamp for performance monitoring
+    config.metadata = { startTime: Date.now() };
+    
     // Check if maintenance mode is active (except for settings/public endpoint)
     if (typeof window !== 'undefined' &&
       window.isMaintenanceMode &&
@@ -52,9 +55,26 @@ api.interceptors.request.use(
 
 // Add response interceptor to handle auth errors
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Log slow API responses for performance monitoring
+    if (response.config.metadata?.startTime) {
+      const duration = Date.now() - response.config.metadata.startTime;
+      if (duration > 2000) {
+        console.warn(`🐌 Slow API response: ${response.config.url} took ${duration}ms`);
+      } else if (duration > 1000) {
+        console.log(`⚠️ API response: ${response.config.url} took ${duration}ms`);
+      }
+    }
+    return response;
+  },
   (error) => {
     const { response } = error;
+
+    // Log API error response times
+    if (error.config?.metadata?.startTime) {
+      const duration = Date.now() - error.config.metadata.startTime;
+      console.error(`❌ API error: ${error.config.url} failed after ${duration}ms`);
+    }
 
     // Handle different error types
     if (response?.status === 401) {

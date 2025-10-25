@@ -246,53 +246,62 @@ export default function TemplateDetailPage() {
   // Load ratings and comments for the template
   const loadRatings = async (templateId) => {
     try {
-      // Load user's rating and comment if authenticated
-      if (isAuthenticated) {
-        const [userRatingResponse, userCommentResponse] = await Promise.all([
-          api.get(`/ratings/user/template/${templateId}`),
-          api.get(`/comments/user/template/${templateId}`)
-        ]);
-
-        if (userRatingResponse.data.success) {
-          const ratingData = userRatingResponse.data.rating;
-          // Only set userRating if there's actual rating data
-          if (ratingData && ratingData.rating > 0) {
-            setUserRating({ rating: ratingData.rating, review: ratingData.review || '' });
-            setHasSubmittedRating(true);
-          }
-        }
-
-        if (userCommentResponse.data.success) {
-          const commentData = userCommentResponse.data.comment;
-          // Only set userComment if there's actual comment data
-          if (commentData && commentData.content) {
-            setUserComment(commentData);
-          }
-        }
-      }
-
-      // Load all ratings and comments for the template
-      const [ratingsResponse, commentsResponse] = await Promise.all([
+      // Prepare all API calls
+      const apiCalls = [
         api.get(`/ratings/template/${templateId}?limit=5`),
         api.get(`/comments/template/${templateId}?limit=10`)
-      ]);
+      ];
 
-      if (ratingsResponse.data.success) {
-        setTemplateRatings(ratingsResponse.data.ratings);
-        if (typeof ratingsResponse.data.averageRating !== 'undefined' && typeof ratingsResponse.data.totalRatings !== 'undefined') {
+      // Add user-specific calls if authenticated
+      if (isAuthenticated) {
+        apiCalls.push(
+          api.get(`/ratings/user/template/${templateId}`),
+          api.get(`/comments/user/template/${templateId}`)
+        );
+      }
+
+      // Execute all calls in parallel
+      const results = await Promise.allSettled(apiCalls);
+      
+      // Process results
+      const [ratingsResult, commentsResult, userRatingResult, userCommentResult] = results;
+
+      // Handle template ratings
+      if (ratingsResult.status === 'fulfilled' && ratingsResult.value.data.success) {
+        const ratingsData = ratingsResult.value.data;
+        setTemplateRatings(ratingsData.ratings);
+        if (typeof ratingsData.averageRating !== 'undefined' && typeof ratingsData.totalRatings !== 'undefined') {
           setRatingsSummary({
-            averageRating: ratingsResponse.data.averageRating || 0,
-            totalRatings: ratingsResponse.data.totalRatings || 0
+            averageRating: ratingsData.averageRating || 0,
+            totalRatings: ratingsData.totalRatings || 0
           });
-          setTemplate(prev => ({ ...prev, rating: ratingsResponse.data.averageRating || 0 }));
+          setTemplate(prev => ({ ...prev, rating: ratingsData.averageRating || 0 }));
         }
       }
 
-      if (commentsResponse.data.success) {
-        setTemplateComments(commentsResponse.data.comments || []);
+      // Handle template comments
+      if (commentsResult.status === 'fulfilled' && commentsResult.value.data.success) {
+        setTemplateComments(commentsResult.value.data.comments || []);
+      }
+
+      // Handle user rating (if authenticated)
+      if (isAuthenticated && userRatingResult.status === 'fulfilled' && userRatingResult.value.data.success) {
+        const ratingData = userRatingResult.value.data.rating;
+        if (ratingData && ratingData.rating > 0) {
+          setUserRating({ rating: ratingData.rating, review: ratingData.review || '' });
+          setHasSubmittedRating(true);
+        }
+      }
+
+      // Handle user comment (if authenticated)
+      if (isAuthenticated && userCommentResult.status === 'fulfilled' && userCommentResult.value.data.success) {
+        const commentData = userCommentResult.value.data.comment;
+        if (commentData && commentData.content) {
+          setUserComment(commentData);
+        }
       }
     } catch (error) {
-      // Error loading ratings
+      console.error('Error loading ratings:', error);
     }
   };
 

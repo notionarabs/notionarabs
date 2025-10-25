@@ -53,31 +53,5 @@ export default function GoogleCallback() {
     handleGoogleCallback();
   }, [router]);
 
-  return (
-    <div className="min-h-screen bg-white dark:bg-dark-primary flex items-center justify-center" dir="rtl">
-      <div className="text-center">
-        <div className="space-y-6">
-          {/* Loading spinner */}
-          <div className="w-8 h-8 border-2 border-gray-200 dark:border-gray-700 border-t-primary-500 dark:border-t-orange-500 rounded-full animate-spin mx-auto"></div>
-
-          {/* Loading text */}
-          <div className="space-y-2">
-            <h3 className="text-lg font-medium text-accent-600 dark:text-dark-text-primary">
-              جاري تسجيل الدخول...
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-dark-text-tertiary">
-              {status}
-            </p>
-          </div>
-
-          {/* Progress dots */}
-          <div className="flex items-center justify-center space-x-1.5 space-x-reverse">
-            <div className="w-1.5 h-1.5 bg-primary-500 dark:bg-orange-500 rounded-full animate-bounce"></div>
-            <div className="w-1.5 h-1.5 bg-primary-500 dark:bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-            <div className="w-1.5 h-1.5 bg-primary-500 dark:bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  return null; // No UI needed, just redirect
 }

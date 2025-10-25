@@ -93,7 +93,7 @@ export default async function sitemapDynamic() {
   try {
     // Try to fetch dynamic content
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 
-      (process.env.NODE_ENV === 'production' ? 'http://api.notionarabs.com/api' : 'http://localhost:5000/api')
+      (process.env.NODE_ENV === 'production' ? 'https://api.notionarabs.com/api' : 'http://localhost:5000/api')
 
     const [templatesRes, blogsRes, creatorsRes] = await Promise.allSettled([
       fetch(`${apiUrl}/templates?limit=500`, {

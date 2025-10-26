@@ -21,50 +21,42 @@ const createTransporter = () => {
   return {
     sendMail: async (mailOptions) => {
       try {
-        const fetch = require('node-fetch');
-        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
-          method: 'POST',
+        const axios = require('axios');
+        const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
+          sender: {
+            name: 'عرب نوشن',
+            email: process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL
+          },
+          to: [{ email: mailOptions.to }],
+          subject: mailOptions.subject,
+          htmlContent: mailOptions.html,
+          textContent: mailOptions.text,
+          headers: {
+            'List-Unsubscribe': '<https://www.notionarabs.com/unsubscribe?email=' + encodeURIComponent(mailOptions.to) + '>',
+            'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+            'X-Mailer': 'NotionArabs Platform',
+            'X-Priority': '3',
+            'Precedence': 'bulk',
+            'Reply-To': process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL,
+            'Return-Path': process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL,
+            'Message-ID': `<${Date.now()}-${Math.random().toString(36).substr(2, 9)}@notionarabs.com>`
+          },
+          tags: ['newsletter', 'notionarabs', 'arabic']
+        }, {
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
             'api-key': process.env.BREVO_API_KEY
-          },
-          body: JSON.stringify({
-            sender: {
-              name: 'عرب نوشن',
-              email: process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL
-            },
-            to: [{ email: mailOptions.to }],
-            subject: mailOptions.subject,
-            htmlContent: mailOptions.html,
-            textContent: mailOptions.text,
-            headers: {
-              'List-Unsubscribe': '<https://www.notionarabs.com/unsubscribe?email=' + encodeURIComponent(mailOptions.to) + '>',
-              'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-              'X-Mailer': 'NotionArabs Platform',
-              'X-Priority': '3',
-              'Precedence': 'bulk',
-              'Reply-To': process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL,
-              'Return-Path': process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL,
-              'Message-ID': `<${Date.now()}-${Math.random().toString(36).substr(2, 9)}@notionarabs.com>`
-            },
-            tags: ['newsletter', 'notionarabs', 'arabic']
-          })
+          }
         });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(`Brevo error: ${JSON.stringify(errorData)}`);
-        }
-
-        const result = await response.json();
-        console.log('✅ Brevo email sent successfully:', result.messageId);
+        console.log('✅ Brevo email sent successfully:', response.data.messageId);
         return {
-          messageId: result.messageId,
+          messageId: response.data.messageId,
           response: 'Email sent via Brevo'
         };
       } catch (error) {
-        console.error('❌ Brevo error:', error);
+        console.error('❌ Brevo error:', error.response?.data || error.message);
         throw error;
       }
     },

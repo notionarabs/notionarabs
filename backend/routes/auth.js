@@ -267,6 +267,15 @@ router.post('/signup', [
     const emailVerificationToken = crypto.randomBytes(32).toString('hex');
     const emailVerificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
+    // Check if email service is configured before proceeding
+    if (!process.env.BREVO_API_KEY) {
+      return res.status(503).json({
+        success: false,
+        message: 'خدمة البريد الإلكتروني غير مُعدة حالياً. يرجى المحاولة مرة أخرى لاحقاً أو التواصل مع الدعم الفني.',
+        errorType: 'EMAIL_SERVICE_NOT_CONFIGURED'
+      });
+    }
+
     // Try to send verification email first
     let emailSent = false;
     try {
@@ -382,31 +391,13 @@ router.post('/signup', [
       console.error('Email error message:', emailError.message);
       console.error('Email error type:', typeof emailError.message);
 
-      // Store user data temporarily for email verification (even if email service fails)
-      const tempUserData = {
-        name,
-        email,
-        password,
-        emailVerificationToken,
-        emailVerificationExpiry,
-        createdAt: new Date()
-      };
-
-      // Only add username if it's provided
-      if (finalUsername) {
-        tempUserData.username = finalUsername;
-      }
-
-      tempUserStorage.set(emailVerificationToken, tempUserData);
-
-      // Always return verification required (even if email failed to send)
-      res.status(201).json({
-        success: true,
-        message: 'تم إرسال رابط التأكيد إلى بريدك الإلكتروني. يرجى التحقق من بريدك والضغط على الرابط لتأكيد حسابك.',
-        requiresVerification: true,
-        verificationToken: emailVerificationToken,
-        email: email,
-        emailSent: false // Indicate that email wasn't actually sent
+      // Don't store user data if email fails - return error instead
+      // This ensures users know the signup didn't complete
+      return res.status(503).json({
+        success: false,
+        message: 'فشل في إرسال بريد التأكيد. يرجى المحاولة مرة أخرى لاحقاً أو التواصل مع الدعم الفني.',
+        errorType: 'EMAIL_SEND_FAILED',
+        details: process.env.NODE_ENV === 'development' ? emailError.message : undefined
       });
     }
   } catch (error) {
@@ -894,37 +885,29 @@ const createTransporter = () => {
   return {
     sendMail: async (mailOptions) => {
       try {
-        const fetch = require('node-fetch');
-        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
-          method: 'POST',
+        const axios = require('axios');
+        const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
+          sender: {
+            email: process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL || 'support@notionarabs.com'
+          },
+          to: [{ email: mailOptions.to }],
+          subject: mailOptions.subject,
+          htmlContent: mailOptions.html
+        }, {
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
             'api-key': process.env.BREVO_API_KEY
-          },
-          body: JSON.stringify({
-            sender: {
-              email: process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL || 'support@notionarabs.com'
-            },
-            to: [{ email: mailOptions.to }],
-            subject: mailOptions.subject,
-            htmlContent: mailOptions.html
-          })
+          }
         });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(`Brevo error: ${JSON.stringify(errorData)}`);
-        }
-
-        const result = await response.json();
-        console.log('✅ Brevo email sent successfully:', result.messageId);
+        console.log('✅ Brevo email sent successfully:', response.data.messageId);
         return {
-          messageId: result.messageId,
+          messageId: response.data.messageId,
           response: 'Email sent via Brevo'
         };
       } catch (error) {
-        console.error('❌ Brevo error:', error);
+        console.error('❌ Brevo error:', error.response?.data || error.message);
         throw error;
       }
     },

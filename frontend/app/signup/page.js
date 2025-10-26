@@ -93,9 +93,9 @@ export default function SignupPage() {
         router.push('/');
       }
     } else {
-      if (result.errorType === 'EMAIL_SEND_FAILED') {
+      if (result.errorType === 'EMAIL_SEND_FAILED' || result.errorType === 'EMAIL_SERVICE_NOT_CONFIGURED') {
         setEmailSendFailed(true);
-        setError('فشل في إرسال بريد التأكيد. يرجى المحاولة مرة أخرى.');
+        setError('فشل في إرسال بريد التأكيد. يرجى المحاولة مرة أخرى أو التواصل مع الدعم الفني.');
       } else {
         setError(result.error || 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
       }

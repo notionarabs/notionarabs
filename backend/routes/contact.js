@@ -16,37 +16,29 @@ const createTransporter = () => {
   return {
     sendMail: async (mailOptions) => {
       try {
-        const fetch = require('node-fetch');
-        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
-          method: 'POST',
+        const axios = require('axios');
+        const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
+          sender: {
+            email: process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL
+          },
+          to: [{ email: mailOptions.to }],
+          subject: mailOptions.subject,
+          htmlContent: mailOptions.html
+        }, {
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
             'api-key': process.env.BREVO_API_KEY
-          },
-          body: JSON.stringify({
-            sender: {
-              email: process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL
-            },
-            to: [{ email: mailOptions.to }],
-            subject: mailOptions.subject,
-            htmlContent: mailOptions.html
-          })
+          }
         });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(`Brevo error: ${JSON.stringify(errorData)}`);
-        }
-
-        const result = await response.json();
-        console.log('✅ Brevo email sent successfully:', result.messageId);
+        console.log('✅ Brevo email sent successfully:', response.data.messageId);
         return {
-          messageId: result.messageId,
+          messageId: response.data.messageId,
           response: 'Email sent via Brevo'
         };
       } catch (error) {
-        console.error('❌ Brevo error:', error);
+        console.error('❌ Brevo error:', error.response?.data || error.message);
         throw error;
       }
     },

@@ -47,7 +47,13 @@
       ]
     }
   ],
-  "redirects": [],
+  "redirects": [
+    {
+      "source": "https://notionarabs.com/:path*",
+      "destination": "https://www.notionarabs.com/:path*",
+      "permanent": true
+    }
+  ],
   "rewrites": [],
   "functions": {
     "app/**/*.js": {

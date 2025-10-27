@@ -25,18 +25,10 @@ const PORT = process.env.PORT || 5000;
 // Trust proxy so req.secure and forwarded headers are accurate behind Render/Vercel proxies
 app.set('trust proxy', 1);
 const allowedOrigins = [
-  process.env.FRONTEND_URL || 'https://notionarabs.com',
-  'https://notionarabs.com',
+  process.env.FRONTEND_URL ||'https://notionarabs.com',
   'https://www.notionarabs.com',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
-  // Add common Vercel patterns
-  /^https:\/\/.*\.vercel\.app$/,
-  /^https:\/\/.*\.vercel\.dev$/,
-  // Add common deployment patterns
-  /^https:\/\/.*\.netlify\.app$/,
-  /^https:\/\/.*\.herokuapp\.com$/,
-  /^https:\/\/.*\.render\.com$/
 ];
 
 // CORS configuration

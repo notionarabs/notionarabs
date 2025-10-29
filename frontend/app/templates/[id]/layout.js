@@ -38,7 +38,7 @@ export async function generateMetadata({ params }) {
       : 'http://localhost:5000/api';
     
     const response = await fetch(`${apiUrl}/templates/${resolvedParams.id}`, {
-      next: { revalidate: 3600 }, // Revalidate every hour for better caching
+      cache: 'no-store', // No caching for dynamic pages
       headers: {
         'Content-Type': 'application/json',
       }

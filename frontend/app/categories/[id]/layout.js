@@ -135,10 +135,10 @@ export async function generateMetadata({ params }) {
   try {
     // Fetch template count for this category
     const apiUrl = process.env.NODE_ENV === 'production'
-      ? 'https://notionarabs.com/api'
+      ? 'https://notion-arabs-fe5b3f214071.herokuapp.com/api'
       : 'http://localhost:5000/api';
     const response = await fetch(`${apiUrl}/templates?category=${categoryName}&limit=1`, {
-      cache: 'no-store',
+      cache: 'no-store', // No caching for dynamic pages
     });
 
     if (response.ok) {

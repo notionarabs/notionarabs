@@ -7,11 +7,11 @@ export async function generateMetadata({ params }) {
   try {
     // Fetch creator data from API for metadata
     const apiUrl = process.env.NODE_ENV === 'production'
-      ? 'https://notionarabs.com/api'
+      ? 'https://notion-arabs-fe5b3f214071.herokuapp.com/api'
       : 'http://localhost:5000/api';
 
     const response = await fetch(`${apiUrl}/creators/${resolvedParams.username}`, {
-      next: { revalidate: 3600 }, // Revalidate every hour for better caching
+      cache: 'no-store', // No caching for dynamic pages
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',

@@ -34,7 +34,7 @@ export async function generateMetadata({ params }) {
   try {
     // Fetch template data from API for metadata with revalidation
     const apiUrl = process.env.NODE_ENV === 'production'
-      ? 'https://notionarabs.com/api'
+      ? 'https://notion-arabs-fe5b3f214071.herokuapp.com/api'
       : 'http://localhost:5000/api';
     
     const response = await fetch(`${apiUrl}/templates/${resolvedParams.id}`, {
@@ -64,6 +64,8 @@ export async function generateMetadata({ params }) {
     tags: ['قالب', 'نوشن', 'عربي']
   });
 }
+
+export const dynamic = 'force-dynamic'
 
 export default function TemplateLayout({ children }) {
   return children;

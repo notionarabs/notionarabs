@@ -38,7 +38,7 @@ export async function generateMetadata({ params }) {
       : 'http://localhost:5000/api';
     
     const response = await fetch(`${apiUrl}/templates/${resolvedParams.id}`, {
-      next: { revalidate: 1800 }, // Revalidate every 30 minutes
+      next: { revalidate: 60 }, // Revalidate every 1 minute for faster updates
       headers: {
         'Content-Type': 'application/json',
       }
@@ -64,8 +64,6 @@ export async function generateMetadata({ params }) {
     tags: ['قالب', 'نوشن', 'عربي']
   });
 }
-
-export const dynamic = 'force-dynamic'
 
 export default function TemplateLayout({ children }) {
   return children;

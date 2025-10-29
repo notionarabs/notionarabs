@@ -11,7 +11,7 @@ export async function generateMetadata({ params }) {
       : 'http://localhost:5000/api';
 
     const response = await fetch(`${apiUrl}/creators/${resolvedParams.username}`, {
-      next: { revalidate: 1800 }, // Revalidate every 30 minutes
+      next: { revalidate: 60 }, // Revalidate every 1 minute for faster updates
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
@@ -39,8 +39,6 @@ export async function generateMetadata({ params }) {
     profilePicture: null
   });
 }
-
-export const dynamic = 'force-dynamic'
 
 export default function CreatorLayout({ children }) {
   // Server component wrapper for creator pages with dynamic metadata

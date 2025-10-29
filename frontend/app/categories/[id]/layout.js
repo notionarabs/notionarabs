@@ -138,7 +138,7 @@ export async function generateMetadata({ params }) {
       ? 'https://notion-arabs-fe5b3f214071.herokuapp.com/api'
       : 'http://localhost:5000/api';
     const response = await fetch(`${apiUrl}/templates?category=${categoryName}&limit=1`, {
-      next: { revalidate: 1800 }, // Revalidate every 30 minutes
+      next: { revalidate: 60 }, // Revalidate every 1 minute for faster updates
     });
 
     if (response.ok) {
@@ -153,8 +153,6 @@ export async function generateMetadata({ params }) {
   // Fallback metadata
   return generateCategoryMetadata(categoryName, 0);
 }
-
-export const dynamic = 'force-dynamic'
 
 export default function CategoryLayout({ children }) {
   return children;

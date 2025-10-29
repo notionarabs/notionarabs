@@ -4,6 +4,11 @@ import toast from 'react-hot-toast';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
   (process.env.NODE_ENV === 'production' ? 'https://notion-arabs-fe5b3f214071.herokuapp.com/api' : 'http://localhost:5000/api');
 
+// Log API URL for debugging
+console.log('🔗 API Base URL:', API_BASE_URL);
+console.log('🌐 Environment:', process.env.NODE_ENV);
+console.log('📝 NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
+
 // Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -12,6 +17,18 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+// Log every request
+api.interceptors.request.use(
+  (config) => {
+    console.log('📤 API Request:', config.method?.toUpperCase(), config.baseURL + config.url);
+    return config;
+  },
+  (error) => {
+    console.error('📤 API Request Error:', error);
+    return Promise.reject(error);
+  }
+);
 
 // Create specialized instance for email operations with extended timeout
 const emailApi = axios.create({

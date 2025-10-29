@@ -143,12 +143,12 @@ export default function CategoryTemplatesClient({
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {[...Array(8)].map((_, index) => (
-                <div key={index} className="card-interactive overflow-hidden animate-pulse">
+                <div key={index} className="card-interactive overflow-hidden animate-pulse flex flex-col">
                   <div className="h-40 sm:h-44 md:h-48 lg:h-52 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-                  <div className="p-3 sm:p-4 md:p-5 lg:p-6">
+                  <div className="p-3 sm:p-4 md:p-5 lg:p-6 flex-1 flex flex-col">
                     <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 sm:mb-3"></div>
                     <div className="h-2 sm:h-3 bg-gray-200 dark:bg-gray-700 rounded mb-2 sm:mb-3 w-3/4"></div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mt-auto">
                       <div className="flex items-center gap-1.5 sm:gap-2">
                         <div className="w-4 h-4 sm:w-5 sm:h-5 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
                         <div className="h-2 sm:h-3 bg-gray-200 dark:bg-gray-700 rounded w-12 sm:w-16"></div>
@@ -164,7 +164,7 @@ export default function CategoryTemplatesClient({
               {templates.map((template, index) => (
                 <Link key={template._id} href={`/templates/${template.slug || template._id}`}>
                   <div
-                    className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards]"
+                    className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards] flex flex-col h-full"
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
                     {/* Template Image */}
@@ -176,6 +176,10 @@ export default function CategoryTemplatesClient({
                           width={400}
                           height={300}
                           className="w-full h-full object-cover object-[50%_30%]"
+                          loading="lazy"
+                          quality={75}
+                          placeholder="blur"
+                          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-700">
@@ -185,7 +189,7 @@ export default function CategoryTemplatesClient({
                     </div>
 
                     {/* Template Info */}
-                    <div className="p-3 sm:p-4 md:p-5 lg:p-6 relative">
+                    <div className="p-3 sm:p-4 md:p-5 lg:p-6 relative flex-1 flex flex-col">
                       <h3 className="font-semibold text-sm sm:text-base md:text-lg text-accent-900 dark:text-dark-text-primary mb-2 sm:mb-3 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-2">
                         {template.title}
                       </h3>
@@ -195,7 +199,7 @@ export default function CategoryTemplatesClient({
                         <StarRating rating={template.rating || 0} size="small" showNumber={true} />
                       </div>
 
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between mt-auto">
                         <div className="flex items-center gap-1.5 sm:gap-2">
                           {template.creator?.profilePicture ? (
                             <Image

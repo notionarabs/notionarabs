@@ -11,7 +11,7 @@ export async function generateMetadata({ params }) {
       : 'http://localhost:5000/api';
 
     const response = await fetch(`${apiUrl}/creators/${resolvedParams.username}`, {
-      cache: 'no-store', // No caching for dynamic pages
+      next: { revalidate: 1800 }, // Revalidate every 30 minutes
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',

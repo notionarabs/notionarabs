@@ -10,7 +10,7 @@ export async function generateMetadata({ params }) {
       ? 'https://notion-arabs-fe5b3f214071.herokuapp.com/api'
       : 'http://localhost:5000/api';
     const response = await fetch(`${apiUrl}/blogs/${resolvedParams.slug}`, {
-      cache: 'no-store', // No caching for dynamic pages
+      next: { revalidate: 1800 }, // Revalidate every 30 minutes
       headers: {
         'Content-Type': 'application/json',
       }

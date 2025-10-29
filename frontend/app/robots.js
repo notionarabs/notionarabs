@@ -5,7 +5,13 @@ export default function robots() {
     rules: [
       {
         userAgent: '*',
-        allow: '/',
+        allow: [
+          '/',
+          '/categories/',
+          '/templates/',
+          '/creators/',
+          '/blog/',
+        ],
         disallow: [
           '/admin/',
           '/api/',
@@ -26,7 +32,13 @@ export default function robots() {
       },
       {
         userAgent: 'Googlebot-Image',
-        allow: '/',
+        allow: [
+          '/',
+          '/categories/',
+          '/templates/',
+          '/creators/',
+          '/blog/',
+        ],
         disallow: [
           '/admin/',
           '/api/',

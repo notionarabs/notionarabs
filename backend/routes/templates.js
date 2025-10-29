@@ -677,11 +677,15 @@ router.get('/similar/:id', cacheMiddleware(600), async (req, res) => {
     }
 
     // Get all approved templates except the current one with limit for performance
+    // Optimize: Use lean() and selective field projection for better performance
+    const selectFields = 'title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price';
     const allTemplates = await Template.find({
       status: 'approved',
       _id: { $ne: currentTemplate._id }
     })
+      .select(selectFields)
       .populate('creator', 'name username displayName profilePicture')
+      .lean()
       .limit(100); // Limit to prevent performance issues
 
     if (allTemplates.length === 0) {
@@ -760,18 +764,27 @@ router.get('/:identifier', cacheMiddleware(600), async (req, res) => {
   try {
     const { identifier } = req.params;
 
+    // Optimize: Use lean() for better performance and selective field projection
+    const selectFields = 'title description category categories tags creator previewImage previewImages slug rating reviewsCount downloads isPaid price purchaseLink notionLink views createdAt updatedAt explanationVideo';
+
     // Try to find by slug first, then by ID
     let template = await Template.findOne({
       slug: identifier,
       status: 'approved'
-    }).populate('creator', 'name username displayName profilePicture bio');
+    })
+    .select(selectFields)
+    .populate('creator', 'name username displayName profilePicture bio')
+    .lean();
 
     // If not found by slug, try by ID (only if it's a valid ObjectId)
     if (!template && mongoose.Types.ObjectId.isValid(identifier)) {
       template = await Template.findOne({
         _id: identifier,
         status: 'approved'
-      }).populate('creator', 'name username displayName profilePicture bio');
+      })
+      .select(selectFields)
+      .populate('creator', 'name username displayName profilePicture bio')
+      .lean();
     }
 
     if (!template) {
@@ -781,8 +794,8 @@ router.get('/:identifier', cacheMiddleware(600), async (req, res) => {
       });
     }
 
-    // Increment views
-    await template.incrementViews();
+    // Increment views (non-blocking with lean document)
+    Template.findByIdAndUpdate(template._id, { $inc: { views: 1 } }).exec();
 
     res.json({
       success: true,

@@ -1,9 +1,21 @@
-'use client';
-
-import { useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Youtube, Facebook, Send, Users, Mail } from 'lucide-react';
+
+export const metadata = {
+  title: 'اتصل بنا | عرب نوشن',
+  description: 'تواصل مع عرب نوشن - نحن هنا لمساعدتك في أي استفسار أو مساعدة تحتاجها. راسلنا وسنرد عليك خلال 24 ساعة.',
+  alternates: {
+    canonical: 'https://www.notionarabs.com/contact',
+  },
+  keywords: ['اتصل بنا', 'الدعم', 'خدمة العملاء', 'notionarabs', 'contact'],
+  openGraph: {
+    title: 'اتصل بنا | عرب نوشن',
+    description: 'تواصل مع عرب نوشن - نحن هنا لمساعدتك في أي استفسار أو مساعدة تحتاجها.',
+    url: 'https://www.notionarabs.com/contact',
+    type: 'website',
+  },
+};
 
 const contactMethods = [
   {
@@ -27,19 +39,6 @@ const faqs = [
 ];
 
 export default function ContactPage() {
-  // Set page metadata
-  useEffect(() => {
-    document.title = 'اتصل بنا | عرب نوشن';
-    const canonicalLink = document.querySelector('link[rel="canonical"]');
-    if (canonicalLink) {
-      canonicalLink.setAttribute('href', 'https://www.notionarabs.com/contact');
-    } else {
-      const newCanonical = document.createElement('link');
-      newCanonical.setAttribute('rel', 'canonical');
-      newCanonical.setAttribute('href', 'https://www.notionarabs.com/contact');
-      document.head.appendChild(newCanonical);
-    }
-  }, []);
 
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">

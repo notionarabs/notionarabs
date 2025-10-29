@@ -125,8 +125,9 @@ export function generateMetadata({
 
 // Template-specific SEO metadata
 export function generateTemplateMetadata(template) {
-  const title = `${template.title} - قالب نوشن عربي`;
-  const description = template.description || `تحميل قالب ${template.title} باللغة العربية لـ Notion. ${template.category} مجاني من ${template.creator?.name || 'مبدع'}.`;
+  const isPaid = template.isPaid || false;
+  const title = `${template.title} - قالب نوشن عربي ${isPaid ? 'مدفوع' : 'مجاني'}`;
+  const description = template.description || `تحميل قالب ${template.title} باللغة العربية لـ Notion. ${template.category} ${isPaid ? 'مدفوع' : 'مجاني'} من ${template.creator?.name || 'مبدع'}.`;
 
   const keywords = [
     template.title,
@@ -135,7 +136,7 @@ export function generateTemplateMetadata(template) {
     'notion template',
     template.creator?.name,
     ...(template.tags || []),
-    'مجاني',
+    isPaid ? 'مدفوع' : 'مجاني',
     'عربي'
   ];
 
@@ -150,7 +151,8 @@ export function generateTemplateMetadata(template) {
     imageUrl = addCacheBuster(imageUrl, template.updatedAt || template._id);
   }
 
-  return generateMetadata({
+  // Enhanced metadata with additional SEO fields
+  const metadata = generateMetadata({
     title,
     description,
     keywords,
@@ -161,6 +163,23 @@ export function generateTemplateMetadata(template) {
     modifiedTime: template.updatedAt,
     authors: template.creator?.name ? [template.creator.name] : undefined,
   });
+
+  // Add additional structured metadata for better SEO
+  return {
+    ...metadata,
+    // Add breadcrumb structured data support
+    breadcrumbs: [
+      { label: 'الرئيسية', url: '/' },
+      { label: 'القوالب', url: '/templates' },
+      { label: template.category || 'عام', url: `/categories/${template.category}` },
+      { label: template.title },
+    ],
+    // Add rating information for rich results
+    rating: template.rating,
+    reviewsCount: template.reviewsCount,
+    // Add price information for e-commerce SEO
+    price: isPaid && template.price ? `${template.price} ${siteConfig.currencySymbol}` : undefined,
+  };
 }
 
 // Blog-specific SEO metadata

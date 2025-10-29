@@ -229,6 +229,7 @@ templateSchema.pre('save', async function (next) {
 
 // Enhanced indexes for better query performance
 // Note: slug index is automatically created by unique: true property
+templateSchema.index({ slug: 1, status: 1 }); // Optimize slug lookups with status
 templateSchema.index({ status: 1, createdAt: -1 });
 templateSchema.index({ creator: 1, status: 1 });
 templateSchema.index({ creator: 1, title: 1 }); // For duplicate title checking

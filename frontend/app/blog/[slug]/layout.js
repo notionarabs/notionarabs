@@ -10,7 +10,10 @@ export async function generateMetadata({ params }) {
       ? 'https://notionarabs.com/api'
       : 'http://localhost:5000/api';
     const response = await fetch(`${apiUrl}/blogs/${resolvedParams.slug}`, {
-      cache: 'no-store', // Always fetch fresh data for metadata
+      next: { revalidate: 3600 }, // Revalidate every hour for better caching
+      headers: {
+        'Content-Type': 'application/json',
+      }
     });
 
     if (response.ok) {

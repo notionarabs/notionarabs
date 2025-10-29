@@ -1,16 +1,47 @@
 import { generateTemplateMetadata } from '../../../lib/seo'
 
+// Server-side data fetching function for faster page loads
+export async function fetchTemplateData(id) {
+  try {
+    const apiUrl = process.env.NODE_ENV === 'production'
+      ? 'https://notionarabs.com/api'
+      : 'http://localhost:5000/api';
+    
+    const response = await fetch(`${apiUrl}/templates/${id}`, {
+      next: { revalidate: 3600 },
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success && data.template) {
+        return data.template;
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching template data:', error);
+  }
+  
+  return null;
+}
+
 export async function generateMetadata({ params }) {
   // Await params before accessing its properties (Next.js 15+)
   const resolvedParams = await params;
 
   try {
-    // Fetch template data from API for metadata
+    // Fetch template data from API for metadata with revalidation
     const apiUrl = process.env.NODE_ENV === 'production'
       ? 'https://notionarabs.com/api'
       : 'http://localhost:5000/api';
+    
     const response = await fetch(`${apiUrl}/templates/${resolvedParams.id}`, {
-      cache: 'no-store', // Always fetch fresh data for metadata
+      next: { revalidate: 3600 }, // Revalidate every hour for better caching
+      headers: {
+        'Content-Type': 'application/json',
+      }
     });
 
     if (response.ok) {

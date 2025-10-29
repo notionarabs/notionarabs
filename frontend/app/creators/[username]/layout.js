@@ -11,9 +11,10 @@ export async function generateMetadata({ params }) {
       : 'http://localhost:5000/api';
 
     const response = await fetch(`${apiUrl}/creators/${resolvedParams.username}`, {
-      cache: 'no-store', // Always fetch fresh data for metadata
+      next: { revalidate: 3600 }, // Revalidate every hour for better caching
       headers: {
         'Accept': 'application/json',
+        'Content-Type': 'application/json',
       },
     });
 

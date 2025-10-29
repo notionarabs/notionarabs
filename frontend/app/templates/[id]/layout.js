@@ -4,7 +4,7 @@ import { generateTemplateMetadata } from '../../../lib/seo'
 export async function fetchTemplateData(id) {
   try {
     const apiUrl = process.env.NODE_ENV === 'production'
-      ? 'https://notionarabs.com/api'
+      ? 'https://notion-arabs-fe5b3f214071.herokuapp.com/api'
       : 'http://localhost:5000/api';
     
     const response = await fetch(`${apiUrl}/templates/${id}`, {

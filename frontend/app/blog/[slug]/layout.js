@@ -7,7 +7,7 @@ export async function generateMetadata({ params }) {
   try {
     // Fetch blog data from API for metadata
     const apiUrl = process.env.NODE_ENV === 'production'
-      ? 'https://notionarabs.com/api'
+      ? 'https://notion-arabs-fe5b3f214071.herokuapp.com/api'
       : 'http://localhost:5000/api';
     const response = await fetch(`${apiUrl}/blogs/${resolvedParams.slug}`, {
       next: { revalidate: 3600 }, // Revalidate every hour for better caching

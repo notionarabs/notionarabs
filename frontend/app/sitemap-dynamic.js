@@ -1,4 +1,5 @@
 import { siteConfig } from '../lib/seo'
+import { getApiBaseUrl } from '../lib/apiConfig'
 
 // This is an alternative sitemap that includes dynamic content
 // Use this when your API is stable and available during build time
@@ -92,8 +93,7 @@ export default async function sitemapDynamic() {
 
   try {
     // Try to fetch dynamic content
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 
-      (process.env.NODE_ENV === 'production' ? 'https://notion-arabs-fe5b3f214071.herokuapp.com/api' : 'http://localhost:5000/api')
+    const apiUrl = getApiBaseUrl()
 
     const [templatesRes, blogsRes, creatorsRes] = await Promise.allSettled([
       fetch(`${apiUrl}/templates?limit=500`, {

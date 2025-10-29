@@ -17,6 +17,7 @@ import { Youtube, Facebook, Send, Users, ShoppingCart } from 'lucide-react';
 import { siteConfig } from '../../../lib/seo';
 import RatingPopup from '../../../components/RatingPopup';
 import { useRatingPopup } from '../../../hooks/useRatingPopup';
+import { getCategorySlug } from '../../../lib/categoryMapping';
 
 // Dynamically import heavy components to reduce initial bundle size
 const RatingCommentSystem = dynamic(() => import('../../../components/RatingCommentSystem'), {
@@ -28,133 +29,6 @@ const RatingCommentSystem = dynamic(() => import('../../../components/RatingComm
     </div>
   )
 });
-
-// Map Arabic category names to English slugs
-const arabicToEnglishCategoryMap = {
-  'الإنتاجية': 'productivity',
-  'الدراسة': 'study',
-  'الأعمال': 'business',
-  'الحياة الشخصية': 'personal',
-  'الإبداع': 'creativity',
-  'التقنية': 'technology',
-  'الصحة': 'health',
-  'المالية': 'finance',
-  'التنظيم': 'organization',
-  'التخطيط': 'planning',
-  'ديني': 'religious',
-  'التسويق': 'marketing',
-  'التصميم': 'design',
-  'التطوير': 'development',
-  'التعليم': 'education',
-  'السفر': 'travel',
-  'الطعام': 'food',
-  'الرياضة': 'sports',
-  'الترفيه': 'entertainment',
-  'الموضة': 'fashion',
-  'الجمال': 'beauty',
-  'المنزل': 'home',
-  'الحديقة': 'garden',
-  'الحيوانات الأليفة': 'pets',
-  'السيارات': 'cars',
-  'التكنولوجيا': 'technology',
-  'البرمجة': 'programming',
-  'قواعد البيانات': 'database',
-  'الأمان السيبراني': 'cybersecurity',
-  'الذكاء الاصطناعي': 'ai',
-  'البلوك تشين': 'blockchain',
-  'التجارة الإلكترونية': 'ecommerce',
-  'المبيعات': 'sales',
-  'خدمة العملاء': 'customer-service',
-  'الموارد البشرية': 'hr',
-  'المحاسبة': 'accounting',
-  'الاستثمار': 'investment',
-  'العقارات': 'real-estate',
-  'التأمين': 'insurance',
-  'القانون': 'law',
-  'الطب': 'medicine',
-  'التمريض': 'nursing',
-  'العلاج الطبيعي': 'physical-therapy',
-  'التغذية': 'nutrition',
-  'الطبخ': 'cooking',
-  'الحلويات': 'desserts',
-  'المشروبات': 'beverages',
-  'المطاعم': 'restaurants',
-  'الفنون': 'arts',
-  'الموسيقى': 'music',
-  'الرسم': 'drawing',
-  'النحت': 'sculpture',
-  'التصوير': 'photography',
-  'الفيديو': 'video',
-  'الكتابة': 'writing',
-  'الترجمة': 'translation',
-  'اللغات': 'languages',
-  'التاريخ': 'history',
-  'الجغرافيا': 'geography',
-  'العلوم': 'science',
-  'الرياضيات': 'mathematics',
-  'الفيزياء': 'physics',
-  'الكيمياء': 'chemistry',
-  'الأحياء': 'biology',
-  'علم النفس': 'psychology',
-  'علم الاجتماع': 'sociology',
-  'الفلسفة': 'philosophy',
-  'الأدب': 'literature',
-  'الشعر': 'poetry',
-  'المسرح': 'theater',
-  'السينما': 'cinema',
-  'الألعاب': 'gaming',
-  'الرياضة الإلكترونية': 'esports',
-  'السياحة': 'tourism',
-  'الفندقة': 'hospitality',
-  'النقل': 'transportation',
-  'الطيران': 'aviation',
-  'البحرية': 'maritime',
-  'الزراعة': 'agriculture',
-  'البيئة': 'environment',
-  'الطاقة': 'energy',
-  'البناء': 'construction',
-  'الهندسة': 'engineering',
-  'العمارة': 'architecture',
-  'الديكور': 'decoration',
-  'الأثاث': 'furniture',
-  'الأدوات': 'tools',
-  'الأجهزة': 'devices',
-  'البرامج': 'software',
-  'التطبيقات': 'applications',
-  'المواقع': 'websites',
-  'التطوير الويب': 'web-development',
-  'تطوير التطبيقات': 'app-development',
-  'التعليم الإلكتروني': 'e-learning',
-  'الاجتماعات': 'meetings',
-  'التواصل': 'communication',
-  'الشبكات الاجتماعية': 'social-networks',
-  'المحتوى': 'content',
-  'الإعلان': 'advertising',
-  'العلاقات العامة': 'public-relations',
-  'العلامة التجارية': 'branding',
-  'الاستراتيجية': 'strategy',
-  'القيادة': 'leadership',
-  'الإدارة': 'management',
-  'المشاريع': 'projects',
-  'العمليات': 'operations',
-  'الجودة': 'quality',
-  'الابتكار': 'innovation',
-  'البحث والتطوير': 'research-development',
-  'التحليل': 'analysis',
-  'الإحصاء': 'statistics',
-  'البيانات': 'data',
-  'التقارير': 'reports',
-  'العروض التقديمية': 'presentations',
-  'التدريب': 'training',
-  'التطوير المهني': 'professional-development',
-  'الاستشارات': 'consulting',
-  'الخدمات': 'services',
-  'المنتجات': 'products',
-  'التصنيع': 'manufacturing',
-  'التوزيع': 'distribution',
-  'المخازن': 'warehouses',
-  'اللوجستيات': 'logistics'
-};
 
 export default function TemplateDetailPage() {
   const params = useParams();
@@ -920,7 +794,7 @@ export default function TemplateDetailPage() {
             items={[
               { name: 'الرئيسية', url: `${siteConfig.url}` },
               { name: 'القوالب', url: `${siteConfig.url}/templates` },
-              { name: template.categories && template.categories.length > 0 ? template.categories[0] : 'عام', url: `${siteConfig.url}/categories/${arabicToEnglishCategoryMap[template.categories && template.categories.length > 0 ? template.categories[0] : 'عام'] || encodeURIComponent(template.categories && template.categories.length > 0 ? template.categories[0] : 'عام')}` },
+              { name: template.categories && template.categories.length > 0 ? template.categories[0] : 'عام', url: `${siteConfig.url}/categories/${getCategorySlug(template.categories && template.categories.length > 0 ? template.categories[0] : 'عام')}` },
               { name: template.title, url: `${siteConfig.url}/templates/${template.slug || template._id}` }
             ]}
           />
@@ -933,7 +807,7 @@ export default function TemplateDetailPage() {
               <Breadcrumb
                 items={[
                   { name: 'القوالب', url: '/templates' },
-                  { name: template.categories && template.categories.length > 0 ? template.categories[0] : 'عام', url: `/categories/${arabicToEnglishCategoryMap[template.categories && template.categories.length > 0 ? template.categories[0] : 'عام'] || encodeURIComponent(template.categories && template.categories.length > 0 ? template.categories[0] : 'عام')}` },
+                  { name: template.categories && template.categories.length > 0 ? template.categories[0] : 'عام', url: `/categories/${getCategorySlug(template.categories && template.categories.length > 0 ? template.categories[0] : 'عام')}` },
                   { name: template.title, url: `/templates/${template.slug || template._id}` }
                 ]}
               />
@@ -1454,7 +1328,7 @@ export default function TemplateDetailPage() {
                         {(template.categories && template.categories.length > 0 ? template.categories : ['عام']).map((category, index) => (
                           <Link
                             key={index}
-                            href={`/categories/${arabicToEnglishCategoryMap[category] || category}`}
+                            href={`/categories/${getCategorySlug(category)}`}
                             className="inline-block px-2 py-1 text-xs font-medium bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-md hover:bg-primary-200 dark:hover:bg-primary-800/50 hover:text-primary-800 dark:hover:text-primary-200 transition-colors duration-200 cursor-pointer"
                           >
                             {category}

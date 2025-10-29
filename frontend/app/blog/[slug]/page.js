@@ -347,7 +347,7 @@ export default function BlogPostPage() {
               <Breadcrumb
                 items={[
                   { name: 'المدونة', url: '/blog' },
-                  { name: blog.category, url: `/blog?category=${encodeURIComponent(blog.category)}` },
+                  ...(blog.category ? [{ name: blog.category, url: `/blog?category=${encodeURIComponent(blog.category)}` }] : []),
                   { name: blog.title, url: `/blog/${blog.slug}` }
                 ]}
               />

@@ -745,4 +745,164 @@ router.get('/me/downloads/export-public', async (req, res) => {
   }
 });
 
+// @route   GET /api/creators/webhook
+// @desc    Get creators data for n8n/webhook integration
+// @access  Public (optional API key via query param or header)
+// @query   ?format=json|array&limit=100&page=1&specialty=xxx&minFollowers=0&minRating=0
+router.get('/webhook', async (req, res) => {
+  try {
+    // Optional API key validation (if set in env)
+    const apiKey = req.query.apiKey || req.headers['x-api-key'];
+    if (process.env.WEBHOOK_API_KEY && process.env.WEBHOOK_API_KEY !== apiKey) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid API key'
+      });
+    }
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 100; // Default higher limit for webhooks
+    const format = req.query.format || 'json'; // json or array
+    const specialty = req.query.specialty;
+    const minFollowers = parseInt(req.query.minFollowers) || 0;
+    const minRating = parseFloat(req.query.minRating) || 0;
+
+    // Build query for approved creators
+    const query = {
+      creatorStatus: 'approved',
+      isActive: true,
+      isEmailVerified: true
+    };
+
+    // Add specialty filter
+    if (specialty && specialty !== 'all') {
+      query.specialties = { $in: [specialty] };
+    }
+
+    // Add followers filter
+    if (minFollowers > 0) {
+      query.followers = { $gte: minFollowers };
+    }
+
+    // Add rating filter
+    if (minRating > 0) {
+      query.rating = { $gte: minRating };
+    }
+
+    const skip = (page - 1) * limit;
+
+    // Get creators with basic info
+    const [creators, totalCount] = await Promise.all([
+      User.find(query)
+        .select('name username displayName email bio profilePicture specialties rating followers createdAt templatesCount totalEarnings experience badges socialLinks socialMedia phone contactEmail')
+        .sort({ followers: -1, rating: -1, createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      User.countDocuments(query)
+    ]);
+
+    // Get template stats for creators
+    const creatorIds = creators.map(c => c._id);
+    const templateStatsMap = new Map();
+
+    if (creatorIds.length > 0) {
+      const templateStats = await Template.aggregate([
+        { $match: { creator: { $in: creatorIds }, status: 'approved' } },
+        {
+          $group: {
+            _id: '$creator',
+            totalTemplates: { $sum: 1 },
+            totalDownloads: { $sum: { $ifNull: ['$downloads', 0] } },
+            templateRatings: { $push: { $ifNull: ['$rating', 0] } }
+          }
+        }
+      ]);
+
+      templateStats.forEach(stat => {
+        let averageRating = 0;
+        if (stat.templateRatings && stat.templateRatings.length > 0) {
+          const validRatings = stat.templateRatings.filter(rating => rating && rating > 0);
+          if (validRatings.length > 0) {
+            averageRating = validRatings.reduce((sum, rating) => sum + rating, 0) / validRatings.length;
+          }
+        }
+
+        templateStatsMap.set(stat._id.toString(), {
+          totalTemplates: stat.totalTemplates,
+          totalDownloads: stat.totalDownloads,
+          averageRating: averageRating
+        });
+      });
+    }
+
+    // Format creators data for webhook
+    const formattedCreators = creators.map(creator => {
+      const stats = templateStatsMap.get(creator._id.toString()) || {
+        totalTemplates: 0,
+        totalDownloads: 0,
+        averageRating: 0
+      };
+
+      return {
+        id: creator._id.toString(),
+        name: creator.name,
+        username: creator.username || creator.email?.split('@')[0] || null,
+        displayName: creator.displayName || creator.name,
+        email: creator.contactEmail || creator.email,
+        bio: creator.bio || null,
+        profilePicture: creator.profilePicture || null,
+        specialties: creator.specialties || [],
+        rating: stats.averageRating || creator.rating || 0,
+        followers: creator.followers || 0,
+        templatesCount: stats.totalTemplates || creator.templatesCount || 0,
+        totalDownloads: stats.totalDownloads || 0,
+        totalEarnings: creator.totalEarnings || 0,
+        experience: creator.experience || null,
+        badges: creator.badges || [],
+        socialLinks: creator.socialLinks || [],
+        socialMedia: {
+          instagram: creator.socialMedia?.instagram || null,
+          twitter: creator.socialMedia?.twitter || null,
+          linkedin: creator.socialMedia?.linkedin || null,
+          website: creator.socialMedia?.website || null,
+          youtube: creator.socialMedia?.youtube || null,
+          facebook: creator.socialMedia?.facebook || null
+        },
+        phone: creator.phone || null,
+        createdAt: creator.createdAt,
+        joinDate: creator.createdAt,
+        profileUrl: `${process.env.FRONTEND_URL || 'https://notionarabs.com'}/creators/${creator.username || creator._id}`
+      };
+    });
+
+    // Return in requested format
+    if (format === 'array') {
+      return res.json(formattedCreators);
+    }
+
+    // Default JSON format with metadata
+    res.json({
+      success: true,
+      data: formattedCreators,
+      meta: {
+        page,
+        limit,
+        total: totalCount,
+        pages: Math.ceil(totalCount / limit),
+        count: formattedCreators.length
+      },
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Webhook creators error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
 module.exports = router;

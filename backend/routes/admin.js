@@ -498,6 +498,24 @@ router.put('/creator-applications/:userId/status', auth, [
       });
     }
 
+    // Sync to Notion database when creator is approved
+    if (status === 'approved') {
+      try {
+        console.log('🔵 Attempting to sync creator to Notion:', user.name);
+        const { addCreatorToNotion } = require('../services/notionService');
+        const notionResult = await addCreatorToNotion(user);
+        if (notionResult) {
+          console.log('✅ Creator synced to Notion successfully');
+        } else {
+          console.warn('⚠️ Creator sync to Notion returned null');
+        }
+      } catch (notionError) {
+        console.error('❌ Notion sync error (non-blocking):', notionError.message);
+        console.error('❌ Error stack:', notionError.stack);
+        // Continue - don't block approval if Notion sync fails
+      }
+    }
+
     res.json({
       success: true,
       message: `تم تحديث حالة الطلب إلى ${status}`,
@@ -608,6 +626,28 @@ router.put('/templates/:id/status', auth, [
       const isTemplateUpdate = template.approvedAt !== null;
 
       await template.approve(req.user._id, adminNotes);
+
+      // Sync to Notion database (only for new approvals, not updates)
+      if (!isTemplateUpdate) {
+        try {
+          console.log('🔵 Attempting to sync template to Notion:', template.title);
+          const { addTemplateToNotion } = require('../services/notionService');
+          // Reload template with creator populated to get fresh data
+          await template.populate('creator', 'name username email displayName');
+          const notionResult = await addTemplateToNotion(template);
+          if (notionResult) {
+            console.log('✅ Template synced to Notion successfully');
+          } else {
+            console.warn('⚠️ Template sync to Notion returned null');
+          }
+        } catch (notionError) {
+          console.error('❌ Notion sync error (non-blocking):', notionError.message);
+          console.error('❌ Error stack:', notionError.stack);
+          // Continue - don't block approval if Notion sync fails
+        }
+      } else {
+        console.log('⏭️ Skipping Notion sync for template update');
+      }
 
       // Notify the creator that their template was approved
       try {
@@ -1926,6 +1966,213 @@ router.get('/badge-presets', auth, async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   GET /api/admin/notion-schema
+// @desc    Get Notion database schema (property names)
+// @access  Private (Admin only)
+router.get('/notion-schema', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    const { database } = req.query; // 'templates' or 'creators'
+
+    const { getNotionDatabaseSchema } = require('../services/notionService');
+
+    let databaseId;
+    if (database === 'templates') {
+      databaseId = process.env.NOTION_TEMPLATES_DATABASE_ID;
+    } else if (database === 'creators') {
+      databaseId = process.env.NOTION_CREATORS_DATABASE_ID;
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid database parameter. Use "templates" or "creators"'
+      });
+    }
+
+    if (!databaseId) {
+      return res.status(400).json({
+        success: false,
+        message: `Database ID not configured for ${database}`
+      });
+    }
+
+    const schema = await getNotionDatabaseSchema(databaseId);
+
+    res.json({
+      success: true,
+      database,
+      databaseId,
+      properties: schema,
+      propertyNames: Object.keys(schema)
+    });
+  } catch (error) {
+    console.error('Get Notion schema error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// @route   POST /api/admin/test-notion
+// @desc    Test Notion integration (test sync)
+// @access  Private (Admin only)
+router.post('/test-notion', auth, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    const { type } = req.body; // 'template' or 'creator'
+
+    const { addTemplateToNotion, addCreatorToNotion, isNotionConfigured } = require('../services/notionService');
+
+    if (!isNotionConfigured()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Notion API not configured. Please check NOTION_API_TOKEN and database IDs.',
+        config: {
+          hasToken: !!process.env.NOTION_API_TOKEN,
+          hasTemplatesDb: !!process.env.NOTION_TEMPLATES_DATABASE_ID,
+          hasCreatorsDb: !!process.env.NOTION_CREATORS_DATABASE_ID
+        }
+      });
+    }
+
+    if (type === 'template') {
+      // Find a recent approved template to test
+      const template = await Template.findOne({ status: 'approved' })
+        .populate('creator', 'name username email displayName')
+        .sort({ approvedAt: -1 })
+        .limit(1)
+        .lean();
+
+      if (!template) {
+        return res.status(404).json({
+          success: false,
+          message: 'No approved templates found to test with'
+        });
+      }
+
+      console.log('🧪 Testing Notion template sync with:', template.title);
+      console.log('🧪 Template data:', {
+        id: template._id,
+        title: template.title,
+        hasCreator: !!template.creator,
+        creatorName: template.creator?.name
+      });
+      
+      const result = await addTemplateToNotion(template);
+
+      if (result && result.id) {
+        return res.json({
+          success: true,
+          message: 'Template synced to Notion successfully',
+          notionPageId: result.id,
+          template: template.title
+        });
+      } else if (result && result.error) {
+        return res.status(500).json({
+          success: false,
+          message: 'Template sync to Notion failed',
+          error: result.error,
+          debug: {
+            hasToken: !!process.env.NOTION_API_TOKEN,
+            hasDatabaseId: !!process.env.NOTION_TEMPLATES_DATABASE_ID,
+            templateTitle: template.title,
+            templateId: template._id?.toString()
+          }
+        });
+      } else {
+        return res.status(500).json({
+          success: false,
+          message: 'Template sync to Notion returned null. Check your backend console logs for detailed error messages.',
+          debug: {
+            hasToken: !!process.env.NOTION_API_TOKEN,
+            hasDatabaseId: !!process.env.NOTION_TEMPLATES_DATABASE_ID,
+            templateTitle: template.title,
+            templateId: template._id?.toString()
+          }
+        });
+      }
+    } else if (type === 'creator') {
+      // Find a recent approved creator to test
+      const creator = await User.findOne({ 
+        creatorStatus: 'approved',
+        role: 'creator'
+      })
+        .select('-password')
+        .sort({ createdAt: -1 })
+        .limit(1)
+        .lean();
+
+      if (!creator) {
+        return res.status(404).json({
+          success: false,
+          message: 'No approved creators found to test with'
+        });
+      }
+
+      console.log('🧪 Testing Notion creator sync with:', creator.name);
+      const result = await addCreatorToNotion(creator);
+
+      if (result && result.id) {
+        return res.json({
+          success: true,
+          message: 'Creator synced to Notion successfully',
+          notionPageId: result.id,
+          creator: creator.name
+        });
+      } else if (result && result.error) {
+        return res.status(500).json({
+          success: false,
+          message: 'Creator sync to Notion failed',
+          error: result.error,
+          debug: {
+            hasToken: !!process.env.NOTION_API_TOKEN,
+            hasDatabaseId: !!process.env.NOTION_CREATORS_DATABASE_ID,
+            creatorName: creator.name,
+            creatorId: creator._id?.toString()
+          }
+        });
+      } else {
+        return res.status(500).json({
+          success: false,
+          message: 'Creator sync to Notion returned null. Check your backend console logs for detailed error messages.',
+          debug: {
+            hasToken: !!process.env.NOTION_API_TOKEN,
+            hasDatabaseId: !!process.env.NOTION_CREATORS_DATABASE_ID,
+            creatorName: creator.name,
+            creatorId: creator._id?.toString()
+          }
+        });
+      }
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid type. Use "template" or "creator"'
+      });
+    }
+  } catch (error) {
+    console.error('Test Notion error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });

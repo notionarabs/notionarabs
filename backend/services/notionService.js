@@ -31,10 +31,22 @@ async function getNotionDatabaseSchema(databaseId) {
     const schema = {};
     
     Object.keys(properties).forEach(propName => {
-      schema[propName] = {
-        type: properties[propName].type,
-        id: properties[propName].id
+      const prop = properties[propName];
+      const propSchema = {
+        type: prop.type,
+        id: prop.id
       };
+      
+      // Include select options if it's a select property
+      if (prop.type === 'select' && prop.select?.options) {
+        propSchema.options = prop.select.options.map(opt => ({
+          id: opt.id,
+          name: opt.name,
+          color: opt.color
+        }));
+      }
+      
+      schema[propName] = propSchema;
     });
 
     return schema;
@@ -51,6 +63,47 @@ function getNotionHeaders() {
     'Content-Type': 'application/json',
     'Notion-Version': '2022-06-28'
   };
+}
+
+// Cache for Price select options
+let priceSelectOptionsCache = null;
+
+/**
+ * Get Price select options from Notion database
+ * @returns {Promise<Array>} Array of select option names
+ */
+async function getPriceSelectOptions() {
+  try {
+    if (!NOTION_API_TOKEN || !NOTION_TEMPLATES_DATABASE_ID) {
+      return ['Free', 'Paid']; // Fallback defaults
+    }
+
+    // Return cached options if available
+    if (priceSelectOptionsCache) {
+      return priceSelectOptionsCache;
+    }
+
+    const response = await axios.get(
+      `https://api.notion.com/v1/databases/${NOTION_TEMPLATES_DATABASE_ID}`,
+      {
+        headers: getNotionHeaders()
+      }
+    );
+
+    const properties = response.data.properties || {};
+    const priceProperty = properties['Price'];
+    
+    if (priceProperty && priceProperty.type === 'select' && priceProperty.select?.options) {
+      priceSelectOptionsCache = priceProperty.select.options.map(opt => opt.name);
+      console.log('📋 Price select options:', priceSelectOptionsCache);
+      return priceSelectOptionsCache;
+    }
+
+    return ['Free', 'Paid']; // Fallback defaults
+  } catch (error) {
+    console.error('Error fetching Price select options:', error.message);
+    return ['Free', 'Paid']; // Fallback defaults
+  }
 }
 
 /**
@@ -79,6 +132,24 @@ async function addTemplateToNotion(template, creator = null) {
     const creatorUsername = creator?.username || template.creator?.username || '';
     const frontendUrl = process.env.FRONTEND_URL || 'https://notionarabs.com';
 
+    // Get available Price select options from Notion
+    const priceSelectOptions = await getPriceSelectOptions();
+    
+    // Choose the appropriate price option based on available options
+    // Handle both English and Arabic option names
+    let selectedPriceOption;
+    if (template.isPaid || template.price) {
+      // Look for 'Paid' or 'مدفوع' (Arabic for Paid), then fallback to any other option
+      selectedPriceOption = priceSelectOptions.includes('Paid') ? 'Paid' 
+        : priceSelectOptions.includes('مدفوع') ? 'مدفوع'
+        : priceSelectOptions[0];
+    } else {
+      // Look for 'Free' or 'مجاني' (Arabic for Free), then fallback to first option
+      selectedPriceOption = priceSelectOptions.includes('Free') ? 'Free'
+        : priceSelectOptions.includes('مجاني') ? 'مجاني'
+        : priceSelectOptions[0] || 'Free';
+    }
+
     // Prepare Notion page properties - matching your actual Notion database schema
     const properties = {
       // Name (Title property - must be first property in Notion database)
@@ -104,7 +175,7 @@ async function addTemplateToNotion(template, creator = null) {
       // Price (select - not rich_text!)
       'Price': {
         select: {
-          name: (template.isPaid || template.price) ? 'Paid' : 'Free'
+          name: selectedPriceOption
         }
       },
       // Description (rich_text)
@@ -341,6 +412,7 @@ module.exports = {
   addTemplateToNotion,
   addCreatorToNotion,
   isNotionConfigured,
-  getNotionDatabaseSchema
+  getNotionDatabaseSchema,
+  getPriceSelectOptions
 };
 

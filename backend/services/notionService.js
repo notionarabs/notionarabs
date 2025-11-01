@@ -125,9 +125,22 @@ async function addTemplateToNotion(template, creator = null) {
       'Template Link': {
         url: template.notionLink || ''
       }
-      // Note: Image property is files type - would need to upload file first, so skipping for now
-      // If you want to add images later, you'd need to download the previewImage and upload to Notion
     };
+
+    // Add preview image if it exists
+    if (template.previewImage) {
+      properties['Image'] = {
+        files: [
+          {
+            type: 'external',
+            external: {
+              url: template.previewImage
+            },
+            name: template.title || 'preview.png'
+          }
+        ]
+      };
+    }
 
     console.log('🔵 Notion: Sending request to Notion API...');
     console.log('🔵 Notion: Database ID:', NOTION_TEMPLATES_DATABASE_ID);
@@ -247,9 +260,22 @@ async function addCreatorToNotion(user) {
           }
         ]
       }
-      // Note: Image property is files type - would need to upload file first, so skipping for now
-      // If you want to add images later, you'd need to download the profilePicture and upload to Notion
     };
+
+    // Add profile picture if it exists
+    if (user.profilePicture) {
+      properties['Image'] = {
+        files: [
+          {
+            type: 'external',
+            external: {
+              url: user.profilePicture
+            },
+            name: user.name || 'profile.png'
+          }
+        ]
+      };
+    }
 
     console.log('🔵 Notion: Sending request to Notion API...');
     console.log('🔵 Notion: Database ID:', NOTION_CREATORS_DATABASE_ID);

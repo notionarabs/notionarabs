@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import Head from 'next/head';
@@ -30,6 +30,7 @@ import StarRating from '../../../components/StarRating';
 export default function PublicProfilePage() {
   const params = useParams();
   const username = params.username;
+  const router = useRouter();
   const { user, isAuthenticated } = useAuth();
   const [creator, setCreator] = useState(null);
   const [creatorTemplates, setCreatorTemplates] = useState([]);
@@ -621,14 +622,20 @@ export default function PublicProfilePage() {
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
                 {/* Contact Creator Button */}
                 {creator.allowMessages !== false && creator.email && (
-                  <a
-                    href={`mailto:${creator.email}`}
+                  <button
+                    onClick={() => {
+                      if (!isAuthenticated) {
+                        router.push(`/login?redirect=/creators/${username}`);
+                        return;
+                      }
+                      window.location.href = `mailto:${creator.email}`;
+                    }}
                     className="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-500 dark:bg-orange-500 hover:bg-primary-600 dark:hover:bg-orange-600 text-white rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 shadow-soft hover:shadow-medium"
                     title="تواصل مع المبدع"
                   >
                     <Mail className="w-4 h-4" />
                     <span className="text-sm font-medium">تواصل</span>
-                  </a>
+                  </button>
                 )}
 
                 {/* Follow Button */}

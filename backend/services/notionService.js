@@ -101,15 +101,11 @@ async function addTemplateToNotion(template, creator = null) {
           }
         ]
       },
-      // Price (rich_text - NOT number!)
+      // Price (select - not rich_text!)
       'Price': {
-        rich_text: [
-          {
-            text: {
-              content: template.isPaid ? (template.price ? `$${template.price}` : 'Paid') : 'Free'
-            }
-          }
-        ]
+        select: {
+          name: template.isPaid ? (template.price ? `$${template.price}` : 'Paid') : 'Free'
+        }
       },
       // Description (rich_text)
       'Description': {
@@ -121,20 +117,28 @@ async function addTemplateToNotion(template, creator = null) {
           }
         ]
       },
-      // Template Link (url)
+      // Template Link (url) - Website link to the template page
       'Template Link': {
-        url: template.notionLink || ''
+        url: `${frontendUrl}/templates/${template.slug || template._id}`
       }
     };
 
     // Add preview image if it exists
+    // Priority: previewImage > first item from previewImages array
+    let imageUrl = null;
     if (template.previewImage) {
+      imageUrl = template.previewImage;
+    } else if (template.previewImages && template.previewImages.length > 0) {
+      imageUrl = template.previewImages[0];
+    }
+
+    if (imageUrl) {
       properties['Image'] = {
         files: [
           {
             type: 'external',
             external: {
-              url: template.previewImage
+              url: imageUrl
             },
             name: template.title || 'preview.png'
           }

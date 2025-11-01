@@ -104,7 +104,7 @@ async function addTemplateToNotion(template, creator = null) {
       // Price (select - not rich_text!)
       'Price': {
         select: {
-          name: template.isPaid ? (template.price ? `$${template.price}` : 'Paid') : 'Free'
+          name: (template.isPaid || template.price) ? 'Paid' : 'Free'
         }
       },
       // Description (rich_text)

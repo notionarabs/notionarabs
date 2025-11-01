@@ -178,8 +178,19 @@ app.use('/api/stats', statsRoutes);
 app.use('/api/unsubscribe', unsubscribeRoutes);
 app.use('/api/orders', orderRoutes);
 
-// Basic route
+// Robots.txt for API - disallow all crawling
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain');
+  res.send('User-agent: *\nDisallow: /\n');
+});
+
+// Basic route - add noindex headers for API endpoints
 app.get('/', (req, res) => {
+  // Set noindex headers to prevent search engine indexing
+  res.set({
+    'X-Robots-Tag': 'noindex, nofollow',
+    'Cache-Control': 'no-cache, no-store, must-revalidate'
+  });
   res.json({
     message: 'Notion Arabs Backend API',
     version: '1.0.0',
@@ -189,8 +200,13 @@ app.get('/', (req, res) => {
   });
 });
 
-// API base route
+// API base route - add noindex headers
 app.get('/api', (req, res) => {
+  // Set noindex headers to prevent search engine indexing
+  res.set({
+    'X-Robots-Tag': 'noindex, nofollow',
+    'Cache-Control': 'no-cache, no-store, must-revalidate'
+  });
   res.json({
     message: 'Notion Arabs API',
     version: '1.0.0',

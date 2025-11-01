@@ -1,7 +1,32 @@
 import { NextResponse } from 'next/server';
+import { categorySlugMap } from './lib/categoryMapping';
 
 export function middleware(request) {
   const { pathname } = request.nextUrl;
+
+  // Handle old /templates/category/[id] route - redirect to /categories/[id]
+  const templateCategoryMatch = pathname.match(/^\/templates\/category\/(.+)$/);
+  if (templateCategoryMatch) {
+    const categorySlug = templateCategoryMatch[1];
+    const redirectUrl = new URL(`/categories/${categorySlug}`, request.url);
+    // Preserve query parameters
+    redirectUrl.search = request.nextUrl.search;
+    return NextResponse.redirect(redirectUrl, 301);
+  }
+
+  // Handle Arabic category slugs - redirect to English slugs
+  const categoryMatch = pathname.match(/^\/categories\/(.+)$/);
+  if (categoryMatch) {
+    const categorySlug = categoryMatch[1];
+    // Check if it's an Arabic category name that needs redirecting
+    if (categorySlugMap[categorySlug]) {
+      const englishSlug = categorySlugMap[categorySlug];
+      const redirectUrl = new URL(`/categories/${englishSlug}`, request.url);
+      // Preserve query parameters
+      redirectUrl.search = request.nextUrl.search;
+      return NextResponse.redirect(redirectUrl, 301);
+    }
+  }
 
   // Get the auth token from cookies
   const token = request.cookies.get('authToken')?.value;

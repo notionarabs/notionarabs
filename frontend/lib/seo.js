@@ -173,7 +173,7 @@ export function generateTemplateMetadata(template) {
     breadcrumbs: [
       { label: 'الرئيسية', url: '/' },
       { label: 'القوالب', url: '/templates' },
-      { label: template.category || 'عام', url: `/categories/${template.category}` },
+      { label: template.category || 'عام', url: `/categories/${getCategorySlug(template.category || 'عام')}` },
       { label: template.title },
     ],
     // Add rating information for rich results

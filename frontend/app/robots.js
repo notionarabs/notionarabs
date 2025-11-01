@@ -5,13 +5,7 @@ export default function robots() {
     rules: [
       {
         userAgent: '*',
-        allow: [
-          '/',
-          '/categories/',
-          '/templates/',
-          '/creators/',
-          '/blog/',
-        ],
+        allow: '/',
         disallow: [
           '/admin/',
           '/api/',
@@ -26,19 +20,30 @@ export default function robots() {
           '/forgot-password',
           '/reset-password',
           '/verify-email',
-          '/pricing',
-          '/help',
+        ],
+      },
+      {
+        userAgent: 'Googlebot',
+        allow: '/',
+        disallow: [
+          '/admin/',
+          '/api/',
+          '/_next/',
+          '/profile/',
+          '/settings/',
+          '/purchases/',
+          '/payment/',
+          '/auth/',
+          '/login',
+          '/signup',
+          '/forgot-password',
+          '/reset-password',
+          '/verify-email',
         ],
       },
       {
         userAgent: 'Googlebot-Image',
-        allow: [
-          '/',
-          '/categories/',
-          '/templates/',
-          '/creators/',
-          '/blog/',
-        ],
+        allow: '/',
         disallow: [
           '/admin/',
           '/api/',

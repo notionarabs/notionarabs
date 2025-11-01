@@ -10,34 +10,6 @@ import CategoryTemplatesClient from './CategoryTemplatesClient';
 import { getCategoryName } from '../../../lib/categoryMapping';
 import { getApiBaseUrl } from '../../../lib/apiConfig';
 
-// Generate metadata for each category page
-export async function generateMetadata({ params }) {
-  const resolvedParams = await params;
-  const categorySlug = resolvedParams.id;
-  const categoryName = getCategoryName(categorySlug);
-
-  
-  return {
-    title: `قوالب ${categoryName} - قوالب نوشن عربية مجانية`,
-    description: `اكتشف مجموعة متنوعة من قوالب ${categoryName} المصممة خصيصاً للمستخدمين العرب. قوالب نوشن مجانية ومتخصصة لتحسين إنتاجيتك.`,
-    keywords: `قوالب ${categoryName}, قوالب نوشن, قوالب عربية, ${categoryName}, إنتاجية, تنظيم`,
-    openGraph: {
-      title: `قوالب ${categoryName} - قوالب نوشن عربية مجانية`,
-      description: `اكتشف مجموعة متنوعة من قوالب ${categoryName} المصممة خصيصاً للمستخدمين العرب.`,
-      type: 'website',
-      locale: 'ar_SA',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: `قوالب ${categoryName} - قوالب نوشن عربية مجانية`,
-      description: `اكتشف مجموعة متنوعة من قوالب ${categoryName} المصممة خصيصاً للمستخدمين العرب.`,
-    },
-    alternates: {
-      canonical: `https://www.notionarabs.com/categories/${categorySlug}`,
-    },
-  };
-}
-
 // Fetch initial data on the server
 async function getCategoryTemplates(categoryName, page = 1, limit = 12, sortBy = 'createdAt') {
   try {

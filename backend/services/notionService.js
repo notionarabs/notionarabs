@@ -194,6 +194,15 @@ async function addTemplateToNotion(template, creator = null) {
       }
     };
 
+    // Add Creator Profile link if we have creator information
+    const creatorId = creatorUsername || creator?.username || template.creator?.username || 
+                      creator?._id?.toString() || template.creator?._id?.toString();
+    if (creatorId) {
+      properties['Creator Profile'] = {
+        url: `${frontendUrl}/creators/${creatorId}`
+      };
+    }
+
     // Add preview image if it exists
     // Priority: previewImage > first item from previewImages array
     let imageUrl = null;

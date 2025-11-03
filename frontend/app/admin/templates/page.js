@@ -194,17 +194,21 @@ export default function AdminTemplatesPage() {
           prev.map(template =>
             template._id === templateId
               ? {
-                ...template,
-                isPinned: response.data.template.isPinned,
-                pinnedAt: response.data.template.pinnedAt
-              }
+                  ...template,
+                  isPinned: response.data.template.isPinned,
+                  pinnedAt: response.data.template.pinnedAt
+                }
               : template
           )
         );
+      } else {
+        // If response is not successful but no error was thrown
+        toast.error(response.data.message || 'حدث خطأ أثناء تثبيت القالب');
       }
     } catch (error) {
       console.error('Error pinning template:', error);
-      toast.error('حدث خطأ أثناء تثبيت القالب');
+      const errorMessage = error.response?.data?.message || error.message || 'حدث خطأ أثناء تثبيت القالب';
+      toast.error(errorMessage);
     } finally {
       setPinLoading(null);
     }

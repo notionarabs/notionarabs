@@ -1702,24 +1702,40 @@ router.put('/templates/:id/pin', auth, async (req, res) => {
       });
     }
 
-    // Toggle pin status
-    template.isPinned = !template.isPinned;
-    template.pinnedAt = template.isPinned ? new Date() : null;
-    template.pinnedBy = template.isPinned ? req.user._id : null;
+    // Toggle pin status using findByIdAndUpdate to avoid validation issues
+    const newPinStatus = !template.isPinned;
+    const updateData = {
+      isPinned: newPinStatus,
+      pinnedAt: newPinStatus ? new Date() : null,
+      pinnedBy: newPinStatus ? req.user._id : null
+    };
 
-    await template.save();
+    const updatedTemplate = await Template.findByIdAndUpdate(
+      id,
+      { $set: updateData },
+      { new: true, runValidators: false }
+    );
 
-    // Invalidate cache to reflect changes immediately
-    await invalidateCache('template', id);
-    await invalidateCache('stats');
+    // Invalidate cache to reflect changes immediately (don't let cache errors break the request)
+    try {
+      await invalidateCache('template', id);
+    } catch (cacheError) {
+      console.warn('Cache invalidation error (non-critical):', cacheError.message);
+    }
+    
+    try {
+      await invalidateCache('stats');
+    } catch (cacheError) {
+      console.warn('Stats cache invalidation error (non-critical):', cacheError.message);
+    }
 
     res.json({
       success: true,
-      message: template.isPinned ? 'تم تثبيت القالب بنجاح' : 'تم إلغاء تثبيت القالب',
+      message: updatedTemplate.isPinned ? 'تم تثبيت القالب بنجاح' : 'تم إلغاء تثبيت القالب',
       template: {
-        _id: template._id,
-        isPinned: template.isPinned,
-        pinnedAt: template.pinnedAt
+        _id: updatedTemplate._id,
+        isPinned: updatedTemplate.isPinned,
+        pinnedAt: updatedTemplate.pinnedAt
       }
     });
   } catch (error) {

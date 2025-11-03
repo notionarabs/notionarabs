@@ -35,7 +35,7 @@ async function handleOptimizedPagination(req, res, options) {
   // Use aggregation for better performance with pagination
   const [templates, totalCount] = await Promise.all([
     Template.find(filter)
-      .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price purchaseLink ')
+      .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price purchaseLink isPinned pinnedAt pinnedBy ')
       .populate('creator', 'name username displayName profilePicture')
       .sort(sort)
       .skip(skip)
@@ -390,7 +390,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
 
         const [templates, totalCount] = await Promise.all([
           Template.find(searchQuery)
-            .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price purchaseLink ')
+            .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price purchaseLink isPinned pinnedAt pinnedBy ')
             .populate('creator', 'name username displayName profilePicture')
             .sort(sort)
             .skip(skip)
@@ -429,7 +429,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
 
         const [templates, totalCount] = await Promise.all([
           Template.find(regexQuery)
-            .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price purchaseLink ')
+            .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price purchaseLink isPinned pinnedAt pinnedBy ')
             .populate('creator', 'name username displayName profilePicture')
             .sort(sort)
             .skip(skip)
@@ -765,7 +765,7 @@ router.get('/:identifier', cacheMiddleware(600), async (req, res) => {
     const { identifier } = req.params;
 
     // Optimize: Use lean() for better performance and selective field projection
-    const selectFields = 'title description category categories tags creator previewImage previewImages slug rating reviewsCount downloads isPaid price purchaseLink notionLink views createdAt updatedAt explanationVideo';
+    const selectFields = 'title description category categories tags creator previewImage previewImages slug rating reviewsCount downloads isPaid price purchaseLink notionLink views createdAt updatedAt explanationVideo isPinned pinnedAt pinnedBy';
 
     // Try to find by slug first, then by ID
     let template = await Template.findOne({

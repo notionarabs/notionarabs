@@ -1,11 +1,10 @@
 import { generateTemplateMetadata } from '../../../lib/seo'
+import { getApiBaseUrl } from '../../../lib/apiConfig'
 
 // Server-side data fetching function for faster page loads
 export async function fetchTemplateData(id) {
   try {
-    const apiUrl = process.env.NODE_ENV === 'production'
-      ? 'https://notion-arabs-fe5b3f214071.herokuapp.com/api'
-      : 'http://localhost:5000/api';
+    const apiUrl = getApiBaseUrl();
     
     const response = await fetch(`${apiUrl}/templates/${id}`, {
       next: { revalidate: 3600 },
@@ -33,9 +32,7 @@ export async function generateMetadata({ params }) {
 
   try {
     // Fetch template data from API for metadata with revalidation
-    const apiUrl = process.env.NODE_ENV === 'production'
-      ? 'https://notion-arabs-fe5b3f214071.herokuapp.com/api'
-      : 'http://localhost:5000/api';
+    const apiUrl = getApiBaseUrl();
     
     const response = await fetch(`${apiUrl}/templates/${resolvedParams.id}`, {
       next: { revalidate: 60 }, // Revalidate every 1 minute for faster updates

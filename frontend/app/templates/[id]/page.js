@@ -418,35 +418,39 @@ export default function TemplateDetailPage() {
             setSelectedImage(0); // Default to first additional image
           }
 
-          // Make all API calls in parallel for better performance
+          // Show page immediately after template data loads
+          setLoading(false);
+
+          // Load secondary data asynchronously after initial render (non-blocking)
           const templateId = response.data.template._id;
 
-          try {
-            const [ratingsResult, ownershipResult, relatedResult] = await Promise.allSettled([
+          // Use setTimeout to defer secondary API calls until after initial render
+          setTimeout(() => {
+            Promise.allSettled([
               loadRatings(templateId),
               checkUserOwnership(templateId),
               api.get(`/templates/similar/${templateId}?limit=3`)
-            ]);
+            ]).then(([ratingsResult, ownershipResult, relatedResult]) => {
+              // Handle similar templates result
+              if (relatedResult.status === 'fulfilled' && relatedResult.value.data.success) {
+                setRelatedTemplates(relatedResult.value.data.templates);
+              } else {
+                setRelatedTemplates([]);
+              }
 
-            // Handle similar templates result
-            if (relatedResult.status === 'fulfilled' && relatedResult.value.data.success) {
-              setRelatedTemplates(relatedResult.value.data.templates);
-            } else {
+              // Ratings and ownership are handled by their respective functions
+            }).catch((error) => {
+              console.error('Parallel API calls error:', error);
               setRelatedTemplates([]);
-            }
-
-            // Ratings and ownership are handled by their respective functions
-          } catch (error) {
-            console.error('Parallel API calls error:', error);
-            setRelatedTemplates([]);
-          }
+            });
+          }, 0);
         } else {
           setError('القالب غير موجود');
+          setLoading(false);
         }
       } catch (error) {
         console.error('Template loading error:', error);
         setError('فشل في تحميل القالب');
-      } finally {
         setLoading(false);
       }
     };

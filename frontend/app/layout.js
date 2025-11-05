@@ -11,6 +11,7 @@ import { OrganizationSchema, WebsiteSchema } from '../components/StructuredData'
 import { GoogleAnalytics, HreflangLinks, TwitterCardMeta } from '../components/SEOOptimizations'
 import { QueryProvider } from '../components/QueryProvider'
 import MaintenanceMode from '../components/MaintenanceMode'
+import TelegramPopupWrapper from '../components/TelegramPopupWrapper'
 
 import { generateMetadata as generateBaseMetadata } from '../lib/seo'
 
@@ -126,6 +127,7 @@ export default function RootLayout({ children }) {
                     <NavigationWrapper />
                     <NavigationHandler />
                     <LoadingIndicator />
+                    <TelegramPopupWrapper />
                     {children}
                   </ToastProvider>
                 </AuthProvider>

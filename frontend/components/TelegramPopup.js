@@ -42,10 +42,12 @@ export default function TelegramPopup({ isOpen, onClose, onDismiss }) {
 
   return (
     // Non-blocking slide-in - position based on language direction
-    // RTL: bottom-left (left-4), LTR: bottom-right (right-4)
+    // Responsive: full width on mobile, centered. Smaller width on desktop
     <div 
-      className={`fixed bottom-4 z-[60] w-full max-w-sm transition-all duration-500 ease-out ${
-        isRTL ? 'left-4' : 'right-4'
+      className={`fixed bottom-0 sm:bottom-4 z-[60] w-full sm:w-auto sm:max-w-sm transition-all duration-500 ease-out ${
+        isRTL 
+          ? 'left-0 sm:left-4' 
+          : 'right-0 sm:right-4'
       } ${
         isVisible 
           ? 'translate-y-0 opacity-100' 
@@ -55,15 +57,15 @@ export default function TelegramPopup({ isOpen, onClose, onDismiss }) {
     >
       {/* Card - No backdrop, no blocking */}
       <div
-        className={`relative bg-white dark:bg-dark-secondary rounded-2xl shadow-2xl border border-gray-200 dark:border-dark-card-border transform transition-all duration-500 ${
+        className={`relative bg-white dark:bg-dark-secondary rounded-t-2xl sm:rounded-2xl shadow-2xl border border-gray-200 dark:border-dark-card-border transform transition-all duration-500 ${
           isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
         }`}
       >
         {/* Compact Header with Icon */}
-        <div className="flex items-start gap-3 p-4 border-b border-gray-200 dark:border-dark-card-border">
-          <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+        <div className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 border-b border-gray-200 dark:border-dark-card-border">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
             <svg
-              className="w-5 h-5 text-white"
+              className="w-4 h-4 sm:w-5 sm:h-5 text-white"
               fill="currentColor"
               viewBox="0 0 24 24"
             >
@@ -71,33 +73,33 @@ export default function TelegramPopup({ isOpen, onClose, onDismiss }) {
             </svg>
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-base font-bold text-gray-900 dark:text-dark-text-primary">
+            <h3 className="text-sm sm:text-base font-bold text-gray-900 dark:text-dark-text-primary">
               انضم إلى مجتمعنا على تيليجرام
             </h3>
-            <p className="text-xs text-gray-600 dark:text-dark-text-secondary mt-1">
+            <p className="text-xs text-gray-600 dark:text-dark-text-secondary mt-0.5 sm:mt-1">
               احصل على آخر الأخبار والتحديثات
             </p>
           </div>
           <button
             onClick={handleClose}
-            className="w-6 h-6 rounded-full bg-gray-100 dark:bg-dark-tertiary flex items-center justify-center hover:bg-gray-200 dark:hover:bg-dark-primary transition-colors flex-shrink-0"
+            className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gray-100 dark:bg-dark-tertiary flex items-center justify-center hover:bg-gray-200 dark:hover:bg-dark-primary transition-colors flex-shrink-0"
             aria-label="إغلاق"
           >
-            <svg className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {/* Compact Content */}
-        <div className="p-4 space-y-3">
+        <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
           {/* Compact CTA Button */}
           <Link
             href="https://t.me/notionarabs"
             target="_blank"
             rel="noopener noreferrer"
             onClick={handleClose}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold text-sm rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+            className="w-full flex items-center justify-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold text-xs sm:text-sm rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
           >
             <svg
               className="w-4 h-4"
@@ -112,7 +114,7 @@ export default function TelegramPopup({ isOpen, onClose, onDismiss }) {
           {/* Dismiss Button */}
           <button
             onClick={handleDismiss}
-            className="w-full text-xs text-gray-500 dark:text-dark-text-secondary hover:text-gray-700 dark:hover:text-dark-text-primary transition-colors text-center"
+            className="w-full text-xs text-gray-500 dark:text-dark-text-secondary hover:text-gray-700 dark:hover:text-dark-text-primary transition-colors text-center py-1"
           >
             لا تظهر لي مرة أخرى
           </button>

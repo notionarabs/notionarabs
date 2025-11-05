@@ -5,6 +5,17 @@ import Link from 'next/link';
 
 export default function TelegramPopup({ isOpen, onClose, onDismiss }) {
   const [isVisible, setIsVisible] = useState(false);
+  const [isRTL, setIsRTL] = useState(true); // Default to RTL for Arabic
+
+  useEffect(() => {
+    // Detect document direction
+    if (typeof window !== 'undefined') {
+      const htmlDir = document.documentElement.getAttribute('dir');
+      const isRTLDirection = htmlDir === 'rtl' || 
+                            (htmlDir === null && window.getComputedStyle(document.documentElement).direction === 'rtl');
+      setIsRTL(isRTLDirection);
+    }
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -30,14 +41,17 @@ export default function TelegramPopup({ isOpen, onClose, onDismiss }) {
   if (!isOpen) return null;
 
   return (
-    // Non-blocking slide-in from bottom-right corner
+    // Non-blocking slide-in - position based on language direction
+    // RTL: bottom-left (left-4), LTR: bottom-right (right-4)
     <div 
-      className={`fixed bottom-4 right-4 z-[60] w-full max-w-sm transition-all duration-500 ease-out ${
+      className={`fixed bottom-4 z-[60] w-full max-w-sm transition-all duration-500 ease-out ${
+        isRTL ? 'left-4' : 'right-4'
+      } ${
         isVisible 
           ? 'translate-y-0 opacity-100' 
           : 'translate-y-full opacity-0 pointer-events-none'
       }`}
-      dir="rtl"
+      dir={isRTL ? 'rtl' : 'ltr'}
     >
       {/* Card - No backdrop, no blocking */}
       <div

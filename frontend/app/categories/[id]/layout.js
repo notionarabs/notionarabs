@@ -18,14 +18,15 @@ export async function generateMetadata({ params }) {
     if (response.ok) {
       const data = await response.json();
       const count = data.pagination?.total || 0;
-      return generateCategoryMetadata(categoryName, count);
+      // Always use the English slug for canonical URL (categorySlug is already English after middleware redirect)
+      return generateCategoryMetadata(categoryName, count, categorySlug);
     }
   } catch (error) {
     console.error('Error fetching category metadata:', error);
   }
 
-  // Fallback metadata
-  return generateCategoryMetadata(categoryName, 0);
+  // Fallback metadata - always use English slug for canonical
+  return generateCategoryMetadata(categoryName, 0, categorySlug);
 }
 
 export default function CategoryLayout({ children }) {

@@ -2,7 +2,33 @@ import { NextResponse } from 'next/server';
 import { categorySlugMap } from './lib/categoryMapping';
 
 export function middleware(request) {
-  const { pathname } = request.nextUrl;
+  const { pathname, protocol, hostname } = request.nextUrl;
+  const url = request.nextUrl.clone();
+
+  // Only enforce HTTPS and www redirects in production on the actual domain
+  // Skip redirects for localhost, IP addresses, and development environments
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isLocalhost = hostname === 'localhost' || 
+                      hostname === '127.0.0.1' || 
+                      hostname.startsWith('192.168.') || 
+                      hostname.startsWith('10.') || 
+                      hostname.startsWith('172.') ||
+                      hostname.includes('.local');
+
+  // Only apply redirects in production and on the actual production domain
+  if (isProduction && !isLocalhost && (hostname === 'notionarabs.com' || hostname === 'www.notionarabs.com')) {
+    // Force HTTPS redirect (301 permanent) - only in production
+    if (protocol === 'http:') {
+      url.protocol = 'https:';
+      return NextResponse.redirect(url, 301);
+    }
+
+    // Force www redirect (301 permanent) - redirect non-www to www
+    if (hostname === 'notionarabs.com') {
+      url.hostname = 'www.notionarabs.com';
+      return NextResponse.redirect(url, 301);
+    }
+  }
 
   // Handle old /templates/category/[id] route - redirect to /categories/[id]
   const templateCategoryMatch = pathname.match(/^\/templates\/category\/(.+)$/);
@@ -17,7 +43,8 @@ export function middleware(request) {
   // Handle Arabic category slugs - redirect to English slugs
   const categoryMatch = pathname.match(/^\/categories\/(.+)$/);
   if (categoryMatch) {
-    const categorySlug = categoryMatch[1];
+    // Decode URL-encoded category slug (handles Arabic characters)
+    const categorySlug = decodeURIComponent(categoryMatch[1]);
     // Check if it's an Arabic category name that needs redirecting
     if (categorySlugMap[categorySlug]) {
       const englishSlug = categorySlugMap[categorySlug];

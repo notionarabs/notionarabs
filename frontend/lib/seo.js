@@ -264,7 +264,7 @@ export function generateCreatorMetadata(creator) {
 }
 
 // Category-specific SEO metadata
-export function generateCategoryMetadata(category, count = 0) {
+export function generateCategoryMetadata(category, count = 0, englishSlug = null) {
   const title = `${category} - قوالب نوشن`;
   const description = `اكتشف أفضل قوالب ${category} باللغة العربية لـ Notion. ${count} قالب متاح للتحميل المجاني.`;
 
@@ -278,12 +278,16 @@ export function generateCategoryMetadata(category, count = 0) {
     'تحميل'
   ];
 
-  const categorySlug = getCategorySlug(category);
+  // Use provided English slug, or get it from category name
+  // This ensures canonical URLs always use English slugs
+  const categorySlug = englishSlug || getCategorySlug(category);
+  const canonicalUrl = `/categories/${categorySlug}`;
 
   return generateMetadata({
     title,
     description,
     keywords,
-    url: `/categories/${categorySlug}`,
+    url: canonicalUrl,
+    canonical: canonicalUrl, // Explicitly set canonical to ensure it's always the English version
   });
 }

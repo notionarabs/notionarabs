@@ -717,13 +717,7 @@ router.get('/:slug', cacheMiddleware(600), async (req, res) => {
     const blog = await Blog.findOne({
       slug: req.params.slug,
       status: 'published'
-    }).populate('author', 'name profilePicture bio');
-
-    // Add rating data to the blog
-    const Rating = require('../models/Rating');
-    const { averageRating, totalRatings } = await Rating.getAverageRating('blog', blog._id);
-    blog.rating = averageRating;
-    blog.totalRatings = totalRatings;
+    }).populate('author', 'name profilePicture bio username slug email');
 
     if (!blog) {
       return res.status(404).json({
@@ -734,8 +728,11 @@ router.get('/:slug', cacheMiddleware(600), async (req, res) => {
 
     // Don't increment views here - will be handled by separate endpoint
 
-    // Get related blogs (same category or categories, excluding current blog)
-    const relatedBlogs = await Blog.find({
+    // Parallelize rating query and related blogs query for better performance
+    const Rating = require('../models/Rating');
+    
+    // Build related blogs query
+    const relatedBlogsQuery = {
       $or: [
         { category: blog.category },
         { categories: { $in: [blog.category] } },
@@ -747,11 +744,21 @@ router.get('/:slug', cacheMiddleware(600), async (req, res) => {
       ],
       status: 'published',
       _id: { $ne: blog._id }
-    })
-      .populate('author', 'name profilePicture')
-      .sort({ publishedAt: -1 })
-      .limit(3)
-      .lean();
+    };
+
+    // Execute rating query and related blogs query in parallel
+    const [ratingData, relatedBlogs] = await Promise.all([
+      Rating.getAverageRating('blog', blog._id),
+      Blog.find(relatedBlogsQuery)
+        .populate('author', 'name profilePicture')
+        .sort({ publishedAt: -1 })
+        .limit(3)
+        .lean()
+    ]);
+
+    // Add rating data to the blog
+    blog.rating = ratingData.averageRating;
+    blog.totalRatings = ratingData.totalRatings;
 
     // Optimized: Get rating data for related blogs in one query
     if (relatedBlogs.length > 0) {

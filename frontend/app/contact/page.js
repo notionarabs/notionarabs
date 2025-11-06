@@ -9,6 +9,17 @@ export const metadata = {
     canonical: 'https://www.notionarabs.com/contact',
   },
   keywords: ['اتصل بنا', 'الدعم', 'خدمة العملاء', 'notionarabs', 'contact'],
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   openGraph: {
     title: 'اتصل بنا | عرب نوشن',
     description: 'تواصل مع عرب نوشن - نحن هنا لمساعدتك في أي استفسار أو مساعدة تحتاجها.',
@@ -39,9 +50,33 @@ const faqs = [
 ];
 
 export default function ContactPage() {
+  // Structured data for SEO
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    "name": "اتصل بنا | عرب نوشن",
+    "description": "تواصل مع عرب نوشن - نحن هنا لمساعدتك في أي استفسار أو مساعدة تحتاجها. راسلنا وسنرد عليك خلال 24 ساعة.",
+    "url": "https://www.notionarabs.com/contact",
+    "mainEntity": {
+      "@type": "Organization",
+      "name": "عرب نوشن",
+      "url": "https://www.notionarabs.com",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "support@notionarabs.com",
+        "contactType": "customer service",
+        "availableLanguage": ["Arabic", "ar"]
+      }
+    }
+  };
 
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
 
       {/* Hero Section */}
       <section className="py-8 sm:py-12 md:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary transition-colors duration-300">

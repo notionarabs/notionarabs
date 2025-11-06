@@ -31,7 +31,11 @@ const blogSchema = new mongoose.Schema({
     ref: 'User',
     required: [true, 'كاتب المقال مطلوب']
   },
-  
+  category: {
+    type: String,
+    trim: true,
+    maxlength: [50, 'الفئة لا يجب أن تتجاوز 50 حرف']
+  },
   categories: [{
     type: String,
     trim: true,
@@ -102,6 +106,16 @@ blogSchema.virtual('estimatedReadTime').get(function () {
   return `${minutes} دقائق`;
 });
 
+// Pre-save middleware to set category from first category in categories array
+blogSchema.pre('save', function (next) {
+  if (this.isModified('categories') && this.categories && this.categories.length > 0) {
+    this.category = this.categories[0];
+  } else if (this.isModified('category') && !this.category && this.categories && this.categories.length > 0) {
+    this.category = this.categories[0];
+  }
+  next();
+});
+
 // Method to increment views
 blogSchema.methods.incrementViews = function () {
   this.views += 1;
@@ -168,6 +182,9 @@ blogSchema.index({ author: 1, status: 1 }); // For author's blogs by status
 blogSchema.index({ tags: 1, status: 1 }); // For tag-based searches
 blogSchema.index({ views: -1 }); // For popular blogs
 blogSchema.index({ createdAt: -1 }); // For recent posts
+// Indexes for category-based queries (for related blogs)
+blogSchema.index({ category: 1, status: 1, publishedAt: -1 }); // For category queries
+blogSchema.index({ categories: 1, status: 1, publishedAt: -1 }); // For categories array queries
 // Text index for search functionality
 blogSchema.index({ title: 'text', excerpt: 'text', content: 'text', tags: 'text' });
 

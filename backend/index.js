@@ -145,6 +145,16 @@ app.use('/api/auth', checkRegistrationEnabled);
 app.use('/api/auth', checkCreatorApplicationsEnabled);
 app.use('/', generalRateLimit);
 
+// Middleware to add noindex headers to all API routes
+app.use((req, res, next) => {
+  // Set noindex headers for all routes on API domain to prevent search engine indexing
+  res.set({
+    'X-Robots-Tag': 'noindex, nofollow',
+    'Cache-Control': 'no-cache, no-store, must-revalidate'
+  });
+  next();
+});
+
 // Routes
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
@@ -266,6 +276,11 @@ app.use((err, req, res, next) => {
 
 // 404 handler - catch all routes that don't match any defined routes
 app.use((req, res) => {
+  // Ensure noindex headers are set for 404 responses
+  res.set({
+    'X-Robots-Tag': 'noindex, nofollow',
+    'Cache-Control': 'no-cache, no-store, must-revalidate'
+  });
   res.status(404).json({
     success: false,
     message: 'الصفحة غير موجودة'

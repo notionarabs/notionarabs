@@ -155,21 +155,14 @@ export default function BlogPostPage() {
         setBlog(response.data.blog);
         setViewCount(response.data.blog.views || 0);
         setRelatedBlogs(response.data.relatedBlogs || []);
-        // Precompute author slug
+        // Precompute author slug - backend now populates username, slug, and email
         const a = response.data.blog?.author || {};
         const immediateSlug = a.username || a.slug || a.handle || a.user?.username || a.creator?.username || (a.email ? a.email.split('@')[0] : '');
         if (immediateSlug) {
           setAuthorSlug(encodeURIComponent(immediateSlug));
         } else if (a._id) {
-          // Attempt to resolve username by id
-          try {
-            const creatorRes = await api.get(`/creators/${a._id}`);
-            const c = creatorRes?.data?.creator || {};
-            const resolved = c.username || c.slug || (c.email ? c.email.split('@')[0] : '');
-            setAuthorSlug(encodeURIComponent(resolved || a._id));
-          } catch (_) {
-            setAuthorSlug(encodeURIComponent(a._id));
-          }
+          // Fallback to _id if no username available
+          setAuthorSlug(encodeURIComponent(a._id));
         }
       } else {
         setError('المقال غير موجود');

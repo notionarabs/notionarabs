@@ -5,7 +5,13 @@ export default function robots() {
     rules: [
       {
         userAgent: '*',
-        allow: '/',
+        allow: [
+          '/',
+          '/categories/',
+          '/templates/',
+          '/blog/',
+          '/creators/',
+        ],
         disallow: [
           '/admin/',
           '/api/',
@@ -24,7 +30,13 @@ export default function robots() {
       },
       {
         userAgent: 'Googlebot',
-        allow: '/',
+        allow: [
+          '/',
+          '/categories/',
+          '/templates/',
+          '/blog/',
+          '/creators/',
+        ],
         disallow: [
           '/admin/',
           '/api/',
@@ -43,7 +55,13 @@ export default function robots() {
       },
       {
         userAgent: 'Googlebot-Image',
-        allow: '/',
+        allow: [
+          '/',
+          '/categories/',
+          '/templates/',
+          '/blog/',
+          '/creators/',
+        ],
         disallow: [
           '/admin/',
           '/api/',

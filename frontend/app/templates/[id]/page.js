@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -475,6 +475,76 @@ export default function TemplateDetailPage() {
       setHasSeenCreatorWarning(hasSeen === 'true');
     }
   }, [template, user]);
+
+  // Memoized combined reviews with optimized calculations
+  const combinedReviews = useMemo(() => {
+    if (templateRatings.length === 0 && templateComments.length === 0) return [];
+
+    const userReviews = new Map();
+
+    // Process comments
+    templateComments.forEach(comment => {
+      const userId = comment.user?._id || comment.user?.id;
+      if (userId) {
+        const existing = userReviews.get(userId) || {};
+        userReviews.set(userId, {
+          ...existing,
+          user: comment.user,
+          comment: comment.content,
+          commentId: comment._id,
+          commentDate: comment.createdAt,
+          likes: comment.likes
+        });
+      }
+    });
+
+    // Add ratings to the map
+    templateRatings.forEach(rating => {
+      const userId = rating.user?._id || rating.user?.id;
+      if (userId) {
+        const existing = userReviews.get(userId) || {};
+        userReviews.set(userId, {
+          ...existing,
+          user: rating.user,
+          rating: rating.rating,
+          ratingId: rating._id,
+          ratingDate: rating.createdAt,
+          review: rating.review
+        });
+      }
+    });
+
+    // Convert to array, calculate dates once, and sort
+    return Array.from(userReviews.values())
+      .map(review => ({
+        ...review,
+        // Pre-calculate the latest date for sorting and display
+        latestDate: Math.max(
+          new Date(review.ratingDate || 0).getTime(),
+          new Date(review.commentDate || 0).getTime()
+        )
+      }))
+      .sort((a, b) => b.latestDate - a.latestDate);
+  }, [templateRatings, templateComments]);
+
+  // Memoized comment lookup map for O(1) access
+  const commentLookupMap = useMemo(() => {
+    const map = new Map();
+    templateComments.forEach(comment => {
+      map.set(comment._id, comment);
+    });
+    return map;
+  }, [templateComments]);
+
+  // Memoized reviews to show based on showAllReviews state
+  const reviewsToShow = useMemo(() => {
+    return showAllReviews ? combinedReviews : combinedReviews.slice(0, 5);
+  }, [combinedReviews, showAllReviews]);
+
+  // Optimized like handler with useCallback
+  const handleLikeClick = useCallback((commentId) => {
+    handleCommentLike(commentId);
+  }, [handleCommentLike]);
 
   // Function to dismiss creator warning permanently
   const dismissCreatorWarning = () => {
@@ -1370,165 +1440,143 @@ export default function TemplateDetailPage() {
         </section>
 
         {/* Reviews and Comments Section */}
-        {(templateRatings.length > 0 || templateComments.length > 0) && (
+        {combinedReviews.length > 0 && (
           <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
             <div className="container-custom">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-900 dark:text-dark-text-primary mb-6 sm:mb-8">تقييمات المستخدمين والتعليقات</h2>
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-900 dark:text-dark-text-primary mb-6 sm:mb-8">
+                تقييمات المستخدمين والتعليقات
+              </h2>
 
               <div className="space-y-3 sm:space-y-4">
-                {/* Combined Ratings and Comments */}
-                {(() => {
-                  // Create a map of user reviews combining ratings and comments
-                  const userReviews = new Map();
+                <div className="grid gap-3 sm:gap-4">
+                  {reviewsToShow.map((review) => {
+                    const isRatingOnly = review.rating && !review.review && !review.comment;
+                    const displayDate = formatDate(new Date(review.latestDate));
+                    const userName = review.user?.name || review.user?.displayName || 'مستخدم';
+                    const userInitial = userName.charAt(0).toUpperCase() || 'م';
+                    const hasProfilePicture = !!review.user?.profilePicture;
+                    
+                    // Optimized comment lookup
+                    const comment = review.commentId ? commentLookupMap.get(review.commentId) : null;
+                    const isLiked = comment ? isCommentLikedByUser(comment) : false;
+                    const likeCount = review.likes?.length || 0;
 
-                  // Add ratings to the map
-                  templateRatings.forEach(rating => {
-                    const userId = rating.user?._id || rating.user?.id;
-                    if (userId) {
-                      userReviews.set(userId, {
-                        ...userReviews.get(userId),
-                        user: rating.user,
-                        rating: rating.rating,
-                        ratingId: rating._id,
-                        ratingDate: rating.createdAt,
-                        review: rating.review
-                      });
-                    }
-                  });
-
-                  // Add comments to the map
-                  templateComments.forEach(comment => {
-                    const userId = comment.user?._id || comment.user?.id;
-                    if (userId) {
-                      userReviews.set(userId, {
-                        ...userReviews.get(userId),
-                        user: comment.user,
-                        comment: comment.content,
-                        commentId: comment._id,
-                        commentDate: comment.createdAt,
-                        likes: comment.likes
-                      });
-                    }
-                  });
-
-                  // Convert map to array and sort by most recent activity
-                  const combinedReviews = Array.from(userReviews.values()).sort((a, b) => {
-                    const aDate = new Date(Math.max(new Date(a.ratingDate || 0), new Date(a.commentDate || 0)));
-                    const bDate = new Date(Math.max(new Date(b.ratingDate || 0), new Date(b.commentDate || 0)));
-                    return bDate - aDate;
-                  });
-
-                  const reviewsToShow = showAllReviews ? combinedReviews : combinedReviews.slice(0, 5);
-
-                  return (
-                    <div className="grid gap-3 sm:gap-4">
-                      {reviewsToShow.map((review, index) => (
-                        <div key={review.ratingId || review.commentId || index} className="p-3 sm:p-4 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
-                          <div className="flex items-start gap-2 sm:gap-3">
-                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center">
-                              {review.user?.profilePicture ? (
-                                <Image
-                                  src={review.user.profilePicture}
-                                  alt={review.user?.name || 'مستخدم'}
-                                  width={40}
-                                  height={40}
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => {
-                                    e.target.style.display = 'none';
-                                    e.target.nextSibling.style.display = 'flex';
-                                  }}
-                                />
-                              ) : null}
-
-                              {/* Fallback avatar with initial letter */}
-                              <div className={`w-full h-full flex items-center justify-center ${review.user?.profilePicture ? 'hidden' : 'flex'}`}>
-                                <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
-                                  {review.user?.name?.charAt(0)?.toUpperCase() || 'م'}
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className="flex-1 min-w-0">
-                              <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
-                                <span className="text-sm sm:text-base font-medium text-accent-700 dark:text-dark-text-primary truncate">
-                                  {review.user?.name || review.user?.displayName || 'مستخدم'}
-                                </span>
-                                {review.rating && (
-                                  <StarRating rating={review.rating} size="small" showNumber={false} />
-                                )}
-                                <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                                  {formatDate(Math.max(new Date(review.ratingDate || 0), new Date(review.commentDate || 0)))}
-                                </span>
-                              </div>
-
-                              {/* Rating Review */}
-                              {review.review && (
-                                <div className="mb-2">
-                                  <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary leading-relaxed break-words">
-                                    {review.review}
-                                  </p>
-                                </div>
-                              )}
-
-                              {/* Comment */}
-                              {review.comment && (
-                                <div className={`${review.review ? 'mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-gray-200 dark:border-dark-card-border' : ''}`}>
-                                  <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary leading-relaxed break-words">
-                                    {review.comment}
-                                  </p>
-                                </div>
-                              )}
-
-                              {/* Actions */}
-                              <div className="flex items-center gap-3 mt-2">
-                                {review.commentId && (() => {
-                                  const comment = templateComments.find(c => c._id === review.commentId);
-                                  const isLiked = comment ? isCommentLikedByUser(comment) : false;
-
-                                  return (
-                                    <button
-                                      onClick={() => handleCommentLike(review.commentId)}
-                                      className={`flex items-center gap-1 text-xs transition-colors ${isLiked
-                                        ? 'text-red-500 dark:text-red-400'
-                                        : 'text-gray-500 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400'
-                                        }`}
-                                    >
-                                      <svg
-                                        className="w-3 h-3"
-                                        fill={isLiked ? "currentColor" : "none"}
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                                        />
-                                      </svg>
-                                      <span>{review.likes?.length || 0}</span>
-                                    </button>
-                                  );
-                                })()}
-                              </div>
+                    return (
+                      <div
+                        key={review.ratingId || review.commentId}
+                        className={`h-auto w-full rounded-xl border bg-gray-50 dark:bg-dark-primary border-gray-200 dark:border-dark-card-border ${
+                          isRatingOnly ? 'p-2 sm:p-3' : 'p-3 sm:p-4'
+                        }`}
+                      >
+                        <div className={`flex ${isRatingOnly ? 'items-center' : 'items-start'} gap-2 sm:gap-3 w-full`}>
+                          {/* Avatar */}
+                          <div
+                            className={`${
+                              isRatingOnly ? 'w-7 h-7 sm:w-8 sm:h-8' : 'w-8 h-8 sm:w-10 sm:h-10'
+                            } rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center`}
+                          >
+                            {hasProfilePicture ? (
+                              <Image
+                                src={review.user.profilePicture}
+                                alt={userName}
+                                width={40}
+                                height={40}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                  e.target.nextSibling.style.display = 'flex';
+                                }}
+                              />
+                            ) : null}
+                            <div className={`w-full h-full flex items-center justify-center ${hasProfilePicture ? 'hidden' : 'flex'}`}>
+                              <span className={`${isRatingOnly ? 'text-xs' : 'text-sm'} text-primary-600 dark:text-primary-400 font-medium`}>
+                                {userInitial}
+                              </span>
                             </div>
                           </div>
-                        </div>
-                      ))}
 
-                      {combinedReviews.length > 5 && (
-                        <div className="text-center mt-4 sm:mt-6">
-                          <button
-                            onClick={() => setShowAllReviews(!showAllReviews)}
-                            className="px-3 sm:px-4 py-2 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-lg hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-colors duration-200 text-xs sm:text-sm"
-                          >
-                            {showAllReviews ? 'عرض أقل' : `عرض جميع التقييمات والتعليقات (${combinedReviews.length})`}
-                          </button>
+                          {/* Content */}
+                          <div className={`flex-1 min-w-0 ${isRatingOnly ? 'flex items-center' : ''}`}>
+                            {/* Header: Name, Rating, Date */}
+                            <div className={`flex flex-wrap items-center gap-2 sm:gap-3 ${isRatingOnly ? '' : 'mb-2'}`}>
+                              <span className={`${isRatingOnly ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} font-medium text-accent-700 dark:text-dark-text-primary truncate`}>
+                                {userName}
+                              </span>
+                              {review.rating && (
+                                <StarRating rating={review.rating} size="small" showNumber={false} />
+                              )}
+                              <span className={`${isRatingOnly ? 'text-xs' : 'text-xs sm:text-sm'} text-gray-500 dark:text-gray-400 whitespace-nowrap`}>
+                                {displayDate}
+                              </span>
+                            </div>
+
+                            {/* Rating Review */}
+                            {review.review && (
+                              <div className="mb-2">
+                                <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary leading-relaxed break-words">
+                                  {review.review}
+                                </p>
+                              </div>
+                            )}
+
+                            {/* Comment */}
+                            {review.comment && (
+                              <div className={review.review ? 'mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-gray-200 dark:border-dark-card-border' : ''}>
+                                <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary leading-relaxed break-words">
+                                  {review.comment}
+                                </p>
+                              </div>
+                            )}
+
+                            {/* Actions - Like Button */}
+                            {!isRatingOnly && review.commentId && (
+                              <div className="flex items-center gap-3 mt-2">
+                                <button
+                                  onClick={() => handleLikeClick(review.commentId)}
+                                  className={`flex items-center gap-1 text-xs transition-colors ${
+                                    isLiked
+                                      ? 'text-red-500 dark:text-red-400'
+                                      : 'text-gray-500 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400'
+                                  }`}
+                                  aria-label={isLiked ? 'إلغاء الإعجاب' : 'إعجاب'}
+                                >
+                                  <svg
+                                    className="w-3 h-3"
+                                    fill={isLiked ? "currentColor" : "none"}
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    aria-hidden="true"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                                    />
+                                  </svg>
+                                  <span>{likeCount}</span>
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  );
-                })()}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Show More/Less Button */}
+                {combinedReviews.length > 5 && (
+                  <div className="text-center mt-4 sm:mt-6">
+                    <button
+                      onClick={() => setShowAllReviews(!showAllReviews)}
+                      className="px-3 sm:px-4 py-2 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-lg hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-colors duration-200 text-xs sm:text-sm"
+                      aria-expanded={showAllReviews}
+                    >
+                      {showAllReviews ? 'عرض أقل' : `عرض جميع التقييمات والتعليقات (${combinedReviews.length})`}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </section>

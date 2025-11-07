@@ -18,7 +18,7 @@ export default function AdminPage() {
   const [filterRole, setFilterRole] = useState('all');
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState('desc');
-  const [filteredUserCount, setFilteredUserCount] = useState(0);
+  const [filteredUserCount, setFilteredUserCount] = useState(null);
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { user: persistentUser, loading: persistentLoading } = useAuthPersistence();
   const router = useRouter();
@@ -97,39 +97,9 @@ export default function AdminPage() {
     }
   }, [searchTerm]);
 
-  // Update filtered count when filters change (without API call)
-  useEffect(() => {
-    setFilteredUserCount(calculateFilteredUserCount());
-  }, [searchTerm, filterRole, stats]);
-
-  // Calculate filtered user count based on current filters
-  const calculateFilteredUserCount = () => {
-    // Get base count based on role filter
-    let baseCount = 0;
-
-    if (filterRole === 'creator') {
-      baseCount = stats?.approvedCreators || 0;
-    } else if (filterRole === 'admin') {
-      baseCount = stats?.adminUsers || 0; // Real admin count
-    } else if (filterRole === 'user') {
-      // Regular users (not admins and not approved creators)
-      baseCount = stats?.regularUsers || 0;
-    } else {
-      // All users
-      baseCount = stats?.totalUsers || 0;
-    }
-
-    // Apply search term reduction if searching
-    if (searchTerm) {
-      // Search significantly reduces results - apply realistic reduction
-      return Math.max(0, Math.round(baseCount * 0.3));
-    }
-
-    return baseCount;
-  };
-
   const fetchUsers = async () => {
     try {
+      setFilteredUserCount(null);
       const params = new URLSearchParams();
       if (searchTerm) params.append('search', searchTerm);
       if (filterRole !== 'all') params.append('role', filterRole);
@@ -139,8 +109,15 @@ export default function AdminPage() {
       const response = await api.get(`/admin/users?${params.toString()}`);
       setUsers(response.data.users);
 
-      // Update filtered user count
-      setFilteredUserCount(calculateFilteredUserCount());
+      // Update filtered user count based on API response for accuracy
+      const { count, users: responseUsers } = response.data;
+      if (typeof count === 'number') {
+        setFilteredUserCount(count);
+      } else if (Array.isArray(responseUsers)) {
+        setFilteredUserCount(responseUsers.length);
+      } else {
+        setFilteredUserCount(0);
+      }
     } catch (error) {
       console.error('Error fetching users:', error);
       // Set empty users array if API fails (API endpoint not implemented yet)
@@ -519,7 +496,7 @@ export default function AdminPage() {
           <div className="px-6 py-4 border-b border-gray-200 dark:border-dark-card-border">
             <div className="flex justify-between items-center">
               <h2 className="heading-3">
-                قائمة المستخدمين ({filteredUserCount})
+                قائمة المستخدمين ({filteredUserCount !== null ? filteredUserCount : '...'})
                 {filterRole !== 'all' && (
                   <span className="text-sm font-normal text-accent-600 dark:text-dark-text-secondary mr-2">
                     - {filterRole === 'creator' ? 'مبدعون' : filterRole === 'admin' ? 'مديرون' : 'مستخدمون عاديون'}

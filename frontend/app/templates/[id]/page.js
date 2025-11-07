@@ -144,13 +144,10 @@ export default function TemplateDetailPage() {
       if (ratingsResult.status === 'fulfilled' && ratingsResult.value.data.success) {
         const ratingsData = ratingsResult.value.data;
         setTemplateRatings(ratingsData.ratings);
-        if (typeof ratingsData.averageRating !== 'undefined' && typeof ratingsData.totalRatings !== 'undefined') {
-          setRatingsSummary({
-            averageRating: ratingsData.averageRating || 0,
-            totalRatings: ratingsData.totalRatings || 0
-          });
-          setTemplate(prev => ({ ...prev, rating: ratingsData.averageRating || 0 }));
-        }
+        updateRatingMetrics({
+          averageRating: ratingsData.averageRating,
+          totalRatings: ratingsData.totalRatings
+        }, { isNewRating: false });
       }
 
       // Handle template comments
@@ -191,6 +188,55 @@ export default function TemplateDetailPage() {
     } catch (error) {
       console.error('Error getting current user:', error);
     }
+  };
+
+  const updateRatingMetrics = (data = {}, options = {}) => {
+    const { isNewRating } = options;
+
+    const currentAverage = ratingsSummary?.averageRating ?? template?.rating ?? 0;
+    const currentTotal = ratingsSummary?.totalRatings ?? template?.reviews ?? 0;
+    const treatAsNewRating = typeof isNewRating === 'boolean' ? isNewRating : !hasSubmittedRating;
+
+    let nextTotal = currentTotal;
+    if (typeof data?.totalRatings === 'number') {
+      nextTotal = data.totalRatings;
+    } else if (typeof data?.rating === 'number' && treatAsNewRating) {
+      nextTotal = currentTotal + 1;
+    }
+
+    let nextAverage = currentAverage;
+    if (typeof data?.averageRating === 'number') {
+      nextAverage = data.averageRating;
+    } else if (typeof data?.rating === 'number') {
+      if (treatAsNewRating) {
+        nextAverage = currentTotal === 0
+          ? data.rating
+          : ((currentAverage * currentTotal) + data.rating) / (currentTotal + 1);
+      } else if (currentTotal > 0) {
+        nextAverage = data.rating;
+      }
+    }
+
+    nextAverage = Number.isFinite(nextAverage) ? parseFloat(nextAverage.toFixed(2)) : 0;
+
+    setRatingsSummary({
+      averageRating: nextAverage,
+      totalRatings: nextTotal
+    });
+
+    setTemplate(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        rating: nextAverage,
+        reviews: nextTotal
+      };
+    });
+
+    return {
+      averageRating: nextAverage,
+      totalRatings: nextTotal
+    };
   };
 
   // Handle comment like
@@ -659,6 +705,14 @@ export default function TemplateDetailPage() {
       // Show success state
       setIsDownloaded(true);
       setUserHasTemplate(true);
+      setTemplate(prev => {
+        if (!prev) return prev;
+        const currentDownloads = typeof prev.downloads === 'number' ? prev.downloads : 0;
+        return {
+          ...prev,
+          downloads: currentDownloads + 1
+        };
+      });
 
       // Dispatch event for popup system
       window.dispatchEvent(new CustomEvent('templateDownloaded', {
@@ -1324,21 +1378,13 @@ export default function TemplateDetailPage() {
                         initialUserRating={userRating ? { rating: userRating.rating, review: userRating.review } : null}
                         initialUserComment={userComment}
                         onRatingChange={(data) => {
-                          // Update template rating
-                          setTemplate(prev => ({
-                            ...prev,
-                            rating: data.averageRating,
-                            reviews: data.totalRatings
-                          }));
-                          setRatingsSummary({ averageRating: data.averageRating || 0, totalRatings: data.totalRatings || 0 });
-                          // Update user rating state
+                          updateRatingMetrics(data, { isNewRating: !hasSubmittedRating });
                           setUserRating({ rating: data?.rating || 0, review: data?.review || '' });
-                          // Mark as submitted to hide the section
                           setHasSubmittedRating(true);
-                          // Mark as rated in localStorage to prevent popup
                           markAsRated();
-                          // Reload ratings
-                          loadRatings(template._id);
+                          if (template?._id) {
+                            loadRatings(template._id);
+                          }
                         }}
                         onCommentChange={(data) => {
                           // Update user comment state
@@ -1858,19 +1904,10 @@ export default function TemplateDetailPage() {
             userRating={userRating}
             userComment={userComment}
             onRatingChange={(data) => {
-              // Update template rating
-              setTemplate(prev => ({
-                ...prev,
-                rating: data.averageRating,
-                reviews: data.totalRatings
-              }));
-              setRatingsSummary({ averageRating: data.averageRating || 0, totalRatings: data.totalRatings || 0 });
-              // Update user rating state
+              updateRatingMetrics(data, { isNewRating: !hasSubmittedRating });
               setUserRating({ rating: data?.rating || 0, review: data?.review || '' });
-              // Mark as submitted and rated
               setHasSubmittedRating(true);
               markAsRated();
-              // Also mark popup as seen
               if (typeof window !== 'undefined' && template?._id) {
                 const dismissedPopups = JSON.parse(localStorage.getItem('dismissedRatingPopups') || '[]');
                 if (!dismissedPopups.includes(template._id)) {
@@ -1878,8 +1915,9 @@ export default function TemplateDetailPage() {
                   localStorage.setItem('dismissedRatingPopups', JSON.stringify(dismissedPopups));
                 }
               }
-              // Reload ratings
-              loadRatings(template._id);
+              if (template?._id) {
+                loadRatings(template._id);
+              }
             }}
             onCommentChange={(data) => {
               // Update user comment state

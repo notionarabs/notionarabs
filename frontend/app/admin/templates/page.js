@@ -65,6 +65,7 @@ export default function AdminTemplatesPage() {
 
   const fetchTemplates = async () => {
     try {
+      setLoading(true);
       ensureTokenInHeaders && ensureTokenInHeaders();
       const response = await api.get(`/admin/templates?status=${selectedStatus}&page=${currentPage}`);
       setTemplates(response.data.templates);
@@ -94,6 +95,19 @@ export default function AdminTemplatesPage() {
         rejectedTemplates: 0
       });
     }
+  };
+
+  const handleStatusCardClick = (statusValue) => {
+    setCurrentPage(1);
+    setSelectedStatus((prev) => {
+      if (statusValue === 'all' && prev === 'all') {
+        return 'all';
+      }
+      if (statusValue === prev) {
+        return prev;
+      }
+      return statusValue;
+    });
   };
 
 
@@ -375,19 +389,75 @@ export default function AdminTemplatesPage() {
         {/* Stats Cards */}
         {stats && (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
-            <div className="bg-white dark:bg-dark-secondary rounded-lg sm:rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-4 sm:p-6">
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => handleStatusCardClick('all')}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  handleStatusCardClick('all');
+                }
+              }}
+              className={`bg-white dark:bg-dark-secondary rounded-lg sm:rounded-xl shadow-sm border transition-colors duration-200 cursor-pointer select-none ${selectedStatus === 'all'
+                ? 'border-primary-400 dark:border-orange-400 shadow-md'
+                : 'border-gray-200 dark:border-dark-card-border hover:border-primary-300 dark:hover:border-orange-400/60'
+              } p-4 sm:p-6`}
+            >
               <h3 className="text-sm sm:text-base md:text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">إجمالي القوالب</h3>
               <p className="text-xl sm:text-2xl md:text-3xl font-bold text-primary-500 dark:text-orange-500">{stats.totalTemplates}</p>
             </div>
-            <div className="bg-white dark:bg-dark-secondary rounded-lg sm:rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-4 sm:p-6">
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => handleStatusCardClick('pending')}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  handleStatusCardClick('pending');
+                }
+              }}
+              className={`bg-white dark:bg-dark-secondary rounded-lg sm:rounded-xl shadow-sm border transition-colors duration-200 cursor-pointer select-none ${selectedStatus === 'pending'
+                ? 'border-yellow-400 shadow-md'
+                : 'border-gray-200 dark:border-dark-card-border hover:border-yellow-300 dark:hover:border-yellow-500/60'
+              } p-4 sm:p-6`}
+            >
               <h3 className="text-sm sm:text-base md:text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">قيد المراجعة</h3>
               <p className="text-xl sm:text-2xl md:text-3xl font-bold text-yellow-500">{stats.pendingTemplates}</p>
             </div>
-            <div className="bg-white dark:bg-dark-secondary rounded-lg sm:rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-4 sm:p-6">
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => handleStatusCardClick('approved')}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  handleStatusCardClick('approved');
+                }
+              }}
+              className={`bg-white dark:bg-dark-secondary rounded-lg sm:rounded-xl shadow-sm border transition-colors duration-200 cursor-pointer select-none ${selectedStatus === 'approved'
+                ? 'border-green-400 shadow-md'
+                : 'border-gray-200 dark:border-dark-card-border hover:border-green-300 dark:hover:border-green-500/60'
+              } p-4 sm:p-6`}
+            >
               <h3 className="text-sm sm:text-base md:text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">موافق عليها</h3>
               <p className="text-xl sm:text-2xl md:text-3xl font-bold text-green-500">{stats.approvedTemplates}</p>
             </div>
-            <div className="bg-white dark:bg-dark-secondary rounded-lg sm:rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-4 sm:p-6">
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => handleStatusCardClick('rejected')}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  handleStatusCardClick('rejected');
+                }
+              }}
+              className={`bg-white dark:bg-dark-secondary rounded-lg sm:rounded-xl shadow-sm border transition-colors duration-200 cursor-pointer select-none ${selectedStatus === 'rejected'
+                ? 'border-red-400 shadow-md'
+                : 'border-gray-200 dark:border-dark-card-border hover:border-red-300 dark:hover:border-red-500/60'
+              } p-4 sm:p-6`}
+            >
               <h3 className="text-sm sm:text-base md:text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">مرفوضة</h3>
               <p className="text-xl sm:text-2xl md:text-3xl font-bold text-red-500">{stats.rejectedTemplates}</p>
             </div>

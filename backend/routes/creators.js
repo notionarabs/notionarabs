@@ -10,6 +10,41 @@ const { cacheMiddleware, invalidateCache } = require('../utils/redis-cache');
 
 const router = express.Router();
 
+const ALLOWED_SORT_KEYS = new Set([
+  'popular',
+  'newest',
+  'rating',
+  'templates',
+  'followers',
+  'createdAt',
+  'templatesCount'
+]);
+
+const getSortObject = (sortKey = 'popular', sortOrder = 'desc') => {
+  const direction = sortOrder === 'asc' ? 'asc' : 'desc';
+
+  const fieldMap = {
+    popular: ['followers', 'rating', 'templatesCount'],
+    newest: ['createdAt'],
+    rating: ['rating', 'followers'],
+    templates: ['templatesCount', 'followers']
+  };
+
+  const fields = fieldMap[sortKey] || [sortKey];
+
+  const sort = fields.reduce((acc, field) => {
+    if (typeof field === 'string' && /^[a-zA-Z0-9_]+$/.test(field)) {
+      acc[field] = direction;
+    }
+    return acc;
+  }, Object.create(null));
+
+  if (Object.keys(sort).length === 0) {
+    sort.followers = direction;
+  }
+
+  return sort;
+};
 
 // @route   GET /api/creators
 // @desc    Get all approved creators with their stats
@@ -20,7 +55,10 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
     const limit = parseInt(req.query.limit) || 12;
     const search = req.query.search;
     const specialty = req.query.specialty;
-    const sortBy = req.query.sortBy || 'popular';
+    const rawSortBy = req.query.sortBy || 'popular';
+    const sortBy = ALLOWED_SORT_KEYS.has(rawSortBy) ? rawSortBy : 'popular';
+    const sortOrder = req.query.sortOrder === 'asc' ? 'asc' : 'desc';
+    const sortObject = getSortObject(sortBy, sortOrder);
 
     // Build query for approved creators only
     const query = {
@@ -48,7 +86,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
 
         const sort = {
           score: { $meta: 'textScore' },
-          [sortBy]: 'desc'
+          ...sortObject
         };
 
         const skip = (page - 1) * limit;
@@ -77,8 +115,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
           ]
         };
 
-        const sort = {};
-        sort[sortBy] = 'desc';
+        const sort = { ...sortObject };
         const skip = (page - 1) * limit;
 
         [creators, totalCount] = await Promise.all([
@@ -93,8 +130,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
       }
     } else {
       // Regular pagination without search
-      const sort = {};
-      sort[sortBy] = 'desc';
+      const sort = { ...sortObject };
 
       const skip = (page - 1) * limit;
 
@@ -145,7 +181,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
       });
     }
 
-    const creatorsWithStats = creators.map(creator => {
+    let creatorsWithStats = creators.map(creator => {
       const stats = templateStatsMap.get(creator._id.toString()) || {
         totalTemplates: 0,
         totalDownloads: 0,
@@ -158,12 +194,34 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
         username: creator.username || creator.email?.split('@')[0],
         displayName: creator.displayName || creator.name,
         templates: stats.totalTemplates,
+        templatesCount: stats.totalTemplates ?? creator.templatesCount ?? 0,
         downloads: stats.totalDownloads,
         rating: stats.medianRating || creator.rating || 0,
         earnings: creator.totalEarnings || 0,
         badges: creator.badges || []
       };
     });
+
+    const resolvedSortOrder = sortOrder === 'asc' ? 1 : -1;
+    if (sortBy === 'templates') {
+      creatorsWithStats = creatorsWithStats.sort((a, b) => {
+        const primaryDiff = (a.templates || 0) - (b.templates || 0);
+        if (primaryDiff !== 0) {
+          return resolvedSortOrder * primaryDiff;
+        }
+        const secondaryDiff = (a.followers || 0) - (b.followers || 0);
+        return resolvedSortOrder * secondaryDiff;
+      });
+    } else if (sortBy === 'rating') {
+      creatorsWithStats = creatorsWithStats.sort((a, b) => {
+        const primaryDiff = (a.rating || 0) - (b.rating || 0);
+        if (primaryDiff !== 0) {
+          return resolvedSortOrder * primaryDiff;
+        }
+        const secondaryDiff = (a.followers || 0) - (b.followers || 0);
+        return resolvedSortOrder * secondaryDiff;
+      });
+    }
 
     // Creators are already sorted and paginated by the database query
     res.json({

@@ -80,9 +80,19 @@ export default function PurchasesPage() {
   };
 
   // Flatten orders to a list of purchased/downloaded template items only
-  const items = orders
+  // Deduplicate by templateId to ensure each template appears only once
+  const itemsMap = new Map();
+  orders
     .flatMap((o) => (o.items || []).map((i) => ({ ...i, orderId: o.id, date: o.date, status: o.status })))
-    .filter((i) => i.downloaded || i.status === 'completed');
+    .filter((i) => i.downloaded || i.status === 'completed')
+    .forEach((item) => {
+      const templateId = item.templateId || item.id;
+      // Keep the most recent item if duplicates exist
+      if (!itemsMap.has(templateId) || new Date(item.date || 0) > new Date(itemsMap.get(templateId).date || 0)) {
+        itemsMap.set(templateId, item);
+      }
+    });
+  const items = Array.from(itemsMap.values());
 
   if (loading || isLoading) {
     return (

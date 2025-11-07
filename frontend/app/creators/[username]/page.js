@@ -50,6 +50,13 @@ export default function PublicProfilePage() {
     }
   }, [username]);
 
+  // Reset profile image error when creator changes
+  useEffect(() => {
+    if (creator) {
+      setProfileImageError(false);
+    }
+  }, [creator?.id, creator?.profilePicture]);
+
 
   useEffect(() => {
     if (creator && isAuthenticated) {
@@ -95,6 +102,16 @@ export default function PublicProfilePage() {
 
       if (creatorResponse.status === 'fulfilled') {
         const creator = creatorResponse.value.data.creator;
+        // Ensure profile picture is a valid URL if it exists
+        if (creator.profilePicture && typeof creator.profilePicture === 'string' && creator.profilePicture.trim() !== '') {
+          // If it's a relative URL, make it absolute (assuming it's from the same domain)
+          if (typeof window !== 'undefined' && creator.profilePicture.startsWith('/')) {
+            creator.profilePicture = `${window.location.origin}${creator.profilePicture}`;
+          }
+        } else {
+          // Clear invalid profile picture
+          creator.profilePicture = null;
+        }
         setCreator(creator);
         setMedianRating(creator.rating || 0);
 
@@ -517,7 +534,7 @@ export default function PublicProfilePage() {
               <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
                 {/* Profile Picture */}
                 <div className="relative flex-shrink-0">
-                  {creator.profilePicture && !profileImageError ? (
+                  {creator.profilePicture && creator.profilePicture.trim() !== '' && !profileImageError ? (
                     <Image
                       src={creator.profilePicture}
                       alt={`صورة ${creator.displayName || creator.name}`}
@@ -526,6 +543,7 @@ export default function PublicProfilePage() {
                       className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full object-cover border-4 border-white dark:border-dark-card-border shadow-lg"
                       unoptimized
                       onError={() => setProfileImageError(true)}
+                      onLoad={() => setProfileImageError(false)}
                     />
                   ) : (
                     <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center shadow-lg border-4 border-white dark:border-dark-card-border">
@@ -735,9 +753,9 @@ export default function PublicProfilePage() {
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 bg-gray-50 dark:bg-dark-tertiary hover:bg-gray-100 dark:hover:bg-dark-quaternary rounded-lg sm:rounded-xl transition-all duration-200 hover:scale-110 transform border border-gray-200 dark:border-dark-card-border"
-                          title={platform?.name === 'website' ? new URL(link.url).hostname.replace('www.', '') : platform?.name === 'facebook-group' ? 'مجموعة فيسبوك' : platform?.name}
+                          aria-label={platform?.name === 'website' ? `زيارة ${new URL(link.url).hostname.replace('www.', '')}` : platform?.name === 'facebook-group' ? 'مجموعة فيسبوك' : `زيارة ${platform?.name || 'الرابط'}`}
                         >
-                          <span className={platform?.color}>
+                          <span className={platform?.color} aria-hidden="true">
                             {getPlatformIcon(platform?.icon || 'website')}
                           </span>
                         </a>

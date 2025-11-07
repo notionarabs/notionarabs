@@ -44,13 +44,18 @@ export default function NavigationHandler() {
     const shouldSkipScroll = noScrollPages.includes(pathname);
 
     // Only scroll to top if not on main pages
+    // Use requestAnimationFrame to batch scroll operation and prevent forced reflow
     if (!shouldSkipScroll) {
-      try {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } catch (e) {
-        // Fallback for environments without smooth behavior support
-        window.scrollTo(0, 0);
-      }
+      requestAnimationFrame(() => {
+        try {
+          // Use instant scroll to avoid forced reflow from smooth scroll
+          window.scrollTo(0, 0);
+        } catch (e) {
+          // Fallback for environments without scrollTo support
+          document.documentElement.scrollTop = 0;
+          document.body.scrollTop = 0;
+        }
+      });
     }
 
     // Cleanup timer on unmount or pathname change

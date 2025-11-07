@@ -5,22 +5,38 @@ import { createContext, useContext, useEffect, useState } from 'react';
 const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState('light'); // Default to light mode
+  // Initialize theme from data attribute set by blocking script, or default to light
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === 'undefined') return 'light';
+    // Read the theme that was already set by the blocking script
+    const dataTheme = document.documentElement.getAttribute('data-theme');
+    if (dataTheme) return dataTheme;
+    // Fallback to checking class or localStorage
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) return savedTheme;
+    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return systemTheme;
+  });
   const [mounted, setMounted] = useState(false);
 
-  // Load theme from localStorage on mount
+  // Load theme from localStorage on mount - only sync, don't change if already correct
   useEffect(() => {
     // Only run on client side
     if (typeof window === 'undefined') return;
 
+    // Read the theme that was already set by the blocking script
+    const dataTheme = document.documentElement.getAttribute('data-theme');
     const savedTheme = localStorage.getItem('theme');
     const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    const initialTheme = savedTheme || systemTheme; // Default to system theme
+    
+    // Use the theme from data attribute (set by blocking script) if available, otherwise use saved or system
+    const initialTheme = dataTheme || savedTheme || systemTheme;
 
-    // Check if the theme is already applied by the script
+    // Check if the theme is already correctly applied by the script
     const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
 
-    // Only update if there's a mismatch
+    // Only update DOM if there's a mismatch (shouldn't happen if script worked correctly)
+    // But don't change if it's already correct to avoid flash
     if (currentTheme !== initialTheme) {
       if (initialTheme === 'dark') {
         document.documentElement.classList.add('dark');
@@ -29,7 +45,14 @@ export function ThemeProvider({ children }) {
       }
     }
 
-    setTheme(initialTheme);
+    // Sync the state without causing a re-render flash
+    // Only update if different to avoid unnecessary re-renders
+    setTheme(prevTheme => {
+      if (prevTheme !== initialTheme) {
+        return initialTheme;
+      }
+      return prevTheme;
+    });
     setMounted(true);
   }, []);
 

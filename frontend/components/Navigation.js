@@ -70,7 +70,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
   return (
     <header ref={menuRef} className="w-full bg-accent-500 dark:bg-dark-secondary sticky top-0 z-50 shadow-medium dark:shadow-dark-medium backdrop-blur-sm bg-accent-500/95 dark:bg-dark-secondary/95 transition-colors duration-300">
       <div className="container-custom flex justify-between items-center py-4">
-        <Link href="/" className="flex items-center">
+        <Link href="/" className="flex items-center" aria-label="الرئيسية - عرب نوشن">
           <Image
             src="/NavLogoLight.svg"
             alt="عرب نوشن"
@@ -139,30 +139,29 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 z-40 bg-accent-500 dark:bg-dark-secondary border-b border-gray-700 dark:border-dark-card-border shadow-large dark:shadow-dark-large backdrop-blur-sm transition-colors duration-300">
-          <div className="container-custom py-6 space-y-6">
-            {/* Mobile Navigation Links */}
-            <nav className="space-y-4">
-              <div className={`transition-all duration-300 ease-in-out overflow-hidden ${activePage !== 'home' ? 'max-h-16 opacity-100' : 'max-h-0 opacity-0'}`}>
-                <Link href="/" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
-                  الرئيسية
-                </Link>
-              </div>
-              <Link href="/templates" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
-                القوالب
+      {/* Mobile Menu - Always rendered for SEO, hidden with CSS */}
+      <div className={`md:hidden absolute top-full left-0 right-0 z-40 bg-accent-500 dark:bg-dark-secondary border-b border-gray-700 dark:border-dark-card-border shadow-large dark:shadow-dark-large backdrop-blur-sm transition-all duration-300 ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
+        <div className="container-custom py-6 space-y-6">
+          {/* Mobile Navigation Links - Always in DOM for crawlability */}
+          <nav className="space-y-4" aria-label="Mobile navigation">
+            <div className={`transition-all duration-300 ease-in-out overflow-hidden ${activePage !== 'home' ? 'max-h-16 opacity-100' : 'max-h-0 opacity-0'}`}>
+              <Link href="/" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+                الرئيسية
               </Link>
-              <Link href="/creators" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
-                المبدعين
-              </Link>
-              <Link href="/blog" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
-                المدونة
-              </Link>
-              <Link href="/about" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
-                من نحن
-              </Link>
-            </nav>
+            </div>
+            <Link href="/templates" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+              القوالب
+            </Link>
+            <Link href="/creators" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+              المبدعين
+            </Link>
+            <Link href="/blog" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+              المدونة
+            </Link>
+            <Link href="/about" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+              من نحن
+            </Link>
+          </nav>
 
             {/* Mobile Auth Section */}
             <div className="border-t border-gray-600 dark:border-dark-card-border pt-6 min-h-[120px]">
@@ -397,7 +396,6 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
             </div>
           </div>
         </div>
-      )}
     </header>
   );
 });

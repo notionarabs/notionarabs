@@ -199,12 +199,12 @@ function VerifyEmailForm() {
                 تم تأكيد حسابك بنجاح. مرحباً بك في عرب نوشن! {isAuthenticated ? 'سيتم توجيهك إلى الصفحة الرئيسية خلال ثوانٍ قليلة.' : 'يرجى النقر على الزر أدناه للانتقال إلى الصفحة الرئيسية.'}
               </p>
               <div className="space-y-3 sm:space-y-4">
-                <button
-                  onClick={() => router.push('/')}
-                  className="w-full btn-primary text-base sm:text-lg py-2.5 sm:py-3"
+                <Link
+                  href="/"
+                  className="w-full btn-primary text-base sm:text-lg py-2.5 sm:py-3 inline-block text-center"
                 >
                   الذهاب إلى الصفحة الرئيسية
-                </button>
+                </Link>
                 <div className="text-center">
                   <Link
                     href="/login"
@@ -392,19 +392,19 @@ function VerifyEmailForm() {
 
                 {errorType === 'ALREADY_VERIFIED' ? (
                   <div className="space-y-3 sm:space-y-4">
-                    <button
-                      onClick={() => router.push('/login')}
-                      className="w-full btn-primary text-base sm:text-lg py-2.5 sm:py-3"
+                    <Link
+                      href="/login"
+                      className="w-full btn-primary text-base sm:text-lg py-2.5 sm:py-3 inline-block text-center"
                     >
                       تسجيل الدخول
-                    </button>
+                    </Link>
                     <div className="text-center">
-                      <button
-                        onClick={() => router.push('/')}
+                      <Link
+                        href="/"
                         className="btn-ghost text-xs sm:text-sm"
                       >
                         العودة للصفحة الرئيسية
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 ) : errorType === 'EXPIRED_TOKEN' || errorType === 'INVALID_TOKEN' ? (
@@ -417,20 +417,20 @@ function VerifyEmailForm() {
                       {loading ? 'جاري الإرسال...' : 'إعادة إرسال رابط التأكيد'}
                     </button>
                     <div className="text-center">
-                      <button
-                        onClick={() => router.push('/login')}
+                      <Link
+                        href="/login"
                         className="btn-ghost text-xs sm:text-sm"
                       >
                         تسجيل الدخول
-                      </button>
+                      </Link>
                     </div>
                     <div className="text-center">
-                      <button
-                        onClick={() => router.push('/signup')}
+                      <Link
+                        href="/signup"
                         className="btn-ghost text-xs sm:text-sm"
                       >
                         إنشاء حساب جديد
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 ) : (

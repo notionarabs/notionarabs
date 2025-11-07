@@ -104,10 +104,16 @@ const nextConfig = {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons', 'framer-motion'],
     // Enable modern bundling optimizations
     esmExternals: true,
+    // Enable modern JavaScript output
+    outputFileTracingIncludes: {
+      '/': ['./public/**/*'],
+    },
   },
   // External packages for server components
   serverExternalPackages: ['mongoose', 'bcryptjs'],
-  // Optimize production builds
+  // Source maps configuration
+  // Disable source maps in production for security and performance
+  // Enable in development for better debugging
   productionBrowserSourceMaps: false,
   images: {
     formats: ['image/webp', 'image/avif'],
@@ -117,6 +123,8 @@ const nextConfig = {
     // Enable image optimization
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    // Enable lazy loading by default for offscreen images
+    unoptimized: false,
     remotePatterns: [
       {
         protocol: 'https',
@@ -193,6 +201,8 @@ const nextConfig = {
     // Remove React properties in production
     reactRemoveProperties: process.env.NODE_ENV === 'production',
   },
+  // Use SWC minify for better performance (faster and smaller output)
+  swcMinify: true,
   poweredByHeader: false,
   compress: true,
   reactStrictMode: true,
@@ -208,10 +218,28 @@ const nextConfig = {
   staticPageGenerationTimeout: 1000,
   // Optimize bundle splitting
   webpack: (config, { dev, isServer }) => {
-    // Optimize bundle splitting
+    // Enable source maps in development for better debugging
+    if (dev && !isServer) {
+      config.devtool = 'eval-source-map';
+    }
+    
+    // Optimize bundle splitting for better code splitting and tree shaking
     if (!dev && !isServer) {
+      // Enable tree shaking and minification
+      config.optimization.usedExports = true;
+      config.optimization.sideEffects = false;
+      config.optimization.providedExports = true;
+      config.optimization.concatenateModules = true;
+      
+      // Enable CSS minification
+      config.optimization.minimize = true;
+      
       config.optimization.splitChunks = {
         chunks: 'all',
+        minSize: 20000,
+        maxSize: 244000,
+        maxAsyncRequests: 30,
+        maxInitialRequests: 30,
         cacheGroups: {
           default: {
             minChunks: 2,
@@ -223,6 +251,39 @@ const nextConfig = {
             name: 'vendors',
             priority: -10,
             chunks: 'all',
+            enforce: true,
+          },
+          // Separate large libraries
+          react: {
+            test: /[\\/]node_modules[\\/](react|react-dom|react-dom-server)[\\/]/,
+            name: 'react',
+            priority: 20,
+            chunks: 'all',
+            enforce: true,
+          },
+          // UI libraries
+          ui: {
+            test: /[\\/]node_modules[\\/](@radix-ui|framer-motion|lucide-react)[\\/]/,
+            name: 'ui',
+            priority: 15,
+            chunks: 'all',
+            enforce: true,
+          },
+          // Form libraries
+          forms: {
+            test: /[\\/]node_modules[\\/](react-hook-form|@hookform)[\\/]/,
+            name: 'forms',
+            priority: 12,
+            chunks: 'all',
+            enforce: true,
+          },
+          // Query libraries
+          query: {
+            test: /[\\/]node_modules[\\/](@tanstack)[\\/]/,
+            name: 'query',
+            priority: 12,
+            chunks: 'all',
+            enforce: true,
           },
           common: {
             name: 'common',
@@ -233,6 +294,24 @@ const nextConfig = {
           },
         },
       };
+      
+      // Enable modern JavaScript output (ES2020+)
+      config.output.environment = {
+        ...config.output.environment,
+        arrowFunction: true,
+        bigIntLiteral: true,
+        const: true,
+        destructuring: true,
+        dynamicImport: true,
+        forOf: true,
+        module: true,
+      };
+      
+      // Set target to modern browsers to avoid legacy JS
+      config.target = ['web', 'es2020'];
+      
+      // Optimize module resolution for better tree shaking
+      config.resolve.mainFields = ['module', 'main'];
     }
 
     return config;

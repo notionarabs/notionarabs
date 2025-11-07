@@ -3,7 +3,9 @@ import Image from 'next/image';
 
 // SEO optimization components and utilities
 
-// Google Analytics component
+import Script from 'next/script';
+
+// Google Analytics component - optimized to prevent render blocking
 export function GoogleAnalytics({ GA_TRACKING_ID }) {
   // Use the provided ID or fallback to the hardcoded one
   const trackingId = GA_TRACKING_ID || 'G-CE8V1ZYCC7';
@@ -12,17 +14,31 @@ export function GoogleAnalytics({ GA_TRACKING_ID }) {
 
   return (
     <>
-      <script
-        async
+      <Script
         src={`https://www.googletagmanager.com/gtag/js?id=${trackingId}`}
+        strategy="afterInteractive"
       />
-      <script
+      <Script
+        id="google-analytics"
+        strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: `
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', '${trackingId}');
+            gtag('config', '${trackingId}', {
+              page_path: window.location.pathname,
+              // Use first-party cookies (GA4 default, but explicitly set)
+              cookie_flags: 'SameSite=Lax;Secure',
+              // Respect user privacy preferences
+              anonymize_ip: true,
+              allow_google_signals: false,
+              allow_ad_personalization_signals: false,
+              // Use first-party cookie domain (current domain)
+              cookie_domain: 'auto',
+              // Disable third-party cookie usage
+              send_page_view: true,
+            });
           `,
         }}
       />
@@ -41,10 +57,12 @@ export function GoogleSearchConsole() {
   );
 }
 
-// Performance monitoring
+// Performance monitoring - deferred to prevent render blocking
 export function PerformanceMonitoring() {
   return (
-    <script
+    <Script
+      id="performance-monitoring"
+      strategy="afterInteractive"
       dangerouslySetInnerHTML={{
         __html: `
           // Core Web Vitals monitoring

@@ -150,8 +150,9 @@ export default function AnalysisPage() {
           <Link
             href="/profile"
             className="group p-2 sm:p-3 hover:bg-white dark:hover:bg-dark-secondary rounded-xl transition-all duration-200 border border-gray-200 dark:border-dark-card-border hover:border-primary-300 dark:hover:border-orange-500/30 hover:shadow-sm flex-shrink-0"
+            aria-label="العودة إلى الملف الشخصي"
           >
-            <svg className="w-5 h-5 text-gray-600 dark:text-dark-text-secondary group-hover:text-primary-600 dark:group-hover:text-orange-400 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-gray-600 dark:text-dark-text-secondary group-hover:text-primary-600 dark:group-hover:text-orange-400 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </Link>
@@ -264,7 +265,7 @@ export default function AnalysisPage() {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-gray-900 dark:text-dark-text-primary text-sm sm:text-base mb-1 line-clamp-2">{t.title}</h3>
+                        <h2 className="font-medium text-gray-900 dark:text-dark-text-primary text-sm sm:text-base mb-1 line-clamp-2">{t.title}</h2>
                         <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">{t.category || 'غير مصنف'}</p>
                       </div>
                     </div>
@@ -325,7 +326,7 @@ function SectionHeader({ title }) {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 1.343-3 3v7h6v-7c0-1.657-1.343-3-3-3z" />
         </svg>
       </div>
-      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-primary-600 dark:text-orange-400">{title}</h2>
+      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-primary-600 dark:text-orange-400 mb-4">{title}</h2>
     </div>
   );
 }

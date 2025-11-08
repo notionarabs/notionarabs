@@ -8,18 +8,20 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { countries } from 'country-list';
 import ReactCountryFlag from 'react-country-flag';
 
+const createInitialFormData = () => ({
+  name: '',
+  email: '',
+  phone: '',
+  countryCode: '+20', // Default to Egypt
+  portfolio: '',
+  experience: '',
+  specialties: [],
+  motivation: '',
+  agreeToTerms: false
+});
+
 export default function CreatorApplyPage() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    countryCode: '+20', // Default to Egypt
-    portfolio: '',
-    experience: '',
-    specialties: [],
-    motivation: '',
-    agreeToTerms: false
-  });
+  const [formData, setFormData] = useState(createInitialFormData);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -31,8 +33,48 @@ export default function CreatorApplyPage() {
   const [phoneError, setPhoneError] = useState('');
   const countryDropdownRef = useRef(null);
   const specialtyDropdownRef = useRef(null);
+  const draftLoadedRef = useRef(false);
   const { user, isAuthenticated, checkAuthStatus, refreshUserData } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (draftLoadedRef.current) {
+      return;
+    }
+
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    try {
+      const storedDraft = localStorage.getItem('creatorApplyDraft');
+      if (storedDraft) {
+        const parsedDraft = JSON.parse(storedDraft);
+
+        if (parsedDraft?.formData) {
+          setFormData(prev => ({
+            ...prev,
+            ...parsedDraft.formData,
+            specialties: Array.isArray(parsedDraft.formData.specialties)
+              ? parsedDraft.formData.specialties
+              : prev.specialties
+          }));
+        }
+
+        if (typeof parsedDraft?.customSpecialty === 'string') {
+          setCustomSpecialty(parsedDraft.customSpecialty);
+        }
+
+        if (typeof parsedDraft?.showCustomInput === 'boolean') {
+          setShowCustomInput(parsedDraft.showCustomInput);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load creator application draft:', error);
+    } finally {
+      draftLoadedRef.current = true;
+    }
+  }, []);
 
   // Pre-fill form with user data if authenticated
   useEffect(() => {
@@ -100,6 +142,42 @@ export default function CreatorApplyPage() {
       document.removeEventListener('keydown', handleEscapeKey);
     };
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    if (user?.creatorStatus === 'pending' || user?.creatorStatus === 'approved') {
+      try {
+        localStorage.removeItem('creatorApplyDraft');
+      } catch (error) {
+        console.error('Failed to clear creator application draft:', error);
+      }
+    }
+  }, [user?.creatorStatus]);
+
+  useEffect(() => {
+    if (!draftLoadedRef.current) {
+      return;
+    }
+
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    try {
+      const draftPayload = {
+        formData,
+        customSpecialty,
+        showCustomInput
+      };
+
+      localStorage.setItem('creatorApplyDraft', JSON.stringify(draftPayload));
+    } catch (error) {
+      console.error('Failed to save creator application draft:', error);
+    }
+  }, [formData, customSpecialty, showCustomInput]);
 
   const specialtyOptions = [
     'الإنتاجية والتنظيم',
@@ -914,6 +992,15 @@ export default function CreatorApplyPage() {
       if (response.data.success) {
         // Update the user data in AuthContext with the new creatorStatus
         await refreshUserData(); // Force refresh user data to get updated creatorStatus
+        try {
+          localStorage.removeItem('creatorApplyDraft');
+        } catch (storageError) {
+          console.error('Failed to clear creator application draft after submit:', storageError);
+        }
+        setFormData(createInitialFormData());
+        setCustomSpecialty('');
+        setShowCustomInput(false);
+        setPhoneError('');
         setSuccess(true);
       } else {
         setError(response.data.message || 'حدث خطأ أثناء إرسال الطلب');
@@ -1520,8 +1607,8 @@ export default function CreatorApplyPage() {
               {/* Terms and Conditions */}
               <div className="space-y-4 sm:space-y-6">
                 <div className="bg-gray-50 dark:bg-dark-tertiary rounded-lg sm:rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-dark-card-border">
-                  <label className="flex items-start space-x-3 sm:space-x-4 space-x-reverse cursor-pointer group">
-                    <div className="relative flex-shrink-0 mt-1">
+                  <label className="flex items-center space-x-3 sm:space-x-4 space-x-reverse cursor-pointer group text-right">
+                    <div className="relative flex-shrink-0 ml-1">
                       <input
                         type="checkbox"
                         name="agreeToTerms"
@@ -1541,8 +1628,8 @@ export default function CreatorApplyPage() {
                         )}
                       </div>
                     </div>
-                    <div className="flex-1">
-                      <span className="text-xs sm:text-sm text-gray-700 dark:text-dark-text-secondary leading-relaxed">
+                    <div className="flex-1 text-right leading-relaxed">
+                      <span className="text-xs sm:text-sm text-gray-700 dark:text-dark-text-secondary">
                         أوافق على{' '}
                         <Link href="/terms" className="text-primary-600 dark:text-orange-400 hover:underline font-medium">
                           الشروط والأحكام

@@ -168,6 +168,12 @@ export default function HomePage() {
   const animationsPlayedRef = useRef(false);
   const hasFetchedRef = useRef(false);
   const hasFetchedTemplatesRef = useRef(false);
+  const isApprovedCreator = isAuthenticated && user?.creatorStatus === 'approved';
+  const creatorCtaHref = isApprovedCreator
+    ? '/profile'
+    : isAuthenticated
+      ? '/creators/apply'
+      : '/login?redirect=/creators/apply';
 
   // Mark animations as played after they complete
   useEffect(() => {
@@ -438,10 +444,10 @@ export default function HomePage() {
                   </svg>
                 </Link>
                 <Link
-                  href={isAuthenticated && user?.creatorStatus === 'approved' ? '/profile' : '/creators/apply'}
+                  href={creatorCtaHref}
                   className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-white/95 dark:bg-dark-tertiary/95 backdrop-blur-sm text-accent-700 dark:text-dark-text-primary rounded-xl border-2 border-primary-300 dark:border-orange-400/50 hover:bg-primary-50 dark:hover:bg-orange-900/20 transition-all duration-300 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
                 >
-                  {isAuthenticated && user?.creatorStatus === 'approved' ? 'لوحة التحكم' : 'انضم كمبدع'}
+                  {isApprovedCreator ? 'لوحة التحكم' : 'انضم كمبدع'}
                 </Link>
               </div>
 
@@ -894,10 +900,10 @@ export default function HomePage() {
 
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-6 sm:mb-8">
                 <Link
-                  href={isAuthenticated && user?.creatorStatus === 'approved' ? '/profile' : '/creators/apply'}
+                  href={creatorCtaHref}
                   className="btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 shadow-large hover:shadow-glow w-full sm:w-auto text-center"
                 >
-                  {isAuthenticated && user?.creatorStatus === 'approved' ? 'لوحة التحكم' : 'كن مبدعاً'}
+                  {isApprovedCreator ? 'لوحة التحكم' : 'كن مبدعاً'}
                   <svg className="inline-block mr-2 w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>

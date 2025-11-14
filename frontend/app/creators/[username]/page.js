@@ -43,12 +43,59 @@ export default function PublicProfilePage() {
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [medianRating, setMedianRating] = useState(0);
   const [profileImageError, setProfileImageError] = useState(false);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pages: 1,
+    total: 0,
+    limit: 12
+  });
 
   useEffect(() => {
     if (username) {
       fetchCreatorProfile();
     }
   }, [username]);
+
+  // Reset pagination and fetch templates when creator changes
+  useEffect(() => {
+    if (creator) {
+      setPagination(prev => ({ ...prev, current: 1 }));
+      // Fetch templates will be triggered by pagination.current change
+    }
+  }, [creator?.id]);
+
+  // Refetch templates when pagination changes
+  useEffect(() => {
+    if (creator) {
+      fetchCreatorTemplates();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.current, creator?.id]);
+
+  const fetchCreatorTemplates = async () => {
+    if (!creator) return;
+    
+    try {
+      setTemplatesLoading(true);
+      const templatesResponse = await api.get(`/templates?creator=${creator.id}&page=${pagination.current}&limit=${pagination.limit}`);
+      if (templatesResponse.data.success) {
+        setCreatorTemplates(templatesResponse.data.templates);
+        // Update pagination from server response
+        if (templatesResponse.data.pagination) {
+          setPagination(prev => ({
+            ...prev,
+            current: templatesResponse.data.pagination.current,
+            pages: templatesResponse.data.pagination.pages,
+            total: templatesResponse.data.pagination.total
+          }));
+        }
+      }
+    } catch (templatesError) {
+      setCreatorTemplates([]);
+    } finally {
+      setTemplatesLoading(false);
+    }
+  };
 
   // Reset profile image error when creator changes
   useEffect(() => {
@@ -114,18 +161,7 @@ export default function PublicProfilePage() {
         }
         setCreator(creator);
         setMedianRating(creator.rating || 0);
-
-        // Now fetch templates with the creator ID
-        try {
-          const templatesResponse = await api.get(`/templates?creator=${creator.id}&limit=20`);
-          if (templatesResponse.data.success) {
-            setCreatorTemplates(templatesResponse.data.templates);
-          }
-        } catch (templatesError) {
-          setCreatorTemplates([]);
-        } finally {
-          setTemplatesLoading(false);
-        }
+        // Templates will be fetched by the useEffect when creator is set
       } else {
         const error = creatorResponse.reason;
         if (error.response?.status === 500) {
@@ -486,13 +522,13 @@ export default function PublicProfilePage() {
       {creator && (
         <Head>
           <title>{`${creator.displayName || creator.name} - مبدع قوالب نوشن | عرب نوشن`}</title>
-          <meta name="description" content={`تعرف على ${creator.displayName || creator.name}، مبدع قوالب Notion باللغة العربية. ${creator.templateCount || creatorTemplates.length || 0} قالب متاح للتحميل المجاني. ${creator.bio || creator.experience || 'مبدع موهوب في إنشاء قوالب إنتاجية احترافية.'}`} />
+          <meta name="description" content={`تعرف على ${creator.displayName || creator.name}، مبدع قوالب Notion باللغة العربية. ${pagination.total || creator.templateCount || creatorTemplates.length || 0} قالب متاح للتحميل المجاني. ${creator.bio || creator.experience || 'مبدع موهوب في إنشاء قوالب إنتاجية احترافية.'}`} />
           <meta name="keywords" content={`${creator.displayName || creator.name}, مبدع قوالب, notion creator, قوالب عربية, ${creator.specialties?.join(', ') || ''}, مبدعون عرب, قوالب مجانية, إنتاجية, تنظيم`} />
           <link rel="canonical" href={`https://www.notionarabs.com/creators/${creator.username}`} />
 
           {/* Open Graph */}
           <meta property="og:title" content={`${creator.displayName || creator.name} - مبدع قوالب نوشن`} />
-          <meta property="og:description" content={`تعرف على ${creator.displayName || creator.name}، مبدع قوالب Notion باللغة العربية. ${creator.templateCount || creatorTemplates.length || 0} قالب متاح.`} />
+          <meta property="og:description" content={`تعرف على ${creator.displayName || creator.name}، مبدع قوالب Notion باللغة العربية. ${pagination.total || creator.templateCount || creatorTemplates.length || 0} قالب متاح.`} />
           <meta property="og:image" content={creator.profilePicture || 'https://www.notionarabs.com/og-image.png'} />
           <meta property="og:url" content={`https://www.notionarabs.com/creators/${creator.username}`} />
           <meta property="og:type" content="profile" />
@@ -605,7 +641,7 @@ export default function PublicProfilePage() {
                     </div>
                     {creator.showTemplateCount !== false && (
                       <div className="flex items-center gap-1 px-2.5 sm:px-3 py-1 bg-blue-50 dark:bg-blue-900/20 rounded-full">
-                        <span className="text-xs font-medium text-blue-600 dark:text-blue-400">{creator.templateCount || creatorTemplates.length || 0}</span>
+                        <span className="text-xs font-medium text-blue-600 dark:text-blue-400">{pagination.total || creator.templateCount || creatorTemplates.length || 0}</span>
                         <span className="text-xs text-blue-500 dark:text-blue-300">قالب</span>
                       </div>
                     )}
@@ -859,6 +895,74 @@ export default function PublicProfilePage() {
               <Link href="/templates" className="btn-primary inline-block">
                 تصفح القوالب الأخرى
               </Link>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {pagination.pages > 1 && !templatesLoading && creatorTemplates.length > 0 && (
+            <div className="flex justify-center mt-8 sm:mt-12">
+              <div className="flex items-center gap-1 sm:gap-2">
+                <button
+                  onClick={() => {
+                    setPagination(prev => ({ ...prev, current: prev.current - 1 }));
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  disabled={pagination.current <= 1 || templatesLoading}
+                  className="px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-accent-700 dark:text-dark-text-secondary bg-white dark:bg-dark-secondary border border-accent-300 dark:border-dark-card-border rounded-lg hover:bg-accent-50 dark:hover:bg-dark-tertiary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  السابق
+                </button>
+
+                {[...Array(pagination.pages)].map((_, index) => {
+                  const page = index + 1;
+                  const isCurrentPage = page === pagination.current;
+                  const isNearCurrent = Math.abs(page - pagination.current) <= 2;
+
+                  if (!isNearCurrent && page !== 1 && page !== pagination.pages) {
+                    if (page === 2 || page === pagination.pages - 1) {
+                      return <span key={page} className="px-1 sm:px-2 text-accent-500 text-xs sm:text-sm">...</span>;
+                    }
+                    return null;
+                  }
+
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => {
+                        setPagination(prev => ({ ...prev, current: page }));
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      disabled={templatesLoading}
+                      className={`px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-colors ${isCurrentPage
+                        ? 'bg-primary-600 text-white'
+                        : 'text-accent-700 dark:text-dark-text-secondary bg-white dark:bg-dark-secondary border border-accent-300 dark:border-dark-card-border hover:bg-accent-50 dark:hover:bg-dark-tertiary'
+                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
+
+                <button
+                  onClick={() => {
+                    setPagination(prev => ({ ...prev, current: prev.current + 1 }));
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  disabled={pagination.current >= pagination.pages || templatesLoading}
+                  className="px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-accent-700 dark:text-dark-text-secondary bg-white dark:bg-dark-secondary border border-accent-300 dark:border-dark-card-border rounded-lg hover:bg-accent-50 dark:hover:bg-dark-tertiary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  التالي
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Results Count */}
+          {!templatesLoading && creatorTemplates.length > 0 && (
+            <div className="text-center mt-4 sm:mt-6">
+              <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">
+                عرض {creatorTemplates.length} من {pagination.total} قالب
+              </p>
             </div>
           )}
         </div>

@@ -543,7 +543,7 @@ export default function HomePage() {
                   </div>
                 </div>
               ))
-            ) : (
+            ) : featuredTemplates.length > 0 ? (
               featuredTemplates.map((t, idx) => (
                 <Link key={t._id || idx} href={`/templates/${t.slug || t._id}`}>
                   <div
@@ -552,10 +552,11 @@ export default function HomePage() {
                   >
                     {/* Template Image */}
                     <div className="relative overflow-hidden rounded-lg h-40">
-                      {t.previewImage ? (
+                      {t.previewImage && typeof t.previewImage === 'string' && t.previewImage.trim() ? (
                         <Image
+                          key={`${t._id}-${t.previewImage}`}
                           src={t.previewImage}
-                          alt={t.title}
+                          alt={t.title || 'Template image'}
                           width={400}
                           height={300}
                           className="w-full h-full object-cover object-[50%_30%]"
@@ -563,6 +564,17 @@ export default function HomePage() {
                           loading={idx < 3 ? 'eager' : 'lazy'}
                           quality={85}
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          onError={(e) => {
+                            console.error('Image failed to load:', t.previewImage);
+                            // Hide broken image
+                            if (e.target) {
+                              e.target.style.display = 'none';
+                            }
+                          }}
+                          onLoad={() => {
+                            // Ensure image is visible when it loads successfully
+                            // This helps with the race condition issue
+                          }}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-700">
@@ -624,6 +636,10 @@ export default function HomePage() {
                   </div>
                 </Link>
               ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-500 dark:text-gray-400">لا توجد قوالب متاحة حالياً</p>
+              </div>
             )}
           </div>
         </div>

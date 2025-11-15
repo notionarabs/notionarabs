@@ -104,10 +104,10 @@ const nextConfig = {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons', 'framer-motion'],
     // Enable modern bundling optimizations
     esmExternals: true,
-    // Enable modern JavaScript output
-    outputFileTracingIncludes: {
-      '/': ['./public/**/*'],
-    },
+  },
+  // Enable modern JavaScript output
+  outputFileTracingIncludes: {
+    '/': ['./public/**/*'],
   },
   // External packages for server components
   serverExternalPackages: ['mongoose', 'bcryptjs'],
@@ -251,8 +251,7 @@ const nextConfig = {
     // Remove React properties in production
     reactRemoveProperties: process.env.NODE_ENV === 'production',
   },
-  // Use SWC minify for better performance (faster and smaller output)
-  swcMinify: true,
+  // SWC minify is now default in Next.js, no need to specify
   poweredByHeader: false,
   compress: true,
   reactStrictMode: true,
@@ -268,10 +267,8 @@ const nextConfig = {
   staticPageGenerationTimeout: 1000,
   // Optimize bundle splitting
   webpack: (config, { dev, isServer }) => {
-    // Enable source maps in development for better debugging
-    if (dev && !isServer) {
-      config.devtool = 'eval-source-map';
-    }
+    // Note: Next.js handles devtool automatically in development mode
+    // Manually setting it causes performance regressions
     
     // Optimize bundle splitting for better code splitting and tree shaking
     if (!dev && !isServer) {

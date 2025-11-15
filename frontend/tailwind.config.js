@@ -7,24 +7,18 @@ module.exports = {
     './contexts/**/*.{js,ts,jsx,tsx,mdx}',
     './lib/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  // Enable CSS purging to remove unused styles
-  purge: {
-    enabled: process.env.NODE_ENV === 'production',
-    content: [
-      './pages/**/*.{js,ts,jsx,tsx,mdx}',
-      './components/**/*.{js,ts,jsx,tsx,mdx}',
-      './app/**/*.{js,ts,jsx,tsx,mdx}',
-      './contexts/**/*.{js,ts,jsx,tsx,mdx}',
-      './lib/**/*.{js,ts,jsx,tsx,mdx}',
-    ],
-    // Safelist important classes that might be dynamically generated
-    safelist: [
-      'dark',
-      'dark-mode',
-      /^animate-/,
-      /^opacity-/,
-    ],
-  },
+  // Safelist important classes that might be dynamically generated
+  // In Tailwind v3, regular expressions in safelist must use objects with 'pattern' property
+  safelist: [
+    'dark',
+    'dark-mode',
+    {
+      pattern: /^animate-/,
+    },
+    {
+      pattern: /^opacity-/,
+    },
+  ],
   darkMode: 'class',
   // Enable important modifier to reduce specificity issues
   important: false,

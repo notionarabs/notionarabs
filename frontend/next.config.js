@@ -192,6 +192,56 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      // Backend server domains
+      {
+        protocol: 'https',
+        hostname: 'notion-arabs.onrender.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'notion-arabs.onrender.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'notion-arabs-fe5b3f214071.herokuapp.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'notion-arabs-fe5b3f214071.herokuapp.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.notionarabs.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'api.notionarabs.com',
+        port: '',
+        pathname: '/**',
+      },
+      // Development/localhost support
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '5000',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '5000',
+        pathname: '/**',
+      },
     ],
   },
   compiler: {

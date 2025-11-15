@@ -160,6 +160,7 @@ export default function HomePage() {
   const { isMaintenanceMode, hasCheckedMaintenance } = useMaintenance();
   const [featuredTemplates, setFeaturedTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [failedImageOptimization, setFailedImageOptimization] = useState(new Set());
   const [stats, setStats] = useState({ templates: 0, creators: 0, specialties: 0, downloads: 0 });
   const [topCreators, setTopCreators] = useState([]);
   const [categoryTotals, setCategoryTotals] = useState({});
@@ -553,29 +554,48 @@ export default function HomePage() {
                     {/* Template Image */}
                     <div className="relative overflow-hidden rounded-lg h-40">
                       {t.previewImage && typeof t.previewImage === 'string' && t.previewImage.trim() ? (
-                        <Image
-                          key={`${t._id}-${t.previewImage}`}
-                          src={t.previewImage}
-                          alt={t.title || 'Template image'}
-                          width={400}
-                          height={300}
-                          className="w-full h-full object-cover object-[50%_30%]"
-                          priority={idx < 3}
-                          loading={idx < 3 ? 'eager' : 'lazy'}
-                          quality={85}
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          onError={(e) => {
-                            console.error('Image failed to load:', t.previewImage);
-                            // Hide broken image
-                            if (e.target) {
-                              e.target.style.display = 'none';
-                            }
-                          }}
-                          onLoad={() => {
-                            // Ensure image is visible when it loads successfully
-                            // This helps with the race condition issue
-                          }}
-                        />
+                        failedImageOptimization.has(t._id) ? (
+                          // Fallback to direct img tag when Next.js optimization fails (e.g., 402 errors from Cloudinary)
+                          <img
+                            src={t.previewImage}
+                            alt={t.title || 'Template image'}
+                            className="w-full h-full object-cover object-[50%_30%]"
+                            loading={idx < 3 ? 'eager' : 'lazy'}
+                            onError={(e) => {
+                              console.error('Direct image also failed to load:', t.previewImage);
+                              // Hide broken image
+                              if (e.target) {
+                                e.target.style.display = 'none';
+                              }
+                            }}
+                          />
+                        ) : (
+                          <Image
+                            key={`${t._id}-${t.previewImage}`}
+                            src={t.previewImage}
+                            alt={t.title || 'Template image'}
+                            width={400}
+                            height={300}
+                            className="w-full h-full object-cover object-[50%_30%]"
+                            priority={idx < 3}
+                            loading={idx < 3 ? 'eager' : 'lazy'}
+                            quality={85}
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            onError={(e) => {
+                              console.error('Image optimization failed (possibly 402 from Cloudinary):', t.previewImage);
+                              // If Next.js optimization fails (e.g., 402 Payment Required), fall back to direct image
+                              setFailedImageOptimization(prev => new Set(prev).add(t._id));
+                            }}
+                            onLoad={() => {
+                              // Remove from failed set if it was previously marked as failed
+                              setFailedImageOptimization(prev => {
+                                const newSet = new Set(prev);
+                                newSet.delete(t._id);
+                                return newSet;
+                              });
+                            }}
+                          />
+                        )
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-700">
                           <svg className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">

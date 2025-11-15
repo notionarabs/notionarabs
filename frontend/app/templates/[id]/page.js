@@ -1023,31 +1023,54 @@ export default function TemplateDetailPage() {
                         className="absolute inset-0 flex items-center justify-center cursor-zoom-in"
                         title="عرض بملء الشاشة"
                       >
-                        <Image
-                          key={`${selectedImage}-${template.previewImages?.[selectedImage] || template.previewImage}`}
-                          src={(() => {
-                            let imageSrc;
-                            if (selectedImage === -2) {
-                              // Main image (previewImage)
-                              imageSrc = template.previewImage || '/placeholder-template.jpg';
-                            } else if (template.previewImages && template.previewImages.length > selectedImage && selectedImage >= 0) {
-                              // Additional images (previewImages)
-                              imageSrc = template.previewImages[selectedImage];
-                            } else {
-                              // Default fallback
-                              imageSrc = template.previewImage || template.imgSrc || '/placeholder-template.jpg';
-                            }
-                            return imageSrc;
-                          })()}
-                          alt={template.title}
-                          width={2400}
-                          height={1800}
-                          className="w-full h-full object-contain animate-fade-in"
-                          quality={85}
-                          priority={selectedImage === -2}
-                          placeholder="blur"
-                          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
-                        />
+                        {(() => {
+                          let imageSrc;
+                          if (selectedImage === -2) {
+                            imageSrc = template.previewImage || '/placeholder-template.jpg';
+                          } else if (template.previewImages && template.previewImages.length > selectedImage && selectedImage >= 0) {
+                            imageSrc = template.previewImages[selectedImage];
+                          } else {
+                            imageSrc = template.previewImage || template.imgSrc || '/placeholder-template.jpg';
+                          }
+
+                          if (imageSrc.includes('res.cloudinary.com')) {
+                            return (
+                              <img
+                                src={imageSrc}
+                                alt={template.title}
+                                className="w-full h-full object-contain animate-fade-in"
+                                loading="lazy"
+                                onError={(e) => {
+                                  console.error('Image failed to load:', imageSrc);
+                                  if (e.target) {
+                                    e.target.style.display = 'none';
+                                  }
+                                }}
+                              />
+                            );
+                          }
+
+                          return (
+                            <Image
+                              key={`${selectedImage}-${imageSrc}`}
+                              src={imageSrc}
+                              alt={template.title}
+                              width={2400}
+                              height={1800}
+                              className="w-full h-full object-contain animate-fade-in"
+                              quality={85}
+                              priority={selectedImage === -2}
+                              placeholder="blur"
+                              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+                              onError={(e) => {
+                                console.error('Image failed to load:', imageSrc);
+                                if (e.target) {
+                                  e.target.style.display = 'none';
+                                }
+                              }}
+                            />
+                          );
+                        })()}
                       </button>
                     )}
                   </div>

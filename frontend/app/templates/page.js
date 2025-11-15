@@ -222,18 +222,40 @@ function TemplatesPageContent() {
                   >
                     {/* Template Image */}
                     <div className="relative overflow-hidden rounded-lg h-48">
-                      {template.previewImage ? (
-                        <Image
-                          src={template.previewImage}
-                          alt={template.title}
-                          width={400}
-                          height={300}
-                          className="w-full h-full object-cover object-[50%_30%]"
-                          loading="lazy"
-                          quality={75}
-                          placeholder="blur"
-                          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
-                        />
+                      {template.previewImage && typeof template.previewImage === 'string' && template.previewImage.trim() ? (
+                        // Skip Next.js optimization for Cloudinary images to avoid 402 errors
+                        template.previewImage.includes('res.cloudinary.com') ? (
+                          <img
+                            src={template.previewImage}
+                            alt={template.title}
+                            className="w-full h-full object-cover object-[50%_30%]"
+                            loading="lazy"
+                            onError={(e) => {
+                              console.error('Image failed to load:', template.previewImage);
+                              if (e.target) {
+                                e.target.style.display = 'none';
+                              }
+                            }}
+                          />
+                        ) : (
+                          <Image
+                            src={template.previewImage}
+                            alt={template.title}
+                            width={400}
+                            height={300}
+                            className="w-full h-full object-cover object-[50%_30%]"
+                            loading="lazy"
+                            quality={75}
+                            placeholder="blur"
+                            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+                            onError={(e) => {
+                              console.error('Image failed to load:', template.previewImage);
+                              if (e.target) {
+                                e.target.style.display = 'none';
+                              }
+                            }}
+                          />
+                        )
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-700">
                           <LayoutDashboard className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-primary-600 dark:text-primary-400" />

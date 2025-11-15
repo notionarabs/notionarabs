@@ -837,14 +837,37 @@ export default function PublicProfilePage() {
                 <Link key={template._id || template.id} href={`/templates/${template.slug || template._id || template.id}`}>
                   <div className="card-interactive overflow-hidden">
                     <div className="relative h-48 bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-lg">
-                      {template.previewImage ? (
-                        <Image
-                          src={template.previewImage}
-                          alt={template.title}
-                          width={400}
-                          height={300}
-                          className="w-full h-full object-cover object-[50%_50%] bg-white dark:bg-dark-secondary group-hover:scale-105 transition-transform duration-500"
-                        />
+                      {template.previewImage && typeof template.previewImage === 'string' && template.previewImage.trim() ? (
+                        // Skip Next.js optimization for Cloudinary images to avoid 402 errors
+                        template.previewImage.includes('res.cloudinary.com') ? (
+                          <img
+                            src={template.previewImage}
+                            alt={template.title}
+                            className="w-full h-full object-cover object-[50%_50%] bg-white dark:bg-dark-secondary group-hover:scale-105 transition-transform duration-500"
+                            loading="lazy"
+                            onError={(e) => {
+                              console.error('Image failed to load:', template.previewImage);
+                              if (e.target) {
+                                e.target.style.display = 'none';
+                              }
+                            }}
+                          />
+                        ) : (
+                          <Image
+                            src={template.previewImage}
+                            alt={template.title}
+                            width={400}
+                            height={300}
+                            className="w-full h-full object-cover object-[50%_50%] bg-white dark:bg-dark-secondary group-hover:scale-105 transition-transform duration-500"
+                            loading="lazy"
+                            onError={(e) => {
+                              console.error('Image failed to load:', template.previewImage);
+                              if (e.target) {
+                                e.target.style.display = 'none';
+                              }
+                            }}
+                          />
+                        )
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30">
                           <svg className="w-10 h-10 sm:w-12 sm:h-12 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">

@@ -1552,7 +1552,7 @@ router.post('/send-bulk-emails', auth, async (req, res) => {
                   
                   <div style="margin: 20px 0;">
                     <a href="https://www.notionarabs.com" style="color: #666; text-decoration: none; margin: 0 10px;">الموقع</a>
-                    <a href="https://t.me/notionarabs" style="color: #666; text-decoration: none; margin: 0 10px;">تليجرام</a>
+                    <a href="https://t.me/Notion_Arabs" style="color: #666; text-decoration: none; margin: 0 10px;">تليجرام</a>
                     <a href="https://twitter.com/notionarabs" style="color: #666; text-decoration: none; margin: 0 10px;">تويتر</a>
                   </div>
                   
@@ -1595,7 +1595,7 @@ router.post('/send-bulk-emails', auth, async (req, res) => {
 
 تواصل معنا:
 الموقع: https://www.notionarabs.com
-تليجرام: https://t.me/notionarabs
+تليجرام: https://t.me/Notion_Arabs
 تويتر: https://twitter.com/notionarabs
 
 إذا كنت لا ترغب في تلقي هذه الرسائل، يمكنك إلغاء الاشتراك هنا: https://www.notionarabs.com/unsubscribe?email=${encodeURIComponent(email)}

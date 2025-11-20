@@ -95,7 +95,7 @@ export default function TelegramPopup({ isOpen, onClose, onDismiss }) {
         <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
           {/* Compact CTA Button */}
           <Link
-            href="https://t.me/notionarabs"
+            href="https://t.me/Notion_Arabs"
             target="_blank"
             rel="noopener noreferrer"
             onClick={handleClose}

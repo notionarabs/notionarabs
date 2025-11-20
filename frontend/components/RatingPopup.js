@@ -167,7 +167,7 @@ export default function RatingPopup({
                   مجموعة فيسبوك
                 </a>
                 <a
-                  href="https://t.me/notionarabs"
+                  href="https://t.me/Notion_Arabs"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm font-medium"

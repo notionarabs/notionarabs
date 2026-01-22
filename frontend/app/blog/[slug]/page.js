@@ -448,7 +448,6 @@ export default function BlogPostPage() {
             items={[
               { name: 'الرئيسية', url: `${siteConfig.url}` },
               { name: 'المدونة', url: `${siteConfig.url}/blog` },
-              { name: blog.category, url: `${siteConfig.url}/blog?category=${encodeURIComponent(blog.category)}` },
               { name: blog.title, url: `${siteConfig.url}/blog/${blog.slug}` }
             ]}
           />
@@ -461,7 +460,6 @@ export default function BlogPostPage() {
               <Breadcrumb
                 items={[
                   { name: 'المدونة', url: '/blog' },
-                  ...(blog.category ? [{ name: blog.category, url: `/blog?category=${encodeURIComponent(blog.category)}` }] : []),
                   { name: blog.title, url: `/blog/${blog.slug}` }
                 ]}
               />
@@ -486,7 +484,7 @@ export default function BlogPostPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2">
-              <article className="bg-white dark:bg-dark-secondary rounded-xl shadow-medium dark:shadow-dark-medium overflow-hidden">
+              <article className="bg-white dark:bg-dark-secondary rounded-2xl shadow-medium dark:shadow-dark-medium overflow-hidden border border-gray-200/70 dark:border-dark-card-border">
                 {/* Featured Image */}
                 {blog.featuredImage && (
                   <div className="relative h-64 md:h-80 overflow-hidden">
@@ -505,71 +503,78 @@ export default function BlogPostPage() {
                   </div>
                 )}
 
-                <div className="p-6 md:p-8">
+                <div className="p-6 md:p-10">
                   {/* Category Badge */}
                   <div className="mb-4">
-                    <span className="inline-block px-3 py-1 text-sm font-medium rounded-full bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-300">
+                    <span className="inline-flex items-center gap-2 px-3 py-1 text-xs sm:text-sm font-semibold rounded-full bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-300">
                       {blog.category}
                     </span>
                   </div>
 
                   {/* Title */}
-                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-accent-900 dark:text-dark-text-primary mb-4 leading-tight">
+                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-accent-900 dark:text-dark-text-primary mb-4 leading-snug">
                     {blog.title}
                   </h1>
 
                   {/* Excerpt */}
-                  <p className="text-lg text-accent-600 dark:text-dark-text-secondary mb-6 leading-relaxed">
-                    {blog.excerpt}
-                  </p>
+                  {blog.excerpt && (
+                    <div className="mb-6 border-r-4 border-primary-200 dark:border-primary-900/50 pr-4">
+                      <p className="text-base sm:text-lg text-accent-700 dark:text-dark-text-secondary leading-relaxed">
+                        {blog.excerpt}
+                      </p>
+                    </div>
+                  )}
 
                   {/* Meta Information */}
-                  <div className="flex flex-wrap items-center gap-4 mb-6 text-sm text-accent-500 dark:text-dark-text-secondary">
-                    <div className="flex items-center gap-2">
-                      <Link href={`/creators/${creatorSlug}`} className="w-8 h-8 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                  <div className="flex flex-wrap items-center gap-2 mb-8 text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">
+                    <Link
+                      href={`/creators/${creatorSlug}`}
+                      className="inline-flex items-center gap-2 bg-gray-50 dark:bg-dark-primary/60 border border-gray-200 dark:border-dark-card-border rounded-full px-3 py-1.5 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                    >
+                      <span className="w-7 h-7 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
                         {blog.author?.profilePicture ? (
                           <Image
                             src={blog.author.profilePicture}
                             alt={blog.author.name}
-                            width={32}
-                            height={32}
+                            width={28}
+                            height={28}
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <span className="text-primary-600 dark:text-primary-400 font-medium">
+                          <span className="text-primary-600 dark:text-primary-400 font-semibold">
                             {blog.author?.name?.charAt(0) || '?'}
                           </span>
                         )}
-                      </Link>
-                      <Link href={`/creators/${creatorSlug}`} className="font-medium hover:text-primary-600 dark:hover:text-primary-400 transition-colors">{blog.author?.name || 'مجهول'}</Link>
-                    </div>
+                      </span>
+                      <span className="font-medium">{blog.author?.name || 'مجهول'}</span>
+                    </Link>
 
-                    <div className="flex items-center gap-1">
+                    <span className="inline-flex items-center gap-1.5 bg-gray-50 dark:bg-dark-primary/60 border border-gray-200 dark:border-dark-card-border rounded-full px-3 py-1.5">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       <span>{formatDate(blog.publishedAt)}</span>
-                    </div>
+                    </span>
 
-                    <div className="flex items-center gap-1">
+                    <span className="inline-flex items-center gap-1.5 bg-gray-50 dark:bg-dark-primary/60 border border-gray-200 dark:border-dark-card-border rounded-full px-3 py-1.5">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
                       <span>{viewCount} مشاهدة</span>
-                    </div>
+                    </span>
 
-                    <div className="flex items-center gap-1">
+                    <span className="inline-flex items-center gap-1.5 bg-gray-50 dark:bg-dark-primary/60 border border-gray-200 dark:border-dark-card-border rounded-full px-3 py-1.5">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <span>{blog.readTime || calculateReadingTime(blog.content)}</span>
-                    </div>
+                    </span>
                   </div>
 
 
                   {/* Content */}
-                  <div className="prose prose-lg max-w-none dark:prose-invert">
+                  <div className="prose prose-lg md:prose-xl max-w-none dark:prose-invert prose-headings:text-accent-900 dark:prose-headings:text-dark-text-primary prose-a:text-primary-600 dark:prose-a:text-primary-400 prose-a:no-underline hover:prose-a:underline prose-strong:text-accent-900 dark:prose-strong:text-dark-text-primary">
                     <div
                       className="text-accent-700 dark:text-dark-text-primary leading-relaxed"
                       dangerouslySetInnerHTML={{ __html: blog.content }}
@@ -578,9 +583,9 @@ export default function BlogPostPage() {
 
                   {/* Author Bio */}
                   {blog.author?.bio && (
-                    <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                    <div className="mt-10 p-6 bg-gradient-to-br from-gray-50 to-white dark:from-dark-primary/60 dark:to-dark-secondary rounded-xl border border-gray-200/70 dark:border-dark-card-border">
                       <div className="flex items-start gap-4">
-                        <Link href={`/creators/${creatorSlug}`} className="w-12 h-12 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
+                        <Link href={`/creators/${creatorSlug}`} className="w-12 h-12 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0 ring-2 ring-primary-100 dark:ring-primary-900/40">
                           {blog.author.profilePicture ? (
                             <Image
                               src={blog.author.profilePicture}
@@ -599,7 +604,7 @@ export default function BlogPostPage() {
                           <Link href={`/creators/${creatorSlug}`} className="font-semibold text-accent-900 dark:text-dark-text-primary mb-2 hover:text-primary-600 dark:hover:text-primary-400 transition-colors inline-block">
                             عن {blog.author.name}
                           </Link>
-                          <p className="text-accent-600 dark:text-dark-text-secondary">
+                          <p className="text-accent-600 dark:text-dark-text-secondary leading-relaxed">
                             {blog.author.bio}
                           </p>
                         </div>

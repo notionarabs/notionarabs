@@ -19,7 +19,10 @@ async function handleOptimizedPagination(req, res, options) {
   const filter = { status: 'approved' };
 
   if (category && category !== 'all') {
-    filter.categories = category;
+    filter.$and = filter.$and || [];
+    filter.$and.push({
+      $or: [{ category }, { categories: category }]
+    });
   }
 
   if (creator) {
@@ -364,8 +367,10 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
     const filter = { status: 'approved' };
 
     if (category && category !== 'all') {
-      // Check both the main category field and the categories array
-      filter.categories = category;
+      filter.$and = filter.$and || [];
+      filter.$and.push({
+        $or: [{ category }, { categories: category }]
+      });
     }
 
     if (creator) {

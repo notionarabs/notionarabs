@@ -24,16 +24,17 @@ export default function CategoryTemplatesClient({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState(initialPagination);
+  const [currentPage, setCurrentPage] = useState(initialPagination.current || 1);
 
   // Fetch templates for this category
-  const fetchTemplates = async () => {
+  const fetchTemplates = async (pageToFetch) => {
     try {
       setLoading(true);
       setError(null);
 
       const params = new URLSearchParams({
         category: categoryName,
-        page: pagination.current.toString(),
+        page: pageToFetch.toString(),
         limit: pagination.limit.toString(),
         sortBy,
         sortOrder: 'desc'
@@ -45,12 +46,14 @@ export default function CategoryTemplatesClient({
         setTemplates(response.data.templates || []);
         // Update pagination from server response
         if (response.data.pagination) {
+          const nextCurrent = response.data.pagination.current || pageToFetch;
           setPagination(prev => ({
             ...prev,
-            current: response.data.pagination.current,
+            current: nextCurrent,
             pages: response.data.pagination.pages,
             total: response.data.pagination.total
           }));
+          setCurrentPage(nextCurrent);
         }
       } else {
         setError('فشل في تحميل القوالب');
@@ -63,15 +66,17 @@ export default function CategoryTemplatesClient({
     }
   };
 
-  // Refetch when search/sort changes
+  // Refetch when page or sort changes
   useEffect(() => {
-    if (sortBy !== 'createdAt' || pagination.current !== 1) {
-      fetchTemplates();
-    }
-  }, [sortBy, pagination.current]);
+    fetchTemplates(currentPage);
+  }, [sortBy, currentPage, categoryName]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [sortBy, categoryName]);
 
   const handlePageChange = (newPage) => {
-    setPagination(prev => ({ ...prev, current: newPage }));
+    setCurrentPage(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

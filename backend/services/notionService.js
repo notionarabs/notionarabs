@@ -302,6 +302,8 @@ async function addCreatorToNotion(user) {
     }
 
     const frontendUrl = process.env.FRONTEND_URL || 'https://notionarabs.com';
+    const creatorEmail = user.contactEmail || user.email || '';
+    const creatorPhone = user.phone || '';
 
     // Prepare Notion page properties - matching your actual Notion database schema
     const properties = {
@@ -345,6 +347,14 @@ async function addCreatorToNotion(user) {
         ]
       }
     };
+
+    if (creatorEmail) {
+      properties['Email'] = { email: creatorEmail };
+    }
+
+    if (creatorPhone) {
+      properties['Phone'] = { phone_number: creatorPhone };
+    }
 
     // Add profile picture if it exists
     if (user.profilePicture) {

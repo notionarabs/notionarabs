@@ -56,15 +56,20 @@ const normalizeProfilePictureUrl = (url) => {
   const apiBase = getApiBaseUrl();
   const backendBase = apiBase.replace(/\/api\/?$/, '');
 
-  if (trimmed.startsWith('/')) {
-    return `${backendBase}${trimmed}`;
-  }
-
   if (trimmed.startsWith('http://localhost:5000') || trimmed.startsWith('http://127.0.0.1:5000')) {
     return trimmed.replace(/^http:\/\/(localhost|127\.0\.0\.1):5000/, backendBase);
   }
 
-  return trimmed;
+  if (/^(https?:)?\/\//i.test(trimmed) || /^data:/i.test(trimmed) || /^blob:/i.test(trimmed)) {
+    return trimmed;
+  }
+
+  const absoluteBase = typeof window !== 'undefined' ? window.location.origin : backendBase;
+  if (trimmed.startsWith('/')) {
+    return `${absoluteBase}${trimmed}`;
+  }
+
+  return `${absoluteBase}/${trimmed}`;
 };
 
 export default function BlogPostPage() {

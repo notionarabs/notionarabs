@@ -25,6 +25,7 @@ const RatingCommentSystem = dynamic(() => import('../../../components/RatingComm
 import { BlogPostSchema, BreadcrumbSchema } from '../../../components/StructuredData';
 import Breadcrumb from '../../../components/Breadcrumb';
 import { siteConfig } from '../../../lib/seo';
+import { getApiBaseUrl } from '../../../lib/apiConfig';
 
 // Calculate reading time based on content
 const calculateReadingTime = (content) => {
@@ -45,6 +46,25 @@ const calculateReadingTime = (content) => {
   const readingTime = Math.max(1, minutes);
 
   return `${readingTime} ${readingTime === 1 ? 'دقيقة' : 'دقائق'}`;
+};
+
+const normalizeProfilePictureUrl = (url) => {
+  if (!url || typeof url !== 'string') return url;
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+
+  const apiBase = getApiBaseUrl();
+  const backendBase = apiBase.replace(/\/api\/?$/, '');
+
+  if (trimmed.startsWith('/')) {
+    return `${backendBase}${trimmed}`;
+  }
+
+  if (trimmed.startsWith('http://localhost:5000') || trimmed.startsWith('http://127.0.0.1:5000')) {
+    return trimmed.replace(/^http:\/\/(localhost|127\.0\.0\.1):5000/, backendBase);
+  }
+
+  return trimmed;
 };
 
 export default function BlogPostPage() {
@@ -203,11 +223,30 @@ export default function BlogPostPage() {
       const response = await api.get(`/blogs/${params.slug}`);
 
       if (response.data.success) {
-        setBlog(response.data.blog);
-        setViewCount(response.data.blog.views || 0);
-        setRelatedBlogs(response.data.relatedBlogs || []);
+        const normalizedBlog = { ...response.data.blog };
+        if (normalizedBlog.author) {
+          normalizedBlog.author = {
+            ...normalizedBlog.author,
+            profilePicture: normalizeProfilePictureUrl(normalizedBlog.author.profilePicture)
+          };
+        }
+
+        const normalizedRelatedBlogs = (response.data.relatedBlogs || []).map((related) => {
+          if (!related?.author) return related;
+          return {
+            ...related,
+            author: {
+              ...related.author,
+              profilePicture: normalizeProfilePictureUrl(related.author.profilePicture)
+            }
+          };
+        });
+
+        setBlog(normalizedBlog);
+        setViewCount(normalizedBlog.views || 0);
+        setRelatedBlogs(normalizedRelatedBlogs);
         // Precompute author slug - backend now populates username, slug, and email
-        const a = response.data.blog?.author || {};
+        const a = normalizedBlog?.author || {};
         const immediateSlug = a.username || a.slug || a.handle || a.user?.username || a.creator?.username || (a.email ? a.email.split('@')[0] : '');
         if (immediateSlug) {
           setAuthorSlug(encodeURIComponent(immediateSlug));

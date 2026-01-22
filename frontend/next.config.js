@@ -105,6 +105,7 @@ const nextConfig = {
     // Enable modern bundling optimizations
     esmExternals: true,
   },
+  turbopack: {},
   // Enable modern JavaScript output
   outputFileTracingIncludes: {
     '/': ['./public/**/*'],

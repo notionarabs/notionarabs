@@ -22,7 +22,34 @@ router.get('/homepage', cacheMiddleware(600), async (req, res) => {
       Template.countDocuments({ status: 'approved' }),
 
       // Total creators count
-      User.countDocuments({ role: 'creator', creatorStatus: 'approved' }),
+      User.aggregate([
+        {
+          $match: {
+            role: 'creator',
+            creatorStatus: 'approved',
+            isActive: true,
+            isEmailVerified: true
+          }
+        },
+        {
+          $lookup: {
+            from: 'templates',
+            let: { userId: '$_id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ['$creator', '$$userId'] },
+                  status: 'approved'
+                }
+              },
+              { $limit: 1 }
+            ],
+            as: 'templates'
+          }
+        },
+        { $match: { 'templates.0': { $exists: true } } },
+        { $count: 'total' }
+      ]),
 
       // Total downloads (sum all template downloads)
       Template.aggregate([
@@ -57,7 +84,14 @@ router.get('/homepage', cacheMiddleware(600), async (req, res) => {
 
       // Top creators with their stats (prioritizing pinned creators)
       User.aggregate([
-        { $match: { role: 'creator', creatorStatus: 'approved' } },
+        {
+          $match: {
+            role: 'creator',
+            creatorStatus: 'approved',
+            isActive: true,
+            isEmailVerified: true
+          }
+        },
         {
           $lookup: {
             from: 'templates',
@@ -101,6 +135,7 @@ router.get('/homepage', cacheMiddleware(600), async (req, res) => {
             pinnedAt: { $ifNull: ['$pinnedAt', new Date(0)] }
           }
         },
+        { $match: { templatesCount: { $gt: 0 } } },
         // Sort pinned first (by pinnedAt desc), then by fameScore
         { $sort: { isPinned: -1, pinnedAt: -1, fameScore: -1, followers: -1 } },
         { $limit: 4 },
@@ -165,7 +200,7 @@ router.get('/homepage', cacheMiddleware(600), async (req, res) => {
       success: true,
       stats: {
         templates: totalTemplates,
-        creators: totalCreators,
+        creators: totalCreators[0]?.total || 0,
         downloads: totalDownloads[0]?.totalDownloads || 0,
         specialties: specialtiesCount
       },

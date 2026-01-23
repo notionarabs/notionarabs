@@ -162,6 +162,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [failedImageOptimization, setFailedImageOptimization] = useState(new Set());
   const [stats, setStats] = useState({ templates: 0, creators: 0, specialties: 0, downloads: 0 });
+  const [loadingStats, setLoadingStats] = useState(true);
   const [topCreators, setTopCreators] = useState([]);
   const [categoryTotals, setCategoryTotals] = useState({});
   const [loadingCreators, setLoadingCreators] = useState(true);
@@ -304,11 +305,13 @@ export default function HomePage() {
       try {
         setLoadingCreators(true);
         setLoadingCategories(true);
+        setLoadingStats(true);
 
         // Check if maintenance mode is active before making API calls
         if (isMaintenanceMode) {
           setLoadingCreators(false);
           setLoadingCategories(false);
+          setLoadingStats(false);
           return;
         }
 
@@ -329,6 +332,7 @@ export default function HomePage() {
       } finally {
         setLoadingCreators(false);
         setLoadingCategories(false);
+        setLoadingStats(false);
       }
     };
 
@@ -342,7 +346,7 @@ export default function HomePage() {
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
 
       {/* Enhanced Hero Section with Notion-inspired Animations */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-8 sm:py-12 md:py-16 lg:py-20 xl:py-24 transition-colors duration-300 min-h-[70vh] sm:min-h-[80vh] md:min-h-[90vh] flex items-center">
+      <section className="relative overflow-hidden bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-6 sm:py-8 md:py-12 lg:py-14 xl:py-16 transition-colors duration-300 min-h-[60vh] sm:min-h-[70vh] md:min-h-[75vh] flex items-center">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
           {/* Floating Notion-style Blocks */}
@@ -455,50 +459,66 @@ export default function HomePage() {
               {/* Enhanced Stats with Better Visual Hierarchy and Consistent Shadows */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
                 <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '0ms' }}>
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-500 dark:text-orange-500 mb-1 sm:mb-2">
-                    <Counter
-                      end={stats.templates}
-                      duration={2000}
-                      delay={500}
-                      separator=","
-                      startImmediately={false}
-                    />
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-500 dark:text-orange-500 mb-1 sm:mb-2 min-h-[2.25rem] sm:min-h-[2.75rem] md:min-h-[3rem]">
+                    {loadingStats ? (
+                      <div className="mx-auto h-7 sm:h-8 md:h-10 w-16 sm:w-20 md:w-24 rounded-full bg-white/40 dark:bg-dark-tertiary/40 animate-pulse" aria-label="جارٍ التحميل"></div>
+                    ) : (
+                      <Counter
+                        end={stats.templates}
+                        duration={800}
+                        delay={0}
+                        separator=","
+                        startImmediately={true}
+                      />
+                    )}
                   </div>
                   <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">قالب متاح</div>
                 </div>
                 <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '100ms' }}>
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">
-                    <Counter
-                      end={stats.creators}
-                      duration={2000}
-                      delay={600}
-                      separator=","
-                      startImmediately={false}
-                    />
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2 min-h-[2.25rem] sm:min-h-[2.75rem] md:min-h-[3rem]">
+                    {loadingStats ? (
+                      <div className="mx-auto h-7 sm:h-8 md:h-10 w-16 sm:w-20 md:w-24 rounded-full bg-white/40 dark:bg-dark-tertiary/40 animate-pulse" aria-label="جارٍ التحميل"></div>
+                    ) : (
+                      <Counter
+                        end={stats.creators}
+                        duration={800}
+                        delay={0}
+                        separator=","
+                        startImmediately={true}
+                      />
+                    )}
                   </div>
                   <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">مبدع نشط</div>
                 </div>
                 <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '200ms' }}>
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">
-                    <Counter
-                      end={stats.downloads}
-                      duration={2000}
-                      delay={700}
-                      separator=","
-                      startImmediately={false}
-                    />
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2 min-h-[2.25rem] sm:min-h-[2.75rem] md:min-h-[3rem]">
+                    {loadingStats ? (
+                      <div className="mx-auto h-7 sm:h-8 md:h-10 w-16 sm:w-20 md:w-24 rounded-full bg-white/40 dark:bg-dark-tertiary/40 animate-pulse" aria-label="جارٍ التحميل"></div>
+                    ) : (
+                      <Counter
+                        end={stats.downloads}
+                        duration={800}
+                        delay={0}
+                        separator=","
+                        startImmediately={true}
+                      />
+                    )}
                   </div>
                   <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">تحميل</div>
                 </div>
                 <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '300ms' }}>
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2">
-                    <Counter
-                      end={stats.specialties}
-                      duration={2000}
-                      delay={800}
-                      separator=","
-                      startImmediately={false}
-                    />
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2 min-h-[2.25rem] sm:min-h-[2.75rem] md:min-h-[3rem]">
+                    {loadingStats ? (
+                      <div className="mx-auto h-7 sm:h-8 md:h-10 w-16 sm:w-20 md:w-24 rounded-full bg-white/40 dark:bg-dark-tertiary/40 animate-pulse" aria-label="جارٍ التحميل"></div>
+                    ) : (
+                      <Counter
+                        end={stats.specialties}
+                        duration={800}
+                        delay={0}
+                        separator=","
+                        startImmediately={true}
+                      />
+                    )}
                   </div>
                   <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">مجال متخصص</div>
                 </div>

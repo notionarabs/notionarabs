@@ -4,13 +4,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect } from 'react';
 import {
-  Globe,
   Target,
   Lightbulb,
   Trophy,
   GraduationCap,
   Puzzle,
-  Handshake,
   Settings,
   BookOpen,
   Rocket,
@@ -27,28 +25,28 @@ import {
 
 const features = [
   {
-    title: "التركيز على التعليم العملي",
-    description: "التعلم عندنا قائم على التطبيق من خلال القوالب",
-    Icon: GraduationCap
-  },
-  {
-    title: "نوشن في كل المجالات",
-    description: "تعليم، إنتاجية، إدارة، تخطيط، تطوير ذات، تصميم... والمزيد",
-    Icon: Puzzle
-  },
-  {
-    title: "مجتمع عربي من المبدعين",
-    description: "نحتفي بكل من يصنع قوالب أو يشارك أدواته على نوشن",
-    Icon: Users
-  },
-  {
-    title: "مرونة وابتكار",
-    description: "القوالب عندنا قابلة للتخصيص لتناسب كل مستخدم وكل هدف",
+    title: "حلول نوشن مخصصة",
+    description: "نبني أنظمة عمل ولوحات تحكم تناسب الأفراد والفرق.",
     Icon: Settings
   },
   {
-    title: "منصة تعليمية وتجارية",
-    description: "مكان واحد للتعلم، البيع، والانتشار",
+    title: "متجر قوالب عربي",
+    description: "قوالب جاهزة وعملية تساعدك تبدأ بسرعة وتحقق نتائج واضحة.",
+    Icon: Puzzle
+  },
+  {
+    title: "مجتمع المبدعين العرب",
+    description: "نُمكّن صُنّاع القوالب من البيع والانتشار والتعاون.",
+    Icon: Users
+  },
+  {
+    title: "تعليم وتدريب عملي",
+    description: "محتوى تطبيقي يقرّب نوشن لكل مستخدم بطريقة بسيطة.",
+    Icon: GraduationCap
+  },
+  {
+    title: "أتمتة وتكاملات",
+    description: "نربط نوشن بالأدوات التي تعتمد عليها لتقليل التشتت.",
     Icon: Zap
   }
 ];
@@ -56,46 +54,46 @@ const features = [
 const steps = [
   {
     number: "01",
-    title: "المبدع يصمم",
-    description: "المبدع أو الخبير يصمم قالبًا تفاعليًا يعكس خبرته أو فكرته",
-    Icon: Lightbulb
+    title: "نستمع ونحلل",
+    description: "نحدد أهدافك ونفهم طريقة عملك قبل بناء أي حل.",
+    Icon: Target
   },
   {
     number: "02",
-    title: "المنصة تنشر",
-    description: "المنصة تنشر القالب وتعرضه ضمن تصنيفاته المناسبة",
-    Icon: Globe
+    title: "نصمم ونبني",
+    description: "نطوّر النظام أو القالب بما يتناسب مع احتياجك الفعلي.",
+    Icon: Settings
   },
   {
     number: "03",
-    title: "المستخدم يتعلم",
-    description: "المتعلم أو المستخدم يحمّله ويبدأ تجربته التعليمية أو الإنتاجية على الفور",
-    Icon: GraduationCap
+    title: "نطلق وندعم",
+    description: "نقدّم تدريبًا ودعمًا لضمان اعتماد الحل واستمراريته.",
+    Icon: Rocket
   }
 ];
 
 const futureGoals = [
   {
-    title: "بناء أكبر مكتبة تعليمية عربية من قوالب نوشن",
+    title: "توسيع مكتبة القوالب العربية لتشمل كل المجالات",
     Icon: BookOpen
   },
   {
-    title: "دعم صُنّاع القوالب العرب للوصول إلى جمهور عالمي",
+    title: "تمكين المبدعين العرب من بيع قوالبهم عالميًا",
     Icon: TrendingUp
   },
   {
-    title: "إطلاق مبادرات تعليمية وتفاعلية شهرية داخل المجتمع",
-    Icon: Handshake
+    title: "تطوير خدمات الأتمتة والتكاملات للشركات والفرق",
+    Icon: Zap
   },
   {
-    title: "أن نصبح مرجع العرب الأول في كل ما يتعلق بنوشن",
+    title: "أن نصبح المرجع العربي الأول لكل ما يتعلق بنوشن",
     Icon: Star
   }
 ];
 
 export default function AboutPage() {
   useEffect(() => {
-    document.title = 'من نحن | عرب نوشن - منصة تعليمية ومجتمع متكامل لعشّاق نوشن';
+    document.title = 'من نحن | عرب نوشن - خدمات نوشن ومتجر قوالب ومجتمع مبدعين';
   }, []);
 
   return (
@@ -109,17 +107,17 @@ export default function AboutPage() {
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">من نحن | عرب نوشن</h1>
             </div>
             <p className="text-lg sm:text-xl md:text-2xl text-accent-700 dark:text-dark-text-secondary font-semibold max-w-3xl mx-auto px-4 mb-4">
-              منصة تعليمية.. ومجتمع متكامل لعشّاق نوشن
+              خدمات نوشن احترافية، متجر قوالب، ومجتمع عربي للمبدعين
             </p>
             <p className="text-base sm:text-lg md:text-xl text-accent-600 dark:text-dark-text-secondary max-w-4xl mx-auto px-4 leading-relaxed">
               نحن في عرب نوشن نؤمن أن نوشن مش مجرد أداة لتنظيم المهام —
-              بل مساحة إبداع غير محدودة يمكن من خلالها التعلّم، الإلهام، والبناء.
+              بل نظام عمل متكامل يساعدك تبني عمليات واضحة، وتتعلم أسرع، وتكبر شغلك بثقة.
             </p>
           </div>
           <div className="max-w-4xl mx-auto text-center">
             <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary leading-relaxed px-4">
-              من هنا، وُلدت فكرتنا: أن نجعل التعليم العملي والتطبيقي هو جوهر المنصة،
-              مع الحفاظ على اهتمامنا بكل ما يخص نوشن من قوالب، وأفكار، ومجتمع مبدعين عربي متكامل.
+              من هنا، وُلدت فكرتنا: منصة تجمع الخدمات المخصصة، القوالب العملية،
+              والمحتوى التطبيقي في مكان واحد يخدم العرب أينما كانوا.
             </p>
           </div>
         </div>
@@ -136,8 +134,8 @@ export default function AboutPage() {
             <div className="card p-6 sm:p-8 md:p-10">
               <p className="text-base sm:text-lg md:text-xl text-accent-600 dark:text-dark-text-secondary leading-relaxed text-center">
                 أن نصبح الوجهة العربية الأولى لكل ما يتعلق بنوشن —
-                من التعليم التفاعلي إلى الإلهام والإبداع.
-                نريد أن نكون الجسر بين الخبراء والمتعلمين، وبين الفكرة والتطبيق، داخل بيئة منظمة وسهلة.
+                خدمات مخصصة، قوالب عالية الجودة، ومجتمع يتبادل الخبرات.
+                نريد أن نكون الجسر بين الفكرة والتطبيق داخل بيئة منظمة وسهلة.
               </p>
             </div>
           </div>
@@ -154,11 +152,11 @@ export default function AboutPage() {
             </div>
             <div className="card p-6 sm:p-8 md:p-10">
               <p className="text-base sm:text-lg md:text-xl text-accent-600 dark:text-dark-text-secondary leading-relaxed text-center mb-4">
-                نحوّل كل خبرة إلى تجربة تعليمية تفاعلية من خلال قوالب نوشن.
+                نحوّل احتياجك إلى نظام عمل عملي ومفهوم باللغة العربية.
               </p>
               <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary leading-relaxed text-center">
-                نساعد الخبراء والمعلمين والمبدعين العرب على مشاركة معارفهم في شكل قوالب عملية،
-                وفي الوقت نفسه، نوفّر مساحة لعشّاق نوشن لاستكشاف، تحميل، ومشاركة أفكارهم وأعمالهم بحرية.
+                نساعد الأفراد والفرق على بناء أنظمة نوشن فعّالة، ونُمكّن المبدعين العرب من نشر وبيع قوالبهم،
+                مع توفير موارد تعليمية تساعد الجميع على الاستخدام الصحيح والمستمر.
               </p>
             </div>
           </div>
@@ -247,11 +245,11 @@ export default function AboutPage() {
             </div>
             <div className="card p-6 sm:p-8 md:p-10">
               <p className="text-base sm:text-lg md:text-xl text-accent-600 dark:text-dark-text-secondary leading-relaxed text-center mb-4">
-                بدأت عرب نوشن من مجتمع بسيط من صُنّاع المحتوى العرب المؤمنين بأن نوشن يستحق مساحة عربية تجمعنا.
+                بدأت عرب نوشن كمجتمع صغير يؤمن بأن نوشن يحتاج مساحة عربية واضحة وعملية.
               </p>
               <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary leading-relaxed text-center">
-                واليوم، نعمل على بناء أول نظام بيئي عربي حول نوشن —
-                يجمع القوالب التعليمية، المجتمعات التفاعلية، وأدوات المبدعين في مكان واحد.
+                واليوم، نبني نظامًا متكاملًا يجمع الخدمات والاستشارات، متجر القوالب،
+                ودعم المبدعين في مكان واحد.
               </p>
             </div>
           </div>
@@ -295,18 +293,18 @@ export default function AboutPage() {
             </h2>
           </div>
           <p className="text-base sm:text-lg md:text-xl text-white/90 mb-6 sm:mb-8 max-w-3xl mx-auto px-4 leading-relaxed">
-            سواء كنت خبيرًا، طالبًا، أو عاشقًا للتنظيم والإنتاجية —
-            هتلاقي مكانك في عرب نوشن.
+            سواء كنت صاحب فريق، مستقل، أو تبحث عن قالب جاهز —
+            هتلاقي حلول واضحة تناسب احتياجك.
           </p>
           <p className="text-base sm:text-lg text-white/80 mb-6 sm:mb-8 max-w-2xl mx-auto px-4 leading-relaxed">
-            ابدأ رحلتك معنا وشارك خبرتك أو اكتشف قوالب جديدة تساعدك تطور نفسك وشغلك.
+            ابدأ رحلتك معنا: احجز استشارة لبناء نظامك أو استكشف قوالبنا الجاهزة.
           </p>
           <p className="text-lg sm:text-xl md:text-2xl font-semibold text-white mb-6 sm:mb-8">
-            شارك. تعلّم. ابتكر. مع عرب نوشن.
+            نظّم. تعلّم. انطلق. مع عرب نوشن.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4">
-            <Link href="/signup" className="btn-secondary px-8 sm:px-10 py-3 sm:py-4 bg-white text-primary-500 hover:bg-gray-100 w-full sm:w-auto text-center text-base sm:text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
-              انضم الآن
+            <Link href="/contact" className="btn-secondary px-8 sm:px-10 py-3 sm:py-4 bg-white text-primary-500 hover:bg-gray-100 w-full sm:w-auto text-center text-base sm:text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+              احجز استشارة
             </Link>
             <Link href="/templates" className="px-8 sm:px-10 py-3 sm:py-4 bg-white/10 text-white hover:bg-white/20 w-full sm:w-auto text-center text-base sm:text-lg font-semibold rounded-xl border-2 border-white/30 transition-all duration-300">
               استكشف القوالب

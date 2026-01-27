@@ -1,11 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import api from '../lib/api';
-import { useMaintenance } from '../contexts/MaintenanceContext';
-import StarRating from '../components/StarRating';
 import { Settings, BookOpen, Briefcase, Heart, Palette, Laptop, Dumbbell, PiggyBank, FolderTree, CalendarDays, LayoutDashboard, Users, Youtube, Facebook, Send, Zap, Target, Lightbulb, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Check } from 'lucide-react';
 
 // All categories with icons and styling
@@ -140,12 +137,7 @@ const categories = [
 ];
 
 export default function HomePage() {
-  const { isMaintenanceMode, hasCheckedMaintenance } = useMaintenance();
-  const [featuredTemplates, setFeaturedTemplates] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [failedImageOptimization, setFailedImageOptimization] = useState(new Set());
   const animationsPlayedRef = useRef(false);
-  const hasFetchedTemplatesRef = useRef(false);
 
   // Mark animations as played after they complete
   useEffect(() => {
@@ -155,108 +147,6 @@ export default function HomePage() {
 
     return () => clearTimeout(timer);
   }, []);
-
-  // Fetch featured templates from API (prioritizing pinned, then most famous and highest-rated)
-  useEffect(() => {
-    // Don't fetch data until maintenance mode check is complete
-    if (!hasCheckedMaintenance) {
-      return;
-    }
-
-    // Prevent double fetching in React StrictMode
-    if (hasFetchedTemplatesRef.current) {
-      return;
-    }
-    hasFetchedTemplatesRef.current = true;
-
-    const fetchFeaturedTemplates = async () => {
-      try {
-        setLoading(true);
-
-        // Check if maintenance mode is active before making API calls
-        if (isMaintenanceMode) {
-          setLoading(false);
-          return;
-        }
-
-        let pinnedTemplates = [];
-        let regularTemplates = [];
-
-        // Step 1: Fetch ALL templates to get pinned ones (we'll filter client-side)
-        // This ensures pinned templates are always included
-        const allTemplatesResponse = await api.get('/templates?limit=100&sortBy=createdAt&sortOrder=desc');
-
-        if (allTemplatesResponse.data.success) {
-          const allTemplates = allTemplatesResponse.data.templates || [];
-
-          // Separate pinned from regular templates
-          pinnedTemplates = allTemplates.filter(t => t.isPinned);
-          const pinnedIds = new Set(pinnedTemplates.map(t => t._id));
-
-          // Get high-rated templates (excluding already pinned ones)
-          regularTemplates = allTemplates
-            .filter(t => !pinnedIds.has(t._id) && (
-              (t.rating >= 3.5 && (t.reviewsCount >= 1 || t.downloads >= 5)) ||
-              t.downloads >= 10
-            ))
-            .slice(0, 30);
-        }
-
-        // If we don't have enough regular templates, just take the first non-pinned ones
-        if (regularTemplates.length < 6) {
-          const fallbackResponse = await api.get('/templates?limit=20&sortBy=downloads&sortOrder=desc');
-          if (fallbackResponse.data.success) {
-            const fallbackTemplates = fallbackResponse.data.templates || [];
-            const existingIds = new Set([
-              ...pinnedTemplates.map(t => t._id),
-              ...regularTemplates.map(t => t._id)
-            ]);
-
-            const additionalTemplates = fallbackTemplates
-              .filter(t => !existingIds.has(t._id))
-              .slice(0, 6 - regularTemplates.length);
-
-            regularTemplates.push(...additionalTemplates);
-          }
-        }
-
-        // Sort pinned templates by pinnedAt date (most recently pinned first)
-        pinnedTemplates.sort((a, b) => {
-          const dateA = a.pinnedAt ? new Date(a.pinnedAt) : new Date(0);
-          const dateB = b.pinnedAt ? new Date(b.pinnedAt) : new Date(0);
-          return dateB - dateA;
-        });
-
-        // Sort regular templates by a combination of factors
-        regularTemplates.sort((a, b) => {
-          const scoreA = (a.rating || 0) * 0.5 + (a.downloads || 0) * 0.3 + (a.reviewsCount || 0) * 0.2;
-          const scoreB = (b.rating || 0) * 0.5 + (b.downloads || 0) * 0.3 + (b.reviewsCount || 0) * 0.2;
-          return scoreB - scoreA;
-        });
-
-        // Combine: pinned first, then regular templates (limit to 4 total)
-        const combinedTemplates = [...pinnedTemplates, ...regularTemplates].slice(0, 4);
-
-        setFeaturedTemplates(combinedTemplates);
-      } catch (error) {
-        console.error('Error fetching featured templates:', error);
-        // Fallback to simple download-based selection
-        try {
-          const response = await api.get('/templates?limit=4&sortBy=downloads&sortOrder=desc');
-          if (response.data.success) {
-            setFeaturedTemplates(response.data.templates || []);
-          }
-        } catch (fallbackError) {
-          console.error('Fallback fetch failed:', fallbackError);
-          setFeaturedTemplates([]);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFeaturedTemplates();
-  }, [hasCheckedMaintenance]);
 
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
@@ -365,7 +255,7 @@ export default function HomePage() {
                   </svg>
                 </Link>
                 <Link
-                  href="/about"
+                  href="/services"
                   className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-white/95 dark:bg-dark-tertiary/95 backdrop-blur-sm text-accent-700 dark:text-dark-text-primary rounded-xl border-2 border-primary-300 dark:border-orange-400/50 hover:bg-primary-50 dark:hover:bg-orange-900/20 transition-all duration-300 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
                 >
                   تعرّف على خدماتنا
@@ -378,163 +268,239 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Enhanced Featured Templates */}
+      {/* Challenges Section */}
       <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-dark-secondary transition-colors duration-300">
         <div className="container-custom">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 sm:mb-10 md:mb-12">
-            <div className="mb-4 sm:mb-0">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-2 sm:mb-4">القوالب المميزة</h2>
-              <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary">اكتشف أفضل القوالب المصممة من قبل مجتمعنا العربي</p>
+          <div className="text-center mb-8 sm:mb-10 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
+              هل تتشتت عملياتك بين أدوات متعددة؟
+            </h2>
+            <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary max-w-3xl mx-auto">
+              نساعدك على تحويل الفوضى إلى نظام واضح وموحد داخل نوشن، حتى يعمل فريقك بثقة وسرعة.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {[
+              {
+                title: "أدوات كثيرة بلا رؤية موحدة",
+                description: "المهام والملفات موزعة بين تطبيقات متعددة بدون لوحة تحكم واحدة.",
+                Icon: FolderTree
+              },
+              {
+                title: "غياب أولوية واضحة للعمل",
+                description: "الفرق تعمل بلا مسارات أو أولويات واضحة مما يبطّئ الإنجاز.",
+                Icon: Target
+              },
+              {
+                title: "عمليات يدوية متكررة",
+                description: "وقت ضائع في تحديثات وأعمال روتينية يمكن أتمتتها بسهولة.",
+                Icon: Zap
+              },
+              {
+                title: "معرفة مؤسسية مشتتة",
+                description: "المعلومات المهمة غير منظمة ولا يمكن الوصول لها بسرعة.",
+                Icon: BookOpen
+              }
+            ].map((item, idx) => (
+              <div key={idx} className="card-interactive p-5 sm:p-6 h-full">
+                <div className="w-12 h-12 rounded-xl bg-primary-50 dark:bg-orange-500/10 flex items-center justify-center mb-4">
+                  <item.Icon className="w-6 h-6 text-primary-600 dark:text-orange-400" />
+                </div>
+                <h3 className="text-base sm:text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
+                  {item.title}
+                </h3>
+                <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                  {item.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Services Overview */}
+      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
+        <div className="container-custom">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8 sm:mb-10 md:mb-12">
+            <div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
+                خدمات نوشن المصممة لعملك
+              </h2>
+              <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary max-w-2xl">
+                نبني لك نظامًا متكاملاً يغطي التخطيط، التنفيذ، المتابعة، والتحسين المستمر.
+              </p>
             </div>
-            <Link
-              href="/templates"
-              className="btn-outline inline-flex items-center text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3"
-            >
-              عرض الكل
+            <Link href="/services" className="btn-outline inline-flex items-center text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3">
+              استكشف جميع الخدمات
               <svg className="mr-2 w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </Link>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {loading ? (
-              // Loading skeleton
-              [...Array(4)].map((_, idx) => (
-                <div key={idx} className="card-interactive overflow-hidden animate-pulse">
-                  <div className="h-40 bg-gray-200 dark:bg-gray-700"></div>
-                  <div className="p-4 sm:p-6">
-                    <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-                    <div className="h-2 sm:h-3 bg-gray-200 dark:bg-gray-700 rounded mb-3 w-3/4"></div>
-                    <div className="flex justify-between items-center mb-4">
-                      <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded w-12 sm:w-16"></div>
-                      <div className="h-5 sm:h-6 bg-gray-200 dark:bg-gray-700 rounded w-16 sm:w-20"></div>
-                    </div>
-                    <div className="h-8 sm:h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                  </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {[
+              {
+                title: "مساحات عمل مخصصة",
+                description: "تصميم قواعد بيانات ولوحات تحكم تناسب هيكل فريقك وأهدافك.",
+                Icon: LayoutDashboard
+              },
+              {
+                title: "أتمتة وتكاملات",
+                description: "نربط نوشن بأدواتك ونبني تدفقات تقلل المهام اليدوية.",
+                Icon: Zap
+              },
+              {
+                title: "تدريب وتبنّي الفريق",
+                description: "جلسات تدريب ومواد مساندة لضمان انتقال سلس.",
+                Icon: Users
+              },
+              {
+                title: "بوابات عملاء ومشاريع",
+                description: "تجارب تواصل احترافية مع العملاء مبنية على بيانات نوشن.",
+                Icon: Briefcase
+              },
+              {
+                title: "حوكمة المعرفة",
+                description: "تنظيم ملفات الشركة وسياساتها ومراجعها في مصدر واحد.",
+                Icon: BookOpen
+              },
+              {
+                title: "تحسين العمليات",
+                description: "تحليل مسارات العمل وبناء نظام قابل للتوسع.",
+                Icon: Settings
+              }
+            ].map((service, idx) => (
+              <div key={idx} className="card-interactive p-5 sm:p-6 h-full">
+                <div className="w-12 h-12 rounded-xl bg-white dark:bg-dark-tertiary flex items-center justify-center shadow-sm mb-4">
+                  <service.Icon className="w-6 h-6 text-primary-600 dark:text-orange-400" />
                 </div>
-              ))
-            ) : featuredTemplates.length > 0 ? (
-              featuredTemplates.slice(0, 4).map((t, idx) => (
-                <Link key={t._id || idx} href={`/templates/${t.slug || t._id}`}>
-                  <div
-                    className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards]"
-                    style={{ animationDelay: `${idx * 80}ms` }}
-                  >
-                    {/* Template Image */}
-                    <div className="relative overflow-hidden rounded-lg h-40">
-                      {t.previewImage && typeof t.previewImage === 'string' && t.previewImage.trim() ? (
-                        failedImageOptimization.has(t._id) ? (
-                          // Fallback to direct img tag when Next.js optimization fails (e.g., 402 errors from Cloudinary)
-                          <img
-                            src={t.previewImage}
-                            alt={t.title || 'Template image'}
-                            className="w-full h-full object-cover object-[50%_30%]"
-                            loading={idx < 3 ? 'eager' : 'lazy'}
-                            onError={(e) => {
-                              console.error('Direct image also failed to load:', t.previewImage);
-                              // Hide broken image
-                              if (e.target) {
-                                e.target.style.display = 'none';
-                              }
-                            }}
-                          />
-                        ) : (
-                          <Image
-                            key={`${t._id}-${t.previewImage}`}
-                            src={t.previewImage}
-                            alt={t.title || 'Template image'}
-                            width={400}
-                            height={300}
-                            className="w-full h-full object-cover object-[50%_30%]"
-                            priority={idx < 3}
-                            loading={idx < 3 ? 'eager' : 'lazy'}
-                            quality={85}
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            onError={(e) => {
-                              console.error('Image optimization failed (possibly 402 from Cloudinary):', t.previewImage);
-                              // If Next.js optimization fails (e.g., 402 Payment Required), fall back to direct image
-                              setFailedImageOptimization(prev => new Set(prev).add(t._id));
-                            }}
-                            onLoad={() => {
-                              // Remove from failed set if it was previously marked as failed
-                              setFailedImageOptimization(prev => {
-                                const newSet = new Set(prev);
-                                newSet.delete(t._id);
-                                return newSet;
-                              });
-                            }}
-                          />
-                        )
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-700">
-                          <svg className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Template Info */}
-                    <div className="p-4 sm:p-6 relative">
-                      <h3 className="font-semibold text-sm sm:text-base text-accent-900 dark:text-dark-text-primary mb-3 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-1">
-                        {t.title}
-                      </h3>
-
-                      {/* Rating */}
-                      <div className="mb-3">
-                        <StarRating rating={t.rating || 0} size="small" showNumber={true} />
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          {t.creator?.profilePicture ? (
-                            <Image
-                              src={t.creator.profilePicture}
-                              alt={t.creator?.name || 'مبدع'}
-                              width={20}
-                              height={20}
-                              className="w-5 h-5 rounded-full object-cover"
-                              loading="lazy"
-                              quality={75}
-                            />
-                          ) : (
-                            <div className="w-5 h-5 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
-                              <span className="text-xs font-medium text-primary-600 dark:text-primary-400">
-                                {t.creator?.name?.charAt(0)?.toUpperCase() || 'م'}
-                              </span>
-                            </div>
-                          )}
-                          <span className="text-xs text-accent-500 dark:text-dark-text-tertiary">
-                            {t.creator?.name || 'مبدع غير معروف'}
-                          </span>
-                        </div>
-                        {t.isPaid ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full font-semibold text-xs">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            {t.price} ر.س
-                          </span>
-                        ) : (
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
-                            مجاني
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))
-            ) : (
-              <div className="col-span-full text-center py-12">
-                <p className="text-gray-500 dark:text-gray-400">لا توجد قوالب متاحة حالياً</p>
+                <h3 className="text-base sm:text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
+                  {service.title}
+                </h3>
+                <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                  {service.description}
+                </p>
               </div>
-            )}
+            ))}
           </div>
         </div>
       </section>
 
+      {/* Process Section */}
+      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-dark-secondary transition-colors duration-300">
+        <div className="container-custom">
+          <div className="text-center mb-8 sm:mb-10 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
+              كيف نعمل معك خطوة بخطوة؟
+            </h2>
+            <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary max-w-3xl mx-auto">
+              منهجية واضحة تضمن بناء نظام فعّال وقابل للتطوير مع فريقك.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {[
+              { title: "الاستماع والتحليل", detail: "نفهم تحدياتك وأهدافك بشكل دقيق." },
+              { title: "تصميم الهيكل", detail: "نضع خريطة شاملة للعمليات والبيانات." },
+              { title: "البناء والتنفيذ", detail: "نطوّر مساحة نوشن متكاملة وقابلة للتوسع." },
+              { title: "الأتمتة والتكامل", detail: "نربط الأدوات ونقلل العمل اليدوي." },
+              { title: "التدريب والتسليم", detail: "نجهّز الفريق لاستخدام النظام بثقة." },
+              { title: "دعم وتحسين مستمر", detail: "تطويرات مستمرة لضمان النمو." }
+            ].map((step, idx) => (
+              <div key={idx} className="p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-dark-card-border bg-secondary-50 dark:bg-dark-primary">
+                <div className="text-sm text-accent-500 dark:text-dark-text-tertiary mb-2">الخطوة {idx + 1}</div>
+                <h3 className="text-base sm:text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
+                  {step.title}
+                </h3>
+                <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                  {step.detail}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Proof Section */}
+      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
+        <div className="container-custom">
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
+            <div className="flex-1">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
+                نتائج يحبها عملاؤنا
+              </h2>
+              <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary mb-6">
+                نركز على النتائج القابلة للقياس وتحسين تجربة العمل بالكامل.
+              </p>
+              {/* TODO: Replace with real metrics */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+                {[
+                  { label: "مشروع مكتمل", value: "+100" },
+                  { label: "فرق اعتمدت نوشن", value: "+30" },
+                  { label: "تحسين كفاءة العمل", value: "40%" }
+                ].map((stat, idx) => (
+                  <div key={idx} className="rounded-xl bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border p-4 text-center">
+                    <div className="text-lg sm:text-xl font-bold text-accent-500 dark:text-dark-text-primary">{stat.value}</div>
+                    <div className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary mt-1">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+              <Link href="/testimonials" className="btn-outline inline-flex items-center text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3">
+                شاهد آراء العملاء
+                <svg className="mr-2 w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
+            </div>
+            <div className="flex-1 grid grid-cols-1 gap-4">
+              {/* TODO: Replace with real testimonials */}
+              {[
+                {
+                  name: "اسم العميل",
+                  role: "مدير العمليات",
+                  quote: "النظام الجديد على نوشن أعاد ترتيب كل شيء. أصبحنا نعمل بوضوح أكبر ووقت أقل."
+                },
+                {
+                  name: "اسم العميل",
+                  role: "مؤسس شركة",
+                  quote: "التدريب كان احترافي، والفريق تبنّى النظام بسرعة كبيرة."
+                }
+              ].map((testimonial, idx) => (
+                <div key={idx} className="card-interactive p-5 sm:p-6">
+                  <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed mb-4">
+                    “{testimonial.quote}”
+                  </p>
+                  <div className="text-sm font-semibold text-accent-900 dark:text-dark-text-primary">
+                    {testimonial.name}
+                  </div>
+                  <div className="text-xs text-accent-500 dark:text-dark-text-tertiary">
+                    {testimonial.role}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary transition-colors duration-300">
+        <div className="container-custom text-center">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
+            جاهز لبناء نظام نوشن يواكب نموك؟
+          </h2>
+          <p className="text-base sm:text-lg md:text-xl text-gray-200 dark:text-dark-text-secondary mb-6 sm:mb-8 max-w-2xl mx-auto">
+            احجز استشارة أولية ودعنا نصمم لك نظامًا يسهّل العمل ويزيد الإنتاجية.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+            <Link href="/contact" className="btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto text-center">
+              احجز استشارتك
+            </Link>
+            <Link href="/services" className="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 bg-white/90 dark:bg-dark-tertiary/90 border-primary-200 dark:border-orange-500/30 w-full sm:w-auto text-center">
+              تعرّف على الخدمات
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* Enhanced Footer */}
       <footer className="bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary transition-colors duration-300">
@@ -583,8 +549,10 @@ export default function HomePage() {
               <div className="mb-6 sm:mb-8">
                 <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">المنتج</h4>
                 <ul className="space-y-2 sm:space-y-3">
+                  <li><Link href="/services" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الخدمات</Link></li>
                   <li><Link href="/templates" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">القوالب</Link></li>
                   <li><Link href="/creators" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المبدعين</Link></li>
+                  <li><Link href="/testimonials" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">قصص النجاح</Link></li>
                 </ul>
               </div>
               <div>
@@ -592,6 +560,7 @@ export default function HomePage() {
                 <ul className="space-y-2 sm:space-y-3">
                   <li><Link href="/about" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">من نحن</Link></li>
                   <li><Link href="/blog" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المدونة</Link></li>
+                  <li><Link href="/contact" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">احجز استشارة</Link></li>
                 </ul>
               </div>
             </div>

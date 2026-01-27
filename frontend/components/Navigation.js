@@ -52,6 +52,8 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
   // Memoize navigation items to prevent unnecessary re-renders
   const navItems = useMemo(() => [
     { href: '/store', label: 'المتجر', key: 'store' },
+    { href: '/services', label: 'الخدمات', key: 'services' },
+    { href: '/testimonials', label: 'قصص النجاح', key: 'testimonials' },
     { href: '/blog', label: 'المدونة', key: 'blog' },
     { href: '/about', label: 'من نحن', key: 'about' }
   ], []);
@@ -111,6 +113,8 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
               </div>
             </div>
           </div>
+          <Link href="/services" className={`nav-link ${activePage === 'services' ? 'nav-link-active' : ''}`}>الخدمات</Link>
+          <Link href="/testimonials" className={`nav-link ${activePage === 'testimonials' ? 'nav-link-active' : ''}`}>قصص النجاح</Link>
           <Link href="/blog" className={`nav-link ${activePage === 'blog' ? 'nav-link-active' : ''}`}>المدونة</Link>
           <Link href="/about" className={`nav-link ${activePage === 'about' ? 'nav-link-active' : ''}`}>من نحن</Link>
         </nav>
@@ -181,6 +185,12 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
                 المبدعين
               </Link>
             </div>
+            <Link href="/services" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+              الخدمات
+            </Link>
+            <Link href="/testimonials" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+              قصص النجاح
+            </Link>
             <Link href="/blog" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
               المدونة
             </Link>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useMemo } from 'react';
 import Image from 'next/image';
 import { LayoutDashboard, CheckCircle, Star, Crown, Zap, Heart, Award } from 'lucide-react';
 import Link from 'next/link';
@@ -108,7 +108,19 @@ function StorePageContent() {
 
   // Templates are already paginated from server
   const paginatedTemplates = templates;
-  const limitedTemplates = paginatedTemplates.slice(0, 6);
+  const orderedTemplates = useMemo(() => {
+    const pinnedTemplates = paginatedTemplates.filter((t) => t.isPinned);
+    const regularTemplates = paginatedTemplates.filter((t) => !t.isPinned);
+
+    pinnedTemplates.sort((a, b) => {
+      const dateA = a.pinnedAt ? new Date(a.pinnedAt) : new Date(0);
+      const dateB = b.pinnedAt ? new Date(b.pinnedAt) : new Date(0);
+      return dateB - dateA;
+    });
+
+    return [...pinnedTemplates, ...regularTemplates];
+  }, [paginatedTemplates]);
+  const limitedTemplates = orderedTemplates.slice(0, 6);
 
   // Remove this useEffect as it conflicts with server pagination
   // The pagination is already set correctly from the server response
@@ -517,7 +529,7 @@ function StorePageContent() {
             <div className="absolute inset-0 bg-gradient-to-r from-primary-500/20 to-accent-600/20 dark:from-orange-500/20 dark:to-orange-600/20"></div>
             <div className="relative z-10">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white dark:text-dark-text-primary mb-3 sm:mb-4">
-                جاهز تصبح مبدعًا على نوشن؟
+                جاهز تصبح مبدعًا على عرب نوشن؟
               </h2>
               <p className="text-sm sm:text-base md:text-lg text-gray-200 dark:text-dark-text-secondary mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed">
                 شارك قوالبك مع آلاف المستخدمين وابدأ في بناء دخل مستدام من خبرتك.

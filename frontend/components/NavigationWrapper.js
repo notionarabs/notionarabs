@@ -34,6 +34,8 @@ export default function NavigationWrapper() {
     if (pathname.startsWith('/store')) return 'store';
     if (pathname.startsWith('/templates')) return 'templates';
     if (pathname.startsWith('/creators')) return 'creators';
+    if (pathname.startsWith('/services')) return 'services';
+    if (pathname.startsWith('/testimonials')) return 'testimonials';
     if (pathname.startsWith('/blog')) return 'blog';
     if (pathname.startsWith('/about')) return 'about';
     return '';

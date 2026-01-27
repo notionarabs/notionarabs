@@ -1,23 +1,35 @@
 'use client';
 
-import { useState, useEffect, Suspense, useMemo } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 import Image from 'next/image';
 import { LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
 import api from '../../lib/api';
 import LoadingIndicator from '../../components/LoadingIndicator';
 import StarRating from '../../components/StarRating';
-import { useSearchParams } from 'next/navigation';
+ 
 const sortOptions = [
   { name: "الأحدث", value: "createdAt" },
   { name: "الأكثر شعبية", value: "downloads" },
   { name: "الأعلى تقييماً", value: "rating" }
 ];
 
+const popularCategories = [
+  "الإنتاجية",
+  "الدراسة",
+  "الأعمال",
+  "التخطيط",
+  "التصميم",
+  "التسويق",
+  "التقنية",
+  "الحياة الشخصية"
+];
+
 function TemplatesPageContent() {
-  const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('createdAt');
+  const [selectedCategory, setSelectedCategory] = useState('الكل');
+  const [isSortOpen, setIsSortOpen] = useState(false);
   const [allTemplates, setAllTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -27,6 +39,8 @@ function TemplatesPageContent() {
     total: 0,
     limit: 12
   });
+  const sortButtonRef = useRef(null);
+  const sortMenuRef = useRef(null);
 
   // Templates are now sorted and filtered server-side
   const templates = allTemplates;
@@ -47,6 +61,10 @@ function TemplatesPageContent() {
       // Add search parameter if there's a search term
       if (searchTerm.trim()) {
         params.append('search', searchTerm.trim());
+      }
+
+      if (selectedCategory && selectedCategory !== 'الكل') {
+        params.append('category', selectedCategory);
       }
 
       const response = await api.get(`/templates?${params.toString()}`);
@@ -76,7 +94,36 @@ function TemplatesPageContent() {
   // Initial load and refetch when search/sort changes
   useEffect(() => {
     fetchTemplates();
-  }, [searchTerm, sortBy, pagination.current]);
+  }, [searchTerm, sortBy, selectedCategory, pagination.current]);
+
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (!isSortOpen) {
+        return;
+      }
+      if (
+        sortButtonRef.current?.contains(event.target) ||
+        sortMenuRef.current?.contains(event.target)
+      ) {
+        return;
+      }
+      setIsSortOpen(false);
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [isSortOpen]);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setIsSortOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Templates are already paginated from server
   const paginatedTemplates = templates;
@@ -86,6 +133,11 @@ function TemplatesPageContent() {
 
   const handleSearch = (e) => {
     e.preventDefault();
+    setPagination(prev => ({ ...prev, current: 1 }));
+  };
+
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category);
     setPagination(prev => ({ ...prev, current: 1 }));
   };
 
@@ -113,53 +165,111 @@ function TemplatesPageContent() {
       {/* Filters */}
       <div className="container-custom py-6 sm:py-8">
         <div className="bg-white dark:bg-dark-secondary rounded-lg p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-dark-card-border transition-colors duration-300">
-          {/* Search */}
-          <form onSubmit={handleSearch} className="mb-4 sm:mb-6">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="ابحث في القوالب... (مثال: قالب إنتاجية، تصميم، دراسة)"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="form-input pr-12 text-sm sm:text-base"
-              />
-              <button
-                type="submit"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-accent-400 hover:text-accent-600 dark:text-dark-text-tertiary dark:hover:text-dark-text-secondary transition-colors"
-                aria-label="بحث في القوالب"
-              >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                  <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                </svg>
-              </button>
-            </div>
-          </form>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
+            {/* Search */}
+            <form onSubmit={handleSearch} className="flex-1">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="ابحث في القوالب... (مثال: قالب إنتاجية، تصميم، دراسة)"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="form-input pr-12 text-sm sm:text-base"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-accent-400 hover:text-accent-600 dark:text-dark-text-tertiary dark:hover:text-dark-text-secondary transition-colors"
+                  aria-label="بحث في القوالب"
+                >
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                    <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+            </form>
 
-          {/* Sort Filter */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-            <div className="flex-1">
-              <label htmlFor="sort-filter" className="block text-xs sm:text-sm font-medium text-accent-700 dark:text-dark-text-primary mb-2">
-                الترتيب
-              </label>
-              <select
-                id="sort-filter"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm sm:text-base w-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-ms-expand]:opacity-0 [&::-webkit-calendar-picker-indicator]:text-accent-400 [&::-ms-expand]:text-accent-400 dark:[&::-webkit-calendar-picker-indicator]:text-dark-text-tertiary dark:[&::-ms-expand]:text-dark-text-tertiary"
-                style={{
-                  backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-                  backgroundPosition: 'right 0.5rem center',
-                  backgroundRepeat: 'no-repeat',
-                  backgroundSize: '1.5em 1.5em',
-                  paddingRight: '2.5rem'
-                }}
-              >
-                {sortOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.name}
-                  </option>
-                ))}
-              </select>
+            {/* Sort Filter */}
+            <div className="w-full sm:w-56 md:w-64">
+              <label className="sr-only">الترتيب</label>
+              <div className="relative">
+                <button
+                  ref={sortButtonRef}
+                  type="button"
+                  onClick={() => setIsSortOpen((prev) => !prev)}
+                  aria-haspopup="listbox"
+                  aria-expanded={isSortOpen}
+                  className="form-input flex items-center justify-between text-sm sm:text-base text-accent-900 dark:text-dark-text-primary shadow-sm hover:border-primary-300 dark:hover:border-primary-500/60"
+                >
+                  <span>
+                    {sortOptions.find((option) => option.value === sortBy)?.name || sortOptions[0].name}
+                  </span>
+                  <span className={`text-accent-400 dark:text-dark-text-tertiary transition-transform ${isSortOpen ? 'rotate-180' : ''}`}>
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </span>
+                </button>
+
+                {isSortOpen && (
+                  <div
+                    ref={sortMenuRef}
+                    role="listbox"
+                    className="absolute z-20 mt-2 w-full rounded-xl border border-gray-200 dark:border-dark-card-border bg-white dark:bg-dark-secondary shadow-lg overflow-hidden"
+                  >
+                    {sortOptions.map((option) => {
+                      const isActive = option.value === sortBy;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          role="option"
+                          aria-selected={isActive}
+                          onClick={() => {
+                            setSortBy(option.value);
+                            setIsSortOpen(false);
+                          }}
+                          className={`w-full text-right px-4 py-2.5 text-sm sm:text-base transition-colors flex items-center justify-between ${isActive
+                            ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300'
+                            : 'text-accent-700 dark:text-dark-text-secondary hover:bg-accent-50 dark:hover:bg-dark-tertiary'
+                            }`}
+                        >
+                          <span>{option.name}</span>
+                          {isActive && (
+                            <span className="text-primary-600 dark:text-primary-400">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Popular Categories Tabs */}
+          <div className="mb-4 sm:mb-6">
+            <div className="flex items-center gap-2 flex-wrap">
+              {['الكل', ...popularCategories].map((category) => {
+                const isActive = selectedCategory === category;
+                return (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => handleCategorySelect(category)}
+                    aria-pressed={isActive}
+                    className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium border transition-colors ${isActive
+                      ? 'bg-primary-600 text-white border-primary-600'
+                      : 'bg-white dark:bg-dark-tertiary text-accent-700 dark:text-dark-text-secondary border-gray-200 dark:border-dark-card-border hover:bg-accent-50 dark:hover:bg-dark-primary'
+                      }`}
+                  >
+                    {category}
+                  </button>
+                );
+              })}
             </div>
           </div>
 

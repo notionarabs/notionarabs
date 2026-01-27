@@ -51,6 +51,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
 
   // Memoize navigation items to prevent unnecessary re-renders
   const navItems = useMemo(() => [
+    { href: '/store', label: 'المتجر', key: 'store' },
     { href: '/templates', label: 'القوالب', key: 'templates' },
     { href: '/creators', label: 'المبدعين', key: 'creators' },
     { href: '/blog', label: 'المدونة', key: 'blog' },
@@ -88,6 +89,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
           <div className={`transition-all duration-300 ease-in-out overflow-hidden flex items-center ${activePage !== 'home' ? 'max-w-24 opacity-100' : 'max-w-0 opacity-0'}`}>
             <Link href="/" className="nav-link whitespace-nowrap">الرئيسية</Link>
           </div>
+          <Link href="/store" className={`nav-link ${activePage === 'store' ? 'nav-link-active' : ''}`}>المتجر</Link>
           <Link href="/templates" className={`nav-link ${activePage === 'templates' ? 'nav-link-active' : ''}`}>القوالب</Link>
           <Link href="/creators" className={`nav-link ${activePage === 'creators' ? 'nav-link-active' : ''}`}>المبدعين</Link>
           <Link href="/blog" className={`nav-link ${activePage === 'blog' ? 'nav-link-active' : ''}`}>المدونة</Link>
@@ -149,6 +151,9 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
                 الرئيسية
               </Link>
             </div>
+            <Link href="/store" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+              المتجر
+            </Link>
             <Link href="/templates" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
               القوالب
             </Link>

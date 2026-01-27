@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatDate } from '../../lib/dateUtils';
@@ -254,6 +254,7 @@ export default function BlogPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
+  const [isSortOpen, setIsSortOpen] = useState(false);
   const [allBlogPosts, setAllBlogPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -264,6 +265,8 @@ export default function BlogPage() {
     limit: 9
   });
   const { showError } = useToast();
+  const sortButtonRef = useRef(null);
+  const sortMenuRef = useRef(null);
 
   // Blog posts are now sorted and filtered server-side
   const blogPosts = allBlogPosts;
@@ -322,6 +325,35 @@ export default function BlogPage() {
     fetchBlogPosts();
   }, [searchTerm, selectedCategory, sortBy, pagination.current]);
 
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (!isSortOpen) {
+        return;
+      }
+      if (
+        sortButtonRef.current?.contains(event.target) ||
+        sortMenuRef.current?.contains(event.target)
+      ) {
+        return;
+      }
+      setIsSortOpen(false);
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [isSortOpen]);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setIsSortOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   // Update pagination when blog posts change
   useEffect(() => {
     setPagination(prev => ({
@@ -356,49 +388,80 @@ export default function BlogPage() {
         <div className="container-custom px-4 sm:px-6">
           {/* Search and Filters */}
           <div className="max-w-4xl mx-auto">
-            {/* Search Bar */}
-            <div className="relative mb-6 sm:mb-8">
-              <input
-                type="text"
-                placeholder="ابحث في المقالات... (مثال: نصائح نوشن، إنتاجية، تصميم)"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full form-input pr-10 sm:pr-12 pl-4 py-3 sm:py-4 text-base sm:text-lg"
-                dir="rtl"
-              />
-              <svg className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-
-            {/* Filters Row */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8">
+              {/* Search Bar */}
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  placeholder="ابحث في المقالات... (مثال: نصائح نوشن، إنتاجية، تصميم)"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="form-input pr-12 text-sm sm:text-base"
+                  dir="rtl"
+                />
+                <svg className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
 
               {/* Sort By */}
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <label htmlFor="sort-by" className="text-sm font-medium text-accent-700 dark:text-dark-text-primary whitespace-nowrap">
-                  الترتيب:
-                </label>
-                <div className="relative flex-1 sm:flex-initial">
-                  <select
-                    id="sort-by"
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="form-select text-sm cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 w-full sm:min-w-32 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-ms-expand]:opacity-0 [&::-webkit-calendar-picker-indicator]:text-accent-400 [&::-ms-expand]:text-accent-400 dark:[&::-webkit-calendar-picker-indicator]:text-dark-text-tertiary dark:[&::-ms-expand]:text-dark-text-tertiary"
-                    style={{
-                      backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-                      backgroundPosition: 'right 0.5rem center',
-                      backgroundRepeat: 'no-repeat',
-                      backgroundSize: '1.5em 1.5em',
-                      paddingRight: '2.5rem'
-                    }}
+              <div className="w-full sm:w-56 md:w-64">
+                <label className="sr-only">الترتيب</label>
+                <div className="relative">
+                  <button
+                    ref={sortButtonRef}
+                    type="button"
+                    onClick={() => setIsSortOpen((prev) => !prev)}
+                    aria-haspopup="listbox"
+                    aria-expanded={isSortOpen}
+                    className="form-input flex items-center justify-between text-sm sm:text-base text-accent-900 dark:text-dark-text-primary shadow-sm hover:border-primary-300 dark:hover:border-primary-500/60"
                   >
-                    {sortOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.name}
-                      </option>
-                    ))}
-                  </select>
+                    <span>
+                      {sortOptions.find((option) => option.value === sortBy)?.name || sortOptions[0].name}
+                    </span>
+                    <span className={`text-accent-400 dark:text-dark-text-tertiary transition-transform ${isSortOpen ? 'rotate-180' : ''}`}>
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </span>
+                  </button>
+
+                  {isSortOpen && (
+                    <div
+                      ref={sortMenuRef}
+                      role="listbox"
+                      className="absolute z-20 mt-2 w-full rounded-xl border border-gray-200 dark:border-dark-card-border bg-white dark:bg-dark-secondary shadow-lg overflow-hidden"
+                    >
+                      {sortOptions.map((option) => {
+                        const isActive = option.value === sortBy;
+                        return (
+                          <button
+                            key={option.value}
+                            type="button"
+                            role="option"
+                            aria-selected={isActive}
+                            onClick={() => {
+                              setSortBy(option.value);
+                              setIsSortOpen(false);
+                            }}
+                            className={`w-full text-right px-4 py-2.5 text-sm sm:text-base transition-colors flex items-center justify-between ${isActive
+                              ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300'
+                              : 'text-accent-700 dark:text-dark-text-secondary hover:bg-accent-50 dark:hover:bg-dark-tertiary'
+                              }`}
+                          >
+                            <span>{option.name}</span>
+                            {isActive && (
+                              <span className="text-primary-600 dark:text-primary-400">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -495,9 +558,9 @@ export default function BlogPage() {
                         </div>
 
                         {/* Auto-generated Title */}
-                        <h3 className="text-white text-xs sm:text-sm font-bold leading-tight mb-1.5 sm:mb-2 drop-shadow-lg max-w-full line-clamp-2 px-1">
+                        <h2 className="text-white text-xs sm:text-sm font-bold leading-tight mb-1.5 sm:mb-2 drop-shadow-lg max-w-full line-clamp-2 px-1">
                           {post.title}
-                        </h3>
+                        </h2>
 
                         {/* Auto-generated Subtitle */}
                         <p className="text-white text-[10px] sm:text-xs opacity-90 max-w-full line-clamp-2 px-1">
@@ -562,9 +625,9 @@ export default function BlogPage() {
               <svg className="w-12 h-12 sm:w-16 sm:h-16 text-accent-400 dark:text-dark-text-quaternary mx-auto mb-3 sm:mb-4" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
               </svg>
-              <h3 className="text-base sm:text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
+              <h2 className="text-base sm:text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
                 لم يتم العثور على مقالات
-              </h3>
+              </h2>
               <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary">
                 جرب تغيير معايير البحث أو الفلترة
               </p>

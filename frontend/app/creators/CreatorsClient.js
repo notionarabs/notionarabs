@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import api from '../../lib/api';
@@ -52,6 +52,7 @@ export default function CreatorsClient() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('popular');
   const [selectedSpecialty, setSelectedSpecialty] = useState('all');
+  const [isSortOpen, setIsSortOpen] = useState(false);
   const [allCreators, setAllCreators] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -62,6 +63,8 @@ export default function CreatorsClient() {
     limit: 50
   });
   const { user, isAuthenticated } = useAuth();
+  const sortButtonRef = useRef(null);
+  const sortMenuRef = useRef(null);
 
   const creatorsData = allCreators;
 
@@ -112,6 +115,35 @@ export default function CreatorsClient() {
     fetchCreators();
   }, [searchTerm, sortBy, selectedSpecialty, pagination.current]);
 
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (!isSortOpen) {
+        return;
+      }
+      if (
+        sortButtonRef.current?.contains(event.target) ||
+        sortMenuRef.current?.contains(event.target)
+      ) {
+        return;
+      }
+      setIsSortOpen(false);
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [isSortOpen]);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setIsSortOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
       {/* Page Header */}
@@ -126,44 +158,79 @@ export default function CreatorsClient() {
 
           {/* Search and Filters */}
           <div className="max-w-4xl mx-auto px-4 sm:px-0">
-            {/* Search Bar */}
-            <div className="relative mb-6 sm:mb-8">
-              <input
-                type="text"
-                placeholder="ابحث عن المبدعين... (مثال: أحمد محمد، تصميم، إنتاجية)"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full form-input pr-12 pl-4 py-3 sm:py-4 text-base sm:text-lg"
-                dir="rtl"
-              />
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />
-            </div>
-
-            {/* Filters */}
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8">
-              <div className="flex-1 relative">
-                <label htmlFor="sort-filter" className="block text-xs sm:text-sm font-medium text-accent-700 dark:text-dark-text-primary mb-2">
-                  الترتيب
-                </label>
-                <select
-                  id="sort-filter"
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="w-full form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm sm:text-base"
-                  style={{
-                    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-                    backgroundPosition: 'right 0.5rem center',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundSize: '1.5em 1.5em',
-                    paddingRight: '2.5rem'
-                  }}
-                >
-                  {sortOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.name}
-                    </option>
-                  ))}
-                </select>
+              {/* Search Bar */}
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  placeholder="ابحث عن المبدعين... (مثال: أحمد محمد، تصميم، إنتاجية)"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="form-input pr-12 text-sm sm:text-base"
+                  dir="rtl"
+                />
+                <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              </div>
+
+              {/* Sort Filter */}
+              <div className="w-full sm:w-56 md:w-64">
+                <label className="sr-only">الترتيب</label>
+                <div className="relative">
+                  <button
+                    ref={sortButtonRef}
+                    type="button"
+                    onClick={() => setIsSortOpen((prev) => !prev)}
+                    aria-haspopup="listbox"
+                    aria-expanded={isSortOpen}
+                    className="form-input flex items-center justify-between text-sm sm:text-base text-accent-900 dark:text-dark-text-primary shadow-sm hover:border-primary-300 dark:hover:border-primary-500/60"
+                  >
+                    <span>
+                      {sortOptions.find((option) => option.value === sortBy)?.name || sortOptions[0].name}
+                    </span>
+                    <span className={`text-accent-400 dark:text-dark-text-tertiary transition-transform ${isSortOpen ? 'rotate-180' : ''}`}>
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </span>
+                  </button>
+
+                  {isSortOpen && (
+                    <div
+                      ref={sortMenuRef}
+                      role="listbox"
+                      className="absolute z-20 mt-2 w-full rounded-xl border border-gray-200 dark:border-dark-card-border bg-white dark:bg-dark-secondary shadow-lg overflow-hidden"
+                    >
+                      {sortOptions.map((option) => {
+                        const isActive = option.value === sortBy;
+                        return (
+                          <button
+                            key={option.value}
+                            type="button"
+                            role="option"
+                            aria-selected={isActive}
+                            onClick={() => {
+                              setSortBy(option.value);
+                              setIsSortOpen(false);
+                            }}
+                            className={`w-full text-right px-4 py-2.5 text-sm sm:text-base transition-colors flex items-center justify-between ${isActive
+                              ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300'
+                              : 'text-accent-700 dark:text-dark-text-secondary hover:bg-accent-50 dark:hover:bg-dark-tertiary'
+                              }`}
+                          >
+                            <span>{option.name}</span>
+                            {isActive && (
+                              <span className="text-primary-600 dark:text-primary-400">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -428,14 +495,14 @@ export default function CreatorsClient() {
 
             <div className="md:col-span-1">
               <div className="mb-6 sm:mb-8">
-                <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">المنتج</h4>
+                <h3 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">المنتج</h3>
                 <ul className="space-y-2 sm:space-y-3">
                   <li><Link href="/templates" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">القوالب</Link></li>
                   <li><Link href="/creators" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المبدعين</Link></li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">الشركة</h4>
+                <h3 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">الشركة</h3>
                 <ul className="space-y-2 sm:space-y-3">
                   <li><Link href="/about" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">من نحن</Link></li>
                   <li><Link href="/blog" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المدونة</Link></li>
@@ -444,7 +511,7 @@ export default function CreatorsClient() {
             </div>
 
             <div className="md:col-span-1">
-              <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">الدعم</h4>
+              <h3 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">الدعم</h3>
               <ul className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
                 <li><Link href="/contact" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">اتصل بنا</Link></li>
                 <li><Link href="/privacy" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الخصوصية</Link></li>

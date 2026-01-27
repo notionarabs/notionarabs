@@ -7,22 +7,7 @@ import api from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useMaintenance } from '../contexts/MaintenanceContext';
 import StarRating from '../components/StarRating';
-import Counter from '../components/Counter';
-import { getCategorySlug } from '../lib/categoryMapping';
-import { Settings, BookOpen, Briefcase, Heart, Palette, Laptop, Dumbbell, PiggyBank, FolderTree, CalendarDays, LayoutDashboard, Users, Check, Youtube, Facebook, Send, Zap, Target, Lightbulb, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Download, CheckCircle, Star } from 'lucide-react';
-
-// Map badge types to Lucide icons
-const getBadgeIcon = (badgeType) => {
-  const iconMap = {
-    'verified': CheckCircle,
-    'top-creator': Star,
-    'best-creator': Crown,
-    'active': Zap,
-    'community-favorite': Heart,
-    'trusted': Award
-  };
-  return iconMap[badgeType] || Star;
-};
+import { Settings, BookOpen, Briefcase, Heart, Palette, Laptop, Dumbbell, PiggyBank, FolderTree, CalendarDays, LayoutDashboard, Users, Youtube, Facebook, Send, Zap, Target, Lightbulb, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Check } from 'lucide-react';
 
 // All categories with icons and styling
 const categories = [
@@ -161,14 +146,7 @@ export default function HomePage() {
   const [featuredTemplates, setFeaturedTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [failedImageOptimization, setFailedImageOptimization] = useState(new Set());
-  const [stats, setStats] = useState({ templates: 0, creators: 0, specialties: 0, downloads: 0 });
-  const [loadingStats, setLoadingStats] = useState(true);
-  const [topCreators, setTopCreators] = useState([]);
-  const [categoryTotals, setCategoryTotals] = useState({});
-  const [loadingCreators, setLoadingCreators] = useState(true);
-  const [loadingCategories, setLoadingCategories] = useState(true);
   const animationsPlayedRef = useRef(false);
-  const hasFetchedRef = useRef(false);
   const hasFetchedTemplatesRef = useRef(false);
   const isApprovedCreator = isAuthenticated && user?.creatorStatus === 'approved';
   const creatorCtaHref = isApprovedCreator
@@ -264,15 +242,15 @@ export default function HomePage() {
           return scoreB - scoreA;
         });
 
-        // Combine: pinned first, then regular templates (limit to 6 total)
-        const combinedTemplates = [...pinnedTemplates, ...regularTemplates].slice(0, 6);
+        // Combine: pinned first, then regular templates (limit to 4 total)
+        const combinedTemplates = [...pinnedTemplates, ...regularTemplates].slice(0, 4);
 
         setFeaturedTemplates(combinedTemplates);
       } catch (error) {
         console.error('Error fetching featured templates:', error);
         // Fallback to simple download-based selection
         try {
-          const response = await api.get('/templates?limit=6&sortBy=downloads&sortOrder=desc');
+          const response = await api.get('/templates?limit=4&sortBy=downloads&sortOrder=desc');
           if (response.data.success) {
             setFeaturedTemplates(response.data.templates || []);
           }
@@ -288,65 +266,11 @@ export default function HomePage() {
     fetchFeaturedTemplates();
   }, [hasCheckedMaintenance]);
 
-  // Fetch homepage aggregates (totals, top creators, category counts)
-  useEffect(() => {
-    // Don't fetch data until maintenance mode check is complete
-    if (!hasCheckedMaintenance) {
-      return;
-    }
-
-    // Prevent double fetching in React StrictMode
-    if (hasFetchedRef.current) {
-      return;
-    }
-    hasFetchedRef.current = true;
-
-    const fetchHomepageData = async () => {
-      try {
-        setLoadingCreators(true);
-        setLoadingCategories(true);
-        setLoadingStats(true);
-
-        // Check if maintenance mode is active before making API calls
-        if (isMaintenanceMode) {
-          setLoadingCreators(false);
-          setLoadingCategories(false);
-          setLoadingStats(false);
-          return;
-        }
-
-        // Use optimized single endpoint for all homepage stats
-        const response = await api.get('/stats/homepage');
-
-        if (response.data.success) {
-          setStats(response.data.stats);
-          setCategoryTotals(response.data.categoryTotals);
-          setTopCreators(response.data.topCreators);
-        }
-      } catch (error) {
-        console.error('Error fetching homepage data:', error);
-        // Fallback to default values
-        setStats({ templates: 0, creators: 0, specialties: 0, downloads: 0 });
-        setCategoryTotals({});
-        setTopCreators([]);
-      } finally {
-        setLoadingCreators(false);
-        setLoadingCategories(false);
-        setLoadingStats(false);
-      }
-    };
-
-    fetchHomepageData();
-  }, [hasCheckedMaintenance, isMaintenanceMode]);
-
-
-
-
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
 
       {/* Enhanced Hero Section with Notion-inspired Animations */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-6 sm:py-8 md:py-12 lg:py-14 xl:py-16 transition-colors duration-300 min-h-[60vh] sm:min-h-[70vh] md:min-h-[75vh] flex items-center">
+      <section className="relative overflow-hidden bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-6 sm:py-8 md:py-12 lg:py-14 xl:py-16 transition-colors duration-300 w-screen h-[calc(100vh-64px)] min-h-[calc(100vh-64px)] sm:h-[calc(100vh-72px)] sm:min-h-[calc(100vh-72px)] flex items-center">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
           {/* Floating Notion-style Blocks */}
@@ -456,73 +380,7 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              {/* Enhanced Stats with Better Visual Hierarchy and Consistent Shadows */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
-                <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '0ms' }}>
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-500 dark:text-orange-500 mb-1 sm:mb-2 min-h-[2.25rem] sm:min-h-[2.75rem] md:min-h-[3rem]">
-                    {loadingStats ? (
-                      <div className="mx-auto h-7 sm:h-8 md:h-10 w-16 sm:w-20 md:w-24 rounded-full bg-white/40 dark:bg-dark-tertiary/40 animate-pulse" aria-label="جارٍ التحميل"></div>
-                    ) : (
-                      <Counter
-                        end={stats.templates}
-                        duration={800}
-                        delay={0}
-                        separator=","
-                        startImmediately={true}
-                      />
-                    )}
-                  </div>
-                  <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">قالب متاح</div>
-                </div>
-                <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '100ms' }}>
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2 min-h-[2.25rem] sm:min-h-[2.75rem] md:min-h-[3rem]">
-                    {loadingStats ? (
-                      <div className="mx-auto h-7 sm:h-8 md:h-10 w-16 sm:w-20 md:w-24 rounded-full bg-white/40 dark:bg-dark-tertiary/40 animate-pulse" aria-label="جارٍ التحميل"></div>
-                    ) : (
-                      <Counter
-                        end={stats.creators}
-                        duration={800}
-                        delay={0}
-                        separator=","
-                        startImmediately={true}
-                      />
-                    )}
-                  </div>
-                  <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">مبدع نشط</div>
-                </div>
-                <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '200ms' }}>
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2 min-h-[2.25rem] sm:min-h-[2.75rem] md:min-h-[3rem]">
-                    {loadingStats ? (
-                      <div className="mx-auto h-7 sm:h-8 md:h-10 w-16 sm:w-20 md:w-24 rounded-full bg-white/40 dark:bg-dark-tertiary/40 animate-pulse" aria-label="جارٍ التحميل"></div>
-                    ) : (
-                      <Counter
-                        end={stats.downloads}
-                        duration={800}
-                        delay={0}
-                        separator=","
-                        startImmediately={true}
-                      />
-                    )}
-                  </div>
-                  <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">تحميل</div>
-                </div>
-                <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '300ms' }}>
-                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2 min-h-[2.25rem] sm:min-h-[2.75rem] md:min-h-[3rem]">
-                    {loadingStats ? (
-                      <div className="mx-auto h-7 sm:h-8 md:h-10 w-16 sm:w-20 md:w-24 rounded-full bg-white/40 dark:bg-dark-tertiary/40 animate-pulse" aria-label="جارٍ التحميل"></div>
-                    ) : (
-                      <Counter
-                        end={stats.specialties}
-                        duration={800}
-                        delay={0}
-                        separator=","
-                        startImmediately={true}
-                      />
-                    )}
-                  </div>
-                  <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">مجال متخصص</div>
-                </div>
-              </div>
+              
             </div>
           </div>
         </div>
@@ -547,10 +405,10 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {loading ? (
               // Loading skeleton
-              [...Array(6)].map((_, idx) => (
+              [...Array(4)].map((_, idx) => (
                 <div key={idx} className="card-interactive overflow-hidden animate-pulse">
                   <div className="h-40 bg-gray-200 dark:bg-gray-700"></div>
                   <div className="p-4 sm:p-6">
@@ -565,7 +423,7 @@ export default function HomePage() {
                 </div>
               ))
             ) : featuredTemplates.length > 0 ? (
-              featuredTemplates.map((t, idx) => (
+              featuredTemplates.slice(0, 4).map((t, idx) => (
                 <Link key={t._id || idx} href={`/templates/${t.slug || t._id}`}>
                   <div
                     className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards]"
@@ -627,7 +485,7 @@ export default function HomePage() {
 
                     {/* Template Info */}
                     <div className="p-4 sm:p-6 relative">
-                      <h3 className="font-semibold text-sm sm:text-base text-accent-900 dark:text-dark-text-primary mb-3 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-2">
+                      <h3 className="font-semibold text-sm sm:text-base text-accent-900 dark:text-dark-text-primary mb-3 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-1">
                         {t.title}
                       </h3>
 
@@ -685,302 +543,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Top Categories - Redesigned */}
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
-        <div className="container-custom">
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-8 sm:mb-10 md:mb-12">
-            <div className="mb-4 sm:mb-0">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-2 sm:mb-4">التصنيفات المميزة</h2>
-              <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary">اكتشف طرق جديدة لاستخدام نوشن</p>
-            </div>
-            <Link
-              href="/categories"
-              className="inline-flex items-center text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 text-accent-700 dark:text-dark-text-primary hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-            >
-              تصفح جميع التصنيفات
-              <svg className="mr-2 w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
-            {loadingCategories ? (
-              [...Array(8)].map((_, idx) => (
-                <div key={idx} className="bg-white dark:bg-dark-tertiary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-dark-card-border h-full flex flex-col overflow-hidden">
-                  {/* Icon Skeleton */}
-                  <div className="flex justify-center mb-4">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-                  </div>
-
-                  {/* Category Name Skeleton */}
-                  <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-3/4 mx-auto mb-2 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-
-                  {/* Template Count Skeleton */}
-                  <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-1/2 mx-auto bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-                </div>
-              ))
-            ) : (
-              Object.entries(categoryTotals)
-                .map(([categoryName, count]) => {
-                  // Find matching category info for icon and styling
-                  const categoryInfo = categories.find(c => c.name === categoryName) || {
-                    name: categoryName,
-                    Icon: Target,
-                    bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30"
-                  };
-                  return {
-                    name: categoryName,
-                    count: count,
-                    Icon: categoryInfo.Icon,
-                    bg: categoryInfo.bg
-                  };
-                })
-                .sort((a, b) => b.count - a.count)
-                .slice(0, 8)
-                .map((c, idx) => {
-                  // Generate URL-safe slug
-                  const slug = getCategorySlug(c.name);
-                  return (
-                    <Link href={`/categories/${slug}`} key={idx} className="group">
-                      <div
-                        className="bg-white dark:bg-dark-tertiary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-dark-card-border hover:shadow-md hover:border-accent-300 dark:hover:border-accent-400 transition-all duration-300 h-full flex flex-col opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards]"
-                        style={{ animationDelay: `${idx * 80}ms` }}
-                      >
-                        {/* Icon */}
-                        <div className="flex justify-center mb-4">
-                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br ${c.bg} backdrop-blur-sm border border-white/20 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}>
-                            <c.Icon className="w-6 h-6 text-white drop-shadow-sm group-hover:scale-110 transition-transform duration-300" />
-                          </div>
-                        </div>
-
-                        {/* Category Name */}
-                        <h3 className="font-bold text-sm sm:text-base text-accent-500 dark:text-dark-text-primary text-center mb-2 group-hover:text-accent-600 dark:group-hover:text-orange-400 transition-colors">
-                          {c.name}
-                        </h3>
-
-                        {/* Template Count */}
-                        <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary text-center mb-4">
-                          {c.count} قالب
-                        </p>
-
-                      </div>
-                    </Link>
-                  );
-                })
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Enhanced Featured Creators */}
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-dark-secondary transition-colors duration-300">
-        <div className="container-custom">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 sm:mb-10 md:mb-12">
-            <div className="mb-4 sm:mb-0">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-2 sm:mb-4">المبدعين المميزين</h2>
-              <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary">تعرف على أفضل المبدعين في مجتمعنا</p>
-            </div>
-            <Link
-              href="/creators"
-              className="inline-flex items-center text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 text-accent-700 dark:text-dark-text-primary hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-            >
-              تصفح جميع المبدعين
-              <svg className="mr-2 w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {loadingCreators ? (
-              [...Array(4)].map((_, idx) => (
-                <div key={idx} className="bg-white dark:bg-dark-tertiary rounded-xl p-6 shadow-sm border border-gray-200 dark:border-dark-card-border h-full flex flex-col overflow-hidden">
-                  <div className="text-center mb-4 flex-shrink-0">
-                    {/* Profile Picture Skeleton with Shimmer */}
-                    <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 mb-3 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-
-                    {/* Name Skeleton */}
-                    <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-lg w-3/4 mx-auto bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-                  </div>
-
-                  <div className="flex-1 flex flex-col justify-between">
-                    {/* Bio Skeleton */}
-                    <div className="space-y-2 mb-4 flex-1">
-                      <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-full bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-                      <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-4/5 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-                      <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-3/5 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-                    </div>
-
-                    {/* Stats skeleton - matches actual card structure */}
-                    <div className="mt-auto flex items-center justify-between text-xs">
-                      {/* Template Count */}
-                      <div className="flex items-center gap-1">
-                        <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-6 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"></div>
-                        <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-8 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"></div>
-                      </div>
-
-                      {/* Followers */}
-                      <div className="flex items-center gap-1">
-                        <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-8 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"></div>
-                        <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-10 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"></div>
-                      </div>
-
-                      {/* Rating */}
-                      <div className="flex items-center gap-1">
-                        <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-6 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"></div>
-                        <div className="w-3 h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (topCreators && topCreators.length > 0) ? (
-              topCreators.slice(0, 4).map((cr, idx) => (
-                <Link key={cr.id || idx} href={`/creators/${cr.username || cr.email?.split('@')[0] || cr.displayName || cr.name || cr.id || cr._id || idx}`}>
-                  <div
-                    className="group bg-white dark:bg-dark-tertiary rounded-xl p-6 shadow-sm border border-gray-200 dark:border-dark-card-border hover:shadow-md hover:border-primary-300 dark:hover:border-primary-400 transition-all duration-300 h-full flex flex-col opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards]"
-                    style={{ animationDelay: `${idx * 100}ms` }}
-                  >
-                    <div className="text-center mb-4 flex-shrink-0">
-                      <div className="relative w-16 h-16 mx-auto mb-3">
-                        {cr.profilePicture ? (
-                          <Image
-                            src={cr.profilePicture}
-                            alt={cr.name}
-                            width={64}
-                            height={64}
-                            className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md"
-                            loading="lazy"
-                            quality={80}
-                          />
-                        ) : (
-                          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center border-2 border-white shadow-md">
-                            <span className="text-lg font-bold text-primary-500 dark:text-orange-400">
-                              {cr.name?.charAt(0)?.toUpperCase() || 'م'}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 justify-center">
-                        <h3 className="font-bold text-accent-900 dark:text-dark-text-primary group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                          {cr.name}
-                        </h3>
-                        {/* Creator Badges */}
-                        {cr.badges && cr.badges.length > 0 && (
-                          <div className="flex items-center gap-1">
-                            {cr.badges.slice(0, 2).map((badge) => {
-                              const BadgeIcon = getBadgeIcon(badge.type);
-                              return (
-                                <div
-                                  key={badge._id}
-                                  className="group/badge relative"
-                                >
-                                  <div className="flex items-center gap-1 p-1 bg-primary-50 dark:bg-orange-500/10 border border-primary-200 dark:border-orange-500/20 rounded transition-all duration-200 hover:shadow-md">
-                                    <BadgeIcon
-                                      className="w-3 h-3 text-primary-600 dark:text-orange-400"
-                                      strokeWidth={2}
-                                    />
-                                  </div>
-                                  {/* Tooltip */}
-                                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 dark:bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 invisible group-hover/badge:opacity-100 group-hover/badge:visible transition-all duration-200 pointer-events-none z-10">
-                                    {badge.label}
-                                    <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex-1 flex flex-col justify-between">
-                      <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-3 line-clamp-3 leading-relaxed flex-1">
-                        {cr.bio || cr.experience || cr.motivation || cr.description || 'مبدع قوالب نوشن متخصص في إنشاء قوالب احترافية وعملية.'}
-                      </p>
-
-                      {/* Creator Stats */}
-                      <div className="mt-auto flex items-center justify-between text-xs">
-                        {/* Template Count */}
-                        <div className="flex items-center gap-1">
-                          <span className="text-accent-600 dark:text-dark-text-secondary">
-                            {(cr.templatesCount || cr.templateCount || cr.totalTemplates || 0).toLocaleString()}
-                          </span>
-                          <span className="text-accent-500 dark:text-dark-text-tertiary">قالب</span>
-                        </div>
-
-                        {/* Followers */}
-                        <div className="flex items-center gap-1">
-                          <span className="text-accent-600 dark:text-dark-text-secondary">
-                            {(cr.followersCount || cr.followers || cr.totalFollowers || 0).toLocaleString()}
-                          </span>
-                          <span className="text-accent-500 dark:text-dark-text-tertiary">متابع</span>
-                        </div>
-
-                        {/* Rating */}
-                        <div className="flex items-center gap-1">
-                          <span className="text-accent-600 dark:text-dark-text-secondary">
-                            {(cr.averageRating || cr.rating || cr.medianRating || 0).toFixed(1)}
-                          </span>
-                          <svg className="w-3 h-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))
-            ) : (
-              <div className="col-span-full text-center py-8 text-accent-600 dark:text-dark-text-secondary">لا يوجد مبدعين لعرضهم حالياً.</div>
-            )}
-          </div>
-        </div>
-      </section>
-
-
-
-
-      {/* Enhanced Call-to-Action Banner */}
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24">
-        <div className="container-custom max-w-6xl">
-          <div className="bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary rounded-xl sm:rounded-2xl p-6 sm:p-8 md:p-12 text-center relative overflow-hidden transition-colors duration-300">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary-500/20 to-accent-600/20 dark:from-orange-500/20 dark:to-orange-600/20"></div>
-            <div className="relative z-10">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white dark:text-dark-text-primary mb-4 sm:mb-6">
-                ابدأ بيع قوالبك اليوم!
-              </h2>
-              <p className="text-sm sm:text-base md:text-lg text-gray-300 dark:text-dark-text-secondary mb-6 sm:mb-8 max-w-xs sm:max-w-2xl mx-auto leading-relaxed">
-                انضم إلى آلاف المبدعين العرب وابدأ في كسب المال من قوالبك المبتكرة
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-6 sm:mb-8">
-                <Link
-                  href={creatorCtaHref}
-                  className="btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 shadow-large hover:shadow-glow w-full sm:w-auto text-center"
-                >
-                  {isApprovedCreator ? 'لوحة التحكم' : 'كن مبدعاً'}
-                  <svg className="inline-block mr-2 w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </Link>
-                <Link
-                  href="/templates"
-                  className="btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto text-center"
-                >
-                  تصفح القوالب
-                </Link>
-              </div>
-
-              <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 text-xs sm:text-sm text-gray-300 dark:text-dark-text-tertiary">
-                <div className="flex items-center gap-2"><Check className="w-4 h-4 sm:w-5 sm:h-5 text-white dark:text-dark-text-primary" /><span>بدون رسوم إعداد</span></div>
-                <div className="flex items-center gap-2"><Check className="w-4 h-4 sm:w-5 sm:h-5 text-white dark:text-dark-text-primary" /><span>دفع آمن وسريع</span></div>
-                <div className="flex items-center gap-2"><Check className="w-4 h-4 sm:w-5 sm:h-5 text-white dark:text-dark-text-primary" /><span>دعم فني 24/7</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Enhanced Footer */}
       <footer className="bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary transition-colors duration-300">

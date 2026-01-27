@@ -150,17 +150,17 @@ function TemplatesPageContent() {
   return (
     <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
       {/* Header */}
-      <div className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300">
-        <div className="container-custom py-8 sm:py-10 md:py-12">
-          <div className="text-center">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4">قوالب نوشن</h1>
-            <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary max-w-xs sm:max-w-2xl mx-auto px-4 sm:px-0">
+      <section className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300 py-12 sm:py-16 md:py-20 lg:py-24">
+        <div className="container-custom">
+          <div className="text-center mb-8 sm:mb-10 md:mb-12">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-accent-500 dark:text-dark-text-primary mb-4 sm:mb-6">قوالب نوشن</h1>
+            <p className="text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary max-w-xs sm:max-w-2xl md:max-w-3xl mx-auto px-4 sm:px-0">
               اكتشف مجموعة متنوعة من قوالب نوشن المصممة خصيصاً للمستخدمين العرب.
               قوالب احترافية لتنظيم عملك وحياتك الشخصية
             </p>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Filters */}
       <div className="container-custom py-6 sm:py-8">

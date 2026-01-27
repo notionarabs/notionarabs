@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import api from '../lib/api';
-import { useAuth } from '../contexts/AuthContext';
 import { useMaintenance } from '../contexts/MaintenanceContext';
 import StarRating from '../components/StarRating';
 import { Settings, BookOpen, Briefcase, Heart, Palette, Laptop, Dumbbell, PiggyBank, FolderTree, CalendarDays, LayoutDashboard, Users, Youtube, Facebook, Send, Zap, Target, Lightbulb, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Check } from 'lucide-react';
@@ -141,19 +140,12 @@ const categories = [
 ];
 
 export default function HomePage() {
-  const { user, isAuthenticated } = useAuth();
   const { isMaintenanceMode, hasCheckedMaintenance } = useMaintenance();
   const [featuredTemplates, setFeaturedTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [failedImageOptimization, setFailedImageOptimization] = useState(new Set());
   const animationsPlayedRef = useRef(false);
   const hasFetchedTemplatesRef = useRef(false);
-  const isApprovedCreator = isAuthenticated && user?.creatorStatus === 'approved';
-  const creatorCtaHref = isApprovedCreator
-    ? '/profile'
-    : isAuthenticated
-      ? '/creators/apply'
-      : '/login?redirect=/creators/apply';
 
   // Mark animations as played after they complete
   useEffect(() => {
@@ -345,38 +337,38 @@ export default function HomePage() {
               {/* Enhanced Badge with Better Contrast */}
               <div className={`inline-flex items-center px-4 py-2 bg-white/95 dark:bg-dark-tertiary/95 backdrop-blur-sm text-accent-700 dark:text-dark-text-primary rounded-full text-sm font-semibold mb-6 ${!animationsPlayedRef.current ? 'text-reveal' : ''} shadow-lg dark:shadow-dark-medium border border-primary-300 dark:border-orange-400/50 transition-colors duration-300`}>
                 <span className="w-2 h-2 bg-primary-600 dark:bg-orange-400 rounded-full ml-2 pulse-glow"></span>
-                قوالب عربية عالية الجودة
+                خدمات وأنظمة نوشن احترافية
               </div>
 
               {/* Main Heading */}
               <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-accent-500 dark:text-dark-text-primary mb-4 sm:mb-6 ${!animationsPlayedRef.current ? 'text-reveal-delayed' : ''} leading-tight tracking-tight`}>
                 <div className="block">
-                  <div className="block">المنصة العربية الأولى</div>
-                  <div className="block mt-2 md:mt-3 lg:mt-4"><span className="whitespace-nowrap">لقوالب نوشن</span></div>
+                  <div className="block">خدمات نوشن</div>
+                  <div className="block mt-2 md:mt-3 lg:mt-4"><span className="whitespace-nowrap">وأنظمة مخصصة لأعمالك</span></div>
                 </div>
               </h1>
 
               {/* Enhanced Description with Better Typography */}
               <p className={`text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary mb-6 sm:mb-8 max-w-xs sm:max-w-2xl md:max-w-3xl mx-auto ${!animationsPlayedRef.current ? 'text-reveal-delayed-2' : ''} leading-relaxed px-2 sm:px-0 font-medium`}>
-                اكتشف قوالب نوشن عربية عالية الجودة مصممة للعمل والدراسة والتنظيم الشخصي. انضم لمجتمع المبدعين العرب وابدأ رحلتك نحو الإنتاجية.
+                نبني لك أنظمة نوشن ذكية لإدارة العمل والمشاريع والمعرفة — من التخطيط إلى التنفيذ والأتمتة، بتصميم عربي واضح وتجربة سهلة.
               </p>
 
               {/* Enhanced CTA Buttons with Better Animations */}
               <div className={`flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-8 sm:mb-12 ${!animationsPlayedRef.current ? 'text-reveal-delayed-3' : ''}`}>
                 <Link
-                  href="/templates"
+                  href="/contact"
                   className="inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-primary-500 dark:bg-orange-500 text-white rounded-xl hover:bg-primary-600 dark:hover:bg-orange-600 transition-all duration-300 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
                 >
-                  استكشف القوالب
+                  اطلب خدمتك الآن
                   <svg className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </Link>
                 <Link
-                  href={creatorCtaHref}
+                  href="/about"
                   className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-white/95 dark:bg-dark-tertiary/95 backdrop-blur-sm text-accent-700 dark:text-dark-text-primary rounded-xl border-2 border-primary-300 dark:border-orange-400/50 hover:bg-primary-50 dark:hover:bg-orange-900/20 transition-all duration-300 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
                 >
-                  {isApprovedCreator ? 'لوحة التحكم' : 'انضم كمبدع'}
+                  تعرّف على خدماتنا
                 </Link>
               </div>
 

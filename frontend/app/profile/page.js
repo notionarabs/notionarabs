@@ -10,7 +10,7 @@ import Image from 'next/image';
 import api from '../../lib/api';
 import { formatDate, formatTime } from '../../lib/dateUtils';
 import Navigation from '../../components/Navigation';
-import { Star, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Zap, Download, CheckCircle, Heart } from 'lucide-react';
+import { Star, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Zap, Download, CheckCircle, Heart, Send } from 'lucide-react';
 
 // Map badge types to Lucide icons
 const getBadgeIcon = (badgeType) => {
@@ -197,25 +197,32 @@ export default function ProfilePage() {
           </p>
         </div>
 
-        {/* Payment Notification */}
+        {/* Creator Community Notification */}
         <div className="mb-6 sm:mb-8 px-4 sm:px-0">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800/30 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-              <div className="flex-shrink-0">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+          <div className="bg-white/80 dark:bg-dark-card-bg/80 border border-gray-200 dark:border-dark-card-border rounded-2xl p-4 sm:p-6 shadow-sm backdrop-blur-sm">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 bg-primary-50 dark:bg-dark-tertiary rounded-xl flex items-center justify-center">
+                  <Send className="w-5 h-5 text-primary-600 dark:text-orange-400" />
+                </div>
+                <div className="text-right">
+                  <h3 className="text-sm sm:text-base font-semibold text-gray-800 dark:text-dark-text-primary">
+                    انضم إلى مجتمع المبدعين على تيليجرام
+                  </h3>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-dark-text-secondary mt-1">
+                    تواصل مع مبدعي عرب نوشن وشارك خبراتك وأفكارك.
+                  </p>
                 </div>
               </div>
-              <div className="flex-1 text-right">
-                <h3 className="text-base sm:text-lg font-semibold text-blue-800 dark:text-blue-200 mb-1">
-                  🎉 ميزة الأرباح للمبدعين قريباً!
-                </h3>
-                <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-300">
-                  ابدأ بإنشاء قوالبك الآن وستتمكن من كسب المال من مبيعاتها قريباً
-                </p>
-              </div>
+              <Link
+                href="https://t.me/+jNEkx52yB4Q0MmU0"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 text-white text-xs sm:text-sm font-semibold px-4 py-2 hover:bg-primary-700 transition-colors"
+              >
+                <Send className="w-4 h-4" />
+                انضم الآن
+              </Link>
             </div>
           </div>
         </div>

@@ -52,8 +52,6 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
   // Memoize navigation items to prevent unnecessary re-renders
   const navItems = useMemo(() => [
     { href: '/store', label: 'المتجر', key: 'store' },
-    { href: '/templates', label: 'القوالب', key: 'templates' },
-    { href: '/creators', label: 'المبدعين', key: 'creators' },
     { href: '/blog', label: 'المدونة', key: 'blog' },
     { href: '/about', label: 'من نحن', key: 'about' }
   ], []);
@@ -89,9 +87,30 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
           <div className={`transition-all duration-300 ease-in-out overflow-hidden flex items-center ${activePage !== 'home' ? 'max-w-24 opacity-100' : 'max-w-0 opacity-0'}`}>
             <Link href="/" className="nav-link whitespace-nowrap">الرئيسية</Link>
           </div>
-          <Link href="/store" className={`nav-link ${activePage === 'store' ? 'nav-link-active' : ''}`}>المتجر</Link>
-          <Link href="/templates" className={`nav-link ${activePage === 'templates' ? 'nav-link-active' : ''}`}>القوالب</Link>
-          <Link href="/creators" className={`nav-link ${activePage === 'creators' ? 'nav-link-active' : ''}`}>المبدعين</Link>
+          <div className="relative group">
+            <Link
+              href="/store"
+              className={`nav-link ${['store', 'templates', 'creators'].includes(activePage) ? 'nav-link-active' : ''}`}
+            >
+              المتجر
+            </Link>
+            <div className="absolute top-full right-0 mt-3 w-44 rounded-xl border border-gray-200/40 dark:border-dark-card-border bg-white/95 dark:bg-dark-secondary/95 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 backdrop-blur-sm">
+              <div className="py-2">
+                <Link
+                  href="/templates"
+                  className="block px-4 py-2.5 text-sm text-accent-700 dark:text-dark-text-secondary hover:bg-accent-50 dark:hover:bg-dark-tertiary transition-colors"
+                >
+                  القوالب
+                </Link>
+                <Link
+                  href="/creators"
+                  className="block px-4 py-2.5 text-sm text-accent-700 dark:text-dark-text-secondary hover:bg-accent-50 dark:hover:bg-dark-tertiary transition-colors"
+                >
+                  المبدعين
+                </Link>
+              </div>
+            </div>
+          </div>
           <Link href="/blog" className={`nav-link ${activePage === 'blog' ? 'nav-link-active' : ''}`}>المدونة</Link>
           <Link href="/about" className={`nav-link ${activePage === 'about' ? 'nav-link-active' : ''}`}>من نحن</Link>
         </nav>
@@ -154,12 +173,14 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
             <Link href="/store" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
               المتجر
             </Link>
-            <Link href="/templates" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
-              القوالب
-            </Link>
-            <Link href="/creators" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
-              المبدعين
-            </Link>
+            <div className="mr-2 space-y-2">
+              <Link href="/templates" onClick={handleLinkClick} className="block py-2.5 px-4 text-sm text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+                القوالب
+              </Link>
+              <Link href="/creators" onClick={handleLinkClick} className="block py-2.5 px-4 text-sm text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+                المبدعين
+              </Link>
+            </div>
             <Link href="/blog" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
               المدونة
             </Link>

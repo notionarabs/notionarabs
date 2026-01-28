@@ -3,10 +3,22 @@ const axios = require('axios');
 const NOTION_API_TOKEN = process.env.NOTION_API_TOKEN;
 const NOTION_TEMPLATES_DATABASE_ID = process.env.NOTION_TEMPLATES_DATABASE_ID;
 const NOTION_CREATORS_DATABASE_ID = process.env.NOTION_CREATORS_DATABASE_ID;
+const NOTION_CONSULTATIONS_DATABASE_ID = process.env.NOTION_CONSULTATIONS_DATABASE_ID;
 
 // Helper function to check if Notion is configured
 function isNotionConfigured() {
   return NOTION_API_TOKEN && (NOTION_TEMPLATES_DATABASE_ID || NOTION_CREATORS_DATABASE_ID);
+}
+
+function findProperty(schema, names, expectedTypes = []) {
+  const normalizedNames = names.map((name) => name.toLowerCase());
+  const entry = Object.entries(schema).find(([propName, prop]) => {
+    const matchesName = normalizedNames.includes(propName.toLowerCase());
+    const matchesType = expectedTypes.length === 0 || expectedTypes.includes(prop.type);
+    return matchesName && matchesType;
+  });
+
+  return entry ? { name: entry[0], ...entry[1] } : null;
 }
 
 /**
@@ -427,9 +439,245 @@ async function addCreatorToNotion(user) {
   }
 }
 
+/**
+ * Add a consultation booking to Notion database
+ * @param {Object} payload - Booking payload from contact form
+ * @returns {Promise<Object>} Notion response
+ */
+async function addConsultationToNotion(payload) {
+  let errorDetails = null;
+  try {
+    if (!NOTION_API_TOKEN || !NOTION_CONSULTATIONS_DATABASE_ID) {
+      console.warn('❌ Notion API not configured for consultations');
+      errorDetails = { message: 'Notion API not configured', missing: [] };
+      if (!NOTION_API_TOKEN) errorDetails.missing.push('NOTION_API_TOKEN');
+      if (!NOTION_CONSULTATIONS_DATABASE_ID) errorDetails.missing.push('NOTION_CONSULTATIONS_DATABASE_ID');
+      return { error: errorDetails };
+    }
+
+    const schema = await getNotionDatabaseSchema(NOTION_CONSULTATIONS_DATABASE_ID);
+    const titleProp = findProperty(schema, ['Name', 'الاسم', 'Title', 'العنوان'], ['title']);
+
+    if (!titleProp) {
+      return { error: { message: 'Notion database is missing a title property' } };
+    }
+
+    const properties = {
+      [titleProp.name]: {
+        title: [
+          {
+            text: {
+              content: payload.name || 'استشارة جديدة'
+            }
+          }
+        ]
+      }
+    };
+
+    const setSelectOrText = (prop, value) => {
+      if (!prop || !value) return false;
+      if (prop.type === 'select') {
+        properties[prop.name] = { select: { name: value } };
+        return true;
+      }
+      properties[prop.name] = { rich_text: [{ text: { content: value } }] };
+      return true;
+    };
+    const extraDetails = [];
+    const pushExtra = (label, value, mapped) => {
+      if (!value || mapped) return;
+      extraDetails.push(`${label}: ${value}`);
+    };
+
+    const emailProp = findProperty(schema, ['Email', 'البريد الإلكتروني', 'الإيميل'], ['email', 'rich_text']);
+    let emailMapped = false;
+    if (emailProp && payload.email) {
+      properties[emailProp.name] = emailProp.type === 'email'
+        ? { email: payload.email }
+        : { rich_text: [{ text: { content: payload.email } }] };
+      emailMapped = true;
+    }
+    pushExtra('البريد الإلكتروني', payload.email, emailMapped);
+
+    const whatsappProp = findProperty(schema, ['WhatsApp', 'واتساب', 'رقم الواتساب', 'الهاتف', 'رقم الهاتف'], ['phone_number', 'rich_text']);
+    let whatsappMapped = false;
+    if (whatsappProp && payload.whatsapp) {
+      properties[whatsappProp.name] = whatsappProp.type === 'phone_number'
+        ? { phone_number: payload.whatsapp }
+        : { rich_text: [{ text: { content: payload.whatsapp } }] };
+      whatsappMapped = true;
+    }
+    pushExtra('رقم الواتساب', payload.whatsapp, whatsappMapped);
+
+    const serviceProp = findProperty(schema, ['Service Type', 'نوع الخدمة', 'الخدمة', 'الخدمة المطلوبة', 'Field', 'المجال'], ['select', 'multi_select', 'rich_text']);
+    let serviceMapped = false;
+    if (serviceProp && payload.serviceType && payload.serviceType.length) {
+      if (serviceProp.type === 'multi_select') {
+        properties[serviceProp.name] = {
+          multi_select: payload.serviceType.map((item) => ({ name: item }))
+        };
+        serviceMapped = true;
+      } else if (serviceProp.type === 'select') {
+        properties[serviceProp.name] = { select: { name: payload.serviceType[0] } };
+        serviceMapped = true;
+      } else {
+        properties[serviceProp.name] = {
+          rich_text: [{ text: { content: payload.serviceType.join('، ') } }]
+        };
+        serviceMapped = true;
+      }
+    }
+    pushExtra('نوع الخدمة', payload.serviceType?.join('، '), serviceMapped);
+
+    const companyTypeProp = findProperty(schema, ['Company Type', 'Client Type', 'نوع الشركة', 'نوع العميل', 'نوع النشاط'], ['select', 'rich_text']);
+    const companyTypeMapped = setSelectOrText(companyTypeProp, payload.companyType);
+    pushExtra('نوع الشركة', payload.companyType, companyTypeMapped);
+
+    const typeProp = findProperty(schema, ['Type', 'النوع'], ['select', 'rich_text']);
+    const typeMapped = setSelectOrText(typeProp, payload.companyType);
+    pushExtra('النوع', payload.companyType, typeMapped);
+
+    const teamSizeProp = findProperty(schema, ['Team Size', 'عدد الفريق', 'حجم الفريق', 'عدد الموظفين', 'عدد الأفراد'], ['rich_text', 'number']);
+    let teamSizeMapped = false;
+    if (teamSizeProp && payload.teamSize) {
+      if (teamSizeProp.type === 'number') {
+        const parsed = Number(payload.teamSize.replace(/[^\d.]/g, ''));
+        if (!Number.isNaN(parsed) && Number.isFinite(parsed)) {
+          properties[teamSizeProp.name] = { number: parsed };
+          teamSizeMapped = true;
+        }
+      } else {
+        properties[teamSizeProp.name] = { rich_text: [{ text: { content: payload.teamSize } }] };
+        teamSizeMapped = true;
+      }
+    }
+    pushExtra('حجم الفريق', payload.teamSize, teamSizeMapped);
+
+    const roleProp = findProperty(schema, ['Role', 'الدور', 'المنصب', 'المسمى الوظيفي'], ['rich_text', 'select']);
+    const roleMapped = setSelectOrText(roleProp, payload.role);
+    pushExtra('الدور', payload.role, roleMapped);
+
+    const industryProp = findProperty(schema, ['Industry', 'المجال', 'قطاع العمل', 'مجال العمل'], ['rich_text', 'select']);
+    const industryMapped = setSelectOrText(industryProp, payload.industry);
+    pushExtra('المجال', payload.industry, industryMapped);
+
+    const goalProp = findProperty(schema, ['Goal', 'الهدف', 'الغاية'], ['rich_text']);
+    const goalMapped = setSelectOrText(goalProp, payload.goal);
+    pushExtra('الهدف', payload.goal, goalMapped);
+
+    const challengeProp = findProperty(schema, ['Challenge', 'التحدي', 'التحديات'], ['rich_text']);
+    const challengeMapped = setSelectOrText(challengeProp, payload.challenge);
+    pushExtra('التحدي', payload.challenge, challengeMapped);
+
+
+    const companyNameProp = findProperty(schema, ['Company', 'Company Name', 'اسم الشركة'], ['rich_text']);
+    const companyNameMapped = setSelectOrText(companyNameProp, payload.companyName);
+    pushExtra('اسم الشركة', payload.companyName, companyNameMapped);
+
+    const budgetProp = findProperty(schema, ['Budget', 'Estimated Budget', 'الميزانية', 'الميزانية التقديرية'], ['rich_text', 'select']);
+    const budgetMapped = setSelectOrText(budgetProp, payload.budget);
+    pushExtra('الميزانية', payload.budget, budgetMapped);
+
+    const timelineProp = findProperty(
+      schema,
+      ['Timeline', 'Timeline (select)', 'Start Date', 'موعد البدء', 'وقت البدء'],
+      ['rich_text', 'date', 'select']
+    );
+    let timelineMapped = false;
+    if (timelineProp && payload.timeline) {
+      if (timelineProp.type === 'date') {
+        properties[timelineProp.name] = { date: { start: payload.timeline } };
+        timelineMapped = true;
+      } else if (timelineProp.type === 'select') {
+        properties[timelineProp.name] = { select: { name: payload.timeline } };
+        timelineMapped = true;
+      } else {
+        properties[timelineProp.name] = { rich_text: [{ text: { content: payload.timeline } }] };
+        timelineMapped = true;
+      }
+    }
+    pushExtra('موعد البدء', payload.timeline, timelineMapped);
+
+    const referralProp = findProperty(schema, ['Referral', 'How did you find us', 'المصدر', 'قناة الوصول'], ['rich_text', 'select']);
+    const referralMapped = setSelectOrText(referralProp, payload.referral);
+    pushExtra('مصدر التعرف', payload.referral, referralMapped);
+
+    const companyWebsiteProp = findProperty(
+      schema,
+      ['Website', 'Website Link', 'Company Website', 'موقع الشركة', 'الموقع الإلكتروني', 'موقع الشركة الإلكتروني'],
+      ['url', 'rich_text']
+    );
+    let websiteMapped = false;
+    if (companyWebsiteProp && payload.companyWebsite) {
+      if (companyWebsiteProp.type === 'url') {
+        properties[companyWebsiteProp.name] = { url: payload.companyWebsite };
+        websiteMapped = true;
+      } else {
+        properties[companyWebsiteProp.name] = { rich_text: [{ text: { content: payload.companyWebsite } }] };
+        websiteMapped = true;
+      }
+    }
+    pushExtra('موقع الشركة', payload.companyWebsite, websiteMapped);
+
+    const detailsProp = findProperty(schema, ['Details', 'التفاصيل', 'تفاصيل', 'نبذة', 'وصف'], ['rich_text']);
+    if (detailsProp) {
+      const mainDetails = (payload.details || payload.projectHelp || '').substring(0, 1800);
+      const appended = extraDetails.length ? `\n\n---\n${extraDetails.join('\n')}` : '';
+      const combined = `${mainDetails}${appended}`.trim().substring(0, 2000);
+      if (combined) {
+        properties[detailsProp.name] = {
+          rich_text: [{ text: { content: combined } }]
+        };
+      }
+    }
+
+    const sourceProp = findProperty(schema, ['Source', 'المصدر', 'قناة الوصول'], ['rich_text', 'select']);
+    const sourceMapped = setSelectOrText(sourceProp, payload.source);
+    pushExtra('المصدر', payload.source, sourceMapped);
+
+    const statusProp = findProperty(schema, ['Status', 'الحالة', 'حالة الطلب'], ['select']);
+    if (statusProp && statusProp.options?.length) {
+      const preferred = statusProp.options.find((opt) => ['New', 'جديد'].includes(opt.name));
+      properties[statusProp.name] = { select: { name: preferred ? preferred.name : statusProp.options[0].name } };
+    }
+
+    const createdAtProp = findProperty(schema, ['Created At', 'تاريخ', 'التاريخ', 'تاريخ الإرسال', 'تاريخ الطلب'], ['date']);
+    if (createdAtProp) {
+      properties[createdAtProp.name] = { date: { start: new Date().toISOString() } };
+    }
+
+    const response = await axios.post(
+      'https://api.notion.com/v1/pages',
+      {
+        parent: { database_id: NOTION_CONSULTATIONS_DATABASE_ID },
+        properties
+      },
+      {
+        headers: getNotionHeaders()
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error adding consultation to Notion');
+    console.error('❌ Status:', error.response?.status);
+    console.error('❌ Error data:', JSON.stringify(error.response?.data || {}, null, 2));
+
+    errorDetails = {
+      status: error.response?.status,
+      code: error.response?.data?.code,
+      message: error.response?.data?.message || error.message,
+      propertyErrors: error.response?.data?.properties || null
+    };
+
+    return { error: errorDetails };
+  }
+}
+
 module.exports = {
   addTemplateToNotion,
   addCreatorToNotion,
+  addConsultationToNotion,
   isNotionConfigured,
   getNotionDatabaseSchema,
   getPriceSelectOptions

@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Youtube, Facebook, Send, Users, Mail } from 'lucide-react';
+import ConsultationForm from '../../components/ConsultationForm';
 
 export const metadata = {
   title: 'اتصل بنا | عرب نوشن',
@@ -91,6 +92,7 @@ export default function ContactPage() {
           </div>
 
           <div className="max-w-2xl mx-auto">
+            <ConsultationForm />
             {/* Contact Information */}
             <div>
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-accent-500 dark:text-dark-text-primary text-center">طرق التواصل</h2>

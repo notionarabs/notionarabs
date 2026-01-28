@@ -103,6 +103,7 @@ app.use((req, res, next) => {
   next();
 });
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Serve static files (screenshots)
 app.use('/uploads', express.static('uploads'));

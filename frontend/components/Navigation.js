@@ -15,6 +15,7 @@ const UserNotifications = dynamic(() => import('./UserNotifications'), {
 
 const Navigation = memo(function Navigation({ activePage = '' }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [openMobileSection, setOpenMobileSection] = useState('store');
   const { user, isAuthenticated, loading, logout } = useAuth();
   const { theme } = useTheme();
   const menuRef = useRef(null);
@@ -41,6 +42,10 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
   // Close menu when clicking on any link
   const handleLinkClick = () => {
     setIsMenuOpen(false);
+  };
+
+  const handleMobileSectionToggle = (sectionKey) => {
+    setOpenMobileSection((prev) => (prev === sectionKey ? '' : sectionKey));
   };
 
   // Close menu when logout is clicked
@@ -99,6 +104,12 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
             <div className="absolute top-full right-0 mt-3 w-44 rounded-xl border border-gray-200/40 dark:border-dark-card-border bg-white/95 dark:bg-dark-secondary/95 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 backdrop-blur-sm">
               <div className="py-2">
                 <Link
+                  href="/store"
+                  className="block px-4 py-2.5 text-sm text-accent-700 dark:text-dark-text-secondary hover:bg-accent-50 dark:hover:bg-dark-tertiary transition-colors"
+                >
+                  صفحة المتجر
+                </Link>
+                <Link
                   href="/templates"
                   className="block px-4 py-2.5 text-sm text-accent-700 dark:text-dark-text-secondary hover:bg-accent-50 dark:hover:bg-dark-tertiary transition-colors"
                 >
@@ -114,9 +125,36 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
             </div>
           </div>
           <Link href="/services" className={`nav-link ${activePage === 'services' ? 'nav-link-active' : ''}`}>الخدمات</Link>
-          <Link href="/testimonials" className={`nav-link ${activePage === 'testimonials' ? 'nav-link-active' : ''}`}>قصص النجاح</Link>
-          <Link href="/blog" className={`nav-link ${activePage === 'blog' ? 'nav-link-active' : ''}`}>المدونة</Link>
-          <Link href="/about" className={`nav-link ${activePage === 'about' ? 'nav-link-active' : ''}`}>من نحن</Link>
+          <div className="relative group">
+            <Link
+              href="/about"
+              className={`nav-link ${['about', 'blog', 'testimonials'].includes(activePage) ? 'nav-link-active' : ''}`}
+            >
+              عن عرب نوشن
+            </Link>
+            <div className="absolute top-full right-0 mt-3 w-44 rounded-xl border border-gray-200/40 dark:border-dark-card-border bg-white/95 dark:bg-dark-secondary/95 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 backdrop-blur-sm">
+              <div className="py-2">
+                <Link
+                  href="/about"
+                  className="block px-4 py-2.5 text-sm text-accent-700 dark:text-dark-text-secondary hover:bg-accent-50 dark:hover:bg-dark-tertiary transition-colors"
+                >
+                  من نحن
+                </Link>
+                <Link
+                  href="/blog"
+                  className="block px-4 py-2.5 text-sm text-accent-700 dark:text-dark-text-secondary hover:bg-accent-50 dark:hover:bg-dark-tertiary transition-colors"
+                >
+                  المدونة
+                </Link>
+                <Link
+                  href="/testimonials"
+                  className="block px-4 py-2.5 text-sm text-accent-700 dark:text-dark-text-secondary hover:bg-accent-50 dark:hover:bg-dark-tertiary transition-colors"
+                >
+                  قصص النجاح
+                </Link>
+              </div>
+            </div>
+          </div>
         </nav>
 
         {/* Auth Buttons / User Menu */}
@@ -165,38 +203,82 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
       </div>
 
       {/* Mobile Menu - Always rendered for SEO, hidden with CSS */}
-      <div className={`md:hidden absolute top-full left-0 right-0 z-40 bg-accent-500 dark:bg-dark-secondary border-b border-gray-700 dark:border-dark-card-border shadow-large dark:shadow-dark-large backdrop-blur-sm transition-all duration-300 ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
-        <div className="container-custom py-6 space-y-6">
+      <div className={`md:hidden absolute top-full left-0 right-0 z-40 bg-gradient-to-b from-accent-500 via-accent-500 to-accent-600 dark:from-dark-secondary dark:via-dark-secondary dark:to-dark-tertiary border-b border-gray-700/60 dark:border-dark-card-border shadow-large dark:shadow-dark-large backdrop-blur-sm transition-all duration-300 ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
+        <div className="container-custom py-6 space-y-7">
           {/* Mobile Navigation Links - Always in DOM for crawlability */}
-          <nav className="space-y-4" aria-label="Mobile navigation">
+          <nav className="space-y-5" aria-label="Mobile navigation">
             <div className={`transition-all duration-300 ease-in-out overflow-hidden ${activePage !== 'home' ? 'max-h-16 opacity-100' : 'max-h-0 opacity-0'}`}>
-              <Link href="/" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+              <Link href="/" onClick={handleLinkClick} className="block py-3.5 px-4 text-gray-100/90 dark:text-dark-text-primary hover:text-white hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-2xl border border-white/5">
                 الرئيسية
               </Link>
             </div>
-            <Link href="/store" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
-              المتجر
-            </Link>
-            <div className="mr-2 space-y-2">
-              <Link href="/templates" onClick={handleLinkClick} className="block py-2.5 px-4 text-sm text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+            <button
+              type="button"
+              onClick={() => handleMobileSectionToggle('store')}
+              className="w-full px-4 flex items-center gap-3 text-gray-300/80 dark:text-dark-text-tertiary"
+              aria-expanded={openMobileSection === 'store'}
+              aria-controls="mobile-store-links"
+            >
+              <span className="h-px flex-1 bg-white/10 dark:bg-dark-card-border"></span>
+              <span className="text-[11px] font-semibold uppercase tracking-widest">
+                المتجر
+              </span>
+              <span className="h-px flex-1 bg-white/10 dark:bg-dark-card-border"></span>
+              <span className={`ml-2 transition-transform duration-200 ${openMobileSection === 'store' ? 'rotate-180' : ''}`}>
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 9l6 6 6-6" />
+                </svg>
+              </span>
+            </button>
+            <div
+              id="mobile-store-links"
+              className={`mr-2 space-y-2.5 overflow-hidden transition-all duration-300 ${openMobileSection === 'store' ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'}`}
+            >
+              <Link href="/store" onClick={handleLinkClick} className="block py-3 px-4 text-sm text-gray-100/90 dark:text-dark-text-primary hover:text-white hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-2xl border border-white/5">
+                صفحة المتجر
+              </Link>
+              <Link href="/templates" onClick={handleLinkClick} className="block py-3 px-4 text-sm text-gray-300/90 dark:text-dark-text-tertiary hover:text-white hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-2xl border border-white/5">
                 القوالب
               </Link>
-              <Link href="/creators" onClick={handleLinkClick} className="block py-2.5 px-4 text-sm text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+              <Link href="/creators" onClick={handleLinkClick} className="block py-3 px-4 text-sm text-gray-300/90 dark:text-dark-text-tertiary hover:text-white hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-2xl border border-white/5">
                 المبدعين
               </Link>
             </div>
-            <Link href="/services" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+            <Link href="/services" onClick={handleLinkClick} className="block py-3.5 px-4 text-gray-100/90 dark:text-dark-text-primary hover:text-white hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-2xl border border-white/5">
               الخدمات
             </Link>
-            <Link href="/testimonials" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
-              قصص النجاح
-            </Link>
-            <Link href="/blog" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
-              المدونة
-            </Link>
-            <Link href="/about" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
-              من نحن
-            </Link>
+            <button
+              type="button"
+              onClick={() => handleMobileSectionToggle('about')}
+              className="w-full px-4 flex items-center gap-3 text-gray-300/80 dark:text-dark-text-tertiary"
+              aria-expanded={openMobileSection === 'about'}
+              aria-controls="mobile-about-links"
+            >
+              <span className="h-px flex-1 bg-white/10 dark:bg-dark-card-border"></span>
+              <span className="text-[11px] font-semibold uppercase tracking-widest">
+                عن عرب نوشن
+              </span>
+              <span className="h-px flex-1 bg-white/10 dark:bg-dark-card-border"></span>
+              <span className={`ml-2 transition-transform duration-200 ${openMobileSection === 'about' ? 'rotate-180' : ''}`}>
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 9l6 6 6-6" />
+                </svg>
+              </span>
+            </button>
+            <div
+              id="mobile-about-links"
+              className={`mr-2 space-y-2.5 overflow-hidden transition-all duration-300 ${openMobileSection === 'about' ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'}`}
+            >
+              <Link href="/about" onClick={handleLinkClick} className="block py-3 px-4 text-sm text-gray-100/90 dark:text-dark-text-primary hover:text-white hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-2xl border border-white/5">
+                من نحن
+              </Link>
+              <Link href="/blog" onClick={handleLinkClick} className="block py-3 px-4 text-sm text-gray-300/90 dark:text-dark-text-tertiary hover:text-white hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-2xl border border-white/5">
+                المدونة
+              </Link>
+              <Link href="/testimonials" onClick={handleLinkClick} className="block py-3 px-4 text-sm text-gray-300/90 dark:text-dark-text-tertiary hover:text-white hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-2xl border border-white/5">
+                قصص النجاح
+              </Link>
+            </div>
           </nav>
 
             {/* Mobile Auth Section */}

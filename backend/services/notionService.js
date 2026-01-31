@@ -4,6 +4,8 @@ const NOTION_API_TOKEN = process.env.NOTION_API_TOKEN;
 const NOTION_TEMPLATES_DATABASE_ID = process.env.NOTION_TEMPLATES_DATABASE_ID;
 const NOTION_CREATORS_DATABASE_ID = process.env.NOTION_CREATORS_DATABASE_ID;
 const NOTION_CONSULTATIONS_DATABASE_ID = process.env.NOTION_CONSULTATIONS_DATABASE_ID;
+const NOTION_CAREERS_DATABASE_ID = process.env.NOTION_CAREERS_DATABASE_ID;
+const NOTION_CONTACT_DATABASE_ID = process.env.NOTION_CONTACT_DATABASE_ID;
 
 // Helper function to check if Notion is configured
 function isNotionConfigured() {
@@ -41,14 +43,14 @@ async function getNotionDatabaseSchema(databaseId) {
 
     const properties = response.data.properties || {};
     const schema = {};
-    
+
     Object.keys(properties).forEach(propName => {
       const prop = properties[propName];
       const propSchema = {
         type: prop.type,
         id: prop.id
       };
-      
+
       // Include select options if it's a select property
       if (prop.type === 'select' && prop.select?.options) {
         propSchema.options = prop.select.options.map(opt => ({
@@ -57,7 +59,7 @@ async function getNotionDatabaseSchema(databaseId) {
           color: opt.color
         }));
       }
-      
+
       schema[propName] = propSchema;
     });
 
@@ -104,7 +106,7 @@ async function getPriceSelectOptions() {
 
     const properties = response.data.properties || {};
     const priceProperty = properties['Price'];
-    
+
     if (priceProperty && priceProperty.type === 'select' && priceProperty.select?.options) {
       priceSelectOptionsCache = priceProperty.select.options.map(opt => opt.name);
       console.log('📋 Price select options:', priceSelectOptionsCache);
@@ -128,7 +130,7 @@ async function addTemplateToNotion(template, creator = null) {
   let errorDetails = null;
   try {
     console.log('🔵 Notion: Attempting to add template:', template.title);
-    
+
     if (!NOTION_API_TOKEN || !NOTION_TEMPLATES_DATABASE_ID) {
       console.warn('❌ Notion API not configured for templates');
       console.warn('Token:', !!NOTION_API_TOKEN, 'Database ID:', !!NOTION_TEMPLATES_DATABASE_ID);
@@ -146,20 +148,20 @@ async function addTemplateToNotion(template, creator = null) {
 
     // Get available Price select options from Notion
     const priceSelectOptions = await getPriceSelectOptions();
-    
+
     // Choose the appropriate price option based on available options
     // Handle both English and Arabic option names
     let selectedPriceOption;
     if (template.isPaid || template.price) {
       // Look for 'Paid' or 'مدفوع' (Arabic for Paid), then fallback to any other option
-      selectedPriceOption = priceSelectOptions.includes('Paid') ? 'Paid' 
+      selectedPriceOption = priceSelectOptions.includes('Paid') ? 'Paid'
         : priceSelectOptions.includes('مدفوع') ? 'مدفوع'
-        : priceSelectOptions[0];
+          : priceSelectOptions[0];
     } else {
       // Look for 'Free' or 'مجاني' (Arabic for Free), then fallback to first option
       selectedPriceOption = priceSelectOptions.includes('Free') ? 'Free'
         : priceSelectOptions.includes('مجاني') ? 'مجاني'
-        : priceSelectOptions[0] || 'Free';
+          : priceSelectOptions[0] || 'Free';
     }
 
     // Prepare Notion page properties - matching your actual Notion database schema
@@ -207,8 +209,8 @@ async function addTemplateToNotion(template, creator = null) {
     };
 
     // Add Creator Profile link if we have creator information
-    const creatorId = creatorUsername || creator?.username || template.creator?.username || 
-                      creator?._id?.toString() || template.creator?._id?.toString();
+    const creatorId = creatorUsername || creator?.username || template.creator?.username ||
+      creator?._id?.toString() || template.creator?._id?.toString();
     if (creatorId) {
       properties['Creator Profile'] = {
         url: `${frontendUrl}/creators/${creatorId}`
@@ -241,7 +243,7 @@ async function addTemplateToNotion(template, creator = null) {
     console.log('🔵 Notion: Sending request to Notion API...');
     console.log('🔵 Notion: Database ID:', NOTION_TEMPLATES_DATABASE_ID);
     console.log('🔵 Notion: Properties keys:', Object.keys(properties));
-    
+
     const response = await axios.post(
       'https://api.notion.com/v1/pages',
       {
@@ -264,7 +266,7 @@ async function addTemplateToNotion(template, creator = null) {
     console.error('❌ Error data:', JSON.stringify(error.response?.data || {}, null, 2));
     console.error('❌ Error message:', error.message);
     console.error('❌ Full error:', error);
-    
+
     // Capture detailed error information
     errorDetails = {
       status: error.response?.status,
@@ -272,13 +274,13 @@ async function addTemplateToNotion(template, creator = null) {
       message: error.response?.data?.message || error.message,
       propertyErrors: null
     };
-    
+
     // Log more details about the request
     if (error.response?.data) {
       console.error('❌ Notion API Error Details:');
       console.error('   Code:', error.response.data.code);
       console.error('   Message:', error.response.data.message);
-      
+
       // Check for property-specific errors
       if (error.response.data.properties) {
         errorDetails.propertyErrors = error.response.data.properties;
@@ -288,7 +290,7 @@ async function addTemplateToNotion(template, creator = null) {
         });
       }
     }
-    
+
     // Don't throw - we don't want to break the approval flow if Notion fails
     return { error: errorDetails };
   }
@@ -303,7 +305,7 @@ async function addCreatorToNotion(user) {
   let errorDetails = null;
   try {
     console.log('🔵 Notion: Attempting to add creator:', user.name);
-    
+
     if (!NOTION_API_TOKEN || !NOTION_CREATORS_DATABASE_ID) {
       console.warn('❌ Notion API not configured for creators');
       console.warn('Token:', !!NOTION_API_TOKEN, 'Database ID:', !!NOTION_CREATORS_DATABASE_ID);
@@ -386,7 +388,7 @@ async function addCreatorToNotion(user) {
     console.log('🔵 Notion: Sending request to Notion API...');
     console.log('🔵 Notion: Database ID:', NOTION_CREATORS_DATABASE_ID);
     console.log('🔵 Notion: Properties keys:', Object.keys(properties));
-    
+
     const response = await axios.post(
       'https://api.notion.com/v1/pages',
       {
@@ -409,7 +411,7 @@ async function addCreatorToNotion(user) {
     console.error('❌ Error data:', JSON.stringify(error.response?.data || {}, null, 2));
     console.error('❌ Error message:', error.message);
     console.error('❌ Full error:', error);
-    
+
     // Capture detailed error information
     errorDetails = {
       status: error.response?.status,
@@ -417,13 +419,13 @@ async function addCreatorToNotion(user) {
       message: error.response?.data?.message || error.message,
       propertyErrors: null
     };
-    
+
     // Log more details about the request
     if (error.response?.data) {
       console.error('❌ Notion API Error Details:');
       console.error('   Code:', error.response.data.code);
       console.error('   Message:', error.response.data.message);
-      
+
       // Check for property-specific errors
       if (error.response.data.properties) {
         errorDetails.propertyErrors = error.response.data.properties;
@@ -433,7 +435,7 @@ async function addCreatorToNotion(user) {
         });
       }
     }
-    
+
     // Don't throw - we don't want to break the approval flow if Notion fails
     return { error: errorDetails };
   }
@@ -674,10 +676,296 @@ async function addConsultationToNotion(payload) {
   }
 }
 
+/**
+ * Add a careers application to Notion database
+ * @param {Object} payload - Career application payload
+ * @returns {Promise<Object>} Notion response
+ */
+async function addCareerApplicationToNotion(payload) {
+  let errorDetails = null;
+  try {
+    if (!NOTION_API_TOKEN || !NOTION_CAREERS_DATABASE_ID) {
+      console.warn('❌ Notion API not configured for careers');
+      errorDetails = { message: 'Notion API not configured', missing: [] };
+      if (!NOTION_API_TOKEN) errorDetails.missing.push('NOTION_API_TOKEN');
+      if (!NOTION_CAREERS_DATABASE_ID) errorDetails.missing.push('NOTION_CAREERS_DATABASE_ID');
+      return { error: errorDetails };
+    }
+
+    const schema = await getNotionDatabaseSchema(NOTION_CAREERS_DATABASE_ID);
+    const titleProp = findProperty(schema, ['Name', 'الاسم', 'Title', 'العنوان'], ['title']);
+
+    if (!titleProp) {
+      return { error: { message: 'Notion database is missing a title property' } };
+    }
+
+    const properties = {
+      [titleProp.name]: {
+        title: [
+          {
+            text: {
+              content: payload.name || 'طلب انضمام جديد'
+            }
+          }
+        ]
+      }
+    };
+
+    const setSelectOrText = (prop, value) => {
+      if (!prop || !value) return false;
+      if (prop.type === 'select') {
+        properties[prop.name] = { select: { name: value } };
+        return true;
+      }
+      properties[prop.name] = { rich_text: [{ text: { content: value } }] };
+      return true;
+    };
+
+    const emailProp = findProperty(schema, ['Email', 'البريد الإلكتروني', 'الإيميل'], ['email', 'rich_text']);
+    if (emailProp && payload.email) {
+      properties[emailProp.name] = emailProp.type === 'email'
+        ? { email: payload.email }
+        : { rich_text: [{ text: { content: payload.email } }] };
+    }
+
+    const phoneProp = findProperty(schema, ['WhatsApp', 'واتساب', 'الهاتف', 'رقم الهاتف'], ['phone_number', 'rich_text']);
+    if (phoneProp && payload.whatsapp) {
+      properties[phoneProp.name] = phoneProp.type === 'phone_number'
+        ? { phone_number: payload.whatsapp }
+        : { rich_text: [{ text: { content: payload.whatsapp } }] };
+    }
+
+    const basedInProp = findProperty(
+      schema,
+      [
+        'Where Are You Based? (This helps us understand time zone, fiscal, and legal implications)',
+        'Where Are You Based?',
+        'مكان التواجد',
+        'الدولة',
+        'المدينة',
+        'الموقع'
+      ],
+      ['rich_text']
+    );
+    setSelectOrText(basedInProp, payload.basedIn);
+
+    const portfolioProp = findProperty(
+      schema,
+      ['LinkedIn Profile', 'LinkedIn', 'لينكدإن', 'لينكدان'],
+      ['url', 'rich_text']
+    );
+    if (portfolioProp && payload.linkedin) {
+      properties[portfolioProp.name] = portfolioProp.type === 'url'
+        ? { url: payload.linkedin }
+        : { rich_text: [{ text: { content: payload.linkedin } }] };
+    }
+
+    const experienceProp = findProperty(
+      schema,
+      ['Do you have experience in any of the following?', 'Experience', 'الخبرات', 'الخبرة'],
+      ['multi_select', 'rich_text']
+    );
+    if (experienceProp && payload.experience && payload.experience.length) {
+      if (experienceProp.type === 'multi_select') {
+        properties[experienceProp.name] = {
+          multi_select: payload.experience.map((item) => ({ name: item }))
+        };
+      } else {
+        properties[experienceProp.name] = {
+          rich_text: [{ text: { content: payload.experience.join('، ') } }]
+        };
+      }
+    }
+
+    const coverLetterProp = findProperty(
+      schema,
+      [
+        'Cover Letter Tell us briefly why this role feels like a great fit for you and mention any relevant experience.',
+        'Cover Letter',
+        'الرسالة التعريفية',
+        'نبذة'
+      ],
+      ['rich_text']
+    );
+    if (coverLetterProp && payload.coverLetter) {
+      const trimmed = payload.coverLetter.substring(0, 2000);
+      properties[coverLetterProp.name] = { rich_text: [{ text: { content: trimmed } }] };
+    }
+
+    const resumeProp = findProperty(schema, ['CV/Resume', 'السيرة الذاتية', 'Resume', 'CV'], ['files']);
+    if (resumeProp && payload.resumeUrl) {
+      properties[resumeProp.name] = {
+        files: [
+          {
+            type: 'external',
+            name: 'resume',
+            external: { url: payload.resumeUrl }
+          }
+        ]
+      };
+    }
+
+    const startProp = findProperty(
+      schema,
+      ['How soon would you be able to start?', 'Start Date', 'موعد البدء', 'تاريخ البدء'],
+      ['rich_text', 'select']
+    );
+    setSelectOrText(startProp, payload.startTime);
+
+    const messageProp = findProperty(schema, ['Message', 'Details', 'التفاصيل', 'تفاصيل إضافية'], ['rich_text']);
+    if (messageProp && payload.message) {
+      const trimmed = payload.message.substring(0, 2000);
+      properties[messageProp.name] = { rich_text: [{ text: { content: trimmed } }] };
+    }
+
+    const sourceProp = findProperty(schema, ['Source', 'المصدر', 'قناة الوصول'], ['select', 'rich_text']);
+    setSelectOrText(sourceProp, payload.source || 'website-careers');
+
+    const statusProp = findProperty(schema, ['Status', 'الحالة', 'حالة الطلب'], ['select']);
+    if (statusProp && statusProp.options?.length) {
+      const preferred = statusProp.options.find((opt) => ['New', 'جديد'].includes(opt.name));
+      properties[statusProp.name] = { select: { name: preferred ? preferred.name : statusProp.options[0].name } };
+    }
+
+    const createdAtProp = findProperty(schema, ['Created At', 'تاريخ', 'التاريخ', 'تاريخ الإرسال', 'تاريخ الطلب'], ['date']);
+    if (createdAtProp) {
+      properties[createdAtProp.name] = { date: { start: new Date().toISOString() } };
+    }
+
+    const response = await axios.post(
+      'https://api.notion.com/v1/pages',
+      {
+        parent: { database_id: NOTION_CAREERS_DATABASE_ID },
+        properties
+      },
+      {
+        headers: getNotionHeaders()
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error adding careers application to Notion');
+    console.error('❌ Status:', error.response?.status);
+    console.error('❌ Error data:', JSON.stringify(error.response?.data || {}, null, 2));
+
+    errorDetails = {
+      status: error.response?.status,
+      code: error.response?.data?.code,
+      message: error.response?.data?.message || error.message,
+      propertyErrors: error.response?.data?.properties || null
+    };
+
+    return { error: errorDetails };
+  }
+}
+
+/**
+ * Add a contact form submission to Notion database
+ * @param {Object} payload - Contact form payload
+ * @returns {Promise<Object>} Notion response
+ */
+async function addContactToNotion(payload) {
+  let errorDetails = null;
+  try {
+    if (!NOTION_API_TOKEN || !NOTION_CONTACT_DATABASE_ID) {
+      console.warn('❌ Notion API not configured for contact');
+      errorDetails = { message: 'Notion API not configured', missing: [] };
+      if (!NOTION_API_TOKEN) errorDetails.missing.push('NOTION_API_TOKEN');
+      if (!NOTION_CONTACT_DATABASE_ID) errorDetails.missing.push('NOTION_CONTACT_DATABASE_ID');
+      return { error: errorDetails };
+    }
+
+    const schema = await getNotionDatabaseSchema(NOTION_CONTACT_DATABASE_ID);
+    const titleProp = findProperty(schema, ['Name', 'الاسم', 'Title', 'العنوان', 'id'], ['title']);
+
+    if (!titleProp) {
+      return { error: { message: 'Notion database is missing a title property' } };
+    }
+
+    const properties = {
+      [titleProp.name]: {
+        title: [
+          {
+            text: {
+              content: payload.name || 'رسالة جديدة'
+            }
+          }
+        ]
+      }
+    };
+
+    // Email property
+    const emailProp = findProperty(schema, ['Email', 'البريد الإلكتروني', 'الإيميل', 'email'], ['email', 'rich_text']);
+    if (emailProp && payload.email) {
+      properties[emailProp.name] = emailProp.type === 'email'
+        ? { email: payload.email }
+        : { rich_text: [{ text: { content: payload.email } }] };
+    }
+
+    // WhatsApp/Phone property
+    const phoneProp = findProperty(schema, ['WhatsApp', 'واتساب', 'الهاتف', 'رقم الهاتف', 'phone'], ['phone_number', 'rich_text']);
+    if (phoneProp && payload.whatsapp) {
+      properties[phoneProp.name] = phoneProp.type === 'phone_number'
+        ? { phone_number: payload.whatsapp }
+        : { rich_text: [{ text: { content: payload.whatsapp } }] };
+    }
+
+    // Details/Message property
+    const detailsProp = findProperty(schema, ['Details', 'التفاصيل', 'تفاصيل', 'Message', 'الرسالة', 'text'], ['rich_text']);
+    if (detailsProp && payload.details) {
+      const trimmed = payload.details.substring(0, 2000);
+      properties[detailsProp.name] = { rich_text: [{ text: { content: trimmed } }] };
+    }
+
+    // Status property (if exists)
+    const statusProp = findProperty(schema, ['Status', 'الحالة', 'حالة الطلب'], ['select']);
+    if (statusProp && statusProp.options?.length) {
+      const preferred = statusProp.options.find((opt) => ['New', 'جديد', 'Unread', 'غير مقروء'].includes(opt.name));
+      properties[statusProp.name] = { select: { name: preferred ? preferred.name : statusProp.options[0].name } };
+    }
+
+    // Created At property (if exists)
+    const createdAtProp = findProperty(schema, ['Created At', 'تاريخ', 'التاريخ', 'تاريخ الإرسال'], ['date']);
+    if (createdAtProp) {
+      properties[createdAtProp.name] = { date: { start: new Date().toISOString() } };
+    }
+
+    const response = await axios.post(
+      'https://api.notion.com/v1/pages',
+      {
+        parent: { database_id: NOTION_CONTACT_DATABASE_ID },
+        properties
+      },
+      {
+        headers: getNotionHeaders()
+      }
+    );
+
+    console.log('✅ Contact added to Notion successfully');
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error adding contact to Notion');
+    console.error('❌ Status:', error.response?.status);
+    console.error('❌ Error data:', JSON.stringify(error.response?.data || {}, null, 2));
+
+    errorDetails = {
+      status: error.response?.status,
+      code: error.response?.data?.code,
+      message: error.response?.data?.message || error.message,
+      propertyErrors: error.response?.data?.properties || null
+    };
+
+    return { error: errorDetails };
+  }
+}
+
 module.exports = {
   addTemplateToNotion,
   addCreatorToNotion,
   addConsultationToNotion,
+  addCareerApplicationToNotion,
+  addContactToNotion,
   isNotionConfigured,
   getNotionDatabaseSchema,
   getPriceSelectOptions

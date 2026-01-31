@@ -8,10 +8,12 @@
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
   }
+
 }
 
 @keyframes slide-in-left {
@@ -19,6 +21,7 @@
     transform: translateX(-100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -30,6 +33,7 @@
     transform: translateX(0);
     opacity: 1;
   }
+
   to {
     transform: translateX(100%);
     opacity: 0;
@@ -41,6 +45,7 @@
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
@@ -151,10 +156,12 @@
   }
 
   @keyframes scrollbarPulse {
+
     0%,
     100% {
       box-shadow: 0 2px 4px rgba(245, 99, 30, 0.2);
     }
+
     50% {
       box-shadow: 0 2px 8px rgba(245, 99, 30, 0.4);
     }
@@ -165,10 +172,12 @@
   }
 
   @keyframes scrollbarPulseDark {
+
     0%,
     100% {
       box-shadow: 0 2px 4px rgba(255, 122, 61, 0.3);
     }
+
     50% {
       box-shadow: 0 2px 8px rgba(255, 122, 61, 0.5);
     }
@@ -186,6 +195,7 @@
 }
 
 @layer components {
+
   /* Enhanced Button System */
   .btn-primary {
     @apply bg-primary-500 hover:bg-primary-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 shadow-soft hover:shadow-medium;
@@ -226,6 +236,61 @@
 
   .dark .card {
     @apply bg-dark-card-bg border-dark-card-border shadow-dark-soft hover:shadow-dark-medium;
+  }
+
+  /* Card/content reveal on scroll */
+  .reveal-on-scroll {
+    transition: transform 0.45s ease, opacity 0.45s ease;
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: transform, opacity;
+  }
+
+  .reveal-on-scroll>* {
+    transition: transform 0.45s ease, opacity 0.45s ease;
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: transform, opacity;
+  }
+
+  .reveal-ready .reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  .reveal-ready .reveal-on-scroll>* {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  .reveal-ready .reveal-on-scroll.is-revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .reveal-ready .reveal-on-scroll.is-revealed>* {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+
+    .reveal-on-scroll,
+    .reveal-on-scroll>* {
+      transition: none;
+      opacity: 1;
+      transform: none;
+    }
+
+    .step-card {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    .step-dot.is-active {
+      animation: none;
+      --tw-scale-x: 1;
+      --tw-scale-y: 1;
+    }
   }
 
   /* Scrollable card content */
@@ -269,6 +334,130 @@
 
   .dark .card-interactive {
     @apply hover:shadow-dark-large hover:bg-dark-card-hover;
+  }
+
+  .icon-draw>* {
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+  }
+
+  .icon-draw-animate>* {
+    animation: icon-draw 5s ease forwards;
+  }
+
+  .icon-draw-hover:hover>* {
+    stroke-dashoffset: 200;
+    animation: icon-draw 1.6s ease forwards;
+  }
+
+  @keyframes icon-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .step-highlight {
+    animation-name: stepColorLight;
+    animation-timing-function: ease;
+    animation-fill-mode: forwards;
+  }
+
+  .dark .step-highlight {
+    animation-name: stepColorDark;
+  }
+
+  @keyframes stepColorLight {
+    from {
+      color: #132859;
+    }
+
+    to {
+      color: #e55a1b;
+    }
+  }
+
+  @keyframes stepColorDark {
+    from {
+      color: #a0a0a0;
+    }
+
+    to {
+      color: #f5631e;
+    }
+  }
+
+  .step-card {
+    position: relative;
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+    transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      border-color 0.3s ease,
+      box-shadow 0.3s ease;
+    will-change: opacity, transform;
+    overflow: hidden;
+  }
+
+  @media (min-width: 640px) {
+    .step-card.from-left {
+      transform: translateX(-22px) translateY(8px);
+    }
+
+    .step-card.from-right {
+      transform: translateX(22px) translateY(8px);
+    }
+  }
+
+  .step-card.is-visible {
+    opacity: 1;
+    transform: translateX(0) translateY(0) scale(1);
+  }
+
+  .step-card-shine {
+    background: linear-gradient(120deg,
+        transparent 30%,
+        rgba(249, 115, 22, 0.08) 50%,
+        transparent 70%);
+    transform: translateX(-100%) skewX(-15deg);
+    transition: transform 0s;
+  }
+
+  .dark .step-card-shine {
+    background: linear-gradient(120deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.05) 50%,
+        transparent 70%);
+  }
+
+  .step-card:hover .step-card-shine {
+    transform: translateX(100%) skewX(-15deg);
+    transition: transform 0.8s ease-in-out;
+  }
+
+  .step-card.is-visible:hover {
+    transform: translateY(-8px) scale(1.02);
+  }
+
+  .step-dot {
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+  }
+
+  .step-dot.is-active {
+    --tw-scale-x: 1.15;
+    --tw-scale-y: 1.15;
+    animation: stepPulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes stepPulse {
+
+    0%,
+    100% {
+      box-shadow: 0 0 0 6px rgba(249, 115, 22, 0.12);
+    }
+
+    50% {
+      box-shadow: 0 0 0 10px rgba(249, 115, 22, 0.18);
+    }
   }
 
   .card-featured {
@@ -468,6 +657,7 @@
 }
 
 @layer utilities {
+
   /* Backgrounds */
   .bg-bw-white {
     background-color: #ffffff;
@@ -702,22 +892,27 @@
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
 }
 
 @keyframes float {
+
   0%,
   100% {
     transform: translateY(0px) rotate(0deg);
   }
+
   33% {
     transform: translateY(-20px) rotate(2deg);
   }
+
   66% {
     transform: translateY(-10px) rotate(-1deg);
   }
@@ -728,6 +923,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -735,10 +931,12 @@
 }
 
 @keyframes pulseGlow {
+
   0%,
   100% {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
   }
+
   50% {
     box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
   }
@@ -749,6 +947,7 @@
     opacity: 0;
     transform: scale(0.8);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -759,6 +958,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -769,6 +969,7 @@
     opacity: 0;
     transform: translateY(2rem);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -780,8 +981,26 @@
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+.step-transition {
+  animation: stepFadeIn 240ms ease-out;
+  will-change: opacity, transform;
+}
+
+@keyframes stepFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

@@ -1,158 +1,196 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import Image from 'next/image';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Settings, BookOpen, Briefcase, Heart, Palette, Laptop, Dumbbell, PiggyBank, FolderTree, CalendarDays, LayoutDashboard, Users, Youtube, Facebook, Send, Zap, Target, Lightbulb, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Check } from 'lucide-react';
-
-// All categories with icons and styling
-const categories = [
-  { name: "الإنتاجية", Icon: Zap, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30" },
-  { name: "الدراسة", Icon: BookOpen, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
-  { name: "الأعمال", Icon: TrendingUp, bg: "from-emerald-100 to-emerald-200 dark:from-emerald-900/30 dark:to-emerald-800/30" },
-  { name: "الحياة الشخصية", Icon: Heart, bg: "from-rose-100 to-rose-200 dark:from-rose-900/30 dark:to-rose-800/30" },
-  { name: "الإبداع", Icon: Lightbulb, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
-  { name: "التقنية", Icon: Laptop, bg: "from-cyan-100 to-cyan-200 dark:from-cyan-900/30 dark:to-cyan-800/30" },
-  { name: "الصحة", Icon: Dumbbell, bg: "from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30" },
-  { name: "المالية", Icon: PiggyBank, bg: "from-yellow-100 to-yellow-200 dark:from-yellow-900/30 dark:to-yellow-800/30" },
-  { name: "التنظيم", Icon: FolderTree, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30" },
-  { name: "التخطيط", Icon: Target, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30" },
-  { name: "ديني", Icon: BookOpen, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30" },
-  { name: "التسويق", Icon: Users, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30" },
-  { name: "التصميم", Icon: Palette, bg: "from-fuchsia-100 to-fuchsia-200 dark:from-fuchsia-900/30 dark:to-fuchsia-800/30" },
-  { name: "التطوير", Icon: Laptop, bg: "from-violet-100 to-violet-200 dark:from-violet-900/30 dark:to-violet-800/30" },
-  { name: "التعليم", Icon: BookOpen, bg: "from-sky-100 to-sky-200 dark:from-sky-900/30 dark:to-sky-800/30" },
-  { name: "السفر", Icon: Target, bg: "from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/30" },
-  { name: "الطعام", Icon: Heart, bg: "from-lime-100 to-lime-200 dark:from-lime-900/30 dark:to-lime-800/30" },
-  { name: "الرياضة", Icon: Trophy, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30" },
-  { name: "الترفيه", Icon: Sparkles, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30" },
-  { name: "الموضة", Icon: Gem, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
-  { name: "الجمال", Icon: Sparkles, bg: "from-rose-100 to-rose-200 dark:from-rose-900/30 dark:to-rose-800/30" },
-  { name: "المنزل", Icon: Settings, bg: "from-teal-100 to-teal-200 dark:from-teal-900/30 dark:to-teal-800/30" },
-  { name: "الحديقة", Icon: Target, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30" },
-  { name: "الحيوانات الأليفة", Icon: Heart, bg: "from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/30" },
-  { name: "السيارات", Icon: Zap, bg: "from-slate-100 to-slate-200 dark:from-slate-900/30 dark:to-slate-800/30" },
-  { name: "التكنولوجيا", Icon: Laptop, bg: "from-cyan-100 to-cyan-200 dark:from-cyan-900/30 dark:to-cyan-800/30" },
-  { name: "البرمجة", Icon: Laptop, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30" },
-  { name: "قواعد البيانات", Icon: FolderTree, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
-  { name: "الأمان السيبراني", Icon: Award, bg: "from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30" },
-  { name: "الذكاء الاصطناعي", Icon: Zap, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
-  { name: "البلوك تشين", Icon: Award, bg: "from-yellow-100 to-yellow-200 dark:from-yellow-900/30 dark:to-yellow-800/30" },
-  { name: "التجارة الإلكترونية", Icon: TrendingUp, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30" },
-  { name: "المبيعات", Icon: TrendingUp, bg: "from-emerald-100 to-emerald-200 dark:from-emerald-900/30 dark:to-emerald-800/30" },
-  { name: "خدمة العملاء", Icon: Users, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
-  { name: "الموارد البشرية", Icon: Users, bg: "from-violet-100 to-violet-200 dark:from-violet-900/30 dark:to-violet-800/30" },
-  { name: "المحاسبة", Icon: PiggyBank, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30" },
-  { name: "الاستثمار", Icon: TrendingUp, bg: "from-yellow-100 to-yellow-200 dark:from-yellow-900/30 dark:to-yellow-800/30" },
-  { name: "العقارات", Icon: Settings, bg: "from-brown-100 to-brown-200 dark:from-brown-900/30 dark:to-brown-800/30" },
-  { name: "التأمين", Icon: Award, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
-  { name: "القانون", Icon: BookOpen, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30" },
-  { name: "الطب", Icon: Heart, bg: "from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30" },
-  { name: "التمريض", Icon: Heart, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30" },
-  { name: "العلاج الطبيعي", Icon: Dumbbell, bg: "from-teal-100 to-teal-200 dark:from-teal-900/30 dark:to-teal-800/30" },
-  { name: "التغذية", Icon: Heart, bg: "from-lime-100 to-lime-200 dark:from-lime-900/30 dark:to-lime-800/30" },
-  { name: "الطبخ", Icon: Heart, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30" },
-  { name: "الحلويات", Icon: Sparkles, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30" },
-  { name: "المشروبات", Icon: Heart, bg: "from-cyan-100 to-cyan-200 dark:from-cyan-900/30 dark:to-cyan-800/30" },
-  { name: "المطاعم", Icon: Settings, bg: "from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/30" },
-  { name: "الفنون", Icon: Palette, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
-  { name: "الموسيقى", Icon: Sparkles, bg: "from-violet-100 to-violet-200 dark:from-violet-900/30 dark:to-violet-800/30" },
-  { name: "الرسم", Icon: Palette, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30" },
-  { name: "النحت", Icon: Palette, bg: "from-stone-100 to-stone-200 dark:from-stone-900/30 dark:to-stone-800/30" },
-  { name: "التصوير", Icon: Sparkles, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
-  { name: "الفيديو", Icon: Sparkles, bg: "from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30" },
-  { name: "الكتابة", Icon: BookOpen, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30" },
-  { name: "الترجمة", Icon: BookOpen, bg: "from-teal-100 to-teal-200 dark:from-teal-900/30 dark:to-teal-800/30" },
-  { name: "اللغات", Icon: BookOpen, bg: "from-sky-100 to-sky-200 dark:from-sky-900/30 dark:to-sky-800/30" },
-  { name: "التاريخ", Icon: BookOpen, bg: "from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/30" },
-  { name: "الجغرافيا", Icon: Target, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30" },
-  { name: "العلوم", Icon: Lightbulb, bg: "from-cyan-100 to-cyan-200 dark:from-cyan-900/30 dark:to-cyan-800/30" },
-  { name: "الرياضيات", Icon: Target, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
-  { name: "الفيزياء", Icon: Zap, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30" },
-  { name: "الكيمياء", Icon: Lightbulb, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
-  { name: "الأحياء", Icon: Heart, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30" },
-  { name: "علم النفس", Icon: Lightbulb, bg: "from-violet-100 to-violet-200 dark:from-violet-900/30 dark:to-violet-800/30" },
-  { name: "علم الاجتماع", Icon: Users, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
-  { name: "الفلسفة", Icon: Lightbulb, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30" },
-  { name: "الأدب", Icon: BookOpen, bg: "from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/30" },
-  { name: "الشعر", Icon: BookOpen, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30" },
-  { name: "المسرح", Icon: Sparkles, bg: "from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30" },
-  { name: "السينما", Icon: Sparkles, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
-  { name: "الألعاب", Icon: Trophy, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30" },
-  { name: "الرياضة الإلكترونية", Icon: Trophy, bg: "from-cyan-100 to-cyan-200 dark:from-cyan-900/30 dark:to-cyan-800/30" },
-  { name: "السياحة", Icon: Target, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
-  { name: "الفندقة", Icon: Settings, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30" },
-  { name: "النقل", Icon: Zap, bg: "from-slate-100 to-slate-200 dark:from-slate-900/30 dark:to-slate-800/30" },
-  { name: "الطيران", Icon: Zap, bg: "from-sky-100 to-sky-200 dark:from-sky-900/30 dark:to-sky-800/30" },
-  { name: "البحرية", Icon: Target, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
-  { name: "الزراعة", Icon: Heart, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30" },
-  { name: "البيئة", Icon: Heart, bg: "from-emerald-100 to-emerald-200 dark:from-emerald-900/30 dark:to-emerald-800/30" },
-  { name: "الطاقة", Icon: Zap, bg: "from-yellow-100 to-yellow-200 dark:from-yellow-900/30 dark:to-yellow-800/30" },
-  { name: "البناء", Icon: Settings, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30" },
-  { name: "الهندسة", Icon: Target, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30" },
-  { name: "العمارة", Icon: Settings, bg: "from-stone-100 to-stone-200 dark:from-stone-900/30 dark:to-stone-800/30" },
-  { name: "الديكور", Icon: Palette, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30" },
-  { name: "الأثاث", Icon: Settings, bg: "from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/30" },
-  { name: "الأدوات", Icon: Settings, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30" },
-  { name: "الأجهزة", Icon: Laptop, bg: "from-slate-100 to-slate-200 dark:from-slate-900/30 dark:to-slate-800/30" },
-  { name: "البرامج", Icon: Laptop, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
-  { name: "التطبيقات", Icon: Laptop, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
-  { name: "المواقع", Icon: Laptop, bg: "from-cyan-100 to-cyan-200 dark:from-cyan-900/30 dark:to-cyan-800/30" },
-  { name: "التطوير الويب", Icon: Laptop, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30" },
-  { name: "تطوير التطبيقات", Icon: Laptop, bg: "from-violet-100 to-violet-200 dark:from-violet-900/30 dark:to-violet-800/30" },
-  { name: "التعليم الإلكتروني", Icon: BookOpen, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30" },
-  { name: "الاجتماعات", Icon: Users, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
-  { name: "التواصل", Icon: Users, bg: "from-teal-100 to-teal-200 dark:from-teal-900/30 dark:to-teal-800/30" },
-  { name: "الشبكات الاجتماعية", Icon: Users, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30" },
-  { name: "المحتوى", Icon: BookOpen, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
-  { name: "الإعلان", Icon: TrendingUp, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30" },
-  { name: "العلاقات العامة", Icon: Users, bg: "from-sky-100 to-sky-200 dark:from-sky-900/30 dark:to-sky-800/30" },
-  { name: "العلامة التجارية", Icon: Award, bg: "from-violet-100 to-violet-200 dark:from-violet-900/30 dark:to-violet-800/30" },
-  { name: "الاستراتيجية", Icon: Target, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30" },
-  { name: "القيادة", Icon: Crown, bg: "from-yellow-100 to-yellow-200 dark:from-yellow-900/30 dark:to-yellow-800/30" },
-  { name: "الإدارة", Icon: Settings, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
-  { name: "المشاريع", Icon: FolderTree, bg: "from-emerald-100 to-emerald-200 dark:from-emerald-900/30 dark:to-emerald-800/30" },
-  { name: "العمليات", Icon: Settings, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30" },
-  { name: "الجودة", Icon: Award, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30" },
-  { name: "الابتكار", Icon: Lightbulb, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
-  { name: "البحث والتطوير", Icon: Lightbulb, bg: "from-cyan-100 to-cyan-200 dark:from-cyan-900/30 dark:to-cyan-800/30" },
-  { name: "التحليل", Icon: Target, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
-  { name: "الإحصاء", Icon: Target, bg: "from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30" },
-  { name: "البيانات", Icon: FolderTree, bg: "from-violet-100 to-violet-200 dark:from-violet-900/30 dark:to-violet-800/30" },
-  { name: "التقارير", Icon: BookOpen, bg: "from-slate-100 to-slate-200 dark:from-slate-900/30 dark:to-slate-800/30" },
-  { name: "العروض التقديمية", Icon: Sparkles, bg: "from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/30" },
-  { name: "التدريب", Icon: BookOpen, bg: "from-teal-100 to-teal-200 dark:from-teal-900/30 dark:to-teal-800/30" },
-  { name: "التطوير المهني", Icon: TrendingUp, bg: "from-emerald-100 to-emerald-200 dark:from-emerald-900/30 dark:to-emerald-800/30" },
-  { name: "الاستشارات", Icon: Lightbulb, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
-  { name: "الخدمات", Icon: Settings, bg: "from-pink-100 to-pink-200 dark:from-pink-900/30 dark:to-pink-800/30" },
-  { name: "المنتجات", Icon: Award, bg: "from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30" },
-  { name: "التصنيع", Icon: Settings, bg: "from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30" },
-  { name: "التوزيع", Icon: TrendingUp, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30" },
-  { name: "المخازن", Icon: FolderTree, bg: "from-amber-100 to-amber-200 dark:from-amber-900/30 dark:to-amber-800/30" },
-  { name: "اللوجستيات", Icon: Target, bg: "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30" },
-  // Aliases and variations
-  { name: "المراجعة", Icon: Check, bg: "from-teal-100 to-teal-200 dark:from-teal-900/30 dark:to-teal-800/30" },
-  { name: "الصحة واللياقة", Icon: Dumbbell, bg: "from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30" },
-  { name: "الدينية", Icon: BookOpen, bg: "from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30" },
-];
+import { BookOpen, FolderTree, Target, Zap } from 'lucide-react';
+import Footer from '../components/Footer';
+import { processSteps, services, testimonials } from '../lib/marketingContent';
 
 export default function HomePage() {
-  const animationsPlayedRef = useRef(false);
+  const [animationsPlayed, setAnimationsPlayed] = useState(false);
+  const [openFaqIndex, setOpenFaqIndex] = useState(null);
+  const [inViewSteps, setInViewSteps] = useState([]);
+  const [lineHeight, setLineHeight] = useState(0);
+  const [activeStep, setActiveStep] = useState(0);
+  const stepRefs = useRef([]);
 
-  // Mark animations as played after they complete
+  // Respect reduced motion and stop replaying animations.
   useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      setAnimationsPlayed(true);
+      return undefined;
+    }
+
     const timer = setTimeout(() => {
-      animationsPlayedRef.current = true;
+      setAnimationsPlayed(true);
     }, 2000); // After all animations complete (0.9s + 1s)
 
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    if (typeof document === 'undefined') {
+      return undefined;
+    }
+    const elements = Array.from(document.querySelectorAll('[data-draw-icon]'));
+    if (elements.length === 0) {
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) {
+            return;
+          }
+          entry.target.classList.add('icon-draw-animate');
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.35 }
+    );
+
+    elements.forEach((element) => observer.observe(element));
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const targets = stepRefs.current.filter(Boolean);
+    if (targets.length === 0) {
+      return undefined;
+    }
+
+    const triggerStep = (index) => {
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          setInViewSteps((prev) => {
+            if (prev.includes(index)) {
+              return prev;
+            }
+            return [...prev, index];
+          });
+        }, 120);
+      });
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting && entry.intersectionRatio === 0) {
+            return;
+          }
+          const index = Number(entry.target.dataset.stepIndex);
+          if (!Number.isNaN(index)) {
+            triggerStep(index);
+          }
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.2, rootMargin: '0px 0px -20% 0px' }
+    );
+
+    targets.forEach((target) => {
+      observer.observe(target);
+      const rect = target.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        triggerStep(Number(target.dataset.stepIndex));
+        observer.unobserve(target);
+      }
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') {
+      return undefined;
+    }
+
+    const sections = Array.from(document.querySelectorAll('[data-reveal-section]'));
+    if (sections.length === 0) {
+      return undefined;
+    }
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    sections.forEach((section, index) => {
+      section.classList.add('reveal-on-scroll');
+      section.style.setProperty('--reveal-delay', `${Math.min(index, 8) * 80}ms`);
+    });
+
+    if (prefersReducedMotion) {
+      sections.forEach((section) => section.classList.add('is-revealed'));
+      return undefined;
+    }
+
+    requestAnimationFrame(() => {
+      document.documentElement.classList.add('reveal-ready');
+    });
+
+    const observer = new IntersectionObserver(
+      (entries, observerInstance) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) {
+            return;
+          }
+          entry.target.classList.add('is-revealed');
+          observerInstance.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.2, rootMargin: '0px 0px -15% 0px' }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+
+    return () => {
+      observer.disconnect();
+      document.documentElement.classList.remove('reveal-ready');
+    };
+  }, []);
+
+  const timelineRef = useRef(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const steps = stepRefs.current;
+      const container = timelineRef.current;
+
+      if (!steps.length || !steps[0] || !container) return;
+
+      const containerRect = container.getBoundingClientRect();
+      const triggerPoint = window.innerHeight / 2;
+
+      const relativeScrollPos = triggerPoint - containerRect.top;
+
+      const firstStepTop = steps[0].offsetTop + (steps[0].offsetHeight / 2);
+      const lastStepTop = steps[steps.length - 1].offsetTop + (steps[steps.length - 1].offsetHeight / 2);
+
+      const totalDistance = lastStepTop - firstStepTop;
+      const currentProgress = relativeScrollPos - firstStepTop;
+
+      setLineHeight(Math.max(0, Math.min(currentProgress, totalDistance)));
+
+      let currentActive = 0;
+      steps.forEach((step, idx) => {
+        const stepCenter = step.offsetTop + (step.offsetHeight / 2);
+        if (relativeScrollPos > stepCenter - 100) {
+          currentActive = idx;
+        }
+      });
+      setActiveStep(currentActive);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Initial check
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
 
       {/* Enhanced Hero Section with Notion-inspired Animations */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-6 sm:py-8 md:py-12 lg:py-14 xl:py-16 transition-colors duration-300 w-screen h-[calc(100vh-64px)] min-h-[calc(100vh-64px)] sm:h-[calc(100vh-72px)] sm:min-h-[calc(100vh-72px)] flex items-center">
+      <section className="relative overflow-hidden bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-6 sm:py-8 md:py-12 lg:py-14 xl:py-16 transition-colors duration-300 h-[calc(100vh-64px)] min-h-[calc(100vh-64px)] sm:h-[calc(100vh-72px)] sm:min-h-[calc(100vh-72px)] flex items-center">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
           {/* Floating Notion-style Blocks */}
@@ -225,13 +263,13 @@ export default function HomePage() {
           <div className="text-center">
             <div className="max-w-4xl mx-auto">
               {/* Enhanced Badge with Better Contrast */}
-              <div className={`inline-flex items-center px-4 py-2 bg-white/95 dark:bg-dark-tertiary/95 backdrop-blur-sm text-accent-700 dark:text-dark-text-primary rounded-full text-sm font-semibold mb-6 ${!animationsPlayedRef.current ? 'text-reveal' : ''} shadow-lg dark:shadow-dark-medium border border-primary-300 dark:border-orange-400/50 transition-colors duration-300`}>
+              <div className={`inline-flex items-center px-4 py-2 bg-white/95 dark:bg-dark-tertiary/95 backdrop-blur-sm text-accent-700 dark:text-dark-text-primary rounded-full text-sm font-semibold mb-6 ${!animationsPlayed ? 'text-reveal' : ''} shadow-lg dark:shadow-dark-medium border border-primary-300 dark:border-orange-400/50 transition-colors duration-300`}>
                 <span className="w-2 h-2 bg-primary-600 dark:bg-orange-400 rounded-full ml-2 pulse-glow"></span>
                 خدمات وأنظمة نوشن احترافية
               </div>
 
               {/* Main Heading */}
-              <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-accent-500 dark:text-dark-text-primary mb-4 sm:mb-6 ${!animationsPlayedRef.current ? 'text-reveal-delayed' : ''} leading-tight tracking-tight`}>
+              <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-accent-500 dark:text-dark-text-primary mb-4 sm:mb-6 ${!animationsPlayed ? 'text-reveal-delayed' : ''} leading-tight tracking-tight`}>
                 <div className="block">
                   <div className="block">خدمات نوشن</div>
                   <div className="block mt-2 md:mt-3 lg:mt-4"><span className="whitespace-nowrap">وأنظمة مخصصة لأعمالك</span></div>
@@ -239,14 +277,14 @@ export default function HomePage() {
               </h1>
 
               {/* Enhanced Description with Better Typography */}
-              <p className={`text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary mb-6 sm:mb-8 max-w-xs sm:max-w-2xl md:max-w-3xl mx-auto ${!animationsPlayedRef.current ? 'text-reveal-delayed-2' : ''} leading-relaxed px-2 sm:px-0 font-medium`}>
+              <p className={`text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary mb-6 sm:mb-8 max-w-xs sm:max-w-2xl md:max-w-3xl mx-auto ${!animationsPlayed ? 'text-reveal-delayed-2' : ''} leading-relaxed px-2 sm:px-0 font-medium`}>
                 نبني لك أنظمة نوشن ذكية لإدارة العمل والمشاريع والمعرفة — من التخطيط إلى التنفيذ والأتمتة، بتصميم عربي واضح وتجربة سهلة.
               </p>
 
               {/* Enhanced CTA Buttons with Better Animations */}
-              <div className={`flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-8 sm:mb-12 ${!animationsPlayedRef.current ? 'text-reveal-delayed-3' : ''}`}>
+              <div className={`flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-8 sm:mb-12 ${!animationsPlayed ? 'text-reveal-delayed-3' : ''}`}>
                 <Link
-                  href="/contact"
+                  href="/consultation"
                   className="inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-primary-500 dark:bg-orange-500 text-white rounded-xl hover:bg-primary-600 dark:hover:bg-orange-600 transition-all duration-300 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
                 >
                   اطلب خدمتك الآن
@@ -255,225 +293,221 @@ export default function HomePage() {
                   </svg>
                 </Link>
                 <Link
-                  href="/services"
+                  href="/store"
                   className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-white/95 dark:bg-dark-tertiary/95 backdrop-blur-sm text-accent-700 dark:text-dark-text-primary rounded-xl border-2 border-primary-300 dark:border-orange-400/50 hover:bg-primary-50 dark:hover:bg-orange-900/20 transition-all duration-300 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
                 >
-                  تعرّف على خدماتنا
+                  تصفح القوالب
                 </Link>
               </div>
 
-              
+
             </div>
           </div>
         </div>
       </section>
 
-      {/* Challenges Section */}
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-dark-secondary transition-colors duration-300">
+      {/* Problems We Solve */}
+      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-dark-secondary transition-colors duration-300" data-reveal-section>
         <div className="container-custom">
-          <div className="text-center mb-8 sm:mb-10 md:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
-              هل تتشتت عملياتك بين أدوات متعددة؟
-            </h2>
-            <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary max-w-3xl mx-auto">
-              نساعدك على تحويل الفوضى إلى نظام واضح وموحد داخل نوشن، حتى يعمل فريقك بثقة وسرعة.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {[
-              {
-                title: "أدوات كثيرة بلا رؤية موحدة",
-                description: "المهام والملفات موزعة بين تطبيقات متعددة بدون لوحة تحكم واحدة.",
-                Icon: FolderTree
-              },
-              {
-                title: "غياب أولوية واضحة للعمل",
-                description: "الفرق تعمل بلا مسارات أو أولويات واضحة مما يبطّئ الإنجاز.",
-                Icon: Target
-              },
-              {
-                title: "عمليات يدوية متكررة",
-                description: "وقت ضائع في تحديثات وأعمال روتينية يمكن أتمتتها بسهولة.",
-                Icon: Zap
-              },
-              {
-                title: "معرفة مؤسسية مشتتة",
-                description: "المعلومات المهمة غير منظمة ولا يمكن الوصول لها بسرعة.",
-                Icon: BookOpen
-              }
-            ].map((item, idx) => (
-              <div key={idx} className="card-interactive p-5 sm:p-6 h-full">
-                <div className="w-12 h-12 rounded-xl bg-primary-50 dark:bg-orange-500/10 flex items-center justify-center mb-4">
-                  <item.Icon className="w-6 h-6 text-primary-600 dark:text-orange-400" />
-                </div>
-                <h3 className="text-base sm:text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
-                  {item.title}
-                </h3>
-                <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed">
-                  {item.description}
-                </p>
-              </div>
-            ))}
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] items-start">
+            <div className="text-center lg:text-right">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
+                المشكلات التي نحلها
+              </h2>
+              <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary max-w-xl mx-auto lg:mx-0">
+                نحول الفوضى إلى نظام واضح يساعد فريقك على التنفيذ بثقة وسرعة.
+              </p>
+            </div>
+            <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 sm:gap-6">
+              {[
+                {
+                  title: 'أدوات كثيرة بلا رؤية موحدة',
+                  description: 'المهام والملفات موزعة بين تطبيقات متعددة بدون لوحة تحكم واحدة.',
+                  size: 'lg',
+                  tone: 'from-blue-50/80 to-blue-100/40 dark:from-blue-500/10 dark:to-blue-500/5',
+                  badge: 'bg-blue-500/10 text-blue-700 dark:text-blue-200'
+                },
+                {
+                  title: 'غياب أولوية واضحة للعمل',
+                  description: 'الفرق تعمل بلا مسارات أو أولويات واضحة مما يبطّئ الإنجاز.',
+                  size: 'sm',
+                  tone: 'from-amber-50/80 to-orange-100/40 dark:from-orange-500/10 dark:to-orange-500/5',
+                  badge: 'bg-amber-500/10 text-amber-700 dark:text-amber-200'
+                },
+                {
+                  title: 'عمليات يدوية متكررة',
+                  description: 'وقت ضائع في تحديثات وأعمال روتينية يمكن أتمتتها بسهولة.',
+                  size: 'md',
+                  tone: 'from-emerald-50/80 to-emerald-100/40 dark:from-emerald-500/10 dark:to-emerald-500/5',
+                  badge: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-200'
+                },
+                {
+                  title: 'معرفة مؤسسية مشتتة',
+                  description: 'المعلومات المهمة غير منظمة ولا يمكن الوصول لها بسرعة.',
+                  size: 'lg',
+                  tone: 'from-purple-50/80 to-purple-100/40 dark:from-purple-500/10 dark:to-purple-500/5',
+                  badge: 'bg-purple-500/10 text-purple-700 dark:text-purple-200'
+                }
+              ].map((item, idx) => {
+                const isLarge = item.size === 'lg';
+                const isSmall = item.size === 'sm';
+                return (
+                  <div
+                    key={idx}
+                    className={`group card-interactive cursor-default mb-4 sm:mb-6 break-inside-avoid rounded-2xl border border-white/60 dark:border-dark-card-border/60 bg-gradient-to-br ${item.tone} ${isLarge ? 'p-6 sm:p-7' : isSmall ? 'p-5' : 'p-5 sm:p-6'
+                      }`}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] sm:text-xs font-semibold ${item.badge}`}>
+                        المشكلة {String(idx + 1).padStart(2, '0')}
+                      </div>
+                    </div>
+                    <h3 className={`${isLarge ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'} font-semibold text-accent-900 dark:text-dark-text-primary mb-2`}>
+                      {item.title}
+                    </h3>
+                    <p className={`${isLarge ? 'text-sm sm:text-base' : 'text-sm'} text-accent-600 dark:text-dark-text-secondary leading-relaxed`}>
+                      {item.description}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
 
       {/* Services Overview */}
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
+      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-black transition-colors duration-300" data-reveal-section>
         <div className="container-custom">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8 sm:mb-10 md:mb-12">
-            <div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] items-start">
+            <div className="order-1 lg:order-1 lg:sticky lg:top-24 self-start">
+              <div className="flex items-center gap-3 mb-4 justify-center lg:justify-start"></div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-4 lg:mb-6 text-center lg:text-right">
                 خدمات نوشن المصممة لعملك
               </h2>
-              <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary max-w-2xl">
+              <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary max-w-xl mx-auto lg:mx-0 text-center lg:text-right">
                 نبني لك نظامًا متكاملاً يغطي التخطيط، التنفيذ، المتابعة، والتحسين المستمر.
               </p>
+              <div className="mt-6 flex flex-wrap items-center gap-3 justify-center lg:justify-start"></div>
             </div>
-            <Link href="/services" className="btn-outline inline-flex items-center text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3">
-              استكشف جميع الخدمات
-              <svg className="mr-2 w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {[
-              {
-                title: "مساحات عمل مخصصة",
-                description: "تصميم قواعد بيانات ولوحات تحكم تناسب هيكل فريقك وأهدافك.",
-                Icon: LayoutDashboard
-              },
-              {
-                title: "أتمتة وتكاملات",
-                description: "نربط نوشن بأدواتك ونبني تدفقات تقلل المهام اليدوية.",
-                Icon: Zap
-              },
-              {
-                title: "تدريب وتبنّي الفريق",
-                description: "جلسات تدريب ومواد مساندة لضمان انتقال سلس.",
-                Icon: Users
-              },
-              {
-                title: "بوابات عملاء ومشاريع",
-                description: "تجارب تواصل احترافية مع العملاء مبنية على بيانات نوشن.",
-                Icon: Briefcase
-              },
-              {
-                title: "حوكمة المعرفة",
-                description: "تنظيم ملفات الشركة وسياساتها ومراجعها في مصدر واحد.",
-                Icon: BookOpen
-              },
-              {
-                title: "تحسين العمليات",
-                description: "تحليل مسارات العمل وبناء نظام قابل للتوسع.",
-                Icon: Settings
-              }
-            ].map((service, idx) => (
-              <div key={idx} className="card-interactive p-5 sm:p-6 h-full">
-                <div className="w-12 h-12 rounded-xl bg-white dark:bg-dark-tertiary flex items-center justify-center shadow-sm mb-4">
-                  <service.Icon className="w-6 h-6 text-primary-600 dark:text-orange-400" />
-                </div>
-                <h3 className="text-base sm:text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
-                  {service.title}
-                </h3>
-                <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed">
-                  {service.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Process Section */}
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-dark-secondary transition-colors duration-300">
-        <div className="container-custom">
-          <div className="text-center mb-8 sm:mb-10 md:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
-              كيف نعمل معك خطوة بخطوة؟
-            </h2>
-            <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary max-w-3xl mx-auto">
-              منهجية واضحة تضمن بناء نظام فعّال وقابل للتطوير مع فريقك.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {[
-              { title: "الاستماع والتحليل", detail: "نفهم تحدياتك وأهدافك بشكل دقيق." },
-              { title: "تصميم الهيكل", detail: "نضع خريطة شاملة للعمليات والبيانات." },
-              { title: "البناء والتنفيذ", detail: "نطوّر مساحة نوشن متكاملة وقابلة للتوسع." },
-              { title: "الأتمتة والتكامل", detail: "نربط الأدوات ونقلل العمل اليدوي." },
-              { title: "التدريب والتسليم", detail: "نجهّز الفريق لاستخدام النظام بثقة." },
-              { title: "دعم وتحسين مستمر", detail: "تطويرات مستمرة لضمان النمو." }
-            ].map((step, idx) => (
-              <div key={idx} className="p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-dark-card-border bg-secondary-50 dark:bg-dark-primary">
-                <div className="text-sm text-accent-500 dark:text-dark-text-tertiary mb-2">الخطوة {idx + 1}</div>
-                <h3 className="text-base sm:text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
-                  {step.title}
-                </h3>
-                <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed">
-                  {step.detail}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Proof Section */}
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
-        <div className="container-custom">
-          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
-            <div className="flex-1">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
-                نتائج يحبها عملاؤنا
-              </h2>
-              <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary mb-6">
-                نركز على النتائج القابلة للقياس وتحسين تجربة العمل بالكامل.
-              </p>
-              {/* TODO: Replace with real metrics */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
-                {[
-                  { label: "مشروع مكتمل", value: "+100" },
-                  { label: "فرق اعتمدت نوشن", value: "+30" },
-                  { label: "تحسين كفاءة العمل", value: "40%" }
-                ].map((stat, idx) => (
-                  <div key={idx} className="rounded-xl bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border p-4 text-center">
-                    <div className="text-lg sm:text-xl font-bold text-accent-500 dark:text-dark-text-primary">{stat.value}</div>
-                    <div className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary mt-1">{stat.label}</div>
+            <div className="order-2 lg:order-2">
+              <div className="space-y-4 sm:space-y-5">
+                {services.map((service, idx) => (
+                  <div key={idx} className="group card-interactive cursor-default p-5 sm:p-6 h-full flex gap-4 sm:gap-5 items-start">
+                    <div className="shrink-0 w-12 h-12 rounded-2xl bg-white dark:bg-dark-tertiary flex items-center justify-center shadow-sm">
+                      <service.Icon className="w-6 h-6 text-primary-600 dark:text-orange-400 fill-none icon-draw icon-draw-hover" data-draw-icon />
+                    </div>
+                    <div>
+                      <h3 className="text-base sm:text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
+                        {service.title}
+                      </h3>
+                      <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                        {service.description}
+                      </p>
+                    </div>
                   </div>
                 ))}
               </div>
-              <Link href="/testimonials" className="btn-outline inline-flex items-center text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3">
-                شاهد آراء العملاء
-                <svg className="mr-2 w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Link>
             </div>
-            <div className="flex-1 grid grid-cols-1 gap-4">
-              {/* TODO: Replace with real testimonials */}
-              {[
-                {
-                  name: "اسم العميل",
-                  role: "مدير العمليات",
-                  quote: "النظام الجديد على نوشن أعاد ترتيب كل شيء. أصبحنا نعمل بوضوح أكبر ووقت أقل."
-                },
-                {
-                  name: "اسم العميل",
-                  role: "مؤسس شركة",
-                  quote: "التدريب كان احترافي، والفريق تبنّى النظام بسرعة كبيرة."
-                }
-              ].map((testimonial, idx) => (
-                <div key={idx} className="card-interactive p-5 sm:p-6">
-                  <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed mb-4">
-                    “{testimonial.quote}”
-                  </p>
-                  <div className="text-sm font-semibold text-accent-900 dark:text-dark-text-primary">
-                    {testimonial.name}
+          </div>
+        </div>
+      </section>
+
+      {/* How We Do It Section */}
+      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-dark-secondary transition-colors duration-300" data-reveal-section>
+        <div className="container-custom">
+          <div className="text-center mb-8 sm:mb-10 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
+              كيف ننفّذ العمل؟
+            </h2>
+            <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary max-w-3xl mx-auto">
+              خطوات واضحة من التشخيص وحتى التسليم لضمان نظام فعّال وقابل للتطوير.
+            </p>
+          </div>
+          <div className="relative">
+            {/* Central Timeline Axis */}
+            <div className="hidden sm:block absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-primary-300/60 via-primary-300/30 to-transparent dark:from-orange-400/60 dark:via-orange-400/30"></div>
+
+            {/* Dynamic Progress Line */}
+            <div
+              className="hidden sm:block absolute left-1/2 -translate-x-1/2 w-0.5 bg-primary-500 dark:bg-orange-500 transition-all duration-100 ease-linear shadow-[0_0_10px_rgba(249,115,22,0.5)]"
+              style={{
+                top: stepRefs.current[0] ? (stepRefs.current[0].offsetHeight / 2) : 0,
+                height: `${lineHeight}px`,
+                maxHeight: '100%' // Safety cap
+              }}
+            ></div>
+
+            <div className="space-y-8 sm:space-y-0">
+              {processSteps.map((step, idx) => (
+                <div
+                  key={idx}
+                  ref={(el) => {
+                    stepRefs.current[idx] = el;
+                  }}
+                  data-step-index={idx}
+                  className="grid gap-4 items-center sm:grid-cols-[1fr_auto_1fr] sm:gap-0 relative"
+                >
+                  {/* Left Side Content */}
+                  <div className={`sm:col-start-1 sm:pr-8 sm:text-right ${idx % 2 === 0 ? 'block' : 'hidden sm:invisible sm:block'}`}>
+                    {idx % 2 === 0 && (
+                      <div
+                        className={`card-interactive cursor-default p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-dark-card-border bg-secondary-50 dark:bg-dark-primary step-card w-full ml-auto ${inViewSteps.includes(idx) ? 'is-visible' : ''
+                          } from-right`}
+                      >
+                        <div className="step-card-shine absolute inset-0 pointer-events-none"></div>
+                        <div
+                          className={`text-xs sm:text-sm mb-2 text-accent-500 dark:text-dark-text-tertiary ${inViewSteps.includes(idx) ? 'step-highlight' : ''}`}
+                          style={{
+                            animationDelay: `${150 + idx * 180}ms`,
+                            animationDuration: `${600 + idx * 120}ms`
+                          }}
+                        >
+                          الخطوة {idx + 1}
+                        </div>
+                        <h3 className="text-base sm:text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
+                          {step.title}
+                        </h3>
+                        <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                          {step.detail}
+                        </p>
+                      </div>
+                    )}
                   </div>
-                  <div className="text-xs text-accent-500 dark:text-dark-text-tertiary">
-                    {testimonial.role}
+
+                  {/* Center Dot - The Timeline Column */}
+                  <div className="hidden sm:flex sm:col-start-2 justify-center items-center h-full relative" style={{ width: '40px' }}>
+                    <span
+                      className={`block w-3.5 h-3.5 rounded-full bg-primary-500 dark:bg-orange-400 shadow-[0_0_0_6px_rgba(249,115,22,0.12)] step-dot ${inViewSteps.includes(idx) ? 'is-active' : ''
+                        }`}
+                    ></span>
+                  </div>
+
+                  {/* Right Side Content */}
+                  <div className={`sm:col-start-3 sm:pl-8 sm:text-left ${idx % 2 !== 0 ? 'block' : 'hidden sm:invisible sm:block'}`}>
+                    {idx % 2 !== 0 && (
+                      <div
+                        className={`card-interactive cursor-default p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-dark-card-border bg-secondary-50 dark:bg-dark-primary step-card w-full mr-auto ${inViewSteps.includes(idx) ? 'is-visible' : ''
+                          } from-left`}
+                      >
+                        <div className="step-card-shine absolute inset-0 pointer-events-none"></div>
+                        <div
+                          className={`text-xs sm:text-sm mb-2 text-accent-500 dark:text-dark-text-tertiary ${inViewSteps.includes(idx) ? 'step-highlight' : ''}`}
+                          style={{
+                            animationDelay: `${150 + idx * 180}ms`,
+                            animationDuration: `${600 + idx * 120}ms`
+                          }}
+                        >
+                          الخطوة {idx + 1}
+                        </div>
+                        <h3 className="text-base sm:text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
+                          {step.title}
+                        </h3>
+                        <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                          {step.detail}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -482,115 +516,303 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary transition-colors duration-300">
-        <div className="container-custom text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
-            جاهز لبناء نظام نوشن يواكب نموك؟
-          </h2>
-          <p className="text-base sm:text-lg md:text-xl text-gray-200 dark:text-dark-text-secondary mb-6 sm:mb-8 max-w-2xl mx-auto">
-            احجز استشارة أولية ودعنا نصمم لك نظامًا يسهّل العمل ويزيد الإنتاجية.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-            <Link href="/contact" className="btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto text-center">
-              احجز استشارتك
-            </Link>
-            <Link href="/services" className="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 bg-white/90 dark:bg-dark-tertiary/90 border-primary-200 dark:border-orange-500/30 w-full sm:w-auto text-center">
-              تعرّف على الخدمات
-            </Link>
+      {/* What Makes Us Different Section */}
+      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" data-reveal-section>
+        <div className="container-custom">
+          <div className="text-center mb-8 sm:mb-10 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
+              ما الذي يميز عرب نوشن؟
+            </h2>
+            <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary max-w-3xl mx-auto">
+              نركز على النتائج، ونبني نظم واضحة قابلة للتطبيق من أول يوم.
+            </p>
+          </div>
+          <div className="space-y-6 sm:space-y-8">
+            {[
+              {
+                title: 'فهم عميق لاحتياجك',
+                description: 'لا نقدّم قالباً جاهزاً، بل نحلل عملك ونبني نظاماً مناسباً لك.'
+              },
+              {
+                title: 'تصميم عربي واضح',
+                description: 'واجهة وتجربة مهيأة للغة العربية لتقليل اللبس وزيادة الاعتماد.'
+              },
+              {
+                title: 'تطبيق عملي سريع',
+                description: 'ننجز نسخاً قابلة للاستخدام خلال وقت قصير مع تدريب واضح.'
+              },
+              {
+                title: 'أتمتة تقلل العمل اليدوي',
+                description: 'نبني مسارات عمل تقلل التكرار وتزيد سرعة التنفيذ.'
+              },
+              {
+                title: 'قياس وتحسين مستمر',
+                description: 'نطور النظام بعد الإطلاق بناءً على نتائج واقعية.'
+              },
+              {
+                title: 'فريق متخصص في نوشن',
+                description: 'خبرات عملية في بناء قواعد البيانات والأتمتة للشركات.'
+              }
+            ].map((item, idx) => (
+              <div key={idx} className="group">
+                <div className={`flex flex-row items-stretch gap-3 sm:gap-6 ${idx % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'
+                  }`}>
+                  <div className="flex-1 lg:w-auto w-full">
+                    <div className="card-interactive h-full cursor-default p-4 sm:p-6 rounded-2xl border border-gray-200 dark:border-dark-card-border bg-white dark:bg-dark-secondary">
+                      <h3 className="text-base sm:text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
+                        {item.title}
+                      </h3>
+                      <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                        {item.description}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="w-fit">
+                    <div className="inline-flex w-fit h-full rounded-3xl border border-dashed border-primary-200/70 dark:border-orange-500/30 bg-gradient-to-br from-primary-50/70 via-white to-secondary-50/80 dark:from-dark-primary dark:via-dark-secondary dark:to-dark-primary p-3 sm:p-8 flex items-center justify-center">
+                      <div className="w-fit text-3xl sm:text-5xl font-bold text-accent-500/60 dark:text-dark-text-tertiary">
+                        {String(idx + 1).padStart(2, '0')}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Enhanced Footer */}
-      <footer className="bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary transition-colors duration-300">
-        <div className="container-custom py-12 sm:py-16 md:py-20 lg:py-24">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10 mb-8 sm:mb-10 md:mb-12">
-            {/* Brand Section */}
-            <div className="md:col-span-1">
-              <div className="flex items-center mb-4 sm:mb-6">
-                <Image
-                  src="/NavLogoLight.svg"
-                  alt="عرب نوشن - منصة قوالب نوشن العربية"
-                  width={60}
-                  height={40}
-                  className="h-10 sm:h-12 w-auto"
-                  quality={100}
-                  loading="lazy"
-                  unoptimized
-                />
+      {/* Companies We Worked With */}
+      {/* <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" data-reveal-section>
+        <div className="container-custom">
+          <div className="relative overflow-hidden rounded-3xl border border-gray-200 dark:border-dark-card-border bg-gradient-to-br from-white via-secondary-50 to-primary-50/60 dark:from-dark-secondary dark:via-dark-secondary dark:to-dark-primary p-6 sm:p-8 md:p-10 lg:p-12">
+            <div className="absolute -top-20 -left-20 w-64 h-64 rounded-full bg-primary-100/40 dark:bg-orange-500/10 blur-3xl"></div>
+            <div className="absolute -bottom-24 -right-10 w-72 h-72 rounded-full bg-secondary-100/60 dark:bg-dark-tertiary/30 blur-3xl"></div>
+            <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] items-center">
+              <div className="text-center lg:text-right">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
+                  شركات عملنا معها
+                </h2>
+                <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary max-w-2xl mx-auto lg:mx-0">
+                  خبرات عملية مع فرق وشركات مختلفة لبناء نظم نوشن قابلة للاعتماد.
+                </p>
+                <div className="relative mt-8 text-center lg:text-right">
+                  <Link href="/success-stories" className="btn-outline inline-flex items-center text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3">
+                    شاهد قصص النجاح
+                    <svg className="mr-2 w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </Link>
+                </div>
               </div>
-              <p className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary mb-6 sm:mb-8 leading-relaxed">
-                منصتك العربية الأولى لبيع وشراء قوالب نوشن المبتكرة. انضم إلى مجتمع المبدعين العرب.
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { label: 'مشروع مكتمل', value: '+100' },
+                  { label: 'فرق اعتمدت نوشن', value: '+30' },
+                  { label: 'تحسين كفاءة العمل', value: '40%' },
+                  { label: 'نظم مخصصة', value: '+70' }
+                ].map((stat, idx) => (
+                  <div key={idx} className="rounded-2xl bg-white/90 dark:bg-dark-tertiary/80 border border-white/70 dark:border-dark-card-border/70 p-4 sm:p-5 text-center shadow-sm">
+                    <div className="text-lg sm:text-xl font-bold text-accent-500 dark:text-dark-text-primary">{stat.value}</div>
+                    <div className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary mt-1">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section> */}
+
+      {/* Testimonials */}
+      {/* <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-dark-secondary transition-colors duration-300" data-reveal-section>
+        <div className="container-custom">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] items-start">
+            <div className="text-center lg:text-right">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
+                آراء العملاء
+              </h2>
+              <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary max-w-xl mx-auto lg:mx-0">
+                تجارب حقيقية من فرق اعتمدت نظم نوشن لتطوير عملها.
               </p>
-              <div className="flex gap-3 sm:gap-4">
-                <Link href="https://youtube.com/@notionarabs" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft" aria-label="قناة يوتيوب عرب نوشن">
-                  <Youtube className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
-                </Link>
-                <Link href="https://facebook.com/notionarabs" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft" aria-label="صفحة فيسبوك عرب نوشن">
-                  <Facebook className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
-                </Link>
-                <Link href="https://www.facebook.com/groups/notionarabs/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft" aria-label="مجموعة فيسبوك عرب نوشن">
-                  <Users className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
-                </Link>
-                <Link href="https://t.me/Notion_Arabs" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft" aria-label="قناة تيليجرام عرب نوشن">
-                  <Send className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
-                </Link>
-                <Link href="https://twitter.com/notionarabs" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft" aria-label="حساب تويتر عرب نوشن">
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </div>
+            <div className="space-y-4 sm:space-y-5">
+              {testimonials.slice(0, 3).map((testimonial, idx) => (
+                <div key={idx} className="group card-interactive cursor-default p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-dark-card-border bg-secondary-50 dark:bg-dark-primary">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                      “{testimonial.quote}”
+                    </div>
+                    <div className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full bg-white dark:bg-dark-tertiary text-accent-500 dark:text-dark-text-tertiary text-lg font-semibold">
+                      {testimonial.name?.[0] || '؟'}
+                    </div>
+                  </div>
+                  <div className="mt-4 flex items-center justify-between text-sm">
+                    <span className="font-semibold text-accent-900 dark:text-dark-text-primary">
+                      {testimonial.name}
+                    </span>
+                    <span className="text-xs text-accent-500 dark:text-dark-text-tertiary">
+                      {testimonial.role}
+                    </span>
+                  </div>
+                </div>
+              ))}
+              <div className="text-center lg:text-right">
+                <Link href="/success-stories" className="btn-outline inline-flex items-center text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3">
+                  شاهد المزيد من الآراء
+                  <svg className="mr-2 w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </Link>
               </div>
             </div>
+          </div>
+        </div>
+      </section> */}
 
-            {/* Product & Company Section */}
-            <div className="md:col-span-1">
-              <div className="mb-6 sm:mb-8">
-                <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">المنتج</h4>
-                <ul className="space-y-2 sm:space-y-3">
-                  <li><Link href="/services" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الخدمات</Link></li>
-                  <li><Link href="/templates" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">القوالب</Link></li>
-                  <li><Link href="/creators" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المبدعين</Link></li>
-                  <li><Link href="/testimonials" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">قصص النجاح</Link></li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">الشركة</h4>
-                <ul className="space-y-2 sm:space-y-3">
-                  <li><Link href="/about" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">من نحن</Link></li>
-                  <li><Link href="/blog" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المدونة</Link></li>
-                  <li><Link href="/contact" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">احجز استشارة</Link></li>
-                </ul>
-              </div>
+      {/* FAQ Section */}
+      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" data-reveal-section>
+        <div className="container-custom">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] items-start">
+            <div className="text-center lg:text-right lg:sticky lg:top-24 self-start">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
+                الأسئلة الشائعة
+              </h2>
+              <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary max-w-xl mx-auto lg:mx-0">
+                إجابات سريعة على أكثر الأسئلة تكراراً قبل حجز الاستشارة.
+              </p>
+              <div className="mt-6 flex flex-wrap items-center gap-3 justify-center lg:justify-start"></div>
             </div>
-
-            {/* Support Section */}
-            <div className="md:col-span-1">
-              <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">الدعم</h4>
-              <ul className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
-                <li><Link href="/contact" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">اتصل بنا</Link></li>
-                <li><Link href="/privacy" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الخصوصية</Link></li>
-                <li><Link href="/terms" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الشروط</Link></li>
-                <li><Link href="/cookies" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">ملفات تعريف الارتباط</Link></li>
-              </ul>
+            <div className="space-y-4 sm:space-y-5">
+              {[
+                {
+                  question: 'هل نوشن مناسب للفِرق أم للأفراد فقط؟',
+                  answer: 'نوشن مناسب للجميع. نصمم النظام حسب حجم الفريق وطبيعة العمل.'
+                },
+                {
+                  question: 'لماذا أعتمد على نوشن لشركتي أو فريقي؟',
+                  answer: 'نوشن ليس مجرد أداة، بل نظام متكامل لإدارة العمل. يتيح لك توحيد المشاريع، تنظيم الملفات، تسهيل التعاون بين الفرق، وأتمتة المهام الروتينية، كل ذلك بتصميم عربي سهل الاستخدام يساعد فريقك على إنجاز العمل أسرع وبكفاءة أعلى.'
+                },
+                {
+                  question: 'هل أحتاج لاستشارة في نوشن؟',
+                  answer: 'كل شركة تستخدم نوشن يمكن أن تستفيد من خبرة متخصصة. حتى لو كان لديك فريق كفء، فإن نظرة خارجية من خبرائنا تساعد على الاستفادة القصوى من إمكانيات نوشن، مع تقديم رؤية شاملة لعملياتك وفرصك.'
+                },
+                {
+                  question: 'أخطط للانتقال إلى نوشن، كيف يمكنكم المساعدة؟',
+                  answer: 'نساعدك على الانتقال من أدوات مثل Asana أو Monday أو Linear بطريقة منظمة، مع الحفاظ على جميع البيانات الحيوية لشركتك.'
+                },
+                {
+                  question: 'هل تقدّمون خدمات برمجية؟',
+                  answer: 'نعم، نقدم خدمات برمجية متكاملة، بما في ذلك ربط أنظمتك ومواقعك بنوشن لتسهيل إدارة البيانات والأتمتة بسلاسة داخل النظام.'
+                },
+                {
+                  question: 'كم يستغرق بناء النظام؟',
+                  answer: 'مدة تختلف حسب حجم المشروع، وغالباً تبدأ من اسبوع وقد تتجاوز الشهر'
+                },
+                {
+                  question: 'هل يمكن ربط نوشن بأدواتنا الحالية؟',
+                  answer: 'نعم، ندعم التكاملات والأتمتة مع الأدوات الشائعة لتسريع العمل.'
+                },
+                {
+                  question: 'كيف أبدأ؟',
+                  answer: 'احجز استشارة أولية وسنقترح عليك أفضل خطة حسب احتياجك.'
+                }
+              ].map((item, idx) => {
+                const isOpen = openFaqIndex === idx;
+                return (
+                  <div
+                    key={item.question}
+                    className="card-interactive cursor-pointer p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-dark-card-border bg-white dark:bg-dark-secondary"
+                    onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
+                  >
+                    <div
+                      className="w-full flex items-center justify-between gap-4 text-right"
+                      aria-expanded={isOpen}
+                      aria-controls={`faq-answer-${idx}`}
+                      role="button"
+                      tabIndex={0}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-secondary-50 dark:bg-dark-tertiary text-xs font-semibold text-accent-500 dark:text-dark-text-tertiary">
+                          {String(idx + 1).padStart(2, '0')}
+                        </span>
+                        <span className="text-sm sm:text-base font-semibold text-accent-500 dark:text-dark-text-primary">
+                          {item.question}
+                        </span>
+                      </div>
+                      <svg
+                        className={`w-5 h-5 text-accent-500 dark:text-dark-text-tertiary transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 9l6 6 6-6" />
+                      </svg>
+                    </div>
+                    {isOpen && (
+                      <div
+                        id={`faq-answer-${idx}`}
+                        className="pt-4 pr-11 text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed"
+                      >
+                        {item.answer}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
+        </div>
+      </section>
 
-          <div className="border-t border-gray-700 dark:border-dark-card-border pt-6 sm:pt-8">
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-              <p className="text-gray-400 dark:text-dark-text-tertiary text-xs sm:text-sm text-center sm:text-right">
-                © {new Date().getFullYear()} عرب نوشن. جميع الحقوق محفوظة.
-              </p>
-              <div className="flex flex-wrap gap-3 sm:gap-6 justify-center sm:justify-end">
-                <Link href="/privacy" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-xs sm:text-sm transition-colors">سياسة الخصوصية</Link>
-                <Link href="/terms" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-xs sm:text-sm transition-colors">شروط الاستخدام</Link>
-                <Link href="/cookies" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-xs sm:text-sm transition-colors">ملفات تعريف الارتباط</Link>
+      {/* CTA Section */}
+      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" data-reveal-section>
+        <div className="container-custom">
+          <div className="relative overflow-hidden rounded-3xl border border-gray-200 dark:border-dark-card-border bg-gradient-to-br from-primary-500 via-accent-500 to-accent-600 dark:from-orange-500/10 dark:to-orange-500/5 p-6 sm:p-8 md:p-10 lg:p-12">
+            <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-white/10 dark:bg-orange-500/10 blur-3xl"></div>
+            <div className="absolute -bottom-20 -left-16 w-64 h-64 rounded-full bg-black/10 blur-3xl"></div>
+            <div className="absolute inset-0 opacity-[0.08]" style={{
+              backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.5) 1px, transparent 0)',
+              backgroundSize: '22px 22px'
+            }}></div>
+            <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] items-center">
+              <div className="text-center lg:text-right">
+                <p className="text-xs sm:text-sm font-semibold tracking-[0.25em] text-white/80 dark:text-dark-text-tertiary mb-3">
+                  الخطوة التالية
+                </p>
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white dark:text-dark-text-primary mb-4">
+                  جاهز لبناء نظام نوشن يواكب نموك؟
+                </h2>
+                <p className="text-base sm:text-lg md:text-xl text-white/80 dark:text-dark-text-secondary mb-6 sm:mb-8 max-w-2xl mx-auto lg:mx-0">
+                  احجز استشارة أولية ودعنا نصمم لك نظامًا يسهّل العمل ويزيد الإنتاجية.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
+                  <Link href="/consultation" className="btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto text-center">
+                    احجز استشارتك
+                  </Link>
+                  <Link href="/store" className="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 bg-white/90 dark:bg-dark-tertiary/90 border-white/30 w-full sm:w-auto text-center">
+                    استكشف المتجر
+                  </Link>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                {[
+                  { label: 'مدة البداية', value: 'أسبوع' },
+                  { label: 'جلسة اكتشاف', value: '15 دقيقة' },
+                  { label: 'خطة تنفيذ', value: 'واضحة' },
+                  { label: 'دعم مستمر', value: 'مباشر' }
+                ].map((item, idx) => (
+                  <div key={idx} className="rounded-2xl border border-white/25 dark:border-dark-card-border/30 bg-white/10 dark:bg-white/5 p-4 text-center">
+                    <div className="text-base sm:text-lg font-semibold text-white dark:text-dark-text-primary">{item.value}</div>
+                    <div className="text-xs sm:text-sm text-white/80 dark:text-dark-text-secondary mt-1">{item.label}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
-      </footer>
+      </section>
+
+      <Footer />
     </main>
   );
 }

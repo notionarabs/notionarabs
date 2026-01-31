@@ -6,6 +6,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useToast } from '../../../contexts/ToastContext';
 import api from '../../../lib/api';
 import SuccessModal from '../../../components/SuccessModal';
+import RichTextEditor from '../../../components/RichTextEditor';
 
 const categories = [
   // الإنتاجية والتنظيم
@@ -305,7 +306,7 @@ export default function CreateBlogPage() {
           title: draftData.title || '',
           excerpt: draftData.excerpt || '',
           content: draftData.content || '',
-          categories: draftData.categories || draftData.category ? [draftData.category] : [],
+          categories: (draftData.categories || (draftData.category ? [draftData.category] : [])).filter(Boolean),
           tags: Array.isArray(draftData.tags) ? draftData.tags : (draftData.tags ? [draftData.tags] : []),
         });
 
@@ -318,7 +319,7 @@ export default function CreateBlogPage() {
         console.error('Error loading draft:', error);
       }
     }
-  }, [draftRestored]);
+  }, [draftRestored, showSuccess]);
 
   // Handle click outside to close category dropdown
   useEffect(() => {
@@ -340,6 +341,13 @@ export default function CreateBlogPage() {
     setLastSaved(null);
   };
 
+  const stripHtml = (html) => {
+    if (!html) return '';
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    return tempDiv.textContent || tempDiv.innerText || '';
+  };
+
   const validateField = (name, value) => {
     const newErrors = { ...errors };
 
@@ -356,6 +364,8 @@ export default function CreateBlogPage() {
       case 'excerpt':
         if (!value.trim()) {
           newErrors.excerpt = 'ملخص المقال مطلوب';
+        } else if (value.length < 50) {
+          newErrors.excerpt = 'الملخص يجب أن يكون على الأقل 50 حرف';
         } else if (value.length > 500) {
           newErrors.excerpt = 'الملخص يجب أن يكون أقل من 500 حرف';
         } else {
@@ -363,10 +373,11 @@ export default function CreateBlogPage() {
         }
         break;
       case 'content':
-        if (!value.trim()) {
+        const textContent = stripHtml(value);
+        if (!textContent.trim()) {
           newErrors.content = 'محتوى المقال مطلوب';
-        } else if (value.length < 100) {
-          newErrors.content = 'المحتوى يجب أن يكون على الأقل 100 حرف';
+        } else if (textContent.length < 300) {
+          newErrors.content = 'المحتوى يجب أن يكون على الأقل 300 حرف';
         } else {
           delete newErrors.content;
         }
@@ -827,21 +838,18 @@ export default function CreateBlogPage() {
                   </svg>
                   محتوى المقال *
                 </label>
-                <textarea
-                  name="content"
-                  value={formData.content}
-                  onChange={handleInputChange}
-                  rows={10}
-                  className={`form-input resize-y text-sm md:text-base min-h-[200px] md:min-h-[300px] ${errors.content ? 'border-red-500 focus:border-red-500 ring-red-200' : 'focus:ring-primary-200'}`}
-                  placeholder="اكتب محتوى المقال هنا..."
-                  required
-                  minLength={100}
+                <RichTextEditor
+                  content={formData.content}
+                  onChange={(content) => {
+                    setFormData(prev => ({ ...prev, content }));
+                  }}
+                  placeholder="ابدا بكتابة مقالك هنا... يمكنك استخدام العناوين والقوائم لتنسيق المحتوى."
                 />
                 <div className="flex justify-between items-center mt-2">
                   <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${formData.content.length >= 100 ? 'bg-green-500' : formData.content.length > 0 ? 'bg-yellow-500' : 'bg-gray-300'}`}></div>
+                    <div className={`w-2 h-2 rounded-full ${stripHtml(formData.content).length >= 300 ? 'bg-green-500' : stripHtml(formData.content).length > 0 ? 'bg-yellow-500' : 'bg-gray-300'}`}></div>
                     <p className="text-xs text-accent-500 dark:text-dark-text-tertiary">
-                      {formData.content.length} حرف (الحد الأدنى: 100 حرف)
+                      {stripHtml(formData.content).length} حرف (الحد الأدنى: 300 حرف)
                     </p>
                   </div>
                   {errors.content && (
@@ -860,7 +868,7 @@ export default function CreateBlogPage() {
                     فئات المقال *
                   </div>
                   <span className="text-xs text-gray-500 dark:text-dark-text-tertiary">
-                    {formData.categories.length}/3
+                    {formData.categories.filter(Boolean).length}/3
                   </span>
                 </label>
 
@@ -868,7 +876,7 @@ export default function CreateBlogPage() {
                 <div className="relative" ref={categoryDropdownRef}>
                   <div className={`form-input w-full min-h-[2.5rem] md:min-h-[3rem] px-3 md:px-4 py-2 md:py-3 pr-10 md:pr-12 border-2 border-gray-200 dark:border-dark-input-border focus-within:border-primary-500 dark:focus-within:border-primary-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-primary-400 flex flex-wrap items-center gap-1.5 md:gap-2 ${errors.categories ? 'border-red-500 focus-within:border-red-500' : ''}`}>
                     {/* Selected Categories Inside Input */}
-                    {formData.categories.map((categoryValue, index) => {
+                    {formData.categories.filter(Boolean).map((categoryValue, index) => {
                       const category = categories.find(c => c.value === categoryValue);
                       return (
                         <span

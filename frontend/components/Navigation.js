@@ -15,7 +15,6 @@ const UserNotifications = dynamic(() => import('./UserNotifications'), {
 
 const Navigation = memo(function Navigation({ activePage = '' }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [openMobileSection, setOpenMobileSection] = useState('store');
   const { user, isAuthenticated, loading, logout } = useAuth();
   const { theme } = useTheme();
   const menuRef = useRef(null);
@@ -44,10 +43,6 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
     setIsMenuOpen(false);
   };
 
-  const handleMobileSectionToggle = (sectionKey) => {
-    setOpenMobileSection((prev) => (prev === sectionKey ? '' : sectionKey));
-  };
-
   // Close menu when logout is clicked
   const handleLogout = () => {
     setIsMenuOpen(false);
@@ -57,8 +52,6 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
   // Memoize navigation items to prevent unnecessary re-renders
   const navItems = useMemo(() => [
     { href: '/store', label: 'المتجر', key: 'store' },
-    { href: '/services', label: 'الخدمات', key: 'services' },
-    { href: '/testimonials', label: 'قصص النجاح', key: 'testimonials' },
     { href: '/blog', label: 'المدونة', key: 'blog' },
     { href: '/about', label: 'من نحن', key: 'about' }
   ], []);
@@ -94,71 +87,24 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
           <div className={`transition-all duration-300 ease-in-out overflow-hidden flex items-center ${activePage !== 'home' ? 'max-w-24 opacity-100' : 'max-w-0 opacity-0'}`}>
             <Link href="/" className="nav-link whitespace-nowrap">الرئيسية</Link>
           </div>
-          <div className="relative group">
+          {navItems.map((item) => (
             <Link
-              href="/store"
-              className={`nav-link ${['store', 'templates', 'creators'].includes(activePage) ? 'nav-link-active' : ''}`}
+              key={item.key}
+              href={item.href}
+              className={`nav-link ${activePage === item.key ? 'nav-link-active' : ''}`}
             >
-              المتجر
+              {item.label}
             </Link>
-            <div className="absolute top-full right-0 mt-3 w-44 rounded-xl border border-gray-200/40 dark:border-dark-card-border bg-white/95 dark:bg-dark-secondary/95 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 backdrop-blur-sm">
-              <div className="py-2">
-                <Link
-                  href="/store"
-                  className="block px-4 py-2.5 text-sm text-accent-700 dark:text-dark-text-secondary hover:bg-accent-50 dark:hover:bg-dark-tertiary transition-colors"
-                >
-                  صفحة المتجر
-                </Link>
-                <Link
-                  href="/templates"
-                  className="block px-4 py-2.5 text-sm text-accent-700 dark:text-dark-text-secondary hover:bg-accent-50 dark:hover:bg-dark-tertiary transition-colors"
-                >
-                  القوالب
-                </Link>
-                <Link
-                  href="/creators"
-                  className="block px-4 py-2.5 text-sm text-accent-700 dark:text-dark-text-secondary hover:bg-accent-50 dark:hover:bg-dark-tertiary transition-colors"
-                >
-                  المبدعين
-                </Link>
-              </div>
-            </div>
-          </div>
-          <Link href="/services" className={`nav-link ${activePage === 'services' ? 'nav-link-active' : ''}`}>الخدمات</Link>
-          <div className="relative group">
-            <Link
-              href="/about"
-              className={`nav-link ${['about', 'blog', 'testimonials'].includes(activePage) ? 'nav-link-active' : ''}`}
-            >
-              عن عرب نوشن
-            </Link>
-            <div className="absolute top-full right-0 mt-3 w-44 rounded-xl border border-gray-200/40 dark:border-dark-card-border bg-white/95 dark:bg-dark-secondary/95 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 backdrop-blur-sm">
-              <div className="py-2">
-                <Link
-                  href="/about"
-                  className="block px-4 py-2.5 text-sm text-accent-700 dark:text-dark-text-secondary hover:bg-accent-50 dark:hover:bg-dark-tertiary transition-colors"
-                >
-                  من نحن
-                </Link>
-                <Link
-                  href="/blog"
-                  className="block px-4 py-2.5 text-sm text-accent-700 dark:text-dark-text-secondary hover:bg-accent-50 dark:hover:bg-dark-tertiary transition-colors"
-                >
-                  المدونة
-                </Link>
-                <Link
-                  href="/testimonials"
-                  className="block px-4 py-2.5 text-sm text-accent-700 dark:text-dark-text-secondary hover:bg-accent-50 dark:hover:bg-dark-tertiary transition-colors"
-                >
-                  قصص النجاح
-                </Link>
-              </div>
-            </div>
-          </div>
+          ))}
         </nav>
 
         {/* Auth Buttons / User Menu */}
         <div className="hidden md:flex items-center gap-2 lg:gap-3 xl:gap-4">
+          <div className="hidden lg:flex items-center gap-2 xl:gap-3">
+            <Link href="/consultation" className="btn-primary">
+              احجز استشارة
+            </Link>
+          </div>
           {/* Auth section */}
           <div className="flex items-center gap-3 justify-end">
             {loading ? (
@@ -175,16 +121,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
                   <UserDropdown />
                 </div>
               </>
-            ) : (
-              <div className="flex items-center gap-3">
-                <Link href="/login" className="text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors py-2 px-3">
-                  تسجيل الدخول
-                </Link>
-                <Link href="/signup" className="btn-primary">
-                  إنشاء حساب
-                </Link>
-              </div>
-            )}
+            ) : null}
           </div>
         </div>
 
@@ -206,314 +143,267 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
       <div className={`md:hidden absolute top-full left-0 right-0 z-40 bg-gradient-to-b from-accent-500 via-accent-500 to-accent-600 dark:from-dark-secondary dark:via-dark-secondary dark:to-dark-tertiary border-b border-gray-700/60 dark:border-dark-card-border shadow-large dark:shadow-dark-large backdrop-blur-sm transition-all duration-300 ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
         <div className="container-custom py-6 space-y-7">
           {/* Mobile Navigation Links - Always in DOM for crawlability */}
-          <nav className="space-y-5" aria-label="Mobile navigation">
+          <nav className="space-y-4" aria-label="Mobile navigation">
             <div className={`transition-all duration-300 ease-in-out overflow-hidden ${activePage !== 'home' ? 'max-h-16 opacity-100' : 'max-h-0 opacity-0'}`}>
               <Link href="/" onClick={handleLinkClick} className="block py-3.5 px-4 text-gray-100/90 dark:text-dark-text-primary hover:text-white hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-2xl border border-white/5">
                 الرئيسية
               </Link>
             </div>
-            <button
-              type="button"
-              onClick={() => handleMobileSectionToggle('store')}
-              className="w-full px-4 flex items-center gap-3 text-gray-300/80 dark:text-dark-text-tertiary"
-              aria-expanded={openMobileSection === 'store'}
-              aria-controls="mobile-store-links"
-            >
-              <span className="h-px flex-1 bg-white/10 dark:bg-dark-card-border"></span>
-              <span className="text-[11px] font-semibold uppercase tracking-widest">
-                المتجر
-              </span>
-              <span className="h-px flex-1 bg-white/10 dark:bg-dark-card-border"></span>
-              <span className={`ml-2 transition-transform duration-200 ${openMobileSection === 'store' ? 'rotate-180' : ''}`}>
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 9l6 6 6-6" />
-                </svg>
-              </span>
-            </button>
-            <div
-              id="mobile-store-links"
-              className={`mr-2 space-y-2.5 overflow-hidden transition-all duration-300 ${openMobileSection === 'store' ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'}`}
-            >
-              <Link href="/store" onClick={handleLinkClick} className="block py-3 px-4 text-sm text-gray-100/90 dark:text-dark-text-primary hover:text-white hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-2xl border border-white/5">
-                صفحة المتجر
+            {navItems.map((item) => (
+              <Link
+                key={item.key}
+                href={item.href}
+                onClick={handleLinkClick}
+                className="block py-3.5 px-4 text-gray-100/90 dark:text-dark-text-primary hover:text-white hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-2xl border border-white/5"
+              >
+                {item.label}
               </Link>
-              <Link href="/templates" onClick={handleLinkClick} className="block py-3 px-4 text-sm text-gray-300/90 dark:text-dark-text-tertiary hover:text-white hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-2xl border border-white/5">
-                القوالب
-              </Link>
-              <Link href="/creators" onClick={handleLinkClick} className="block py-3 px-4 text-sm text-gray-300/90 dark:text-dark-text-tertiary hover:text-white hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-2xl border border-white/5">
-                المبدعين
-              </Link>
-            </div>
-            <Link href="/services" onClick={handleLinkClick} className="block py-3.5 px-4 text-gray-100/90 dark:text-dark-text-primary hover:text-white hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-2xl border border-white/5">
-              الخدمات
-            </Link>
-            <button
-              type="button"
-              onClick={() => handleMobileSectionToggle('about')}
-              className="w-full px-4 flex items-center gap-3 text-gray-300/80 dark:text-dark-text-tertiary"
-              aria-expanded={openMobileSection === 'about'}
-              aria-controls="mobile-about-links"
-            >
-              <span className="h-px flex-1 bg-white/10 dark:bg-dark-card-border"></span>
-              <span className="text-[11px] font-semibold uppercase tracking-widest">
-                عن عرب نوشن
-              </span>
-              <span className="h-px flex-1 bg-white/10 dark:bg-dark-card-border"></span>
-              <span className={`ml-2 transition-transform duration-200 ${openMobileSection === 'about' ? 'rotate-180' : ''}`}>
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 9l6 6 6-6" />
-                </svg>
-              </span>
-            </button>
-            <div
-              id="mobile-about-links"
-              className={`mr-2 space-y-2.5 overflow-hidden transition-all duration-300 ${openMobileSection === 'about' ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'}`}
-            >
-              <Link href="/about" onClick={handleLinkClick} className="block py-3 px-4 text-sm text-gray-100/90 dark:text-dark-text-primary hover:text-white hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-2xl border border-white/5">
-                من نحن
-              </Link>
-              <Link href="/blog" onClick={handleLinkClick} className="block py-3 px-4 text-sm text-gray-300/90 dark:text-dark-text-tertiary hover:text-white hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-2xl border border-white/5">
-                المدونة
-              </Link>
-              <Link href="/testimonials" onClick={handleLinkClick} className="block py-3 px-4 text-sm text-gray-300/90 dark:text-dark-text-tertiary hover:text-white hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-2xl border border-white/5">
-                قصص النجاح
-              </Link>
-            </div>
+            ))}
           </nav>
 
-            {/* Mobile Auth Section */}
-            <div className="border-t border-gray-600 dark:border-dark-card-border pt-6 min-h-[120px]">
-              {loading ? (
-                <div className="space-y-3">
-                  <div className="px-4 py-3 bg-white/5 dark:bg-dark-tertiary rounded-xl">
-                    <div className="w-24 h-4 bg-white/20 rounded animate-pulse"></div>
-                  </div>
-                  <div className="py-3 px-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-white/20 animate-pulse"></div>
-                      <div className="w-16 h-4 bg-white/20 rounded animate-pulse"></div>
-                    </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Link
+              href="/consultation"
+              onClick={handleLinkClick}
+              className="btn-primary text-center"
+            >
+              احجز استشارة
+            </Link>
+          </div>
+
+          {/* Mobile Auth Section */}
+          <div className="border-t border-gray-600 dark:border-dark-card-border pt-6 min-h-[120px]">
+            {loading ? (
+              <div className="space-y-3">
+                <div className="px-4 py-3 bg-white/5 dark:bg-dark-tertiary rounded-xl">
+                  <div className="w-24 h-4 bg-white/20 rounded animate-pulse"></div>
+                </div>
+                <div className="py-3 px-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-white/20 animate-pulse"></div>
+                    <div className="w-16 h-4 bg-white/20 rounded animate-pulse"></div>
                   </div>
                 </div>
-              ) : isAuthenticated ? (
-                <div className="space-y-3">
-                  {/* User Info Header */}
-                  <div className="px-4 py-3 bg-white/5 dark:bg-dark-tertiary rounded-xl">
-                    <div className="flex items-center gap-3">
-                      {(user?.creatorStatus === 'approved' || user?.creatorStatus === 'pending') ? (
-                        // Premium styling for approved creators and pending applications
-                        <div className="relative">
-                          <div className={`w-9 h-9 rounded-full p-0.5 shadow-md ${user?.creatorStatus === 'approved'
-                            ? 'bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500'
-                            : 'bg-gradient-to-r from-yellow-500 to-orange-500'
-                            }`}>
-                            <div className="w-full h-full rounded-full bg-white dark:bg-dark-secondary">
-                              {user?.profilePicture ? (
-                                <Image
-                                  src={user.profilePicture}
-                                  alt={`صورة ${user.name}`}
-                                  width={32}
-                                  height={32}
-                                  className="w-full h-full rounded-full object-cover"
-                                  quality={100}
-                                />
-                              ) : (
-                                <div className="w-full h-full rounded-full bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 flex items-center justify-center">
-                                  <span className="text-xs font-bold text-white">
-                                    {user?.name?.charAt(0)?.toUpperCase()}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          {/* Creator badge */}
-                          <div className={`absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full flex items-center justify-center shadow-sm ${user?.creatorStatus === 'approved'
-                            ? 'bg-gradient-to-r from-yellow-400 to-amber-500'
-                            : 'bg-gradient-to-r from-yellow-500 to-orange-500'
-                            }`}>
-                            {user?.creatorStatus === 'approved' ? (
-                              <svg className="w-1.5 h-1.5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                              </svg>
+              </div>
+            ) : isAuthenticated ? (
+              <div className="space-y-3">
+                {/* User Info Header */}
+                <div className="px-4 py-3 bg-white/5 dark:bg-dark-tertiary rounded-xl">
+                  <div className="flex items-center gap-3">
+                    {(user?.creatorStatus === 'approved' || user?.creatorStatus === 'pending') ? (
+                      // Premium styling for approved creators and pending applications
+                      <div className="relative">
+                        <div className={`w-9 h-9 rounded-full p-0.5 shadow-md ${user?.creatorStatus === 'approved'
+                          ? 'bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500'
+                          : 'bg-gradient-to-r from-yellow-500 to-orange-500'
+                          }`}>
+                          <div className="w-full h-full rounded-full bg-white dark:bg-dark-secondary">
+                            {user?.profilePicture ? (
+                              <Image
+                                src={user.profilePicture}
+                                alt={`صورة ${user.name}`}
+                                width={32}
+                                height={32}
+                                className="w-full h-full rounded-full object-cover"
+                                quality={100}
+                              />
                             ) : (
-                              <svg className="w-1.5 h-1.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
+                              <div className="w-full h-full rounded-full bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 flex items-center justify-center">
+                                <span className="text-xs font-bold text-white">
+                                  {user?.name?.charAt(0)?.toUpperCase()}
+                                </span>
+                              </div>
                             )}
                           </div>
                         </div>
-                      ) : (
-                        // Regular styling for non-creators
-                        <>
-                          {user?.profilePicture ? (
-                            <Image
-                              src={user.profilePicture}
-                              alt={`صورة ${user.name}`}
-                              width={32}
-                              height={32}
-                              className="w-8 h-8 rounded-full"
-                              quality={100}
-                            />
-                          ) : (
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 flex items-center justify-center">
-                              <span className="text-sm font-bold text-white">
-                                {user?.name?.charAt(0)?.toUpperCase()}
-                              </span>
-                            </div>
-                          )}
-                        </>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-medium text-gray-300 dark:text-dark-text-primary truncate">
-                            {user?.name}
-                          </p>
-                          {user?.creatorStatus === 'approved' && (
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 dark:from-yellow-900/30 dark:to-amber-900/30 dark:text-yellow-300">
-                              مبدع
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-gray-400 dark:text-dark-text-tertiary truncate">
-                          {user?.email}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Mobile User Options */}
-                  <div className="space-y-2">
-                    {/* Admin Section */}
-                    {user?.role === 'admin' ? (
-                      <>
-                        <Link
-                          href="/admin"
-                          onClick={handleLinkClick}
-                          className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
-                        >
-                          <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z" />
-                          </svg>
-                          <span className="text-sm">لوحة الإدارة الرئيسية</span>
-                        </Link>
-                      </>
-                    ) : (
-                      <>
-                        {/* Profile Link - For approved creators and pending applications (non-admin) */}
-                        {(user?.creatorStatus === 'approved' || user?.creatorStatus === 'pending') && (
-                          <Link
-                            href="/profile"
-                            onClick={handleLinkClick}
-                            className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
-                          >
-                            <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        {/* Creator badge */}
+                        <div className={`absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full flex items-center justify-center shadow-sm ${user?.creatorStatus === 'approved'
+                          ? 'bg-gradient-to-r from-yellow-400 to-amber-500'
+                          : 'bg-gradient-to-r from-yellow-500 to-orange-500'
+                          }`}>
+                          {user?.creatorStatus === 'approved' ? (
+                            <svg className="w-1.5 h-1.5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                             </svg>
-                            <span className="text-sm">الملف الشخصي</span>
-                          </Link>
-                        )}
-
-                        {/* Settings Link */}
-                        <Link
-                          href={user?.creatorStatus === 'approved' ? "/settings" : "/user-settings"}
-                          onClick={handleLinkClick}
-                          className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
-                        >
-                          <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                          <span className="text-sm">الإعدادات</span>
-                        </Link>
-
-                        {/* Orders Section - Only for normal users */}
-                        <Link
-                          href="/purchases"
-                          onClick={handleLinkClick}
-                          className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
-                        >
-                          <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                          <span className="text-sm">مشترياتي</span>
-                        </Link>
-
-                        {/* Creator Application Section */}
-                        {/* Pending Status */}
-                        {user?.creatorStatus === 'pending' && (
-                          <div className="w-full px-4 py-3 text-right flex items-center gap-3 text-amber-400 dark:text-amber-300 bg-amber-900/20 dark:bg-amber-900/20 rounded-xl">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          ) : (
+                            <svg className="w-1.5 h-1.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span className="text-sm">طلبك قيد المراجعة</span>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      // Regular styling for non-creators
+                      <>
+                        {user?.profilePicture ? (
+                          <Image
+                            src={user.profilePicture}
+                            alt={`صورة ${user.name}`}
+                            width={32}
+                            height={32}
+                            className="w-8 h-8 rounded-full"
+                            quality={100}
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 flex items-center justify-center">
+                            <span className="text-sm font-bold text-white">
+                              {user?.name?.charAt(0)?.toUpperCase()}
+                            </span>
                           </div>
-                        )}
-
-                        {/* Rejected Status - Allow re-application */}
-                        {user?.creatorStatus === 'rejected' && (
-                          <Link
-                            href="/creators/apply"
-                            onClick={handleLinkClick}
-                            className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
-                          >
-                            <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                            <span className="text-sm">إعادة التقديم كمبدع</span>
-                          </Link>
-                        )}
-
-                        {/* No Status - First time application */}
-                        {(!user?.creatorStatus || user?.creatorStatus === '' || user?.creatorStatus === 'none') && (
-                          <Link
-                            href="/creators/apply"
-                            onClick={handleLinkClick}
-                            className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
-                          >
-                            <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                            <span className="text-sm">التسجيل كمبدع</span>
-                          </Link>
                         )}
                       </>
                     )}
-
-                    {/* Sign Out with Theme Toggle */}
-                    <div className="flex items-center justify-between gap-3 py-3 px-4">
-                      <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-3 text-red-400 hover:text-red-300 hover:bg-red-900/20 transition-all duration-200 rounded-xl px-3 py-2 flex-1 text-right"
-                      >
-                        <span className="text-sm">تسجيل الخروج</span>
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                      </button>
-                      <ThemeToggle />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-gray-300 dark:text-dark-text-primary truncate">
+                          {user?.name}
+                        </p>
+                        {user?.creatorStatus === 'approved' && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 dark:from-yellow-900/30 dark:to-amber-900/30 dark:text-yellow-300">
+                            مبدع
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-400 dark:text-dark-text-tertiary truncate">
+                        {user?.email}
+                      </p>
                     </div>
                   </div>
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  {/* Theme Toggle Mobile for non-authenticated users */}
-                  <div className="flex items-center justify-between px-4 py-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
-                    <span>الوضع {theme === 'dark' ? 'النهاري' : 'الليلي'}</span>
+
+                {/* Mobile User Options */}
+                <div className="space-y-2">
+                  {/* Admin Section */}
+                  {user?.role === 'admin' ? (
+                    <>
+                      <Link
+                        href="/admin"
+                        onClick={handleLinkClick}
+                        className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
+                      >
+                        <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z" />
+                        </svg>
+                        <span className="text-sm">لوحة الإدارة الرئيسية</span>
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      {/* Profile Link - For approved creators and pending applications (non-admin) */}
+                      {(user?.creatorStatus === 'approved' || user?.creatorStatus === 'pending') && (
+                        <Link
+                          href="/profile"
+                          onClick={handleLinkClick}
+                          className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
+                        >
+                          <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                          <span className="text-sm">الملف الشخصي</span>
+                        </Link>
+                      )}
+
+                      {/* Settings Link */}
+                      <Link
+                        href={user?.creatorStatus === 'approved' ? "/settings" : "/user-settings"}
+                        onClick={handleLinkClick}
+                        className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
+                      >
+                        <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span className="text-sm">الإعدادات</span>
+                      </Link>
+
+                      {/* Orders Section - Only for normal users */}
+                      <Link
+                        href="/purchases"
+                        onClick={handleLinkClick}
+                        className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
+                      >
+                        <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span className="text-sm">مشترياتي</span>
+                      </Link>
+
+                      {/* Creator Application Section */}
+                      {/* Pending Status */}
+                      {user?.creatorStatus === 'pending' && (
+                        <div className="w-full px-4 py-3 text-right flex items-center gap-3 text-amber-400 dark:text-amber-300 bg-amber-900/20 dark:bg-amber-900/20 rounded-xl">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span className="text-sm">طلبك قيد المراجعة</span>
+                        </div>
+                      )}
+
+                      {/* Rejected Status - Allow re-application */}
+                      {user?.creatorStatus === 'rejected' && (
+                        <Link
+                          href="/creators/apply"
+                          onClick={handleLinkClick}
+                          className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
+                        >
+                          <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                          <span className="text-sm">إعادة التقديم كمبدع</span>
+                        </Link>
+                      )}
+
+                      {/* No Status - First time application */}
+                      {(!user?.creatorStatus || user?.creatorStatus === '' || user?.creatorStatus === 'none') && (
+                        <Link
+                          href="/creators/apply"
+                          onClick={handleLinkClick}
+                          className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
+                        >
+                          <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                          <span className="text-sm">التسجيل كمبدع</span>
+                        </Link>
+                      )}
+                    </>
+                  )}
+
+                  {/* Sign Out with Theme Toggle */}
+                  <div className="flex items-center justify-between gap-3 py-3 px-4">
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-3 text-red-400 hover:text-red-300 hover:bg-red-900/20 transition-all duration-200 rounded-xl px-3 py-2 flex-1 text-right"
+                    >
+                      <span className="text-sm">تسجيل الخروج</span>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                    </button>
                     <ThemeToggle />
                   </div>
-
-                  <Link href="/login" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
-                    تسجيل الدخول
-                  </Link>
-                  <Link href="/signup" onClick={handleLinkClick} className="block py-3 px-4 text-center bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-xl transition-colors duration-200">
-                    إنشاء حساب
-                  </Link>
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {/* Theme Toggle Mobile for non-authenticated users */}
+                <div className="flex items-center justify-between px-4 py-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+                  <span>الوضع {theme === 'dark' ? 'النهاري' : 'الليلي'}</span>
+                  <ThemeToggle />
+                </div>
+
+                <Link href="/login" onClick={handleLinkClick} className="block py-3 px-4 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl">
+                  تسجيل الدخول
+                </Link>
+                <Link href="/signup" onClick={handleLinkClick} className="block py-3 px-4 text-center bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-xl transition-colors duration-200">
+                  إنشاء حساب
+                </Link>
+              </div>
+            )}
           </div>
         </div>
+      </div>
     </header>
   );
 });

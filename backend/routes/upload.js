@@ -29,6 +29,91 @@ const upload = multer({
   }
 });
 
+// Resume upload (PDF/DOC/DOCX) - public endpoint
+const resumeUpload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only resume files are allowed'), false);
+    }
+  }
+});
+
+// Upload resume endpoint (no auth)
+router.post('/resume', resumeUpload.single('resume'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'لم يتم رفع أي ملف'
+      });
+    }
+
+    if (req.file.size > 10 * 1024 * 1024) {
+      return res.status(400).json({
+        success: false,
+        message: 'حجم الملف يجب أن يكون أقل من 10 ميجابايت'
+      });
+    }
+
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        {
+          resource_type: 'raw',
+          folder: 'notion-arabs/resumes'
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      ).end(req.file.buffer);
+    });
+
+    res.json({
+      success: true,
+      message: 'تم رفع السيرة الذاتية بنجاح',
+      data: {
+        fileUrl: result.secure_url,
+        publicId: result.public_id,
+        format: result.format,
+        size: result.bytes
+      }
+    });
+  } catch (error) {
+    console.error('Resume upload error:', error);
+
+    if (error.message && error.message.includes('Only resume files are allowed')) {
+      return res.status(400).json({
+        success: false,
+        message: 'يرجى رفع ملف PDF أو Word صالح'
+      });
+    }
+
+    if (error.message && error.message.includes('File too large')) {
+      return res.status(400).json({
+        success: false,
+        message: 'حجم الملف كبير جداً. الحد الأقصى 10 ميجابايت'
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'حدث خطأ أثناء رفع السيرة الذاتية',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
 // Upload image endpoint
 router.post('/image', auth, upload.single('image'), async (req, res) => {
   try {

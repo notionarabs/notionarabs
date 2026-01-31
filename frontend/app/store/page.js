@@ -120,7 +120,7 @@ function StorePageContent() {
 
     return [...pinnedTemplates, ...regularTemplates];
   }, [paginatedTemplates]);
-  const limitedTemplates = orderedTemplates.slice(0, 6);
+  const limitedTemplates = useMemo(() => orderedTemplates.slice(0, 6), [orderedTemplates]);
 
   // Remove this useEffect as it conflicts with server pagination
   // The pagination is already set correctly from the server response
@@ -274,6 +274,9 @@ function StorePageContent() {
                             alt={template.title}
                             className="w-full h-full object-cover object-[50%_30%]"
                             loading="lazy"
+                            decoding="async"
+                            width="400"
+                            height="300"
                             onError={(e) => {
                               console.error('Image failed to load:', template.previewImage);
                               if (e.target) {
@@ -290,8 +293,9 @@ function StorePageContent() {
                             className="w-full h-full object-cover object-[50%_30%]"
                             loading="lazy"
                             quality={75}
+                            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                             placeholder="blur"
-                            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+                            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                             onError={(e) => {
                               console.error('Image failed to load:', template.previewImage);
                               if (e.target) {
@@ -322,12 +326,13 @@ function StorePageContent() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           {template.creator?.profilePicture ? (
-                            <Image
+                          <Image
                               src={template.creator.profilePicture}
                               alt={template.creator?.name || 'مبدع'}
                               width={20}
                               height={20}
                               className="w-5 h-5 rounded-full object-cover"
+                            sizes="20px"
                             />
                           ) : (
                             <div className="w-5 h-5 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
@@ -445,6 +450,7 @@ function StorePageContent() {
                             className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md"
                             loading="lazy"
                             quality={80}
+                            sizes="64px"
                           />
                         ) : (
                           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center border-2 border-white shadow-md">

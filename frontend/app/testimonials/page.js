@@ -1,38 +1,7 @@
 import Link from 'next/link';
 import { Quote, Star } from 'lucide-react';
-
-const testimonials = [
-  {
-    name: "اسم العميل",
-    role: "مدير العمليات",
-    quote: "النظام الجديد على نوشن أعاد ترتيب كل شيء. أصبحنا نعمل بوضوح أكبر ووقت أقل."
-  },
-  {
-    name: "اسم العميل",
-    role: "مؤسس شركة",
-    quote: "التدريب كان احترافي، والفريق تبنّى النظام بسرعة كبيرة."
-  },
-  {
-    name: "اسم العميل",
-    role: "قائد فريق",
-    quote: "الهيكلة الجديدة ساعدتنا على تحسين المتابعة وتخفيف الضغط اليومي."
-  }
-];
-
-const caseStudies = [
-  {
-    title: "تحويل عمليات فريق تسويق",
-    summary: "بناء نظام محتوى وتسليم مشاريع يربط المهام بالمواعيد والنتائج."
-  },
-  {
-    title: "لوحة تحكم لإدارة العملاء",
-    summary: "بوابة عملاء تجمع كل مراحل المشروع في مكان واحد."
-  },
-  {
-    title: "نظام معرفة داخلي",
-    summary: "مكتبة معرفة موحدة تضمن الوصول السريع للمعلومات."
-  }
-];
+import Footer from '../../components/Footer';
+import { caseStudies, testimonials } from '../../lib/marketingContent';
 
 export default function TestimonialsPage() {
   return (
@@ -63,7 +32,7 @@ export default function TestimonialsPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {testimonials.map((testimonial, idx) => (
-              <div key={idx} className="card-interactive p-5 sm:p-6 h-full">
+              <div key={idx} className="card-interactive cursor-default p-5 sm:p-6 h-full">
                 <div className="flex items-center gap-2 mb-4">
                   <Quote className="w-5 h-5 text-primary-600 dark:text-orange-400" />
                   <div className="flex gap-1 text-yellow-400">
@@ -99,7 +68,7 @@ export default function TestimonialsPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {caseStudies.map((study, idx) => (
-              <div key={idx} className="card-interactive p-5 sm:p-6 h-full">
+              <div key={idx} className="card-interactive cursor-default p-5 sm:p-6 h-full">
                 <h3 className="text-base sm:text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
                   {study.title}
                 </h3>
@@ -122,15 +91,17 @@ export default function TestimonialsPage() {
             احجز استشارة أولية ونبني لك نظام نوشن يناسب فريقك.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-            <Link href="/contact" className="btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto text-center">
+            <Link href="/consultation" className="btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto text-center">
               احجز استشارتك
             </Link>
-            <Link href="/services" className="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 bg-white/90 dark:bg-dark-tertiary/90 border-primary-200 dark:border-orange-500/30 w-full sm:w-auto text-center">
-              تعرّف على الخدمات
+            <Link href="/store" className="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 bg-white/90 dark:bg-dark-tertiary/90 border-primary-200 dark:border-orange-500/30 w-full sm:w-auto text-center">
+              استكشف المتجر
             </Link>
           </div>
         </div>
       </section>
+
+      <Footer />
     </main>
   );
 }

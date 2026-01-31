@@ -301,7 +301,7 @@ function DropdownSelect({ label, name, value, onChange, options, placeholder, re
   };
 
   return (
-    <div className="form-group" ref={dropdownRef}>
+    <div className="form-group relative" ref={dropdownRef}>
       <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2 block">
         {label}
         {required && <span className="text-gray-400 dark:text-dark-text-tertiary ms-1">*</span>}
@@ -326,7 +326,7 @@ function DropdownSelect({ label, name, value, onChange, options, placeholder, re
       {isOpen && (
         <div
           role="listbox"
-          className="mt-2 max-h-56 overflow-auto rounded-xl border border-gray-200 dark:border-dark-card-border bg-white dark:bg-dark-secondary shadow-lg"
+          className="absolute z-50 mt-2 w-full max-h-56 overflow-auto rounded-xl border border-gray-200 dark:border-dark-card-border bg-white dark:bg-dark-secondary shadow-lg"
         >
           {options.map((option) => (
             <button
@@ -386,7 +386,7 @@ function MultiSelectDropdown({ label, name, values, onChange, options, placehold
   };
 
   return (
-    <div className="form-group" ref={dropdownRef}>
+    <div className="form-group relative" ref={dropdownRef}>
       <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2 block">
         {label}
         {required && <span className="text-gray-400 dark:text-dark-text-tertiary ms-1">*</span>}
@@ -411,7 +411,7 @@ function MultiSelectDropdown({ label, name, values, onChange, options, placehold
       {isOpen && (
         <div
           role="listbox"
-          className="mt-2 max-h-56 overflow-auto rounded-xl border border-gray-200 dark:border-dark-card-border bg-white dark:bg-dark-secondary shadow-lg"
+          className="absolute z-50 mt-2 w-full max-h-56 overflow-auto rounded-xl border border-gray-200 dark:border-dark-card-border bg-white dark:bg-dark-secondary shadow-lg"
         >
           {options.map((option) => {
             const isSelected = values.includes(option.value);
@@ -698,16 +698,7 @@ export default function ConsultationForm() {
   };
 
   return (
-    <div className="card p-4 sm:p-6 md:p-7 mb-6 sm:mb-8">
-      <div className="text-center mb-5 sm:mb-6">
-        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">
-          احجز استشارة مجانية
-        </h2>
-        <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">
-          اترك بياناتك وسنقترح أنسب وقت للتواصل معك.
-        </p>
-      </div>
-
+    <div className="w-full">
       {status.message && status.type !== 'success' && (
         <div className="mb-5 rounded-xl border px-4 py-4 text-xs sm:text-sm flex items-start gap-3 border-red-200 bg-red-50 text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">
           <span className="mt-0.5">
@@ -743,7 +734,7 @@ export default function ConsultationForm() {
 
       <form
         onSubmit={handleSubmit}
-        className="space-y-4 sm:space-y-6 rounded-2xl border border-gray-100 dark:border-dark-card-border bg-white/90 dark:bg-dark-secondary/80 shadow-sm backdrop-blur-sm px-4 py-5 sm:px-6 sm:py-6"
+        className="space-y-5 sm:space-y-6"
       >
         <input type="hidden" name="source" value={formData.source} />
         <div className="flex items-center justify-between text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">
@@ -761,13 +752,16 @@ export default function ConsultationForm() {
           </div>
         </div>
 
-        <div className="space-y-4 sm:space-y-5">
+        <div
+          key={`${step}-${formData.companyType}`}
+          className="step-transition grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5"
+        >
           {step === 1 && (
             <>
               <div className="form-group">
                 <label htmlFor="fullName" className="text-xs sm:text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2 block">
-                الاسم الكامل
-                <span className="text-gray-400 dark:text-dark-text-tertiary ms-1">*</span>
+                  الاسم الكامل
+                  <span className="text-gray-400 dark:text-dark-text-tertiary ms-1">*</span>
                 </label>
                 <input
                   type="text"
@@ -788,8 +782,8 @@ export default function ConsultationForm() {
 
               <div className="form-group">
                 <label htmlFor="email" className="text-xs sm:text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2 block">
-                البريد الإلكتروني
-                <span className="text-gray-400 dark:text-dark-text-tertiary ms-1">*</span>
+                  البريد الإلكتروني
+                  <span className="text-gray-400 dark:text-dark-text-tertiary ms-1">*</span>
                 </label>
                 <input
                   type="email"
@@ -807,10 +801,10 @@ export default function ConsultationForm() {
                 {renderError('email')}
               </div>
 
-              <div className="form-group">
+              <div className="form-group md:col-span-2">
                 <label htmlFor="whatsapp" className="text-xs sm:text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2 block">
-                رقم الواتساب
-                <span className="text-gray-400 dark:text-dark-text-tertiary ms-1">*</span>
+                  رقم الواتساب
+                  <span className="text-gray-400 dark:text-dark-text-tertiary ms-1">*</span>
                 </label>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex-1">
@@ -888,11 +882,11 @@ export default function ConsultationForm() {
                 {renderError('whatsapp')}
               </div>
 
-              <div className="form-group">
-            <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2 block">
-              هل أنت فرد أم فريق؟
-              <span className="text-gray-400 dark:text-dark-text-tertiary ms-1">*</span>
-            </label>
+              <div className="form-group md:col-span-2">
+                <label className="text-xs sm:text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2 block">
+                  هل أنت فرد أم فريق؟
+                  <span className="text-gray-400 dark:text-dark-text-tertiary ms-1">*</span>
+                </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <label className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-sm sm:text-base cursor-pointer transition-colors ${formData.companyType === 'Individual'
                     ? 'border-primary-500 bg-primary-50 dark:bg-orange-500/10 dark:border-orange-400'
@@ -930,221 +924,233 @@ export default function ConsultationForm() {
 
           {step === 2 && formData.companyType === 'Individual' && (
             <>
-            <MultiSelectDropdown
-              label="نوع الخدمة المطلوبة"
-              name="serviceType"
-              values={formData.serviceType}
-              onChange={handleChange}
-              placeholder="اختر الخدمة"
-              required
-              options={[
-                { value: 'مساحات عمل مخصصة', label: 'مساحات عمل مخصصة' },
-                { value: 'أتمتة وتكاملات', label: 'أتمتة وتكاملات' },
-                { value: 'تدريب وتبنّي الفريق', label: 'تدريب وتبنّي الفريق' },
-                { value: 'بوابات عملاء ومشاريع', label: 'بوابات عملاء ومشاريع' },
-                { value: 'حوكمة المعرفة', label: 'حوكمة المعرفة' },
-                { value: 'تحسين العمليات', label: 'تحسين العمليات' },
-                { value: 'خدمة أخرى', label: 'خدمة أخرى' }
-              ]}
-            />
-            {renderError('serviceType')}
-            <DropdownSelect
-              label="الميزانية التقديرية"
-              name="budget"
-              value={formData.budget}
-              onChange={handleChange}
-              placeholder="اختر الميزانية"
-              required
-              options={[
-                { value: 'أقل من 500', label: 'أقل من 500' },
-                { value: '500 - 1000', label: '500 - 1000' },
-                { value: '1000 - 3000', label: '1000 - 3000' },
-                { value: '3000 - 10000', label: '3000 - 10000' },
-                { value: 'أكثر من 10000', label: 'أكثر من 10000' }
-              ]}
-            />
-            {renderError('budget')}
-            <DropdownSelect
-              label="متى تريد بدء المشروع؟"
-              name="timeline"
-              value={formData.timeline}
-              onChange={handleChange}
-              placeholder="اختر الوقت"
-              required
-              options={[
-                { value: 'فوراً', label: 'فوراً' },
-                { value: '3-2 أسابيع', label: '3-2 أسابيع' },
-                { value: '2-1 شهر', label: '2-1 شهر' },
-                { value: '4-2 أشهر', label: '4-2 أشهر' },
-                { value: '8-4 أشهر', label: '8-4 أشهر' },
-                { value: 'مرن', label: 'مرن' }
-              ]}
-            />
-            {renderError('timeline')}
-            <div className="form-group">
-              <label htmlFor="details" className="text-xs sm:text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2 block">
-                نبذة مختصرة عن احتياجك
-                <span className="text-gray-400 dark:text-dark-text-tertiary ms-1">*</span>
-              </label>
-              <textarea
-                id="details"
-                name="details"
-                rows={4}
-                required
-                minLength={20}
-                maxLength={1000}
-                value={formData.details}
-                onChange={handleChange}
-                aria-invalid={Boolean(errors.details)}
-                aria-describedby={errors.details ? 'details-error' : undefined}
-                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-right border border-gray-200 dark:border-dark-input-border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 resize-none"
-                placeholder="اشرح باختصار المطلوب أو الهدف من الاستشارة"
-              />
-              {renderError('details')}
-            </div>
+              <div className="md:col-span-2">
+                <MultiSelectDropdown
+                  label="نوع الخدمة المطلوبة"
+                  name="serviceType"
+                  values={formData.serviceType}
+                  onChange={handleChange}
+                  placeholder="اختر الخدمة"
+                  required
+                  options={[
+                    { value: 'مساحات عمل مخصصة', label: 'مساحات عمل مخصصة' },
+                    { value: 'أتمتة وتكاملات', label: 'أتمتة وتكاملات' },
+                    { value: 'تدريب وتبنّي الفريق', label: 'تدريب وتبنّي الفريق' },
+                    { value: 'بوابات عملاء ومشاريع', label: 'بوابات عملاء ومشاريع' },
+                    { value: 'حوكمة المعرفة', label: 'حوكمة المعرفة' },
+                    { value: 'تحسين العمليات', label: 'تحسين العمليات' },
+                    { value: 'خدمة أخرى', label: 'خدمة أخرى' }
+                  ]}
+                />
+                {renderError('serviceType')}
+              </div>
+              <div>
+                <DropdownSelect
+                  label="الميزانية التقديرية"
+                  name="budget"
+                  value={formData.budget}
+                  onChange={handleChange}
+                  placeholder="اختر الميزانية"
+                  required
+                  options={[
+                    { value: 'أقل من 500', label: 'أقل من 500' },
+                    { value: '500 - 1000', label: '500 - 1000' },
+                    { value: '1000 - 3000', label: '1000 - 3000' },
+                    { value: '3000 - 10000', label: '3000 - 10000' },
+                    { value: 'أكثر من 10000', label: 'أكثر من 10000' }
+                  ]}
+                />
+                {renderError('budget')}
+              </div>
+              <div>
+                <DropdownSelect
+                  label="متى تريد بدء المشروع؟"
+                  name="timeline"
+                  value={formData.timeline}
+                  onChange={handleChange}
+                  placeholder="اختر الوقت"
+                  required
+                  options={[
+                    { value: 'فوراً', label: 'فوراً' },
+                    { value: '3-2 أسابيع', label: '3-2 أسابيع' },
+                    { value: '2-1 شهر', label: '2-1 شهر' },
+                    { value: '4-2 أشهر', label: '4-2 أشهر' },
+                    { value: '8-4 أشهر', label: '8-4 أشهر' },
+                    { value: 'مرن', label: 'مرن' }
+                  ]}
+                />
+                {renderError('timeline')}
+              </div>
+              <div className="form-group md:col-span-2">
+                <label htmlFor="details" className="text-xs sm:text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2 block">
+                  نبذة مختصرة عن احتياجك
+                  <span className="text-gray-400 dark:text-dark-text-tertiary ms-1">*</span>
+                </label>
+                <textarea
+                  id="details"
+                  name="details"
+                  rows={4}
+                  required
+                  minLength={20}
+                  maxLength={1000}
+                  value={formData.details}
+                  onChange={handleChange}
+                  aria-invalid={Boolean(errors.details)}
+                  aria-describedby={errors.details ? 'details-error' : undefined}
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-right border border-gray-200 dark:border-dark-input-border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 resize-none"
+                  placeholder="اشرح باختصار المطلوب أو الهدف من الاستشارة"
+                />
+                {renderError('details')}
+              </div>
             </>
           )}
 
           {step === 2 && formData.companyType === 'Company' && (
             <>
-            <div className="form-group">
-              <label htmlFor="companyName" className="text-xs sm:text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2 block">
-                اسم الشركة
-                <span className="text-gray-400 dark:text-dark-text-tertiary ms-1">*</span>
-              </label>
-              <input
-                type="text"
-                id="companyName"
-                name="companyName"
-                required
-                minLength={2}
-                maxLength={120}
-                value={formData.companyName}
-                onChange={handleChange}
-                aria-invalid={Boolean(errors.companyName)}
-                aria-describedby={errors.companyName ? 'companyName-error' : undefined}
-                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-right border border-gray-200 dark:border-dark-input-border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200"
-                placeholder="مثال: عرب نوشن"
-              />
-              {renderError('companyName')}
-            </div>
-            <div className="form-group">
-              <label htmlFor="role" className="text-xs sm:text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2 block">
-                دورك داخل الشركة
-                <span className="text-gray-400 dark:text-dark-text-tertiary ms-1">*</span>
-              </label>
-              <input
-                type="text"
-                id="role"
-                name="role"
-                required
-                minLength={2}
-                maxLength={120}
-                value={formData.role}
-                onChange={handleChange}
-                aria-invalid={Boolean(errors.role)}
-                aria-describedby={errors.role ? 'role-error' : undefined}
-                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-right border border-gray-200 dark:border-dark-input-border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200"
-                placeholder="مثال: مدير عمليات، مؤسس"
-              />
-              {renderError('role')}
-            </div>
-            <DropdownSelect
-              label="عدد العاملين في الشركة"
-              name="teamSize"
-              value={formData.teamSize}
-              onChange={handleChange}
-              placeholder="اختر الحجم"
-              required
-              options={[
-                { value: '1-3', label: '1 - 3' },
-                { value: '4-10', label: '4 - 10' },
-                { value: '11-25', label: '11 - 25' },
-                { value: '26-50', label: '26 - 50' },
-                { value: '51-100', label: '51 - 100' },
-                { value: '100+', label: 'أكثر من 100' }
-              ]}
-            />
-            {renderError('teamSize')}
-            <div className="form-group">
-              <label htmlFor="companyWebsite" className="text-xs sm:text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2 block">
-                موقع الشركة الإلكتروني
-              </label>
-              <input
-                type="url"
-                id="companyWebsite"
-                name="companyWebsite"
-                inputMode="url"
-                pattern="https?://.+|^[^\\s]+\\.[^\\s]+$"
-                maxLength={200}
-                value={formData.companyWebsite}
-                onChange={handleChange}
-                aria-invalid={Boolean(errors.companyWebsite)}
-                aria-describedby={errors.companyWebsite ? 'companyWebsite-error' : undefined}
-                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-right border border-gray-200 dark:border-dark-input-border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200"
-                placeholder="https://example.com"
-              />
-              {renderError('companyWebsite')}
-            </div>
+              <div className="form-group">
+                <label htmlFor="companyName" className="text-xs sm:text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2 block">
+                  اسم الشركة
+                  <span className="text-gray-400 dark:text-dark-text-tertiary ms-1">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="companyName"
+                  name="companyName"
+                  required
+                  minLength={2}
+                  maxLength={120}
+                  value={formData.companyName}
+                  onChange={handleChange}
+                  aria-invalid={Boolean(errors.companyName)}
+                  aria-describedby={errors.companyName ? 'companyName-error' : undefined}
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-right border border-gray-200 dark:border-dark-input-border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200"
+                  placeholder="مثال: عرب نوشن"
+                />
+                {renderError('companyName')}
+              </div>
+              <div className="form-group">
+                <label htmlFor="role" className="text-xs sm:text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2 block">
+                  دورك داخل الشركة
+                  <span className="text-gray-400 dark:text-dark-text-tertiary ms-1">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="role"
+                  name="role"
+                  required
+                  minLength={2}
+                  maxLength={120}
+                  value={formData.role}
+                  onChange={handleChange}
+                  aria-invalid={Boolean(errors.role)}
+                  aria-describedby={errors.role ? 'role-error' : undefined}
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-right border border-gray-200 dark:border-dark-input-border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200"
+                  placeholder="مثال: مدير عمليات، مؤسس"
+                />
+                {renderError('role')}
+              </div>
+              <div>
+                <DropdownSelect
+                  label="عدد العاملين في الشركة"
+                  name="teamSize"
+                  value={formData.teamSize}
+                  onChange={handleChange}
+                  placeholder="اختر الحجم"
+                  required
+                  options={[
+                    { value: '1-3', label: '1 - 3' },
+                    { value: '4-10', label: '4 - 10' },
+                    { value: '11-25', label: '11 - 25' },
+                    { value: '26-50', label: '26 - 50' },
+                    { value: '51-100', label: '51 - 100' },
+                    { value: '100+', label: 'أكثر من 100' }
+                  ]}
+                />
+                {renderError('teamSize')}
+              </div>
+              <div className="form-group md:col-span-2">
+                <label htmlFor="companyWebsite" className="text-xs sm:text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2 block">
+                  موقع الشركة الإلكتروني
+                </label>
+                <input
+                  type="url"
+                  id="companyWebsite"
+                  name="companyWebsite"
+                  inputMode="url"
+                  pattern="https?://.+|^[^\\s]+\\.[^\\s]+$"
+                  maxLength={200}
+                  value={formData.companyWebsite}
+                  onChange={handleChange}
+                  aria-invalid={Boolean(errors.companyWebsite)}
+                  aria-describedby={errors.companyWebsite ? 'companyWebsite-error' : undefined}
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-right border border-gray-200 dark:border-dark-input-border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200"
+                  placeholder="https://example.com"
+                />
+                {renderError('companyWebsite')}
+              </div>
             </>
           )}
 
           {step === 3 && formData.companyType === 'Company' && (
             <>
-            <div className="form-group">
-              <label htmlFor="projectHelp" className="text-xs sm:text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2 block">
-                ما المشروع الذي تحتاج مساعدة فيه؟
-                <span className="text-gray-400 dark:text-dark-text-tertiary ms-1">*</span>
-              </label>
-              <input
-                type="text"
-                id="projectHelp"
-                name="projectHelp"
-                required
-                minLength={3}
-                maxLength={140}
-                value={formData.projectHelp}
-                onChange={handleChange}
-                aria-invalid={Boolean(errors.projectHelp)}
-                aria-describedby={errors.projectHelp ? 'projectHelp-error' : undefined}
-                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-right border border-gray-200 dark:border-dark-input-border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200"
-                placeholder="مثال: بناء نظام مبيعات، تنظيم المشاريع"
-              />
-              {renderError('projectHelp')}
-            </div>
-            <DropdownSelect
-              label="الميزانية التقديرية"
-              name="budget"
-              value={formData.budget}
-              onChange={handleChange}
-              placeholder="اختر الميزانية"
-              required
-              options={[
-                { value: 'أقل من 500', label: 'أقل من 500' },
-                { value: '500 - 1000', label: '500 - 1000' },
-                { value: '1000 - 3000', label: '1000 - 3000' },
-                { value: '3000 - 10000', label: '3000 - 10000' },
-                { value: 'أكثر من 10000', label: 'أكثر من 10000' }
-              ]}
-            />
-            {renderError('budget')}
-            <DropdownSelect
-              label="متى تريد بدء المشروع؟"
-              name="timeline"
-              value={formData.timeline}
-              onChange={handleChange}
-              placeholder="اختر الوقت"
-              required
-              options={[
-                { value: 'فوراً', label: 'فوراً' },
-                { value: '3-2 أسابيع', label: '3-2 أسابيع' },
-                { value: '2-1 شهر', label: '2-1 شهر' },
-                { value: '4-2 أشهر', label: '4-2 أشهر' },
-                { value: '8-4 أشهر', label: '8-4 أشهر' },
-                { value: 'مرن', label: 'مرن' }
-              ]}
-            />
-            {renderError('timeline')}
+              <div className="form-group md:col-span-2">
+                <label htmlFor="projectHelp" className="text-xs sm:text-sm font-medium text-gray-700 dark:text-dark-text-primary mb-2 block">
+                  ما المشروع الذي تحتاج مساعدة فيه؟
+                  <span className="text-gray-400 dark:text-dark-text-tertiary ms-1">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="projectHelp"
+                  name="projectHelp"
+                  required
+                  minLength={3}
+                  maxLength={140}
+                  value={formData.projectHelp}
+                  onChange={handleChange}
+                  aria-invalid={Boolean(errors.projectHelp)}
+                  aria-describedby={errors.projectHelp ? 'projectHelp-error' : undefined}
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-right border border-gray-200 dark:border-dark-input-border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200"
+                  placeholder="مثال: بناء نظام مبيعات، تنظيم المشاريع"
+                />
+                {renderError('projectHelp')}
+              </div>
+              <div>
+                <DropdownSelect
+                  label="الميزانية التقديرية"
+                  name="budget"
+                  value={formData.budget}
+                  onChange={handleChange}
+                  placeholder="اختر الميزانية"
+                  required
+                  options={[
+                    { value: 'أقل من 500', label: 'أقل من 500' },
+                    { value: '500 - 1000', label: '500 - 1000' },
+                    { value: '1000 - 3000', label: '1000 - 3000' },
+                    { value: '3000 - 10000', label: '3000 - 10000' },
+                    { value: 'أكثر من 10000', label: 'أكثر من 10000' }
+                  ]}
+                />
+                {renderError('budget')}
+              </div>
+              <div>
+                <DropdownSelect
+                  label="متى تريد بدء المشروع؟"
+                  name="timeline"
+                  value={formData.timeline}
+                  onChange={handleChange}
+                  placeholder="اختر الوقت"
+                  required
+                  options={[
+                    { value: 'فوراً', label: 'فوراً' },
+                    { value: '3-2 أسابيع', label: '3-2 أسابيع' },
+                    { value: '2-1 شهر', label: '2-1 شهر' },
+                    { value: '4-2 أشهر', label: '4-2 أشهر' },
+                    { value: '8-4 أشهر', label: '8-4 أشهر' },
+                    { value: 'مرن', label: 'مرن' }
+                  ]}
+                />
+                {renderError('timeline')}
+              </div>
             </>
           )}
         </div>
@@ -1162,6 +1168,7 @@ export default function ConsultationForm() {
             )}
             {step < totalSteps ? (
               <button
+                key="next-btn"
                 type="button"
                 onClick={handleNext}
                 className="btn-primary text-sm sm:text-base px-6 sm:px-7 py-3 w-full sm:w-auto"
@@ -1170,6 +1177,7 @@ export default function ConsultationForm() {
               </button>
             ) : (
               <button
+                key="submit-btn"
                 type="submit"
                 className="btn-primary text-sm sm:text-base px-6 sm:px-7 py-3 w-full sm:w-auto disabled:opacity-70 disabled:cursor-not-allowed"
                 disabled={loading}

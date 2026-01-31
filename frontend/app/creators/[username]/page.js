@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Head from 'next/head';
 import { MessageCircle, Mail, UserPlus, Star, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Zap, Download, CheckCircle, Heart } from 'lucide-react';
+import Footer from '../../../components/Footer';
 import { generateCreatorMetadata } from '../../../lib/seo';
 
 // Map badge types to Lucide icons
@@ -1058,16 +1059,7 @@ export default function PublicProfilePage() {
         </section>
       )}
 
-      {/* Footer */}
-      <footer className="bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary transition-colors duration-300">
-        <div className="container-custom py-8 sm:py-10 md:py-12 px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <p className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary">
-              © {new Date().getFullYear()} عرب نوشن. جميع الحقوق محفوظة.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       </main>
     </>

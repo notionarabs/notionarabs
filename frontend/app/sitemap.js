@@ -50,6 +50,12 @@ export default async function sitemap() {
       priority: 0.5,
     },
     {
+      url: `${baseUrl}/consultation`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+    {
       url: `${baseUrl}/privacy`,
       lastModified: new Date(),
       changeFrequency: 'yearly',

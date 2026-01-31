@@ -730,7 +730,7 @@ router.get('/:slug', cacheMiddleware(600), async (req, res) => {
 
     // Parallelize rating query and related blogs query for better performance
     const Rating = require('../models/Rating');
-    
+
     // Build related blogs query
     const relatedBlogsQuery = {
       $or: [

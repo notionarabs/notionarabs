@@ -34,10 +34,12 @@ export default function NavigationWrapper() {
     if (pathname.startsWith('/store')) return 'store';
     if (pathname.startsWith('/templates')) return 'templates';
     if (pathname.startsWith('/creators')) return 'creators';
-    if (pathname.startsWith('/services')) return 'services';
-    if (pathname.startsWith('/testimonials')) return 'testimonials';
+    if (pathname.startsWith('/success-stories')) return 'success-stories';
     if (pathname.startsWith('/blog')) return 'blog';
     if (pathname.startsWith('/about')) return 'about';
+    if (pathname.startsWith('/careers')) return 'careers';
+    if (pathname.startsWith('/consultation')) return 'consultation';
+    if (pathname.startsWith('/contact')) return 'contact';
     return '';
   };
 

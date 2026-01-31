@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
-const { addConsultationToNotion } = require('../services/notionService');
+const { addConsultationToNotion, addCareerApplicationToNotion, addContactToNotion } = require('../services/notionService');
 
 const router = express.Router();
 
@@ -286,6 +286,31 @@ router.post('/general', [
     console.log('Message:', message);
     console.log('================================');
 
+    let notionResult = null;
+    if (req.body.category === 'careers') {
+      notionResult = await addCareerApplicationToNotion({
+        name,
+        email,
+        whatsapp: req.body.whatsapp,
+        basedIn: req.body.basedIn,
+        linkedin: req.body.linkedin,
+        experience: req.body.experience,
+        coverLetter: req.body.coverLetter,
+        resumeUrl: req.body.resumeUrl,
+        startTime: req.body.startTime,
+        message,
+        source: 'website-careers'
+      });
+      if (notionResult?.error) {
+        console.error('Careers Notion sync failed:', notionResult.error);
+        return res.status(500).json({
+          success: false,
+          message: 'تعذر حفظ الطلب في نوشن. يرجى المحاولة لاحقاً.',
+          error: process.env.NODE_ENV === 'development' ? notionResult.error : undefined
+        });
+      }
+    }
+
     // Return success immediately - no email sending to avoid delays
     res.json({
       success: true,
@@ -504,6 +529,77 @@ router.post('/consultation', [
     });
   } catch (error) {
     console.error('Consultation booking error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
+// @route   POST /api/contact/submit
+// @desc    Submit contact form to Notion
+// @access  Public
+router.post('/submit', [
+  body('name')
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('الاسم يجب أن يكون بين 2 و 100 حرف'),
+  body('email')
+    .isEmail()
+    .normalizeEmail()
+    .withMessage('يرجى إدخال بريد إلكتروني صحيح'),
+  body('whatsapp')
+    .trim()
+    .isLength({ min: 6, max: 30 })
+    .withMessage('رقم الواتساب غير صحيح'),
+  body('details')
+    .trim()
+    .isLength({ min: 10, max: 2000 })
+    .withMessage('التفاصيل يجب أن تكون بين 10 و 2000 حرف')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'بيانات غير صحيحة',
+        errors: errors.array()
+      });
+    }
+
+    const { name, email, whatsapp, details } = req.body;
+
+    // Log the contact message
+    console.log('=== CONTACT FORM SUBMISSION ===');
+    console.log('Name:', name);
+    console.log('Email:', email);
+    console.log('WhatsApp:', whatsapp);
+    console.log('Details:', details);
+    console.log('================================');
+
+    // Send to Notion
+    const result = await addContactToNotion({
+      name,
+      email,
+      whatsapp,
+      details
+    });
+
+    if (result?.error) {
+      console.error('Contact Notion sync failed:', result.error);
+      return res.status(500).json({
+        success: false,
+        message: 'تعذر حفظ الرسالة في نوشن. يرجى المحاولة لاحقاً.',
+        error: process.env.NODE_ENV === 'development' ? result.error : undefined
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: 'تم استلام رسالتك بنجاح! سنتواصل معك قريباً.'
+    });
+  } catch (error) {
+    console.error('Contact form error:', error);
     return res.status(500).json({
       success: false,
       message: 'خطأ في الخادم'

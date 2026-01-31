@@ -37,6 +37,7 @@ export default function NavigationHandler() {
       '/terms',
       '/careers',
       '/contact',
+      '/consultation',
       '/cookies'
     ];
 

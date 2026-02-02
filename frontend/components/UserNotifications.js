@@ -19,27 +19,7 @@ export default function UserNotifications() {
       setLoading(true);
       const res = await api.get('/notifications');
       if (res.data.success) {
-        const notifs = res.data.notifications || [];
-        setNotifications(notifs);
-        // Enrich missing creator avatars on client if needed
-        const missing = notifs.filter(n => !n.metadata?.creatorProfilePicture && n.metadata?.creatorId);
-        if (missing.length > 0) {
-          try {
-            const results = await Promise.allSettled(missing.map(n => api.get(`/creators/${n.metadata.creatorId}`)));
-            const idToPic = new Map();
-            results.forEach((r, idx) => {
-              if (r.status === 'fulfilled' && r.value?.data?.creator?.profilePicture) {
-                idToPic.set(missing[idx].metadata.creatorId, r.value.data.creator.profilePicture);
-              }
-            });
-            if (idToPic.size > 0) {
-              setNotifications(prev => prev.map(n => {
-                const pic = n.metadata?.creatorId ? idToPic.get(n.metadata.creatorId) : null;
-                return pic ? { ...n, metadata: { ...n.metadata, creatorProfilePicture: pic } } : n;
-              }));
-            }
-          } catch { }
-        }
+        setNotifications(res.data.notifications || []);
         setUnreadCount(res.data.unreadCount);
       }
     } catch (e) {
@@ -84,12 +64,12 @@ export default function UserNotifications() {
       if (document.visibilityState === 'visible') fetchNotifications();
     };
 
-    // Poll every 10s when dropdown is closed
+    // Poll every 30s when dropdown is closed
     const startPolling = () => {
       if (intervalId) clearInterval(intervalId);
       intervalId = setInterval(() => {
         if (!isOpen) fetchNotifications();
-      }, 10000);
+      }, 30000);
     };
 
     startPolling();
@@ -150,19 +130,16 @@ export default function UserNotifications() {
       </button>
 
       {isOpen && (
-        <div className="absolute md:left-0 md:right-auto left-2 right-2 mt-3 md:w-80 bg-white/95 dark:bg-dark-secondary/95 backdrop-blur-sm rounded-2xl shadow-large dark:shadow-dark-large border border-gray-200 dark:border-dark-card-border z-50 overflow-hidden">
-          {/* Pointer (desktop only) */}
-          <div className="hidden md:block absolute -top-2 left-4 w-0 h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-white dark:border-b-dark-secondary" />
-
+        <div className="absolute md:left-0 md:right-auto left-2 right-2 mt-3 md:w-80 bg-white dark:bg-dark-secondary rounded-2xl shadow-xl dark:shadow-dark-large border border-gray-200 dark:border-dark-card-border z-50 overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-200 dark:border-dark-card-border">
+          <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-dark-card-border">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-400 flex items-center justify-center text-white">
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a2 2 0 00-2 2v.18A7.002 7.002 0 005 11v3l-2 2v1h18v-1l-2-2v-3a7.002 7.002 0 00-5-6.82V4a2 2 0 00-2-2zM9 21a3 3 0 006 0H9z" /></svg>
+              <div className="w-5 h-5 rounded-lg bg-primary-500 dark:bg-orange-500 flex items-center justify-center text-white">
+                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a2 2 0 00-2 2v.18A7.002 7.002 0 005 11v3l-2 2v1h18v-1l-2-2v-3a7.002 7.002 0 00-5-6.82V4a2 2 0 00-2-2zM9 21a3 3 0 006 0H9z" /></svg>
               </div>
-              <span className="text-sm font-bold text-accent-700 dark:text-dark-text-primary">الإشعارات</span>
+              <span className="text-sm font-semibold text-accent-700 dark:text-dark-text-primary">الإشعارات</span>
             </div>
-            <button onClick={markAllAsRead} className="text-xs text-primary-600 dark:text-orange-300 hover:underline">تحديد الكل كمقروء</button>
+            <button onClick={markAllAsRead} className="text-xs text-primary-600 dark:text-orange-400 hover:underline font-medium">تحديد الكل كمقروء</button>
           </div>
 
           {/* List */}
@@ -183,7 +160,7 @@ export default function UserNotifications() {
                     className={`flex items-start gap-3 p-3 sm:p-4 transition-colors ${n.isRead ? 'bg-transparent' : 'bg-orange-50/40 dark:bg-orange-900/10'}`}
                   >
                     {/* Creator avatar */}
-                    <div className={`mt-0.5 w-9 h-9 rounded-full overflow-hidden flex items-center justify-center shadow-sm ring-1 ${n.isRead ? 'ring-gray-200/60 dark:ring-dark-card-border' : 'ring-orange-300/60 dark:ring-orange-500/40'}`}>
+                    <div className={`mt-0.5 w-9 h-9 rounded-full overflow-hidden flex items-center justify-center shadow-sm border ${n.isRead ? 'border-gray-200 dark:border-dark-card-border' : 'border-orange-400/40 dark:border-orange-500/40'}`}>
                       {n.metadata?.actorProfilePicture || n.metadata?.creatorProfilePicture ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -226,7 +203,7 @@ export default function UserNotifications() {
                     className={`flex items-start gap-3 p-3 sm:p-4 transition-colors ${n.isRead ? 'bg-transparent' : 'bg-orange-50/40 dark:bg-orange-900/10'}`}
                   >
                     {/* Creator avatar */}
-                    <div className={`mt-0.5 w-9 h-9 rounded-full overflow-hidden flex items-center justify-center shadow-sm ring-1 ${n.isRead ? 'ring-gray-200/60 dark:ring-dark-card-border' : 'ring-orange-300/60 dark:ring-orange-500/40'}`}>
+                    <div className={`mt-0.5 w-9 h-9 rounded-full overflow-hidden flex items-center justify-center shadow-sm border ${n.isRead ? 'border-gray-200 dark:border-dark-card-border' : 'border-orange-400/40 dark:border-orange-500/40'}`}>
                       {n.metadata?.actorProfilePicture || n.metadata?.creatorProfilePicture ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img

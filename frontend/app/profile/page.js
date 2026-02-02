@@ -1,145 +1,266 @@
 'use client';
 
-
 import { useAuth } from '../../contexts/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useToast } from '../../contexts/ToastContext';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import LoadingLink from '../../components/LoadingLink';
 import Image from 'next/image';
-import api from '../../lib/api';
-import { formatDate, formatTime } from '../../lib/dateUtils';
 import Navigation from '../../components/Navigation';
-import { Star, TrendingUp, Crown, Sparkles, Award, Trophy, Gem, Zap, Download, CheckCircle, Heart, Send } from 'lucide-react';
+import api from '../../lib/api';
+import ProfileSidebar from '../../components/ProfileSidebar';
+import TemplatesContent from '../../components/TemplatesContent';
+import BlogsContent from '../../components/BlogsContent';
+import SalesContent from '../../components/SalesContent';
+import SettingsContent from '../../components/SettingsContent';
+import AnalyticsContent from '../../components/AnalyticsContent';
+import { Camera, Mail, User as UserIcon, AtSign, Settings, LayoutDashboard, Edit3, Download, TrendingUp } from 'lucide-react';
 
-// Map badge types to Lucide icons
-const getBadgeIcon = (badgeType) => {
-  const iconMap = {
-    'verified': CheckCircle,
-    'top-creator': Star,
-    'best-creator': Crown,
-    'active': Zap,
-    'community-favorite': Heart,
-    'trusted': Award
-  };
-  return iconMap[badgeType] || Star;
-};
+// Profile Overview Component
+function ProfileOverview({ user }) {
 
 
-export default function ProfilePage() {
-  const { user, isAuthenticated, loading, logout, ensureTokenInHeaders } = useAuth();
-  const [templateStats, setTemplateStats] = useState(null);
+  return (
+    <>
+      {/* Page Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-black text-gray-900 dark:text-dark-text-primary mb-2">
+          الملف الشخصي
+        </h1>
+        <p className="text-sm font-medium text-gray-600 dark:text-dark-text-secondary">
+          إدارة معلومات حسابك وإعداداتك الشخصية
+        </p>
+      </div>
+
+      {/* Cover Image Section */}
+      <div className="mb-8">
+        <div className="relative h-48 bg-gradient-to-r from-primary-100 to-accent-100 dark:from-primary-900/20 dark:to-accent-900/20 rounded-xl overflow-hidden group">
+          {user?.backgroundImage ? (
+            <Image
+              src={user.backgroundImage}
+              alt="صورة الغلاف"
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Camera className="w-12 h-12 text-gray-400 dark:text-gray-600" />
+            </div>
+          )}
+
+        </div>
+      </div>
+
+      {/* Profile Picture */}
+      <div className="mb-8 -mt-20 relative z-10 flex items-end gap-4 px-4 sm:px-0">
+        <div className="relative group">
+          {user?.profilePicture ? (
+            <Image
+              src={user.profilePicture}
+              alt={`صورة ${user.name}`}
+              width={120}
+              height={120}
+              className="w-28 h-28 rounded-2xl border-4 border-white dark:border-dark-primary shadow-lg object-cover"
+              quality={100}
+            />
+          ) : (
+            <div className="w-28 h-28 bg-gradient-to-br from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 rounded-2xl flex items-center justify-center border-4 border-white dark:border-dark-primary shadow-lg">
+              <span className="text-4xl font-black text-white">
+                {user?.name?.charAt(0)?.toUpperCase()}
+              </span>
+            </div>
+          )}
+
+        </div>
+      </div>
+
+      {/* Account Information */}
+      <div className="bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-xl p-6 mb-6">
+        <h2 className="text-lg font-bold text-gray-900 dark:text-dark-text-primary mb-6 flex items-center gap-2">
+          <UserIcon className="w-5 h-5 text-primary-600" />
+          معلومات الحساب
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-bold text-gray-700 dark:text-dark-text-secondary mb-2">
+              الاسم
+            </label>
+            <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/50 dark:bg-dark-tertiary rounded-xl border border-gray-100 dark:border-dark-card-border font-bold">
+              <span className="text-gray-900 dark:text-dark-text-primary">{user?.name}</span>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-gray-700 dark:text-dark-text-secondary mb-2">
+              البريد الإلكتروني
+            </label>
+            <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/50 dark:bg-dark-tertiary rounded-xl border border-gray-100 dark:border-dark-card-border font-bold">
+              <span className="text-gray-900 dark:text-dark-text-primary">{user?.email}</span>
+            </div>
+          </div>
+
+          {user?.username && (
+            <div className="md:col-span-2">
+              <label className="block text-sm font-bold text-gray-700 dark:text-dark-text-secondary mb-2">
+                اسم المستخدم
+              </label>
+              <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/50 dark:bg-dark-tertiary rounded-xl border border-gray-100 dark:border-dark-card-border font-bold">
+                <AtSign className="w-5 h-5 text-gray-400" />
+                <span className="text-gray-900 dark:text-dark-text-primary text-ltr">@{user.username}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      {user?.creatorStatus === 'approved' && (
+        <div className="bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-xl p-6 shadow-sm">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-dark-text-primary mb-6 flex items-center gap-2">
+            <LayoutDashboard className="w-5 h-5 text-primary-600" />
+            إجراءات سريعة
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Link
+              href="/templates/create"
+              className="flex items-center justify-between px-5 py-4 bg-gray-50/50 dark:bg-dark-tertiary hover:bg-primary-50 dark:hover:bg-orange-900/10 rounded-xl border border-gray-100 dark:border-dark-card-border transition-all duration-300 group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-primary-100 dark:bg-orange-900/20 flex items-center justify-center text-primary-600 group-hover:scale-110 transition-transform">
+                  <Edit3 className="w-4 h-4" />
+                </div>
+                <span className="text-sm font-bold text-gray-900 dark:text-dark-text-primary">إنشاء قالب جديد</span>
+              </div>
+              <svg className="w-5 h-5 text-gray-400 group-hover:text-primary-500 transform group-hover:translate-x-[-4px] transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7" />
+              </svg>
+            </Link>
+
+            <Link
+              href="/blog/create"
+              className="flex items-center justify-between px-5 py-4 bg-gray-50/50 dark:bg-dark-tertiary hover:bg-primary-50 dark:hover:bg-orange-900/10 rounded-xl border border-gray-100 dark:border-dark-card-border transition-all duration-300 group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-primary-100 dark:bg-orange-900/20 flex items-center justify-center text-primary-600 group-hover:scale-110 transition-transform">
+                  <Edit3 className="w-4 h-4" />
+                </div>
+                <span className="text-sm font-bold text-gray-900 dark:text-dark-text-primary">كتابة مقال جديد</span>
+              </div>
+              <svg className="w-5 h-5 text-gray-400 group-hover:text-primary-500 transform group-hover:translate-x-[-4px] transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+function ProfilePageContent() {
+  const { user, isAuthenticated, loading, logout } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const [activeSection, setActiveSection] = useState(tabParam || 'profile');
 
   useEffect(() => {
-    // Only redirect if we've finished loading and user is not authenticated
+    if (tabParam) {
+      setActiveSection(tabParam);
+    }
+  }, [tabParam]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+
     if (!loading && !isAuthenticated) {
       router.push('/login');
     }
-    // No need to redirect - all users can access their profile
+  }, [isAuthenticated, loading, router]);
 
-    // Fetch template stats if user is approved creator
-    if (!loading && isAuthenticated && user && user.creatorStatus === 'approved') {
-      fetchTemplateStats();
-    }
-  }, [isAuthenticated, loading, user, router]);
-
-  const fetchTemplateStats = async () => {
-    try {
-      // Ensure token is set in headers before making API call
-      ensureTokenInHeaders();
-
-      const response = await api.get('/templates/my-templates');
-      const templates = response.data.templates || [];
-      const stats = {
-        total: templates.length,
-        pending: templates.filter(t => t.status === 'pending').length,
-        approved: templates.filter(t => t.status === 'approved').length,
-        rejected: templates.filter(t => t.status === 'rejected').length
-      };
-      setTemplateStats(stats);
-    } catch (error) {
-      // Set empty stats on error
-      setTemplateStats({
-        total: 0,
-        pending: 0,
-        approved: 0,
-        rejected: 0
-      });
-    }
+  // Handle section navigation
+  const handleSectionChange = (section) => {
+    setActiveSection(section);
+    // Update URL query parameter
+    router.push(`/profile?tab=${section}`, { scroll: false });
+    // Scroll to top when changing sections
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-  // Show loading only if we're actually loading and don't have user data
+
   if (loading && !user) {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
         <Navigation activePage="profile" />
-        <div className="container-custom py-8 sm:py-12">
-          {/* Profile Header Skeleton */}
-          <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-6 sm:p-8 mb-6 sm:mb-8">
-            <div className="animate-pulse">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
-                {/* Profile Picture Skeleton */}
-                <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
-
-                {/* Profile Info Skeleton */}
-                <div className="flex-1">
-                  <div className="h-6 sm:h-8 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-32 sm:w-48"></div>
-                  <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded mb-3 w-24 sm:w-32"></div>
-                  <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded w-48 sm:w-64"></div>
-                </div>
-
-                {/* Action Buttons Skeleton */}
-                <div className="flex gap-3">
-                  <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
-                  <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+        <div className="flex">
+          {/* Sidebar Skeleton */}
+          <aside className="hidden lg:block fixed top-[72px] right-0 h-[calc(100vh-72px)] w-64 bg-white dark:bg-dark-secondary border-l border-gray-200 dark:border-dark-card-border p-6 z-40">
+            <div className="space-y-8 animate-pulse">
+              {/* Section 1 */}
+              <div>
+                <div className="h-4 w-16 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+                <div className="space-y-3">
+                  <div className="h-10 w-full bg-gray-100 dark:bg-gray-800 rounded-lg"></div>
+                  <div className="h-10 w-full bg-gray-100 dark:bg-gray-800 rounded-lg"></div>
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Stats Cards Skeleton */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
-            {[...Array(4)].map((_, index) => (
-              <div key={index} className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-4 sm:p-6 animate-pulse">
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-20"></div>
-                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
-              </div>
-            ))}
-          </div>
-
-          {/* Content Tabs Skeleton */}
-          <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border">
-            {/* Tab Headers Skeleton */}
-            <div className="border-b border-gray-200 dark:border-dark-card-border p-4 sm:p-6">
-              <div className="flex gap-4 sm:gap-6 animate-pulse">
-                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
-                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-18"></div>
+              {/* Section 2 */}
+              <div>
+                <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+                <div className="space-y-3">
+                  <div className="h-10 w-full bg-gray-100 dark:bg-gray-800 rounded-lg"></div>
+                  <div className="h-10 w-full bg-gray-100 dark:bg-gray-800 rounded-lg"></div>
+                </div>
               </div>
             </div>
+          </aside>
 
-            {/* Tab Content Skeleton */}
-            <div className="p-4 sm:p-6">
-              <div className="animate-pulse space-y-4">
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-4/5"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+          {/* Main Content Skeleton */}
+          <main className="flex-1 min-h-screen lg:mr-64">
+            <div className="max-w-6xl mx-auto p-6 sm:p-8 animate-pulse">
+
+              {/* Header Text */}
+              <div className="mb-8">
+                <div className="h-8 w-48 bg-gray-200 dark:bg-gray-700 rounded mb-3"></div>
+                <div className="h-4 w-64 bg-gray-200 dark:bg-gray-700 rounded"></div>
               </div>
+
+              {/* Cover Image */}
+              <div className="mb-8 relative">
+                <div className="h-48 w-full bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+              </div>
+
+              {/* Profile Info */}
+              <div className="mb-8 -mt-20 relative z-10 flex items-end gap-4 px-4">
+                <div className="h-32 w-32 bg-gray-300 dark:bg-gray-600 rounded-full border-4 border-white dark:border-dark-primary"></div>
+                <div className="mb-4 space-y-2">
+                  <div className="h-6 w-40 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                </div>
+              </div>
+
+              {/* Form/Content Skeleton */}
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="h-12 w-full bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+                  <div className="h-12 w-full bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+                </div>
+                <div className="h-32 w-full bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+                <div className="h-12 w-full bg-gray-200 dark:bg-gray-700 rounded-xl"></div>
+              </div>
+
             </div>
-          </div>
+          </main>
         </div>
       </div>
     );
   }
 
-  // If not authenticated and not loading, don't render anything (will redirect)
   if (!loading && !isAuthenticated) {
     return null;
   }
 
-  // Show pending status if user has pending creator application
   if (!loading && isAuthenticated && user && user.creatorStatus === 'pending') {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
@@ -152,7 +273,7 @@ export default function ProfilePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-yellow-600 dark:text-yellow-400 mb-4">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-yellow-600 dark:text-yellow-400 mb-4">
                 طلبك قيد المراجعة
               </h1>
               <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary mb-6 sm:mb-8">
@@ -173,324 +294,59 @@ export default function ProfilePage() {
     );
   }
 
-  // All users can access their profile
+  // Render content based on active section
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'profile':
+        return <ProfileOverview user={user} />;
+      case 'settings':
+        return <SettingsContent />;
+      case 'templates':
+        return <TemplatesContent />;
+      case 'blogs':
+        return <BlogsContent />;
+      case 'sales':
+        return <SalesContent />;
+      case 'analytics':
+        return <AnalyticsContent />;
+      default:
+        return <ProfileOverview user={user} />;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
-      {/* Navigation */}
       <Navigation activePage="profile" />
 
-      {/* Profile Content */}
-      <div className="container-custom py-12 sm:py-16">
-        {/* Welcome Section */}
-        <div className="text-center mb-8 sm:mb-10 md:mb-12 px-4 sm:px-0">
-          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl sm:rounded-2xl mb-4 sm:mb-6 shadow-lg">
-            <svg className="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
+      <div className="flex">
+        {/* Sidebar with custom navigation handler */}
+        <ProfileSidebar
+          userStatus={user?.creatorStatus}
+          onNavigate={handleSectionChange}
+          activeSection={activeSection}
+        />
+
+        {/* Main Content */}
+        <main className="flex-1 min-h-screen lg:mr-64">
+          <div className="max-w-6xl mx-auto p-6 sm:p-8">
+            {renderContent()}
           </div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-primary-600 to-accent-600 dark:from-orange-400 dark:to-orange-300 bg-clip-text text-transparent">
-            مرحباً بك في لوحة التحكم
-          </h1>
-          <p className="text-base sm:text-lg md:text-xl text-accent-600 dark:text-dark-text-secondary max-w-xs sm:max-w-2xl mx-auto">
-            إدارة قوالبك، تتبع إحصائياتك، واستكشف المزيد من المميزات
-          </p>
-        </div>
-
-        {/* Creator Community Notification */}
-        <div className="mb-6 sm:mb-8 px-4 sm:px-0">
-          <div className="bg-white/80 dark:bg-dark-card-bg/80 border border-gray-200 dark:border-dark-card-border rounded-2xl p-4 sm:p-6 shadow-sm backdrop-blur-sm">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-start gap-3 sm:gap-4">
-                <div className="w-10 h-10 sm:w-11 sm:h-11 bg-primary-50 dark:bg-dark-tertiary rounded-xl flex items-center justify-center">
-                  <Send className="w-5 h-5 text-primary-600 dark:text-orange-400" />
-                </div>
-                <div className="text-right">
-                  <h3 className="text-sm sm:text-base font-semibold text-gray-800 dark:text-dark-text-primary">
-                    انضم إلى مجتمع المبدعين على تيليجرام
-                  </h3>
-                  <p className="text-xs sm:text-sm text-gray-600 dark:text-dark-text-secondary mt-1">
-                    تواصل مع مبدعي عرب نوشن وشارك خبراتك وأفكارك.
-                  </p>
-                </div>
-              </div>
-              <Link
-                href="https://t.me/+jNEkx52yB4Q0MmU0"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 text-white text-xs sm:text-sm font-semibold px-4 py-2 hover:bg-primary-700 transition-colors"
-              >
-                <Send className="w-4 h-4" />
-                انضم الآن
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Profile Header Card */}
-        <div className="card p-4 sm:p-6 md:p-8 mb-6 sm:mb-8 shadow-xl border-0 bg-white/80 dark:bg-dark-card-bg/80 backdrop-blur-sm relative mx-4 sm:mx-0">
-          {/* Settings Icon - Top Left */}
-          <LoadingLink href={user?.creatorStatus === 'approved' ? "/settings" : "/user-settings"} className="absolute top-3 left-3 sm:top-4 sm:left-4 p-2 rounded-lg sm:rounded-xl bg-gray-100 dark:bg-dark-tertiary hover:bg-gray-200 dark:hover:bg-dark-primary transition-colors duration-200 group">
-            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-dark-text-secondary group-hover:text-primary-500 dark:group-hover:text-orange-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span className="sr-only">إعدادات الملف الشخصي</span>
-          </LoadingLink>
-
-          <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-8">
-            {/* Profile Picture Section */}
-            <div className="relative">
-              {user?.profilePicture ? (
-                <Image
-                  src={user.profilePicture}
-                  alt={`صورة ${user.name}`}
-                  width={120}
-                  height={120}
-                  className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-3 sm:border-4 border-primary-200 dark:border-orange-500/30 shadow-large dark:shadow-dark-large"
-                  quality={100}
-                />
-              ) : (
-                <div className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 rounded-full flex items-center justify-center shadow-large dark:shadow-dark-large">
-                  <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
-                    {user?.name?.charAt(0)?.toUpperCase()}
-                  </span>
-                </div>
-              )}
-              {/* Online Status Indicator removed */}
-            </div>
-
-            {/* User Info Section */}
-            <div className="flex-1 text-center md:text-right">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 text-primary-600 dark:text-orange-400">{user?.name}</h2>
-              <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary mb-2">{user?.email}</p>
-              {user?.username && (
-                <p className="text-sm sm:text-base text-primary-500 dark:text-orange-400 mb-4">
-                  @{user.username}
-                </p>
-              )}
-
-              {/* Status Badges */}
-              <div className="flex flex-wrap justify-center md:justify-start gap-2 sm:gap-3 mb-4 sm:mb-6">
-                {/* Earned Badges */}
-                {user?.badges && user.badges.length > 0 && user?.creatorStatus === 'approved' && (
-                  <div className="inline-flex items-center gap-1 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800/30 rounded-full">
-                    {user.badges.map((badge, index) => {
-                      const BadgeIcon = getBadgeIcon(badge.type);
-                      return (
-                        <div
-                          key={badge._id}
-                          className="flex items-center gap-1"
-                        >
-                          <div
-                            title={`${badge.label} - تمت الإضافة في ${formatDate(badge.addedAt)}`}
-                            className="flex items-center"
-                          >
-                            <BadgeIcon
-                              className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400"
-                              strokeWidth={2.5}
-                            />
-                          </div>
-                          {index < user.badges.length - 1 && (
-                            <div className="w-px h-4 bg-green-300 dark:bg-green-700 self-center" />
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-                {user?.creatorStatus === 'pending' && (
-                  <div className="inline-flex items-center px-3 sm:px-4 py-1 sm:py-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 rounded-full text-xs sm:text-sm font-medium">
-                    <svg className="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    طلب مبدع قيد المراجعة
-                  </div>
-                )}
-                {user?.createdAt && (
-                  <div className="inline-flex items-center px-3 sm:px-4 py-1 sm:py-2 bg-primary-100 dark:bg-orange-500/20 text-primary-800 dark:text-orange-300 rounded-full text-xs sm:text-sm font-medium">
-                    <svg className="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <span>عضو منذ {formatDate(user.createdAt)}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Quick Stats Preview removed per request */}
-            </div>
-          </div>
-        </div>
-
-        {/* Enhanced Stats Section removed per request */}
-
-        {/* Quick Actions */}
-        <div className="card p-4 sm:p-6 md:p-8 shadow-xl border-0 bg-white/80 dark:bg-dark-card-bg/80 backdrop-blur-sm mx-4 sm:mx-0">
-          <div className="text-center mb-6 sm:mb-8">
-            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-accent-500 to-accent-600 rounded-xl sm:rounded-2xl mb-3 sm:mb-4 shadow-lg">
-              <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 text-primary-600 dark:text-orange-400">الإجراءات السريعة</h2>
-            <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary max-w-xs sm:max-w-2xl mx-auto">
-              {user?.creatorStatus === 'approved'
-                ? 'إدارة قوالبك، إنشاء محتوى جديد، واستكشاف المزيد من المميزات'
-                : 'استكشف القوالب، احفظ المفضلة، وابدأ مشاريعك الجديدة'
-              }
-            </p>
-          </div>
-
-          {/* Template Status Overview removed per request */}
-
-          {/* Main Action Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
-            {user?.creatorStatus === 'approved' ? (
-              <>
-                <Link href="/templates/create" className="group card-interactive p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="heading-3 group-hover:text-green-500 transition-colors mb-2">إنشاء قالب جديد</h3>
-                      <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary">ابدأ بيع قوالبك المبتكرة</p>
-                    </div>
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-green-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </div>
-                </Link>
-
-                <Link href="/profile/templates" className="group card-interactive p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="heading-3 group-hover:text-blue-500 transition-colors mb-1 sm:mb-2">قوالبي</h3>
-                      <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary">تتبع حالة قوالبي</p>
-                    </div>
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-blue-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </div>
-                </Link>
-
-                <Link href="/profile/sales" className="group card-interactive p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3v2m0 14v2m8-10h2M3 11H1m15.364-6.364l1.414 1.414M6.222 17.778l-1.414 1.414M17.778 17.778l1.414-1.414M4.808 4.808L3.394 6.222" />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="heading-3 group-hover:text-emerald-500 transition-colors mb-1 sm:mb-2">سجلات التحميل</h3>
-                      <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary">مبيعاتك وتنزيلات القوالب</p>
-                    </div>
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-emerald-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </div>
-                </Link>
-
-                <Link href="/analysis" className="group card-interactive p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-fuchsia-500 to-pink-600 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 11V3m0 8a4 4 0 100 8 4 4 0 000-8zm4-4h6M3 7h6" />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="heading-3 group-hover:text-fuchsia-500 transition-colors mb-1 sm:mb-2">التحليلات</h3>
-                      <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary">إحصائيات الأداء والتفاصيل</p>
-                    </div>
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-fuchsia-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </div>
-                </Link>
-
-                {/* Blog Action Cards */}
-                <Link href="/blog/create" className="group card-interactive p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="heading-3 group-hover:text-indigo-500 transition-colors mb-1 sm:mb-2">كتابة مقال جديد</h3>
-                      <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary">شارك معرفتك مع المجتمع</p>
-                    </div>
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-indigo-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </div>
-                </Link>
-
-                <Link href="/profile/my-blogs" className="group card-interactive p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="heading-3 group-hover:text-orange-500 transition-colors mb-1 sm:mb-2">مقالاتي</h3>
-                      <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary">إدارة مقالاتك المنشورة</p>
-                    </div>
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-orange-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </div>
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link href="/templates" className="group card-interactive p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary-500 to-primary-600 dark:from-orange-500 dark:to-orange-600 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="heading-3 group-hover:text-primary-500 dark:group-hover:text-orange-500 transition-colors mb-1 sm:mb-2">استكشاف القوالب</h3>
-                      <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary">اكتشف قوالب جديدة ومفيدة</p>
-                    </div>
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-primary-500 dark:group-hover:text-orange-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </div>
-                </Link>
-
-                <Link href="/creators" className="group card-interactive p-4 sm:p-6 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="heading-3 group-hover:text-purple-500 transition-colors mb-1 sm:mb-2">المبدعين</h3>
-                      <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary">تعرف على المبدعين المتميزين</p>
-                    </div>
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-accent-400 dark:text-dark-text-quaternary group-hover:text-purple-500 group-hover:translate-x-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </div>
-                </Link>
-              </>
-            )}
-          </div>
-
-        </div>
+        </main>
       </div>
     </div>
+  );
+}
+
+import { Suspense } from 'react';
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
+    }>
+      <ProfilePageContent />
+    </Suspense>
   );
 }

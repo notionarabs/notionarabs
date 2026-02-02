@@ -260,6 +260,7 @@ export default function CreateBlogPage() {
 
   // Prevent duplicate draft restoration messages
   const [draftRestored, setDraftRestored] = useState(false);
+  const hasRestoredDraftRef = useRef(false);
 
   // Redirect if not authenticated or not approved creator
   useEffect(() => {
@@ -274,52 +275,93 @@ export default function CreateBlogPage() {
       router.push('/');
     }
   }, [authLoading, user, router, ensureTokenInHeaders]);
+  const stripHtml = (html) => {
+    if (typeof document === 'undefined') return '';
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    return tempDiv.textContent || tempDiv.innerText || '';
+  };
 
-  // Auto-save functionality
+  // Helper to check if there's actual content to save/restore
+  const hasMeaningfulContent = (data) => {
+    const plainContent = stripHtml(data.content || '').trim();
+    return (
+      data.title?.trim() ||
+      plainContent ||
+      data.excerpt?.trim() ||
+      (data.categories && data.categories.length > 0) ||
+      (data.tags && data.tags.length > 0)
+    );
+  };
+
+  // Auto-save functionality (Debounced)
   useEffect(() => {
-    const saveToLocalStorage = () => {
-      const draftData = {
-        ...formData,
-        timestamp: new Date().toISOString()
-      };
-      localStorage.setItem('blogDraft', JSON.stringify(draftData));
-      setLastSaved(new Date());
-    };
+    if (typeof window === 'undefined') return;
 
-    // Save to localStorage every 30 seconds if there's content
-    const interval = setInterval(() => {
-      if (formData.title || formData.content || formData.excerpt) {
-        saveToLocalStorage();
+    const timer = setTimeout(() => {
+      if (hasMeaningfulContent(formData)) {
+        const draftData = {
+          ...formData,
+          timestamp: new Date().toISOString()
+        };
+        localStorage.setItem('blogDraft', JSON.stringify(draftData));
+        setLastSaved(new Date());
+      } else {
+        // If content was cleared, remove the draft and clear the status
+        if (localStorage.getItem('blogDraft')) {
+          localStorage.removeItem('blogDraft');
+        }
+        setLastSaved(null);
       }
-    }, 30000);
+    }, 1000); // Save after 1 second of inactivity
 
-    return () => clearInterval(interval);
+    return () => clearTimeout(timer);
+  }, [formData]);
+
+  // Clear "Auto-saved" status immediately if form is emptied manually
+  useEffect(() => {
+    if (!hasMeaningfulContent(formData)) {
+      setLastSaved(null);
+    }
   }, [formData]);
 
   // Load draft on component mount
   useEffect(() => {
+    // Prevent double execution in Strict Mode or re-renders
+    if (hasRestoredDraftRef.current) return;
+
     const savedDraft = localStorage.getItem('blogDraft');
-    if (savedDraft && !draftRestored) {
+    if (savedDraft) {
       try {
         const draftData = JSON.parse(savedDraft);
-        setFormData({
-          title: draftData.title || '',
-          excerpt: draftData.excerpt || '',
-          content: draftData.content || '',
-          categories: (draftData.categories || (draftData.category ? [draftData.category] : [])).filter(Boolean),
-          tags: Array.isArray(draftData.tags) ? draftData.tags : (draftData.tags ? [draftData.tags] : []),
-        });
 
-        if (draftData.timestamp) {
-          setLastSaved(new Date(draftData.timestamp));
+        // Mark as handled immediately to prevent double toast
+        hasRestoredDraftRef.current = true;
+
+        if (hasMeaningfulContent(draftData)) {
+          setFormData({
+            title: draftData.title || '',
+            excerpt: draftData.excerpt || '',
+            content: draftData.content || '',
+            categories: (draftData.categories || (draftData.category ? [draftData.category] : [])).filter(Boolean),
+            tags: Array.isArray(draftData.tags) ? draftData.tags : (draftData.tags ? [draftData.tags] : []),
+          });
+
+          if (draftData.timestamp) {
+            setLastSaved(new Date(draftData.timestamp));
+          }
+
+          showSuccess('تم استعادة المسودة المحفوظة');
+          setDraftRestored(true);
+        } else {
+          // If the draft exists but is empty, clean it up
+          localStorage.removeItem('blogDraft');
         }
-        showSuccess('تم استعادة المسودة المحفوظة');
-        setDraftRestored(true);
       } catch (error) {
         console.error('Error loading draft:', error);
       }
     }
-  }, [draftRestored, showSuccess]);
+  }, [showSuccess]);
 
   // Handle click outside to close category dropdown
   useEffect(() => {
@@ -341,12 +383,6 @@ export default function CreateBlogPage() {
     setLastSaved(null);
   };
 
-  const stripHtml = (html) => {
-    if (!html) return '';
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = html;
-    return tempDiv.textContent || tempDiv.innerText || '';
-  };
 
   const validateField = (name, value) => {
     const newErrors = { ...errors };

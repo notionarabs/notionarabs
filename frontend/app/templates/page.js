@@ -7,7 +7,7 @@ import Link from 'next/link';
 import api from '../../lib/api';
 import LoadingIndicator from '../../components/LoadingIndicator';
 import StarRating from '../../components/StarRating';
- 
+
 const sortOptions = [
   { name: "الأحدث", value: "createdAt" },
   { name: "الأكثر شعبية", value: "downloads" },
@@ -153,7 +153,7 @@ function TemplatesPageContent() {
       <section className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300 py-12 sm:py-16 md:py-20 lg:py-24">
         <div className="container-custom">
           <div className="text-center mb-8 sm:mb-10 md:mb-12">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-accent-500 dark:text-dark-text-primary mb-4 sm:mb-6">قوالب نوشن</h1>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-accent-900 dark:text-white mb-4 sm:mb-6">قوالب نوشن</h1>
             <p className="text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary max-w-xs sm:max-w-2xl md:max-w-3xl mx-auto px-4 sm:px-0">
               اكتشف مجموعة متنوعة من قوالب نوشن المصممة خصيصاً للمستخدمين العرب.
               قوالب احترافية لتنظيم عملك وحياتك الشخصية
@@ -325,9 +325,9 @@ function TemplatesPageContent() {
           ) : paginatedTemplates.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]">
               {paginatedTemplates.map((template, index) => (
-                <Link key={template._id} href={`/templates/${template.slug || template._id}`}>
+                <Link key={template._id} href={`/templates/${template.slug || template._id}`} className="block h-full">
                   <div
-                    className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards]"
+                    className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards] h-full flex flex-col"
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
                     {/* Template Image */}
@@ -375,10 +375,15 @@ function TemplatesPageContent() {
                     </div>
 
                     {/* Template Info */}
-                    <div className="p-4 sm:p-6 relative">
-                      <h3 className="font-semibold text-sm sm:text-base text-accent-900 dark:text-dark-text-primary mb-3 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-2">
+                    <div className="p-4 sm:p-6 relative flex-1 flex flex-col">
+                      <h3 className="font-semibold text-sm sm:text-base text-accent-900 dark:text-dark-text-primary mb-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-1">
                         {template.title}
                       </h3>
+
+                      {/* Short Description */}
+                      <p className="text-xs text-accent-600 dark:text-dark-text-secondary mb-3 line-clamp-2 min-h-[2rem]">
+                        {template.description || 'وصف مختصر للقالب غير متوفر حالياً.'}
+                      </p>
 
                       {/* Rating */}
                       <div className="mb-3">
@@ -457,7 +462,7 @@ function TemplatesPageContent() {
 
                   if (!isNearCurrent && page !== 1 && page !== pagination.pages) {
                     if (page === 2 || page === pagination.pages - 1) {
-                      return <span key={page} className="px-1 sm:px-2 text-accent-500 text-xs sm:text-sm">...</span>;
+                      return <span key={page} className="px-1 sm:px-2 text-accent-700 dark:text-dark-text-secondary text-xs sm:text-sm">...</span>;
                     }
                     return null;
                   }

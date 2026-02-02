@@ -12,13 +12,14 @@ import LoadingIndicator from '../../../components/LoadingIndicator';
 import StarRating from '../../../components/StarRating';
 import { useAuth } from '../../../contexts/AuthContext';
 import { TemplateSchema, BreadcrumbSchema } from '../../../components/StructuredData';
-import Breadcrumb from '../../../components/Breadcrumb';
-import { ShoppingCart } from 'lucide-react';
+import Breadcrumb, { BreadcrumbWrapper } from '../../../components/Breadcrumb';
+import { ShoppingCart, Star, Share2, Download, Heart, Globe, Calendar, Folder, MessageCircle } from 'lucide-react';
 import Footer from '../../../components/Footer';
 import { siteConfig } from '../../../lib/seo';
 import RatingPopup from '../../../components/RatingPopup';
 import { useRatingPopup } from '../../../hooks/useRatingPopup';
 import { getCategorySlug } from '../../../lib/categoryMapping';
+import ReviewsList from '../../../components/ReviewsList';
 
 // Dynamically import heavy components to reduce initial bundle size
 const RatingCommentSystem = dynamic(() => import('../../../components/RatingCommentSystem'), {
@@ -931,17 +932,13 @@ export default function TemplateDetailPage() {
 
         {/* Visible Breadcrumb Navigation */}
         {template && (
-          <section className="bg-white dark:bg-dark-secondary transition-colors duration-300 border-b border-gray-200 dark:border-dark-card-border">
-            <div className="container-custom py-3">
-              <Breadcrumb
-                items={[
-                  { name: 'القوالب', url: '/templates' },
-                  { name: template.categories && template.categories.length > 0 ? template.categories[0] : 'عام', url: `/categories/${getCategorySlug(template.categories && template.categories.length > 0 ? template.categories[0] : 'عام')}` },
-                  { name: template.title, url: `/templates/${template.slug || template._id}` }
-                ]}
-              />
-            </div>
-          </section>
+          <BreadcrumbWrapper
+            items={[
+              { name: 'القوالب', url: '/templates' },
+              { name: template.categories && template.categories.length > 0 ? template.categories[0] : 'عام', url: `/categories/${getCategorySlug(template.categories && template.categories.length > 0 ? template.categories[0] : 'عام')}` },
+              { name: template.title, url: `/templates/${template.slug || template._id}` }
+            ]}
+          />
         )}
 
         {/* Template Details */}
@@ -1230,136 +1227,139 @@ export default function TemplateDetailPage() {
               </div>
 
               {/* Template Info */}
-              <div className="lg:col-span-2">
-                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-900 dark:text-dark-text-primary mb-4">{template.title}</h1>
+              <div className="lg:col-span-2 flex flex-col justify-center">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-accent-900 dark:text-dark-text-primary mb-6 tracking-tight leading-tight">
+                  {template.title}
+                </h1>
 
-                {/* Creator Info */}
+                {/* Creator Info - Chip Style */}
                 {(() => {
                   const c = template.creator || {};
                   const creatorSlug = encodeURIComponent(
                     c.username || c.slug || c.handle || c.user?.username || c.creator?.username || (c.email ? c.email.split('@')[0] : '') || c._id || ''
                   );
                   return (
-                    <div className="flex items-center gap-2 sm:gap-3 mb-4">
-                      <Link href={`/creators/${creatorSlug}`} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
-                        {template.creator?.profilePicture ? (
-                          <Image
-                            src={template.creator.profilePicture}
-                            alt={template.creator?.name || 'مبدع'}
-                            width={40}
-                            height={40}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              // Fallback to initial letter if image fails to load
-                              e.target.style.display = 'none';
-                              e.target.nextSibling.style.display = 'flex';
-                            }}
-                          />
-                        ) : null}
-
-                        {/* Fallback avatar with initial letter */}
-                        <div className={`w-full h-full flex items-center justify-center ${template.creator?.profilePicture ? 'hidden' : 'flex'} bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30`}>
-                          <span className="text-primary-600 dark:text-primary-400 font-medium text-sm">
-                            {template.creator?.name?.charAt(0)?.toUpperCase() || 'م'}
-                          </span>
+                    <div className="mb-6">
+                      <Link
+                        href={`/creators/${creatorSlug}`}
+                        className="inline-flex items-center gap-3 p-1 pr-4 pl-1 rounded-full bg-gray-50 dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border hover:border-primary-200 dark:hover:border-primary-800 transition-all duration-300 group"
+                      >
+                        <span className="text-sm text-accent-500 dark:text-dark-text-secondary font-medium">بواسطة</span>
+                        <span className="font-bold text-accent-800 dark:text-dark-text-primary group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                          {template.creator?.name || 'مبدع غير معروف'}
+                        </span>
+                        <div className="w-8 h-8 rounded-full overflow-hidden bg-white ring-2 ring-white dark:ring-dark-secondary shadow-sm">
+                          {template.creator?.profilePicture ? (
+                            <Image
+                              src={template.creator.profilePicture}
+                              alt={template.creator?.name || 'مبدع'}
+                              width={32}
+                              height={32}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'flex';
+                              }}
+                            />
+                          ) : null}
+                          <div className={`w-full h-full flex items-center justify-center ${template.creator?.profilePicture ? 'hidden' : 'flex'} bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/50 dark:to-primary-800/50`}>
+                            <span className="text-primary-600 dark:text-primary-400 font-bold text-xs">
+                              {template.creator?.name?.charAt(0)?.toUpperCase() || 'م'}
+                            </span>
+                          </div>
                         </div>
                       </Link>
-                      <div>
-                        <p className="text-sm text-accent-600 dark:text-dark-text-secondary">بواسطة</p>
-                        <Link
-                          href={`/creators/${creatorSlug}`}
-                          className="font-medium text-accent-700 dark:text-dark-text-primary hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
-                        >
-                          {template.creator?.name || 'مبدع غير معروف'}
-                        </Link>
-                      </div>
                     </div>
                   );
                 })()}
 
-                {/* Rating and Reviews */}
-                <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-6">
-                  <StarRating rating={ratingsSummary.averageRating || template.rating || 0} showNumber={false} />
-                  <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary whitespace-nowrap">
-                    ({ratingsSummary.totalRatings || 0} تقييم)
-                  </span>
-                  <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary whitespace-nowrap">
-                    {(template.downloads || 0).toLocaleString()} تحميل
-                  </span>
+
+                {/* Rating and Stats - Modern Row */}
+                <div className="flex flex-wrap items-center gap-4 sm:gap-6 mb-8 text-sm">
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-100 dark:border-yellow-900/20 text-yellow-700 dark:text-yellow-500 font-medium">
+                    <StarRating rating={ratingsSummary.averageRating || template.rating || 0} showNumber={false} size="small" />
+
+                    <span className="opacity-75">({ratingsSummary.totalRatings || 0})</span>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-accent-600 dark:text-dark-text-secondary font-medium px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border">
+                    <Download className="w-4 h-4" />
+                    <span>{(template.downloads || 0).toLocaleString()} تحميل</span>
+                  </div>
                 </div>
 
 
-                {/* Price - All templates are free */}
-                <div className="flex items-center gap-3 mb-4 sm:mb-6">
-                  {template.isPaid ? (
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl sm:text-3xl font-bold text-primary-600 dark:text-primary-400">
-                        {template.price} ر.س
-                      </span>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        (مدفوع)
-                      </span>
-                    </div>
-                  ) : (
-                    <span className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">
-                      مجاني
-                    </span>
-                  )}
-                </div>
-
-                {/* Download/Purchase Button */}
-                {template.isPaid ? (
-                  <button
-                    onClick={() => window.open(template.purchaseLink, '_blank')}
-                    className="w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 bg-primary-500 hover:bg-primary-600 dark:bg-orange-500 dark:hover:bg-orange-600 text-white shadow-lg hover:shadow-xl mb-4 sm:mb-6"
-                  >
-                    <span className="flex items-center justify-center gap-2">
-                      <ShoppingCart className="w-5 h-5" />
-                      شراء القالب - {template.price} ر.س
-                    </span>
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleDownload}
-                    disabled={isDownloading || checkingOwnership}
-                    className={`w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 mb-4 sm:mb-6 ${isDownloaded
-                      ? 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'
-                      : userHasTemplate
-                        ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                        : isDownloading || checkingOwnership
-                          ? 'bg-green-400 text-white cursor-not-allowed'
-                          : 'bg-green-500 hover:bg-green-600 text-white'
-                      }`}
-                  >
-                    {isDownloaded ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                        تم فتح القالب في تبويب جديد
-                      </span>
-                    ) : userHasTemplate ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
-                        </svg>
-                        عرض القالب (لديك هذا القالب)
-                      </span>
-                    ) : isDownloading || checkingOwnership ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        {checkingOwnership ? 'جاري التحقق...' : 'جاري التحميل...'}
-                      </span>
+                {/* Price & Actions */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-6">
+                  {/* Price Tag */}
+                  <div className="flex-shrink-0">
+                    {template.isPaid ? (
+                      <div className="flex flex-col items-start p-3 rounded-xl bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/20">
+                        <span className="text-xs text-orange-600 dark:text-orange-400 font-medium mb-1">السعر</span>
+                        <span className="text-3xl font-bold text-accent-900 dark:text-dark-text-primary tracking-tight">
+                          {template.price} <span className="text-base font-normal text-accent-500">ر.س</span>
+                        </span>
+                      </div>
                     ) : (
-                      <span className="flex items-center justify-center gap-2">
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
-                        تحميل
-                      </span>
+                      <div className="flex flex-col items-start p-3 px-5 rounded-xl bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/20">
+                        <span className="text-xs text-green-600 dark:text-green-400 font-medium mb-1">السعر</span>
+                        <span className="text-3xl font-bold text-green-600 dark:text-green-500 tracking-tight">
+                          مجاني
+                        </span>
+                      </div>
                     )}
-                  </button>
-                )}
+                  </div>
+
+                  {/* Buttons */}
+                  <div className="flex-1 min-w-0 w-full">
+                    {template.isPaid ? (
+                      <button
+                        onClick={() => window.open(template.purchaseLink, '_blank')}
+                        className="w-full h-full min-h-[64px] rounded-xl font-bold text-lg transition-all duration-300 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white shadow-lg hover:shadow-primary-500/30 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-3"
+                      >
+                        <ShoppingCart className="w-6 h-6" />
+                        <span>شراء القالب الآن</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleDownload}
+                        disabled={isDownloading || checkingOwnership}
+                        className={`w-full h-full min-h-[64px] rounded-xl font-bold text-lg transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:-translate-y-0.5 active:translate-y-0 ${isDownloaded
+                          ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900/30'
+                          : userHasTemplate
+                            ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/30'
+                            : isDownloading || checkingOwnership
+                              ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed shadow-none transform-none'
+                              : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-green-500/30'
+                          }`}
+                      >
+                        {isDownloaded ? (
+                          <>
+                            <div className="bg-green-500 text-white p-1 rounded-full">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                            </div>
+                            تم الفتح في نافذة جديدة
+                          </>
+                        ) : userHasTemplate ? (
+                          <>
+                            <Folder className="w-6 h-6" />
+                            عرض القالب (تم الامتلاك)
+                          </>
+                        ) : isDownloading || checkingOwnership ? (
+                          <>
+                            <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                            {checkingOwnership ? 'جاري التحقق...' : 'جاري التحميل...'}
+                          </>
+                        ) : (
+                          <>
+                            <Download className="w-6 h-6" />
+                            تحميل مجاني
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                </div>
 
                 {/* Download Instructions */}
                 {isDownloaded && (
@@ -1387,41 +1387,7 @@ export default function TemplateDetailPage() {
                   </div>
                 )}
 
-                {/* Rating and Comments Section */}
-                {(isDownloaded || userHasTemplate) && !hasSubmittedRating && !isTemplateCreator(user, template) && (
-                  <div className="mb-4 sm:mb-6">
-                    <div className="p-4 sm:p-6 bg-gray-50 dark:bg-dark-primary rounded-xl border border-gray-200 dark:border-dark-card-border">
-                      <h3 className="text-lg font-semibold text-accent-700 dark:text-dark-text-primary mb-4">
-                        قيم هذا القالب وشاركنا رأيك
-                      </h3>
-                      {/* Removed owner warning: owners won't see an alert here */}
-                      <RatingCommentSystem
-                        targetType="template"
-                        targetId={template._id}
-                        initialRating={template.rating || 0}
-                        initialUserRating={userRating ? { rating: userRating.rating, review: userRating.review } : null}
-                        initialUserComment={userComment}
-                        onRatingChange={(data) => {
-                          updateRatingMetrics(data, { isNewRating: !hasSubmittedRating });
-                          setUserRating({ rating: data?.rating || 0, review: data?.review || '' });
-                          setHasSubmittedRating(true);
-                          markAsRated();
-                          if (template?._id) {
-                            loadRatings(template._id);
-                          }
-                        }}
-                        onCommentChange={(data) => {
-                          // Update user comment state
-                          setUserComment(data.comment);
-                          // Reload ratings and comments
-                          loadRatings(template._id);
-                        }}
-                        size="large"
-                        readOnly={isTemplateCreator(user, template)}
-                      />
-                    </div>
-                  </div>
-                )}
+
 
               </div>
             </div>
@@ -1434,46 +1400,58 @@ export default function TemplateDetailPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-12">
               {/* Long Description */}
               <div className="lg:col-span-2">
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-900 dark:text-dark-text-primary mb-4 sm:mb-6">تفاصيل القالب</h2>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-900 dark:text-dark-text-primary mb-4 sm:mb-6">الوصف التفصيلي</h2>
                 <div className="prose prose-accent dark:prose-dark max-w-none">
-                  <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed mb-4 sm:mb-6">
+                  <div className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed mb-4 sm:mb-6 whitespace-pre-line">
                     {template.features || template.description || 'لا يوجد وصف مفصل متاح لهذا القالب.'}
-                  </p>
-
+                  </div>
                 </div>
               </div>
 
               {/* Template Stats */}
               <div className="lg:col-span-1">
                 <div className="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-medium dark:shadow-dark-medium">
-                  <h3 className="text-base sm:text-lg font-semibold text-accent-700 dark:text-dark-text-primary mb-4">إحصائيات القالب</h3>
+                  <h3 className="text-base sm:text-lg font-semibold text-accent-700 dark:text-dark-text-primary mb-4 flex items-center gap-2">
+                    <Star className="w-5 h-5 text-yellow-400 fill-current" />
+                    إحصائيات القالب
+                  </h3>
 
-                  <div className="space-y-3 sm:space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">التقييم</span>
-                      <div className="flex items-center gap-2">
-                        <StarRating rating={ratingsSummary.averageRating || template.rating || 0} showNumber={false} />
+                  <div className="space-y-4">
+                    {/* Rating */}
+                    <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-primary/50 rounded-lg">
+                      <div className="flex items-center gap-2 text-accent-600 dark:text-dark-text-secondary">
+                        <Star className="w-4 h-4" />
+                        <span className="text-xs sm:text-sm">التقييم</span>
+                      </div>
+                      <div className="flex items-center gap-1 font-bold text-accent-700 dark:text-dark-text-primary">
+
+                        <StarRating rating={ratingsSummary.averageRating || template.rating || 0} showNumber={false} size="small" />
                       </div>
                     </div>
 
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">عدد التقييمات</span>
-                      <span className="text-sm sm:text-base font-medium text-accent-700 dark:text-dark-text-primary">{ratingsSummary.totalRatings || 0}</span>
+                    {/* Downloads */}
+                    <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-primary/50 rounded-lg">
+                      <div className="flex items-center gap-2 text-accent-600 dark:text-dark-text-secondary">
+                        <Download className="w-4 h-4" />
+                        <span className="text-xs sm:text-sm">التحميلات</span>
+                      </div>
+                      <span className="text-sm sm:text-base font-bold text-accent-700 dark:text-dark-text-primary">
+                        {(template.downloads || 0).toLocaleString()}
+                      </span>
                     </div>
 
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">التحميلات</span>
-                      <span className="text-sm sm:text-base font-medium text-accent-700 dark:text-dark-text-primary">{(template.downloads || 0).toLocaleString()}</span>
-                    </div>
-
-                    <div className="flex justify-between items-start">
-                      <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">الفئة</span>
-                      <div className="flex flex-wrap gap-1 justify-end max-w-[200px]">
+                    {/* Category */}
+                    <div className="flex justify-between items-start p-3 bg-gray-50 dark:bg-dark-primary/50 rounded-lg">
+                      <div className="flex items-center gap-2 text-accent-600 dark:text-dark-text-secondary mt-1">
+                        <Folder className="w-4 h-4" />
+                        <span className="text-xs sm:text-sm">الفئة</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1 justify-end max-w-[180px]">
                         {(template.categories && template.categories.length > 0 ? template.categories : ['عام']).map((category, index) => (
                           <Link
                             key={index}
                             href={`/categories/${getCategorySlug(category)}`}
-                            className="inline-block px-2 py-1 text-xs font-medium bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-md hover:bg-primary-200 dark:hover:bg-primary-800/50 hover:text-primary-800 dark:hover:text-primary-200 transition-colors duration-200 cursor-pointer"
+                            className="inline-block px-2 py-1 text-xs font-medium bg-white dark:bg-dark-secondary text-accent-600 dark:text-dark-text-secondary rounded border border-gray-200 dark:border-dark-card-border hover:border-primary-500 transition-colors"
                           >
                             {category}
                           </Link>
@@ -1481,26 +1459,32 @@ export default function TemplateDetailPage() {
                       </div>
                     </div>
 
-                    {/* Template Language */}
+                    {/* Language */}
                     {template.language && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">اللغة</span>
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs sm:text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-md">
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-                          </svg>
-                          {template.language === 'ar' && '🇸🇦 العربية'}
-                          {template.language === 'en' && '🇬🇧 الإنجليزية'}
-                          {template.language === 'fr' && '🇫🇷 الفرنسية'}
-                          {template.language === 'ar-en' && '🌍 عربي/إنجليزي'}
-                          {template.language === 'ar-fr' && '🌍 عربي/فرنسي'}
+                      <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-primary/50 rounded-lg">
+                        <div className="flex items-center gap-2 text-accent-600 dark:text-dark-text-secondary">
+                          <Globe className="w-4 h-4" />
+                          <span className="text-xs sm:text-sm">اللغة</span>
+                        </div>
+                        <span className="text-sm font-medium text-accent-800 dark:text-dark-text-primary">
+                          {template.language === 'ar' && 'العربية 🇸🇦'}
+                          {template.language === 'en' && 'الإنجليزية 🇬🇧'}
+                          {template.language === 'fr' && 'الفرنسية 🇫🇷'}
+                          {template.language === 'ar-en' && 'عربي / إنجليزي'}
+                          {template.language === 'ar-fr' && 'عربي / فرنسي'}
                         </span>
                       </div>
                     )}
 
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">تاريخ الإنشاء</span>
-                      <span className="text-sm sm:text-base font-medium text-accent-700 dark:text-dark-text-primary">{formatDate(new Date())}</span>
+                    {/* Date */}
+                    <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-dark-primary/50 rounded-lg">
+                      <div className="flex items-center gap-2 text-accent-600 dark:text-dark-text-secondary">
+                        <Calendar className="w-4 h-4" />
+                        <span className="text-xs sm:text-sm">نشر في</span>
+                      </div>
+                      <span className="text-sm font-medium text-accent-700 dark:text-dark-text-primary">
+                        {formatDate(new Date(template.createdAt || new Date()))}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -1509,178 +1493,141 @@ export default function TemplateDetailPage() {
           </div>
         </section>
 
-        {/* Reviews and Comments Section */}
-        {combinedReviews.length > 0 && (
-          <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
-            <div className="container-custom">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-900 dark:text-dark-text-primary mb-6 sm:mb-8">
-                تقييمات المستخدمين والتعليقات
-              </h2>
-
-              <div className="space-y-3 sm:space-y-4">
-                <div className="grid gap-3 sm:gap-4">
-                  {reviewsToShow.map((review) => {
-                    const isRatingOnly = review.rating && !review.review && !review.comment;
-                    const displayDate = formatDate(new Date(review.latestDate));
-                    const userName = review.user?.name || review.user?.displayName || 'مستخدم';
-                    const userInitial = userName.charAt(0).toUpperCase() || 'م';
-                    const hasProfilePicture = !!review.user?.profilePicture;
-
-                    // Optimized comment lookup
-                    const comment = review.commentId ? commentLookupMap.get(review.commentId) : null;
-                    const isLiked = comment ? isCommentLikedByUser(comment) : false;
-                    const likeCount = review.likes?.length || 0;
-
-                    return (
-                      <div
-                        key={review.ratingId || review.commentId}
-                        className={`h-auto w-full rounded-xl border bg-gray-50 dark:bg-dark-primary border-gray-200 dark:border-dark-card-border ${isRatingOnly ? 'p-2 sm:p-3' : 'p-3 sm:p-4'
-                          }`}
-                      >
-                        <div className={`flex ${isRatingOnly ? 'items-center' : 'items-start'} gap-2 sm:gap-3 w-full`}>
-                          {/* Avatar */}
-                          <div
-                            className={`${isRatingOnly ? 'w-7 h-7 sm:w-8 sm:h-8' : 'w-8 h-8 sm:w-10 sm:h-10'
-                              } rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center`}
-                          >
-                            {hasProfilePicture ? (
-                              <Image
-                                src={review.user.profilePicture}
-                                alt={userName}
-                                width={40}
-                                height={40}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  e.target.style.display = 'none';
-                                  e.target.nextSibling.style.display = 'flex';
-                                }}
-                              />
-                            ) : null}
-                            <div className={`w-full h-full flex items-center justify-center ${hasProfilePicture ? 'hidden' : 'flex'}`}>
-                              <span className={`${isRatingOnly ? 'text-xs' : 'text-sm'} text-primary-600 dark:text-primary-400 font-medium`}>
-                                {userInitial}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Content */}
-                          <div className={`flex-1 min-w-0 ${isRatingOnly ? 'flex items-center' : ''}`}>
-                            {/* Header: Name, Rating, Date */}
-                            <div className={`flex flex-wrap items-center gap-2 sm:gap-3 ${isRatingOnly ? '' : 'mb-2'}`}>
-                              <span className={`${isRatingOnly ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} font-medium text-accent-700 dark:text-dark-text-primary truncate`}>
-                                {userName}
-                              </span>
-                              {review.rating && (
-                                <StarRating rating={review.rating} size="small" showNumber={false} />
-                              )}
-                              <span className={`${isRatingOnly ? 'text-xs' : 'text-xs sm:text-sm'} text-gray-500 dark:text-gray-400 whitespace-nowrap`}>
-                                {displayDate}
-                              </span>
-                            </div>
-
-                            {/* Rating Review */}
-                            {review.review && (
-                              <div className="mb-2">
-                                <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary leading-relaxed break-words">
-                                  {review.review}
-                                </p>
-                              </div>
-                            )}
-
-                            {/* Comment */}
-                            {review.comment && (
-                              <div className={review.review ? 'mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-gray-200 dark:border-dark-card-border' : ''}>
-                                <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary leading-relaxed break-words">
-                                  {review.comment}
-                                </p>
-                              </div>
-                            )}
-
-                            {/* Actions - Like Button */}
-                            {!isRatingOnly && review.commentId && (
-                              <div className="flex items-center gap-3 mt-2">
-                                <button
-                                  onClick={() => handleLikeClick(review.commentId)}
-                                  className={`flex items-center gap-1 text-xs transition-colors ${isLiked
-                                      ? 'text-red-500 dark:text-red-400'
-                                      : 'text-gray-500 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400'
-                                    }`}
-                                  aria-label={isLiked ? 'إلغاء الإعجاب' : 'إعجاب'}
-                                >
-                                  <svg
-                                    className="w-3 h-3"
-                                    fill={isLiked ? "currentColor" : "none"}
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                    aria-hidden="true"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                                    />
-                                  </svg>
-                                  <span>{likeCount}</span>
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+        {/* Rating and Comments Section */}
+        {(isDownloaded || userHasTemplate) && !hasSubmittedRating && !isTemplateCreator(user, template) && (
+          <section className="container-custom mb-8">
+            <div className="p-5 sm:p-6 bg-gradient-to-br from-gray-50 to-white dark:from-dark-secondary dark:to-dark-card-bg rounded-2xl border border-gray-100 dark:border-dark-card-border shadow-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/20 flex items-center justify-center text-yellow-600 dark:text-yellow-400">
+                  <Star className="w-5 h-5 fill-current" />
                 </div>
-
-                {/* Show More/Less Button */}
-                {combinedReviews.length > 5 && (
-                  <div className="text-center mt-4 sm:mt-6">
-                    <button
-                      onClick={() => setShowAllReviews(!showAllReviews)}
-                      className="px-3 sm:px-4 py-2 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-lg hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-colors duration-200 text-xs sm:text-sm"
-                      aria-expanded={showAllReviews}
-                    >
-                      {showAllReviews ? 'عرض أقل' : `عرض جميع التقييمات والتعليقات (${combinedReviews.length})`}
-                    </button>
-                  </div>
-                )}
+                <div>
+                  <h3 className="text-lg font-bold text-accent-900 dark:text-dark-text-primary">
+                    قيم هذا القالب
+                  </h3>
+                  <p className="text-sm text-accent-500 dark:text-dark-text-secondary">
+                    شاركنا رأيك وساعد الآخرين في اختياراتهم
+                  </p>
+                </div>
               </div>
+
+              <RatingCommentSystem
+                targetType="template"
+                targetId={template._id}
+                initialRating={template.rating || 0}
+                initialUserRating={userRating ? { rating: userRating.rating, review: userRating.review } : null}
+                initialUserComment={userComment}
+                onRatingChange={(data) => {
+                  updateRatingMetrics(data, { isNewRating: !hasSubmittedRating });
+                  setUserRating({ rating: data?.rating || 0, review: data?.review || '' });
+                  setHasSubmittedRating(true);
+                  markAsRated();
+                  if (template?._id) {
+                    loadRatings(template._id);
+                  }
+                }}
+                onCommentChange={(data) => {
+                  setUserComment(data.comment);
+                  loadRatings(template._id);
+                }}
+                size="large"
+                readOnly={isTemplateCreator(user, template)}
+              />
             </div>
           </section>
         )}
 
+        {/* Reviews and Comments Section */}
+        {combinedReviews.length > 0 && (
+          <ReviewsList
+            reviews={combinedReviews}
+            currentUser={currentUser}
+            onLike={handleLikeClick}
+          />
+        )}
+
 
         {/* Related Templates */}
-        <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
+        <section className="section-padding bg-gray-50 dark:bg-dark-secondary transition-colors duration-300">
           <div className="container-custom">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-900 dark:text-dark-text-primary mb-6 sm:mb-8">قوالب مشابهة</h2>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-900 dark:text-dark-text-primary mb-8 px-1">قوالب قد تعجبك أيضاً</h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {relatedTemplates.map((relatedTemplate) => (
-                <div key={relatedTemplate._id || relatedTemplate.id} className="bg-white dark:bg-dark-primary rounded-xl shadow-medium dark:shadow-dark-medium overflow-hidden transition-all duration-200 hover:shadow-large dark:hover:shadow-dark-large hover:-translate-y-1">
-                  <Link href={`/templates/${relatedTemplate.slug || relatedTemplate._id || relatedTemplate.id}`}>
-                    <div className="relative h-48 bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-lg">
+                <div key={relatedTemplate._id || relatedTemplate.id} className="group bg-white dark:bg-dark-primary rounded-2xl border border-gray-100 dark:border-dark-card-border overflow-hidden hover:shadow-xl dark:hover:shadow-primary-900/10 hover:-translate-y-1 transition-all duration-300 isolate">
+                  <Link href={`/templates/${relatedTemplate.slug || relatedTemplate._id || relatedTemplate.id}`} className="block h-full flex flex-col">
+                    {/* Image Container */}
+                    <div className="relative h-56 overflow-hidden bg-gray-100 dark:bg-gray-800">
                       <Image
                         src={relatedTemplate.previewImage || relatedTemplate.imgSrc || '/placeholder-template.jpg'}
                         alt={relatedTemplate.title}
                         width={400}
                         height={300}
-                        className="w-full h-full object-cover object-[50%_85%]"
-                        quality={100}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        quality={90}
                       />
+
+                      {/* Overlay Gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60 transition-opacity duration-300" />
+
+                      {/* Top Badges */}
+                      <div className="absolute top-3 right-3 flex flex-col gap-2">
+                        {relatedTemplate.isPaid ? (
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-white/90 dark:bg-black/80 backdrop-blur-md text-xs font-bold text-accent-900 dark:text-white shadow-sm">
+                            {relatedTemplate.price} ر.س
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-white/90 dark:bg-black/80 backdrop-blur-md text-xs font-bold text-accent-900 dark:text-white shadow-sm">
+                            مجاني
+                          </span>
+                        )}
+                      </div>
                     </div>
 
-                    <div className="p-3 sm:p-4">
-                      <h3 className="text-sm sm:text-base font-semibold text-accent-700 dark:text-dark-text-primary mb-2 hover:text-orange-600 dark:hover:text-orange-400 transition-colors line-clamp-2">
+                    {/* Content */}
+                    <div className="p-5 flex-1 flex flex-col">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="text-xs font-medium text-primary-600 dark:text-primary-400 mb-1">
+                          {relatedTemplate.categories?.[0] || 'عام'}
+                        </div>
+                        <div className="flex items-center gap-1 text-yellow-500">
+                          <Star className="w-3.5 h-3.5 fill-current" />
+                          <span className="text-xs font-bold text-accent-700 dark:text-dark-text-primary">
+                            {(relatedTemplate.rating || 0).toFixed(1)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <h3 className="text-lg font-bold text-accent-900 dark:text-dark-text-primary mb-1 line-clamp-1 leading-tight group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                         {relatedTemplate.title}
                       </h3>
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary truncate">
-                          بواسطة {relatedTemplate.creator?.name || 'مبدع غير معروف'}
-                        </p>
-                        <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                          {relatedTemplate.isPaid ? `${relatedTemplate.price} ر.س` : 'مجاني'}
-                        </span>
+
+                      <div className="mt-auto pt-4 border-t border-gray-100 dark:border-dark-card-border flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
+                            {relatedTemplate.creator?.profilePicture ? (
+                              <Image
+                                src={relatedTemplate.creator.profilePicture}
+                                alt={relatedTemplate.creator.name}
+                                width={24}
+                                height={24}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-gray-400">
+                                {relatedTemplate.creator?.name?.charAt(0) || 'U'}
+                              </div>
+                            )}
+                          </div>
+                          <span className="text-xs text-accent-600 dark:text-dark-text-secondary truncate max-w-[100px]">
+                            {relatedTemplate.creator?.name || 'مبدع'}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 text-xs text-accent-500 dark:text-dark-text-quaternary">
+                          <Download className="w-3.5 h-3.5" />
+                          <span>{(relatedTemplate.downloads || 0).toLocaleString()}</span>
+                        </div>
                       </div>
                     </div>
                   </Link>

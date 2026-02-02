@@ -9,7 +9,7 @@ import NavigationWrapper from '../components/NavigationWrapper'
 import NavigationHandler from '../components/NavigationHandler'
 import LoadingIndicator from '../components/LoadingIndicator'
 import { OrganizationSchema, WebsiteSchema } from '../components/StructuredData'
-import { GoogleAnalytics, HreflangLinks, TwitterCardMeta } from '../components/SEOOptimizations'
+import { GoogleAnalytics } from '../components/SEOOptimizations'
 import { QueryProvider } from '../components/QueryProvider'
 import MaintenanceMode from '../components/MaintenanceMode'
 import TelegramPopupWrapper from '../components/TelegramPopupWrapper'
@@ -53,7 +53,7 @@ export default function RootLayout({ children }) {
       <head>
         <OrganizationSchema />
         <WebsiteSchema />
-        <HreflangLinks currentPath="" />
+
 
         {/* Favicon - Using SVG for best quality on all devices */}
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

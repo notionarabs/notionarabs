@@ -1,4 +1,3 @@
-import { Briefcase, Rocket, Users } from 'lucide-react';
 import JoinTeamForm from '../../components/JoinTeamForm';
 import Footer from '../../components/Footer';
 
@@ -12,13 +11,6 @@ export const metadata = {
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
   },
   openGraph: {
     title: 'انضم لفريق عرب نوشن | فرص عمل',
@@ -28,31 +20,41 @@ export const metadata = {
   },
 };
 
-
-
 export default function CareersPage() {
   return (
-    <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+    <main className="min-h-screen bg-[#FAFAFA] dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300 relative overflow-hidden" dir="rtl">
+
+      {/* Background Decor */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05]"
+        style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
+      </div>
+
       {/* Hero Section */}
-      <section className="py-10 sm:py-14 md:py-18 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-secondary-50 via-primary-50/30 to-accent-100 dark:from-dark-primary dark:via-dark-secondary dark:to-dark-secondary transition-colors duration-300">
-        <div className="container-custom">
-          <div className="text-center mb-6 sm:mb-8">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
-              انضم لفريق عرب نوشن
-            </h1>
-            <p className="text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary max-w-3xl mx-auto mt-4">
-              نبحث دائماً عن مواهب جديدة تساعدنا على بناء أفضل تجربة عربية مع نوشن.
-            </p>
-          </div>
+      <section className="relative z-10 pt-16 pb-8 px-4 sm:px-6 lg:px-8">
+        <div className="container-custom max-w-3xl mx-auto text-center">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-4 text-accent-900 dark:text-white">
+            انضم لفريقنا
+          </h1>
+          <p className="text-base text-gray-500 dark:text-gray-400">
+            نبحث دائماً عن المتميزين لمشاركتنا الرحلة.
+          </p>
         </div>
       </section>
 
-
       {/* Form Section */}
-      <section className="py-10 sm:py-14 md:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
+      <section className="relative z-10 pb-20 sm:pb-28 px-4 sm:px-6 lg:px-8">
         <div className="container-custom">
-          <div className="max-w-5xl mx-auto">
-            <JoinTeamForm />
+          {/* Dossier Container - adding visual depth */}
+          <div className="max-w-4xl mx-auto relative">
+            {/* Pseudo-border/gradient glow effect */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-primary-500/20 to-purple-500/20 rounded-[2.5rem] blur-xl opacity-70"></div>
+
+            <div className="relative">
+              <JoinTeamForm />
+            </div>
+
+            {/* Trust Badges / Footer Note */}
+            {/* Removed as per request */}
           </div>
         </div>
       </section>

@@ -1,12 +1,15 @@
 'use client';
 
-import { useState, useRef, Suspense } from 'react';
+import { useState, useRef, Suspense, useMemo } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useToast } from '../../../contexts/ToastContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import api from '../../../lib/api';
 import SuccessModal from '../../../components/SuccessModal';
+import CategorySelector from '../../../components/CategorySelector';
+
+
 
 function CreateTemplatePageContent() {
   const { user, isAuthenticated, loading, ensureTokenInHeaders } = useAuth();
@@ -21,6 +24,10 @@ function CreateTemplatePageContent() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingTemplateId, setEditingTemplateId] = useState(null);
+  const hasShownEditToastRef = useRef(false);
+  const [lastSaved, setLastSaved] = useState(null);
+  const [draftRestored, setDraftRestored] = useState(false);
+  const hasRestoredDraftRef = useRef(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -30,7 +37,6 @@ function CreateTemplatePageContent() {
     language: 'ar', // Template language (ar, en, or both)
     isPaid: false, // Whether the template is paid
     price: '', // Price for paid templates
-    purchaseLink: '', // Purchase link for paid templates
     features: '',
     tags: [], // Changed to array for tag-based input
     previewImage: '',
@@ -38,15 +44,11 @@ function CreateTemplatePageContent() {
     explanationVideo: '' // Video link for template explanation
   });
 
-  // Multi-select state
-  const [categorySearch, setCategorySearch] = useState('');
-  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
-  const categoryDropdownRef = useRef(null);
-  const categoryInputRef = useRef(null);
-
   // Tags state
   const [tagInput, setTagInput] = useState('');
   const tagInputRef = useRef(null);
+
+
 
   useEffect(() => {
     // Ensure token is set in headers when component mounts
@@ -62,14 +64,107 @@ function CreateTemplatePageContent() {
     }
   }, [isAuthenticated, loading, user, router, ensureTokenInHeaders]);
 
+  // Helper to check if there's actual content to save/restore
+  const hasMeaningfulContent = (data) => {
+    return (
+      data.title?.trim() ||
+      data.description?.trim() ||
+      data.notionLink?.trim() ||
+      (data.categories && data.categories.length > 0) ||
+      (data.tags && data.tags.length > 0) ||
+      data.previewImage ||
+      (data.previewImages && data.previewImages.length > 0)
+    );
+  };
+
+  // Auto-save functionality (Debounced)
+  useEffect(() => {
+    if (typeof window === 'undefined' || isEditMode) return;
+
+    const timer = setTimeout(() => {
+      if (hasMeaningfulContent(formData)) {
+        const draftData = {
+          ...formData,
+          timestamp: new Date().toISOString()
+        };
+        localStorage.setItem('templateDraft', JSON.stringify(draftData));
+        setLastSaved(new Date());
+      } else {
+        // If content was cleared, remove the draft and clear the status
+        if (localStorage.getItem('templateDraft')) {
+          localStorage.removeItem('templateDraft');
+        }
+        setLastSaved(null);
+      }
+    }, 1000); // Save after 1 second of inactivity
+
+    return () => clearTimeout(timer);
+  }, [formData, isEditMode]);
+
+
+
+  // Load draft on component mount
+  useEffect(() => {
+    // Prevent double execution in Strict Mode or re-renders
+    // CRITICAL: Only restore drafts if we are NOT in edit mode
+    if (hasRestoredDraftRef.current || isEditMode || editIdFromQuery) return;
+
+    const savedDraft = localStorage.getItem('templateDraft');
+    if (savedDraft) {
+      try {
+        const draftData = JSON.parse(savedDraft);
+
+        // Mark as handled immediately to prevent double toast
+        hasRestoredDraftRef.current = true;
+
+        if (hasMeaningfulContent(draftData)) {
+          setFormData(prev => ({
+            ...prev,
+            ...draftData
+          }));
+
+          if (draftData.previewImage) setUploadedImage(draftData.previewImage);
+          if (draftData.previewImages) setUploadedImages(draftData.previewImages);
+
+          if (draftData.timestamp) {
+            setLastSaved(new Date(draftData.timestamp));
+          }
+
+          showSuccess('تم استعادة المسودة المحفوظة');
+          setDraftRestored(true);
+        } else {
+          // If the draft exists but is empty, clean it up
+          localStorage.removeItem('templateDraft');
+        }
+      } catch (error) {
+        console.error('Error loading draft:', error);
+      }
+    }
+  }, [showSuccess, isEditMode]);
+
+  // Clear draft when form is successfully submitted
+  const clearDraft = () => {
+    localStorage.removeItem('templateDraft');
+    setLastSaved(null);
+  };
+
   // Load existing template into the form when editing
   useEffect(() => {
     const loadTemplateForEdit = async () => {
       if (!editIdFromQuery || !isAuthenticated || loading) return;
+
+      // Prevent double execution for the same ID
+      if (hasShownEditToastRef.current === editIdFromQuery) return;
+
+      // Mark as handled for this ID immediately to prevent race conditions during async calls
+      hasShownEditToastRef.current = editIdFromQuery;
+
       try {
         const resp = await api.get('/templates/my-templates');
         const mine = resp.data.templates || [];
         const toEdit = mine.find(t => t._id === editIdFromQuery);
+
+
         if (toEdit) {
           setIsEditMode(true);
           setEditingTemplateId(toEdit._id);
@@ -82,7 +177,6 @@ function CreateTemplatePageContent() {
             language: toEdit.language || 'ar',
             isPaid: toEdit.isPaid || false,
             price: toEdit.price || '',
-            purchaseLink: toEdit.purchaseLink || '',
             features: toEdit.features || '',
             tags: Array.isArray(toEdit.tags) ? toEdit.tags : (toEdit.tags ? [toEdit.tags] : []),
             previewImage: toEdit.previewImage || '',
@@ -91,6 +185,7 @@ function CreateTemplatePageContent() {
           });
           setUploadedImage(toEdit.previewImage || null);
           setUploadedImages(Array.isArray(toEdit.previewImages) ? toEdit.previewImages : []);
+
           showInfo && showInfo('تم تحميل بيانات القالب للتعديل');
         } else {
           showWarning && showWarning('لم يتم العثور على القالب المطلوب للتعديل');
@@ -103,19 +198,7 @@ function CreateTemplatePageContent() {
     loadTemplateForEdit();
   }, [editIdFromQuery, isAuthenticated, loading]);
 
-  // Handle click outside to close dropdown
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target)) {
-        setShowCategoryDropdown(false);
-      }
-    };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
 
   // Show loading only if we're actually loading and don't have user data
   if (loading && !user) {
@@ -201,188 +284,8 @@ function CreateTemplatePageContent() {
     return null;
   }
 
-  const categories = [
-    'الإنتاجية',
-    'الدراسة',
-    'الأعمال',
-    'الحياة الشخصية',
-    'الإبداع',
-    'التقنية',
-    'الصحة',
-    'المالية',
-    'التنظيم',
-    'التخطيط',
-    'ديني',
-    'التسويق',
-    'التصميم',
-    'التطوير',
-    'التعليم',
-    'السفر',
-    'الطعام',
-    'الرياضة',
-    'الترفيه',
-    'الموضة',
-    'الجمال',
-    'المنزل',
-    'الحديقة',
-    'الحيوانات الأليفة',
-    'السيارات',
-    'التكنولوجيا',
-    'البرمجة',
-    'قواعد البيانات',
-    'الأمان السيبراني',
-    'الذكاء الاصطناعي',
-    'البلوك تشين',
-    'التجارة الإلكترونية',
-    'المبيعات',
-    'خدمة العملاء',
-    'الموارد البشرية',
-    'المحاسبة',
-    'الاستثمار',
-    'العقارات',
-    'التأمين',
-    'القانون',
-    'الطب',
-    'التمريض',
-    'العلاج الطبيعي',
-    'التغذية',
-    'الطبخ',
-    'الحلويات',
-    'المشروبات',
-    'المطاعم',
-    'الفنون',
-    'الموسيقى',
-    'الرسم',
-    'النحت',
-    'التصوير',
-    'الفيديو',
-    'الكتابة',
-    'الترجمة',
-    'اللغات',
-    'التاريخ',
-    'الجغرافيا',
-    'العلوم',
-    'الرياضيات',
-    'الفيزياء',
-    'الكيمياء',
-    'الأحياء',
-    'علم النفس',
-    'علم الاجتماع',
-    'الفلسفة',
-    'الأدب',
-    'الشعر',
-    'المسرح',
-    'السينما',
-    'الألعاب',
-    'الرياضة الإلكترونية',
-    'السياحة',
-    'الفندقة',
-    'النقل',
-    'الطيران',
-    'البحرية',
-    'الزراعة',
-    'البيئة',
-    'الطاقة',
-    'البناء',
-    'الهندسة',
-    'العمارة',
-    'الديكور',
-    'الأثاث',
-    'الأدوات',
-    'الأجهزة',
-    'البرامج',
-    'التطبيقات',
-    'المواقع',
-    'التطوير الويب',
-    'تطوير التطبيقات',
-    'التعليم الإلكتروني',
-    'الاجتماعات',
-    'التواصل',
-    'الشبكات الاجتماعية',
-    'المحتوى',
-    'الإعلان',
-    'العلاقات العامة',
-    'العلامة التجارية',
-    'الاستراتيجية',
-    'القيادة',
-    'الإدارة',
-    'المشاريع',
-    'العمليات',
-    'الجودة',
-    'الابتكار',
-    'البحث والتطوير',
-    'التحليل',
-    'الإحصاء',
-    'البيانات',
-    'التقارير',
-    'العروض التقديمية',
-    'التدريب',
-    'التطوير المهني',
-    'الاستشارات',
-    'الخدمات',
-    'المنتجات',
-    'التصنيع',
-    'التوزيع',
-    'المخازن',
-    'اللوجستيات',
-    'اللياقة البدنية',
-    'اليوغا',
-    'الرقص',
-    'الملاكمة',
-    'السباحة',
-    'الجري',
-    'ركوب الدراجات',
-    'التسلق',
-    'التخييم',
-    'الصيد',
-    'صيد الأسماك',
-    'الحدائق',
-    'الزراعة المنزلية',
-    'الطبخ المنزلي',
-    'الحرف اليدوية',
-    'النجارة',
-    'الخياطة',
-    'الحياكة',
-    'الرسم على الزجاج',
-    'الخزف',
-    'المجوهرات',
-    'التجميل',
-    'العناية بالبشرة',
-    'العناية بالشعر',
-    'الأظافر',
-    'العطور',
-    'الملابس',
-    'الأحذية',
-    'الحقائب',
-    'الساعات',
-    'النظارات',
-    'الإكسسوارات',
-    'الهدايا',
-    'الدمى',
-    'السيارات اللعبة',
-    'الألغاز',
-    'البطاقات',
-    'ألعاب الطاولة',
-    'ألعاب الفيديو',
-    'ألعاب الهاتف',
-    'ألعاب الكمبيوتر',
-    'الألعاب الجماعية',
-    'الألعاب الفردية',
-    'الألعاب الرياضية',
-    'الألعاب الذهنية',
-    'الألعاب الإبداعية',
-    'الألعاب التعليمية',
-    'الألعاب الترفيهية',
-    'الألعاب الاجتماعية',
-    'الألعاب التنافسية',
-    'الألعاب التعاونية',
-    'الألعاب الاستراتيجية',
-    'الألعاب المغامرات',
-    'الألعاب الأكشن',
-    'الألعاب المحاكاة',
-    'الألعاب اللغز',
-    'الألعاب المنطقية'
-  ];
+  // Categories are now imported from lib/templateCategories.js
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -392,10 +295,7 @@ function CreateTemplatePageContent() {
     }));
   };
 
-  // Multi-select category functions
-  const filteredCategories = categories.filter(category =>
-    category.toLowerCase().includes(categorySearch.toLowerCase())
-  );
+
 
   const addCategory = (category) => {
     if (!formData.categories.includes(category) && formData.categories.length < 3) {
@@ -404,9 +304,6 @@ function CreateTemplatePageContent() {
         categories: [...prev.categories, category]
       }));
     }
-    setCategorySearch('');
-    // Keep dropdown open for multiple selections
-    // setShowCategoryDropdown(false);
   };
 
   const removeCategory = (categoryToRemove) => {
@@ -415,6 +312,7 @@ function CreateTemplatePageContent() {
       categories: prev.categories.filter(category => category !== categoryToRemove)
     }));
   };
+
 
   // Tag management functions
   const addTag = (tag) => {
@@ -451,17 +349,7 @@ function CreateTemplatePageContent() {
     }
   };
 
-  const handleCategorySearch = (e) => {
-    setCategorySearch(e.target.value);
-    setShowCategoryDropdown(true);
-  };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Escape') {
-      setShowCategoryDropdown(false);
-      setCategorySearch('');
-    }
-  };
 
   const handleImageUpload = async (file) => {
     if (!file) return;
@@ -616,13 +504,18 @@ function CreateTemplatePageContent() {
         setIsSubmitting(false);
         return;
       }
-      if (formData.description.length > 300) {
-        showError('وصف القالب يجب أن يكون أقل من 300 حرف');
+      if (formData.description.length > 150) {
+        showError('وصف القالب يجب أن يكون أقل من 150 حرف');
         setIsSubmitting(false);
         return;
       }
-      if (formData.features && formData.features.length > 1000) {
-        showError('مميزات القالب يجب أن تكون أقل من 1000 حرف');
+      if (!formData.features.trim()) {
+        showError('يرجى إدخال الوصف التفصيلي للقالب');
+        setIsSubmitting(false);
+        return;
+      }
+      if (formData.features.length > 2000) {
+        showError('الوصف التفصيلي يجب أن يكون أقل من 2000 حرف');
         setIsSubmitting(false);
         return;
       }
@@ -638,14 +531,14 @@ function CreateTemplatePageContent() {
           setIsSubmitting(false);
           return;
         }
-        if (!formData.purchaseLink || !formData.purchaseLink.trim()) {
-          showError('يرجى إدخال رابط الشراء للقالب المدفوع');
-          setIsSubmitting(false);
-          return;
-        }
       }
       if (!formData.notionLink.trim()) {
         showError('يرجى إدخال رابط قالب نوشن');
+        setIsSubmitting(false);
+        return;
+      }
+      if (!formData.notionLink.includes('notion.site')) {
+        showError('يجب أن يكون الرابط من نطاق notion.site (رابط نشر القالب)');
         setIsSubmitting(false);
         return;
       }
@@ -667,7 +560,6 @@ function CreateTemplatePageContent() {
         notionLink: formData.notionLink.trim(),
         isPaid: formData.isPaid,
         price: formData.isPaid ? Number(formData.price) : undefined,
-        purchaseLink: formData.isPaid ? formData.purchaseLink.trim() : undefined,
         tags: tagsArray.length > 0 ? tagsArray : undefined,
         features: formData.features.trim() || undefined,
         previewImage: formData.previewImage || undefined,
@@ -696,7 +588,6 @@ function CreateTemplatePageContent() {
           notionLink: '',
           isPaid: false,
           price: '',
-          purchaseLink: '',
           features: '',
           tags: [],
           previewImage: '',
@@ -705,6 +596,9 @@ function CreateTemplatePageContent() {
         });
         setUploadedImage(null);
         setUploadedImages([]);
+
+        // Clear draft
+        clearDraft();
 
         // Show success modal
         setShowSuccessModal(true);
@@ -843,91 +737,11 @@ function CreateTemplatePageContent() {
                   </label>
 
                   {/* Category Multi-Select Input */}
-                  <div className="relative">
-                    <div className="form-input w-full min-h-[2.5rem] sm:min-h-[3rem] px-3 sm:px-4 py-2 sm:py-3 pr-10 sm:pr-12 border-2 border-gray-200 dark:border-dark-input-border focus-within:border-primary-500 dark:focus-within:border-orange-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400 flex flex-wrap items-center gap-1.5 sm:gap-2">
-                      {/* Selected Categories Inside Input */}
-                      {formData.categories.map((category, index) => (
-                        <span
-                          key={index}
-                          className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded text-xs sm:text-sm font-medium"
-                        >
-                          {category}
-                          <button
-                            type="button"
-                            onClick={() => removeCategory(category)}
-                            className="hover:text-primary-900 dark:hover:text-primary-100 transition-colors"
-                          >
-                            <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </button>
-                        </span>
-                      ))}
-
-                      {/* Search Input */}
-                      <input
-                        ref={categoryInputRef}
-                        type="text"
-                        value={categorySearch}
-                        onChange={handleCategorySearch}
-                        onFocus={() => formData.categories.length < 3 && setShowCategoryDropdown(true)}
-                        onKeyDown={handleKeyDown}
-                        onBlur={() => {
-                          setTimeout(() => setShowCategoryDropdown(false), 200);
-                        }}
-                        placeholder={
-                          formData.categories.length >= 3
-                            ? "تم الوصول للحد الأقصى (3 فئات)"
-                            : formData.categories.length > 0
-                              ? "أضف فئة أخرى..."
-                              : "ابحث عن الفئة..."
-                        }
-                        disabled={formData.categories.length >= 3}
-                        className="flex-1 min-w-[100px] sm:min-w-[120px] bg-transparent outline-none text-sm sm:text-base text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-quaternary disabled:opacity-50 disabled:cursor-not-allowed"
-                        autoComplete="off"
-                      />
-                    </div>
-
-                    <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
-                    </div>
-
-                    {/* Dropdown */}
-                    {showCategoryDropdown && formData.categories.length < 3 && (
-                      <div ref={categoryDropdownRef} className="absolute z-[9999] w-full mt-2 bg-white dark:bg-dark-card-bg border border-gray-200 dark:border-dark-card-border rounded-lg sm:rounded-xl shadow-2xl max-h-48 sm:max-h-64 overflow-y-auto">
-                        {filteredCategories.length > 0 ? (
-                          filteredCategories.map((category, index) => (
-                            <button
-                              key={index}
-                              type="button"
-                              onClick={() => addCategory(category)}
-                              onMouseDown={(e) => e.preventDefault()}
-                              disabled={formData.categories.includes(category)}
-                              className="w-full text-right px-3 sm:px-4 py-2 sm:py-3 hover:bg-gray-50 dark:hover:bg-dark-tertiary text-sm sm:text-base text-gray-900 dark:text-dark-text-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors border-b border-gray-100 dark:border-dark-card-border last:border-b-0"
-                            >
-                              <div className="flex items-center justify-between">
-                                <span>{category}</span>
-                                {formData.categories.includes(category) && (
-                                  <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                  </svg>
-                                )}
-                              </div>
-                            </button>
-                          ))
-                        ) : (
-                          <div className="px-3 sm:px-4 py-4 sm:py-6 text-gray-500 dark:text-dark-text-tertiary text-center text-sm sm:text-base">
-                            <svg className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                            لا توجد فئات مطابقة
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                  <CategorySelector
+                    selectedCategories={formData.categories}
+                    onAddCategory={addCategory}
+                    onRemoveCategory={removeCategory}
+                  />
                 </div>
 
                 <div className="md:col-span-2">
@@ -935,10 +749,10 @@ function CreateTemplatePageContent() {
                     <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-500 ml-1.5 sm:ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    وصف القالب *
+                    وصف مختصر للقالب *
                   </label>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 sm:mb-3">
-                    وصف مختصر للقالب يظهر في صفحة القالب الرئيسية (حد أقصى 300 حرف)
+                    وصف مختصر جداً للقالب يظهر في بطاقة القالب (حد أقصى 150 حرف)
                   </p>
                   <div className="relative">
                     <textarea
@@ -946,10 +760,10 @@ function CreateTemplatePageContent() {
                       value={formData.description}
                       onChange={handleInputChange}
                       required
-                      maxLength={300}
-                      rows={4}
-                      className={`form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400 resize-none ${formData.description.length > 300 ? 'border-red-500' : ''}`}
-                      placeholder="اكتب وصفاً مختصراً عن القالب ومميزاته..."
+                      maxLength={150}
+                      rows={3}
+                      className={`form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400 resize-none ${formData.description.length > 150 ? 'border-red-500' : ''}`}
+                      placeholder="اكتب وصفاً مختصراً جداً عن القالب..."
                     />
                     <div className="absolute right-3 sm:right-4 top-3 sm:top-4">
                       <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -957,14 +771,109 @@ function CreateTemplatePageContent() {
                       </svg>
                     </div>
                     <div className="absolute left-3 sm:left-4 bottom-3 sm:bottom-4">
-                      <span className={`text-xs ${formData.description.length > 300 ? 'text-red-500' : formData.description.length > 250 ? 'text-yellow-500' : 'text-gray-400'}`}>
-                        {formData.description.length}/300
+                      <span className={`text-xs ${formData.description.length > 150 ? 'text-red-500' : formData.description.length > 120 ? 'text-yellow-500' : 'text-gray-400'}`}>
+                        {formData.description.length}/150
                       </span>
                     </div>
                   </div>
                 </div>
+
+                <div className="md:col-span-2 space-y-4 sm:space-y-6 mt-4">
+                  <div>
+                    <label className="flex items-center text-xs sm:text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
+                      <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500 ml-1.5 sm:ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      الوصف التفصيلي للقالب *
+                    </label>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 sm:mb-3">
+                      شرح كامل ومفصل لكيفية استخدام القالب وماذا يتضمن (حد أقصى 2000 حرف)
+                    </p>
+                    <div className="relative">
+                      <textarea
+                        name="features"
+                        value={formData.features}
+                        onChange={handleInputChange}
+                        required
+                        maxLength={2000}
+                        rows={8}
+                        className={`form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-blue-500 dark:focus:border-blue-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-400 resize-none ${formData.features.length > 2000 ? 'border-red-500' : ''}`}
+                        placeholder="اكتب وصفاً تفصيلياً وشاملاً عن القالب..."
+                      />
+                      <div className="absolute right-3 sm:right-4 top-3 sm:top-4">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+                        </svg>
+                      </div>
+                      <div className="absolute left-3 sm:left-4 bottom-3 sm:bottom-4">
+                        <span className={`text-xs ${formData.features.length > 2000 ? 'text-red-500' : formData.features.length > 1800 ? 'text-yellow-500' : 'text-gray-400'}`}>
+                          {formData.features.length}/2000
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="flex items-center justify-between text-xs sm:text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2 sm:mb-3">
+                      <div className="flex items-center">
+                        <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500 ml-1.5 sm:ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                        </svg>
+                        الكلمات المفتاحية (اختياري)
+                      </div>
+                      <span className="text-xs text-gray-500 dark:text-dark-text-tertiary">
+                        {formData.tags.length}/10
+                      </span>
+                    </label>
+
+                    <div className="relative">
+                      <div className="form-input w-full min-h-[2.5rem] sm:min-h-[3rem] px-3 sm:px-4 py-2 sm:py-3 pr-10 sm:pr-12 border-2 border-gray-200 dark:border-dark-input-border focus-within:border-blue-500 dark:focus-within:border-blue-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-400 flex flex-wrap items-center gap-1.5 sm:gap-2">
+                        {formData.tags.map((tag, index) => (
+                          <span
+                            key={index}
+                            className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded text-xs sm:text-sm font-medium"
+                          >
+                            {tag}
+                            <button
+                              type="button"
+                              onClick={() => removeTag(tag)}
+                              className="hover:text-blue-900 dark:hover:text-blue-100 transition-colors"
+                            >
+                              <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </span>
+                        ))}
+
+                        <input
+                          ref={tagInputRef}
+                          type="text"
+                          value={tagInput}
+                          onChange={handleTagInputChange}
+                          onKeyDown={handleTagKeyDown}
+                          placeholder={formData.tags.length >= 10 ? "تم الوصول للحد الأقصى (10 كلمات)" : formData.tags.length > 0 ? "أضف كلمة مفتاحية..." : "اكتب كلمة مفتاحية واضغط Enter"}
+                          disabled={formData.tags.length >= 10}
+                          className="flex-1 min-w-[150px] sm:min-w-[200px] bg-transparent outline-none text-sm sm:text-base text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-quaternary disabled:opacity-50 disabled:cursor-not-allowed"
+                          autoComplete="off"
+                        />
+                      </div>
+
+                      <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                      اضغط Enter لإضافة كلمة مفتاحية. الحد الأقصى 10 كلمات
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
+
 
             {/* Link & Image */}
             <div className="card p-4 sm:p-6 md:p-8 shadow-xl border-0 bg-white/80 dark:bg-dark-card-bg/80 backdrop-blur-sm">
@@ -993,7 +902,7 @@ function CreateTemplatePageContent() {
                       onChange={handleInputChange}
                       required
                       className="form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-green-500 dark:focus:border-green-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-green-300 dark:hover:border-green-400"
-                      placeholder="https://notion.so/your-template-link"
+                      placeholder="https://username.notion.site/template-id"
                     />
                     <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
                       <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1002,7 +911,7 @@ function CreateTemplatePageContent() {
                     </div>
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                    تأكد من أن الرابط قابل للوصول العام
+                    يُرجى وضع رابط القالب المنشور عبر (notion.site). لحماية حقوقك، يُفضل رفع القالب على متجر نوشن الرسمي أولاً.
                   </p>
                 </div>
 
@@ -1061,7 +970,6 @@ function CreateTemplatePageContent() {
                             ...prev,
                             isPaid: e.target.checked,
                             price: e.target.checked ? prev.price : '',
-                            purchaseLink: e.target.checked ? prev.purchaseLink : ''
                           }));
                         }}
                         className="sr-only peer"
@@ -1104,35 +1012,7 @@ function CreateTemplatePageContent() {
                         </p>
                       </div>
 
-                      {/* Purchase Link Input */}
-                      <div>
-                        <label className="flex items-center text-xs sm:text-sm font-semibold text-green-700 dark:text-green-300 mb-2 sm:mb-3">
-                          <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500 ml-1.5 sm:ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                          </svg>
-                          رابط الشراء *
-                        </label>
-                        <div className="relative">
-                          <input
-                            type="url"
-                            name="purchaseLink"
-                            value={formData.purchaseLink}
-                            onChange={handleInputChange}
-                            required={formData.isPaid}
-                            className="form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-green-200 dark:border-green-800 focus:border-green-500 dark:focus:border-green-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-green-300 dark:hover:border-green-400 bg-white dark:bg-dark-input"
-                            placeholder="https://example.com/purchase-link"
-                            dir="ltr"
-                          />
-                          <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
-                            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                            </svg>
-                          </div>
-                        </div>
-                        <p className="text-xs text-green-600 dark:text-green-400 mt-2">
-                          أدخل الرابط الذي سيستخدمه المشترون لشراء القالب
-                        </p>
-                      </div>
+
                     </div>
                   )}
                 </div>
@@ -1393,114 +1273,7 @@ function CreateTemplatePageContent() {
               </div>
             </div>
 
-            {/* Features & Details */}
-            <div className="card p-4 sm:p-6 md:p-8 shadow-xl border-0 bg-white/80 dark:bg-dark-card-bg/80 backdrop-blur-sm">
-              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-blue-600">المميزات والتفاصيل</h2>
-              </div>
 
-              <div className="space-y-4 sm:space-y-6">
-                <div>
-                  <label className="flex items-center text-xs sm:text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2">
-                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500 ml-1.5 sm:ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    مميزات القالب (اختياري)
-                  </label>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 sm:mb-3">
-                    وصف مفصل لمميزات القالب يظهر في صفحة تفاصيل القالب (حد أقصى 1000 حرف)
-                  </p>
-                  <div className="relative">
-                    <textarea
-                      name="features"
-                      value={formData.features}
-                      onChange={handleInputChange}
-                      maxLength={1000}
-                      rows={6}
-                      className={`form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-blue-500 dark:focus:border-blue-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-400 resize-none ${formData.features.length > 1000 ? 'border-red-500' : ''}`}
-                      placeholder="اكتب وصفاً مفصلاً لمميزات القالب..."
-                    />
-                    <div className="absolute right-3 sm:right-4 top-3 sm:top-4">
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <div className="absolute left-3 sm:left-4 bottom-3 sm:bottom-4">
-                      <span className={`text-xs ${formData.features.length > 1000 ? 'text-red-500' : formData.features.length > 800 ? 'text-yellow-500' : 'text-gray-400'}`}>
-                        {formData.features.length}/1000
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="flex items-center justify-between text-xs sm:text-sm font-semibold text-accent-500 dark:text-dark-text-primary mb-2 sm:mb-3">
-                    <div className="flex items-center">
-                      <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500 ml-1.5 sm:ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                      </svg>
-                      الكلمات المفتاحية (اختياري)
-                    </div>
-                    <span className="text-xs text-gray-500 dark:text-dark-text-tertiary">
-                      {formData.tags.length}/10
-                    </span>
-                  </label>
-
-                  {/* Tag Input */}
-                  <div className="relative">
-                    <div className="form-input w-full min-h-[2.5rem] sm:min-h-[3rem] px-3 sm:px-4 py-2 sm:py-3 pr-10 sm:pr-12 border-2 border-gray-200 dark:border-dark-input-border focus-within:border-blue-500 dark:focus-within:border-blue-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-400 flex flex-wrap items-center gap-1.5 sm:gap-2">
-                      {/* Selected Tags */}
-                      {formData.tags.map((tag, index) => (
-                        <span
-                          key={index}
-                          className="inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded text-xs sm:text-sm font-medium"
-                        >
-                          {tag}
-                          <button
-                            type="button"
-                            onClick={() => removeTag(tag)}
-                            className="hover:text-blue-900 dark:hover:text-blue-100 transition-colors"
-                          >
-                            <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </button>
-                        </span>
-                      ))}
-
-                      {/* Tag Input Field */}
-                      <input
-                        ref={tagInputRef}
-                        type="text"
-                        value={tagInput}
-                        onChange={handleTagInputChange}
-                        onKeyDown={handleTagKeyDown}
-                        placeholder={formData.tags.length >= 10 ? "تم الوصول للحد الأقصى (10 كلمات)" : formData.tags.length > 0 ? "أضف كلمة مفتاحية..." : "اكتب كلمة مفتاحية واضغط Enter"}
-                        disabled={formData.tags.length >= 10}
-                        className="flex-1 min-w-[150px] sm:min-w-[200px] bg-transparent outline-none text-sm sm:text-base text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-quaternary disabled:opacity-50 disabled:cursor-not-allowed"
-                        autoComplete="off"
-                      />
-                    </div>
-
-                    <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                      </svg>
-                    </div>
-                  </div>
-
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                    اضغط Enter لإضافة كلمة مفتاحية. الحد الأقصى 10 كلمات
-                  </p>
-                </div>
-
-              </div>
-            </div>
 
             {/* Guidelines */}
             <div className="card p-4 sm:p-6 md:p-8 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-2 border-amber-200 dark:border-amber-800 shadow-lg">
@@ -1539,6 +1312,18 @@ function CreateTemplatePageContent() {
                 </li>
               </ul>
             </div>
+
+            {/* Save Status */}
+            {lastSaved && (
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 sm:p-4 flex items-center gap-2 text-sm sm:text-base text-green-700 dark:text-green-300 shadow-sm animate-fade-in mb-6">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span className="font-semibold">تم الحفظ تلقائياً! 💾</span>
+                <span className="text-green-600 dark:text-green-400 opacity-50">•</span>
+                <span>{lastSaved.toLocaleTimeString('en-US')}</span>
+              </div>
+            )}
 
             {/* Submit Buttons */}
             <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-4 sm:pt-6">
@@ -1589,6 +1374,7 @@ function CreateTemplatePageContent() {
     </div>
   );
 }
+
 
 export default function CreateTemplatePage() {
   return (

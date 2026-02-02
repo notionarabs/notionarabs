@@ -151,7 +151,7 @@ export default function CreatorsClient() {
       <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-dark-secondary transition-colors duration-300">
         <div className="container-custom">
           <div className="text-center mb-8 sm:mb-10 md:mb-12">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-accent-500 dark:text-dark-text-primary mb-4 sm:mb-6">المبدعين المميزين</h1>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-accent-900 dark:text-white mb-4 sm:mb-6">المبدعين المميزين</h1>
             <p className="text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary max-w-xs sm:max-w-2xl md:max-w-3xl mx-auto px-4 sm:px-0">
               تعرف على أفضل المبدعين في مجتمعنا واكتشف قوالبهم المبتكرة
             </p>

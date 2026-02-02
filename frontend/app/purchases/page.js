@@ -5,13 +5,23 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../lib/api';
-import LoadingIndicator from '../../components/LoadingIndicator';
+import { motion } from 'framer-motion';
+import {
+  ShoppingBag,
+  Download,
+  ExternalLink,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Search,
+  PackageOpen
+} from 'lucide-react';
 
 export default function PurchasesPage() {
   const { isAuthenticated, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [orders, setOrders] = useState([]);
-  const [filter, setFilter] = useState('all'); // not used in simplified UI
+  const [items, setItems] = useState([]);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -53,92 +63,96 @@ export default function PurchasesPage() {
     }
   }, [loading, isAuthenticated]);
 
-  const getStatusColor = (status) => {
+  // Process items whenever orders change
+  useEffect(() => {
+    const itemsMap = new Map();
+    orders
+      .flatMap((o) => (o.items || []).map((i) => ({
+        ...i,
+        orderId: o.id,
+        date: o.date,
+        status: o.status,
+        // Ensure we have a valid templateId, checking all possible locations including populated template object
+        templateId: i.templateId || (typeof i.template === 'object' ? i.template?._id : i.template) || i.id,
+        // Ensure we have a valid name
+        name: i.name || (typeof i.template === 'object' ? i.template?.title : null) || 'قالب بدون عنوان',
+        // Ensure we have a valid image
+        previewImage: i.previewImage || (typeof i.template === 'object' ? (i.template?.previewImage || i.template?.previewImages?.[0]) : null) || '',
+        // Ensure we have a notion link
+        notionLink: i.notionLink || (typeof i.template === 'object' ? i.template?.notionLink : null) || ''
+      })))
+      // Filter for valid items: downloaded OR completed order OR (legacy) paid status
+      .filter((i) => i.downloaded || i.status === 'completed' || i.status === 'paid')
+      .forEach((item) => {
+        const templateId = item.templateId;
+        // Skip if we couldn't find a template ID
+        if (!templateId) return;
+
+        // Keep the most recent item if duplicates exist
+        if (!itemsMap.has(templateId) || new Date(item.date || 0) > new Date(itemsMap.get(templateId).date || 0)) {
+          itemsMap.set(templateId, item);
+        }
+      });
+    setItems(Array.from(itemsMap.values()));
+  }, [orders]);
+
+  const getStatusBadge = (status) => {
     switch (status) {
       case 'completed':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+        return (
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold border border-green-200 dark:border-green-800">
+            <CheckCircle2 size={12} className="stroke-[3]" />
+            <span>مكتمل</span>
+          </div>
+        );
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
+        return (
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs font-bold border border-amber-200 dark:border-amber-800">
+            <Clock size={12} className="stroke-[3]" />
+            <span>قيد الانتظار</span>
+          </div>
+        );
       case 'cancelled':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
+        return (
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-bold border border-red-200 dark:border-red-800">
+            <XCircle size={12} className="stroke-[3]" />
+            <span>ملغي</span>
+          </div>
+        );
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300';
+        return (
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs font-bold border border-gray-200 dark:border-gray-700">
+            <span>{status}</span>
+          </div>
+        );
     }
   };
 
-  const getStatusText = (status) => {
-    switch (status) {
-      case 'completed':
-        return 'مكتمل';
-      case 'pending':
-        return 'قيد الانتظار';
-      case 'cancelled':
-        return 'ملغي';
-      default:
-        return status;
-    }
-  };
-
-  // Flatten orders to a list of purchased/downloaded template items only
-  // Deduplicate by templateId to ensure each template appears only once
-  const itemsMap = new Map();
-  orders
-    .flatMap((o) => (o.items || []).map((i) => ({ ...i, orderId: o.id, date: o.date, status: o.status })))
-    .filter((i) => i.downloaded || i.status === 'completed')
-    .forEach((item) => {
-      const templateId = item.templateId || item.id;
-      // Keep the most recent item if duplicates exist
-      if (!itemsMap.has(templateId) || new Date(item.date || 0) > new Date(itemsMap.get(templateId).date || 0)) {
-        itemsMap.set(templateId, item);
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
       }
-    });
-  const items = Array.from(itemsMap.values());
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { type: 'spring', stiffness: 100 }
+    }
+  };
 
   if (loading || isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-dark-primary" dir="rtl">
-        <div className="container-custom py-8 sm:py-12">
-          {/* Header Skeleton */}
-          <div className="mb-8 sm:mb-12">
-            <div className="animate-pulse">
-              <div className="h-6 sm:h-8 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-32 sm:w-48"></div>
-              <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded w-48 sm:w-64"></div>
-            </div>
-          </div>
-
-          {/* Stats Cards Skeleton */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12">
-            {[...Array(4)].map((_, index) => (
-              <div key={index} className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-4 sm:p-6 animate-pulse">
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-20"></div>
-                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
-              </div>
-            ))}
-          </div>
-
-          {/* Orders List Skeleton */}
-          <div className="space-y-4 sm:space-y-6">
-            {[...Array(3)].map((_, index) => (
-              <div key={index} className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-4 sm:p-6 animate-pulse">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
-                  {/* Order Image Skeleton */}
-                  <div className="w-full sm:w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-lg flex-shrink-0"></div>
-
-                  {/* Order Info Skeleton */}
-                  <div className="flex-1 min-w-0">
-                    <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-3/4"></div>
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-1/3"></div>
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-                  </div>
-
-                  {/* Order Status Skeleton */}
-                  <div className="w-full sm:w-auto">
-                    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-full w-20"></div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center">
+        <div className="relative w-20 h-20">
+          <div className="absolute inset-0 rounded-full border-4 border-gray-200 dark:border-gray-700"></div>
+          <div className="absolute inset-0 rounded-full border-4 border-primary-500 border-t-transparent animate-spin"></div>
         </div>
       </div>
     );
@@ -146,74 +160,150 @@ export default function PurchasesPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-dark-primary">
-        <div className="container-custom py-12 sm:py-16 md:py-20 text-center px-4 sm:px-0">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-dark-text-primary mb-4">
-            يجب تسجيل الدخول لعرض المشتريات
-          </h1>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-dark-text-secondary">
-            يرجى تسجيل الدخول لعرض تاريخ مشترياتك
-          </p>
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center p-4">
+        <div className="text-center space-y-6 max-w-md w-full bg-white dark:bg-dark-secondary p-8 rounded-3xl shadow-xl border border-gray-100 dark:border-dark-card-border">
+          <div className="w-20 h-20 bg-primary-100 dark:bg-primary-900/20 rounded-full flex items-center justify-center mx-auto text-primary-600 dark:text-primary-400">
+            <ShoppingBag size={40} />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              تسجيل الدخول مطلوب
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400">
+              يرجى تسجيل الدخول لعرض تاريخ مشترياتك والقوالب الخاصة بك
+            </p>
+          </div>
+          <Link
+            href="/login"
+            className="block w-full py-4 px-6 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-primary-500/25"
+          >
+            تسجيل الدخول
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-primary">
-      <main className="container-custom py-6 sm:py-8">
-        <div className="mb-6 sm:mb-8 px-4 sm:px-0">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-dark-text-primary mb-2">القوالب الخاصة بي</h1>
-          <p className="text-sm sm:text-base text-gray-600 dark:text-dark-text-secondary">جميع القوالب التي قمت بتحميلها أو شرائها</p>
+    <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300 font-sans" dir="rtl">
+      {/* Header Section */}
+      <div className="bg-white/80 dark:bg-dark-secondary/80 backdrop-blur-xl border-b border-gray-200 dark:border-dark-card-border sticky top-0 z-30">
+        <div className="container-custom py-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-black bg-gradient-to-l from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent inline-flex items-center gap-3">
+                <ShoppingBag className="w-8 h-8 text-primary-500" />
+                مشترياتي
+              </h1>
+              <p className="mt-2 text-gray-500 dark:text-gray-400 font-medium">
+                إدارة وتحميل القوالب التي قمت بشرائها
+              </p>
+            </div>
+            {items.length > 0 && (
+              <div className="flex items-center gap-2 bg-gray-100 dark:bg-dark-tertiary p-1.5 rounded-xl border border-gray-200 dark:border-dark-card-border">
+                <div className="bg-white dark:bg-dark-secondary px-3 py-1.5 rounded-lg shadow-sm text-sm font-bold text-gray-900 dark:text-white">
+                  {items.length} قوالب
+                </div>
+                <div className="px-3 py-1.5 text-sm font-medium text-gray-500 dark:text-gray-400">
+                  تم شراؤها
+                </div>
+              </div>
+            )}
+          </div>
         </div>
+      </div>
 
-        {/* Items grid */}
+      <main className="container-custom py-8 sm:py-12">
         {items.length === 0 ? (
-          <div className="text-center py-8 sm:py-12 px-4 sm:px-0">
-            <svg className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400 dark:text-dark-text-tertiary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-dark-text-primary mb-2">
-              لا توجد مشتريات
-            </h3>
-            <p className="text-sm sm:text-base text-gray-500 dark:text-dark-text-terتيary mb-4">
-              لم تقم بشراء أي قوالب بعد
+          <div
+            className="flex flex-col items-center justify-center py-16 sm:py-24 text-center animate-fade-in"
+          >
+            <div className="w-32 h-32 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center mb-6 relative">
+              <PackageOpen size={64} className="text-gray-400 dark:text-gray-500 stroke-1" />
+              <div className="absolute -bottom-2 -right-2 bg-white dark:bg-dark-secondary p-2 rounded-full shadow-lg">
+                <ShoppingBag size={24} className="text-primary-500" />
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+              لا توجد مشتريات حتى الآن
+            </h2>
+            <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-8 text-lg">
+              لم تقم بشراء أي قوالب بعد. استكشف متجرنا للعثور على قوالب نوشن احترافية تساعدك في تنظيم حياتك وعملك.
             </p>
-            <Link href="/templates" className="btn-primary inline-block text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3">تصفح القوالب</Link>
+            <Link
+              href="/store"
+              className="px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-2xl transition-all shadow-xl hover:shadow-primary-500/30 hover:-translate-y-1 flex items-center gap-2 group"
+            >
+              <Search size={20} className="group-hover:scale-110 transition-transform" />
+              تصفح المتجر
+            </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 px-4 sm:px-0">
+          <div
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8 animate-fade-in"
+          >
             {items.map((item) => (
-              <div key={`${item.orderId}-${item.templateId || item.id}`} className="card p-4 sm:p-6">
-                <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-dark-tertiary flex items-center justify-center">
-                    {item.previewImage ? (
-                      <Image src={item.previewImage} alt={item.name} width={64} height={64} className="w-full h-full object-cover" />
-                    ) : (
-                      <svg className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-dark-text-primary">{item.name}</h4>
-                    <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">{new Date(item.date || Date.now()).toLocaleDateString('en-US')}</p>
-                  </div>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(item.status)}`}>{getStatusText(item.status)}</span>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
-                  {item.downloaded ? (
-                    <span className="text-green-600 dark:text-green-400 text-xs sm:text-sm">تم التحميل</span>
+              <div
+                key={`${item.orderId}-${item.templateId || item.id}`}
+                className="group relative bg-white dark:bg-dark-secondary rounded-3xl overflow-hidden border border-gray-100 dark:border-dark-card-border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full"
+              >
+                {/* Image Section */}
+                <div className="relative aspect-[16/9] w-full bg-gray-100 dark:bg-dark-tertiary overflow-hidden">
+                  {item.previewImage ? (
+                    <Image
+                      src={item.previewImage}
+                      alt={item.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
                   ) : (
-                    <span className="text-yellow-700 dark:text-yellow-300 text-xs sm:text-sm">لم يتم التحميل</span>
+                    <div className="absolute inset-0 flex items-center justify-center text-gray-300 dark:text-gray-600">
+                      <ShoppingBag size={48} className="opacity-50" />
+                    </div>
                   )}
-                  <div className="flex gap-2 sm:gap-3">
+
+                  {/* Overlay Gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-4">
+                    <span className="text-white text-xs font-bold bg-black/30 backdrop-blur-md px-3 py-1 rounded-full border border-white/20">
+                      {new Date(item.date || Date.now()).toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Content Section */}
+                <div className="p-5 flex-1 flex flex-col">
+                  <div className="flex justify-between items-start mb-3 gap-3">
+                    <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                      {item.name}
+                    </h3>
+                    <div className="shrink-0">
+                      {getStatusBadge(item.status)}
+                    </div>
+                  </div>
+
+                  <div className="mt-auto pt-4 flex flex-col gap-3">
                     <button
                       onClick={() => window.open(item.notionLink || `/templates/${item.templateId || item.id}`, '_blank')}
-                      className="btn-primary text-xs sm:text-sm px-3 sm:px-4 py-2"
+                      className="w-full py-3 px-4 bg-gray-50 dark:bg-dark-tertiary hover:bg-gray-100 dark:hover:bg-dark-card-border text-gray-700 dark:text-gray-200 font-bold rounded-xl flex items-center justify-center gap-2 transition-colors group/btn"
                     >
-                      عرض القالب
+                      <span>عرض القالب</span>
+                      <ExternalLink size={16} className="group-hover/btn:translate-x-1 rtl:group-hover/btn:-translate-x-1 transition-transform" />
                     </button>
+
+                    {item.downloaded ? (
+                      <div className="flex items-center justify-center gap-2 text-xs text-green-600 dark:text-green-400 font-bold bg-green-50 dark:bg-green-900/10 py-2 rounded-lg">
+                        <CheckCircle2 size={14} />
+                        تم التحميل مسبقاً
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => window.open(item.notionLink || `/templates/${item.templateId || item.id}`, '_blank')}
+                        className="w-full py-3 px-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary-500/20 hover:shadow-primary-500/40"
+                      >
+                        <Download size={18} />
+                        <span>تحميل الآن</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -224,5 +314,3 @@ export default function PurchasesPage() {
     </div>
   );
 }
-
-

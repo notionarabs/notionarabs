@@ -1,5 +1,6 @@
 import ConsultationForm from '../../components/ConsultationForm';
 import Footer from '../../components/Footer';
+import { Sparkles } from 'lucide-react';
 
 export const metadata = {
   title: 'احجز استشارة | عرب نوشن',
@@ -11,13 +12,6 @@ export const metadata = {
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
   },
   openGraph: {
     title: 'احجز استشارة | عرب نوشن',
@@ -30,26 +24,33 @@ export const metadata = {
 export default function ConsultationPage() {
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
-      {/* Hero Section */}
-      <section className="py-10 sm:py-14 md:py-18 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-secondary-50 via-primary-50/30 to-accent-100 dark:from-dark-primary dark:via-dark-secondary dark:to-dark-secondary transition-colors duration-300">
-        <div className="container-custom">
-          <div className="text-center mb-6 sm:mb-8">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
-              احجز استشارة نوشن
-            </h1>
-            <p className="text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary max-w-3xl mx-auto mt-4">
-              شاركنا احتياجك وسنقترح عليك أفضل نظام نوشن يناسب فريقك وأهدافك.
-            </p>
-          </div>
-        </div>
-      </section>
 
-      {/* Form Section */}
-      <section className="py-10 sm:py-14 md:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
-        <div className="container-custom">
-          <div className="max-w-5xl mx-auto">
+      {/* Immersive Layout for Focus Flow */}
+      <section className="relative min-h-[90vh] flex flex-col items-center justify-center py-10 px-4 sm:px-6 overflow-hidden">
+
+        {/* Background ambient light */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary-500/10 rounded-full blur-[100px] pointer-events-none" />
+
+        <div className="container-custom relative z-10 w-full max-w-5xl">
+
+          {/* Subtle Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 px-4 py-1.5 rounded-full text-xs font-medium text-gray-500 dark:text-gray-400 mb-6 shadow-sm backdrop-blur-sm">
+              <Sparkles size={12} className="text-primary-500" />
+              <span>استشارة مخصصة</span>
+            </div>
+            {/* Note: The form has its own "Intro" step, so we keep this minimal or remove it. 
+                Use this space just for branding/context if needed, otherwise let the form drive.
+            */}
+          </div>
+
+          <div className="bg-white/50 dark:bg-dark-secondary/50 backdrop-blur-xl border border-white/60 dark:border-white/5 rounded-3xl shadow-2xl overflow-hidden">
             <ConsultationForm />
           </div>
+
+          <p className="text-center text-xs text-gray-400 mt-8">
+            بإرسال هذا النموذج، أنت توافق على سياسة الخصوصية الخاصة بنا.
+          </p>
         </div>
       </section>
 

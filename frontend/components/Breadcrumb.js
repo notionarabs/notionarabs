@@ -61,11 +61,11 @@ export default function Breadcrumb({ items = [], className = '' }) {
  */
 export function BreadcrumbWrapper({ items, className = '' }) {
   return (
-    <section className="bg-white dark:bg-dark-secondary transition-colors duration-300 border-b border-gray-200 dark:border-dark-card-border">
-      <div className="container-custom py-3">
+    <div className="container-custom pt-6 pb-2">
+      <div className="inline-flex items-center px-4 py-2 bg-white/80 dark:bg-dark-secondary/80 backdrop-blur-md rounded-full border border-gray-200/50 dark:border-dark-card-border shadow-sm">
         <Breadcrumb items={items} className={className} />
       </div>
-    </section>
+    </div>
   );
 }
 

@@ -10,7 +10,7 @@ import UserDropdown from './UserDropdown';
 import dynamic from 'next/dynamic';
 const UserNotifications = dynamic(() => import('./UserNotifications'), {
   ssr: false,
-  loading: () => <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse" />
+  loading: () => <div className="w-10 h-10 rounded-full bg-white/20 dark:bg-dark-tertiary/50 animate-pulse" />
 });
 
 const Navigation = memo(function Navigation({ activePage = '' }) {
@@ -110,8 +110,8 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
             {loading ? (
               <>
                 {/* Loading skeleton for user info */}
-                <div className="hidden lg:block w-24 h-5 bg-white/20 rounded-md animate-pulse"></div>
-                <div className="w-11 h-11 rounded-full bg-white/20 animate-pulse"></div>
+                <div className="w-10 h-10 rounded-full bg-white/20 dark:bg-dark-tertiary/50 animate-pulse"></div>
+                <div className="w-11 h-11 rounded-full bg-white/20 dark:bg-dark-tertiary/50 animate-pulse"></div>
               </>
             ) : isAuthenticated ? (
               <>
@@ -121,7 +121,21 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
                   <UserDropdown />
                 </div>
               </>
-            ) : null}
+            ) : (
+              <>
+                {/* Login button for non-authenticated users - Avatar style */}
+                <Link
+                  href="/login"
+                  className="flex items-center justify-center w-11 h-11 rounded-full bg-gradient-to-br from-gray-600/80 to-gray-700/80 dark:from-gray-700/80 dark:to-gray-800/80 hover:from-orange-500 hover:to-orange-600 dark:hover:from-orange-500 dark:hover:to-orange-600 transition-all duration-300 border-2 border-gray-600/30 dark:border-dark-card-border hover:border-orange-500/50 dark:hover:border-orange-500/50 shadow-md hover:shadow-lg group"
+                  aria-label="تسجيل الدخول"
+                  title="تسجيل الدخول"
+                >
+                  <svg className="w-6 h-6 text-white transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </Link>
+              </>
+            )}
           </div>
         </div>
 
@@ -306,7 +320,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
 
                       {/* Settings Link */}
                       <Link
-                        href={user?.creatorStatus === 'approved' ? "/settings" : "/user-settings"}
+                        href={user?.creatorStatus === 'approved' ? "/profile?tab=settings" : "/user-settings"}
                         onClick={handleLinkClick}
                         className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-300 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary transition-all duration-200 rounded-xl"
                       >

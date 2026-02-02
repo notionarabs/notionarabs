@@ -6,13 +6,17 @@ import Image from 'next/image';
 import Link from 'next/link';
 import LoadingLink from './LoadingLink';
 import ThemeToggle from './ThemeToggle';
-import { BarChart3 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  User, Settings, ShoppingBag, LogOut,
+  ShieldCheck, Loader2, Sparkles,
+  AlertCircle, RefreshCw
+} from 'lucide-react';
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const { user, logout, refreshUserData } = useAuth();
-
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -33,333 +37,254 @@ export default function UserDropdown() {
     setIsOpen(false);
   };
 
+  // Animation variants
+  const menuVariants = {
+    hidden: {
+      opacity: 0,
+      y: -10,
+      scale: 0.95,
+      transition: { duration: 0.2 }
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { type: 'spring', stiffness: 300, damping: 25 }
+    },
+    exit: {
+      opacity: 0,
+      y: -10,
+      scale: 0.95,
+      transition: { duration: 0.2 }
+    }
+  };
+
+  const isCreator = user?.creatorStatus === 'approved';
+  const isPending = user?.creatorStatus === 'pending';
+  const isRejected = user?.creatorStatus === 'rejected';
+
+  // Helper component for menu items
+  const MenuItem = ({ href, onClick, icon: Icon, label, colorClass = "text-gray-700 dark:text-gray-200", badge }) => {
+    const content = (
+      <div className={`flex items-center justify-between w-full px-4 py-2.5 rounded-xl transition-all duration-200 group hover:bg-gray-100 dark:hover:bg-dark-tertiary`}>
+        <div className="flex items-center gap-3">
+          <div className={`p-1.5 rounded-lg bg-gray-50 dark:bg-dark-tertiary group-hover:bg-white dark:group-hover:bg-dark-secondary transition-colors shadow-sm ${colorClass}`}>
+            <Icon size={18} />
+          </div>
+          <span className={`text-sm font-medium ${colorClass} group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform`}>
+            {label}
+          </span>
+        </div>
+        {badge && (
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
+            {badge}
+          </span>
+        )}
+      </div>
+    );
+
+    if (href) {
+      return (
+        <LoadingLink href={href} onClick={() => { setIsOpen(false); onClick?.(); }}>
+          {content}
+        </LoadingLink>
+      );
+    }
+
+    return (
+      <button onClick={() => { setIsOpen(false); onClick?.(); }} className="w-full text-right">
+        {content}
+      </button>
+    );
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Profile Picture Button */}
+      {/* Profile Picture Trigger */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center justify-center h-11 w-11 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-full transition-all duration-200 hover:scale-105 relative ${(user?.creatorStatus === 'approved' || user?.creatorStatus === 'pending') ? 'p-0.5' : ''
-          }`}
-        aria-label="فتح قائمة المستخدم"
+        className="relative group focus:outline-none"
+        aria-label="User Menu"
       >
-        {(user?.creatorStatus === 'approved' || user?.creatorStatus === 'pending') ? (
-          // Premium styling for approved creators and pending applications
-          <div className="relative">
-            {/* Gradient border for approved creators and pending applications */}
-            <div className={`w-11 h-11 rounded-full p-0.5 shadow-lg ${user?.creatorStatus === 'approved'
-              ? 'bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500'
-              : 'bg-gradient-to-r from-yellow-500 to-orange-500'
-              }`}>
-              <div className="w-full h-full rounded-full bg-white dark:bg-dark-secondary">
-                {user?.profilePicture ? (
-                  <Image
-                    src={user.profilePicture}
-                    alt={`صورة ${user.name}`}
-                    width={40}
-                    height={40}
-                    className="w-full h-full rounded-full object-cover"
-                    quality={100}
-                  />
-                ) : (
-                  <div className="w-full h-full rounded-full bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 flex items-center justify-center">
-                    <span className="text-sm font-bold text-white">
-                      {user?.name?.charAt(0)?.toUpperCase()}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-            {/* Creator badge */}
-            <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center shadow-md ${user?.creatorStatus === 'approved'
-              ? 'bg-gradient-to-r from-yellow-400 to-amber-500'
-              : 'bg-gradient-to-r from-yellow-500 to-orange-500'
-              }`}>
-              {user?.creatorStatus === 'approved' ? (
-                <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                </svg>
-              ) : (
-                <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              )}
-            </div>
-          </div>
-        ) : (
-          // Regular styling for non-creators
-          <>
+        <div className={`
+          relative w-11 h-11 rounded-full p-[2px] transition-all duration-300
+          ${isOpen ? 'ring-2 ring-primary-500 ring-offset-2 dark:ring-offset-dark-primary' : ''}
+          ${isCreator ? 'bg-gradient-to-tr from-yellow-400 via-orange-500 to-red-500' : 'bg-gray-200 dark:bg-gray-700'}
+        `}>
+          <div className="w-full h-full rounded-full bg-white dark:bg-dark-secondary overflow-hidden relative">
             {user?.profilePicture ? (
               <Image
                 src={user.profilePicture}
-                alt={`صورة ${user.name}`}
-                width={40}
-                height={40}
-                className="w-10 h-10 rounded-full border-2 border-white/20 hover:border-white/40 transition-all duration-200 cursor-pointer"
-                quality={100}
+                alt={user.name}
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-110"
               />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-all duration-200 cursor-pointer border-2 border-white/20 hover:border-white/40">
-                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                </svg>
+              <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-bold text-lg">
+                {user?.name?.charAt(0)?.toUpperCase()}
               </div>
             )}
-          </>
-        )}
+          </div>
+
+          {/* Status Indicators */}
+          {(isCreator || isPending) && (
+            <div className="absolute -bottom-0.5 -right-0.5 bg-white dark:bg-dark-secondary p-[1.5px] rounded-full">
+              <div className={`
+                w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] border border-white dark:border-dark-secondary
+                ${isCreator ? 'bg-blue-500 text-white' : 'bg-amber-400 text-white'}
+              `}>
+                {isCreator ? <Sparkles size={8} fill="currentColor" /> : <Loader2 size={8} className="animate-spin" />}
+              </div>
+            </div>
+          )}
+        </div>
       </button>
 
       {/* Dropdown Menu */}
-      {isOpen && (
-        <div className="absolute left-0 mt-2 w-64 bg-white dark:bg-dark-secondary rounded-xl shadow-large dark:shadow-dark-large border border-gray-200 dark:border-dark-card-border py-2 z-50">
-          {/* User Info Header */}
-          <div className="px-4 py-3">
-            <div className="flex items-center gap-3">
-              {(user?.creatorStatus === 'approved' || user?.creatorStatus === 'pending') ? (
-                // Premium styling for approved creators and pending applications in dropdown
-                <div className="relative">
-                  <div className={`w-9 h-9 rounded-full p-0.5 shadow-md ${user?.creatorStatus === 'approved'
-                    ? 'bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500'
-                    : 'bg-gradient-to-r from-yellow-500 to-orange-500'
-                    }`}>
-                    <div className="w-full h-full rounded-full bg-white dark:bg-dark-secondary">
-                      {user?.profilePicture ? (
-                        <Image
-                          src={user.profilePicture}
-                          alt={`صورة ${user.name}`}
-                          width={32}
-                          height={32}
-                          className="w-full h-full rounded-full object-cover"
-                          quality={100}
-                        />
-                      ) : (
-                        <div className="w-full h-full rounded-full bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 flex items-center justify-center">
-                          <span className="text-xs font-bold text-white">
-                            {user?.name?.charAt(0)?.toUpperCase()}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  {/* Creator badge in dropdown */}
-                  <div className={`absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full flex items-center justify-center shadow-sm ${user?.creatorStatus === 'approved'
-                    ? 'bg-gradient-to-r from-yellow-400 to-amber-500'
-                    : 'bg-gradient-to-r from-yellow-500 to-orange-500'
-                    }`}>
-                    {user?.creatorStatus === 'approved' ? (
-                      <svg className="w-1.5 h-1.5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                      </svg>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={menuVariants}
+            className="absolute left-0 mt-3 w-72 origin-top-left z-50"
+          >
+            <div className="bg-white/90 dark:bg-dark-secondary/90 backdrop-blur-xl border border-gray-200/50 dark:border-dark-card-border/50 shadow-2xl rounded-2xl overflow-hidden ring-1 ring-black/5" dir="rtl">
+
+              {/* Header Section */}
+              <div className="p-4 bg-gradient-to-br from-gray-50/50 to-white/50 dark:from-dark-tertiary/20 dark:to-dark-secondary/50 border-b border-gray-100 dark:border-dark-card-border">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    {user?.profilePicture ? (
+                      <Image
+                        src={user.profilePicture}
+                        alt={user.name}
+                        width={48}
+                        height={48}
+                        className="w-12 h-12 rounded-full object-cover shadow-sm"
+                      />
                     ) : (
-                      <svg className="w-1.5 h-1.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
+                      <div className="w-12 h-12 rounded-full bg-primary-100 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 flex items-center justify-center text-xl font-bold">
+                        {user?.name?.charAt(0)?.toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-gray-900 dark:text-white truncate text-base">
+                      {user?.name}
+                    </h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate font-medium">
+                      {user?.email}
+                    </p>
+                    {isCreator && (
+                      <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-xs font-bold text-blue-600 dark:text-blue-400">
+                        <Sparkles size={10} />
+                        مبدع موثق
+                      </span>
                     )}
                   </div>
                 </div>
-              ) : (
-                // Regular styling for non-creators in dropdown
-                <>
-                  {user?.profilePicture ? (
-                    <Image
-                      src={user.profilePicture}
-                      alt={`صورة ${user.name}`}
-                      width={32}
-                      height={32}
-                      className="w-8 h-8 rounded-full"
-                      quality={100}
+              </div>
+
+              <div className="p-2 space-y-1">
+                {/* Admin Access inside Dropdown */}
+                {user?.role === 'admin' && (
+                  <div className="mb-2 p-1 bg-gray-50 dark:bg-dark-tertiary/30 rounded-xl border border-gray-100 dark:border-dark-card-border/50">
+                    <MenuItem
+                      href="/admin"
+                      icon={ShieldCheck}
+                      label="لوحة الإدارة"
+                      colorClass="text-green-600 dark:text-green-400"
                     />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 flex items-center justify-center">
-                      <span className="text-sm font-bold text-white">
-                        {user?.name?.charAt(0)?.toUpperCase()}
-                      </span>
-                    </div>
-                  )}
-                </>
-              )}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-medium text-gray-900 dark:text-dark-text-primary truncate">
-                    {user?.name}
-                  </p>
-                  {user?.creatorStatus === 'approved' && (
-                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800 dark:from-yellow-900/30 dark:to-amber-900/30 dark:text-yellow-300">
-                      مبدع
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-gray-500 dark:text-dark-text-tertiary truncate">
-                  {user?.email}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Dropdown Items */}
-          <div className="py-2">
-            {/* Account Section */}
-            <div className="space-y-1">
-              {/* Admin Section */}
-              {user?.role === 'admin' ? (
-                <>
-                  <Link
-                    href="/admin"
-                    onClick={() => setIsOpen(false)}
-                    className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
-                  >
-                    <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z" />
-                    </svg>
-                    <span className="text-sm">لوحة الإدارة الرئيسية</span>
-                  </Link>
-                </>
-              ) : (
-                <>
-                  {/* Divider above Profile Link - Only for approved creators */}
-                  {user?.creatorStatus === 'approved' && (
-                    <div className="border-t border-gray-200 dark:border-dark-card-border my-2"></div>
-                  )}
-
-                  {/* Profile Link - For approved creators and pending applications (non-admin) */}
-                  {(user?.creatorStatus === 'approved' || user?.creatorStatus === 'pending') && (
-                    <Link
-                      href="/profile"
-                      onClick={() => setIsOpen(false)}
-                      className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
-                    >
-                      <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                      <span className="text-sm">الملف الشخصي</span>
-                    </Link>
-                  )}
-
-                </>
-              )}
-            </div>
-
-            {/* Divider */}
-            <div className="border-t border-gray-200 dark:border-dark-card-border my-2"></div>
-
-            {/* General Section */}
-            <div className="space-y-1">
-              {/* Settings Link */}
-              <LoadingLink
-                href={user?.creatorStatus === 'approved' ? "/settings" : "/user-settings"}
-                onClick={() => setIsOpen(false)}
-                className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
-              >
-                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span className="text-sm">الإعدادات</span>
-              </LoadingLink>
-            </div>
-
-            {/* Orders Section - Only for normal users */}
-            {user?.role !== 'admin' && (
-              <div className="space-y-1">
-                <Link
-                  href="/purchases"
-                  onClick={() => setIsOpen(false)}
-                  className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
-                >
-                  <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  <span className="text-sm">مشترياتي</span>
-                </Link>
-
-              </div>
-            )}
-
-            {/* Divider - Between my orders and join as creator (not for approved creators) */}
-            {user?.role !== 'admin' && user?.creatorStatus !== 'approved' && (
-              <div className="border-t border-gray-200 dark:border-dark-card-border my-2"></div>
-            )}
-
-            {/* Creator Application Section */}
-            {user?.role !== 'admin' && (
-              <div className="space-y-1">
-                {/* Pending Status */}
-                {user?.creatorStatus === 'pending' && (
-                  <div className="w-full px-4 py-3 text-right flex items-center gap-3 text-amber-600 dark:text-amber-400">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span className="text-sm">طلبك قيد المراجعة</span>
-                    <button
-                      onClick={async () => {
-                        try {
-                          await refreshUserData();
-                        } catch (error) {
-                          console.error('Failed to refresh status:', error);
-                        }
-                      }}
-                      className="ml-auto p-1 hover:bg-amber-100 dark:hover:bg-amber-900/20 rounded transition-colors duration-200"
-                      title="تحديث الحالة"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                    </button>
                   </div>
                 )}
 
-                {/* Rejected Status - Allow re-application */}
-                {user?.creatorStatus === 'rejected' && (
-                  <Link
-                    href="/creators/apply"
-                    onClick={() => setIsOpen(false)}
-                    className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
-                  >
-                    <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    <span className="text-sm">إعادة التقديم كمبدع</span>
-                  </Link>
+                {/* Primary Actions */}
+                <div className="space-y-0.5">
+                  {(isCreator || isPending) && (
+                    <MenuItem
+                      href="/profile"
+                      icon={User}
+                      label="الملف الشخصي"
+                    />
+                  )}
+                  <MenuItem
+                    href={isCreator ? "/profile?tab=settings" : "/user-settings"}
+                    icon={Settings}
+                    label="الإعدادات"
+                  />
+                  {user?.role !== 'admin' && (
+                    <MenuItem
+                      href="/purchases"
+                      icon={ShoppingBag}
+                      label="مشترياتي"
+                    />
+                  )}
+                </div>
+
+                {/* Creator Status Section */}
+                {user?.role !== 'admin' && !isCreator && (
+                  <div className="my-2">
+                    {isPending ? (
+                      <div className="mx-2 px-3 py-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 rounded-lg flex items-center justify-between group">
+                        <div className="flex items-center gap-2">
+                          <Loader2 size={16} className="text-amber-600 dark:text-amber-400 animate-spin" />
+                          <span className="text-xs font-bold text-amber-700 dark:text-amber-400">قيد المراجعة</span>
+                        </div>
+                        <button onClick={refreshUserData} className="p-1 hover:bg-amber-100 dark:hover:bg-amber-900/40 rounded-full transition-colors">
+                          <RefreshCw size={14} className="text-amber-600 dark:text-amber-400" />
+                        </button>
+                      </div>
+                    ) : isRejected ? (
+                      <Link href="/creators/apply" onClick={() => setIsOpen(false)} className="block mx-2">
+                        <div className="px-3 py-2 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-lg flex items-center justify-between hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors">
+                          <div className="flex items-center gap-2">
+                            <AlertCircle size={16} className="text-red-600 dark:text-red-400" />
+                            <span className="text-xs font-bold text-red-700 dark:text-red-400">طلب مرفوض</span>
+                          </div>
+                          <span className="text-[10px] underline text-red-600">إعادة التقديم</span>
+                        </div>
+                      </Link>
+                    ) : (
+                      <Link
+                        href="/creators/apply"
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 mx-1 rounded-xl bg-gradient-to-r from-primary-600 to-indigo-600 text-white shadow-lg shadow-primary-500/20 hover:shadow-primary-500/30 hover:scale-[1.02] transition-all duration-200 group"
+                      >
+                        <div className="p-1 rounded-full bg-white/20">
+                          <Sparkles size={14} className="text-white" />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-xs font-bold">انضم كمبدع</span>
+                          <span className="text-[10px] text-white/80 font-medium">ابدأ ببيع منتجاتك الآن</span>
+                        </div>
+                      </Link>
+                    )}
+                  </div>
                 )}
 
-                {/* No Status - First time application */}
-                {(!user?.creatorStatus || user?.creatorStatus === '' || user?.creatorStatus === 'none') && (
-                  <Link
-                    href="/creators/apply"
-                    onClick={() => setIsOpen(false)}
-                    className="w-full px-4 py-3 text-right flex items-center gap-3 text-gray-700 dark:text-dark-text-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
+                <div className="h-px bg-gray-100 dark:bg-dark-card-border my-1 mx-2" />
+
+                {/* System Actions */}
+                <div className="flex items-center justify-between px-2 pt-1 pb-2">
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 transition-colors text-xs font-bold"
                   >
-                    <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    <span className="text-sm">التسجيل كمبدع</span>
-                  </Link>
-                )}
-              </div>
-            )}
+                    <LogOut size={16} />
+                    تسجيل خروج
+                  </button>
+                  <div className="scale-90 origin-right rtl:origin-left">
+                    <ThemeToggle />
+                  </div>
+                </div>
 
-            {/* Divider */}
-            <div className="border-t border-gray-200 dark:border-dark-card-border my-2"></div>
-
-            {/* Actions Section */}
-            <div className="space-y-1">
-              {/* Sign Out with Theme Toggle */}
-              <div className="px-4 py-3 flex items-center justify-between gap-3">
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200 rounded-lg px-3 py-2 flex-1 text-right"
-                >
-                  <span className="text-sm">تسجيل الخروج</span>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                  </svg>
-                </button>
-                <ThemeToggle />
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

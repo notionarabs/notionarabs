@@ -5,7 +5,9 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useToast } from '../../../contexts/ToastContext';
 import LoadingIndicator from '../../../components/LoadingIndicator';
-import api, { emailApi } from '../../../lib/api';
+import { emailApi } from '../../../lib/api';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Upload, FileText, CheckCircle, XCircle, Mail, Download, Trash2, Send, AlertCircle, X } from 'lucide-react';
 
 export default function EmailImportPage() {
   const { user, loading: authLoading } = useAuth();
@@ -245,45 +247,8 @@ export default function EmailImportPage() {
   // Check authentication
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
-        <div className="container-custom py-8 sm:py-12">
-          {/* Header Skeleton */}
-          <div className="mb-8 sm:mb-12">
-            <div className="animate-pulse">
-              <div className="h-6 sm:h-8 bg-gray-200 dark:bg-gray-700 rounded mb-2 w-32 sm:w-48"></div>
-              <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded w-48 sm:w-64"></div>
-            </div>
-          </div>
-
-          {/* Email Import Form Skeleton */}
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-dark-card-border p-6 sm:p-8">
-              <div className="animate-pulse space-y-8">
-                {/* Upload Section Skeleton */}
-                <div>
-                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-6 w-40"></div>
-                  <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded-lg border-2 border-dashed"></div>
-                </div>
-
-                {/* Instructions Section Skeleton */}
-                <div>
-                  <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-6 w-32"></div>
-                  <div className="space-y-4">
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-4/5"></div>
-                  </div>
-                </div>
-
-                {/* Action Buttons Skeleton */}
-                <div className="flex gap-4 justify-end">
-                  <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
-                  <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center" dir="rtl">
+        <LoadingIndicator />
       </div>
     );
   }
@@ -299,353 +264,422 @@ export default function EmailImportPage() {
     );
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
+  };
+
   return (
     <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
       {/* Header */}
-      <header className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border sticky top-0 z-50 shadow-medium dark:shadow-dark-medium backdrop-blur-sm bg-white/95 dark:bg-dark-secondary/95 transition-colors duration-300">
+      <motion.header
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border sticky top-0 z-50 shadow-sm backdrop-blur-md bg-white/80 dark:bg-dark-secondary/80"
+      >
         <div className="container-custom flex justify-between items-center py-4">
-          <h1 className="heading-2">استيراد البريد الإلكتروني</h1>
-          <div className="flex gap-3 items-center">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => router.push('/admin')}
-              className="btn-outline"
+              className="p-2 hover:bg-gray-100 dark:hover:bg-dark-tertiary rounded-lg transition-colors text-accent-600 dark:text-gray-300"
             >
-              العودة للوحة الإدارة
+              <ArrowLeft className="w-5 h-5" />
             </button>
+            <h1 className="text-xl font-bold bg-gradient-to-l from-primary-600 to-primary-400 bg-clip-text text-transparent">
+              استيراد البريد الإلكتروني
+            </h1>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       <div className="container-custom py-8">
-        {/* Upload Section */}
-        <div className="card p-6 mb-8">
-          <h2 className="heading-3 mb-4">رفع ملف البريد الإلكتروني</h2>
-          <p className="text-accent-600 dark:text-dark-text-secondary mb-6">
-            يمكنك رفع ملف CSV أو Excel يحتوي على قائمة البريد الإلكتروني. سيتم التحقق من صحة كل بريد إلكتروني تلقائياً.
-          </p>
-
-          <div className="border-2 border-dashed border-gray-300 dark:border-dark-card-border rounded-lg p-8 text-center">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".csv,.xlsx,.xls,.txt"
-              onChange={handleFileUpload}
-              className="hidden"
-              id="email-file-upload"
-            />
-            <label
-              htmlFor="email-file-upload"
-              className="cursor-pointer flex flex-col items-center"
-            >
-              <svg className="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-              <p className="text-lg font-medium text-accent-500 dark:text-dark-text-primary mb-2">
-                انقر لرفع ملف البريد الإلكتروني
-              </p>
-              <p className="text-sm text-accent-600 dark:text-dark-text-secondary">
-                يدعم ملفات CSV، Excel، و TXT
-              </p>
-            </label>
-          </div>
-
-          {uploadedFile && (
-            <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <p className="text-blue-800 dark:text-blue-200">
-                <strong>الملف المرفوع:</strong> {uploadedFile.name}
-              </p>
-              <p className="text-blue-600 dark:text-blue-300 text-sm">
-                الحجم: {(uploadedFile.size / 1024).toFixed(2)} KB
-              </p>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="max-w-5xl mx-auto space-y-6"
+        >
+          {/* Upload Section */}
+          <section className="bg-white dark:bg-dark-secondary rounded-2xl shadow-sm border border-gray-100 dark:border-dark-card-border overflow-hidden p-6 sm:p-8">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2.5 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+                <Upload className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              </div>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">رفع ملف البريد الإلكتروني</h2>
             </div>
-          )}
-        </div>
 
-        {/* Processing Status */}
-        {processingStatus === 'processing' && (
-          <div className="card p-6 mb-8">
-            <div className="flex items-center gap-4">
-              <LoadingIndicator />
-              <div>
-                <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary">
+            <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-2xl">
+              يمكنك رفع ملف CSV أو Excel يحتوي على قائمة البريد الإلكتروني. سيقوم النظام بمعالجة الملف والتحقق من صحة كل بريد إلكتروني تلقائياً.
+            </p>
+
+            <div className="border-2 border-dashed border-gray-300 dark:border-dark-card-border rounded-xl p-8 sm:p-12 text-center transition-all hover:border-primary-500 dark:hover:border-primary-500 hover:bg-gray-50 dark:hover:bg-dark-tertiary/50 group">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv,.xlsx,.xls,.txt"
+                onChange={handleFileUpload}
+                className="hidden"
+                id="email-file-upload"
+              />
+              <label
+                htmlFor="email-file-upload"
+                className="cursor-pointer flex flex-col items-center justify-center w-full h-full"
+              >
+                <div className="w-16 h-16 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <FileText className="w-8 h-8 text-gray-400 group-hover:text-primary-500 transition-colors" />
+                </div>
+                <p className="text-lg font-bold text-gray-700 dark:text-gray-200 mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400">
+                  انقر هنا لرفع الملف
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  يدعم ملفات CSV، Excel، و TXT (بحد أقصى 5 ميجابايت)
+                </p>
+              </label>
+            </div>
+
+            <AnimatePresence>
+              {uploadedFile && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-xl flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                      <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-blue-900 dark:text-blue-100">
+                        {uploadedFile.name}
+                      </p>
+                      <p className="text-sm text-blue-700 dark:text-blue-300">
+                        {(uploadedFile.size / 1024).toFixed(2)} KB
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleClear}
+                    className="p-2 hover:bg-blue-200 dark:hover:bg-blue-800/50 rounded-lg text-blue-600 dark:text-blue-400 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </section>
+
+          {/* Processing Status */}
+          <AnimatePresence mode="wait">
+            {processingStatus === 'processing' && (
+              <motion.div
+                key="processing"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="bg-white dark:bg-dark-secondary rounded-2xl shadow-sm p-8 text-center"
+              >
+                <LoadingIndicator />
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mt-4">
                   جاري معالجة الملف...
                 </h3>
-                <p className="text-accent-600 dark:text-dark-text-secondary">
-                  يرجى الانتظار أثناء التحقق من صحة البريد الإلكتروني
+                <p className="text-gray-500 dark:text-gray-400">
+                  نقوم الآن بقراءة الملف والتحقق من صحة عناوين البريد الإلكتروني.
                 </p>
-              </div>
-            </div>
-          </div>
-        )}
+              </motion.div>
+            )}
 
-        {/* Results Section */}
-        {processingStatus === 'completed' && (
-          <div className="space-y-6">
-            {/* Summary Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="card p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-1">إجمالي البريد</p>
-                    <p className="text-2xl font-bold text-accent-900 dark:text-dark-text-primary">
-                      {emails.length}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                      <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              <div className="card p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-1">صحيح</p>
-                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                      {validEmails.length}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              <div className="card p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-1">غير صحيح</p>
-                    <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                      {invalidEmails.length}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              <div className="card p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-accent-600 dark:text-dark-text-secondary mb-1">نسبة الصحة</p>
-                    <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                      {emails.length > 0 ? Math.round((validEmails.length / emails.length) * 100) : 0}%
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="card p-6">
-              <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-4">
-                إجراءات البريد الإلكتروني
-              </h3>
-              <div className="flex flex-wrap gap-4">
-                <button
-                  onClick={() => setShowEmailComposer(true)}
-                  disabled={validEmails.length === 0}
-                  className="btn-primary bg-blue-600 hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  إرسال رسائل ({validEmails.length})
-                </button>
-
-                <button
-                  onClick={handleExportValid}
-                  disabled={validEmails.length === 0}
-                  className="btn-outline text-green-600 border-green-600 hover:bg-green-50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  تصدير البريد الإلكتروني ({validEmails.length})
-                </button>
-
-                <button
-                  onClick={handleClear}
-                  className="btn-outline text-gray-600 border-gray-600 hover:bg-gray-50"
-                >
-                  مسح الكل
-                </button>
-              </div>
-            </div>
-
-            {/* Valid Emails List */}
-            <div className="card p-6">
-              <h3 className="text-lg font-semibold text-green-600 dark:text-green-400 mb-4">
-                البريد الإلكتروني الصحيح ({validEmails.length})
-              </h3>
-              <div className="max-h-96 overflow-y-auto">
-                {validEmails.length > 0 ? (
-                  <div className="space-y-2">
-                    {validEmails.map((email, index) => (
-                      <div key={index} className="flex items-center gap-2 p-2 bg-green-50 dark:bg-green-900/20 rounded">
-                        <svg className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                        <span className="text-sm text-green-800 dark:text-green-200">{email}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-500 dark:text-gray-400 text-center py-8">لا توجد بريد إلكتروني صحيح</p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Instructions */}
-        <div className="card p-6 mt-8">
-          <h3 className="text-lg font-semibold text-accent-500 dark:text-dark-text-primary mb-4">
-            تعليمات الاستخدام
-          </h3>
-          <div className="space-y-3 text-accent-600 dark:text-dark-text-secondary">
-            <div className="flex items-start gap-3">
-              <span className="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-sm font-medium">1</span>
-              <p>ارفع ملف CSV أو Excel يحتوي على البريد الإلكتروني في العمود الأول</p>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-sm font-medium">2</span>
-              <p>سيتم التحقق من صحة كل بريد إلكتروني تلقائياً وإزالة التكرار</p>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-sm font-medium">3</span>
-              <p>يمكنك تصدير البريد الصحيح أو غير الصحيح كملفات منفصلة</p>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-sm font-medium">4</span>
-              <p>يدعم النظام حتى 2000 بريد إلكتروني في المرة الواحدة</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Email Composer Modal */}
-        {showEmailComposer && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-dark-secondary rounded-lg max-w-2xl w-full max-h-[90vh] overflow-hidden">
-              {/* Modal Header */}
-              <div className="px-6 py-4 border-b border-gray-200 dark:border-dark-card-border flex justify-between items-center">
-                <h3 className="text-xl font-semibold text-accent-900 dark:text-dark-text-primary">
-                  إرسال رسائل البريد الإلكتروني
-                </h3>
-                <button
-                  onClick={() => setShowEmailComposer(false)}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-dark-text-secondary"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Modal Content */}
-              <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-                <div className="space-y-6">
-                  {/* Recipients Info */}
-                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-                    <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">المستلمون</h4>
-                    <p className="text-blue-600 dark:text-blue-300">
-                      سيتم إرسال الرسالة إلى <strong>{validEmails.length}</strong> بريد إلكتروني صحيح
-                    </p>
-                  </div>
-
-                  {/* Email Subject */}
-                  <div>
-                    <label htmlFor="email-subject" className="block text-sm font-medium text-accent-700 dark:text-dark-text-primary mb-2">
-                      عنوان الرسالة *
-                    </label>
-                    <input
-                      type="text"
-                      id="email-subject"
-                      value={emailSubject}
-                      onChange={(e) => setEmailSubject(e.target.value)}
-                      placeholder="أدخل عنوان الرسالة..."
-                      className="form-input w-full"
-                      required
-                    />
-                  </div>
-
-                  {/* Email Message */}
-                  <div>
-                    <label htmlFor="email-message" className="block text-sm font-medium text-accent-700 dark:text-dark-text-primary mb-2">
-                      محتوى الرسالة *
-                    </label>
-                    <textarea
-                      id="email-message"
-                      value={emailMessage}
-                      onChange={(e) => setEmailMessage(e.target.value)}
-                      rows={8}
-                      placeholder="أدخل محتوى الرسالة..."
-                      className="form-input w-full resize-none"
-                      required
-                    />
-                    <p className="text-sm text-accent-500 dark:text-dark-text-tertiary mt-2">
-                      يمكنك استخدام HTML في محتوى الرسالة
-                    </p>
-                  </div>
-
-                  {/* Preview */}
-                  {emailSubject && emailMessage && (
+            {processingStatus === 'completed' && (
+              <motion.div
+                key="completed"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="space-y-6"
+              >
+                {/* Stats Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <motion.div
+                    variants={itemVariants}
+                    className="bg-white dark:bg-dark-secondary p-5 rounded-2xl border border-gray-100 dark:border-dark-card-border shadow-sm flex items-center justify-between"
+                  >
                     <div>
-                      <h4 className="font-medium text-accent-700 dark:text-dark-text-primary mb-2">معاينة الرسالة</h4>
-                      <div className="bg-gray-50 dark:bg-dark-tertiary rounded-lg p-4 border">
-                        <div className="font-medium text-gray-700 dark:text-gray-300 mb-2">العنوان: {emailSubject}</div>
-                        <div className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{emailMessage}</div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">إجمالي البريد</p>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{emails.length}</p>
+                    </div>
+                    <div className="w-12 h-12 bg-gray-100 dark:bg-dark-tertiary rounded-xl flex items-center justify-center">
+                      <Mail className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+                    </div>
+                  </motion.div>
+
+                  <motion.div
+                    variants={itemVariants}
+                    className="bg-white dark:bg-dark-secondary p-5 rounded-2xl border border-gray-100 dark:border-dark-card-border shadow-sm flex items-center justify-between"
+                  >
+                    <div>
+                      <p className="text-sm text-green-600 dark:text-green-400 font-medium">بريد صحيح</p>
+                      <p className="text-2xl font-bold text-green-700 dark:text-green-300 mt-1">{validEmails.length}</p>
+                    </div>
+                    <div className="w-12 h-12 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center">
+                      <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+                    </div>
+                  </motion.div>
+
+                  <motion.div
+                    variants={itemVariants}
+                    className="bg-white dark:bg-dark-secondary p-5 rounded-2xl border border-gray-100 dark:border-dark-card-border shadow-sm flex items-center justify-between"
+                  >
+                    <div>
+                      <p className="text-sm text-red-600 dark:text-red-400 font-medium">بريد خاطئ</p>
+                      <p className="text-2xl font-bold text-red-700 dark:text-red-300 mt-1">{invalidEmails.length}</p>
+                    </div>
+                    <div className="w-12 h-12 bg-red-50 dark:bg-red-900/20 rounded-xl flex items-center justify-center">
+                      <XCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
+                    </div>
+                  </motion.div>
+
+                  <motion.div
+                    variants={itemVariants}
+                    className="bg-white dark:bg-dark-secondary p-5 rounded-2xl border border-gray-100 dark:border-dark-card-border shadow-sm flex items-center justify-between"
+                  >
+                    <div>
+                      <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">نسبة الصحة</p>
+                      <p className="text-2xl font-bold text-purple-700 dark:text-purple-300 mt-1">
+                        {emails.length > 0 ? Math.round((validEmails.length / emails.length) * 100) : 0}%
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 bg-purple-50 dark:bg-purple-900/20 rounded-xl flex items-center justify-center">
+                      <AlertCircle className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                    </div>
+                  </motion.div>
+                </div>
+
+                {/* Actions & List */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Actions Panel */}
+                  <motion.div variants={itemVariants} className="bg-white dark:bg-dark-secondary rounded-2xl shadow-sm border border-gray-100 dark:border-dark-card-border p-6 h-fit">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">إجراءات سريعة</h3>
+                    <div className="space-y-3">
+                      <button
+                        onClick={() => setShowEmailComposer(true)}
+                        disabled={validEmails.length === 0}
+                        className="w-full btn-primary py-3 flex items-center justify-center gap-2 group disabled:opacity-50"
+                      >
+                        <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform rtl:group-hover:-translate-x-1" />
+                        <span>إرسال رسائل جماعية</span>
+                      </button>
+
+                      <button
+                        onClick={handleExportValid}
+                        disabled={validEmails.length === 0}
+                        className="w-full py-3 px-4 rounded-xl border border-gray-200 dark:border-dark-card-border text-gray-700 dark:text-gray-200 font-medium hover:bg-gray-50 dark:hover:bg-dark-tertiary flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                      >
+                        <Download className="w-5 h-5 text-green-600 dark:text-green-400" />
+                        <span>تصدير القائمة الصحيحة</span>
+                      </button>
+
+                      <button
+                        onClick={handleClear}
+                        className="w-full py-3 px-4 rounded-xl border border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400 font-medium hover:bg-red-50 dark:hover:bg-red-900/10 flex items-center justify-center gap-2 transition-all"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                        <span>مسح وبدء من جديد</span>
+                      </button>
+                    </div>
+                  </motion.div>
+
+                  {/* Valid Emails List */}
+                  <div className="lg:col-span-2 bg-white dark:bg-dark-secondary rounded-2xl shadow-sm border border-gray-100 dark:border-dark-card-border p-6">
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                        البريد الإلكتروني الصحيح
+                      </h3>
+                      <span className="text-sm px-3 py-1 bg-gray-100 dark:bg-dark-tertiary rounded-full text-gray-600 dark:text-gray-400 font-medium">
+                        {validEmails.length} مستلم
+                      </span>
+                    </div>
+
+                    <div className="max-h-[400px] overflow-y-auto pr-2 custom-scrollbar space-y-2">
+                      {validEmails.length > 0 ? (
+                        validEmails.map((email, index) => (
+                          <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-dark-tertiary/50 rounded-xl border border-transparent hover:border-gray-200 dark:hover:border-dark-card-border transition-all">
+                            <div className="w-8 h-8 rounded-full bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border flex items-center justify-center text-xs font-bold text-primary-600">
+                              {index + 1}
+                            </div>
+                            <span className="text-gray-700 dark:text-gray-300 font-mono text-sm">{email}</span>
+                            <div className="mr-auto">
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-12 flex flex-col items-center">
+                          <div className="w-16 h-16 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center mb-4">
+                            <Mail className="w-8 h-8 text-gray-400" />
+                          </div>
+                          <p className="text-gray-500 dark:text-gray-400 font-medium">لا توجد بريد إلكتروني في القائمة</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Instructions */}
+          <motion.div
+            variants={itemVariants}
+            className="bg-blue-50/50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/20 p-6"
+          >
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-blue-600" />
+              تعليمات هامة
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-300">
+              <div className="flex items-start gap-3">
+                <span className="w-6 h-6 bg-white dark:bg-dark-secondary text-blue-600 rounded-full flex items-center justify-center font-bold shadow-sm text-xs mt-0.5">1</span>
+                <p>تأكد من أن ملف CSV أو Excel يحتوي على عمود واحد فقط للبريد الإلكتروني.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="w-6 h-6 bg-white dark:bg-dark-secondary text-blue-600 rounded-full flex items-center justify-center font-bold shadow-sm text-xs mt-0.5">2</span>
+                <p>يقوم النظام تلقائياً بإزالة التكرار والتحقق من تنسيق البريد.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="w-6 h-6 bg-white dark:bg-dark-secondary text-blue-600 rounded-full flex items-center justify-center font-bold shadow-sm text-xs mt-0.5">3</span>
+                <p>يمكنك إرسال رسائل لـ 2000 مستلم بحد أقصى في الدفعة الواحدة.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="w-6 h-6 bg-white dark:bg-dark-secondary text-blue-600 rounded-full flex items-center justify-center font-bold shadow-sm text-xs mt-0.5">4</span>
+                <p>استخدم هذا النظام بحذر لتجنب تصنيف رسائلك كبريد عشوائي (Spam).</p>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+
+        {/* Improved Email Composer Modal */}
+        <AnimatePresence>
+          {showEmailComposer && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4"
+            >
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                className="bg-white dark:bg-dark-secondary rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col"
+              >
+                {/* Modal Header */}
+                <div className="px-6 py-5 border-b border-gray-100 dark:border-dark-card-border flex justify-between items-center bg-gray-50/50 dark:bg-dark-tertiary/20">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-primary-100 dark:bg-primary-900/30 rounded-lg text-primary-600 dark:text-primary-400">
+                      <Send className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white">إرسال رسالة جماعية</h3>
+                      <p className="text-sm text-gray-500">سيتم الإرسال إلى {validEmails.length} مستلم</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowEmailComposer(false)}
+                    className="p-2 hover:bg-gray-200 dark:hover:bg-dark-tertiary rounded-full transition-colors text-gray-500"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+
+                {/* Modal Content */}
+                <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
+                  <div className="space-y-6">
+                    <div>
+                      <label htmlFor="email-subject" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                        عنوان الرسالة <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="email-subject"
+                        value={emailSubject}
+                        onChange={(e) => setEmailSubject(e.target.value)}
+                        placeholder="مثال: تحديثات هامة بخصوص حسابك"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-dark-card-border bg-white dark:bg-dark-tertiary focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all outline-none"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="email-message" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                        محتوى الرسالة <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <textarea
+                          id="email-message"
+                          value={emailMessage}
+                          onChange={(e) => setEmailMessage(e.target.value)}
+                          rows={8}
+                          placeholder="اكتب رسالتك هنا..."
+                          className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-dark-card-border bg-white dark:bg-dark-tertiary focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all outline-none resize-none font-sans"
+                          required
+                        />
+                        <div className="absolute bottom-3 left-3 text-xs text-gray-400">
+                          يدعم HTML
+                        </div>
                       </div>
                     </div>
-                  )}
-                </div>
-              </div>
 
-              {/* Modal Footer */}
-              <div className="px-6 py-4 border-t border-gray-200 dark:border-dark-card-border flex justify-end gap-3">
-                <button
-                  onClick={() => setShowEmailComposer(false)}
-                  className="btn-outline"
-                  disabled={sendingEmails}
-                >
-                  إلغاء
-                </button>
-                <button
-                  onClick={handleSendEmails}
-                  disabled={sendingEmails || !emailSubject.trim() || !emailMessage.trim()}
-                  className="btn-primary bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                >
-                  {sendingEmails ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      جاري الإرسال...
-                    </>
-                  ) : (
-                    <>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                      </svg>
-                      إرسال الرسائل ({validEmails.length})
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+                    {/* Simple Preview Box */}
+                    {emailSubject && emailMessage && (
+                      <div className="bg-gray-50 dark:bg-dark-tertiary/30 rounded-xl p-4 border border-gray-100 dark:border-dark-card-border/50">
+                        <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">معاينة سريعة</h4>
+                        <div className="bg-white dark:bg-dark-secondary p-4 rounded-lg shadow-sm border border-gray-100 dark:border-dark-card-border">
+                          <h2 className="font-bold text-lg text-gray-900 dark:text-white mb-2">{emailSubject}</h2>
+                          <div className="prose dark:prose-invert max-w-none text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
+                            {emailMessage}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Modal Footer */}
+                <div className="px-6 py-4 border-t border-gray-100 dark:border-dark-card-border bg-gray-50/50 dark:bg-dark-tertiary/20 flex justify-end gap-3 z-20">
+                  <button
+                    onClick={() => setShowEmailComposer(false)}
+                    className="px-6 py-2.5 rounded-xl border border-gray-300 dark:border-dark-card-border text-gray-700 dark:text-gray-200 font-medium hover:bg-gray-100 dark:hover:bg-dark-tertiary transition-colors"
+                    disabled={sendingEmails}
+                  >
+                    إلغاء
+                  </button>
+                  <button
+                    onClick={handleSendEmails}
+                    disabled={sendingEmails || !emailSubject.trim() || !emailMessage.trim()}
+                    className="px-6 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold flex items-center gap-2 shadow-lg shadow-primary-600/20 disabled:opacity-70 disabled:cursor-not-allowed transition-all active:scale-95"
+                  >
+                    {sendingEmails ? (
+                      <>
+                        <LoadingIndicator size="sm" color="white" />
+                        <span>جاري الإرسال...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 rtl:-rotate-90" />
+                        <span>إرسال الآن</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

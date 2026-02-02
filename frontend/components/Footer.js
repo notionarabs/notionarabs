@@ -6,9 +6,9 @@ export default function Footer() {
   return (
     <footer className="bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary transition-colors duration-300">
       <div className="container-custom py-12 sm:py-16 md:py-20 lg:py-24">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 sm:gap-10 mb-8 sm:mb-10 md:mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-[1.5fr_1fr_1fr_1fr] gap-8 sm:gap-10 lg:gap-12 mb-8 sm:mb-10 md:mb-12">
           {/* Brand Section */}
-          <div className="md:col-span-1">
+          <div>
             <div className="flex items-center mb-4 sm:mb-6">
               <Image
                 src="/NavLogoLight.svg"
@@ -46,7 +46,7 @@ export default function Footer() {
 
 
           {/* Company Section */}
-          <div className="md:col-span-1">
+          <div>
             <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">الشركة</h4>
             <ul className="space-y-2 sm:space-y-3">
               <li><Link href="/about" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">من نحن</Link></li>
@@ -57,7 +57,7 @@ export default function Footer() {
           </div>
 
           {/* Product Section */}
-          <div className="md:col-span-1">
+          <div>
             <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">المتجر</h4>
             <ul className="space-y-2 sm:space-y-3">
               <li><Link href="/store" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المتجر</Link></li>
@@ -69,7 +69,7 @@ export default function Footer() {
 
 
           {/* Support Section */}
-          <div className="md:col-span-1">
+          <div>
             <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">الدعم</h4>
             <ul className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
               <li><Link href="/contact" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">اتصل بنا</Link></li>

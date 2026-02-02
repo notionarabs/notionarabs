@@ -131,75 +131,102 @@ function StorePageContent() {
       <section className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300 py-12 sm:py-16 md:py-20 lg:py-24">
         <div className="container-custom">
           <div className="text-center mb-8 sm:mb-10 md:mb-12">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-accent-500 dark:text-dark-text-primary mb-4 sm:mb-6">متجر عرب نوشن</h1>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-accent-900 dark:text-white mb-4 sm:mb-6">متجر عرب نوشن</h1>
             <p className="text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary max-w-xs sm:max-w-2xl md:max-w-3xl mx-auto px-4 sm:px-0">
               تصفّح القوالب الأكثر تميزًا، وتعرّف على أبرز المبدعين، وابدأ مشاركة أعمالك مع المجتمع.
             </p>
           </div>
-          <div className="mt-6 sm:mt-8 md:mt-10 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
-            <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '0ms' }}>
-              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-500 dark:text-orange-500 mb-1 sm:mb-2 min-h-[2.25rem] sm:min-h-[2.75rem] md:min-h-[3rem]">
-                {loadingStats ? (
-                  <div className="mx-auto h-7 sm:h-8 md:h-10 w-16 sm:w-20 md:w-24 rounded-full bg-white/40 dark:bg-dark-tertiary/40 animate-pulse" aria-label="جارٍ التحميل"></div>
-                ) : (
-                  <Counter
-                    end={stats.templates}
-                    duration={800}
-                    delay={0}
-                    separator=","
-                    startImmediately={true}
-                  />
-                )}
+          <div className="mt-8 sm:mt-10 md:mt-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+            {/* Stats Card 1: Templates - Bento Style */}
+            <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-dark-tertiary border border-gray-100 dark:border-dark-card-border shadow-sm hover:shadow-md transition-shadow duration-300 p-6 flex flex-col justify-between min-h-[140px]">
+              <div className="absolute -left-6 -bottom-6 text-gray-50 dark:text-white/5 transform -rotate-12 pointer-events-none transition-transform duration-500 group-hover:scale-110">
+                <LayoutDashboard size={120} strokeWidth={1.5} />
               </div>
-              <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">قالب متاح</div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-3 text-primary-600 dark:text-primary-400 font-bold text-sm uppercase tracking-wider">
+                  <LayoutDashboard size={18} />
+                  <span>القوالب</span>
+                </div>
+                <div className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-1">
+                  {loadingStats ? (
+                    <div className="h-9 w-24 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
+                  ) : (
+                    <Counter end={stats.templates} duration={1000} separator="," />
+                  )}
+                </div>
+              </div>
+              <div className="relative z-10 text-xs font-medium text-gray-500 dark:text-gray-400 mt-2">
+                قالب احترافي جاهز للاستخدام
+              </div>
             </div>
-            <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '100ms' }}>
-              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2 min-h-[2.25rem] sm:min-h-[2.75rem] md:min-h-[3rem]">
-                {loadingStats ? (
-                  <div className="mx-auto h-7 sm:h-8 md:h-10 w-16 sm:w-20 md:w-24 rounded-full bg-white/40 dark:bg-dark-tertiary/40 animate-pulse" aria-label="جارٍ التحميل"></div>
-                ) : (
-                  <Counter
-                    end={stats.creators}
-                    duration={800}
-                    delay={0}
-                    separator=","
-                    startImmediately={true}
-                  />
-                )}
+
+            {/* Stats Card 2: Creators - Bento Style */}
+            <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-dark-tertiary border border-gray-100 dark:border-dark-card-border shadow-sm hover:shadow-md transition-shadow duration-300 p-6 flex flex-col justify-between min-h-[140px]">
+              <div className="absolute -left-6 -bottom-6 text-gray-50 dark:text-white/5 transform -rotate-12 pointer-events-none transition-transform duration-500 group-hover:scale-110">
+                <Crown size={120} strokeWidth={1.5} />
               </div>
-              <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">مبدع فعّال</div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-3 text-accent-600 dark:text-accent-400 font-bold text-sm uppercase tracking-wider">
+                  <Crown size={18} />
+                  <span>المبدعون</span>
+                </div>
+                <div className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-1">
+                  {loadingStats ? (
+                    <div className="h-9 w-24 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
+                  ) : (
+                    <Counter end={stats.creators} duration={1000} separator="," />
+                  )}
+                </div>
+              </div>
+              <div className="relative z-10 text-xs font-medium text-gray-500 dark:text-gray-400 mt-2">
+                مبدع يشاركونك الشغف
+              </div>
             </div>
-            <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '200ms' }}>
-              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2 min-h-[2.25rem] sm:min-h-[2.75rem] md:min-h-[3rem]">
-                {loadingStats ? (
-                  <div className="mx-auto h-7 sm:h-8 md:h-10 w-16 sm:w-20 md:w-24 rounded-full bg-white/40 dark:bg-dark-tertiary/40 animate-pulse" aria-label="جارٍ التحميل"></div>
-                ) : (
-                  <Counter
-                    end={stats.downloads}
-                    duration={800}
-                    delay={0}
-                    separator=","
-                    startImmediately={true}
-                  />
-                )}
+
+            {/* Stats Card 3: Downloads - Bento Style */}
+            <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-dark-tertiary border border-gray-100 dark:border-dark-card-border shadow-sm hover:shadow-md transition-shadow duration-300 p-6 flex flex-col justify-between min-h-[140px]">
+              <div className="absolute -left-6 -bottom-6 text-gray-50 dark:text-white/5 transform -rotate-12 pointer-events-none transition-transform duration-500 group-hover:scale-110">
+                <Zap size={120} strokeWidth={1.5} />
               </div>
-              <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">تحميلات</div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-3 text-green-600 dark:text-green-400 font-bold text-sm uppercase tracking-wider">
+                  <Zap size={18} />
+                  <span>التحميلات</span>
+                </div>
+                <div className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-1">
+                  {loadingStats ? (
+                    <div className="h-9 w-24 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
+                  ) : (
+                    <Counter end={stats.downloads} duration={1000} separator="," />
+                  )}
+                </div>
+              </div>
+              <div className="relative z-10 text-xs font-medium text-gray-500 dark:text-gray-400 mt-2">
+                عملية تحميل ناجحة
+              </div>
             </div>
-            <div className="text-center p-4 rounded-xl bg-white/10 dark:bg-dark-tertiary/20 backdrop-blur-sm shadow-lg border border-white/20 dark:border-dark-card-border/30 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]" style={{ animationDelay: '300ms' }}>
-              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-1 sm:mb-2 min-h-[2.25rem] sm:min-h-[2.75rem] md:min-h-[3rem]">
-                {loadingStats ? (
-                  <div className="mx-auto h-7 sm:h-8 md:h-10 w-16 sm:w-20 md:w-24 rounded-full bg-white/40 dark:bg-dark-tertiary/40 animate-pulse" aria-label="جارٍ التحميل"></div>
-                ) : (
-                  <Counter
-                    end={stats.specialties}
-                    duration={800}
-                    delay={0}
-                    separator=","
-                    startImmediately={true}
-                  />
-                )}
+
+            {/* Stats Card 4: Specialties - Bento Style */}
+            <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-dark-tertiary border border-gray-100 dark:border-dark-card-border shadow-sm hover:shadow-md transition-shadow duration-300 p-6 flex flex-col justify-between min-h-[140px]">
+              <div className="absolute -left-6 -bottom-6 text-gray-50 dark:text-white/5 transform -rotate-12 pointer-events-none transition-transform duration-500 group-hover:scale-110">
+                <Star size={120} strokeWidth={1.5} />
               </div>
-              <div className="text-xs sm:text-sm font-medium text-accent-600 dark:text-dark-text-primary">مجال متخصص</div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-3 text-purple-600 dark:text-purple-400 font-bold text-sm uppercase tracking-wider">
+                  <Star size={18} />
+                  <span>التخصصات</span>
+                </div>
+                <div className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-1">
+                  {loadingStats ? (
+                    <div className="h-9 w-24 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
+                  ) : (
+                    <Counter end={stats.specialties} duration={1000} separator="," />
+                  )}
+                </div>
+              </div>
+              <div className="relative z-10 text-xs font-medium text-gray-500 dark:text-gray-400 mt-2">
+                مجال وتصنيف متنوع
+              </div>
             </div>
           </div>
         </div>
@@ -210,7 +237,7 @@ function StorePageContent() {
         <div className="container-custom">
           <div className="mb-6 sm:mb-8 md:mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between relative z-10 pointer-events-auto">
             <div className="mb-4 sm:mb-0">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-2">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-accent-900 dark:text-white mb-2">
                 القوالب المميزة
               </h2>
               <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary">
@@ -259,9 +286,9 @@ function StorePageContent() {
           ) : limitedTemplates.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]">
               {limitedTemplates.map((template, index) => (
-                <Link key={template._id} href={`/templates/${template.slug || template._id}`}>
+                <Link key={template._id} href={`/templates/${template.slug || template._id}`} className="block h-full">
                   <div
-                    className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards]"
+                    className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards] h-full flex flex-col"
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
                     {/* Template Image */}
@@ -313,10 +340,15 @@ function StorePageContent() {
                     </div>
 
                     {/* Template Info */}
-                    <div className="p-4 sm:p-6 relative">
-                      <h3 className="font-semibold text-sm sm:text-base text-accent-900 dark:text-dark-text-primary mb-3 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-1">
+                    <div className="p-4 sm:p-6 relative flex-1 flex flex-col">
+                      <h3 className="font-semibold text-sm sm:text-base text-accent-900 dark:text-dark-text-primary mb-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-1">
                         {template.title}
                       </h3>
+
+                      {/* Short Description */}
+                      <p className="text-xs text-accent-600 dark:text-dark-text-secondary mb-3 line-clamp-2 min-h-[2rem]">
+                        {template.description || 'وصف مختصر للقالب غير متوفر حالياً.'}
+                      </p>
 
                       {/* Rating */}
                       <div className="mb-3">
@@ -326,13 +358,13 @@ function StorePageContent() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           {template.creator?.profilePicture ? (
-                          <Image
+                            <Image
                               src={template.creator.profilePicture}
                               alt={template.creator?.name || 'مبدع'}
                               width={20}
                               height={20}
                               className="w-5 h-5 rounded-full object-cover"
-                            sizes="20px"
+                              sizes="20px"
                             />
                           ) : (
                             <div className="w-5 h-5 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
@@ -385,7 +417,7 @@ function StorePageContent() {
         <div className="container-custom">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 sm:mb-10 md:mb-12">
             <div className="mb-4 sm:mb-0">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-2 sm:mb-4">المبدعون المميزون</h2>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-accent-900 dark:text-white mb-2 sm:mb-4">المبدعون المميزون</h2>
               <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary">تعرّف على أبرز المبدعين في مجتمعنا</p>
             </div>
             <Link

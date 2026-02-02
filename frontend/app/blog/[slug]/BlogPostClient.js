@@ -22,7 +22,7 @@ const RatingCommentSystem = dynamic(() => import('../../../components/RatingComm
     )
 });
 import { BlogPostSchema, BreadcrumbSchema } from '../../../components/StructuredData';
-import Breadcrumb from '../../../components/Breadcrumb';
+import Breadcrumb, { BreadcrumbWrapper } from '../../../components/Breadcrumb';
 import { siteConfig } from '../../../lib/seo';
 import { getApiBaseUrl } from '../../../lib/apiConfig';
 
@@ -490,31 +490,15 @@ export default function BlogPostClient({ initialBlog, initialRelatedBlogs }) {
 
                 {/* Visible Breadcrumb Navigation */}
                 {blog && (
-                    <section className="bg-white dark:bg-dark-secondary transition-colors duration-300 border-b border-gray-200 dark:border-dark-card-border">
-                        <div className="container-custom py-3">
-                            <Breadcrumb
-                                items={[
-                                    { name: 'المدونة', url: '/blog' },
-                                    { name: blog.title, url: `/blog/${blog.slug}` }
-                                ]}
-                            />
-                        </div>
-                    </section>
+                    <BreadcrumbWrapper
+                        items={[
+                            { name: 'المدونة', url: '/blog' },
+                            { name: blog.title, url: `/blog/${blog.slug}` }
+                        ]}
+                    />
                 )}
 
                 <div className="container-custom py-8">
-                    {/* Back Button */}
-                    <div className="mb-6">
-                        <button
-                            onClick={() => router.back()}
-                            className="flex items-center gap-2 text-accent-600 dark:text-dark-text-secondary hover:text-accent-800 dark:hover:text-dark-text-primary transition-colors"
-                        >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                            </svg>
-                            العودة
-                        </button>
-                    </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Main Content */}

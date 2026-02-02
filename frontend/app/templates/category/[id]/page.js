@@ -192,8 +192,8 @@ function CategoryTemplatesContent() {
           ) : paginatedTemplates.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {paginatedTemplates.map((template) => (
-                <Link key={template._id} href={`/templates/${template.slug || template._id}`}>
-                  <div className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
+                <Link key={template._id} href={`/templates/${template.slug || template._id}`} className="block h-full">
+                  <div className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer h-full flex flex-col">
                     {/* Template Image */}
                     <div className="relative overflow-hidden rounded-lg h-40 sm:h-44 md:h-48 lg:h-52">
                       {template.previewImage ? (
@@ -212,10 +212,15 @@ function CategoryTemplatesContent() {
                     </div>
 
                     {/* Template Info */}
-                    <div className="p-3 sm:p-4 md:p-5 lg:p-6 relative">
-                      <h3 className="font-semibold text-sm sm:text-base md:text-lg text-accent-900 dark:text-dark-text-primary mb-2 sm:mb-3 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-2">
+                    <div className="p-3 sm:p-4 md:p-5 lg:p-6 relative flex-1 flex flex-col">
+                      <h3 className="font-semibold text-sm sm:text-base md:text-lg text-accent-900 dark:text-dark-text-primary mb-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-1">
                         {template.title}
                       </h3>
+
+                      {/* Short Description */}
+                      <p className="text-xs text-accent-600 dark:text-dark-text-secondary mb-3 line-clamp-2 min-h-[2rem]">
+                        {template.description || 'وصف مختصر للقالب غير متوفر حالياً.'}
+                      </p>
 
                       {/* Rating */}
                       <div className="mb-2 sm:mb-3">

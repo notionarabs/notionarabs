@@ -277,11 +277,22 @@ export default function BlogPage() {
       setLoading(true);
       setError(null);
 
+      let backendSortBy = 'publishedAt';
+      let backendSortOrder = 'desc';
+
+      if (sortBy === 'oldest') {
+        backendSortBy = 'publishedAt';
+        backendSortOrder = 'asc';
+      } else if (sortBy === 'views') {
+        backendSortBy = 'views';
+        backendSortOrder = 'desc';
+      }
+
       const params = new URLSearchParams({
         page: pagination.current.toString(),
         limit: pagination.limit.toString(),
-        sortBy,
-        sortOrder: 'desc'
+        sortBy: backendSortBy,
+        sortOrder: backendSortOrder
       });
 
       // Add search parameter if there's a search term
@@ -370,7 +381,7 @@ export default function BlogPage() {
       {/* Page Header */}
       <section className="relative bg-gradient-to-br from-primary-500 to-primary-700 dark:from-dark-secondary dark:to-dark-tertiary text-white py-12 sm:py-16 md:py-20 lg:py-24 overflow-hidden">
         <div className="container-custom text-center relative z-10 px-4 sm:px-6">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3 sm:mb-4">مدونة عرب نوشن</h1>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-4 sm:mb-6">مدونة عرب نوشن</h1>
           <p className="text-base sm:text-lg md:text-xl text-primary-100 dark:text-dark-text-secondary max-w-2xl mx-auto mb-6 sm:mb-8 px-4">
             اكتشف أحدث النصائح والحيل لاستخدام نوشن بكفاءة أكبر. مقالات متخصصة للمبدعين العرب.
           </p>
@@ -641,7 +652,7 @@ export default function BlogPage() {
         <section className="py-6 sm:py-8 md:py-12 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
           <div className="container-custom px-4 sm:px-6">
             <div className="mb-6 sm:mb-8">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">المقال المميز</h2>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-3 sm:mb-4">المقال المميز</h2>
             </div>
 
             <div className="card-interactive overflow-hidden max-w-4xl mx-auto">

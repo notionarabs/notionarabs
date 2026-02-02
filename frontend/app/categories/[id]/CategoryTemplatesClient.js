@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
@@ -13,18 +13,21 @@ const sortOptions = [
   { name: "الأعلى تقييماً", value: "rating" }
 ];
 
-export default function CategoryTemplatesClient({ 
-  categorySlug, 
-  categoryName, 
-  initialTemplates = [], 
+export default function CategoryTemplatesClient({
+  categorySlug,
+  categoryName,
+  initialTemplates = [],
   initialPagination = { current: 1, pages: 1, total: 0, limit: 12 }
 }) {
   const [sortBy, setSortBy] = useState('createdAt');
+  const [isSortOpen, setIsSortOpen] = useState(false);
   const [templates, setTemplates] = useState(initialTemplates);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [pagination, setPagination] = useState(initialPagination);
   const [currentPage, setCurrentPage] = useState(initialPagination.current || 1);
+  const sortButtonRef = useRef(null);
+  const sortMenuRef = useRef(null);
 
   // Fetch templates for this category
   const fetchTemplates = async (pageToFetch) => {
@@ -75,6 +78,37 @@ export default function CategoryTemplatesClient({
     setCurrentPage(1);
   }, [sortBy, categoryName]);
 
+  // Handle outside click to close dropdown
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (!isSortOpen) {
+        return;
+      }
+      if (
+        sortButtonRef.current?.contains(event.target) ||
+        sortMenuRef.current?.contains(event.target)
+      ) {
+        return;
+      }
+      setIsSortOpen(false);
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [isSortOpen]);
+
+  // Handle Escape key to close dropdown
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setIsSortOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -88,28 +122,63 @@ export default function CategoryTemplatesClient({
           {/* Sort Filter */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <div className="flex-1">
-              <label htmlFor="sort-filter" className="block text-xs sm:text-sm font-medium text-accent-700 dark:text-dark-text-primary mb-1.5 sm:mb-2">
-                الترتيب
-              </label>
-              <select
-                id="sort-filter"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 text-sm sm:text-base w-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-ms-expand]:opacity-0 [&::-webkit-calendar-picker-indicator]:text-accent-400 [&::-ms-expand]:text-accent-400 dark:[&::-webkit-calendar-picker-indicator]:text-dark-text-tertiary dark:[&::-ms-expand]:text-dark-text-tertiary"
-                style={{
-                  backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-                  backgroundPosition: 'right 0.5rem center',
-                  backgroundRepeat: 'no-repeat',
-                  backgroundSize: '1.5em 1.5em',
-                  paddingRight: '2.5rem'
-                }}
-              >
-                {sortOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.name}
-                  </option>
-                ))}
-              </select>
+              <label className="sr-only">الترتيب</label>
+              <div className="relative">
+                <button
+                  ref={sortButtonRef}
+                  type="button"
+                  onClick={() => setIsSortOpen((prev) => !prev)}
+                  aria-haspopup="listbox"
+                  aria-expanded={isSortOpen}
+                  className="form-input flex items-center justify-between text-sm sm:text-base text-accent-900 dark:text-dark-text-primary shadow-sm hover:border-primary-300 dark:hover:border-primary-500/60 w-full"
+                >
+                  <span>
+                    {sortOptions.find((option) => option.value === sortBy)?.name || sortOptions[0].name}
+                  </span>
+                  <span className={`text-accent-400 dark:text-dark-text-tertiary transition-transform ${isSortOpen ? 'rotate-180' : ''}`}>
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </span>
+                </button>
+
+                {isSortOpen && (
+                  <div
+                    ref={sortMenuRef}
+                    role="listbox"
+                    className="absolute z-20 mt-2 w-full rounded-xl border border-gray-200 dark:border-dark-card-border bg-white dark:bg-dark-secondary shadow-lg overflow-hidden"
+                  >
+                    {sortOptions.map((option) => {
+                      const isActive = option.value === sortBy;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          role="option"
+                          aria-selected={isActive}
+                          onClick={() => {
+                            setSortBy(option.value);
+                            setIsSortOpen(false);
+                          }}
+                          className={`w-full text-right px-4 py-2.5 text-sm sm:text-base transition-colors flex items-center justify-between ${isActive
+                            ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300'
+                            : 'text-accent-700 dark:text-dark-text-secondary hover:bg-accent-50 dark:hover:bg-dark-tertiary'
+                            }`}
+                        >
+                          <span>{option.name}</span>
+                          {isActive && (
+                            <span className="text-primary-600 dark:text-primary-400">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -167,7 +236,7 @@ export default function CategoryTemplatesClient({
           ) : templates.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 opacity-0 animate-[fadeIn_0.6s_ease-in-out_forwards]">
               {templates.map((template, index) => (
-                <Link key={template._id} href={`/templates/${template.slug || template._id}`}>
+                <Link key={template._id} href={`/templates/${template.slug || template._id}`} className="block h-full">
                   <div
                     className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards] flex flex-col h-full"
                     style={{ animationDelay: `${index * 50}ms` }}
@@ -217,9 +286,14 @@ export default function CategoryTemplatesClient({
 
                     {/* Template Info */}
                     <div className="p-3 sm:p-4 md:p-5 lg:p-6 relative flex-1 flex flex-col">
-                      <h3 className="font-semibold text-sm sm:text-base md:text-lg text-accent-900 dark:text-dark-text-primary mb-2 sm:mb-3 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-2">
+                      <h3 className="font-semibold text-sm sm:text-base md:text-lg text-accent-900 dark:text-dark-text-primary mb-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-1">
                         {template.title}
                       </h3>
+
+                      {/* Short Description */}
+                      <p className="text-xs text-accent-600 dark:text-dark-text-secondary mb-3 line-clamp-2 min-h-[2rem]">
+                        {template.description || 'وصف مختصر للقالب غير متوفر حالياً.'}
+                      </p>
 
                       {/* Rating */}
                       <div className="mb-2 sm:mb-3">

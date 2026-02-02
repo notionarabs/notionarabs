@@ -270,7 +270,7 @@ const nextConfig = {
   webpack: (config, { dev, isServer }) => {
     // Note: Next.js handles devtool automatically in development mode
     // Manually setting it causes performance regressions
-    
+
     // Optimize bundle splitting for better code splitting and tree shaking
     if (!dev && !isServer) {
       // Enable tree shaking and minification
@@ -278,10 +278,10 @@ const nextConfig = {
       config.optimization.sideEffects = false;
       config.optimization.providedExports = true;
       config.optimization.concatenateModules = true;
-      
+
       // Enable CSS minification
       config.optimization.minimize = true;
-      
+
       config.optimization.splitChunks = {
         chunks: 'all',
         minSize: 20000,
@@ -342,7 +342,7 @@ const nextConfig = {
           },
         },
       };
-      
+
       // Enable modern JavaScript output (ES2020+)
       config.output.environment = {
         ...config.output.environment,
@@ -354,10 +354,10 @@ const nextConfig = {
         forOf: true,
         module: true,
       };
-      
+
       // Set target to modern browsers to avoid legacy JS
       config.target = ['web', 'es2020'];
-      
+
       // Optimize module resolution for better tree shaking
       config.resolve.mainFields = ['module', 'main'];
     }

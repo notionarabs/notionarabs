@@ -172,10 +172,10 @@ export default function CategoriesPage() {
       <div className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-accent-900 dark:text-white mb-4 sm:mb-6">
               جميع التصنيفات
             </h1>
-            <p className="text-lg sm:text-xl text-accent-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary max-w-xs sm:max-w-2xl md:max-w-3xl mx-auto px-4 sm:px-0">
               اكتشف جميع التصنيفات المتاحة لإنشاء قوالب نوشن مخصصة. اختر التصنيف المناسب لاحتياجاتك
             </p>
           </div>
@@ -185,17 +185,17 @@ export default function CategoriesPage() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search Bar */}
-        <div className="mb-8">
+        <div className="mb-8 sm:mb-10 md:mb-12">
           <div className="relative max-w-2xl mx-auto">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
+            <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-accent-400 dark:text-dark-text-tertiary" />
             </div>
             <input
               type="text"
               placeholder="ابحث عن التصنيف..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white dark:bg-dark-tertiary border border-gray-200 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-accent-500 dark:focus:ring-orange-400 focus:border-transparent transition-colors duration-200 text-accent-700 dark:text-dark-text-primary placeholder-accent-400 dark:placeholder-gray-400"
+              className="w-full pr-12 pl-4 py-3 sm:py-4 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-xl shadow-sm hover:shadow-md focus:shadow-lg focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400 transition-all duration-200 text-sm sm:text-base text-accent-900 dark:text-dark-text-primary placeholder-accent-400 dark:placeholder-dark-text-tertiary"
             />
           </div>
         </div>
@@ -237,29 +237,29 @@ export default function CategoriesPage() {
                 href={`/categories/${getCategorySlug(category.name)}`}
                 className="group"
               >
-                <div className="bg-white dark:bg-dark-tertiary rounded-xl p-4 shadow-sm border border-gray-200 dark:border-dark-card-border hover:shadow-md hover:border-accent-300 dark:hover:border-orange-500/50 transition-all duration-300 h-full flex flex-col">
+                <div className="bg-white dark:bg-dark-secondary rounded-xl p-5 sm:p-6 shadow-sm border border-gray-200 dark:border-dark-card-border hover:shadow-xl hover:border-primary-300 dark:hover:border-primary-500/50 hover:-translate-y-1 transition-all duration-300 h-full flex flex-col">
                   {/* Icon */}
-                  <div className="flex justify-center mb-3">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br ${category.bg} backdrop-blur-sm border border-white/20 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}>
-                      <category.icon className="w-6 h-6 text-white drop-shadow-sm group-hover:scale-110 transition-transform duration-300" />
+                  <div className="flex justify-center mb-4">
+                    <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br ${category.bg} backdrop-blur-sm border border-white/20 shadow-lg group-hover:shadow-2xl group-hover:scale-110 transition-all duration-300`}>
+                      <category.icon className="w-7 h-7 sm:w-8 sm:h-8 text-white drop-shadow-md group-hover:scale-110 transition-transform duration-300" />
                     </div>
                   </div>
 
                   {/* Category Name */}
-                  <h3 className="font-bold text-sm sm:text-base text-accent-500 dark:text-orange-400 text-center mb-2 group-hover:text-accent-600 dark:group-hover:text-orange-300 transition-colors">
+                  <h3 className="font-bold text-base sm:text-lg text-accent-900 dark:text-dark-text-primary text-center mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                     {category.name}
                   </h3>
 
                   {/* Description */}
-                  <p className="text-xs text-accent-600 dark:text-gray-300 text-center leading-relaxed flex-1">
+                  <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary text-center leading-relaxed flex-1 mb-3">
                     {category.description}
                   </p>
 
                   {/* View Templates Button */}
-                  <div className="mt-3 pt-3 border-t border-gray-100 dark:border-dark-card-border">
-                    <div className="flex items-center justify-center text-accent-500 dark:text-orange-400 text-xs font-medium group-hover:text-accent-600 dark:group-hover:text-orange-300 transition-colors">
+                  <div className="mt-auto pt-3 border-t border-gray-100 dark:border-dark-card-border">
+                    <div className="flex items-center justify-center text-primary-600 dark:text-primary-400 text-xs sm:text-sm font-semibold group-hover:text-primary-700 dark:group-hover:text-primary-300 transition-colors">
                       <span>عرض القوالب</span>
-                      <ChevronLeft className="w-3 h-3 mr-1 group-hover:translate-x-1 transition-transform duration-200" />
+                      <ChevronLeft className="w-4 h-4 mr-1 group-hover:-translate-x-1 transition-transform duration-200" />
                     </div>
                   </div>
                 </div>

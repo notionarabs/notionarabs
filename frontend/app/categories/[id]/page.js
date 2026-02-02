@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { BreadcrumbWrapper } from '../../../components/Breadcrumb';
 import Image from 'next/image';
 import { LayoutDashboard, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -47,7 +48,7 @@ export default async function CategoryTemplatesPage({ params }) {
   const resolvedParams = await params;
   const categorySlug = resolvedParams.id;
   const categoryName = getCategoryName(categorySlug);
-  
+
   // Fetch initial data on the server
   const { templates, pagination } = await getCategoryTemplates(categoryName);
 
@@ -104,38 +105,30 @@ export default async function CategoryTemplatesPage({ params }) {
     }
   };
 
-    return (
+  return (
     <>
       {/* Structured Data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      
+
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
         {/* Breadcrumb */}
-        <div className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border">
-          <div className="container-custom py-3 sm:py-4">
-            <nav className="flex items-center space-x-2 space-x-reverse text-sm">
-              <Link href="/" className="text-accent-600 dark:text-dark-text-secondary hover:text-accent-700 dark:hover:text-dark-text-primary transition-colors">
-                الرئيسية
-              </Link>
-              <ChevronLeft className="w-4 h-4 text-accent-400 dark:text-dark-text-tertiary" />
-              <Link href="/categories" className="text-accent-600 dark:text-dark-text-secondary hover:text-accent-700 dark:hover:text-dark-text-primary transition-colors">
-                التصنيفات
-              </Link>
-              <ChevronLeft className="w-4 h-4 text-accent-400 dark:text-dark-text-tertiary" />
-              <span className="text-accent-700 dark:text-dark-text-primary font-medium">{categoryName}</span>
-            </nav>
-          </div>
-        </div>
+        <BreadcrumbWrapper
+          items={[
+            { name: 'الرئيسية', url: '/' },
+            { name: 'التصنيفات', url: '/categories' },
+            { name: categoryName, url: `/categories/${categorySlug}` }
+          ]}
+        />
 
         {/* Header */}
         <div className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300">
           <div className="container-custom py-8 sm:py-10 md:py-12">
             <div className="text-center">
-              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-3 sm:mb-4 px-4">قوالب {categoryName}</h1>
-              <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary max-w-xs sm:max-w-md md:max-w-2xl mx-auto px-4">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-accent-900 dark:text-white mb-4 sm:mb-6 px-4">قوالب {categoryName}</h1>
+              <p className="text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary max-w-xs sm:max-w-2xl md:max-w-3xl mx-auto px-4">
                 اكتشف مجموعة متنوعة من قوالب {categoryName} المصممة خصيصاً للمستخدمين العرب.
               </p>
             </div>
@@ -143,18 +136,18 @@ export default async function CategoryTemplatesPage({ params }) {
         </div>
 
         {/* Client Component for Interactive Features */}
-    <Suspense fallback={
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300 flex items-center justify-center" dir="rtl">
-        <LoadingIndicator />
-      </div>
-    }>
-          <CategoryTemplatesClient 
+        <Suspense fallback={
+          <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300 flex items-center justify-center" dir="rtl">
+            <LoadingIndicator />
+          </div>
+        }>
+          <CategoryTemplatesClient
             categorySlug={categorySlug}
             categoryName={categoryName}
             initialTemplates={templates}
             initialPagination={pagination}
           />
-    </Suspense>
+        </Suspense>
       </div>
     </>
   );

@@ -190,7 +190,7 @@ export default function HomePage() {
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
 
       {/* Enhanced Hero Section with Notion-inspired Animations */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-6 sm:py-8 md:py-12 lg:py-14 xl:py-16 transition-colors duration-300 h-[calc(100vh-64px)] min-h-[calc(100vh-64px)] sm:h-[calc(100vh-72px)] sm:min-h-[calc(100vh-72px)] flex items-center">
+      <section className="relative overflow-hidden bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-6 sm:py-8 md:py-12 lg:py-14 xl:py-16 transition-colors duration-300 min-h-[calc(100vh-64px)] sm:min-h-[calc(100vh-72px)] flex items-center">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
           {/* Floating Notion-style Blocks */}
@@ -269,10 +269,10 @@ export default function HomePage() {
               </div>
 
               {/* Main Heading */}
-              <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-accent-500 dark:text-dark-text-primary mb-4 sm:mb-6 ${!animationsPlayed ? 'text-reveal-delayed' : ''} leading-tight tracking-tight`}>
+              <h1 className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold text-accent-900 dark:text-white mb-4 sm:mb-6 ${!animationsPlayed ? 'text-reveal-delayed' : ''} leading-tight tracking-tighter`}>
                 <div className="block">
                   <div className="block">خدمات نوشن</div>
-                  <div className="block mt-2 md:mt-3 lg:mt-4"><span className="whitespace-nowrap">وأنظمة مخصصة لأعمالك</span></div>
+                  <div className="block mt-2 md:mt-3 lg:mt-4"><span className="">وأنظمة مخصصة لأعمالك</span></div>
                 </div>
               </h1>
 

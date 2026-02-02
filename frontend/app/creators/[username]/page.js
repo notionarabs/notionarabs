@@ -75,7 +75,7 @@ export default function PublicProfilePage() {
 
   const fetchCreatorTemplates = async () => {
     if (!creator) return;
-    
+
     try {
       setTemplatesLoading(true);
       const templatesResponse = await api.get(`/templates?creator=${creator.id}&page=${pagination.current}&limit=${pagination.limit}`);
@@ -140,7 +140,7 @@ export default function PublicProfilePage() {
   const fetchCreatorProfile = async () => {
     try {
       setLoading(true);
-      
+
       // Fetch creator profile and templates in parallel
       const [creatorResponse, templatesResponse] = await Promise.allSettled([
         api.get(`/creators/${username}`),
@@ -379,7 +379,7 @@ export default function PublicProfilePage() {
 
 
 
-    
+
     return (
       <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
         {/* Header Skeleton */}
@@ -483,9 +483,9 @@ export default function PublicProfilePage() {
                     <div className="flex items-center justify-between">
                       <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-16 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
                       <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-12 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-            </div>
-          </div>
-        </div>
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -544,522 +544,532 @@ export default function PublicProfilePage() {
 
       <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
 
-      {/* Header */}
-      <div className="bg-white dark:bg-dark-secondary shadow-soft dark:shadow-dark-soft border-b border-gray-200 dark:border-dark-card-border">
-        <div className="container-custom px-4 sm:px-6 py-3 sm:py-4">
-          <nav className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary overflow-x-auto">
-            <Link href="/creators" className="hover:text-primary-500 dark:hover:text-orange-400 transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap flex-shrink-0">
-              <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              المبدعين
-            </Link>
-            <span className="text-gray-400 dark:text-dark-text-quaternary flex-shrink-0">/</span>
-            <span className="text-accent-500 dark:text-dark-text-primary font-medium truncate max-w-[200px] sm:max-w-none">{creator.displayName || creator.name}</span>
-          </nav>
-        </div>
-      </div>
-
-      {/* Hero Section */}
-      <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
-        <div className="container-custom px-4 sm:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 items-start">
-
-            {/* Left Column - Creator Identity */}
-            <div className="space-y-4 sm:space-y-6">
-              {/* Profile Picture and Name */}
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
-                {/* Profile Picture */}
-                <div className="relative flex-shrink-0">
-                  {creator.profilePicture && creator.profilePicture.trim() !== '' && !profileImageError ? (
-                    <Image
-                      src={creator.profilePicture}
-                      alt={`صورة ${creator.displayName || creator.name}`}
-                      width={120}
-                      height={120}
-                      className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full object-cover border-4 border-white dark:border-dark-card-border shadow-lg"
-                      unoptimized
-                      onError={() => setProfileImageError(true)}
-                      onLoad={() => setProfileImageError(false)}
-                    />
-                  ) : (
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center shadow-lg border-4 border-white dark:border-dark-card-border">
-                      <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-500 dark:text-orange-400">
-                        {(creator.displayName || creator.name || 'م')?.charAt(0)?.toUpperCase() || 'م'}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Verified Badge */}
-                  {creator.creatorStatus === 'approved' && (
-                    <div className="absolute -top-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-lg">
-                      <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                      </svg>
-                    </div>
-                  )}
-                </div>
-
-                {/* Creator Name and Stats */}
-                <div className="flex-1 text-center sm:text-right w-full">
-                  <div className="flex items-center gap-4 justify-center sm:justify-start flex-wrap">
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary">
-                      {creator.displayName || creator.name}
-                    </h1>
-                    {/* Creator Badges */}
-                    {creator.badges && creator.badges.length > 0 && (
-                      <div className="flex items-center gap-1.5">
-                        {creator.badges.map((badge) => {
-                          const BadgeIcon = getBadgeIcon(badge.type);
-                          return (
-                            <div
-                              key={badge._id}
-                              className="group/badge relative"
-                            >
-                              <div className="flex items-center p-1 bg-primary-50 dark:bg-orange-500/10 border border-primary-200 dark:border-orange-500/20 rounded transition-all duration-200 hover:shadow-md">
-                                <BadgeIcon
-                                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-600 dark:text-orange-400"
-                                  strokeWidth={2}
-                                />
-                              </div>
-                              {/* Tooltip */}
-                              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 dark:bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 invisible group-hover/badge:opacity-100 group-hover/badge:visible transition-all duration-200 pointer-events-none z-10">
-                                {badge.label}
-                                <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Stats inline under name */}
-                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3 mt-3">
-                    <div className="flex items-center gap-1 px-2.5 sm:px-3 py-1 bg-gray-100 dark:bg-dark-tertiary rounded-full">
-                      <span className="text-xs font-medium text-gray-700 dark:text-dark-text-primary">{creator.followers || 0}</span>
-                      <span className="text-xs text-gray-500 dark:text-dark-text-secondary">متابع</span>
-                    </div>
-                    {creator.showTemplateCount !== false && (
-                      <div className="flex items-center gap-1 px-2.5 sm:px-3 py-1 bg-blue-50 dark:bg-blue-900/20 rounded-full">
-                        <span className="text-xs font-medium text-blue-600 dark:text-blue-400">{pagination.total || creator.templateCount || creatorTemplates.length || 0}</span>
-                        <span className="text-xs text-blue-500 dark:text-blue-300">قالب</span>
-                      </div>
-                    )}
-                    {medianRating > 0 && (
-                      <div className="flex items-center gap-1 px-2.5 sm:px-3 py-1 bg-amber-50 dark:bg-amber-900/20 rounded-full">
-                        <span className="text-xs font-medium text-amber-600 dark:text-amber-400">{medianRating.toFixed(1)}</span>
-                        <span className="text-xs text-amber-500 dark:text-amber-300">تقييم</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Bio */}
-              {(creator.bio || creator.experience) && (
-                <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed text-center sm:text-right">
-                  {creator.bio || creator.experience}
-                </p>
-              )}
-
-              {/* Recommended Creator Badge */}
-              {creator.creatorStatus === 'approved' && (
-                <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg border border-blue-200 dark:border-blue-700 mx-auto sm:mx-0">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M7.493 18.75c-.425 0-.82-.236-.975-.632A7.48 7.48 0 016 15.375c0-1.75.599-3.358 1.602-4.634.151-.192.373-.309.6-.397.473-.183.89-.514 1.212-.924a9.042 9.042 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75 2.25 2.25 0 012.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558-.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H14.23c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23h-.777zM2.331 10.977a11.969 11.969 0 00-.831 4.398 12 12 0 00.52 3.507c.26.85 1.084 1.368 1.973 1.368H4.9c.445 0 .72-.498.523-.898a8.963 8.963 0 01-.924-3.977c0-1.708.476-3.305 1.302-4.666.245-.403-.028-.959-.5-.959H4.25c-.832 0-1.612.453-1.918 1.227z" />
-                  </svg>
-                  <span className="text-xs sm:text-sm font-medium">مبدع موصى به</span>
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
-                {/* Contact Creator Button */}
-                {creator.allowMessages !== false && creator.email && (
-                  <button
-                    onClick={() => {
-                      if (!isAuthenticated) {
-                        router.push(`/login?redirect=/creators/${username}`);
-                        return;
-                      }
-                      window.location.href = `mailto:${creator.email}`;
-                    }}
-                    className="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-500 dark:bg-orange-500 hover:bg-primary-600 dark:hover:bg-orange-600 text-white rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 shadow-soft hover:shadow-medium"
-                    title="تواصل مع المبدع"
-                  >
-                    <Mail className="w-4 h-4" />
-                    <span className="text-sm font-medium">تواصل</span>
-                  </button>
-                )}
-
-                {/* Follow Button */}
-                <FollowButton
-                  creatorId={creator.id}
-                  creatorName={creator.displayName || creator.name}
-                  onFollowChange={(isFollowing) => {
-                    setCreator(prev => ({
-                      ...prev,
-                      followers: prev.followers + (isFollowing ? 1 : -1)
-                    }));
-                  }}
-                  showText={true}
-                  className="shadow-soft hover:shadow-medium"
-                />
-              </div>
-            </div>
-
-            {/* Right Column - Metadata */}
-            <div className="space-y-6 sm:space-y-8">
-
-
-              {/* Professional Information */}
-              {(creator.portfolio || creator.experience || creator.motivation || (creator.specialties && creator.specialties.length > 0)) && (
-                <div className="bg-white dark:bg-dark-secondary p-4 sm:p-5 md:p-6 rounded-lg sm:rounded-xl border border-gray-200 dark:border-dark-card-border shadow-sm">
-                  <h3 className="text-sm sm:text-base font-semibold text-gray-700 dark:text-dark-text-primary mb-3 sm:mb-4">المجالات التي يختص بها</h3>
-                  <div className="space-y-3 sm:space-y-4">
-                    {/* Specialties */}
-                    {creator.specialties && creator.specialties.length > 0 && (
-                      <div className="pb-3 sm:pb-4 border-b border-gray-100 dark:border-dark-card-border last:border-b-0 last:pb-0">
-                        <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                          {creator.specialties.map((specialty, index) => (
-                            <span
-                              key={index}
-                              className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-primary-100 dark:bg-orange-900/30 text-primary-800 dark:text-orange-300 border border-primary-200 dark:border-orange-700"
-                            >
-                              {specialty}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Portfolio */}
-                    {creator.portfolio && (
-                      <div className="pb-3 sm:pb-4 border-b border-gray-100 dark:border-dark-card-border last:border-b-0 last:pb-0">
-                        <h4 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-dark-text-quaternary mb-2">المعرض</h4>
-                        <a
-                          href={creator.portfolio}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-primary-600 dark:text-orange-400 hover:text-primary-700 dark:hover:text-orange-300 transition-colors text-xs sm:text-sm md:text-base break-all"
-                        >
-                          <svg className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                          </svg>
-                          <span className="truncate">{creator.portfolio}</span>
-                        </a>
-                      </div>
-                    )}
-
-                    {/* Experience */}
-                    {creator.experience && (
-                      <div className="pb-3 sm:pb-4 border-b border-gray-100 dark:border-dark-card-border last:border-b-0 last:pb-0">
-                        <h4 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-dark-text-quaternary mb-2">الخبرة</h4>
-                        <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed">
-                          {creator.experience}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Motivation */}
-                    {creator.motivation && (
-                      <div className="pb-3 sm:pb-4 border-b border-gray-100 dark:border-dark-card-border last:border-b-0 last:pb-0">
-                        <h4 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-dark-text-quaternary mb-2">الدافع</h4>
-                        <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed">
-                          {creator.motivation}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* All Social Links */}
-              {creator.socialLinks && creator.socialLinks.length > 0 && (
-                <div className="bg-white dark:bg-dark-secondary p-4 sm:p-5 md:p-6 rounded-lg sm:rounded-xl border border-gray-200 dark:border-dark-card-border shadow-sm">
-                  <h3 className="text-sm sm:text-base font-semibold text-gray-700 dark:text-dark-text-primary mb-3 sm:mb-4">الروابط الاجتماعية</h3>
-                  <div className="flex flex-wrap gap-2 sm:gap-3">
-                    {creator.socialLinks.map((link, index) => {
-                      if (!link.url) return null;
-                      const platform = detectPlatform(link.url);
-                      return (
-                        <a
-                          key={index}
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 bg-gray-50 dark:bg-dark-tertiary hover:bg-gray-100 dark:hover:bg-dark-quaternary rounded-lg sm:rounded-xl transition-all duration-200 hover:scale-110 transform border border-gray-200 dark:border-dark-card-border"
-                          aria-label={platform?.name === 'website' ? `زيارة ${new URL(link.url).hostname.replace('www.', '')}` : platform?.name === 'facebook-group' ? 'مجموعة فيسبوك' : `زيارة ${platform?.name || 'الرابط'}`}
-                        >
-                          <span className={platform?.color} aria-hidden="true">
-                            {getPlatformIcon(platform?.icon || 'website')}
-                          </span>
-                        </a>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
+        {/* Header */}
+        <div className="bg-white dark:bg-dark-secondary shadow-soft dark:shadow-dark-soft border-b border-gray-200 dark:border-dark-card-border">
+          <div className="container-custom px-4 sm:px-6 py-3 sm:py-4">
+            <nav className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary overflow-x-auto">
+              <Link href="/creators" className="hover:text-primary-500 dark:hover:text-orange-400 transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap flex-shrink-0">
+                <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                المبدعين
+              </Link>
+              <span className="text-gray-400 dark:text-dark-text-quaternary flex-shrink-0">/</span>
+              <span className="text-accent-500 dark:text-dark-text-primary font-medium truncate max-w-[200px] sm:max-w-none">{creator.displayName || creator.name}</span>
+            </nav>
           </div>
         </div>
-      </section>
 
-
-      {/* Templates Section */}
-      <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-white dark:bg-dark-secondary transition-colors duration-300">
-        <div className="container-custom px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-6 sm:mb-8 md:mb-10">قوالب المبدع</h2>
-
-          {templatesLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {[...Array(6)].map((_, idx) => (
-                <div key={idx} className="bg-white dark:bg-dark-tertiary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-dark-card-border h-full flex flex-col overflow-hidden">
-                  {/* Template Image Skeleton */}
-                  <div className="relative overflow-hidden rounded-lg h-48 mb-4">
-                    <div className="w-full h-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-                  </div>
-                  {/* Template Info Skeleton */}
-                  <div className="space-y-3">
-                    <div className="h-5 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-3/4 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-                    <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-1/2 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-                    <div className="flex items-center justify-between">
-                      <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-16 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-                      <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-12 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : creatorTemplates.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {creatorTemplates.map((template) => (
-                <Link key={template._id || template.id} href={`/templates/${template.slug || template._id || template.id}`}>
-                  <div className="card-interactive overflow-hidden">
-                    <div className="relative h-48 bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-lg">
-                      {template.previewImage && typeof template.previewImage === 'string' && template.previewImage.trim() ? (
-                        // Skip Next.js optimization for Cloudinary images to avoid 402 errors
-                        template.previewImage.includes('res.cloudinary.com') ? (
-                          <img
-                            src={template.previewImage}
-                            alt={template.title}
-                            className="w-full h-full object-cover object-[50%_50%] bg-white dark:bg-dark-secondary group-hover:scale-105 transition-transform duration-500"
-                            loading="lazy"
-                            onError={(e) => {
-                              console.error('Image failed to load:', template.previewImage);
-                              if (e.target) {
-                                e.target.style.display = 'none';
-                              }
-                            }}
-                          />
-                        ) : (
-                          <Image
-                            src={template.previewImage}
-                            alt={template.title}
-                            width={400}
-                            height={300}
-                            className="w-full h-full object-cover object-[50%_50%] bg-white dark:bg-dark-secondary group-hover:scale-105 transition-transform duration-500"
-                            loading="lazy"
-                            onError={(e) => {
-                              console.error('Image failed to load:', template.previewImage);
-                              if (e.target) {
-                                e.target.style.display = 'none';
-                              }
-                            }}
-                          />
-                        )
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30">
-                          <svg className="w-10 h-10 sm:w-12 sm:h-12 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                    </div>
-                    <div className="p-4 sm:p-6">
-                      <h3 className="font-bold text-base sm:text-lg text-accent-500 dark:text-dark-text-primary mb-2 group-hover:text-primary-500 dark:group-hover:text-orange-400 transition-colors line-clamp-2">
-                        {template.title}
-                      </h3>
-                      <div className="flex items-center justify-between mb-3 sm:mb-4">
-                        <StarRating rating={template.rating || 0} />
-                        {template.isPaid ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full font-semibold text-xs">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            {template.price} ر.س
-                          </span>
-                        ) : (
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
-                            مجاني
-                          </span>
-                        )}
-                      </div>
-                      <button className="w-full btn-primary py-2 px-3 sm:px-4 text-sm sm:text-base">
-                        عرض التفاصيل
-                      </button>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 sm:py-16">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                <svg className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">لا توجد قوالب متاحة</h3>
-              <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary mb-6 sm:mb-8 px-4">
-                لم ينشر {creator.displayName || creator.name} أي قوالب بعد
-              </p>
-              <Link href="/templates" className="btn-primary inline-block">
-                تصفح القوالب الأخرى
-              </Link>
-            </div>
-          )}
-
-          {/* Pagination */}
-          {pagination.pages > 1 && !templatesLoading && creatorTemplates.length > 0 && (
-            <div className="flex justify-center mt-8 sm:mt-12">
-              <div className="flex items-center gap-1 sm:gap-2">
-                <button
-                  onClick={() => {
-                    setPagination(prev => ({ ...prev, current: prev.current - 1 }));
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                  disabled={pagination.current <= 1 || templatesLoading}
-                  className="px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-accent-700 dark:text-dark-text-secondary bg-white dark:bg-dark-secondary border border-accent-300 dark:border-dark-card-border rounded-lg hover:bg-accent-50 dark:hover:bg-dark-tertiary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  السابق
-                </button>
-
-                {[...Array(pagination.pages)].map((_, index) => {
-                  const page = index + 1;
-                  const isCurrentPage = page === pagination.current;
-                  const isNearCurrent = Math.abs(page - pagination.current) <= 2;
-
-                  if (!isNearCurrent && page !== 1 && page !== pagination.pages) {
-                    if (page === 2 || page === pagination.pages - 1) {
-                      return <span key={page} className="px-1 sm:px-2 text-accent-500 text-xs sm:text-sm">...</span>;
-                    }
-                    return null;
-                  }
-
-                  return (
-                    <button
-                      key={page}
-                      onClick={() => {
-                        setPagination(prev => ({ ...prev, current: page }));
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }}
-                      disabled={templatesLoading}
-                      className={`px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-colors ${isCurrentPage
-                        ? 'bg-primary-600 text-white'
-                        : 'text-accent-700 dark:text-dark-text-secondary bg-white dark:bg-dark-secondary border border-accent-300 dark:border-dark-card-border hover:bg-accent-50 dark:hover:bg-dark-tertiary'
-                        } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    >
-                      {page}
-                    </button>
-                  );
-                })}
-
-                <button
-                  onClick={() => {
-                    setPagination(prev => ({ ...prev, current: prev.current + 1 }));
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                  disabled={pagination.current >= pagination.pages || templatesLoading}
-                  className="px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-accent-700 dark:text-dark-text-secondary bg-white dark:bg-dark-secondary border border-accent-300 dark:border-dark-card-border rounded-lg hover:bg-accent-50 dark:hover:bg-dark-tertiary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  التالي
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Results Count */}
-          {!templatesLoading && creatorTemplates.length > 0 && (
-            <div className="text-center mt-4 sm:mt-6">
-              <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">
-                عرض {creatorTemplates.length} من {pagination.total} قالب
-              </p>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Reviews Section */}
-      {creatorRatings.length > 0 && (
+        {/* Hero Section */}
         <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
-          <div className="container-custom px-4 sm:px-6 lg:px-8">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6 sm:mb-8 md:mb-10 text-accent-500 dark:text-dark-text-primary">تقييمات المبدع</h2>
+          <div className="container-custom px-4 sm:px-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 items-start">
 
-            <div className="grid gap-4 sm:gap-6">
-              {creatorRatings.slice(0, showAllReviews ? creatorRatings.length : 3).map((rating, index) => (
-                <div key={rating._id || index} className="p-4 sm:p-6 bg-white dark:bg-dark-secondary rounded-xl border border-gray-200 dark:border-dark-card-border shadow-sm">
-                  <div className="flex items-start gap-3 sm:gap-4">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center">
-                      {rating.user?.profilePicture ? (
-                        <Image
-                          src={rating.user.profilePicture}
-                          alt={rating.user?.name || 'مستخدم'}
-                          width={40}
-                          height={40}
-                          className="w-full h-full object-cover"
-                          unoptimized
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
-                      ) : null}
-                      {!rating.user?.profilePicture && (
-                        <span className="text-primary-600 dark:text-primary-400 font-medium text-xs sm:text-sm">
-                          {rating.user?.name?.charAt(0)?.toUpperCase() || 'م'}
+              {/* Left Column - Creator Identity */}
+              <div className="space-y-4 sm:space-y-6">
+                {/* Profile Picture and Name */}
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+                  {/* Profile Picture */}
+                  <div className="relative flex-shrink-0">
+                    {creator.profilePicture && creator.profilePicture.trim() !== '' && !profileImageError ? (
+                      <Image
+                        src={creator.profilePicture}
+                        alt={`صورة ${creator.displayName || creator.name}`}
+                        width={120}
+                        height={120}
+                        className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full object-cover border-4 border-white dark:border-dark-card-border shadow-lg"
+                        unoptimized
+                        onError={() => setProfileImageError(true)}
+                        onLoad={() => setProfileImageError(false)}
+                      />
+                    ) : (
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center shadow-lg border-4 border-white dark:border-dark-card-border">
+                        <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-500 dark:text-orange-400">
+                          {(creator.displayName || creator.name || 'م')?.charAt(0)?.toUpperCase() || 'م'}
                         </span>
+                      </div>
+                    )}
+
+                    {/* Verified Badge */}
+                    {creator.creatorStatus === 'approved' && (
+                      <div className="absolute -top-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-full flex items-center justify-center shadow-lg">
+                        <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Creator Name and Stats */}
+                  <div className="flex-1 text-center sm:text-right w-full">
+                    <div className="flex items-center gap-4 justify-center sm:justify-start flex-wrap">
+                      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary">
+                        {creator.displayName || creator.name}
+                      </h1>
+                      {/* Creator Badges */}
+                      {creator.badges && creator.badges.length > 0 && (
+                        <div className="flex items-center gap-1.5">
+                          {creator.badges.map((badge) => {
+                            const BadgeIcon = getBadgeIcon(badge.type);
+                            return (
+                              <div
+                                key={badge._id}
+                                className="group/badge relative"
+                              >
+                                <div className="flex items-center p-1 bg-primary-50 dark:bg-orange-500/10 border border-primary-200 dark:border-orange-500/20 rounded transition-all duration-200 hover:shadow-md">
+                                  <BadgeIcon
+                                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-600 dark:text-orange-400"
+                                    strokeWidth={2}
+                                  />
+                                </div>
+                                {/* Tooltip */}
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 dark:bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 invisible group-hover/badge:opacity-100 group-hover/badge:visible transition-all duration-200 pointer-events-none z-10">
+                                  {badge.label}
+                                  <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                        <span className="font-medium text-sm sm:text-base text-accent-700 dark:text-dark-text-primary">
-                          {rating.user?.name || 'مستخدم'}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <StarRating rating={rating.rating} size="small" showNumber={false} />
-                          <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                            {formatDate(rating.createdAt)}
-                          </span>
-                        </div>
+
+                    {/* Stats inline under name */}
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3 mt-3">
+                      <div className="flex items-center gap-1 px-2.5 sm:px-3 py-1 bg-gray-100 dark:bg-dark-tertiary rounded-full">
+                        <span className="text-xs font-medium text-gray-700 dark:text-dark-text-primary">{creator.followers || 0}</span>
+                        <span className="text-xs text-gray-500 dark:text-dark-text-secondary">متابع</span>
                       </div>
-                      {rating.review && (
-                        <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed break-words">
-                          {rating.review}
-                        </p>
+                      {creator.showTemplateCount !== false && (
+                        <div className="flex items-center gap-1 px-2.5 sm:px-3 py-1 bg-blue-50 dark:bg-blue-900/20 rounded-full">
+                          <span className="text-xs font-medium text-blue-600 dark:text-blue-400">{pagination.total || creator.templateCount || creatorTemplates.length || 0}</span>
+                          <span className="text-xs text-blue-500 dark:text-blue-300">قالب</span>
+                        </div>
+                      )}
+                      {medianRating > 0 && (
+                        <div className="flex items-center gap-1 px-2.5 sm:px-3 py-1 bg-amber-50 dark:bg-amber-900/20 rounded-full">
+                          <span className="text-xs font-medium text-amber-600 dark:text-amber-400">{medianRating.toFixed(1)}</span>
+                          <span className="text-xs text-amber-500 dark:text-amber-300">تقييم</span>
+                        </div>
                       )}
                     </div>
                   </div>
                 </div>
-              ))}
 
-              {creatorRatings.length > 3 && (
-                <div className="text-center mt-2 sm:mt-4">
-                  <button
-                    onClick={() => setShowAllReviews(!showAllReviews)}
-                    className="px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-lg sm:rounded-xl hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-colors duration-200 text-sm sm:text-base font-medium"
-                  >
-                    {showAllReviews ? 'عرض أقل' : `عرض جميع التقييمات (${creatorRatings.length})`}
-                  </button>
+                {/* Bio */}
+                {(creator.bio || creator.experience) && (
+                  <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed text-center sm:text-right">
+                    {creator.bio || creator.experience}
+                  </p>
+                )}
+
+                {/* Recommended Creator Badge */}
+                {creator.creatorStatus === 'approved' && (
+                  <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg border border-blue-200 dark:border-blue-700 mx-auto sm:mx-0">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M7.493 18.75c-.425 0-.82-.236-.975-.632A7.48 7.48 0 016 15.375c0-1.75.599-3.358 1.602-4.634.151-.192.373-.309.6-.397.473-.183.89-.514 1.212-.924a9.042 9.042 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75 2.25 2.25 0 012.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558-.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H14.23c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23h-.777zM2.331 10.977a11.969 11.969 0 00-.831 4.398 12 12 0 00.52 3.507c.26.85 1.084 1.368 1.973 1.368H4.9c.445 0 .72-.498.523-.898a8.963 8.963 0 01-.924-3.977c0-1.708.476-3.305 1.302-4.666.245-.403-.028-.959-.5-.959H4.25c-.832 0-1.612.453-1.918 1.227z" />
+                    </svg>
+                    <span className="text-xs sm:text-sm font-medium">مبدع موصى به</span>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+                  {/* Contact Creator Button */}
+                  {creator.allowMessages !== false && creator.email && (
+                    <button
+                      onClick={() => {
+                        if (!isAuthenticated) {
+                          router.push(`/login?redirect=/creators/${username}`);
+                          return;
+                        }
+                        window.location.href = `mailto:${creator.email}`;
+                      }}
+                      className="flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-500 dark:bg-orange-500 hover:bg-primary-600 dark:hover:bg-orange-600 text-white rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 shadow-soft hover:shadow-medium"
+                      title="تواصل مع المبدع"
+                    >
+                      <Mail className="w-4 h-4" />
+                      <span className="text-sm font-medium">تواصل</span>
+                    </button>
+                  )}
+
+                  {/* Follow Button */}
+                  <FollowButton
+                    creatorId={creator.id}
+                    creatorName={creator.displayName || creator.name}
+                    onFollowChange={(isFollowing) => {
+                      setCreator(prev => ({
+                        ...prev,
+                        followers: prev.followers + (isFollowing ? 1 : -1)
+                      }));
+                    }}
+                    showText={true}
+                    className="shadow-soft hover:shadow-medium"
+                  />
                 </div>
-              )}
+              </div>
+
+              {/* Right Column - Metadata */}
+              <div className="space-y-6 sm:space-y-8">
+
+
+                {/* Professional Information */}
+                {(creator.portfolio || creator.experience || creator.motivation || (creator.specialties && creator.specialties.length > 0)) && (
+                  <div className="bg-white dark:bg-dark-secondary p-4 sm:p-5 md:p-6 rounded-lg sm:rounded-xl border border-gray-200 dark:border-dark-card-border shadow-sm">
+                    <h3 className="text-sm sm:text-base font-semibold text-gray-700 dark:text-dark-text-primary mb-3 sm:mb-4">المجالات التي يختص بها</h3>
+                    <div className="space-y-3 sm:space-y-4">
+                      {/* Specialties */}
+                      {creator.specialties && creator.specialties.length > 0 && (
+                        <div className="pb-3 sm:pb-4 border-b border-gray-100 dark:border-dark-card-border last:border-b-0 last:pb-0">
+                          <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                            {creator.specialties.map((specialty, index) => (
+                              <span
+                                key={index}
+                                className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-primary-100 dark:bg-orange-900/30 text-primary-800 dark:text-orange-300 border border-primary-200 dark:border-orange-700"
+                              >
+                                {specialty}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Portfolio */}
+                      {creator.portfolio && (
+                        <div className="pb-3 sm:pb-4 border-b border-gray-100 dark:border-dark-card-border last:border-b-0 last:pb-0">
+                          <h4 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-dark-text-quaternary mb-2">المعرض</h4>
+                          <a
+                            href={creator.portfolio}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 text-primary-600 dark:text-orange-400 hover:text-primary-700 dark:hover:text-orange-300 transition-colors text-xs sm:text-sm md:text-base break-all"
+                          >
+                            <svg className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            <span className="truncate">{creator.portfolio}</span>
+                          </a>
+                        </div>
+                      )}
+
+                      {/* Experience */}
+                      {creator.experience && (
+                        <div className="pb-3 sm:pb-4 border-b border-gray-100 dark:border-dark-card-border last:border-b-0 last:pb-0">
+                          <h4 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-dark-text-quaternary mb-2">الخبرة</h4>
+                          <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                            {creator.experience}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Motivation */}
+                      {creator.motivation && (
+                        <div className="pb-3 sm:pb-4 border-b border-gray-100 dark:border-dark-card-border last:border-b-0 last:pb-0">
+                          <h4 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-dark-text-quaternary mb-2">الدافع</h4>
+                          <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed">
+                            {creator.motivation}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* All Social Links */}
+                {creator.socialLinks && creator.socialLinks.length > 0 && (
+                  <div className="bg-white dark:bg-dark-secondary p-4 sm:p-5 md:p-6 rounded-lg sm:rounded-xl border border-gray-200 dark:border-dark-card-border shadow-sm">
+                    <h3 className="text-sm sm:text-base font-semibold text-gray-700 dark:text-dark-text-primary mb-3 sm:mb-4">الروابط الاجتماعية</h3>
+                    <div className="flex flex-wrap gap-2 sm:gap-3">
+                      {creator.socialLinks.map((link, index) => {
+                        if (!link.url) return null;
+                        const platform = detectPlatform(link.url);
+                        return (
+                          <a
+                            key={index}
+                            href={link.url.startsWith('http') ? link.url : `https://${link.url}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 bg-gray-50 dark:bg-dark-tertiary hover:bg-gray-100 dark:hover:bg-dark-quaternary rounded-lg sm:rounded-xl transition-all duration-200 hover:scale-110 transform border border-gray-200 dark:border-dark-card-border"
+                            aria-label={(() => {
+                              try {
+                                return platform?.name === 'website' ? `زيارة ${new URL(link.url.startsWith('http') ? link.url : `https://${link.url}`).hostname.replace('www.', '')}` : platform?.name === 'facebook-group' ? 'مجموعة فيسبوك' : `زيارة ${platform?.name || 'الرابط'}`;
+                              } catch (e) {
+                                return `زيارة ${link.url}`;
+                              }
+                            })()}
+                          >
+                            <span className={platform?.color} aria-hidden="true">
+                              {getPlatformIcon(platform?.icon || 'website')}
+                            </span>
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </section>
-      )}
 
-      <Footer />
+
+        {/* Templates Section */}
+        <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-white dark:bg-dark-secondary transition-colors duration-300">
+          <div className="container-custom px-4 sm:px-6 lg:px-8">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-6 sm:mb-8 md:mb-10">قوالب المبدع</h2>
+
+            {templatesLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {[...Array(6)].map((_, idx) => (
+                  <div key={idx} className="bg-white dark:bg-dark-tertiary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-dark-card-border h-full flex flex-col overflow-hidden">
+                    {/* Template Image Skeleton */}
+                    <div className="relative overflow-hidden rounded-lg h-48 mb-4">
+                      <div className="w-full h-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    </div>
+                    {/* Template Info Skeleton */}
+                    <div className="space-y-3">
+                      <div className="h-5 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-3/4 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                      <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-1/2 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                      <div className="flex items-center justify-between">
+                        <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-16 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                        <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-12 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : creatorTemplates.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {creatorTemplates.map((template) => (
+                  <Link key={template._id || template.id} href={`/templates/${template.slug || template._id || template.id}`} className="block w-full h-full">
+                    <div className="card-interactive overflow-hidden h-full flex flex-col">
+                      <div className="relative h-48 bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-lg flex-shrink-0">
+                        {template.previewImage && typeof template.previewImage === 'string' && template.previewImage.trim() ? (
+                          // Skip Next.js optimization for Cloudinary images to avoid 402 errors
+                          template.previewImage.includes('res.cloudinary.com') ? (
+                            <img
+                              src={template.previewImage}
+                              alt={template.title}
+                              className="w-full h-full object-cover object-[50%_50%] bg-white dark:bg-dark-secondary group-hover:scale-105 transition-transform duration-500"
+                              loading="lazy"
+                              onError={(e) => {
+                                console.error('Image failed to load:', template.previewImage);
+                                if (e.target) {
+                                  e.target.style.display = 'none';
+                                }
+                              }}
+                            />
+                          ) : (
+                            <Image
+                              src={template.previewImage}
+                              alt={template.title}
+                              width={400}
+                              height={300}
+                              className="w-full h-full object-cover object-[50%_50%] bg-white dark:bg-dark-secondary group-hover:scale-105 transition-transform duration-500"
+                              loading="lazy"
+                              onError={(e) => {
+                                console.error('Image failed to load:', template.previewImage);
+                                if (e.target) {
+                                  e.target.style.display = 'none';
+                                }
+                              }}
+                            />
+                          )
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30">
+                            <svg className="w-10 h-10 sm:w-12 sm:h-12 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                      </div>
+                      <div className="p-4 sm:p-6 flex-1 flex flex-col">
+                        <h3 className="font-bold text-base sm:text-lg text-accent-500 dark:text-dark-text-primary mb-1 group-hover:text-primary-500 dark:group-hover:text-orange-400 transition-colors line-clamp-1">
+                          {template.title}
+                        </h3>
+                        {/* Short Description */}
+                        <p className="text-xs text-accent-600 dark:text-dark-text-secondary mb-3 line-clamp-2 min-h-[2rem]">
+                          {template.description || 'وصف مختصر للقالب غير متوفر حالياً.'}
+                        </p>
+                        <div className="flex items-center justify-between mb-3 sm:mb-4">
+                          <StarRating rating={template.rating || 0} />
+                          {template.isPaid ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full font-semibold text-xs">
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              {template.price} ر.س
+                            </span>
+                          ) : (
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              مجاني
+                            </span>
+                          )}
+                        </div>
+                        <button className="w-full btn-primary py-2 px-3 sm:px-4 text-sm sm:text-base mt-auto">
+                          عرض التفاصيل
+                        </button>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 sm:py-16">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                  <svg className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">لا توجد قوالب متاحة</h3>
+                <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary mb-6 sm:mb-8 px-4">
+                  لم ينشر {creator.displayName || creator.name} أي قوالب بعد
+                </p>
+                <Link href="/templates" className="btn-primary inline-block">
+                  تصفح القوالب الأخرى
+                </Link>
+              </div>
+            )}
+
+            {/* Pagination */}
+            {pagination.pages > 1 && !templatesLoading && creatorTemplates.length > 0 && (
+              <div className="flex justify-center mt-8 sm:mt-12">
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <button
+                    onClick={() => {
+                      setPagination(prev => ({ ...prev, current: prev.current - 1 }));
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    disabled={pagination.current <= 1 || templatesLoading}
+                    className="px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-accent-700 dark:text-dark-text-secondary bg-white dark:bg-dark-secondary border border-accent-300 dark:border-dark-card-border rounded-lg hover:bg-accent-50 dark:hover:bg-dark-tertiary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    السابق
+                  </button>
+
+                  {[...Array(pagination.pages)].map((_, index) => {
+                    const page = index + 1;
+                    const isCurrentPage = page === pagination.current;
+                    const isNearCurrent = Math.abs(page - pagination.current) <= 2;
+
+                    if (!isNearCurrent && page !== 1 && page !== pagination.pages) {
+                      if (page === 2 || page === pagination.pages - 1) {
+                        return <span key={page} className="px-1 sm:px-2 text-accent-500 text-xs sm:text-sm">...</span>;
+                      }
+                      return null;
+                    }
+
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => {
+                          setPagination(prev => ({ ...prev, current: page }));
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        disabled={templatesLoading}
+                        className={`px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg transition-colors ${isCurrentPage
+                          ? 'bg-primary-600 text-white'
+                          : 'text-accent-700 dark:text-dark-text-secondary bg-white dark:bg-dark-secondary border border-accent-300 dark:border-dark-card-border hover:bg-accent-50 dark:hover:bg-dark-tertiary'
+                          } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
+
+                  <button
+                    onClick={() => {
+                      setPagination(prev => ({ ...prev, current: prev.current + 1 }));
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    disabled={pagination.current >= pagination.pages || templatesLoading}
+                    className="px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-accent-700 dark:text-dark-text-secondary bg-white dark:bg-dark-secondary border border-accent-300 dark:border-dark-card-border rounded-lg hover:bg-accent-50 dark:hover:bg-dark-tertiary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    التالي
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Results Count */}
+            {!templatesLoading && creatorTemplates.length > 0 && (
+              <div className="text-center mt-4 sm:mt-6">
+                <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">
+                  عرض {creatorTemplates.length} من {pagination.total} قالب
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Reviews Section */}
+        {creatorRatings.length > 0 && (
+          <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
+            <div className="container-custom px-4 sm:px-6 lg:px-8">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6 sm:mb-8 md:mb-10 text-accent-500 dark:text-dark-text-primary">تقييمات المبدع</h2>
+
+              <div className="grid gap-4 sm:gap-6">
+                {creatorRatings.slice(0, showAllReviews ? creatorRatings.length : 3).map((rating, index) => (
+                  <div key={rating._id || index} className="p-4 sm:p-6 bg-white dark:bg-dark-secondary rounded-xl border border-gray-200 dark:border-dark-card-border shadow-sm">
+                    <div className="flex items-start gap-3 sm:gap-4">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center">
+                        {rating.user?.profilePicture ? (
+                          <Image
+                            src={rating.user.profilePicture}
+                            alt={rating.user?.name || 'مستخدم'}
+                            width={40}
+                            height={40}
+                            className="w-full h-full object-cover"
+                            unoptimized
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        ) : null}
+                        {!rating.user?.profilePicture && (
+                          <span className="text-primary-600 dark:text-primary-400 font-medium text-xs sm:text-sm">
+                            {rating.user?.name?.charAt(0)?.toUpperCase() || 'م'}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                          <span className="font-medium text-sm sm:text-base text-accent-700 dark:text-dark-text-primary">
+                            {rating.user?.name || 'مستخدم'}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <StarRating rating={rating.rating} size="small" showNumber={false} />
+                            <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                              {formatDate(rating.createdAt)}
+                            </span>
+                          </div>
+                        </div>
+                        {rating.review && (
+                          <p className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed break-words">
+                            {rating.review}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {creatorRatings.length > 3 && (
+                  <div className="text-center mt-2 sm:mt-4">
+                    <button
+                      onClick={() => setShowAllReviews(!showAllReviews)}
+                      className="px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-lg sm:rounded-xl hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-colors duration-200 text-sm sm:text-base font-medium"
+                    >
+                      {showAllReviews ? 'عرض أقل' : `عرض جميع التقييمات (${creatorRatings.length})`}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
+
+        <Footer />
 
       </main>
     </>

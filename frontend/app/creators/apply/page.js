@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
+
 import { useAuth } from '../../../contexts/AuthContext';
 import ReactCountryFlag from 'react-country-flag';
 import { countryOptions } from '../../../lib/countryData';
@@ -36,15 +36,15 @@ export default function CreatorApplyPage() {
   const countryDropdownRef = useRef(null);
   const specialtyDropdownRef = useRef(null);
   const draftLoadedRef = useRef(false);
-  const { user, isAuthenticated, checkAuthStatus, refreshUserData } = useAuth();
+  const { user, isAuthenticated, checkAuthStatus, refreshUserData, loading: authLoading } = useAuth();
   const router = useRouter();
 
   // Redirect to login if not authenticated
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!authLoading && !isAuthenticated) {
       router.push('/login?redirect=/creators/apply');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, authLoading, router]);
 
   useEffect(() => {
     if (draftLoadedRef.current) {
@@ -799,7 +799,7 @@ export default function CreatorApplyPage() {
   };
 
   // Show loading state while checking authentication
-  if (!isAuthenticated) {
+  if (authLoading || !isAuthenticated) {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300 flex items-center justify-center" dir="rtl">
         <div className="text-center">
@@ -859,26 +859,7 @@ export default function CreatorApplyPage() {
   if (user?.creatorStatus === 'approved') {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
-        {/* Navigation */}
-        <nav className="bg-accent-500 dark:bg-dark-secondary shadow-medium dark:shadow-dark-medium">
-          <div className="container-custom flex justify-between items-center py-3 sm:py-4 px-4 sm:px-0">
-            <Link href="/" className="flex items-center">
-              <Image
-                src="/NavLogoLight.svg"
-                alt="عرب نوشن"
-                width={180}
-                height={60}
-                className="h-6 sm:h-8 md:h-10 lg:h-12 w-auto"
-                quality={100}
-                priority
-                unoptimized
-              />
-            </Link>
-            <Link href="/profile" className="text-white hover:text-gray-300 transition-colors text-sm sm:text-base">
-              الملف الشخصي
-            </Link>
-          </div>
-        </nav>
+
 
         {/* Approved Status */}
         <div className="container-custom py-8 sm:py-12 md:py-16">
@@ -983,7 +964,7 @@ export default function CreatorApplyPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-primary-600 to-accent-600 dark:from-orange-400 dark:to-orange-300 bg-clip-text text-transparent">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-primary-600 to-accent-600 dark:from-orange-400 dark:to-orange-300 bg-clip-text text-transparent">
               انضم إلى مجتمع المبدعين
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-accent-600 dark:text-dark-text-secondary max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
@@ -993,7 +974,7 @@ export default function CreatorApplyPage() {
             </p>
 
             {/* Benefits Section */}
-            <div className="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto px-4 sm:px-0">
+            <div className="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6 max-w-4xl mx-auto px-4 sm:px-0">
               <div className="flex items-center justify-center space-x-3 space-x-reverse bg-white/60 dark:bg-dark-card-bg/60 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/20 dark:border-dark-card-border">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
                   <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1032,7 +1013,7 @@ export default function CreatorApplyPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
-                  <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-primary-600 dark:text-orange-400">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-primary-600 dark:text-orange-400">
                     المعلومات الشخصية
                   </h2>
                 </div>
@@ -1208,7 +1189,7 @@ export default function CreatorApplyPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6" />
                     </svg>
                   </div>
-                  <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-primary-600 dark:text-orange-400">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-primary-600 dark:text-orange-400">
                     المعلومات المهنية
                   </h2>
                 </div>

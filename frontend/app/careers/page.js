@@ -1,24 +1,12 @@
+import { generateMetadata } from '../../lib/seo';
 import JoinTeamForm from '../../components/JoinTeamForm';
-import Footer from '../../components/Footer';
 
-export const metadata = {
-  title: 'انضم لفريق عرب نوشن | فرص عمل',
+export const metadata = generateMetadata({
+  title: 'انضم لفريقنا',
   description: 'فرص للانضمام إلى فريق عرب نوشن. شاركنا خبراتك وسنعود إليك قريباً.',
-  alternates: {
-    canonical: 'https://www.notionarabs.com/careers',
-  },
-  keywords: ['انضم للفريق', 'وظائف', 'فرص عمل', 'notionarabs', 'careers'],
-  robots: {
-    index: true,
-    follow: true,
-  },
-  openGraph: {
-    title: 'انضم لفريق عرب نوشن | فرص عمل',
-    description: 'فرص للانضمام إلى فريق عرب نوشن. شاركنا خبراتك وسنعود إليك قريباً.',
-    url: 'https://www.notionarabs.com/careers',
-    type: 'website',
-  },
-};
+  url: '/careers',
+  keywords: ['انضم للفريق', 'وظائف', 'فرص عمل', 'notionarabs', 'careers']
+});
 
 export default function CareersPage() {
   return (
@@ -59,7 +47,6 @@ export default function CareersPage() {
         </div>
       </section>
 
-      <Footer />
     </main>
   );
 }

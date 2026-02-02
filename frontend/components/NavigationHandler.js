@@ -66,20 +66,51 @@ export default function NavigationHandler() {
   // Handle browser navigation events
   useEffect(() => {
     const handleBeforeUnload = () => {
-      setLoading(true);
+      setLoading(true, 'navigation');
     };
 
     const handlePopState = () => {
-      setLoading(true);
+      setLoading(true, 'navigation');
+    };
+
+    const handleClick = (e) => {
+      const anchor = e.target.closest('a');
+      if (!anchor || !anchor.href) return;
+
+      // Ignore if target is _blank
+      if (anchor.target === '_blank') return;
+
+      // Ignore if modifier keys are pressed
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+
+      // Get the URL
+      const url = new URL(anchor.href);
+
+      // Check if it's an internal link
+      if (url.origin === window.location.origin) {
+        // Ignore hash links on the same page
+        if (url.pathname === window.location.pathname && url.search === window.location.search && url.hash) {
+          return;
+        }
+
+        // Check if it's a file download or mailto/tel
+        if (anchor.hasAttribute('download') || url.protocol === 'mailto:' || url.protocol === 'tel:') {
+          return;
+        }
+
+        setLoading(true, 'navigation');
+      }
     };
 
     // Listen for browser back/forward navigation
     window.addEventListener('beforeunload', handleBeforeUnload);
     window.addEventListener('popstate', handlePopState);
+    document.addEventListener('click', handleClick);
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
       window.removeEventListener('popstate', handlePopState);
+      document.removeEventListener('click', handleClick);
     };
   }, [setLoading]);
 

@@ -1,25 +1,13 @@
+import { generateMetadata } from '../../lib/seo';
 import ConsultationForm from '../../components/ConsultationForm';
-import Footer from '../../components/Footer';
 import { Sparkles } from 'lucide-react';
 
-export const metadata = {
-  title: 'احجز استشارة | عرب نوشن',
+export const metadata = generateMetadata({
+  title: 'احجز استشارة',
   description: 'احجز استشارة مع فريق عرب نوشن لبناء نظام نوشن يناسب عملك وفريقك.',
-  alternates: {
-    canonical: 'https://www.notionarabs.com/consultation',
-  },
-  keywords: ['احجز استشارة', 'استشارة نوشن', 'notionarabs', 'consultation'],
-  robots: {
-    index: true,
-    follow: true,
-  },
-  openGraph: {
-    title: 'احجز استشارة | عرب نوشن',
-    description: 'احجز استشارة مع فريق عرب نوشن لبناء نظام نوشن يناسب عملك وفريقك.',
-    url: 'https://www.notionarabs.com/consultation',
-    type: 'website',
-  },
-};
+  url: '/consultation',
+  keywords: ['احجز استشارة', 'استشارة نوشن', 'notionarabs', 'consultation']
+});
 
 export default function ConsultationPage() {
   return (
@@ -54,7 +42,6 @@ export default function ConsultationPage() {
         </div>
       </section>
 
-      <Footer />
     </main>
   );
 }

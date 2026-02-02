@@ -542,42 +542,50 @@ export default function PublicProfilePage() {
         </Head>
       )}
 
-      <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+      <main className="min-h-screen bg-gray-50 dark:bg-black text-accent-500 dark:text-gray-100 transition-colors duration-300 relative overflow-x-hidden" dir="rtl">
+        {/* Ambient Background Mesh */}
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
+          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '6s' }} />
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/5 rounded-full blur-[120px]" />
+        </div>
 
         {/* Header */}
-        <div className="bg-white dark:bg-dark-secondary shadow-soft dark:shadow-dark-soft border-b border-gray-200 dark:border-dark-card-border">
+        {/* Header - Glass Effect */}
+        <div className="sticky top-0 z-30 bg-white/70 dark:bg-black/60 backdrop-blur-md border-b border-white/20 dark:border-white/5 shadow-sm">
           <div className="container-custom px-4 sm:px-6 py-3 sm:py-4">
-            <nav className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary overflow-x-auto">
-              <Link href="/creators" className="hover:text-primary-500 dark:hover:text-orange-400 transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap flex-shrink-0">
+            <nav className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-600 dark:text-gray-300 overflow-x-auto">
+              <Link href="/creators" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap flex-shrink-0 font-medium">
                 <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
                 المبدعين
               </Link>
-              <span className="text-gray-400 dark:text-dark-text-quaternary flex-shrink-0">/</span>
-              <span className="text-accent-500 dark:text-dark-text-primary font-medium truncate max-w-[200px] sm:max-w-none">{creator.displayName || creator.name}</span>
+              <span className="text-gray-400 dark:text-gray-600 flex-shrink-0">/</span>
+              <span className="text-gray-900 dark:text-white font-semibold truncate max-w-[200px] sm:max-w-none">{creator.displayName || creator.name}</span>
             </nav>
           </div>
         </div>
 
         {/* Hero Section */}
-        <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
+        <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-transparent relative z-10">
           <div className="container-custom px-4 sm:px-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-16 items-start">
 
               {/* Left Column - Creator Identity */}
               <div className="space-y-4 sm:space-y-6">
                 {/* Profile Picture and Name */}
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 relative z-10">
                   {/* Profile Picture */}
-                  <div className="relative flex-shrink-0">
+                  <div className="relative flex-shrink-0 group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary-500 to-purple-600 rounded-full blur-md opacity-50 group-hover:opacity-75 transition-opacity duration-300"></div>
                     {creator.profilePicture && creator.profilePicture.trim() !== '' && !profileImageError ? (
                       <Image
                         src={creator.profilePicture}
                         alt={`صورة ${creator.displayName || creator.name}`}
                         width={120}
                         height={120}
-                        className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full object-cover border-4 border-white dark:border-dark-card-border shadow-lg"
+                        className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full object-cover border-[3px] border-white dark:border-gray-800 shadow-xl"
                         unoptimized
                         onError={() => setProfileImageError(true)}
                         onLoad={() => setProfileImageError(false)}
@@ -709,13 +717,12 @@ export default function PublicProfilePage() {
                 </div>
               </div>
 
-              {/* Right Column - Metadata */}
-              <div className="space-y-6 sm:space-y-8">
-
+              {/* Right Column - Metadata - Glass Card */}
+              <div className="space-y-6 sm:space-y-8 relative z-10">
 
                 {/* Professional Information */}
                 {(creator.portfolio || creator.experience || creator.motivation || (creator.specialties && creator.specialties.length > 0)) && (
-                  <div className="bg-white dark:bg-dark-secondary p-4 sm:p-5 md:p-6 rounded-lg sm:rounded-xl border border-gray-200 dark:border-dark-card-border shadow-sm">
+                  <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl p-4 sm:p-5 md:p-6 rounded-2xl border border-white/20 dark:border-white/10 shadow-lg hover:shadow-xl transition-shadow duration-300">
                     <h3 className="text-sm sm:text-base font-semibold text-gray-700 dark:text-dark-text-primary mb-3 sm:mb-4">المجالات التي يختص بها</h3>
                     <div className="space-y-3 sm:space-y-4">
                       {/* Specialties */}
@@ -775,9 +782,9 @@ export default function PublicProfilePage() {
                   </div>
                 )}
 
-                {/* All Social Links */}
+                {/* All Social Links - Glass Card */}
                 {creator.socialLinks && creator.socialLinks.length > 0 && (
-                  <div className="bg-white dark:bg-dark-secondary p-4 sm:p-5 md:p-6 rounded-lg sm:rounded-xl border border-gray-200 dark:border-dark-card-border shadow-sm">
+                  <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl p-4 sm:p-5 md:p-6 rounded-2xl border border-white/20 dark:border-white/10 shadow-lg hover:shadow-xl transition-shadow duration-300">
                     <h3 className="text-sm sm:text-base font-semibold text-gray-700 dark:text-dark-text-primary mb-3 sm:mb-4">الروابط الاجتماعية</h3>
                     <div className="flex flex-wrap gap-2 sm:gap-3">
                       {creator.socialLinks.map((link, index) => {
@@ -813,8 +820,8 @@ export default function PublicProfilePage() {
         </section>
 
 
-        {/* Templates Section */}
-        <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-white dark:bg-dark-secondary transition-colors duration-300">
+        {/* Templates Section - Glass Styling */}
+        <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-transparent relative z-10">
           <div className="container-custom px-4 sm:px-6 lg:px-8">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-accent-500 dark:text-dark-text-primary mb-6 sm:mb-8 md:mb-10">قوالب المبدع</h2>
 
@@ -841,8 +848,8 @@ export default function PublicProfilePage() {
             ) : creatorTemplates.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {creatorTemplates.map((template) => (
-                  <Link key={template._id || template.id} href={`/templates/${template.slug || template._id || template.id}`} className="block w-full h-full">
-                    <div className="card-interactive overflow-hidden h-full flex flex-col">
+                  <Link key={template._id || template.id} href={`/templates/${template.slug || template._id || template.id}`} className="block w-full h-full group">
+                    <div className="h-full flex flex-col bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-white/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
                       <div className="relative h-48 bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-lg flex-shrink-0">
                         {template.previewImage && typeof template.previewImage === 'string' && template.previewImage.trim() ? (
                           // Skip Next.js optimization for Cloudinary images to avoid 402 errors
@@ -1002,15 +1009,15 @@ export default function PublicProfilePage() {
           </div>
         </section>
 
-        {/* Reviews Section */}
+        {/* Reviews Section - Glass Styling */}
         {creatorRatings.length > 0 && (
-          <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
+          <section className="py-8 sm:py-12 md:py-16 lg:py-20 bg-transparent relative z-10">
             <div className="container-custom px-4 sm:px-6 lg:px-8">
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6 sm:mb-8 md:mb-10 text-accent-500 dark:text-dark-text-primary">تقييمات المبدع</h2>
 
               <div className="grid gap-4 sm:gap-6">
                 {creatorRatings.slice(0, showAllReviews ? creatorRatings.length : 3).map((rating, index) => (
-                  <div key={rating._id || index} className="p-4 sm:p-6 bg-white dark:bg-dark-secondary rounded-xl border border-gray-200 dark:border-dark-card-border shadow-sm">
+                  <div key={rating._id || index} className="p-4 sm:p-6 bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-white/10 shadow-lg hover:shadow-xl transition-all duration-300">
                     <div className="flex items-start gap-3 sm:gap-4">
                       <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 flex items-center justify-center">
                         {rating.user?.profilePicture ? (

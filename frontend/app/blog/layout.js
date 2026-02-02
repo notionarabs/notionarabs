@@ -2,7 +2,7 @@ import { generateMetadata as generateBaseMetadata } from '../../lib/seo';
 
 export const metadata = {
   ...generateBaseMetadata({
-    title: 'مدونة عرب نوشن - نصائح وحيل لتطبيق Notion',
+    title: 'المدونة',
     description: 'اكتشف أحدث النصائح والحيل لاستخدام نوشن بكفاءة أكبر. مقالات متخصصة للمبدعين العرب حول الإنتاجية، التنظيم، والتخطيط.',
     keywords: [
       'مدونة نوشن',

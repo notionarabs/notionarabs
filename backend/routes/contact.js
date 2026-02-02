@@ -458,9 +458,19 @@ router.post('/consultation', [
           }
           return !value || (typeof value === 'string' && value.trim().length === 0);
         }
-        return !value;
+        // For other fields, check if value is falsy or empty string after trim
+        return !value || (typeof value === 'string' && value.trim().length === 0);
       });
+
+      console.log('Individual validation - received data:', {
+        serviceType: req.body.serviceType,
+        details: req.body.details,
+        budget: req.body.budget,
+        timeline: req.body.timeline
+      });
+
       if (missing.length) {
+        console.log('Missing required fields:', missing);
         return res.status(400).json({
           success: false,
           message: 'يرجى تعبئة بيانات الأفراد المطلوبة.',

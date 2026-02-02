@@ -975,7 +975,7 @@ router.get('/by-id/:id', auth, async (req, res) => {
     }
 
     // Check if user is the author or admin
-    if (blog.author._id.toString() !== req.user._id && req.user.role !== 'admin') {
+    if (blog.author._id.toString() !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ success: false, message: 'غير مصرح لك بالوصول لهذا المقال' });
     }
 
@@ -1056,7 +1056,7 @@ router.put('/:id', auth, [
     }
 
     // Check if user is the author or admin
-    if (blog.author.toString() !== req.user._id && req.user.role !== 'admin') {
+    if (blog.author.toString() !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'غير مصرح لك بتعديل هذا المقال'
@@ -1109,7 +1109,7 @@ router.delete('/:id', auth, async (req, res) => {
     }
 
     // Check if user is the author or admin
-    if (blog.author.toString() !== req.user._id && req.user.role !== 'admin') {
+    if (blog.author.toString() !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'غير مصرح لك بحذف هذا المقال'

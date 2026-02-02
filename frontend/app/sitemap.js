@@ -1,5 +1,6 @@
 import { siteConfig } from '../lib/seo'
 import { getApiBaseUrl } from '../lib/apiConfig'
+import { categoryMap } from '../lib/categoryMapping'
 
 export default async function sitemap() {
   const baseUrl = siteConfig.url
@@ -14,6 +15,12 @@ export default async function sitemap() {
       priority: 1,
     },
     {
+      url: `${baseUrl}/store`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/templates`,
       lastModified: new Date(),
       changeFrequency: 'daily',
@@ -24,6 +31,12 @@ export default async function sitemap() {
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/creators/apply`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
     },
     {
       url: `${baseUrl}/blog`,
@@ -45,6 +58,12 @@ export default async function sitemap() {
     },
     {
       url: `${baseUrl}/contact`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/careers`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.5,
@@ -75,26 +94,8 @@ export default async function sitemap() {
     },
   ]
 
-  // Category pages - using English slugs that match the routing
-  const categorySlugs = [
-    'productivity', 'study', 'business', 'personal', 'creativity', 'technology', 'health', 'finance',
-    'organization', 'planning', 'religious', 'marketing', 'design', 'development', 'education',
-    'travel', 'food', 'sports', 'entertainment', 'fashion', 'beauty', 'home', 'garden', 'pets',
-    'cars', 'programming', 'database', 'cybersecurity', 'ai', 'blockchain', 'ecommerce', 'sales',
-    'customer-service', 'hr', 'accounting', 'investment', 'real-estate', 'insurance', 'law', 'medicine',
-    'nursing', 'physical-therapy', 'nutrition', 'cooking', 'desserts', 'beverages', 'restaurants',
-    'arts', 'music', 'drawing', 'sculpture', 'photography', 'video', 'writing', 'translation',
-    'languages', 'history', 'geography', 'science', 'mathematics', 'physics', 'chemistry', 'biology',
-    'psychology', 'sociology', 'philosophy', 'literature', 'poetry', 'theater', 'cinema', 'gaming',
-    'esports', 'tourism', 'hospitality', 'transportation', 'aviation', 'maritime', 'agriculture',
-    'environment', 'energy', 'construction', 'engineering', 'architecture', 'decoration', 'furniture',
-    'tools', 'devices', 'software', 'applications', 'websites', 'web-development', 'app-development',
-    'e-learning', 'meetings', 'social-networks', 'content', 'advertising', 'public-relations',
-    'branding', 'strategy', 'leadership', 'management', 'projects', 'operations', 'quality',
-    'innovation', 'research-development', 'analysis', 'statistics', 'data', 'reports', 'presentations',
-    'training', 'professional-development', 'consulting', 'services', 'products', 'manufacturing',
-    'distribution', 'warehouses', 'logistics'
-  ]
+  // Category pages - using slugs from the centralized mapping
+  const categorySlugs = Object.keys(categoryMap)
   const categoryPages = categorySlugs.map((slug) => ({
     url: `${baseUrl}/categories/${slug}`,
     lastModified: new Date(),

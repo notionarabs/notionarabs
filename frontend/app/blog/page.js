@@ -8,6 +8,7 @@ import api from '../../lib/api';
 import LoadingIndicator from '../../components/LoadingIndicator';
 import { useToast } from '../../contexts/ToastContext';
 import StarRating from '../../components/StarRating';
+import Footer from '../../components/Footer';
 // Removed Fuse.js import - now using server-side search
 
 
@@ -764,6 +765,7 @@ export default function BlogPage() {
       )}
 
 
+      <Footer />
     </main>
   );
 }

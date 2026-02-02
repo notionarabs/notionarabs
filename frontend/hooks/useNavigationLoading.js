@@ -11,7 +11,7 @@ export function useNavigationLoading() {
   useEffect(() => {
     // Handle route changes for App Router (Next.js 13+)
     const handleRouteChangeStart = () => {
-      setLoading(true);
+      setLoading(true, 'navigation');
     };
 
     const handleRouteChangeComplete = () => {

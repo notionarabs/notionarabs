@@ -9,63 +9,15 @@ const { cacheMiddleware, invalidateCache } = require('../utils/redis-cache');
 
 const router = express.Router();
 
-// Email configuration - Brevo only
-const createTransporter = () => {
-  if (!process.env.BREVO_API_KEY) {
-    console.error('❌ BREVO_API_KEY is not configured!');
-    throw new Error('Email service is not configured. Please set BREVO_API_KEY.');
-  }
-
-  console.log('✅ Using Brevo for email service');
-
-  return {
-    sendMail: async (mailOptions) => {
-      try {
-        const axios = require('axios');
-        const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
-          sender: {
-            name: 'عرب نوشن',
-            email: process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL
-          },
-          to: [{ email: mailOptions.to }],
-          subject: mailOptions.subject,
-          htmlContent: mailOptions.html,
-          textContent: mailOptions.text,
-          headers: {
-            'List-Unsubscribe': '<https://www.notionarabs.com/unsubscribe?email=' + encodeURIComponent(mailOptions.to) + '>',
-            'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-            'X-Mailer': 'NotionArabs Platform',
-            'X-Priority': '3',
-            'Precedence': 'bulk',
-            'Reply-To': process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL,
-            'Return-Path': process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL,
-            'Message-ID': `<${Date.now()}-${Math.random().toString(36).substr(2, 9)}@notionarabs.com>`
-          },
-          tags: ['newsletter', 'notionarabs', 'arabic']
-        }, {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'api-key': process.env.BREVO_API_KEY
-          }
-        });
-
-        console.log('✅ Brevo email sent successfully:', response.data.messageId);
-        return {
-          messageId: response.data.messageId,
-          response: 'Email sent via Brevo'
-        };
-      } catch (error) {
-        console.error('❌ Brevo error:', error.response?.data || error.message);
-        throw error;
-      }
-    },
-    verify: async () => {
-      console.log('✅ Brevo API key is configured');
-      return true;
-    }
-  };
-};
+const {
+  sendTemplateApprovedEmail,
+  sendCreatorApprovedEmail,
+  sendBlogApprovedEmail,
+  sendTemplateRejectedEmail,
+  sendCreatorRejectedEmail,
+  sendBlogRejectedEmail,
+  sendEmail
+} = require('../services/emailService');
 
 // @route   GET /api/settings/public
 // @desc    Get public settings (maintenance mode, etc.)
@@ -134,7 +86,10 @@ router.get('/users', auth, async (req, res) => {
       });
     }
 
-    const { search, role, status, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+    const { search, role, status, sortBy = 'createdAt', sortOrder = 'desc', page = 1, limit = 50 } = req.query;
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const limitNum = parseInt(limit);
 
     // Build filter object
     const filter = {};
@@ -165,21 +120,21 @@ router.get('/users', auth, async (req, res) => {
     const sort = {};
     sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
 
-    const users = await User.find(filter)
-      .select('-password -resetToken')
-      .sort(sort);
-
-    // Debug: Log profile pictures for troubleshooting
-    console.log('Admin users query - Profile pictures:', users.map(u => ({
-      name: u.name,
-      email: u.email,
-      profilePicture: u.profilePicture,
-      googleId: !!u.googleId
-    })));
+    // Get total count and users in parallel for better performance
+    const [totalCount, users] = await Promise.all([
+      User.countDocuments(filter),
+      User.find(filter)
+        .select('-password -resetToken')
+        .sort(sort)
+        .skip(skip)
+        .limit(limitNum)
+        .lean()
+    ]);
 
     res.json({
       success: true,
-      count: users.length,
+      count: totalCount,
+      displayedCount: users.length,
       users
     });
   } catch (error) {
@@ -229,7 +184,7 @@ router.get('/users/:id', auth, async (req, res) => {
 // @route   GET /api/admin/stats
 // @desc    Get user statistics
 // @access  Private (Admin)
-router.get('/stats', auth, async (req, res) => {
+router.get('/stats', auth, cacheMiddleware(60), async (req, res) => {
   try {
     // Check if user is admin
     if (req.user.role !== 'admin') {
@@ -239,94 +194,92 @@ router.get('/stats', auth, async (req, res) => {
       });
     }
 
-    // Use aggregation for better performance
-    const userStats = await User.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalUsers: { $sum: 1 },
-          googleUsers: { $sum: { $cond: [{ $ifNull: ['$googleId', false] }, 1, 0] } },
-          activeUsers: { $sum: { $cond: ['$isActive', 1, 0] } },
-          verifiedUsers: { $sum: { $cond: ['$isEmailVerified', 1, 0] } },
-          pendingApplications: { $sum: { $cond: [{ $eq: ['$creatorStatus', 'pending'] }, 1, 0] } },
-          approvedCreators: { $sum: { $cond: [{ $eq: ['$creatorStatus', 'approved'] }, 1, 0] } },
-          rejectedApplications: { $sum: { $cond: [{ $eq: ['$creatorStatus', 'rejected'] }, 1, 0] } },
-          adminUsers: { $sum: { $cond: [{ $eq: ['$role', 'admin'] }, 1, 0] } },
-          regularUsers: {
-            $sum: {
-              $cond: [
-                {
-                  $and: [
-                    { $ne: ['$role', 'admin'] },
-                    { $ne: ['$creatorStatus', 'approved'] }
-                  ]
-                },
-                1,
-                0
-              ]
-            }
-          },
-          recentUsers: {
-            $sum: {
-              $cond: [
-                { $gte: ['$createdAt', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)] },
-                1,
-                0
-              ]
-            }
-          }
-        }
-      }
-    ]);
-
-    const templateStats = await Template.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalTemplates: { $sum: 1 },
-          pendingTemplates: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
-          approvedTemplates: { $sum: { $cond: [{ $eq: ['$status', 'approved'] }, 1, 0] } },
-          rejectedTemplates: { $sum: { $cond: [{ $eq: ['$status', 'rejected'] }, 1, 0] } },
-          recentTemplates: {
-            $sum: {
-              $cond: [
-                { $gte: ['$createdAt', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)] },
-                1,
-                0
-              ]
+    // Run all stats aggregations and counts in parallel for maximum performance
+    const [userStats, templateStats, blogStats, unreadNotifications] = await Promise.all([
+      User.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalUsers: { $sum: 1 },
+            googleUsers: { $sum: { $cond: [{ $ifNull: ['$googleId', false] }, 1, 0] } },
+            activeUsers: { $sum: { $cond: ['$isActive', 1, 0] } },
+            verifiedUsers: { $sum: { $cond: ['$isEmailVerified', 1, 0] } },
+            pendingApplications: { $sum: { $cond: [{ $eq: ['$creatorStatus', 'pending'] }, 1, 0] } },
+            approvedCreators: { $sum: { $cond: [{ $eq: ['$creatorStatus', 'approved'] }, 1, 0] } },
+            rejectedApplications: { $sum: { $cond: [{ $eq: ['$creatorStatus', 'rejected'] }, 1, 0] } },
+            adminUsers: { $sum: { $cond: [{ $eq: ['$role', 'admin'] }, 1, 0] } },
+            regularUsers: {
+              $sum: {
+                $cond: [
+                  {
+                    $and: [
+                      { $ne: ['$role', 'admin'] },
+                      { $ne: ['$creatorStatus', 'approved'] }
+                    ]
+                  },
+                  1,
+                  0
+                ]
+              }
+            },
+            recentUsers: {
+              $sum: {
+                $cond: [
+                  { $gte: ['$createdAt', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)] },
+                  1,
+                  0
+                ]
+              }
             }
           }
         }
-      }
-    ]);
-
-    const blogStats = await Blog.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalBlogs: { $sum: 1 },
-          pendingBlogs: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
-          publishedBlogs: { $sum: { $cond: [{ $eq: ['$status', 'published'] }, 1, 0] } },
-          rejectedBlogs: { $sum: { $cond: [{ $eq: ['$status', 'rejected'] }, 1, 0] } },
-          draftBlogs: { $sum: { $cond: [{ $eq: ['$status', 'draft'] }, 1, 0] } },
-          recentBlogs: {
-            $sum: {
-              $cond: [
-                { $gte: ['$createdAt', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)] },
-                1,
-                0
-              ]
+      ]),
+      Template.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalTemplates: { $sum: 1 },
+            pendingTemplates: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
+            approvedTemplates: { $sum: { $cond: [{ $eq: ['$status', 'approved'] }, 1, 0] } },
+            rejectedTemplates: { $sum: { $cond: [{ $eq: ['$status', 'rejected'] }, 1, 0] } },
+            recentTemplates: {
+              $sum: {
+                $cond: [
+                  { $gte: ['$createdAt', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)] },
+                  1,
+                  0
+                ]
+              }
             }
           }
         }
-      }
+      ]),
+      Blog.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalBlogs: { $sum: 1 },
+            pendingBlogs: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
+            publishedBlogs: { $sum: { $cond: [{ $eq: ['$status', 'published'] }, 1, 0] } },
+            rejectedBlogs: { $sum: { $cond: [{ $eq: ['$status', 'rejected'] }, 1, 0] } },
+            draftBlogs: { $sum: { $cond: [{ $eq: ['$status', 'draft'] }, 1, 0] } },
+            recentBlogs: {
+              $sum: {
+                $cond: [
+                  { $gte: ['$createdAt', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)] },
+                  1,
+                  0
+                ]
+              }
+            }
+          }
+        }
+      ]),
+      Notification.countDocuments({
+        type: { $in: ['admin_creator_application', 'admin_template_pending', 'admin_blog_pending', 'admin_user_registered', 'admin_system_alert'] },
+        isRead: false
+      })
     ]);
-
-    // Get notification count separately (simpler query)
-    const unreadNotifications = await Notification.countDocuments({
-      type: { $in: ['admin_creator_application', 'admin_template_pending', 'admin_blog_pending', 'admin_user_registered', 'admin_system_alert'] },
-      isRead: false
-    });
 
     // Extract results
     const userData = userStats[0] || {};
@@ -439,7 +392,8 @@ router.get('/creator-applications', auth, async (req, res) => {
 router.put('/creator-applications/:userId/status', auth, [
   body('status')
     .isIn(['pending', 'approved', 'rejected'])
-    .withMessage('الحالة يجب أن تكون: pending, approved, أو rejected')
+    .withMessage('الحالة يجب أن تكون: pending, approved, أو rejected'),
+  body('adminNotes').optional().isString().isLength({ max: 500 })
 ], async (req, res) => {
   try {
     // Check if user is admin
@@ -514,7 +468,27 @@ router.put('/creator-applications/:userId/status', auth, [
         console.error('❌ Error stack:', notionError.stack);
         // Continue - don't block approval if Notion sync fails
       }
+
+      // Send approval email
+      try {
+        console.log('📧 Sending approval email to creator:', user.email);
+        await sendCreatorApprovedEmail(user);
+        console.log('✅ Creator approval email sent successfully');
+      } catch (emailErr) {
+        console.error('❌ Failed to send creator approval email:', emailErr.message);
+      }
+    } else if (status === 'rejected') {
+      // Send rejection email
+      try {
+        console.log('📧 Sending rejection email to creator:', user.email);
+        const { adminNotes } = req.body;
+        await sendCreatorRejectedEmail(user, adminNotes);
+        console.log('✅ Creator rejection email sent successfully');
+      } catch (emailErr) {
+        console.error('❌ Failed to send creator rejection email:', emailErr.message);
+      }
     }
+
 
     res.json({
       success: true,
@@ -543,11 +517,34 @@ router.get('/templates', auth, async (req, res) => {
       });
     }
 
-    const { status, page = 1, limit = 10 } = req.query;
+    const { status, page = 1, limit = 50, search } = req.query;
 
     const filter = {};
     if (status && status !== 'all') {
       filter.status = status;
+    }
+
+    if (search) {
+      const searchRegex = { $regex: search, $options: 'i' };
+
+      // We need to handle search for creator fields too
+      // Since creator is a reference, we might need a more complex query or first find users matching search
+      const matchingUsers = await User.find({
+        $or: [
+          { name: searchRegex },
+          { email: searchRegex },
+          { username: searchRegex },
+          { displayName: searchRegex }
+        ]
+      }).select('_id');
+
+      const userIds = matchingUsers.map(u => u._id);
+
+      filter.$or = [
+        { title: searchRegex },
+        { description: searchRegex },
+        { creator: { $in: userIds } }
+      ];
     }
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -569,7 +566,9 @@ router.get('/templates', auth, async (req, res) => {
         pages: Math.ceil(total / parseInt(limit)),
         total,
         limit: parseInt(limit)
-      }
+      },
+      // Keep legacy structure if needed, but pagination object is better
+      totalPages: Math.ceil(total / parseInt(limit))
     });
   } catch (error) {
     console.error('Get admin templates error:', error);
@@ -665,6 +664,29 @@ router.put('/templates/:id/status', auth, [
             link: `/templates/${template.slug || template._id}`,
             metadata: { templateId: template._id, isUpdate: isTemplateUpdate }
           });
+
+          // SEND EMAIL VERIFICATION HERE
+          // We need the full creator details (email) to send the email
+          const creatorUser = await User.findById(template.creator).select('email name');
+          if (creatorUser) {
+            console.log('📧 Sending approval email to creator:', creatorUser.email);
+            // Verify this is not an update (user requested "when accept template pending for a creator")
+            // But logic for updates is also here.
+            // Usually emails are more critical for new approvals.
+            // I will send for both, or check isTemplateUpdate. 
+            // The prompt implied initial acceptance, but let's be generous and send for both or just new.
+            // "when the admin accepts template that is pending for a creator" -> usually implies the initial flow.
+            // But existing code handles updates too.
+            // Let's send for NEW approvals for now as that's the main "pending" state transition.
+            if (!isTemplateUpdate) {
+              try {
+                await sendTemplateApprovedEmail(creatorUser, template);
+                console.log('📧 Email sent successfully');
+              } catch (emailErr) {
+                console.error('❌ Failed to send approval email:', emailErr.message);
+              }
+            }
+          }
         }
       } catch (creatorNotifyErr) {
         console.error('Notify creator approval error:', creatorNotifyErr);
@@ -730,6 +752,13 @@ router.put('/templates/:id/status', auth, [
               rejectedBy: req.user._id
             }
           });
+
+          // Send rejection email
+          const creatorUser = await User.findById(template.creator).select('email name');
+          if (creatorUser) {
+            console.log('📧 Sending rejection email to creator:', creatorUser.email);
+            await sendTemplateRejectedEmail(creatorUser, template, adminNotes);
+          }
         }
       } catch (creatorNotifyErr) {
         console.error('Notify creator rejection error:', creatorNotifyErr);
@@ -903,7 +932,35 @@ router.put('/blogs/:id/status', auth, [
     }
 
     await blog.save();
+    await blog.save();
+
+    // We already populated author in a previous query or we need to ensure it's populated now
+    // The previous populate was on 'blogs' list, not this single 'blog' instance if we just did findById without populate
+    // Let's populate author to get name and email
     await blog.populate('author', 'name email profilePicture');
+
+    // Send email if published
+    if (status === 'published') {
+      try {
+        if (blog.author) {
+          console.log('📧 Sending blog publication email to author:', blog.author.email);
+          await sendBlogApprovedEmail(blog.author, blog);
+          console.log('✅ Blog publication email sent successfully');
+        }
+      } catch (emailErr) {
+        console.error('❌ Failed to send blog publication email:', emailErr.message);
+      }
+    } else if (status === 'rejected') {
+      try {
+        if (blog.author) {
+          console.log('📧 Sending blog rejection email to author:', blog.author.email);
+          await sendBlogRejectedEmail(blog.author, blog, adminNotes);
+          console.log('✅ Blog rejection email sent successfully');
+        }
+      } catch (emailErr) {
+        console.error('❌ Failed to send blog rejection email:', emailErr.message);
+      }
+    }
 
     res.json({
       success: true,
@@ -1722,7 +1779,7 @@ router.put('/templates/:id/pin', auth, async (req, res) => {
     } catch (cacheError) {
       console.warn('Cache invalidation error (non-critical):', cacheError.message);
     }
-    
+
     try {
       await invalidateCache('stats');
     } catch (cacheError) {
@@ -2090,7 +2147,7 @@ router.post('/test-notion', auth, async (req, res) => {
         hasCreator: !!template.creator,
         creatorName: template.creator?.name
       });
-      
+
       const result = await addTemplateToNotion(template);
 
       if (result && result.id) {
@@ -2126,7 +2183,7 @@ router.post('/test-notion', auth, async (req, res) => {
       }
     } else if (type === 'creator') {
       // Find a recent approved creator to test
-      const creator = await User.findOne({ 
+      const creator = await User.findOne({
         creatorStatus: 'approved',
         role: 'creator'
       })

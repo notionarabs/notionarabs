@@ -1,14 +1,12 @@
+import { generateMetadata } from '../../lib/seo';
 import { formatCurrentDate } from '../../lib/dateUtils';
 import Footer from '../../components/Footer';
 
-export const metadata = {
-  title: 'سياسة الخصوصية | عرب نوشن',
-  description:
-    'سياسة الخصوصية لمنصة عرب نوشن - تعرف على كيفية حماية بياناتك الشخصية وخصوصيتك عند استخدام خدماتنا الاستشارية وأنظمة نوشن المخصصة',
-  alternates: {
-    canonical: 'https://www.notionarabs.com/privacy',
-  },
-};
+export const metadata = generateMetadata({
+  title: 'سياسة الخصوصية',
+  description: 'سياسة الخصوصية لمنصة عرب نوشن - تعرف على كيفية حماية بياناتك الشخصية وخصوصيتك عند استخدام خدماتنا الاستشارية وأنظمة نوشن المخصصة',
+  url: '/privacy'
+});
 
 export default function PrivacyPage() {
   return (

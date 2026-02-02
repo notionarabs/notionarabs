@@ -1,33 +1,14 @@
+import { generateMetadata } from '../../lib/seo';
 import Link from 'next/link';
 import { Mail } from 'lucide-react';
 import Footer from '../../components/Footer';
 import ContactForm from '../../components/ContactForm';
 
-export const metadata = {
-  title: 'اتصل بنا | عرب نوشن',
+export const metadata = generateMetadata({
+  title: 'اتصل بنا',
   description: 'تواصل مع عرب نوشن - نحن هنا لمساعدتك في أي استفسار أو مساعدة تحتاجها. راسلنا وسنرد عليك خلال 24 ساعة.',
-  alternates: {
-    canonical: 'https://www.notionarabs.com/contact',
-  },
-  keywords: ['اتصل بنا', 'الدعم', 'خدمة العملاء', 'notionarabs', 'contact'],
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
-  openGraph: {
-    title: 'اتصل بنا | عرب نوشن',
-    description: 'تواصل مع عرب نوشن - نحن هنا لمساعدتك في أي استفسار أو مساعدة تحتاجها.',
-    url: 'https://www.notionarabs.com/contact',
-    type: 'website',
-  },
-};
+  url: '/contact',
+});
 
 const contactMethods = [
   {

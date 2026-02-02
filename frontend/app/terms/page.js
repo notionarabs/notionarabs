@@ -1,14 +1,12 @@
+import { generateMetadata } from '../../lib/seo';
 import { formatCurrentDate } from '../../lib/dateUtils';
 import Footer from '../../components/Footer';
 
-export const metadata = {
-  title: 'شروط الاستخدام | عرب نوشن',
-  description:
-    'شروط وأحكام استخدام خدمات عرب نوشن الاستشارية وأنظمة نوشن المخصصة - قم بقراءة الشروط قبل استخدام خدماتنا',
-  alternates: {
-    canonical: 'https://www.notionarabs.com/terms',
-  },
-};
+export const metadata = generateMetadata({
+  title: 'شروط الاستخدام',
+  description: 'شروط وأحكام استخدام خدمات عرب نوشن الاستشارية وأنظمة نوشن المخصصة - قم بقراءة الشروط قبل استخدام خدماتنا',
+  url: '/terms'
+});
 
 export default function TermsPage() {
   return (

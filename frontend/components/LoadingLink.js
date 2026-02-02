@@ -26,7 +26,7 @@ export default function LoadingLink({ href, children, className, onClick, ...pro
     }
 
     // Show loading indicator
-    setLoading(true);
+    setLoading(true, 'navigation');
   };
 
   return (

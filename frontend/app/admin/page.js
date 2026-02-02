@@ -580,8 +580,8 @@ export default function AdminPage() {
                   <tr className="bg-gray-50 dark:bg-dark-tertiary/50">
                     <th className="px-6 py-4 text-right text-xs font-bold text-accent-400 dark:text-dark-text-tertiary uppercase tracking-wider">المستخدم</th>
                     <th className="px-6 py-4 text-right text-xs font-bold text-accent-400 dark:text-dark-text-tertiary uppercase tracking-wider">البريد الإلكتروني</th>
-                    <th className="px-6 py-4 text-right text-xs font-bold text-accent-400 dark:text-dark-text-tertiary uppercase tracking-wider">المنصة</th>
-                    <th className="px-6 py-4 text-right text-xs font-bold text-accent-400 dark:text-dark-text-tertiary uppercase tracking-wider">تاريخ الانضمام</th>
+                    <th className="px-6 py-4 text-right text-xs font-bold text-accent-400 dark:text-dark-text-tertiary uppercase tracking-wider hidden md:table-cell">المنصة</th>
+                    <th className="px-6 py-4 text-right text-xs font-bold text-accent-400 dark:text-dark-text-tertiary uppercase tracking-wider hidden lg:table-cell">تاريخ الانضمام</th>
                     <th className="px-6 py-4 text-right text-xs font-bold text-accent-400 dark:text-dark-text-tertiary uppercase tracking-wider">الصلاحية</th>
                   </tr>
                 </thead>
@@ -608,10 +608,10 @@ export default function AdminPage() {
                           <td className="px-6 py-4">
                             <div className="h-4 bg-gray-100 dark:bg-dark-tertiary rounded w-32" />
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="px-6 py-4 hidden md:table-cell">
                             <div className="h-6 bg-gray-100 dark:bg-dark-tertiary rounded-lg w-16" />
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="px-6 py-4 hidden lg:table-cell">
                             <div className="h-4 bg-gray-100 dark:bg-dark-tertiary rounded w-24" />
                           </td>
                           <td className="px-6 py-4">
@@ -664,7 +664,7 @@ export default function AdminPage() {
                             {user.email}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
                           {user.googleId ? (
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/30">
                               <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
@@ -677,7 +677,7 @@ export default function AdminPage() {
                             </span>
                           )}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-6 py-4 whitespace-nowrap hidden lg:table-cell">
                           <div className="text-sm text-accent-500 dark:text-dark-text-secondary flex items-center gap-2">
                             <Clock className="w-3 h-3 opacity-50" />
                             {formatDate(user.createdAt)}

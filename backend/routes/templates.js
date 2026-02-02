@@ -38,7 +38,7 @@ async function handleOptimizedPagination(req, res, options) {
   // Use aggregation for better performance with pagination
   const [templates, totalCount] = await Promise.all([
     Template.find(filter)
-      .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price purchaseLink isPinned pinnedAt pinnedBy ')
+      .select('title description features category categories tags creator previewImage slug rating reviewsCount downloads views isPaid price purchaseLink isPinned pinnedAt pinnedBy ')
       .populate('creator', 'name username displayName profilePicture')
       .sort(sort)
       .skip(skip)
@@ -395,7 +395,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
 
         const [templates, totalCount] = await Promise.all([
           Template.find(searchQuery)
-            .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price purchaseLink isPinned pinnedAt pinnedBy ')
+            .select('title description features category categories tags creator previewImage slug rating reviewsCount downloads views isPaid price purchaseLink isPinned pinnedAt pinnedBy ')
             .populate('creator', 'name username displayName profilePicture')
             .sort(sort)
             .skip(skip)
@@ -434,7 +434,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
 
         const [templates, totalCount] = await Promise.all([
           Template.find(regexQuery)
-            .select('title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price purchaseLink isPinned pinnedAt pinnedBy ')
+            .select('title description features category categories tags creator previewImage slug rating reviewsCount downloads views isPaid price purchaseLink isPinned pinnedAt pinnedBy ')
             .populate('creator', 'name username displayName profilePicture')
             .sort(sort)
             .skip(skip)
@@ -479,7 +479,7 @@ router.get('/my-templates', auth, cacheMiddleware(120), async (req, res) => {
     }
 
     const templates = await Template.find({ creator: req.user._id })
-      .select('title description category categories tags previewImage slug rating reviewsCount downloads isPaid price purchaseLink status adminNotes approvedAt rejectedAt approvedBy rejectedBy createdAt updatedAt ')
+      .select('title description features category categories tags previewImage slug rating reviewsCount downloads views isPaid price purchaseLink status adminNotes approvedAt rejectedAt approvedBy rejectedBy createdAt updatedAt ')
       .sort({ createdAt: -1 });
 
     res.json({
@@ -770,16 +770,16 @@ router.get('/:identifier', cacheMiddleware(600), async (req, res) => {
     const { identifier } = req.params;
 
     // Optimize: Use lean() for better performance and selective field projection
-    const selectFields = 'title description category categories tags creator previewImage previewImages slug rating reviewsCount downloads isPaid price purchaseLink notionLink views createdAt updatedAt explanationVideo isPinned pinnedAt pinnedBy';
+    const selectFields = 'title description features category categories tags creator previewImage previewImages slug rating reviewsCount downloads isPaid price purchaseLink notionLink views createdAt updatedAt explanationVideo isPinned pinnedAt pinnedBy';
 
     // Try to find by slug first, then by ID
     let template = await Template.findOne({
       slug: identifier,
       status: 'approved'
     })
-    .select(selectFields)
-    .populate('creator', 'name username displayName profilePicture bio')
-    .lean();
+      .select(selectFields)
+      .populate('creator', 'name username displayName profilePicture bio')
+      .lean();
 
     // If not found by slug, try by ID (only if it's a valid ObjectId)
     if (!template && mongoose.Types.ObjectId.isValid(identifier)) {
@@ -787,9 +787,9 @@ router.get('/:identifier', cacheMiddleware(600), async (req, res) => {
         _id: identifier,
         status: 'approved'
       })
-      .select(selectFields)
-      .populate('creator', 'name username displayName profilePicture bio')
-      .lean();
+        .select(selectFields)
+        .populate('creator', 'name username displayName profilePicture bio')
+        .lean();
     }
 
     if (!template) {

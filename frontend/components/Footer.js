@@ -1,8 +1,27 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Youtube, Facebook, Send, Users } from 'lucide-react';
+import { useLoading } from '../contexts/LoadingContext';
 
 export default function Footer() {
+  const { setLoading } = useLoading();
+  const pathname = usePathname();
+
+  const handleNavigation = (href) => {
+    // Check if relative path navigation
+    if (href.startsWith('/')) {
+      const targetPath = href.split('?')[0];
+      const currentPath = pathname.split('?')[0];
+
+      if (targetPath !== currentPath) {
+        setLoading(true, 'navigation');
+      }
+    }
+  };
+
   return (
     <footer className="bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary transition-colors duration-300">
       <div className="container-custom py-12 sm:py-16 md:py-20 lg:py-24">
@@ -49,10 +68,10 @@ export default function Footer() {
           <div>
             <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">الشركة</h4>
             <ul className="space-y-2 sm:space-y-3">
-              <li><Link href="/about" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">من نحن</Link></li>
-              <li><Link href="/blog" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المدونة</Link></li>
-              <li><Link href="/careers" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">انضم للفريق</Link></li>
-              <li><Link href="/consultation" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">احجز استشارة</Link></li>
+              <li><Link href="/about" onClick={() => handleNavigation('/about')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">من نحن</Link></li>
+              <li><Link href="/blog" onClick={() => handleNavigation('/blog')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المدونة</Link></li>
+              <li><Link href="/careers" onClick={() => handleNavigation('/careers')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">انضم للفريق</Link></li>
+              <li><Link href="/consultation" onClick={() => handleNavigation('/consultation')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">احجز استشارة</Link></li>
             </ul>
           </div>
 
@@ -60,10 +79,10 @@ export default function Footer() {
           <div>
             <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">المتجر</h4>
             <ul className="space-y-2 sm:space-y-3">
-              <li><Link href="/store" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المتجر</Link></li>
-              <li><Link href="/templates" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">القوالب</Link></li>
-              <li><Link href="/creators" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المبدعين</Link></li>
-              <li><Link href="/creators/apply" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">انضم كمبدع</Link></li>
+              <li><Link href="/store" onClick={() => handleNavigation('/store')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المتجر</Link></li>
+              <li><Link href="/templates" onClick={() => handleNavigation('/templates')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">القوالب</Link></li>
+              <li><Link href="/creators" onClick={() => handleNavigation('/creators')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المبدعين</Link></li>
+              <li><Link href="/creators/apply" onClick={() => handleNavigation('/creators/apply')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">انضم كمبدع</Link></li>
             </ul>
           </div>
 
@@ -72,10 +91,10 @@ export default function Footer() {
           <div>
             <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">الدعم</h4>
             <ul className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
-              <li><Link href="/contact" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">اتصل بنا</Link></li>
-              <li><Link href="/privacy" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الخصوصية</Link></li>
-              <li><Link href="/terms" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الشروط</Link></li>
-              <li><Link href="/cookies" className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">ملفات تعريف الارتباط</Link></li>
+              <li><Link href="/contact" onClick={() => handleNavigation('/contact')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">اتصل بنا</Link></li>
+              <li><Link href="/privacy" onClick={() => handleNavigation('/privacy')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الخصوصية</Link></li>
+              <li><Link href="/terms" onClick={() => handleNavigation('/terms')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الشروط</Link></li>
+              <li><Link href="/cookies" onClick={() => handleNavigation('/cookies')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">ملفات تعريف الارتباط</Link></li>
             </ul>
           </div>
         </div>
@@ -86,9 +105,9 @@ export default function Footer() {
               © {new Date().getFullYear()} عرب نوشن. جميع الحقوق محفوظة.
             </p>
             <div className="flex flex-wrap gap-3 sm:gap-6 justify-center sm:justify-end">
-              <Link href="/privacy" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-xs sm:text-sm transition-colors">سياسة الخصوصية</Link>
-              <Link href="/terms" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-xs sm:text-sm transition-colors">شروط الاستخدام</Link>
-              <Link href="/cookies" className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-xs sm:text-sm transition-colors">ملفات تعريف الارتباط</Link>
+              <Link href="/privacy" onClick={() => handleNavigation('/privacy')} className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-xs sm:text-sm transition-colors">سياسة الخصوصية</Link>
+              <Link href="/terms" onClick={() => handleNavigation('/terms')} className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-xs sm:text-sm transition-colors">شروط الاستخدام</Link>
+              <Link href="/cookies" onClick={() => handleNavigation('/cookies')} className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-xs sm:text-sm transition-colors">ملفات تعريف الارتباط</Link>
             </div>
           </div>
         </div>

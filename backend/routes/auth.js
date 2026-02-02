@@ -3,13 +3,17 @@ const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const passport = require('passport');
 const crypto = require('crypto');
-const nodemailer = require('nodemailer');
 const dns = require('dns').promises;
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const Blog = require('../models/Blog');
 const Template = require('../models/Template');
 const auth = require('../middleware/auth');
+const {
+  sendVerificationEmail,
+  sendResetPasswordEmail,
+  sendWelcomeEmail
+} = require('../services/emailService');
 
 const router = express.Router();
 
@@ -279,87 +283,11 @@ router.post('/signup', [
     // Try to send verification email first
     let emailSent = false;
     try {
-      const transporter = createTransporter();
       const frontendUrl = process.env.FRONTEND_URL || 'https://notionarabs.com';
       const verificationUrl = `${frontendUrl}/verify-email?token=${emailVerificationToken}&email=${encodeURIComponent(email)}`;
 
-      const mailOptions = {
-        from: process.env.EMAIL_FROM || `"عرب نوشن" <support@notionarabs.com>`,
-        to: email,
-        subject: 'تأكيد حسابك في عرب نوشن',
-        html: `
-          <!DOCTYPE html>
-          <html lang="ar" dir="rtl">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>تأكيد البريد الإلكتروني - عرب نوشن</title>
-            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-          </head>
-          <body style="margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; background-color: #f8f9fa;">
-            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f8f9fa;">
-              <tr>
-                <td align="center" style="padding: 40px 20px;">
-                  <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
-                    
-                    <!-- Header -->
-                    <tr>
-                      <td style="padding: 40px; text-align: center; background-color: #f5631e; border-radius: 12px 12px 0 0;">
-                        <img src="https://www.notionarabs.com/favicon.png" alt="عرب نوشن" style="height: 60px; width: auto;" />
-                        <h1 style="color: #ffffff; margin: 20px 0 10px; font-size: 24px; font-weight: 700;">مرحباً ${name}!</h1>
-                        <p style="color: #ffffff; margin: 0; font-size: 16px;">شكراً لانضمامك إلى عرب نوشن</p>
-                      </td>
-                    </tr>
-                    
-                    <!-- Body -->
-                    <tr>
-                      <td style="padding: 40px; text-align: right; direction: rtl;">
-                        <h2 style="color: #132859; font-size: 20px; margin: 0 0 20px; font-weight: 600; text-align: right;">أكمل تسجيلك الآن</h2>
-                        <p style="color: #5f6368; font-size: 16px; line-height: 1.6; margin: 0 0 30px; text-align: right;">
-                          لإكمال التسجيل، يرجى تأكيد بريدك الإلكتروني بالضغط على الزر أدناه
-                        </p>
-                        
-                        <!-- Button -->
-                        <div style="text-align: center; margin: 30px 0;">
-                          <a href="${verificationUrl}" style="display: inline-block; background-color: #f5631e; color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-size: 16px; font-weight: 600;">
-                            تأكيد البريد الإلكتروني
-                          </a>
-                        </div>
-                        
-                        <!-- Info -->
-                        <div style="background-color: #fef7f0; border-right: 4px solid #f5631e; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: right;">
-                          <p style="color: #132859; font-size: 14px; margin: 0; font-weight: 500; text-align: right;">
-                            ملاحظة مهمة: الرابط صالح لمدة 24 ساعة فقط
-                          </p>
-                        </div>
-                        
-                        <!-- Security Note -->
-                        <p style="color: #9aa0a6; font-size: 14px; text-align: center; margin: 20px 0 0;">
-                          لم تطلب هذا الحساب؟ يمكنك تجاهل هذا البريد بأمان
-                        </p>
-                      </td>
-                    </tr>
-                    
-                    <!-- Footer -->
-                    <tr>
-                      <td style="padding: 30px; background-color: #132859; text-align: center; border-radius: 0 0 12px 12px;">
-                        <h3 style="color: #ffffff; font-size: 18px; margin: 0 0 10px; font-weight: 700;">عرب نوشن</h3>
-                        <p style="color: #9aa0a6; font-size: 14px; margin: 0 0 15px;">منصة القوالب العربية</p>
-                        <a href="https://www.notionarabs.com" style="color: #f5631e; text-decoration: none; font-weight: 600;">www.notionarabs.com</a>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-            </table>
-          </body>
-          </html>
-        `,
-        text: `مرحباً ${name}!\n\nشكراً لانضمامك إلى عرب نوشن.\n\nلتأكيد حسابك، يرجى زيارة الرابط التالي:\n${verificationUrl}\n\nهذا الرابط صالح لمدة 24 ساعة.\n\nإذا لم تنشئ هذا الحساب، يمكنك تجاهل هذا البريد.\n\nعرب نوشن - منصة القوالب العربية\nwww.notionarabs.com`
-      };
-
-      // Try to send the email
-      await transporter.sendMail(mailOptions);
+      // Send verification email
+      await sendVerificationEmail({ name, email }, verificationUrl);
       emailSent = true;
 
       // Store user data temporarily (not in database yet)
@@ -548,7 +476,10 @@ router.put('/profile', auth, [
     const { name, bio } = req.body;
     const updateData = {};
 
-    if (name) updateData.name = name;
+    if (name) {
+      updateData.name = name;
+      updateData.displayName = name; // Keep in sync
+    }
     if (bio !== undefined) updateData.bio = bio;
 
     const user = await User.findByIdAndUpdate(
@@ -768,7 +699,10 @@ router.put('/profile/settings', auth, [
       }
       updateData.username = username.toLowerCase();
     }
-    if (displayName !== undefined) updateData.displayName = displayName;
+    if (displayName !== undefined) {
+      updateData.displayName = displayName;
+      updateData.name = displayName; // Sync with primary name field for global display
+    }
     if (bio !== undefined) updateData.bio = bio;
     if (profilePicture !== undefined) updateData.profilePicture = profilePicture;
     if (backgroundImage !== undefined) updateData.backgroundImage = backgroundImage;
@@ -873,50 +807,7 @@ router.get('/google/callback', async (req, res) => {
   }
 });
 
-// Email configuration - Brevo only
-const createTransporter = () => {
-  if (!process.env.BREVO_API_KEY) {
-    console.error('❌ BREVO_API_KEY is not configured!');
-    throw new Error('Email service is not configured. Please set BREVO_API_KEY.');
-  }
 
-  console.log('✅ Using Brevo for email service');
-
-  return {
-    sendMail: async (mailOptions) => {
-      try {
-        const axios = require('axios');
-        const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
-          sender: {
-            email: process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL || 'support@notionarabs.com'
-          },
-          to: [{ email: mailOptions.to }],
-          subject: mailOptions.subject,
-          htmlContent: mailOptions.html
-        }, {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'api-key': process.env.BREVO_API_KEY
-          }
-        });
-
-        console.log('✅ Brevo email sent successfully:', response.data.messageId);
-        return {
-          messageId: response.data.messageId,
-          response: 'Email sent via Brevo'
-        };
-      } catch (error) {
-        console.error('❌ Brevo error:', error.response?.data || error.message);
-        throw error;
-      }
-    },
-    verify: (callback) => {
-      console.log('✅ Brevo API key is configured');
-      callback(null, true);
-    }
-  };
-};
 
 // @route   POST /api/auth/forgot-password
 // @desc    Send password reset email
@@ -981,90 +872,7 @@ router.post('/forgot-password', [
 
     // Send email
     try {
-      const transporter = createTransporter();
-
-      const mailOptions = {
-        from: process.env.EMAIL_FROM || `"عرب نوشن" <support@notionarabs.com>`,
-        to: email,
-        subject: 'إعادة تعيين كلمة المرور - Reset Password | عرب نوشن',
-        html: `
-          <!DOCTYPE html>
-          <html lang="ar" dir="rtl">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>إعادة تعيين كلمة المرور - عرب نوشن</title>
-            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-          </head>
-          <body style="margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; background-color: #f8f9fa;">
-            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f8f9fa;">
-              <tr>
-                <td align="center" style="padding: 40px 20px;">
-                  <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
-                    
-                    <!-- Header -->
-                    <tr>
-                      <td style="padding: 40px; text-align: center; background-color: #f5631e; border-radius: 12px 12px 0 0;">
-                        <img src="https://www.notionarabs.com/apple-touch-icon.png" alt="عرب نوشن" style="height: 60px; width: auto;" />
-                        <h1 style="color: #ffffff; margin: 20px 0 10px; font-size: 24px; font-weight: 700;">إعادة تعيين كلمة المرور</h1>
-                        <p style="color: #ffffff; margin: 0; font-size: 16px;">أمانك هو أولويتنا</p>
-                      </td>
-                    </tr>
-                    
-                    <!-- Body -->
-                    <tr>
-                      <td style="padding: 40px; text-align: right; direction: rtl;">
-                        <h2 style="color: #132859; font-size: 20px; margin: 0 0 20px; font-weight: 600; text-align: right;">مرحباً ${user.name}</h2>
-                        <p style="color: #5f6368; font-size: 16px; line-height: 1.6; margin: 0 0 30px; text-align: right;">
-                          تلقينا طلباً لإعادة تعيين كلمة المرور لحسابك في عرب نوشن
-                        </p>
-                        
-                        <!-- Button -->
-                        <div style="text-align: center; margin: 30px 0;">
-                          <a href="${resetUrl}" style="display: inline-block; background-color: #f5631e; color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-size: 16px; font-weight: 600;">
-                            إعادة تعيين كلمة المرور
-                          </a>
-                        </div>
-                        
-                        <!-- Alternative Link -->
-                        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: right;">
-                          <p style="color: #5f6368; font-size: 14px; margin: 0 0 10px; font-weight: 500; text-align: right;">أو انسخ هذا الرابط:</p>
-                          <p style="color: #f5631e; font-size: 13px; word-break: break-all; margin: 0; font-family: monospace; text-align: left; direction: ltr;">${resetUrl}</p>
-                        </div>
-                        
-                        <!-- Warning -->
-                        <div style="background-color: #fff8e1; border-right: 4px solid #ffc107; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: right;">
-                          <p style="color: #856404; font-size: 14px; margin: 0; font-weight: 500; text-align: right;">
-                            ملاحظة مهمة: هذا الرابط صالح لمدة ساعة واحدة فقط
-                          </p>
-                        </div>
-                        
-                        <!-- Security Note -->
-                        <p style="color: #9aa0a6; font-size: 14px; text-align: center; margin: 20px 0 0;">
-                          إذا لم تطلب إعادة تعيين كلمة المرور، يرجى تجاهل هذا البريد
-                        </p>
-                      </td>
-                    </tr>
-                    
-                    <!-- Footer -->
-                    <tr>
-                      <td style="padding: 30px; background-color: #132859; text-align: center; border-radius: 0 0 12px 12px;">
-                        <h3 style="color: #ffffff; font-size: 18px; margin: 0 0 10px; font-weight: 700;">عرب نوشن</h3>
-                        <p style="color: #9aa0a6; font-size: 14px; margin: 0 0 15px;">منصة القوالب العربية</p>
-                        <a href="https://www.notionarabs.com" style="color: #f5631e; text-decoration: none; font-weight: 600;">www.notionarabs.com</a>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-            </table>
-          </body>
-          </html>
-        `,
-        text: `مرحباً ${user.name},\n\nتلقينا طلباً لإعادة تعيين كلمة المرور لحسابك.\n\nلإعادة تعيين كلمة المرور، زر الرابط:\n${resetUrl}\n\nهذا الرابط صالح لمدة ساعة واحدة.\n\nإذا لم تطلب هذا، تجاهل هذا البريد.\n\nعرب نوشن\nwww.notionarabs.com`
-      };
-
-      await transporter.sendMail(mailOptions);
+      await sendResetPasswordEmail(user, resetUrl);
 
       res.json({
         success: true,
@@ -1266,6 +1074,15 @@ router.post('/verify-email', [
     // Generate token for automatic login
     try {
       const token = generateToken(user._id);
+      // Send welcome email
+      try {
+        console.log('📧 Sending welcome email to:', user.email);
+        await sendWelcomeEmail(user);
+        console.log('✅ Welcome email sent successfully');
+      } catch (welcomeErr) {
+        console.error('❌ Failed to send welcome email:', welcomeErr.message);
+      }
+
       res.json({
         success: true,
         message: 'تم تأكيد البريد الإلكتروني بنجاح. مرحباً بك في عرب نوشن!',
@@ -1567,92 +1384,10 @@ router.post('/resend-verification', [
 
     // Send verification email
     try {
-      const transporter = createTransporter();
       const frontendUrl = process.env.FRONTEND_URL || 'https://notionarabs.com';
       const verificationUrl = `${frontendUrl}/verify-email?token=${emailVerificationToken}`;
 
-      const mailOptions = {
-        from: process.env.EMAIL_FROM || `"عرب نوشن" <support@notionarabs.com>`,
-        to: email,
-        subject: 'تأكيد البريد الإلكتروني - Verify Email | عرب نوشن',
-        html: `
-          <!DOCTYPE html>
-          <html lang="ar" dir="rtl">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>تأكيد البريد الإلكتروني - عرب نوشن</title>
-            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-          </head>
-          <body style="margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; background-color: #f8f9fa;">
-            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f8f9fa;">
-              <tr>
-                <td align="center" style="padding: 40px 20px;">
-                  <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
-                    
-                    <!-- Header -->
-                    <tr>
-                      <td style="padding: 40px; text-align: center; background-color: #f5631e; border-radius: 12px 12px 0 0;">
-                        <img src="https://www.notionarabs.com/apple-touch-icon.png" alt="عرب نوشن" style="height: 60px; width: auto;" />
-                        <h1 style="color: #ffffff; margin: 20px 0 10px; font-size: 24px; font-weight: 700;">تأكيد البريد الإلكتروني</h1>
-                        <p style="color: #ffffff; margin: 0; font-size: 16px;">رابط جديد لتأكيد حسابك</p>
-                      </td>
-                    </tr>
-                    
-                    <!-- Body -->
-                    <tr>
-                      <td style="padding: 40px; text-align: right; direction: rtl;">
-                        <h2 style="color: #132859; font-size: 20px; margin: 0 0 20px; font-weight: 600; text-align: right;">مرحباً ${userName}</h2>
-                        <p style="color: #5f6368; font-size: 16px; line-height: 1.6; margin: 0 0 30px; text-align: right;">
-                          لقد طلبت إعادة إرسال رابط تأكيد البريد الإلكتروني لحسابك في عرب نوشن
-                        </p>
-                        
-                        <!-- Button -->
-                        <div style="text-align: center; margin: 30px 0;">
-                          <a href="${verificationUrl}" style="display: inline-block; background-color: #f5631e; color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-size: 16px; font-weight: 600;">
-                            تأكيد البريد الإلكتروني
-                          </a>
-                        </div>
-                        
-                        <!-- Alternative Link -->
-                        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: right;">
-                          <p style="color: #5f6368; font-size: 14px; margin: 0 0 10px; font-weight: 500; text-align: right;">أو انسخ هذا الرابط:</p>
-                          <p style="color: #f5631e; font-size: 13px; word-break: break-all; margin: 0; font-family: monospace; text-align: left; direction: ltr;">${verificationUrl}</p>
-                        </div>
-                        
-                        <!-- Info -->
-                        <div style="background-color: #fef7f0; border-right: 4px solid #f5631e; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: right;">
-                          <p style="color: #132859; font-size: 14px; margin: 0; font-weight: 500; text-align: right;">
-                            ملاحظة مهمة: هذا الرابط صالح لمدة 24 ساعة فقط
-                          </p>
-                        </div>
-                        
-                        <!-- Security Note -->
-                        <p style="color: #9aa0a6; font-size: 14px; text-align: center; margin: 20px 0 0;">
-                          إذا لم تطلب هذا الرابط، يرجى تجاهله
-                        </p>
-                      </td>
-                    </tr>
-                    
-                    <!-- Footer -->
-                    <tr>
-                      <td style="padding: 30px; background-color: #132859; text-align: center; border-radius: 0 0 12px 12px;">
-                        <h3 style="color: #ffffff; font-size: 18px; margin: 0 0 10px; font-weight: 700;">عرب نوشن</h3>
-                        <p style="color: #9aa0a6; font-size: 14px; margin: 0 0 15px;">منصة القوالب العربية</p>
-                        <a href="https://www.notionarabs.com" style="color: #f5631e; text-decoration: none; font-weight: 600;">www.notionarabs.com</a>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-            </table>
-          </body>
-          </html>
-        `,
-        text: `مرحباً ${userName},\n\nطلبت إعادة إرسال رابط تأكيد البريد.\n\nللتأكيد، زر:\n${verificationUrl}\n\nالرابط صالح 24 ساعة.\n\nعرب نوشن\nwww.notionarabs.com`
-      };
-
-      await transporter.sendMail(mailOptions);
+      await sendVerificationEmail({ name: userName, email }, verificationUrl);
 
       res.json({
         success: true,

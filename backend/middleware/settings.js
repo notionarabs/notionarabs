@@ -68,7 +68,7 @@ const checkCreatorApplicationsEnabled = async (req, res, next) => {
 
     const settings = await Settings.getSettings();
 
-    if (!settings.creatorApplicationsEnabled && req.path.includes('/auth/apply-creator')) {
+    if (!settings.creatorApplicationsEnabled && (req.path.includes('/auth/apply-creator') || req.path.includes('/creators/apply'))) {
       return res.status(403).json({
         success: false,
         message: 'طلبات المبدعين غير متاحة حالياً'

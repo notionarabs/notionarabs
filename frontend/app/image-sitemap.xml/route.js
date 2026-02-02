@@ -1,9 +1,9 @@
 import { siteConfig } from '../../lib/seo'
+import { getApiBaseUrl } from '../../lib/apiConfig'
 
 export async function GET() {
   const baseUrl = siteConfig.url
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 
-    (process.env.NODE_ENV === 'production' ? 'https://notion-arabs-fe5b3f214071.herokuapp.com/api' : 'http://localhost:5000/api')
+  const apiUrl = getApiBaseUrl()
 
   let images = []
 

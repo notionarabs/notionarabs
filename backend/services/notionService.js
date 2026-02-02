@@ -488,7 +488,7 @@ async function addConsultationToNotion(payload) {
     const extraDetails = [];
     const pushExtra = (label, value, mapped) => {
       if (!value || mapped) return;
-      extraDetails.push(`${label}: ${value}`);
+      extraDetails.push(value);
     };
 
     const emailProp = findProperty(schema, ['Email', 'البريد الإلكتروني', 'الإيميل'], ['email', 'rich_text']);
@@ -623,12 +623,10 @@ async function addConsultationToNotion(payload) {
 
     const detailsProp = findProperty(schema, ['Details', 'التفاصيل', 'تفاصيل', 'نبذة', 'وصف'], ['rich_text']);
     if (detailsProp) {
-      const mainDetails = (payload.details || payload.projectHelp || '').substring(0, 1800);
-      const appended = extraDetails.length ? `\n\n---\n${extraDetails.join('\n')}` : '';
-      const combined = `${mainDetails}${appended}`.trim().substring(0, 2000);
-      if (combined) {
+      const mainDetails = (payload.details || payload.projectHelp || '').substring(0, 2000);
+      if (mainDetails) {
         properties[detailsProp.name] = {
-          rich_text: [{ text: { content: combined } }]
+          rich_text: [{ text: { content: mainDetails } }]
         };
       }
     }

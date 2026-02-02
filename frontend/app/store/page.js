@@ -8,6 +8,7 @@ import api from '../../lib/api';
 import LoadingIndicator from '../../components/LoadingIndicator';
 import StarRating from '../../components/StarRating';
 import Counter from '../../components/Counter';
+import Footer from '../../components/Footer';
 
 // Map badge types to Lucide icons
 const getBadgeIcon = (badgeType) => {
@@ -136,95 +137,103 @@ function StorePageContent() {
               تصفّح القوالب الأكثر تميزًا، وتعرّف على أبرز المبدعين، وابدأ مشاركة أعمالك مع المجتمع.
             </p>
           </div>
-          <div className="mt-8 sm:mt-10 md:mt-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-            {/* Stats Card 1: Templates - Bento Style */}
-            <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-dark-tertiary border border-gray-100 dark:border-dark-card-border shadow-sm hover:shadow-md transition-shadow duration-300 p-6 flex flex-col justify-between min-h-[140px]">
-              <div className="absolute -left-6 -bottom-6 text-gray-50 dark:text-white/5 transform -rotate-12 pointer-events-none transition-transform duration-500 group-hover:scale-110">
-                <LayoutDashboard size={120} strokeWidth={1.5} />
-              </div>
+          <div className="mt-8 sm:mt-10 md:mt-12 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
+            {/* Stats Card 1: Templates - Premium Glass Style */}
+            <div className="relative overflow-hidden rounded-2xl bg-white/40 dark:bg-black/20 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-lg hover:shadow-xl transition-all duration-300 p-3 sm:p-6 flex flex-col justify-between min-h-[110px] sm:min-h-[140px] group">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent dark:from-white/5 dark:to-transparent opacity-50"></div>
+              <div className="absolute -right-6 -top-6 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all duration-500"></div>
+
               <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-3 text-primary-600 dark:text-primary-400 font-bold text-sm uppercase tracking-wider">
-                  <LayoutDashboard size={18} />
-                  <span>القوالب</span>
+                <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-3">
+                  <div className="p-1.5 rounded-lg bg-blue-50/50 dark:bg-blue-900/20 border border-blue-100/50 dark:border-blue-800/30 text-blue-600 dark:text-blue-400 backdrop-blur-sm">
+                    <LayoutDashboard size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={2} />
+                  </div>
+                  <span className="text-xs sm:text-sm font-bold text-blue-700 dark:text-blue-300 uppercase tracking-wide">القوالب</span>
                 </div>
-                <div className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-1">
+                <div className="text-2xl sm:text-4xl md:text-5xl font-black text-gray-900 dark:text-white mb-0.5 sm:mb-1 tracking-tight">
                   {loadingStats ? (
-                    <div className="h-9 w-24 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
+                    <div className="h-8 sm:h-10 w-20 sm:w-28 bg-gray-200/50 dark:bg-gray-700/50 rounded animate-pulse" />
                   ) : (
                     <Counter end={stats.templates} duration={1000} separator="," />
                   )}
                 </div>
               </div>
-              <div className="relative z-10 text-xs font-medium text-gray-500 dark:text-gray-400 mt-2">
+              <div className="relative z-10 text-[10px] sm:text-xs font-semibold text-gray-600 dark:text-gray-400 mt-1 sm:mt-2">
                 قالب احترافي جاهز للاستخدام
               </div>
             </div>
 
-            {/* Stats Card 2: Creators - Bento Style */}
-            <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-dark-tertiary border border-gray-100 dark:border-dark-card-border shadow-sm hover:shadow-md transition-shadow duration-300 p-6 flex flex-col justify-between min-h-[140px]">
-              <div className="absolute -left-6 -bottom-6 text-gray-50 dark:text-white/5 transform -rotate-12 pointer-events-none transition-transform duration-500 group-hover:scale-110">
-                <Crown size={120} strokeWidth={1.5} />
-              </div>
+            {/* Stats Card 2: Creators - Premium Glass Style */}
+            <div className="relative overflow-hidden rounded-2xl bg-white/40 dark:bg-black/20 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-lg hover:shadow-xl transition-all duration-300 p-3 sm:p-6 flex flex-col justify-between min-h-[110px] sm:min-h-[140px] group">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent dark:from-white/5 dark:to-transparent opacity-50"></div>
+              <div className="absolute -right-6 -top-6 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-all duration-500"></div>
+
               <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-3 text-accent-600 dark:text-accent-400 font-bold text-sm uppercase tracking-wider">
-                  <Crown size={18} />
-                  <span>المبدعون</span>
+                <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-3">
+                  <div className="p-1.5 rounded-lg bg-amber-50/50 dark:bg-amber-900/20 border border-amber-100/50 dark:border-amber-800/30 text-amber-600 dark:text-amber-400 backdrop-blur-sm">
+                    <Crown size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={2} />
+                  </div>
+                  <span className="text-xs sm:text-sm font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wide">المبدعون</span>
                 </div>
-                <div className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-1">
+                <div className="text-2xl sm:text-4xl md:text-5xl font-black text-gray-900 dark:text-white mb-0.5 sm:mb-1 tracking-tight">
                   {loadingStats ? (
-                    <div className="h-9 w-24 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
+                    <div className="h-8 sm:h-10 w-20 sm:w-28 bg-gray-200/50 dark:bg-gray-700/50 rounded animate-pulse" />
                   ) : (
                     <Counter end={stats.creators} duration={1000} separator="," />
                   )}
                 </div>
               </div>
-              <div className="relative z-10 text-xs font-medium text-gray-500 dark:text-gray-400 mt-2">
+              <div className="relative z-10 text-[10px] sm:text-xs font-semibold text-gray-600 dark:text-gray-400 mt-1 sm:mt-2">
                 مبدع يشاركونك الشغف
               </div>
             </div>
 
-            {/* Stats Card 3: Downloads - Bento Style */}
-            <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-dark-tertiary border border-gray-100 dark:border-dark-card-border shadow-sm hover:shadow-md transition-shadow duration-300 p-6 flex flex-col justify-between min-h-[140px]">
-              <div className="absolute -left-6 -bottom-6 text-gray-50 dark:text-white/5 transform -rotate-12 pointer-events-none transition-transform duration-500 group-hover:scale-110">
-                <Zap size={120} strokeWidth={1.5} />
-              </div>
+            {/* Stats Card 3: Downloads - Premium Glass Style */}
+            <div className="relative overflow-hidden rounded-2xl bg-white/40 dark:bg-black/20 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-lg hover:shadow-xl transition-all duration-300 p-3 sm:p-6 flex flex-col justify-between min-h-[110px] sm:min-h-[140px] group">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent dark:from-white/5 dark:to-transparent opacity-50"></div>
+              <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all duration-500"></div>
+
               <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-3 text-green-600 dark:text-green-400 font-bold text-sm uppercase tracking-wider">
-                  <Zap size={18} />
-                  <span>التحميلات</span>
+                <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-3">
+                  <div className="p-1.5 rounded-lg bg-emerald-50/50 dark:bg-emerald-900/20 border border-emerald-100/50 dark:border-emerald-800/30 text-emerald-600 dark:text-emerald-400 backdrop-blur-sm">
+                    <Zap size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={2} />
+                  </div>
+                  <span className="text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">التحميلات</span>
                 </div>
-                <div className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-1">
+                <div className="text-2xl sm:text-4xl md:text-5xl font-black text-gray-900 dark:text-white mb-0.5 sm:mb-1 tracking-tight">
                   {loadingStats ? (
-                    <div className="h-9 w-24 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
+                    <div className="h-8 sm:h-10 w-20 sm:w-28 bg-gray-200/50 dark:bg-gray-700/50 rounded animate-pulse" />
                   ) : (
                     <Counter end={stats.downloads} duration={1000} separator="," />
                   )}
                 </div>
               </div>
-              <div className="relative z-10 text-xs font-medium text-gray-500 dark:text-gray-400 mt-2">
+              <div className="relative z-10 text-[10px] sm:text-xs font-semibold text-gray-600 dark:text-gray-400 mt-1 sm:mt-2">
                 عملية تحميل ناجحة
               </div>
             </div>
 
-            {/* Stats Card 4: Specialties - Bento Style */}
-            <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-dark-tertiary border border-gray-100 dark:border-dark-card-border shadow-sm hover:shadow-md transition-shadow duration-300 p-6 flex flex-col justify-between min-h-[140px]">
-              <div className="absolute -left-6 -bottom-6 text-gray-50 dark:text-white/5 transform -rotate-12 pointer-events-none transition-transform duration-500 group-hover:scale-110">
-                <Star size={120} strokeWidth={1.5} />
-              </div>
+            {/* Stats Card 4: Specialties - Premium Glass Style */}
+            <div className="relative overflow-hidden rounded-2xl bg-white/40 dark:bg-black/20 backdrop-blur-md border border-white/40 dark:border-white/10 shadow-lg hover:shadow-xl transition-all duration-300 p-3 sm:p-6 flex flex-col justify-between min-h-[110px] sm:min-h-[140px] group">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent dark:from-white/5 dark:to-transparent opacity-50"></div>
+              <div className="absolute -right-6 -top-6 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl group-hover:bg-purple-500/20 transition-all duration-500"></div>
+
               <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-3 text-purple-600 dark:text-purple-400 font-bold text-sm uppercase tracking-wider">
-                  <Star size={18} />
-                  <span>التخصصات</span>
+                <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-3">
+                  <div className="p-1.5 rounded-lg bg-purple-50/50 dark:bg-purple-900/20 border border-purple-100/50 dark:border-purple-800/30 text-purple-600 dark:text-purple-400 backdrop-blur-sm">
+                    <Star size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={2} />
+                  </div>
+                  <span className="text-xs sm:text-sm font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wide">التخصصات</span>
                 </div>
-                <div className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-1">
+                <div className="text-2xl sm:text-4xl md:text-5xl font-black text-gray-900 dark:text-white mb-0.5 sm:mb-1 tracking-tight">
                   {loadingStats ? (
-                    <div className="h-9 w-24 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
+                    <div className="h-8 sm:h-10 w-20 sm:w-28 bg-gray-200/50 dark:bg-gray-700/50 rounded animate-pulse" />
                   ) : (
                     <Counter end={stats.specialties} duration={1000} separator="," />
                   )}
                 </div>
               </div>
-              <div className="relative z-10 text-xs font-medium text-gray-500 dark:text-gray-400 mt-2">
+              <div className="relative z-10 text-[10px] sm:text-xs font-semibold text-gray-600 dark:text-gray-400 mt-1 sm:mt-2">
                 مجال وتصنيف متنوع
               </div>
             </div>
@@ -269,16 +278,31 @@ function StorePageContent() {
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {[...Array(6)].map((_, index) => (
-                <div key={index} className="card-interactive overflow-hidden animate-pulse">
-                  <div className="h-40 sm:h-48 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-                  <div className="p-4 sm:p-6">
-                    <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-                    <div className="h-2 sm:h-3 bg-gray-200 dark:bg-gray-700 rounded mb-3 w-3/4"></div>
-                    <div className="flex justify-between items-center mb-4">
-                      <div className="h-3 sm:h-4 bg-gray-200 dark:bg-gray-700 rounded w-12 sm:w-16"></div>
-                      <div className="h-5 sm:h-6 bg-gray-200 dark:bg-gray-700 rounded w-16 sm:w-20"></div>
+                <div key={index} className="card-interactive overflow-hidden h-full flex flex-col border border-gray-100 dark:border-dark-card-border bg-white dark:bg-dark-tertiary rounded-xl">
+                  {/* Image Skeleton */}
+                  <div className="h-48 w-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"></div>
+
+                  <div className="p-4 sm:p-6 flex-1 flex flex-col">
+                    {/* Title Skeleton */}
+                    <div className="h-5 w-3/4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded mb-3 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"></div>
+
+                    {/* Description Skeleton */}
+                    <div className="space-y-2 mb-4">
+                      <div className="h-3 w-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"></div>
+                      <div className="h-3 w-2/3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"></div>
                     </div>
-                    <div className="h-8 sm:h-10 bg-gray-200 dark:bg-gray-700 rounded"></div>
+
+                    {/* Rating Skeleton */}
+                    <div className="h-4 w-24 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded mb-4 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"></div>
+
+                    {/* Footer Skeleton */}
+                    <div className="mt-auto flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"></div>
+                        <div className="h-3 w-20 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"></div>
+                      </div>
+                      <div className="h-5 w-16 rounded-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]"></div>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -585,6 +609,8 @@ function StorePageContent() {
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 }

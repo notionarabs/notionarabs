@@ -1,14 +1,12 @@
+import { generateMetadata } from '../../lib/seo';
 import { formatCurrentDate } from '../../lib/dateUtils';
 import Footer from '../../components/Footer';
 
-export const metadata = {
-  title: 'سياسة ملفات تعريف الارتباط | عرب نوشن',
-  description:
-    'سياسة ملفات تعريف الارتباط لمنصة عرب نوشن وخدماتها الاستشارية - كيف نستخدم الكوكيز لتحسين تجربتك',
-  alternates: {
-    canonical: 'https://www.notionarabs.com/cookies',
-  },
-};
+export const metadata = generateMetadata({
+  title: 'سياسة ملفات تعريف الارتباط',
+  description: 'سياسة ملفات تعريف الارتباط لمنصة عرب نوشن وخدماتها الاستشارية - كيف نستخدم الكوكيز لتحسين تجربتك',
+  url: '/cookies'
+});
 
 export default function CookiesPage() {
 

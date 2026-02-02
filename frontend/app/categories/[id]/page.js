@@ -8,8 +8,21 @@ import api from '../../../lib/api';
 import LoadingIndicator from '../../../components/LoadingIndicator';
 import StarRating from '../../../components/StarRating';
 import CategoryTemplatesClient from './CategoryTemplatesClient';
+import { generateMetadata as generateBaseMetadata } from '../../../lib/seo';
 import { getCategoryName } from '../../../lib/categoryMapping';
 import { getApiBaseUrl } from '../../../lib/apiConfig';
+
+export async function generateMetadata({ params }) {
+  const { id } = await params;
+  const categoryName = getCategoryName(id);
+
+  return generateBaseMetadata({
+    title: `قوالب ${categoryName}`,
+    description: `اكتشف مجموعة متنوعة من قوالب ${categoryName} المصممة خصيصاً للمستخدمين العرب. قوالب نوشن مجانية ومتخصصة لتحسين إنتاجيتك.`,
+    url: `/categories/${id}`,
+    keywords: [`قوالب ${categoryName}`, 'نوشن', 'notion templates', 'قوالب عربية']
+  });
+}
 
 // Fetch initial data on the server
 async function getCategoryTemplates(categoryName, page = 1, limit = 12, sortBy = 'createdAt') {

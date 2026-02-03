@@ -498,15 +498,14 @@ export default function BlogPostClient({ initialBlog, initialRelatedBlogs }) {
                     />
                 )}
 
-                <div className="container-custom py-8">
-
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="container-custom py-4 sm:py-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
                         {/* Main Content */}
                         <div className="lg:col-span-2">
                             <article className="bg-white dark:bg-dark-secondary rounded-2xl shadow-medium dark:shadow-dark-medium overflow-hidden border border-gray-200/70 dark:border-dark-card-border">
                                 {/* Featured Image */}
                                 {blog.featuredImage && (
-                                    <div className="relative h-64 md:h-80 overflow-hidden">
+                                    <div className="relative h-48 sm:h-64 md:h-80 overflow-hidden">
                                         <Image
                                             src={blog.featuredImage}
                                             alt={blog.title}
@@ -522,7 +521,7 @@ export default function BlogPostClient({ initialBlog, initialRelatedBlogs }) {
                                     </div>
                                 )}
 
-                                <div className="p-6 md:p-10">
+                                <div className="p-4 sm:p-7 md:p-10">
                                     {/* Category Badge */}
                                     <div className="mb-4">
                                         <span className="inline-flex items-center gap-2 px-3 py-1 text-xs sm:text-sm font-semibold rounded-full bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-300">
@@ -531,26 +530,26 @@ export default function BlogPostClient({ initialBlog, initialRelatedBlogs }) {
                                     </div>
 
                                     {/* Title */}
-                                    <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-accent-900 dark:text-dark-text-primary mb-4 leading-snug">
+                                    <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-accent-900 dark:text-dark-text-primary mb-4 leading-snug">
                                         {blog.title}
                                     </h1>
 
                                     {/* Excerpt */}
                                     {blog.excerpt && (
                                         <div className="mb-6 border-r-4 border-primary-200 dark:border-primary-900/50 pr-4">
-                                            <p className="text-base sm:text-lg text-accent-700 dark:text-dark-text-secondary leading-relaxed">
+                                            <p className="text-sm sm:text-base md:text-lg text-accent-700 dark:text-dark-text-secondary leading-relaxed">
                                                 {blog.excerpt}
                                             </p>
                                         </div>
                                     )}
 
                                     {/* Meta Information */}
-                                    <div className="flex flex-wrap items-center gap-2 mb-8 text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary">
+                                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2.5 mb-8 text-[11px] sm:text-sm text-accent-600 dark:text-dark-text-secondary">
                                         <Link
                                             href={`/creators/${creatorSlug}`}
-                                            className="inline-flex items-center gap-2 bg-gray-50 dark:bg-dark-primary/60 border border-gray-200 dark:border-dark-card-border rounded-full px-3 py-1.5 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                                            className="inline-flex items-center gap-1.5 sm:gap-2 bg-gray-50 dark:bg-dark-primary/60 border border-gray-200 dark:border-dark-card-border rounded-full px-2.5 py-1 sm:px-3 sm:py-1.5 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                                         >
-                                            <span className="w-7 h-7 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                                            <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
                                                 {blog.author?.profilePicture ? (
                                                     <Image
                                                         src={blog.author.profilePicture}
@@ -568,23 +567,23 @@ export default function BlogPostClient({ initialBlog, initialRelatedBlogs }) {
                                             <span className="font-medium">{blog.author?.name || 'مجهول'}</span>
                                         </Link>
 
-                                        <span className="inline-flex items-center gap-1.5 bg-gray-50 dark:bg-dark-primary/60 border border-gray-200 dark:border-dark-card-border rounded-full px-3 py-1.5">
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <span className="inline-flex items-center gap-1 sm:gap-1.5 bg-gray-50 dark:bg-dark-primary/60 border border-gray-200 dark:border-dark-card-border rounded-full px-2.5 py-1 sm:px-3 sm:py-1.5">
+                                            <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
                                             <span>{formatDate(blog.publishedAt)}</span>
                                         </span>
 
-                                        <span className="inline-flex items-center gap-1.5 bg-gray-50 dark:bg-dark-primary/60 border border-gray-200 dark:border-dark-card-border rounded-full px-3 py-1.5">
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <span className="inline-flex items-center gap-1 sm:gap-1.5 bg-gray-50 dark:bg-dark-primary/60 border border-gray-200 dark:border-dark-card-border rounded-full px-2.5 py-1 sm:px-3 sm:py-1.5">
+                                            <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
                                             <span>{viewCount} مشاهدة</span>
                                         </span>
 
-                                        <span className="inline-flex items-center gap-1.5 bg-gray-50 dark:bg-dark-primary/60 border border-gray-200 dark:border-dark-card-border rounded-full px-3 py-1.5">
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <span className="inline-flex items-center gap-1 sm:gap-1.5 bg-gray-50 dark:bg-dark-primary/60 border border-gray-200 dark:border-dark-card-border rounded-full px-2.5 py-1 sm:px-3 sm:py-1.5">
+                                            <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
                                             <span>{blog.readTime || calculateReadingTime(blog.content)}</span>
@@ -593,7 +592,7 @@ export default function BlogPostClient({ initialBlog, initialRelatedBlogs }) {
 
 
                                     {/* Content */}
-                                    <div className="prose prose-lg md:prose-xl max-w-none dark:prose-invert prose-headings:text-accent-900 dark:prose-headings:text-dark-text-primary prose-a:text-primary-600 dark:prose-a:text-primary-400 prose-a:no-underline hover:prose-a:underline prose-strong:text-accent-900 dark:prose-strong:text-dark-text-primary prose-p:leading-normal prose-p:my-2">
+                                    <div className="prose prose-sm sm:prose-lg lg:prose-xl max-w-none dark:prose-invert prose-headings:text-accent-900 dark:prose-headings:text-dark-text-primary prose-a:text-primary-600 dark:prose-a:text-primary-400 prose-a:no-underline hover:prose-a:underline prose-strong:text-accent-900 dark:prose-strong:text-dark-text-primary prose-p:leading-normal prose-p:my-2">
                                         <div
                                             className="text-accent-700 dark:text-dark-text-primary leading-relaxed"
                                             dangerouslySetInnerHTML={{ __html: blog.content }}
@@ -602,9 +601,9 @@ export default function BlogPostClient({ initialBlog, initialRelatedBlogs }) {
 
                                     {/* Author Bio */}
                                     {blog.author?.bio && (
-                                        <div className="mt-10 p-6 bg-gradient-to-br from-gray-50 to-white dark:from-dark-primary/60 dark:to-dark-secondary rounded-xl border border-gray-200/70 dark:border-dark-card-border">
-                                            <div className="flex items-start gap-4">
-                                                <Link href={`/creators/${creatorSlug}`} className="w-12 h-12 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0 ring-2 ring-primary-100 dark:ring-primary-900/40">
+                                        <div className="mt-10 p-5 sm:p-6 bg-gradient-to-br from-gray-50 to-white dark:from-dark-primary/60 dark:to-dark-secondary rounded-xl border border-gray-200/70 dark:border-dark-card-border">
+                                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-start">
+                                                <Link href={`/creators/${creatorSlug}`} className="w-16 h-16 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0 ring-4 sm:ring-2 ring-primary-100 dark:ring-primary-900/40">
                                                     {blog.author.profilePicture ? (
                                                         <Image
                                                             src={blog.author.profilePicture}
@@ -844,7 +843,7 @@ export default function BlogPostClient({ initialBlog, initialRelatedBlogs }) {
                                                 className="block group"
                                             >
                                                 <div className="flex gap-3">
-                                                    <div className="w-32 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-orange-400 via-orange-500 to-red-500 flex-shrink-0 relative">
+                                                    <div className="w-24 sm:w-32 h-16 rounded-lg overflow-hidden bg-gradient-to-br from-orange-400 via-orange-500 to-red-500 flex-shrink-0 relative">
                                                         {/* Background Pattern */}
                                                         <div className="absolute inset-0 opacity-20">
                                                             <div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full opacity-30"></div>

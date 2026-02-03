@@ -7,7 +7,7 @@ import { Linkedin, Twitter, Globe, Users } from 'lucide-react';
 const teamMembers = [
     {
         name: "مصطفى ياسر",
-        role: "Co-Founder & CEO | Notion Expert",
+        role: "Co-Founder | Notion Consultant",
         image: "/team/mostafa_yasser_orange_ai.png",
         social: {
             website: "https://www.mostafayasser.com/en",
@@ -35,7 +35,7 @@ const teamMembers = [
         className: ""
     },
     {
-        name: "مصطفى إسماعيل",
+        name: "مصطفى شعبان",
         role: "Automation Expert | Notion Consultant",
         image: "/team/mostafa_general_orange_ai.png",
         social: {

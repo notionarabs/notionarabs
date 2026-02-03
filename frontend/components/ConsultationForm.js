@@ -120,7 +120,7 @@ export default function ConsultationForm() {
 
   // --- Steps Definition ---
   // We define steps dynamically based on user selection (Individual vs Company)
-  const getQuestions = () => {
+  const getQuestions = (data = formData) => {
     const baseSteps = [
       { id: 'marketing-intro', type: 'intro' }, // 0
       { id: 'companyType', type: 'selection' }, // 1
@@ -128,7 +128,7 @@ export default function ConsultationForm() {
 
     let dynamicSteps = [];
 
-    if (formData.companyType === 'Individual') {
+    if (data.companyType === 'Individual') {
       dynamicSteps = [
         { id: 'name', type: 'input', label: 'الاسم الكامل', placeholder: 'اكتب اسمك هنا...' },
         { id: 'email', type: 'input', label: 'البريد الإلكتروني', placeholder: 'name@example.com' },
@@ -138,7 +138,7 @@ export default function ConsultationForm() {
         { id: 'timeline', type: 'selection', label: 'متى تريد البدء؟' },
         { id: 'details', type: 'textarea', label: 'نبذة عن احتياجك' },
       ];
-    } else if (formData.companyType === 'Company') {
+    } else if (data.companyType === 'Company') {
       dynamicSteps = [
         { id: 'companyName', type: 'input', label: 'اسم الشركة', placeholder: 'اكتب اسم الشركة...' },
         { id: 'role', type: 'input', label: 'دورك في الشركة', placeholder: 'مثال: المدير التنفيذي' },
@@ -218,7 +218,14 @@ export default function ConsultationForm() {
       return;
     }
 
-    if (step < steps.length - 1) {
+    // Predict the next state to calculate the correct number of steps
+    // (Crucial for dynamic steps based on companyType)
+    const nextFormData = overrideValue !== undefined
+      ? { ...formData, [currentQuestion.id]: overrideValue }
+      : formData;
+    const currentSteps = getQuestions(nextFormData);
+
+    if (step < currentSteps.length - 1) {
       setStep(prev => prev + 1);
     } else {
       handleSubmit(overrideValue);

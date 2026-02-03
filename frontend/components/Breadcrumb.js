@@ -37,7 +37,7 @@ export default function Breadcrumb({ items = [], className = '' }) {
 
             {/* Breadcrumb Item */}
             {isLast ? (
-              <span className="text-accent-500 dark:text-dark-text-primary font-medium truncate max-w-xs" aria-current="page">
+              <span className="text-accent-500 dark:text-dark-text-primary font-medium truncate max-w-[120px] sm:max-w-xs" aria-current="page">
                 {item.name}
               </span>
             ) : (
@@ -61,8 +61,8 @@ export default function Breadcrumb({ items = [], className = '' }) {
  */
 export function BreadcrumbWrapper({ items, className = '' }) {
   return (
-    <div className="container-custom pt-6 pb-2">
-      <div className="inline-flex items-center px-4 py-2 bg-white/80 dark:bg-dark-secondary/80 backdrop-blur-md rounded-full border border-gray-200/50 dark:border-dark-card-border shadow-sm">
+    <div className="container-custom pt-4 sm:pt-6 pb-2">
+      <div className="flex w-fit max-w-full items-center px-4 py-2 bg-white/80 dark:bg-dark-secondary/80 backdrop-blur-md rounded-full border border-gray-200/50 dark:border-dark-card-border shadow-sm overflow-hidden">
         <Breadcrumb items={items} className={className} />
       </div>
     </div>

@@ -7,9 +7,8 @@ import { Linkedin, Twitter, Globe, Users } from 'lucide-react';
 const teamMembers = [
     {
         name: "مصطفى ياسر",
-        role: "الشريك المؤسس والرئيس التنفيذي | خبير نوشن",
+        role: "Co-Founder & CEO | Notion Expert",
         image: "/team/mostafa_yasser_orange_ai.png",
-        bio: "يقود دفة عرب نوشن برؤية استراتيجية، ويمزج خبرته العميقة في نوشن لتمكين المجتمع العربي من أدوات الإنتاجية الحديثة.",
         social: {
             website: "https://www.mostafayasser.com/en",
             linkedin: "https://www.linkedin.com/in/engmsyasser/"
@@ -18,9 +17,8 @@ const teamMembers = [
     },
     {
         name: "حازم ياسر",
-        role: "الشريك المؤسس والرئيس التقني",
+        role: "CTO",
         image: "/team/hazem_orange_ai.png",
-        bio: "يقود الابتكار التقني في المنصة، مصمماً أدوات وتكاملات برمجية فريدة توسع قدرات نوشن لتلبي احتياجات المستخدم العربي.",
         social: {
             linkedin: "https://www.linkedin.com/in/hazem-dev/",
             website: "https://hazem.vip/"
@@ -29,9 +27,8 @@ const teamMembers = [
     },
     {
         name: "مصطفى عجاج",
-        role: "خبير نوشن",
+        role: "Notion Expert",
         image: "/team/mostafa_ajaj_orange_ai.png",
-        bio: "يتقن فن الهيكلة والتنظيم، ويبني قواعد بيانات مترابطة تجعل من مساحة عملك محركاً للإنتاجية لا مستودعاً للملفات.",
         social: {
             linkedin: "https://www.linkedin.com/in/mustafa-ajaj/"
         },
@@ -39,9 +36,8 @@ const teamMembers = [
     },
     {
         name: "مصطفى إسماعيل",
-        role: "خبير نوشن",
+        role: "Automation Expert | Notion Consultant",
         image: "/team/mostafa_general_orange_ai.png",
-        bio: "مبدع في تخصيص تجربة نوشن، وصناعة قوالب ذكية تضفي المتعة والسهولة على إنجاز مهامك اليومية.",
         social: {
             linkedin: "https://www.linkedin.com/in/mostafa-notion/"
         },
@@ -99,10 +95,6 @@ const TeamCard = ({ member, index }) => (
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                 {member.name}
             </h3>
-
-            <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed line-clamp-3 group-hover:line-clamp-none transition-all duration-500 mb-4">
-                {member.bio}
-            </p>
 
             {/* Bottom Decoration */}
             <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">

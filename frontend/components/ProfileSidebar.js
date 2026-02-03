@@ -24,17 +24,17 @@ const ProfileSidebar = ({ userStatus, onNavigate, activeSection }) => {
 
     const generalLinks = [
         { section: 'profile', href: '/profile', label: 'الملف الشخصي', icon: User },
-        { section: 'settings', href: isCreator ? '/settings' : '/user-settings', label: 'الإعدادات', icon: Settings },
+        { section: 'settings', href: isCreator ? '/profile?tab=settings' : '/user-settings', label: 'الإعدادات', icon: Settings },
     ];
 
     const contentLinks = isCreator ? [
-        { section: 'templates', href: '/profile/templates', label: 'قوالبي', icon: LayoutDashboard },
-        { section: 'blogs', href: '/profile/my-blogs', label: 'مقالاتي', icon: Edit3 },
+        { section: 'templates', href: '/profile?tab=templates', label: 'قوالبي', icon: LayoutDashboard },
+        { section: 'blogs', href: '/profile?tab=blogs', label: 'مقالاتي', icon: Edit3 },
     ] : [];
 
     const analyticsLinks = isCreator ? [
-        { section: 'sales', href: '/profile/sales', label: 'سجلات التحميل', icon: Download },
-        { section: 'analytics', href: '/analysis', label: 'التحليلات', icon: TrendingUp },
+        { section: 'sales', href: '/profile?tab=sales', label: 'سجلات التحميل', icon: Download },
+        { section: 'analytics', href: '/profile?tab=analytics', label: 'التحليلات', icon: TrendingUp },
     ] : [];
 
     const NavSection = ({ title, links }) => {

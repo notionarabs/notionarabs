@@ -657,7 +657,7 @@ export default function CreateBlogPage() {
             </button>
             <button
               type="button"
-              onClick={() => router.push('/profile/my-blogs')}
+              onClick={() => router.push('/profile?tab=blogs')}
               className="btn-secondary inline-flex items-center gap-2 w-full sm:w-auto text-sm md:text-base"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

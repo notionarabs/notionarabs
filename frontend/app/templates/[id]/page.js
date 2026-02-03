@@ -788,52 +788,31 @@ export default function TemplateDetailPage() {
                 <div className="sticky top-6 space-y-6">
 
                   {/* Title and Category Skeleton */}
-                  <div className="space-y-3">
-                    <div className="h-8 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-3/4 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-                    <div className="h-6 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-full w-20 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                  <div className="space-y-4">
+                    <div className="h-10 sm:h-12 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-lg w-full bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    <div className="h-8 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-full w-32 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
                   </div>
 
                   {/* Rating Skeleton */}
-                  <div className="flex items-center gap-2">
-                    <div className="h-5 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-20 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-                    <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-16 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                  <div className="flex items-center gap-4">
+                    <div className="h-8 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-lg w-24 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    <div className="h-6 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-lg w-20 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
                   </div>
 
                   {/* Description Skeleton */}
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-full bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
                     <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-full bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
                     <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-3/4 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
                   </div>
 
-                  {/* Features Skeleton */}
-                  <div className="space-y-3">
-                    <div className="h-5 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-24 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-                    <div className="space-y-2">
-                      {[...Array(4)].map((_, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                          <div className="h-4 w-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-                          <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-3/4 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
                   {/* Creator Info Skeleton */}
-                  <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-dark-tertiary rounded-lg">
-                    <div className="w-10 h-10 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-full bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-                    <div className="flex-1">
-                      <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-24 mb-1 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-                      <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-16 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-                    </div>
-                  </div>
+                  <div className="h-10 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-full w-48 bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
 
-                  {/* Download Button Skeleton */}
-                  <div className="h-12 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-xl w-full bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
-
-                  {/* Price Skeleton */}
-                  <div className="text-center">
-                    <div className="h-6 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded w-20 mx-auto bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                  {/* Action Section Skeleton */}
+                  <div className="flex flex-col sm:flex-row items-stretch gap-4">
+                    <div className="flex-shrink-0 w-24 h-[52px] bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-xl bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
+                    <div className="flex-1 h-[52px] bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-xl bg-[length:200%_100%] animate-[shimmer_1.5s_ease-in-out_infinite]" />
                   </div>
                 </div>
               </div>

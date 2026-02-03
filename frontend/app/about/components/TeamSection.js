@@ -17,20 +17,11 @@ const teamMembers = [
     },
     {
         name: "حازم ياسر",
-        role: "CTO",
+        role: "Software Engineer",
         image: "/team/hazem_orange_ai.png",
         social: {
             linkedin: "https://www.linkedin.com/in/hazem-dev/",
             website: "https://hazem.vip/"
-        },
-        className: ""
-    },
-    {
-        name: "مصطفى عجاج",
-        role: "Notion Expert | AI Specialist",
-        image: "/team/mostafa_ajaj_orange_ai.png",
-        social: {
-            linkedin: "https://www.linkedin.com/in/mustafa-ajaj/"
         },
         className: ""
     },
@@ -40,6 +31,15 @@ const teamMembers = [
         image: "/team/mostafa_general_orange_ai.png",
         social: {
             linkedin: "https://www.linkedin.com/in/mostafa-notion/"
+        },
+        className: ""
+    },
+    {
+        name: "مصطفى عجاج",
+        role: "Notion Expert | AI Specialist",
+        image: "/team/mostafa_ajaj_orange_ai.png",
+        social: {
+            linkedin: "https://www.linkedin.com/in/mustafa-ajaj/"
         },
         className: ""
     }

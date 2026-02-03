@@ -96,10 +96,6 @@ const TeamCard = ({ member, index }) => (
                 {member.name}
             </h3>
 
-            {/* Bottom Decoration */}
-            <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                <div className="h-1 w-12 rounded-full bg-gradient-to-r from-primary-500 to-purple-500 group-hover:w-full transition-all duration-700"></div>
-            </div>
         </div>
     </motion.div>
 );

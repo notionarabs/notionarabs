@@ -11,7 +11,7 @@ const securityHeaders = helmet({
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:"],
       scriptSrc: ["'self'"],
-      connectSrc: ["'self'", "https://notion-arabs.onrender.com", "https://api.brevo.com", "https://www.google-analytics.com", "https://www.googletagmanager.com"],
+      connectSrc: ["'self'", "https://notion-arabs.onrender.com", "https://notion-arabs-fe5b3f214071.herokuapp.com", "https://api.brevo.com", "https://www.google-analytics.com", "https://www.googletagmanager.com", "http://localhost:5000", "http://127.0.0.1:5000"],
       frameSrc: ["'self'", "https://www.youtube.com", "https://player.vimeo.com", "https://www.dailymotion.com", "https://player.twitch.tv"],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: [],

@@ -361,12 +361,20 @@ export default function MyBlogsPage() {
 
                       <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 lg:ml-4 lg:flex-shrink-0">
                         {blog.status === 'published' && (
-                          <Link
-                            href={`/blog/${blog.slug}`}
-                            className="btn-outline text-xs sm:text-sm w-full sm:w-auto"
-                          >
-                            عرض المقال
-                          </Link>
+                          <>
+                            <Link
+                              href={`/blog/${blog.slug}`}
+                              className="btn-outline text-xs sm:text-sm w-full sm:w-auto"
+                            >
+                              عرض المقال
+                            </Link>
+                            <Link
+                              href={`/blog/edit/${blog._id}`}
+                              className="btn-primary text-xs sm:text-sm w-full sm:w-auto text-center"
+                            >
+                              تعديل
+                            </Link>
+                          </>
                         )}
                         {blog.status === 'draft' && (
                           <>

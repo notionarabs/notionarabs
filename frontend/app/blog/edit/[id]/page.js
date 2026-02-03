@@ -576,7 +576,7 @@ export default function EditBlogPage() {
         categories: formData.categories, // Also send full array
         tags: formData.tags,
         featuredImage: formData.featuredImage?.trim() || undefined,
-        status: submissionType === 'review' ? 'pending' : formData.status
+        status: submissionType === 'review' ? 'pending' : (formData.status === 'published' ? undefined : formData.status)
       };
 
       // Remove undefined values

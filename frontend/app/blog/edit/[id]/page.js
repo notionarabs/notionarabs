@@ -403,7 +403,7 @@ export default function EditBlogPage() {
         } else {
           showError('فشل في تحميل المقال');
         }
-        router.push('/profile/my-blogs');
+        router.push('/profile?tab=blogs');
       } finally {
         setLoading(false);
       }
@@ -645,7 +645,7 @@ export default function EditBlogPage() {
             </button>
             <button
               type="button"
-              onClick={() => router.push('/profile/my-blogs')}
+              onClick={() => router.push('/profile?tab=blogs')}
               className="btn-secondary inline-flex items-center gap-2 w-full sm:w-auto text-sm md:text-base"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1113,7 +1113,7 @@ export default function EditBlogPage() {
         onClose={() => setShowSuccessModal(false)}
         onContinue={() => {
           setShowSuccessModal(false);
-          router.push('/profile/my-blogs');
+          router.push('/profile?tab=blogs');
         }}
         title="تم تحديث المقال بنجاح! 🎉"
         message="تم حفظ جميع التعديلات التي قمت بها. سيتم مراجعة المقال مرة أخرى إذا اخترت إرساله للمراجعة، أو سيبقى في حالته الحالية مع المحتوى الجديد."

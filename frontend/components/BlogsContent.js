@@ -318,12 +318,20 @@ export default function BlogsContent() {
                                         {/* Action Buttons Container */}
                                         <div className={`${confirmingDeleteId === blog._id ? 'opacity-0 scale-95 pointer-events-none absolute inset-0' : 'opacity-100 scale-100 relative'} transition-all duration-300 ease-in-out flex flex-wrap sm:flex-nowrap items-center gap-2 w-full lg:w-auto`}>
                                             {blog.status === 'published' && (
-                                                <Link
-                                                    href={`/blog/${blog.slug}`}
-                                                    className="btn-secondary w-full sm:w-auto text-sm font-bold flex justify-center"
-                                                >
-                                                    عرض المقال
-                                                </Link>
+                                                <>
+                                                    <Link
+                                                        href={`/blog/${blog.slug}`}
+                                                        className="btn-secondary flex-1 sm:flex-initial text-sm font-bold flex justify-center whitespace-nowrap px-4"
+                                                    >
+                                                        عرض المقال
+                                                    </Link>
+                                                    <Link
+                                                        href={`/blog/edit/${blog._id}`}
+                                                        className="btn-outline flex-1 sm:flex-initial text-sm font-bold flex justify-center whitespace-nowrap px-4"
+                                                    >
+                                                        تعديل
+                                                    </Link>
+                                                </>
                                             )}
                                             {blog.status === 'draft' && (
                                                 <>

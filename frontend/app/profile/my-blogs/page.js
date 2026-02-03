@@ -364,13 +364,13 @@ export default function MyBlogsPage() {
                           <>
                             <Link
                               href={`/blog/${blog.slug}`}
-                              className="btn-outline text-xs sm:text-sm w-full sm:w-auto"
+                              className="btn-outline text-xs sm:text-sm flex-1 sm:flex-initial"
                             >
                               عرض المقال
                             </Link>
                             <Link
                               href={`/blog/edit/${blog._id}`}
-                              className="btn-primary text-xs sm:text-sm w-full sm:w-auto text-center"
+                              className="btn-outline text-xs sm:text-sm flex-1 sm:flex-initial"
                             >
                               تعديل
                             </Link>

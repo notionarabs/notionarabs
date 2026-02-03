@@ -4,7 +4,7 @@ const Order = require('../models/Order');
 const Template = require('../models/Template');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
-const { sendOrderConfirmationEmail } = require('../services/emailService');
+
 
 const router = express.Router();
 
@@ -82,15 +82,7 @@ router.post('/', [
     // Populate the order for response
     await order.populate('items.templateId', 'title slug previewImage notionLink');
 
-    // Send confirmation email
-    try {
-      console.log('📧 Sending order confirmation email to:', req.user.email);
-      await sendOrderConfirmationEmail(req.user, order);
-      console.log('✅ Order confirmation email sent');
-    } catch (emailError) {
-      console.error('❌ Failed to send order confirmation email:', emailError.message);
-      // Don't fail the request if email fails
-    }
+
 
     res.status(201).json({
       success: true,

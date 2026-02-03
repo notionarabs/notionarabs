@@ -6,7 +6,7 @@ import { useToast } from '../../contexts/ToastContext';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import Navigation from '../../components/Navigation';
+
 import api from '../../lib/api';
 import ProfileSidebar from '../../components/ProfileSidebar';
 import TemplatesContent from '../../components/TemplatesContent';
@@ -15,6 +15,7 @@ import SalesContent from '../../components/SalesContent';
 import SettingsContent from '../../components/SettingsContent';
 import AnalyticsContent from '../../components/AnalyticsContent';
 import { Camera, Mail, User as UserIcon, AtSign, Settings, LayoutDashboard, Edit3, Download, TrendingUp } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Profile Overview Component
 function ProfileOverview({ user }) {
@@ -185,17 +186,17 @@ function ProfilePageContent() {
     setActiveSection(section);
     // Update URL query parameter
     router.push(`/profile?tab=${section}`, { scroll: false });
-    // Scroll to top when changing sections
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll to top when changing sections (instant to avoid glitches with layout shifts)
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   if (loading && !user) {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
-        <Navigation activePage="profile" />
+
         <div className="flex">
           {/* Sidebar Skeleton */}
-          <aside className="hidden lg:block fixed top-[72px] right-0 h-[calc(100vh-72px)] w-64 bg-white dark:bg-dark-secondary border-l border-gray-200 dark:border-dark-card-border p-6 z-40">
+          <aside className="hidden lg:block fixed top-0 right-0 h-screen w-64 bg-white dark:bg-dark-secondary border-l border-gray-200 dark:border-dark-card-border p-6 z-40">
             <div className="space-y-8 animate-pulse">
               {/* Section 1 */}
               <div>
@@ -264,7 +265,7 @@ function ProfilePageContent() {
   if (!loading && isAuthenticated && user && user.creatorStatus === 'pending') {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
-        <Navigation activePage="profile" />
+
         <div className="container-custom py-12 sm:py-16 px-4 sm:px-0">
           <div className="max-w-2xl mx-auto text-center">
             <div className="card p-6 sm:p-8">
@@ -316,7 +317,7 @@ function ProfilePageContent() {
 
   return (
     <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
-      <Navigation activePage="profile" />
+
 
       <div className="flex">
         {/* Sidebar with custom navigation handler */}
@@ -327,9 +328,19 @@ function ProfilePageContent() {
         />
 
         {/* Main Content */}
-        <main className="flex-1 min-h-screen lg:mr-64">
-          <div className="max-w-6xl mx-auto p-6 sm:p-8">
-            {renderContent()}
+        <main className="flex-1 min-h-screen lg:mr-64 bg-secondary-50 dark:bg-dark-primary">
+          <div className="max-w-6xl mx-auto p-6 sm:p-8 min-h-[600px]">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeSection}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+              >
+                {renderContent()}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </main>
       </div>

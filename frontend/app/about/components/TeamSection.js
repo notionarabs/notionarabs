@@ -33,17 +33,17 @@ const teamMembers = [
         image: "/team/mostafa_ajaj_orange_ai.png",
         bio: "يتقن فن الهيكلة والتنظيم، ويبني قواعد بيانات مترابطة تجعل من مساحة عملك محركاً للإنتاجية لا مستودعاً للملفات.",
         social: {
-            linkedin: "#"
+            linkedin: "https://www.linkedin.com/in/mustafa-ajaj/"
         },
         className: ""
     },
     {
-        name: "مصطفى خالد",
+        name: "مصطفى إسماعيل",
         role: "خبير نوشن",
         image: "/team/mostafa_general_orange_ai.png",
         bio: "مبدع في تخصيص تجربة نوشن، وصناعة قوالب ذكية تضفي المتعة والسهولة على إنجاز مهامك اليومية.",
         social: {
-            linkedin: "#"
+            linkedin: "https://www.linkedin.com/in/mostafa-notion/"
         },
         className: ""
     }

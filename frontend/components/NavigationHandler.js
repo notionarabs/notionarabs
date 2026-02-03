@@ -1,12 +1,15 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { useLoading } from '../contexts/LoadingContext';
 
 export default function NavigationHandler() {
   const pathname = usePathname();
   const { setLoading, getLoadingStartTime } = useLoading();
+
+  // Track if this is the first load to prevent overriding browser scroll restoration
+  const isFirstLoad = useRef(true);
 
   useEffect(() => {
     // Calculate how long the loading state has been active
@@ -22,44 +25,23 @@ export default function NavigationHandler() {
       setLoading(false);
     }, remainingTime);
 
-    // Exact pages where we don't want automatic scroll to top (not sub-pages)
-    const noScrollPages = [
-      '/',
-      '/templates',
-      '/creators',
-      '/blog',
-      '/about',
-      '/pricing',
-      '/features',
-      '/help',
-      '/press',
-      '/privacy',
-      '/terms',
-      '/careers',
-      '/contact',
-      '/consultation',
-      '/cookies'
-    ];
-
-    // Check if current page should skip auto-scroll (exact match only)
-    const shouldSkipScroll = noScrollPages.includes(pathname);
-
-    // Only scroll to top if not on main pages
-    // Use requestAnimationFrame to batch scroll operation and prevent forced reflow
-    if (!shouldSkipScroll) {
+    // Handle Scroll Behavior
+    if (isFirstLoad.current) {
+      // First load (or reload): allow browser to restore scroll position
+      isFirstLoad.current = false;
+    } else {
+      // Subsequent navigation: scroll to top
       requestAnimationFrame(() => {
         try {
-          // Use instant scroll to avoid forced reflow from smooth scroll
           window.scrollTo(0, 0);
         } catch (e) {
-          // Fallback for environments without scrollTo support
           document.documentElement.scrollTop = 0;
           document.body.scrollTop = 0;
         }
       });
     }
 
-    // Cleanup timer on unmount or pathname change
+    // Cleanup timer
     return () => clearTimeout(timer);
   }, [pathname, setLoading, getLoadingStartTime]);
 

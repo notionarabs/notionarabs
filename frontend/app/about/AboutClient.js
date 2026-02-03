@@ -37,10 +37,7 @@ import JourneySection from './components/JourneySection';
 
 
 export default function AboutClient() {
-    // Scroll to top on mount
-    useEffect(() => {
-        window.scrollTo({ top: 0, behavior: 'instant' });
-    }, []);
+
 
     return (
         <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
@@ -64,7 +61,7 @@ export default function AboutClient() {
             <ValuesSection />
 
             {/* Team Section */}
-            {/* <TeamSection /> */}
+            <TeamSection />
 
 
 

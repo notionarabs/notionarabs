@@ -27,7 +27,7 @@ api.interceptors.request.use(
   (config) => {
     // Add timestamp for performance monitoring
     config.metadata = { startTime: Date.now() };
-    
+
     // Check if maintenance mode is active (except for settings/public endpoint)
     if (typeof window !== 'undefined' &&
       window.isMaintenanceMode &&

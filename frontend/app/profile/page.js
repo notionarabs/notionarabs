@@ -25,7 +25,7 @@ function ProfileOverview({ user }) {
       {/* Page Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-black text-gray-900 dark:text-dark-text-primary mb-2">
-          الملف الشخص
+          الملف الشخصي
         </h1>
         <p className="text-sm font-medium text-gray-600 dark:text-dark-text-secondary">
           إدارة معلومات حسابك وإعداداتك الشخصية

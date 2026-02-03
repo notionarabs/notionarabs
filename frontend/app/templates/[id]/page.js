@@ -1290,20 +1290,20 @@ export default function TemplateDetailPage() {
 
 
                 {/* Price & Actions */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-6">
+                <div className="flex flex-col sm:flex-row items-stretch gap-4 mb-6">
                   {/* Price Tag */}
-                  <div className="flex-shrink-0">
+                  <div className="flex-shrink-0 flex">
                     {template.isPaid ? (
-                      <div className="flex flex-col items-start p-3 rounded-xl bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/20">
-                        <span className="text-xs text-orange-600 dark:text-orange-400 font-medium mb-1">السعر</span>
-                        <span className="text-3xl font-bold text-accent-900 dark:text-dark-text-primary tracking-tight">
-                          {template.price} <span className="text-base font-normal text-accent-500">ر.س</span>
+                      <div className="flex flex-col items-start justify-center h-full p-2.5 rounded-xl bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/20">
+                        <span className="text-[10px] text-orange-600 dark:text-orange-400 font-medium leading-none mb-1">السعر</span>
+                        <span className="text-2xl font-bold text-accent-900 dark:text-dark-text-primary tracking-tight">
+                          {template.price} <span className="text-sm font-normal text-accent-500">ر.س</span>
                         </span>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-start p-3 px-5 rounded-xl bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/20">
-                        <span className="text-xs text-green-600 dark:text-green-400 font-medium mb-1">السعر</span>
-                        <span className="text-3xl font-bold text-green-600 dark:text-green-500 tracking-tight">
+                      <div className="flex flex-col items-start justify-center h-full p-2.5 px-6 rounded-xl bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/20">
+                        <span className="text-[10px] text-green-600 dark:text-green-400 font-medium leading-none mb-1">السعر</span>
+                        <span className="text-2xl font-bold text-green-600 dark:text-green-500 tracking-tight">
                           مجاني
                         </span>
                       </div>
@@ -1315,16 +1315,16 @@ export default function TemplateDetailPage() {
                     {template.isPaid ? (
                       <button
                         onClick={() => window.open(template.purchaseLink, '_blank')}
-                        className="w-full h-full min-h-[64px] rounded-xl font-bold text-lg transition-all duration-300 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white shadow-lg hover:shadow-primary-500/30 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-3"
+                        className="w-full h-full min-h-[52px] rounded-xl font-bold text-base transition-all duration-300 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white shadow-lg hover:shadow-primary-500/30 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
                       >
-                        <ShoppingCart className="w-6 h-6" />
+                        <ShoppingCart className="w-5 h-5" />
                         <span>شراء القالب الآن</span>
                       </button>
                     ) : (
                       <button
                         onClick={handleDownload}
                         disabled={isDownloading || checkingOwnership}
-                        className={`w-full h-full min-h-[64px] rounded-xl font-bold text-lg transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:-translate-y-0.5 active:translate-y-0 ${isDownloaded
+                        className={`w-full h-full min-h-[52px] rounded-xl font-bold text-base transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:-translate-y-0.5 active:translate-y-0 ${isDownloaded
                           ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900/30'
                           : userHasTemplate
                             ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/30'
@@ -1342,17 +1342,17 @@ export default function TemplateDetailPage() {
                           </>
                         ) : userHasTemplate ? (
                           <>
-                            <Folder className="w-6 h-6" />
+                            <Folder className="w-5 h-5" />
                             عرض القالب (تم الامتلاك)
                           </>
                         ) : isDownloading || checkingOwnership ? (
                           <>
-                            <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
                             {checkingOwnership ? 'جاري التحقق...' : 'جاري التحميل...'}
                           </>
                         ) : (
                           <>
-                            <Download className="w-6 h-6" />
+                            <Download className="w-5 h-5" />
                             تحميل مجاني
                           </>
                         )}
@@ -1598,7 +1598,7 @@ export default function TemplateDetailPage() {
                         </div>
                       </div>
 
-                      <h3 className="text-lg font-bold text-accent-900 dark:text-dark-text-primary mb-1 line-clamp-1 leading-tight group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                      <h3 className="text-lg font-bold text-accent-900 dark:text-dark-text-primary mb-4 line-clamp-1 leading-tight group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                         {relatedTemplate.title}
                       </h3>
 

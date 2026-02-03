@@ -27,7 +27,7 @@ const teamMembers = [
     },
     {
         name: "مصطفى عجاج",
-        role: "Notion Expert",
+        role: "Notion Expert | AI Specialist",
         image: "/team/mostafa_ajaj_orange_ai.png",
         social: {
             linkedin: "https://www.linkedin.com/in/mustafa-ajaj/"

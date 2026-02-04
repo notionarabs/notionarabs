@@ -25,90 +25,6 @@ export const AuthProvider = ({ children }) => {
 
   const router = useRouter();
 
-  useEffect(() => {
-    // Prevent double execution in React StrictMode
-    if (authCheckRef.current) {
-      return;
-    }
-
-    // If maintenance mode is active, skip auth check
-    if (isMaintenanceMode) {
-      setLoading(false);
-      setHasCheckedAuth(true);
-      authCheckRef.current = true;
-      return;
-    }
-
-    // Don't check auth until maintenance mode check is complete (but allow initial load)
-    if (!hasCheckedMaintenance) {
-      // Set a timeout to check auth after a short delay if maintenance check takes too long
-      const timeoutId = setTimeout(() => {
-        if (!hasCheckedMaintenance) {
-          setLoading(false);
-          setHasCheckedAuth(true);
-          authCheckRef.current = true;
-        }
-      }, 2000);
-
-      return () => clearTimeout(timeoutId);
-    }
-
-    authCheckRef.current = true;
-
-    // Ensure axios has the token as early as possible
-    const existingToken = Cookies.get('authToken');
-    if (existingToken) {
-      api.defaults.headers.common['Authorization'] = `Bearer ${existingToken}`;
-      // Also set token for emailApi
-      emailApi.defaults.headers.common['Authorization'] = `Bearer ${existingToken}`;
-    }
-
-    // Check if we have cached data first to minimize loading time
-    const cachedUser = localStorage.getItem('user');
-    const cacheTimestamp = localStorage.getItem('userCacheTimestamp');
-    const cacheExpiry = 10 * 60 * 1000; // Increased to 10 minutes for better UX
-
-    // If we have a token and any cached user, optimistically restore it immediately
-    // This avoids unnecessary redirects on browser back/forward/navigation
-    if (existingToken && cachedUser) {
-      try {
-        const userData = JSON.parse(cachedUser);
-        setUser(userData);
-        // Set loading to false immediately for cached users
-        setLoading(false);
-      } catch { }
-    } else if (cachedUser && cacheTimestamp) {
-      // If no token, fall back to strict cache freshness (for non-auth flows)
-      const now = Date.now();
-      const timeSinceCache = now - parseInt(cacheTimestamp);
-      if (timeSinceCache < cacheExpiry) {
-        const userData = JSON.parse(cachedUser);
-        setUser(userData);
-        setLoading(false);
-        setHasCheckedAuth(true);
-        return;
-      }
-    }
-
-    // If we haven't checked auth yet, do it now
-    if (!hasCheckedAuth) {
-      const timeoutId = setTimeout(() => {
-        setLoading(false);
-      }, 3000); // Increased to 3 seconds for smoother UX
-
-      checkAuthStatus().finally(() => {
-        clearTimeout(timeoutId);
-        setHasCheckedAuth(true);
-        setLoading(false);
-      });
-
-      return () => clearTimeout(timeoutId);
-    } else {
-      setLoading(false);
-    }
-  }, [hasCheckedMaintenance]); // Only depend on maintenance check completion
-
-
   const checkAuthStatus = useCallback(async () => {
     try {
       // Skip auth check if maintenance mode is active
@@ -133,8 +49,6 @@ export const AuthProvider = ({ children }) => {
           setUser(userData);
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           return;
         }
       }
@@ -142,7 +56,6 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         // Set the token in axios headers
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
         try {
@@ -186,8 +99,6 @@ export const AuthProvider = ({ children }) => {
             localStorage.removeItem('userCacheTimestamp');
             delete api.defaults.headers.common['Authorization'];
             delete emailApi.defaults.headers.common['Authorization'];
-            delete emailApi.defaults.headers.common['Authorization'];
-            delete emailApi.defaults.headers.common['Authorization'];
           }
           throw apiError; // Re-throw to be caught by callback
         }
@@ -204,13 +115,76 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('userCacheTimestamp');
         delete api.defaults.headers.common['Authorization'];
         delete emailApi.defaults.headers.common['Authorization'];
-        delete emailApi.defaults.headers.common['Authorization'];
       }
       throw error; // Re-throw to be caught by callback
     } finally {
       setLoading(false);
     }
   }, [isMaintenanceMode]);
+
+  useEffect(() => {
+    // If maintenance mode is active, we don't need to check auth
+    if (isMaintenanceMode) {
+      setLoading(false);
+      setHasCheckedAuth(true);
+      return;
+    }
+
+    // Wait for maintenance check, but with a timeout backup
+    if (!hasCheckedMaintenance) {
+      const timeoutId = setTimeout(() => {
+        if (!hasCheckedMaintenance) {
+          console.warn('Maintenance check timed out, proceeding with auth check');
+          // We'll proceed anyway to avoid being stuck in loading
+        }
+      }, 3000);
+
+      // If we're not in development and have checked maintenance, we can proceed
+      if (!hasCheckedMaintenance) return () => clearTimeout(timeoutId);
+      clearTimeout(timeoutId);
+    }
+
+    // Only run the rest of the auth check logic once
+    if (hasCheckedAuth) return;
+
+    const runAuthCheck = async () => {
+      // Ensure axios has the token as early as possible
+      const existingToken = Cookies.get('authToken');
+      if (existingToken) {
+        api.defaults.headers.common['Authorization'] = `Bearer ${existingToken}`;
+        emailApi.defaults.headers.common['Authorization'] = `Bearer ${existingToken}`;
+      }
+
+      // Check if we have cached user data first
+      const cachedUser = localStorage.getItem('user');
+      const cacheTimestamp = localStorage.getItem('userCacheTimestamp');
+      const cacheExpiry = 10 * 60 * 1000;
+
+      if (existingToken && cachedUser) {
+        try {
+          const userData = JSON.parse(cachedUser);
+          setUser(userData);
+          // Set loading to false early if we have valid-looking cache
+          if (userData && (Date.now() - parseInt(cacheTimestamp || '0') < cacheExpiry)) {
+            setLoading(false);
+          }
+        } catch (e) {
+          localStorage.removeItem('user');
+        }
+      }
+
+      try {
+        await checkAuthStatus();
+      } catch (error) {
+        console.error('Initial auth check failed:', error);
+      } finally {
+        setHasCheckedAuth(true);
+        setLoading(false);
+      }
+    };
+
+    runAuthCheck();
+  }, [hasCheckedMaintenance, isMaintenanceMode, hasCheckedAuth, checkAuthStatus]);
 
   const login = async (email, password) => {
     try {

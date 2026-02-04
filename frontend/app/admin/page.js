@@ -41,40 +41,32 @@ export default function AdminPage() {
   const [sortOrder, setSortOrder] = useState('desc');
   const [filteredUserCount, setFilteredUserCount] = useState(null);
   const { user, isAuthenticated, loading: authLoading } = useAuth();
-  const { user: persistentUser, loading: persistentLoading } = useAuthPersistence();
   const router = useRouter();
   const { theme } = useTheme();
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Detect mobile device for performance optimization
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   useEffect(() => {
-    // Don't redirect while authentication is still loading
-    if (authLoading) {
-      return;
+    // If auth is finished and user is not admin, stop the secondary loading state
+    if (!authLoading && (!isAuthenticated || user?.role !== 'admin')) {
+      setLoading(false);
     }
 
-    if (!isAuthenticated) {
-      router.push('/login');
-      return;
-    }
+    // Handle redirections
+    if (!authLoading) {
+      if (!isAuthenticated) {
+        router.push('/login');
+        return;
+      }
 
-    if (user?.role !== 'admin') {
-      router.push('/');
-      return;
-    }
+      if (user?.role !== 'admin') {
+        router.push('/');
+        return;
+      }
 
-    fetchUsers();
-    fetchStats();
-  }, [isAuthenticated, user, router, authLoading]);
+      // If authorized, fetch the data
+      fetchUsers();
+      fetchStats();
+    }
+  }, [isAuthenticated, user?.role, router, authLoading]);
 
   // Real-time updates for admin dashboard
   useEffect(() => {
@@ -137,8 +129,7 @@ export default function AdminPage() {
       if (filterRole !== 'all') params.append('role', filterRole);
       params.append('sortBy', sortBy);
       params.append('sortOrder', sortOrder);
-      // Reduce limit on mobile for faster initial load
-      params.append('limit', isMobile ? '15' : '50');
+      params.append('limit', '50');
 
       const response = await api.get(`/admin/users?${params.toString()}`);
       setUsers(response.data.users);
@@ -273,7 +264,7 @@ export default function AdminPage() {
     }
   };
 
-  if (loading || authLoading || persistentLoading) {
+  if (authLoading || (isAuthenticated && user?.role === 'admin' && loading)) {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
         <div className="container-custom pt-12">
@@ -291,7 +282,7 @@ export default function AdminPage() {
     );
   }
 
-  if (user?.role !== 'admin') {
+  if (!isAuthenticated || user?.role !== 'admin') {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center transition-colors duration-300" dir="rtl">
         <motion.div
@@ -410,9 +401,9 @@ export default function AdminPage() {
           {statsCards.map((card, index) => (
             <motion.div
               key={index}
-              initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={isMobile ? { duration: 0 } : { delay: index * 0.1 }}
+              transition={{ delay: index * 0.1 }}
             >
               <Link href={card.href} className="group block h-full">
                 <div className="h-full bg-white dark:bg-dark-secondary rounded-2xl p-6 border border-gray-200 dark:border-dark-card-border shadow-soft hover:shadow-large transition-all duration-300 relative overflow-hidden">
@@ -634,10 +625,10 @@ export default function AdminPage() {
                     ) : users.map((user, index) => (
                       <motion.tr
                         key={user._id}
-                        initial={isMobile ? { opacity: 1 } : { opacity: 0 }}
+                        initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={isMobile ? { duration: 0 } : { delay: index * 0.05 }}
+                        transition={{ delay: index * 0.05 }}
                         className="hover:bg-gray-50/80 dark:hover:bg-dark-card-hover transition-colors group"
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -724,8 +715,8 @@ export default function AdminPage() {
 
             <div className="px-6 py-4 bg-gray-50 dark:bg-dark-tertiary/20 text-center">
               <p className="text-xs text-accent-400 dark:text-dark-text-quaternary">
-                {filteredUserCount > (isMobile ? 15 : 50)
-                  ? `يتم عرض أول ${isMobile ? 15 : 50} مستخدم. استخدم البحث للعثور على مستخدمين محددين.`
+                {filteredUserCount > 50
+                  ? "يتم عرض أول 50 مستخدم. استخدم البحث للعثور على مستخدمين محددين."
                   : `يتم عرض ${users.length} مستخدم.`}
               </p>
             </div>

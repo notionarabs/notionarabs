@@ -328,8 +328,8 @@ function ProfilePageContent() {
         />
 
         {/* Main Content */}
-        <main className="flex-1 min-h-screen lg:mr-64 bg-secondary-50 dark:bg-dark-primary">
-          <div className="max-w-6xl mx-auto p-6 sm:p-8 min-h-[600px]">
+        <main className="flex-1 min-h-screen lg:mr-64 bg-secondary-50 dark:bg-dark-primary overflow-hidden">
+          <div className="max-w-6xl mx-auto p-4 sm:p-8 min-h-[600px]">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeSection}

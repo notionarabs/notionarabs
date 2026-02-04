@@ -42,6 +42,17 @@ export default function AdminBlogsPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const { showSuccess, showError } = useToast();
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile device for performance optimization
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -81,7 +92,7 @@ export default function AdminBlogsPage() {
       setLoading(true);
       const params = new URLSearchParams({
         page: currentPage.toString(),
-        limit: '10'
+        limit: isMobile ? '5' : '10'
       });
 
       if (selectedStatus !== 'all') {
@@ -261,7 +272,7 @@ export default function AdminBlogsPage() {
       <div className="container-custom relative z-10 pt-6">
         {/* Header Section */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10"
         >
@@ -293,9 +304,9 @@ export default function AdminBlogsPage() {
           ].map((item, idx) => (
             <motion.div
               key={idx}
-              initial={{ opacity: 0, y: 20 }}
+              initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
+              transition={isMobile ? { duration: 0 } : { delay: idx * 0.1 }}
               className="bg-white dark:bg-dark-secondary rounded-2xl p-6 border border-gray-200 dark:border-dark-card-border shadow-soft relative overflow-hidden group"
             >
               <div className={`absolute -right-4 -bottom-4 w-20 h-20 bg-${item.color}-500 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity rounded-full`} />
@@ -383,9 +394,9 @@ export default function AdminBlogsPage() {
                   blogs.map((blog, idx) => (
                     <motion.tr
                       key={blog._id}
-                      initial={{ opacity: 0 }}
+                      initial={isMobile ? { opacity: 1 } : { opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      transition={{ delay: idx * 0.05 }}
+                      transition={isMobile ? { duration: 0 } : { delay: idx * 0.05 }}
                       className="hover:bg-gray-50/80 dark:hover:bg-dark-card-hover transition-colors group"
                     >
                       <td className="px-6 py-4 whitespace-nowrap">

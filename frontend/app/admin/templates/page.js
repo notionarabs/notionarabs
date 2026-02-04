@@ -81,6 +81,17 @@ export default function AdminTemplatesPage() {
   const { user, isAuthenticated, loading: authLoading, ensureTokenInHeaders } = useAuth();
   const { showSuccess, showError } = useToast();
   const router = useRouter();
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile device for performance optimization
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const breadcrumbItems = [
     { name: 'لوحة الإدارة', url: '/admin' },
@@ -104,7 +115,7 @@ export default function AdminTemplatesPage() {
 
       const params = new URLSearchParams({
         page: currentPage,
-        limit: 20,
+        limit: isMobile ? 10 : 20,
         status: selectedStatus,
         search: debouncedSearch
       });
@@ -346,9 +357,9 @@ export default function AdminTemplatesPage() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+            transition={isMobile ? { duration: 0 } : { delay: 0.1 }}
             className="flex items-center gap-4"
           >
             <button

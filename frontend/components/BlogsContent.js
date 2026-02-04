@@ -145,16 +145,19 @@ export default function BlogsContent() {
                             تتبع حالة مقالاتك المرسلة والمقبولة
                         </p>
                     </div>
-                    <div className="flex flex-wrap gap-2 sm:gap-3">
-                        <ExportButton
-                            endpoint={`/blogs/export-public?token=${typeof window !== 'undefined' ? (require('js-cookie').get('authToken') || '') : ''}`}
-                            filename={`${(user?.username || (user?.email ? user.email.split('@')[0] : 'blogs'))}-blogs-${new Date().toISOString().split('T')[0]}.csv`}
-                            label="تصدير المقالات"
-                            direct={true}
-                        />
+                    <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2 sm:gap-3">
+                        <div className="w-full sm:w-auto">
+                            <ExportButton
+                                endpoint={`/blogs/export-public?token=${typeof window !== 'undefined' ? (require('js-cookie').get('authToken') || '') : ''}`}
+                                filename={`${(user?.username || (user?.email ? user.email.split('@')[0] : 'blogs'))}-blogs-${new Date().toISOString().split('T')[0]}.csv`}
+                                label="تصدير المقالات"
+                                direct={true}
+                                className="w-full sm:w-auto justify-center"
+                            />
+                        </div>
                         <Link
                             href="/blog/create"
-                            className="btn-primary flex items-center gap-2 text-sm sm:text-base px-5 py-2.5 font-bold"
+                            className="btn-primary flex items-center justify-center gap-2 text-sm sm:text-base px-5 py-2.5 font-bold w-full sm:w-auto"
                         >
                             <Plus className="w-5 h-5" />
                             مقال جديد
@@ -163,7 +166,7 @@ export default function BlogsContent() {
                 </div>
 
                 {/* Stats Cards */}
-                <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                <div className="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                     <div className="bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl p-4 sm:p-5 hover:shadow-md transition-shadow">
                         <h3 className="text-sm font-bold text-gray-500 dark:text-dark-text-secondary mb-1">إجمالي المقالات</h3>
                         <p className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-dark-text-primary">
@@ -276,11 +279,11 @@ export default function BlogsContent() {
                                             </span>
                                         </div>
 
-                                        <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-dark-text-primary mb-2 break-words group-hover:text-primary-600 dark:group-hover:text-orange-400 transition-colors">
+                                        <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-dark-text-primary mb-2 break-all group-hover:text-primary-600 dark:group-hover:text-orange-400 transition-colors">
                                             {blog.title}
                                         </h3>
 
-                                        <p className="text-sm sm:text-base text-gray-600 dark:text-dark-text-secondary mb-4 line-clamp-2 leading-relaxed">
+                                        <p className="text-sm sm:text-base text-gray-600 dark:text-dark-text-secondary mb-4 line-clamp-2 leading-relaxed break-all">
                                             {blog.excerpt}
                                         </p>
 
@@ -314,16 +317,16 @@ export default function BlogsContent() {
                                         )}
                                     </div>
 
-                                    <div className="relative flex flex-wrap sm:flex-nowrap items-center gap-2 lg:ml-4 lg:flex-shrink-0 pt-2 lg:pt-0 w-full lg:w-auto">
+                                    <div className="relative flex flex-col sm:flex-row items-stretch sm:items-center gap-2 lg:ml-4 lg:flex-shrink-0 pt-2 lg:pt-0 w-full lg:w-auto">
                                         {/* Action Buttons Container */}
-                                        <div className={`${confirmingDeleteId === blog._id ? 'opacity-0 scale-95 pointer-events-none absolute inset-0' : 'opacity-100 scale-100 relative'} transition-all duration-300 ease-in-out flex flex-wrap sm:flex-nowrap items-center gap-2 w-full lg:w-auto`}>
+                                        <div className={`${confirmingDeleteId === blog._id ? 'opacity-0 scale-95 pointer-events-none absolute inset-0' : 'opacity-100 scale-100 relative'} transition-all duration-300 ease-in-out flex items-center gap-2 w-full lg:w-auto`}>
                                             {blog.status === 'published' && (
                                                 <>
                                                     <Link
                                                         href={`/blog/${blog.slug}`}
                                                         className="btn-secondary flex-1 sm:flex-initial text-sm font-bold flex justify-center whitespace-nowrap px-4"
                                                     >
-                                                        عرض المقال
+                                                        عرض
                                                     </Link>
                                                     <Link
                                                         href={`/blog/edit/${blog._id}`}
@@ -345,22 +348,22 @@ export default function BlogsContent() {
                                                         onClick={() => submitForReview(blog._id)}
                                                         className="btn-primary text-sm font-bold flex-1 sm:flex-initial whitespace-nowrap"
                                                     >
-                                                        إرسال للمراجعة
+                                                        نشر
                                                     </button>
                                                 </>
                                             )}
                                             {(blog.status === 'rejected' || blog.status === 'pending') && (
                                                 <Link
                                                     href={`/blog/edit/${blog._id}`}
-                                                    className="btn-outline w-full sm:w-auto text-sm font-bold whitespace-nowrap flex justify-center"
+                                                    className="btn-outline text-sm font-bold whitespace-nowrap flex justify-center flex-1 sm:flex-initial"
                                                 >
-                                                    تعديل وإعادة الإرسال
+                                                    تعديل وإرسال
                                                 </Link>
                                             )}
                                             {/* Delete Button */}
                                             <button
                                                 onClick={() => setConfirmingDeleteId(blog._id)}
-                                                className="btn-outline text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-600 dark:hover:bg-red-900/20 text-sm font-bold p-2.5 flex items-center justify-center flex-1 sm:flex-initial"
+                                                className="btn-outline text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-600 dark:hover:bg-red-900/20 text-sm font-bold p-2.5 flex items-center justify-center flex-none"
                                                 title="حذف المقال"
                                             >
                                                 <Trash2 className="w-5 h-5" />

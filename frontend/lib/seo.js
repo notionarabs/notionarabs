@@ -205,8 +205,10 @@ export function generateBlogMetadata(blog) {
 
   // Ensure image URL is absolute for blogs and add cache-busting
   let imageUrl = blog.featuredImage;
-  if (imageUrl && !imageUrl.startsWith('http')) {
-    imageUrl = `${siteConfig.url}${imageUrl}`;
+  if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('https')) {
+    // If it starts with /, it's relative to root, otherwise we might need to add it
+    const separator = imageUrl.startsWith('/') ? '' : '/';
+    imageUrl = `${siteConfig.url}${separator}${imageUrl}`;
   }
 
   // Add cache-busting parameter to force social media refresh when blog is updated

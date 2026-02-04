@@ -26,7 +26,7 @@ const teamMembers = [
         className: ""
     },
     {
-        name: "مصطفى شعبان",
+        name: "مصطفى إسماعيل",
         role: "Automation Expert | Notion Consultant",
         image: "/team/mostafa_general_orange_ai.png",
         social: {

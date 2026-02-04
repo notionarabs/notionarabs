@@ -63,6 +63,10 @@ async function getBlog(slug) {
       blog.author.profilePicture = normalizeProfilePictureUrl(blog.author.profilePicture);
     }
 
+    if (blog.featuredImage) {
+      blog.featuredImage = normalizeProfilePictureUrl(blog.featuredImage);
+    }
+
     const relatedBlogs = (data.relatedBlogs || []).map(related => {
       if (related.author) {
         related.author.profilePicture = normalizeProfilePictureUrl(related.author.profilePicture);

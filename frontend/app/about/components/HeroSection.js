@@ -71,13 +71,13 @@ export default function HeroSection() {
                         </motion.div>
 
                         <motion.h1
-                            className="text-3xl sm:text-4xl lg:text-6xl font-black tracking-tight leading-tight mb-6 text-accent-900 dark:text-dark-text-primary"
+                            className="text-3xl sm:text-4xl lg:text-6xl font-black tracking-tight mb-6 text-accent-900 dark:text-dark-text-primary"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.3, duration: 0.6 }}
                         >
-                            أكثر من مجرد <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-l from-primary-500 to-orange-600">
+                            <span className="block mb-0 py-[2px] leading-tight">أكثر من مجرد</span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-l from-primary-500 to-orange-600 block py-[2px] leading-tight">
                                 أداة لتنظيم المهام
                             </span>
                         </motion.h1>

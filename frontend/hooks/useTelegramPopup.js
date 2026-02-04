@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 const TELEGRAM_POPUP_STORAGE_KEY = 'telegramPopupDismissed';
 const SHOW_DELAY = 15000; // Show after 15 seconds (more time for user to engage)
@@ -6,10 +7,15 @@ const SCROLL_THRESHOLD = 50; // Show after scrolling 50% of page (more engagemen
 const MIN_TIME_ON_PAGE = 10000; // Minimum 10 seconds on page before showing
 
 export function useTelegramPopup() {
+  const { user, isAuthenticated } = useAuth();
   const [showPopup, setShowPopup] = useState(false);
   const [hasChecked, setHasChecked] = useState(false);
 
   useEffect(() => {
+    // Skip general popup for approved creators
+    if (isAuthenticated && user?.creatorStatus === 'approved') {
+      return;
+    }
     if (hasChecked || typeof window === 'undefined') {
       return;
     }

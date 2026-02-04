@@ -910,8 +910,14 @@ function CreateTemplatePageContent() {
                       </svg>
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                    يُرجى وضع رابط القالب المنشور عبر (notion.site). لحماية حقوقك، يُفضل رفع القالب على متجر نوشن الرسمي أولاً.
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
+                    <svg className="w-3.5 h-3.5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" fillRule="evenodd" />
+                    </svg>
+                    <span>شاهد شرحاً بالفيديو لكيفية الحصول على الرابط الصحيح:</span>
+                    <a href="https://youtu.be/TCNysIbFmfs?t=230" target="_blank" rel="noopener noreferrer" className="text-primary-600 dark:text-orange-400 hover:underline font-medium outline-none">
+                      اضغط هنا
+                    </a>
                   </p>
                 </div>
 

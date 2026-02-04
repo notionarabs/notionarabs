@@ -28,12 +28,16 @@ export const siteConfig = {
 };
 
 // Utility function to add cache-busting parameter to image URLs
+// Note: Some platforms like WhatsApp might have issues with query parameters in image URLs
 function addCacheBuster(imageUrl, timestamp) {
   if (!imageUrl) return imageUrl;
 
-  const cacheBuster = timestamp || Date.now();
-  const separator = imageUrl.includes('?') ? '&' : '?';
-  return `${imageUrl}${separator}v=${cacheBuster}`;
+  // Skip cache busting for now as it might interfere with some social crawlers
+  return imageUrl;
+
+  // const cacheBuster = timestamp || Date.now();
+  // const separator = imageUrl.includes('?') ? '&' : '?';
+  // return `${imageUrl}${separator}v=${cacheBuster}`;
 }
 
 export function generateMetadata({
@@ -89,6 +93,7 @@ export function generateMetadata({
           width: 1200,
           height: 630,
           alt: fullTitle,
+          type: fullImage.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg',
         },
       ],
       ...(publishedTime && { publishedTime }),
@@ -203,24 +208,27 @@ export function generateBlogMetadata(blog) {
     'إنتاجية'
   ];
 
-  // Ensure image URL is absolute for blogs and add cache-busting
+  // Ensure image URL is absolute for blogs
   let imageUrl = blog.featuredImage;
-  if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('https')) {
-    // If it starts with /, it's relative to root, otherwise we might need to add it
-    const separator = imageUrl.startsWith('/') ? '' : '/';
-    imageUrl = `${siteConfig.url}${separator}${imageUrl}`;
-  }
 
-  // Add cache-busting parameter to force social media refresh when blog is updated
   if (imageUrl) {
-    imageUrl = addCacheBuster(imageUrl, blog.updatedAt || blog._id);
+    if (!imageUrl.startsWith('http') && !imageUrl.startsWith('https')) {
+      const separator = imageUrl.startsWith('/') ? '' : '/';
+      // If it's an uploaded image path, it should probably go to the backend, 
+      // but if it's a public asset, it goes to siteConfig.url.
+      // Since we normalize this in the page.js server-side, it's likely already absolute.
+      imageUrl = `${siteConfig.url}${separator}${imageUrl}`;
+    }
+  } else {
+    // Fallback to a dedicated blog fallback image instead of the generic one
+    imageUrl = `${siteConfig.url}/blog-fallback.png`;
   }
 
   return generateMetadata({
     title,
     description,
     keywords,
-    image: imageUrl || `${siteConfig.url}${siteConfig.ogImage}`,
+    image: imageUrl,
     url: `/blog/${blog.slug}`,
     type: 'article',
     publishedTime: blog.publishedAt,

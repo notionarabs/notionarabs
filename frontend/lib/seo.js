@@ -27,17 +27,27 @@ export const siteConfig = {
   currencySymbol: 'ر.س'
 };
 
-// Utility function to add cache-busting parameter to image URLs
-// Note: Some platforms like WhatsApp might have issues with query parameters in image URLs
-function addCacheBuster(imageUrl, timestamp) {
-  if (!imageUrl) return imageUrl;
+// Utility function to get absolute image URL
+export function getAbsoluteImageUrl(imageUrl) {
+  if (!imageUrl) return `${siteConfig.url}/og-image.png`;
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) return imageUrl;
 
-  // Skip cache busting for now as it might interfere with some social crawlers
+  const backendUrl = 'https://notion-arabs-fe5b3f214071.herokuapp.com';
+  const trimmed = imageUrl.trim();
+  const separator = trimmed.startsWith('/') ? '' : '/';
+
+  // If it's an uploaded file (usually in /uploads or similar)
+  if (trimmed.includes('uploads/')) {
+    return `${backendUrl}${separator}${trimmed}`;
+  }
+
+  // Otherwise assume it's a public asset on the frontend
+  return `${siteConfig.url}${separator}${trimmed}`;
+}
+
+// Utility function to add cache-busting (LEGACY)
+function addCacheBuster(imageUrl) {
   return imageUrl;
-
-  // const cacheBuster = timestamp || Date.now();
-  // const separator = imageUrl.includes('?') ? '&' : '?';
-  // return `${imageUrl}${separator}v=${cacheBuster}`;
 }
 
 export function generateMetadata({
@@ -56,7 +66,7 @@ export function generateMetadata({
   const fullTitle = title ? `${title} | ${siteConfig.name}` : siteConfig.title;
   const fullDescription = description || siteConfig.description;
   const fullKeywords = [...siteConfig.keywords, ...keywords].join(', ');
-  const fullImage = image || `${siteConfig.url}/og-image.png`;
+  const fullImage = getAbsoluteImageUrl(image);
   const fullUrl = url ? `${siteConfig.url}${url}` : siteConfig.url;
 
   const metadata = {
@@ -106,10 +116,12 @@ export function generateMetadata({
       creator: siteConfig.creator,
       title: fullTitle,
       description: fullDescription,
-      images: {
-        url: fullImage,
-        alt: fullTitle,
-      },
+      images: [
+        {
+          url: fullImage,
+          alt: fullTitle,
+        }
+      ],
     },
     robots: {
       index: !noindex,
@@ -149,23 +161,12 @@ export function generateTemplateMetadata(template) {
     'عربي'
   ];
 
-  // Ensure image URL is absolute for templates and add cache-busting
-  let imageUrl = template.previewImage;
-  if (imageUrl && !imageUrl.startsWith('http')) {
-    imageUrl = `${siteConfig.url}${imageUrl}`;
-  }
-
-  // Add cache-busting parameter to force social media refresh when template is updated
-  if (imageUrl) {
-    imageUrl = addCacheBuster(imageUrl, template.updatedAt || template._id);
-  }
-
   // Enhanced metadata with additional SEO fields
   const metadata = generateMetadata({
     title,
     description,
     keywords,
-    image: imageUrl || `${siteConfig.url}${siteConfig.ogImage}`,
+    image: template.previewImage,
     url: `/templates/${template.slug || template._id}`,
     type: 'article',
     publishedTime: template.createdAt,
@@ -208,27 +209,11 @@ export function generateBlogMetadata(blog) {
     'إنتاجية'
   ];
 
-  // Ensure image URL is absolute for blogs
-  let imageUrl = blog.featuredImage;
-
-  if (imageUrl) {
-    if (!imageUrl.startsWith('http') && !imageUrl.startsWith('https')) {
-      const separator = imageUrl.startsWith('/') ? '' : '/';
-      // If it's an uploaded image path, it should probably go to the backend, 
-      // but if it's a public asset, it goes to siteConfig.url.
-      // Since we normalize this in the page.js server-side, it's likely already absolute.
-      imageUrl = `${siteConfig.url}${separator}${imageUrl}`;
-    }
-  } else {
-    // Fallback to a dedicated blog fallback image instead of the generic one
-    imageUrl = `${siteConfig.url}/blog-fallback.png`;
-  }
-
   return generateMetadata({
     title,
     description,
     keywords,
-    image: imageUrl,
+    image: blog.featuredImage || '/blog-fallback.png',
     url: `/blog/${blog.slug}`,
     type: 'article',
     publishedTime: blog.publishedAt,
@@ -254,22 +239,11 @@ export function generateCreatorMetadata(creator) {
     creator.specialty || creator.bio?.split(' ').slice(0, 3).join(' ')
   ].filter(Boolean);
 
-  // Ensure image URL is absolute for creators and add cache-busting
-  let imageUrl = creator.profilePicture;
-  if (imageUrl && !imageUrl.startsWith('http')) {
-    imageUrl = `${siteConfig.url}${imageUrl}`;
-  }
-
-  // Add cache-busting parameter to force social media refresh when profile is updated
-  if (imageUrl) {
-    imageUrl = addCacheBuster(imageUrl, creator.updatedAt || creator._id);
-  }
-
   return generateMetadata({
     title,
     description,
     keywords,
-    image: imageUrl || `${siteConfig.url}${siteConfig.ogImage}`,
+    image: creator.profilePicture,
     url: `/creators/${creator.username || creator._id}`,
     type: 'profile',
   });

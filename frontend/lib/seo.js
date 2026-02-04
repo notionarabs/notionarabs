@@ -209,11 +209,20 @@ export function generateBlogMetadata(blog) {
     'إنتاجية'
   ];
 
+  // Try to find an image in the content if featuredImage is missing
+  let seoImage = blog.featuredImage;
+  if (!seoImage && blog.content) {
+    const imgMatch = blog.content.match(/<img[^>]+src="([^">]+)"/);
+    if (imgMatch && imgMatch[1]) {
+      seoImage = imgMatch[1];
+    }
+  }
+
   return generateMetadata({
     title,
     description,
     keywords,
-    image: blog.featuredImage || '/blog-fallback.png',
+    image: seoImage || '/blog-fallback.png',
     url: `/blog/${blog.slug}`,
     type: 'article',
     publishedTime: blog.publishedAt,

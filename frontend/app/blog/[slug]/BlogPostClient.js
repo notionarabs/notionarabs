@@ -23,8 +23,9 @@ const RatingCommentSystem = dynamic(() => import('../../../components/RatingComm
 });
 import { BlogPostSchema, BreadcrumbSchema } from '../../../components/StructuredData';
 import Breadcrumb, { BreadcrumbWrapper } from '../../../components/Breadcrumb';
-import { siteConfig } from '../../../lib/seo';
+import { siteConfig, extractFirstImage } from '../../../lib/seo';
 import { getApiBaseUrl } from '../../../lib/apiConfig';
+
 
 // Calculate reading time based on content
 const calculateReadingTime = (content) => {
@@ -503,23 +504,23 @@ export default function BlogPostClient({ initialBlog, initialRelatedBlogs }) {
                         {/* Main Content */}
                         <div className="lg:col-span-2">
                             <article className="bg-white dark:bg-dark-secondary rounded-2xl shadow-medium dark:shadow-dark-medium overflow-hidden border border-gray-200/70 dark:border-dark-card-border">
-                                {/* Featured Image */}
-                                {blog.featuredImage && (
-                                    <div className="relative h-48 sm:h-64 md:h-80 overflow-hidden">
-                                        <Image
-                                            src={blog.featuredImage}
-                                            alt={blog.title}
-                                            width={800}
-                                            height={400}
-                                            className="w-full h-full object-cover"
-                                            priority
-                                            quality={85}
-                                            placeholder="blur"
-                                            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                                    </div>
-                                )}
+                                {(() => {
+                                    const effectiveImage = blog.featuredImage || extractFirstImage(blog.content) || '/blog-fallback.png';
+                                    return (
+                                        <div className="relative h-48 sm:h-64 md:h-80 overflow-hidden">
+                                            <Image
+                                                src={effectiveImage}
+                                                alt={blog.title}
+                                                width={800}
+                                                height={400}
+                                                className="w-full h-full object-cover"
+                                                priority
+                                                quality={85}
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                                        </div>
+                                    );
+                                })()}
 
                                 <div className="p-4 sm:p-7 md:p-10">
                                     {/* Category Badge */}

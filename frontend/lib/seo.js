@@ -210,13 +210,7 @@ export function generateBlogMetadata(blog) {
   ];
 
   // Try to find an image in the content if featuredImage is missing
-  let seoImage = blog.featuredImage;
-  if (!seoImage && blog.content) {
-    const imgMatch = blog.content.match(/<img[^>]+src="([^">]+)"/);
-    if (imgMatch && imgMatch[1]) {
-      seoImage = imgMatch[1];
-    }
-  }
+  let seoImage = blog.featuredImage || extractFirstImage(blog.content);
 
   return generateMetadata({
     title,
@@ -285,4 +279,10 @@ export function generateCategoryMetadata(category, count = 0, englishSlug = null
     url: canonicalUrl,
     canonical: canonicalUrl, // Explicitly set canonical to ensure it's always the English version
   });
+}
+// Utility to extract the first image from HTML content
+export function extractFirstImage(content) {
+  if (!content) return null;
+  const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
+  return imgMatch && imgMatch[1] ? imgMatch[1] : null;
 }

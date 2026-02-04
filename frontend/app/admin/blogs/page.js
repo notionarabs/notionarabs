@@ -30,6 +30,8 @@ import {
 } from 'lucide-react';
 import { BreadcrumbWrapper } from '../../../components/Breadcrumb.js';
 import { getApiBaseUrl } from '../../../lib/apiConfig';
+import { extractFirstImage } from '../../../lib/seo';
+
 
 const normalizeImageUrl = (url) => {
   if (!url || typeof url !== 'string') return url;
@@ -54,6 +56,7 @@ const normalizeImageUrl = (url) => {
 
   return `${absoluteBase}/${trimmed}`;
 };
+
 
 const BlogImageFallback = memo(({ title, excerpt, className = "" }) => (
   <div className={`relative overflow-hidden bg-gradient-to-br from-orange-400 via-orange-500 to-red-500 ${className}`}>
@@ -208,20 +211,17 @@ const BlogDetailsModal = memo(({
               <div className="lg:col-span-2 space-y-8">
                 {/* Header Image or Placeholder */}
                 <div className="rounded-3xl overflow-hidden aspect-video relative border border-gray-100 dark:border-dark-card-border shadow-medium">
-                  {selectedBlogDetails.featuredImage ? (
-                    <Image
-                      src={normalizeImageUrl(selectedBlogDetails.featuredImage)}
-                      alt={selectedBlogDetails.title}
-                      fill
-                      className="object-cover"
-                    />
-                  ) : (
-                    <BlogImageFallback
-                      title={selectedBlogDetails.title}
-                      excerpt={selectedBlogDetails.excerpt}
-                      className="w-full h-full"
-                    />
-                  )}
+                  {(() => {
+                    const effectiveImage = selectedBlogDetails.featuredImage || extractFirstImage(selectedBlogDetails.content) || '/blog-fallback.png';
+                    return (
+                      <Image
+                        src={normalizeImageUrl(effectiveImage)}
+                        alt={selectedBlogDetails.title}
+                        fill
+                        className="object-cover"
+                      />
+                    );
+                  })()}
                 </div>
 
                 {/* Title & Meta */}
@@ -405,16 +405,17 @@ const BlogTableRow = memo(({ blog, idx, handleViewDetails, handleStatusChange, f
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-gray-100 dark:bg-dark-tertiary rounded-xl overflow-hidden relative border border-gray-100 dark:border-dark-card-border">
-            {blog.featuredImage ? (
-              <Image
-                src={normalizeImageUrl(blog.featuredImage)}
-                alt={blog.title}
-                fill
-                className="object-cover"
-              />
-            ) : (
-              <BlogImageFallback title={blog.title} excerpt={blog.excerpt} className="w-full h-full" />
-            )}
+            {(() => {
+              const effectiveImage = blog.featuredImage || extractFirstImage(blog.content) || '/blog-fallback.png';
+              return (
+                <Image
+                  src={normalizeImageUrl(effectiveImage)}
+                  alt={blog.title}
+                  fill
+                  className="object-cover"
+                />
+              );
+            })()}
           </div>
           <div className="max-w-[200px]">
             <p className="text-sm font-bold text-accent-500 dark:text-dark-text-primary truncate">

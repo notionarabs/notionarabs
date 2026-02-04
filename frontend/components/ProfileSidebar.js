@@ -99,12 +99,12 @@ const ProfileSidebar = ({ userStatus, onNavigate, activeSection }) => {
             <aside className={`
         fixed top-0 right-0 h-screen
         w-64 bg-white dark:bg-dark-secondary border-l lg:border-l-0 lg:border-r border-gray-200 dark:border-dark-card-border
-        p-6 overflow-y-auto z-40
+        p-6 overflow-y-auto scrollbar-hide z-40
         transition-transform duration-300 lg:translate-x-0
         ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
       `}>
                 {/* Logo Section */}
-                <div className="mb-8 px-3">
+                <div className="mb-6 px-3">
                     <Link href="/" className="flex items-center">
                         <Image
                             src="/NavLogo.svg"
@@ -126,7 +126,7 @@ const ProfileSidebar = ({ userStatus, onNavigate, activeSection }) => {
                 </div>
 
                 {/* Back to Site Link */}
-                <div className="mb-6 px-3">
+                <div className="mb-4 px-3">
                     <Link
                         href="/"
                         className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-primary-600 dark:text-orange-400 bg-primary-50 dark:bg-orange-500/10 font-bold hover:bg-primary-100 dark:hover:bg-orange-500/20 transition-colors border border-primary-100 dark:border-orange-500/20 shadow-sm"
@@ -136,7 +136,7 @@ const ProfileSidebar = ({ userStatus, onNavigate, activeSection }) => {
                     </Link>
                 </div>
 
-                <div className="h-px bg-gray-100 dark:bg-dark-card-border mb-6 mx-3" />
+                <div className="h-px bg-gray-100 dark:bg-dark-card-border mb-4 mx-3" />
 
                 <NavSection title="عام" links={generalLinks} />
                 {isCreator && (
@@ -145,6 +145,27 @@ const ProfileSidebar = ({ userStatus, onNavigate, activeSection }) => {
                         <NavSection title="التحليلات" links={analyticsLinks} />
                     </>
                 )}
+
+                <div className="h-px bg-gray-100 dark:bg-dark-card-border my-4 mx-3" />
+
+                <div className="mb-4">
+                    <h3 className="text-xs font-semibold text-gray-500 dark:text-dark-text-tertiary uppercase tracking-wider mb-2 px-3">
+                        المجتمع
+                    </h3>
+                    <nav className="space-y-1">
+                        <a
+                            href="https://t.me/+jNEkx52yB4Q0MmU0"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-dark-text-secondary hover:bg-gray-100 dark:hover:bg-dark-tertiary transition-colors group"
+                        >
+                            <svg className="w-[18px] h-[18px] text-[#24A1DE] group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+                            </svg>
+                            <span className="font-bold">قناة المبدعين</span>
+                        </a>
+                    </nav>
+                </div>
             </aside>
 
             {/* Mobile Overlay */}

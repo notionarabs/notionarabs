@@ -654,6 +654,16 @@
   .loading-overlay {
     @apply fixed inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-dark-primary/80 backdrop-blur-sm transition-all duration-300;
   }
+
+  /* Hide scrollbar utility */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 @layer utilities {

@@ -116,6 +116,7 @@ export default function ConsultationForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [status, setStatus] = useState({ type: '', message: '' });
+  const [showCalendar, setShowCalendar] = useState(false);
 
 
   // --- Steps Definition ---
@@ -146,7 +147,8 @@ export default function ConsultationForm() {
         { id: 'name', type: 'input', label: 'اسمك الكامل', placeholder: 'اكتب اسمك هنا...' },
         { id: 'email', type: 'input', label: 'البريد الإلكتروني للعمل', placeholder: 'name@company.com' },
         { id: 'whatsapp', type: 'phone', label: 'رقم للتواصل (واتساب)' },
-        { id: 'website', type: 'input', label: 'موقع الشركة (اختياري)', placeholder: 'example.com' },
+        { id: 'serviceType', type: 'multi-selection', label: 'نوع الخدمة المطلوبة' }, // Added for companies
+        { id: 'companyWebsite', type: 'input', label: 'موقع الشركة (اختياري)', placeholder: 'example.com' },
         { id: 'projectHelp', type: 'input', label: 'ما المشروع الذي تحتاج مساعدة فيه؟', placeholder: 'وصف قصير...' },
         { id: 'budget', type: 'selection', label: 'الميزانية التقديرية' },
         { id: 'timeline', type: 'selection', label: 'متى تريد البدء؟' },
@@ -246,8 +248,15 @@ export default function ConsultationForm() {
     try {
       // Use override value for the current field if provided (fixes stale state on last step auto-advance)
       const submissionData = { ...formData };
+
+      // CRITICAL FIX: If finalValue is provided, FORCE update the current field in submission data
+      // This handles cases where state hasn't updated yet (common with auto-advance or quick clicks)
       if (finalValue !== undefined && currentQuestion) {
         submissionData[currentQuestion.id] = finalValue;
+      } else if (currentQuestion && !submissionData[currentQuestion.id]) {
+        // Fallback: If no override, but current field is empty in state, 
+        // it might be a race condition. Check if we can get it from the event? 
+        // (Actually, relying on state is usually safe unless it's the very last fast-click)
       }
 
       const { countryCode, ...rest } = submissionData;
@@ -318,6 +327,7 @@ export default function ConsultationForm() {
               } else {
                 handleChange(currentQuestion.id, opt.value);
                 // Auto advance for single select - pass the value explicitly to validate against it
+                // We add a small delay for visual feedback, but the value is constrained
                 setTimeout(() => handleNext(opt.value), 300);
               }
             }}
@@ -360,6 +370,15 @@ export default function ConsultationForm() {
     </div>
   );
 
+  // State for calendar modal moved to top level
+  // const [showCalendar, setShowCalendar] = useState(false);  <-- Was here
+
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   if (status.type === 'success') {
     return (
       <div className="w-full flex flex-col items-center justify-center text-center py-10">
@@ -368,25 +387,62 @@ export default function ConsultationForm() {
         </div>
         <h2 className="text-3xl font-bold mb-4 text-accent-800 dark:text-white">تم استلام طلبك بنجاح!</h2>
         <p className="text-lg text-accent-600 dark:text-gray-400 max-w-xl mb-8">
-          شكراً لتواصلك معنا. يرجى اختيار الموعد المناسب للاجتماع من التقويم أدناه لاستكمال الاستشارة.
+          شكراً لتواصلك معنا. يرجى اختيار الموعد المناسب للاجتماع لاستكمال الاستشارة.
         </p>
 
-        <div className="w-full max-w-4xl h-[700px] bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-800">
-          <iframe
-            src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ1HftJ5PXpttrH8ePGQcjUbYdGTWem2E412F3o_yN7uAsUsYxMIUlfWyArhv9Jr2sJJTLv8U0SS?gv=true"
-            style={{ border: 0 }}
-            width="100%"
-            height="100%"
-            frameBorder="0"
-          ></iframe>
-        </div>
+        <button
+          onClick={() => setShowCalendar(true)}
+          type="button"
+          className="btn-primary text-xl px-10 py-4 rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex items-center gap-2"
+        >
+          اختر موعد الاستشارة
+        </button>
 
         <button
           onClick={() => window.location.reload()}
+          type="button"
           className="mt-8 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-sm"
         >
           العودة للرئيسية
         </button>
+
+        {/* Calendar Modal */}
+        {showCalendar && mounted && (
+          createPortal(
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm">
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                className="relative w-full max-w-5xl h-[85vh] bg-white dark:bg-dark-card-bg rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+              >
+                <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-white dark:bg-dark-card-bg z-10">
+                  <h3 className="text-lg font-bold text-gray-800 dark:text-white">حجز موعد</h3>
+                  <button
+                    onClick={() => setShowCalendar(false)}
+                    type="button"
+                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="flex-1 w-full bg-white relative">
+                  <div className="absolute inset-0 flex items-center justify-center text-gray-400 -z-10">
+                    جاري تحميل التقويم...
+                  </div>
+                  <iframe
+                    src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ1HftJ5PXpttrH8ePGQcjUbYdGTWem2E412F3o_yN7uAsUsYxMIUlfWyArhv9Jr2sJJTLv8U0SS?gv=true"
+                    style={{ border: 0 }}
+                    width="100%"
+                    height="100%"
+                    frameBorder="0"
+                  ></iframe>
+                </div>
+              </motion.div>
+            </div>,
+            document.body
+          )
+        )}
       </div>
     );
   }
@@ -457,7 +513,7 @@ export default function ConsultationForm() {
             {/* Navigation Controls */}
             <div className="flex items-center gap-4 mt-12 flex-wrap sm:flex-nowrap">
               <button
-                onClick={() => handleNext()}
+                onClick={() => handleNext(formData[currentQuestion.id])}
                 disabled={loading}
                 className="btn-primary rounded-xl px-8 py-3 text-lg flex items-center gap-2 disabled:opacity-70 disabled:cursor-wait w-full sm:w-auto justify-center"
               >

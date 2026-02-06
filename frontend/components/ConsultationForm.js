@@ -362,19 +362,30 @@ export default function ConsultationForm() {
 
   if (status.type === 'success') {
     return (
-      <div className="min-h-[50vh] flex flex-col items-center justify-center text-center">
-        <div className="w-24 h-24 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-6 text-green-600 dark:text-green-400 font-bold">
-          <Check size={48} />
+      <div className="w-full flex flex-col items-center justify-center text-center py-10">
+        <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-6 text-green-600 dark:text-green-400 font-bold">
+          <Check size={40} />
         </div>
-        <h2 className="text-3xl font-bold mb-4 text-accent-800 dark:text-white">شكراً لك!</h2>
-        <p className="text-lg text-accent-600 dark:text-gray-400 max-w-md">
-          {status.message}
+        <h2 className="text-3xl font-bold mb-4 text-accent-800 dark:text-white">تم استلام طلبك بنجاح!</h2>
+        <p className="text-lg text-accent-600 dark:text-gray-400 max-w-xl mb-8">
+          شكراً لتواصلك معنا. يرجى اختيار الموعد المناسب للاجتماع من التقويم أدناه لاستكمال الاستشارة.
         </p>
+
+        <div className="w-full max-w-4xl h-[700px] bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-800">
+          <iframe
+            src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ1HftJ5PXpttrH8ePGQcjUbYdGTWem2E412F3o_yN7uAsUsYxMIUlfWyArhv9Jr2sJJTLv8U0SS?gv=true"
+            style={{ border: 0 }}
+            width="100%"
+            height="100%"
+            frameBorder="0"
+          ></iframe>
+        </div>
+
         <button
           onClick={() => window.location.reload()}
-          className="mt-8 text-primary-600 hover:text-primary-700 font-medium"
+          className="mt-8 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-sm"
         >
-          إرسال طلب جديد
+          العودة للرئيسية
         </button>
       </div>
     );

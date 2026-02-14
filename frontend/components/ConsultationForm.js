@@ -431,11 +431,11 @@ export default function ConsultationForm() {
                     جاري تحميل التقويم...
                   </div>
                   <iframe
-                    src="https://calendar.google.com/calendar/appointments/schedules/AcZssZ1HftJ5PXpttrH8ePGQcjUbYdGTWem2E412F3o_yN7uAsUsYxMIUlfWyArhv9Jr2sJJTLv8U0SS?gv=true"
+                    src="https://calendar.notion.so/meet/notionarabs/discovery-call"
                     style={{ border: 0 }}
                     width="100%"
                     height="100%"
-                    frameBorder="0"
+                    title="Notion Calendar Scheduling"
                   ></iframe>
                 </div>
               </motion.div>

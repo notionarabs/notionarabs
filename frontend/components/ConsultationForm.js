@@ -276,7 +276,12 @@ export default function ConsultationForm() {
       }
 
       setStatus({ type: 'success', message: 'تم استلام طلبك بنجاح! سنتواصل معك قريباً.' });
-      // Reset or Redirect logic here
+      
+      // Auto-open calendar after a short delay to ensure user sees success message
+      setTimeout(() => {
+        setShowCalendar(true);
+      }, 1000);
+
     } catch (error) {
       setStatus({ type: 'error', message: error.message || 'حدث خطأ. حاول مرة أخرى.' });
       setLoading(false);

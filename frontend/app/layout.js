@@ -47,6 +47,14 @@ export const metadata = {
   }
 }
 
+export const viewport = {
+  themeColor: '#f97316',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+}
+
 export default function RootLayout({ children }) {
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
@@ -70,7 +78,7 @@ export default function RootLayout({ children }) {
         <meta name="apple-mobile-web-app-title" content="عرب نوشن" />
 
         {/* Web App Manifest - PWA Support */}
-        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="manifest" href="/manifest.json" />
         {/* Font preconnect for faster font loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

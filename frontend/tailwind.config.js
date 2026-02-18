@@ -26,6 +26,10 @@ module.exports = {
     extend: {
       fontFamily: {
         'tajawal': ['Tajawal', 'sans-serif'],
+        'cairo': ['Cairo', 'sans-serif'],
+        'amiri': ['Amiri', 'serif'],
+        'almarai': ['Almarai', 'sans-serif'],
+        'changa': ['Changa', 'sans-serif'],
       },
       colors: {
         primary: {

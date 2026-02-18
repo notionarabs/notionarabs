@@ -84,12 +84,12 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* Font loading with font-display: swap to prevent render blocking */}
         <link
-          href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&family=Cairo:wght@200;300;400;500;600;700;800;900&family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Almarai:wght@300;400;700;800&family=Changa:wght@200;300;400;500;600;700;800&display=swap"
           rel="stylesheet"
         />
         <noscript>
           <link
-            href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&family=Cairo:wght@200;300;400;500;600;700;800;900&family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Almarai:wght@300;400;700;800&family=Changa:wght@200;300;400;500;600;700;800&display=swap"
             rel="stylesheet"
           />
         </noscript>

@@ -10,59 +10,57 @@ const axios = require('axios');
  * @returns {Promise<Object>} - Response from Brevo
  */
 const sendEmail = async ({ to, subject, html, text }) => {
-    if (!process.env.BREVO_API_KEY) {
-        console.warn('⚠️ BREVO_API_KEY is not configured! Email will not be sent.');
-        // In development, just log the email content
-        if (process.env.NODE_ENV === 'development') {
-            console.log('--- EMAIL MOCK ---');
-            console.log(`To: ${to}`);
-            console.log(`Subject: ${subject}`);
-            console.log('--- END EMAIL MOCK ---');
-            return { messageId: 'mock-id', response: 'Email logged (dev mode)' };
+  if (!process.env.BREVO_API_KEY) {
+    console.warn('⚠️ BREVO_API_KEY is not configured! Email will not be sent.');
+    // In development, just log the email content
+    if (process.env.NODE_ENV === 'development') {
+      console.log('--- EMAIL MOCK ---');
+      console.log(`To: ${to}`);
+      console.log(`Subject: ${subject}`);
+      console.log('--- END EMAIL MOCK ---');
+      return { messageId: 'mock-id', response: 'Email logged (dev mode)' };
+    }
+    throw new Error('Email service is not configured. Please set BREVO_API_KEY.');
+  }
+
+  try {
+    const response = await axios.post(
+      'https://api.brevo.com/v3/smtp/email',
+      {
+        sender: {
+          name: 'عرب نوشن',
+          email: process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL || 'noreply@notionarabs.com'
+        },
+        to: [{ email: to }],
+        subject: subject,
+        htmlContent: html,
+        textContent: text,
+        headers: {
+          'List-Unsubscribe': '<https://www.notionarabs.com/unsubscribe?email=' + encodeURIComponent(to) + '>',
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          'X-Mailer': 'Microsoft Outlook 16.0',
+          'Reply-To': process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL || 'support@notionarabs.com'
+        },
+        tags: ['notionarabs', 'notification']
+      },
+      {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'api-key': process.env.BREVO_API_KEY
         }
-        throw new Error('Email service is not configured. Please set BREVO_API_KEY.');
-    }
+      }
+    );
 
-    try {
-        const response = await axios.post(
-            'https://api.brevo.com/v3/smtp/email',
-            {
-                sender: {
-                    name: 'عرب نوشن',
-                    email: process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL || 'noreply@notionarabs.com'
-                },
-                to: [{ email: to }],
-                subject: subject,
-                htmlContent: html,
-                textContent: text,
-                headers: {
-                    'List-Unsubscribe': '<https://www.notionarabs.com/unsubscribe?email=' + encodeURIComponent(to) + '>',
-                    'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-                    'X-Mailer': 'NotionArabs Platform',
-                    'X-Priority': '3',
-                    'Precedence': 'bulk',
-                    'Reply-To': process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL || 'support@notionarabs.com'
-                },
-                tags: ['notionarabs', 'notification']
-            },
-            {
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'api-key': process.env.BREVO_API_KEY
-                }
-            }
-        );
-
-        console.log('✅ Brevo email sent successfully:', response.data.messageId);
-        return {
-            messageId: response.data.messageId,
-            response: 'Email sent via Brevo'
-        };
-    } catch (error) {
-        console.error('❌ Brevo error:', error.response?.data || error.message);
-        throw error;
-    }
+    console.log('✅ Brevo email sent successfully:', response.data.messageId);
+    return {
+      messageId: response.data.messageId,
+      response: 'Email sent via Brevo'
+    };
+  } catch (error) {
+    console.error('❌ Brevo error:', error.response?.data || error.message);
+    throw error;
+  }
 };
 
 /**
@@ -71,15 +69,15 @@ const sendEmail = async ({ to, subject, html, text }) => {
  * @param {Object} template - The template object
  */
 const sendTemplateApprovedEmail = async (user, template) => {
-    if (!user || !user.email) {
-        console.warn('⚠️ Cannot send template approved email: User or email not found', user);
-        return;
-    }
+  if (!user || !user.email) {
+    console.warn('⚠️ Cannot send template approved email: User or email not found', user);
+    return;
+  }
 
-    const subject = `مبروك! تم قبول قالبك: ${template.title}`;
-    const templateLink = `https://www.notionarabs.com/templates/${template.slug || template._id}`;
+  const subject = `مبروك! تم قبول قالبك: ${template.title}`;
+  const templateLink = `https://www.notionarabs.com/templates/${template.slug || template._id}`;
 
-    const html = `
+  const html = `
     <!DOCTYPE html>
     <html lang="ar" dir="rtl">
     <head>
@@ -117,14 +115,14 @@ const sendTemplateApprovedEmail = async (user, template) => {
     </html>
   `;
 
-    const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nيسعدنا إخبارك بأنه تمت مراجعة وقبول قالبك "${template.title}" بنجاح.\n\nيمكنك مشاهدة القالب هنا: ${templateLink}\n\nشكراً لمساهمتك معنا!\n\nعرب نوشن`;
+  const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nيسعدنا إخبارك بأنه تمت مراجعة وقبول قالبك "${template.title}" بنجاح.\n\nيمكنك مشاهدة القالب هنا: ${templateLink}\n\nشكراً لمساهمتك معنا!\n\nعرب نوشن`;
 
-    await sendEmail({
-        to: user.email,
-        subject,
-        html,
-        text
-    });
+  await sendEmail({
+    to: user.email,
+    subject,
+    html,
+    text
+  });
 };
 
 /**
@@ -132,15 +130,15 @@ const sendTemplateApprovedEmail = async (user, template) => {
  * @param {Object} user - The user object (creator)
  */
 const sendCreatorApprovedEmail = async (user) => {
-    if (!user || !user.email) {
-        console.warn('⚠️ Cannot send creator approved email: User or email not found', user);
-        return;
-    }
+  if (!user || !user.email) {
+    console.warn('⚠️ Cannot send creator approved email: User or email not found', user);
+    return;
+  }
 
-    const subject = `مبروك! تم قبول انضمامك كمبدع`;
-    const dashboardLink = `https://www.notionarabs.com/dashboard/creator`;
+  const subject = `مبروك! تم قبول انضمامك كمبدع`;
+  const dashboardLink = `https://www.notionarabs.com/dashboard/creator`;
 
-    const html = `
+  const html = `
     <!DOCTYPE html>
     <html lang="ar" dir="rtl">
     <head>
@@ -178,14 +176,14 @@ const sendCreatorApprovedEmail = async (user) => {
     </html>
   `;
 
-    const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nيسعدنا إخبارك بأنه تم قبول طلب انضمامك كمبدع في منصة عرب نوشن.\n\nيمكنك الدخول إلى لوحة التحكم من هنا: ${dashboardLink}\n\nنحن متحمسون لرؤية إبداعاتك!\n\nعرب نوشن`;
+  const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nيسعدنا إخبارك بأنه تم قبول طلب انضمامك كمبدع في منصة عرب نوشن.\n\nيمكنك الدخول إلى لوحة التحكم من هنا: ${dashboardLink}\n\nنحن متحمسون لرؤية إبداعاتك!\n\nعرب نوشن`;
 
-    await sendEmail({
-        to: user.email,
-        subject,
-        html,
-        text
-    });
+  await sendEmail({
+    to: user.email,
+    subject,
+    html,
+    text
+  });
 };
 
 /**
@@ -194,15 +192,15 @@ const sendCreatorApprovedEmail = async (user) => {
  * @param {Object} blog - The blog object
  */
 const sendBlogApprovedEmail = async (user, blog) => {
-    if (!user || !user.email) {
-        console.warn('⚠️ Cannot send blog approved email: User or email not found', user);
-        return;
-    }
+  if (!user || !user.email) {
+    console.warn('⚠️ Cannot send blog approved email: User or email not found', user);
+    return;
+  }
 
-    const subject = `تم نشر مقالك: ${blog.title}`;
-    const blogLink = `https://www.notionarabs.com/blog/${blog.slug || blog._id}`;
+  const subject = `تم نشر مقالك: ${blog.title}`;
+  const blogLink = `https://www.notionarabs.com/blog/${blog.slug || blog._id}`;
 
-    const html = `
+  const html = `
     <!DOCTYPE html>
     <html lang="ar" dir="rtl">
     <head>
@@ -240,14 +238,14 @@ const sendBlogApprovedEmail = async (user, blog) => {
     </html>
   `;
 
-    const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nيسعدنا إخبارك بأنه تمت مراجعة ونشر مقالك "${blog.title}" بنجاح.\n\nيمكنك قراءة المقال هنا: ${blogLink}\n\nشكراً لمشاركتنا معرفتك!\n\nعرب نوشن`;
+  const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nيسعدنا إخبارك بأنه تمت مراجعة ونشر مقالك "${blog.title}" بنجاح.\n\nيمكنك قراءة المقال هنا: ${blogLink}\n\nشكراً لمشاركتنا معرفتك!\n\nعرب نوشن`;
 
-    await sendEmail({
-        to: user.email,
-        subject,
-        html,
-        text
-    });
+  await sendEmail({
+    to: user.email,
+    subject,
+    html,
+    text
+  });
 };
 
 /**
@@ -256,14 +254,14 @@ const sendBlogApprovedEmail = async (user, blog) => {
  * @param {string} resetUrl - The password reset URL
  */
 const sendResetPasswordEmail = async (user, resetUrl) => {
-    if (!user || !user.email) {
-        console.warn('⚠️ Cannot send reset password email: User or email not found', user);
-        return;
-    }
+  if (!user || !user.email) {
+    console.warn('⚠️ Cannot send reset password email: User or email not found', user);
+    return;
+  }
 
-    const subject = `إعادة تعيين كلمة المرور`;
+  const subject = `إعادة تعيين كلمة المرور`;
 
-    const html = `
+  const html = `
     <!DOCTYPE html>
     <html lang="ar" dir="rtl">
     <head>
@@ -308,14 +306,14 @@ const sendResetPasswordEmail = async (user, resetUrl) => {
     </html>
   `;
 
-    const text = `مرحباً ${user.name}،\n\nتلقينا طلباً لإعادة تعيين كلمة المرور لحسابك في عرب نوشن.\n\nلإعادة تعيين كلمة المرور، زر الرابط التالي:\n${resetUrl}\n\nهذا الرابط صالح لمدة ساعة واحدة فقط.\n\nإذا لم تطلب هذا، تجاهل هذا البريد.\n\nعرب نوشن`;
+  const text = `مرحباً ${user.name}،\n\nتلقينا طلباً لإعادة تعيين كلمة المرور لحسابك في عرب نوشن.\n\nلإعادة تعيين كلمة المرور، زر الرابط التالي:\n${resetUrl}\n\nهذا الرابط صالح لمدة ساعة واحدة فقط.\n\nإذا لم تطلب هذا، تجاهل هذا البريد.\n\nعرب نوشن`;
 
-    await sendEmail({
-        to: user.email,
-        subject,
-        html,
-        text
-    });
+  await sendEmail({
+    to: user.email,
+    subject,
+    html,
+    text
+  });
 };
 
 /**
@@ -324,14 +322,14 @@ const sendResetPasswordEmail = async (user, resetUrl) => {
  * @param {string} verificationUrl - The verification URL
  */
 const sendVerificationEmail = async (user, verificationUrl) => {
-    if (!user || !user.email) {
-        console.warn('⚠️ Cannot send verification email: User or email not found', user);
-        return;
-    }
+  if (!user || !user.email) {
+    console.warn('⚠️ Cannot send verification email: User or email not found', user);
+    return;
+  }
 
-    const subject = `تأكيد البريد الإلكتروني`;
+  const subject = `تأكيد البريد الإلكتروني`;
 
-    const html = `
+  const html = `
     <!DOCTYPE html>
     <html lang="ar" dir="rtl">
     <head>
@@ -371,14 +369,14 @@ const sendVerificationEmail = async (user, verificationUrl) => {
     </html>
   `;
 
-    const text = `مرحباً ${user.name}،\n\nشكراً لتسجيلك في عرب نوشن! يرجى تأكيد بريدك الإلكتروني لتفعيل حسابك عبر الرابط التالي:\n${verificationUrl}\n\nهذا الرابط صالح لمدة 24 ساعة.\n\nعرب نوشن`;
+  const text = `مرحباً ${user.name}،\n\nشكراً لتسجيلك في عرب نوشن! يرجى تأكيد بريدك الإلكتروني لتفعيل حسابك عبر الرابط التالي:\n${verificationUrl}\n\nهذا الرابط صالح لمدة 24 ساعة.\n\nعرب نوشن`;
 
-    await sendEmail({
-        to: user.email,
-        subject,
-        html,
-        text
-    });
+  await sendEmail({
+    to: user.email,
+    subject,
+    html,
+    text
+  });
 };
 
 /**
@@ -387,25 +385,25 @@ const sendVerificationEmail = async (user, verificationUrl) => {
  * @param {Object} order - The order object
  */
 const sendOrderConfirmationEmail = async (user, order) => {
-    if (!user || !user.email) {
-        console.warn('⚠️ Cannot send order confirmation email: User or email not found', user);
-        return;
-    }
+  if (!user || !user.email) {
+    console.warn('⚠️ Cannot send order confirmation email: User or email not found', user);
+    return;
+  }
 
-    const subject = `تأكيد طلبك #${order._id.toString().slice(-6).toUpperCase()}`;
-    const orderLink = `https://www.notionarabs.com/dashboard/orders/${order._id}`;
-    let itemsList = '';
+  const subject = `تأكيد طلبك #${order._id.toString().slice(-6).toUpperCase()}`;
+  const orderLink = `https://www.notionarabs.com/dashboard/orders/${order._id}`;
+  let itemsList = '';
 
-    if (order.items && order.items.length > 0) {
-        itemsList = order.items.map(item => `
+  if (order.items && order.items.length > 0) {
+    itemsList = order.items.map(item => `
             <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
                 ${item.template ? item.template.title : 'قالب'} 
                 <span style="float: left;">${item.price} ر.س</span>
             </li>
         `).join('');
-    }
+  }
 
-    const html = `
+  const html = `
     <!DOCTYPE html>
     <html lang="ar" dir="rtl">
     <head>
@@ -456,14 +454,14 @@ const sendOrderConfirmationEmail = async (user, order) => {
     </html>
   `;
 
-    const text = `مرحباً ${user.name}،\n\nشكراً لطلبك! تم استلام طلبك رقم #${order._id.toString().slice(-6).toUpperCase()} بنجاح.\n\nالمجموع الكلي: ${order.total} ر.س\n\nيمكنك عرض مشترياتك هنا: ${orderLink}\n\nعرب نوشن`;
+  const text = `مرحباً ${user.name}،\n\nشكراً لطلبك! تم استلام طلبك رقم #${order._id.toString().slice(-6).toUpperCase()} بنجاح.\n\nالمجموع الكلي: ${order.total} ر.س\n\nيمكنك عرض مشترياتك هنا: ${orderLink}\n\nعرب نوشن`;
 
-    await sendEmail({
-        to: user.email,
-        subject,
-        html,
-        text
-    });
+  await sendEmail({
+    to: user.email,
+    subject,
+    html,
+    text
+  });
 };
 
 /**
@@ -473,15 +471,15 @@ const sendOrderConfirmationEmail = async (user, order) => {
  * @param {string} reason - The rejection reason
  */
 const sendTemplateRejectedEmail = async (user, template, reason) => {
-    if (!user || !user.email) {
-        console.warn('⚠️ Cannot send template rejected email: User or email not found', user);
-        return;
-    }
+  if (!user || !user.email) {
+    console.warn('⚠️ Cannot send template rejected email: User or email not found', user);
+    return;
+  }
 
-    const subject = `تحديث بخصوص قالبك: ${template.title}`;
-    const dashboardLink = `https://www.notionarabs.com/dashboard/creator`;
+  const subject = `تحديث بخصوص قالبك: ${template.title}`;
+  const dashboardLink = `https://www.notionarabs.com/dashboard/creator`;
 
-    const html = `
+  const html = `
     <!DOCTYPE html>
     <html lang="ar" dir="rtl">
     <head>
@@ -529,14 +527,14 @@ const sendTemplateRejectedEmail = async (user, template, reason) => {
     </html>
   `;
 
-    const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nنأسف لإخبارك بأنه لم يتم قبول قالبك "${template.title}".\n\n${reason ? `سبب الرفض: ${reason}\n\n` : ''}يمكنك تعديل القالب وإعادة إرساله من خلال لوحة التحكم: ${dashboardLink}\n\nعرب نوشن`;
+  const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nنأسف لإخبارك بأنه لم يتم قبول قالبك "${template.title}".\n\n${reason ? `سبب الرفض: ${reason}\n\n` : ''}يمكنك تعديل القالب وإعادة إرساله من خلال لوحة التحكم: ${dashboardLink}\n\nعرب نوشن`;
 
-    await sendEmail({
-        to: user.email,
-        subject,
-        html,
-        text
-    });
+  await sendEmail({
+    to: user.email,
+    subject,
+    html,
+    text
+  });
 };
 
 /**
@@ -545,15 +543,15 @@ const sendTemplateRejectedEmail = async (user, template, reason) => {
  * @param {string} reason - The rejection reason
  */
 const sendCreatorRejectedEmail = async (user, reason) => {
-    if (!user || !user.email) {
-        console.warn('⚠️ Cannot send creator rejected email: User or email not found', user);
-        return;
-    }
+  if (!user || !user.email) {
+    console.warn('⚠️ Cannot send creator rejected email: User or email not found', user);
+    return;
+  }
 
-    const subject = `تحديث بخصوص طلب انضمامك كمبدع`;
-    const contactLink = `https://www.notionarabs.com/contact`;
+  const subject = `تحديث بخصوص طلب انضمامك كمبدع`;
+  const contactLink = `https://www.notionarabs.com/contact`;
 
-    const html = `
+  const html = `
     <!DOCTYPE html>
     <html lang="ar" dir="rtl">
     <head>
@@ -601,14 +599,14 @@ const sendCreatorRejectedEmail = async (user, reason) => {
     </html>
   `;
 
-    const text = `مرحباً ${user.name || 'صديقنا'}،\n\nنأسف لإخبارك بأنه لم يتم قبول طلب انضمامك كمبدع في الوقت الحالي.\n\n${reason ? `السبب: ${reason}\n\n` : ''}يمكنك المحاولة مرة أخرى في المستقبل.\n\nعرب نوشن`;
+  const text = `مرحباً ${user.name || 'صديقنا'}،\n\nنأسف لإخبارك بأنه لم يتم قبول طلب انضمامك كمبدع في الوقت الحالي.\n\n${reason ? `السبب: ${reason}\n\n` : ''}يمكنك المحاولة مرة أخرى في المستقبل.\n\nعرب نوشن`;
 
-    await sendEmail({
-        to: user.email,
-        subject,
-        html,
-        text
-    });
+  await sendEmail({
+    to: user.email,
+    subject,
+    html,
+    text
+  });
 };
 
 /**
@@ -618,15 +616,15 @@ const sendCreatorRejectedEmail = async (user, reason) => {
  * @param {string} reason - The rejection reason
  */
 const sendBlogRejectedEmail = async (user, blog, reason) => {
-    if (!user || !user.email) {
-        console.warn('⚠️ Cannot send blog rejected email: User or email not found', user);
-        return;
-    }
+  if (!user || !user.email) {
+    console.warn('⚠️ Cannot send blog rejected email: User or email not found', user);
+    return;
+  }
 
-    const subject = `تحديث بخصوص مقالك: ${blog.title}`;
-    const dashboardLink = `https://www.notionarabs.com/dashboard/creator`;
+  const subject = `تحديث بخصوص مقالك: ${blog.title}`;
+  const dashboardLink = `https://www.notionarabs.com/dashboard/creator`;
 
-    const html = `
+  const html = `
     <!DOCTYPE html>
     <html lang="ar" dir="rtl">
     <head>
@@ -674,14 +672,14 @@ const sendBlogRejectedEmail = async (user, blog, reason) => {
     </html>
   `;
 
-    const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nنأسف لإخبارك بأنه لم يتم قبول نشر مقالك "${blog.title}".\n\n${reason ? `السبب: ${reason}\n\n` : ''}يمكنك تعديل المقال وإعادة إرساله من لوحة التحكم.\n\nعرب نوشن`;
+  const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nنأسف لإخبارك بأنه لم يتم قبول نشر مقالك "${blog.title}".\n\n${reason ? `السبب: ${reason}\n\n` : ''}يمكنك تعديل المقال وإعادة إرساله من لوحة التحكم.\n\nعرب نوشن`;
 
-    await sendEmail({
-        to: user.email,
-        subject,
-        html,
-        text
-    });
+  await sendEmail({
+    to: user.email,
+    subject,
+    html,
+    text
+  });
 };
 
 /**
@@ -689,16 +687,16 @@ const sendBlogRejectedEmail = async (user, blog, reason) => {
  * @param {Object} user - The user object
  */
 const sendWelcomeEmail = async (user) => {
-    if (!user || !user.email) {
-        console.warn('⚠️ Cannot send welcome email: User or email not found', user);
-        return;
-    }
+  if (!user || !user.email) {
+    console.warn('⚠️ Cannot send welcome email: User or email not found', user);
+    return;
+  }
 
-    const subject = `مرحباً بك في مجتمع عرب نوشن!`;
-    const dashboardLink = `https://www.notionarabs.com/dashboard`;
-    const browseLink = `https://www.notionarabs.com/templates`;
+  const subject = `مرحباً بك في مجتمع عرب نوشن!`;
+  const dashboardLink = `https://www.notionarabs.com/dashboard`;
+  const browseLink = `https://www.notionarabs.com/templates`;
 
-    const html = `
+  const html = `
     <!DOCTYPE html>
     <html lang="ar" dir="rtl">
     <head>
@@ -749,25 +747,25 @@ const sendWelcomeEmail = async (user) => {
     </html>
   `;
 
-    const text = `مرحباً ${user.name}،\n\nأهلاً بك في عرب نوشن! تم تفعيل حسابك بنجاح.\n\nيمكنك الآن تصفح القوالب: ${browseLink}\n\nأو الذهاب للوحة التحكم: ${dashboardLink}\n\nعرب نوشن`;
+  const text = `مرحباً ${user.name}،\n\nأهلاً بك في عرب نوشن! تم تفعيل حسابك بنجاح.\n\nيمكنك الآن تصفح القوالب: ${browseLink}\n\nأو الذهاب للوحة التحكم: ${dashboardLink}\n\nعرب نوشن`;
 
-    await sendEmail({
-        to: user.email,
-        subject,
-        html,
-        text
-    });
+  await sendEmail({
+    to: user.email,
+    subject,
+    html,
+    text
+  });
 };
 
 module.exports = {
-    sendEmail,
-    sendTemplateApprovedEmail,
-    sendCreatorApprovedEmail,
-    sendBlogApprovedEmail,
-    sendVerificationEmail,
-    sendOrderConfirmationEmail,
-    sendTemplateRejectedEmail,
-    sendCreatorRejectedEmail,
-    sendBlogRejectedEmail,
-    sendWelcomeEmail
+  sendEmail,
+  sendTemplateApprovedEmail,
+  sendCreatorApprovedEmail,
+  sendBlogApprovedEmail,
+  sendVerificationEmail,
+  sendOrderConfirmationEmail,
+  sendTemplateRejectedEmail,
+  sendCreatorRejectedEmail,
+  sendBlogRejectedEmail,
+  sendWelcomeEmail
 };

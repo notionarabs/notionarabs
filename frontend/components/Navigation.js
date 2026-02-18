@@ -67,6 +67,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
   // Memoize navigation items to prevent unnecessary re-renders
   const navItems = useMemo(() => [
     { href: '/store', label: 'المتجر', key: 'store' },
+    { href: '/widgets', label: 'الأدوات', key: 'widgets' },
     { href: '/blog', label: 'المدونة', key: 'blog' },
     { href: '/about', label: 'من نحن', key: 'about' }
   ], []);

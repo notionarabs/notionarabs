@@ -1398,6 +1398,9 @@ router.post('/fix-duplicate-usernames', auth, async (req, res) => {
 // @route   POST /api/admin/send-bulk-emails
 // @desc    Send bulk emails to a list of users
 // @access  Private (Admin only)
+// @route   POST /api/admin/send-bulk-emails
+// @desc    Send bulk emails to a list of users or all users
+// @access  Private (Admin only)
 router.post('/send-bulk-emails', auth, async (req, res) => {
   try {
     // Check if user is admin
@@ -1408,13 +1411,13 @@ router.post('/send-bulk-emails', auth, async (req, res) => {
       });
     }
 
-    const { emails, subject, message } = req.body;
+    let { emails, subject, message } = req.body;
 
     // Validation
-    if (!emails || !Array.isArray(emails) || emails.length === 0) {
+    if (!emails || (!Array.isArray(emails) && emails !== 'all')) {
       return res.status(400).json({
         success: false,
-        message: 'يرجى توفير قائمة بالبريد الإلكتروني'
+        message: 'يرجى توفير قائمة بالبريد الإلكتروني أو اختيار الكل'
       });
     }
 
@@ -1432,309 +1435,130 @@ router.post('/send-bulk-emails', auth, async (req, res) => {
       });
     }
 
-    if (emails.length > 2000) {
+    let targetUsers = [];
+    if (emails === 'all') {
+      // Fetch all active users who are subscribed to notifications
+      const users = await User.find({ isActive: true, emailNotifications: { $ne: false } }).select('email name');
+      targetUsers = users.map(u => ({ email: u.email, name: u.name || 'صديقنا المبدع' }));
+    } else {
+      // Email validation regex
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const validEmails = emails.filter(email => emailRegex.test(email));
+
+      // Fetch names for these specific emails to support dynamic variables
+      const usersInDb = await User.find({ email: { $in: validEmails } }).select('email name');
+      const userMap = usersInDb.reduce((acc, u) => {
+        acc[u.email.toLowerCase()] = u.name;
+        return acc;
+      }, {});
+
+      targetUsers = validEmails.map(email => ({
+        email,
+        name: userMap[email.toLowerCase()] || 'صديقنا المبدع'
+      }));
+    }
+
+    if (targetUsers.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'لا يمكن إرسال أكثر من 2000 بريد إلكتروني في المرة الواحدة'
+        message: 'لا توجد عناوين بريد إلكتروني صحيحة للإرسال'
       });
     }
 
-    // Email validation regex
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const validEmails = emails.filter(email => emailRegex.test(email));
-
-    if (validEmails.length === 0) {
+    if (targetUsers.length > 5000) {
       return res.status(400).json({
         success: false,
-        message: 'لا توجد عناوين بريد إلكتروني صحيحة'
+        message: 'لا يمكن إرسال أكثر من 5000 بريد إلكتروني في المرة الواحدة'
       });
     }
 
-    // Check if Brevo is configured
-    if (!process.env.BREVO_API_KEY) {
-      return res.status(500).json({
-        success: false,
-        message: 'خدمة البريد الإلكتروني غير مُعدة. يرجى إعداد BREVO_API_KEY'
-      });
-    }
+    // Process in batches
+    const batchSize = 50;
+    let successful = 0;
+    let failed = 0;
+    const failedDetails = [];
 
-    // Production mode - use actual email service
-    try {
-      console.log('Creating email transporter...');
-      const transporter = createTransporter();
+    // Run the process in background to avoid request timeout for large lists
+    // but return an initial response to the client
+    res.json({
+      success: true,
+      message: `بدأت عملية إرسال ${targetUsers.length} بريد إلكتروني في الخلفية.`,
+      stats: { total: targetUsers.length }
+    });
 
-      // Verify transporter configuration before sending emails (if supported)
-      if (transporter.verify && typeof transporter.verify === 'function') {
-        console.log('Verifying email transporter configuration...');
-        try {
-          await transporter.verify();
-          console.log('Email transporter verified successfully');
-        } catch (verifyError) {
-          console.log('Transporter verification skipped or not supported');
-        }
-      }
+    // Background processing
+    (async () => {
+      for (let i = 0; i < targetUsers.length; i += batchSize) {
+        const batch = targetUsers.slice(i, i + batchSize);
 
-      // Send emails in batches to avoid overwhelming the server
-      const batchSize = 50; // Process 50 emails at a time
-      const results = [];
-      let successful = 0;
-      let failed = 0;
+        await Promise.all(batch.map(async (u) => {
+          try {
+            const { email, name } = u;
+            // Personalize the message
+            let personalizedMessage = message.replace(/\{\{name\}\}/g, name);
+            personalizedMessage = personalizedMessage.replace(/\{\{email\}\}/g, email);
 
-      for (let i = 0; i < validEmails.length; i += batchSize) {
-        const batch = validEmails.slice(i, i + batchSize);
+            const html = `
+              <!DOCTYPE html>
+              <html lang="ar" dir="rtl">
+              <head>
+                <meta charset="UTF-8">
+                <style>
+                  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; background-color: #ffffff; margin: 0; padding: 0; color: #37352f; }
+                  .container { max-width: 560px; margin: 40px auto; padding: 20px; }
+                  .content { text-align: right; line-height: 1.6; font-size: 16px; margin-bottom: 40px; }
+                  .footer { margin-top: 60px; text-align: right; color: #888; font-size: 12px; border-top: 1px solid #eee; padding-top: 20px; }
+                  .unsubscribe { color: #888; text-decoration: underline; }
+                  a { color: #f5631e; text-decoration: none; border-bottom: 1px solid rgba(245, 99, 30, 0.2); }
+                </style>
+              </head>
+              <body>
+                <div class="container">
+                  <div class="content">
+                    ${personalizedMessage.replace(/\n/g, '<br>')}
+                  </div>
+                  <div class="footer">
+                    <p>عرب نوشن — بيت عشّاق نوشن في العالم العربي</p>
+                    <p>إذا كنت لا ترغب في تلقي هذه الرسائل، يمكنك <a href="https://www.notionarabs.com/unsubscribe?email=${encodeURIComponent(email)}" class="unsubscribe">إلغاء الاشتراك هنا</a>.</p>
+                  </div>
+                </div>
+              </body>
+              </html>
+            `;
 
-        console.log(`Processing batch ${Math.floor(i / batchSize) + 1} of ${Math.ceil(validEmails.length / batchSize)} (${batch.length} emails)`);
-
-        const sendPromises = batch.map(async email => {
-          // Check if user has unsubscribed from emails
-          const user = await User.findOne({ email: email.toLowerCase().trim() });
-          if (user && !user.emailNotifications) {
-            console.log(`⚠️ Skipping ${email} - user has unsubscribed`);
-            return { status: 'skipped', reason: 'unsubscribed', email };
+            await sendEmail({
+              to: email,
+              subject: subject,
+              html: html,
+              text: personalizedMessage
+            });
+            successful++;
+          } catch (err) {
+            failed++;
+            failedDetails.push({ email: u.email, error: err.message });
+            console.error(`Failed to send bulk email to ${u.email}:`, err.message);
           }
-          // Create HTML email template with logo
-          const htmlContent = `
-            <!DOCTYPE html>
-            <html dir="rtl" lang="ar">
-            <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap" rel="stylesheet">
-              <style>
-                body {
-                  font-family: 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                  background-color: #f8f9fa;
-                  margin: 0;
-                  padding: 20px;
-                  direction: rtl;
-                }
-                .email-container {
-                  max-width: 600px;
-                  margin: 0 auto;
-                  background-color: #ffffff;
-                  border-radius: 8px;
-                  overflow: hidden;
-                  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                }
-                .email-header {
-                  padding: 30px 20px;
-                  text-align: center;
-                  border-bottom: 1px solid #e9ecef;
-                  background-color: #132859;
-                }
-                .email-logo {
-                  width: 60px;
-                  height: 60px;
-                  margin: 0 auto;
-                  background-color: #132859;
-                  padding: 10px;
-                  border-radius: 8px;
-                }
-                .email-logo img {
-                  width: 100%;
-                  height: 100%;
-                  object-fit: contain;
-                }
-                .email-body {
-                  padding: 30px 20px;
-                  line-height: 1.6;
-                  color: #333;
-                  font-size: 16px;
-                  text-align: right;
-                  direction: rtl;
-                }
-                .email-footer {
-                  padding: 20px;
-                  text-align: center;
-                  color: #666;
-                  font-size: 14px;
-                  background-color: #f8f9fa;
-                  border-top: 1px solid #e9ecef;
-                }
-                .cta-button {
-                  display: inline-block;
-                  padding: 12px 30px;
-                  background-color: #f5631e;
-                  color: #ffffff !important;
-                  text-decoration: none;
-                  border-radius: 6px;
-                  font-weight: 600;
-                  margin: 20px 0;
-                }
-                @media only screen and (max-width: 600px) {
-                  .email-container {
-                    margin: 0;
-                    border-radius: 0;
-                  }
-                  .email-body {
-                    padding: 20px 15px;
-                  }
-                }
-              </style>
-            </head>
-            <body>
-              <div class="email-container">
-                <div class="email-header">
-                  <div class="email-logo">
-                    <a href="https://www.notionarabs.com" style="text-decoration: none; color: inherit;">
-                      <img src="https://www.notionarabs.com/favicon.png" alt="عرب نوشن">
-                    </a>
-                  </div>
-                </div>
-                <div class="email-body">
-                  <h2 style="margin-bottom: 20px; color: #333;">مرحبًا</h2>
-                  
-                  <p style="margin-bottom: 20px;">نحب نشاركك خبر كبير</p>
-                  
-                  <p style="margin-bottom: 20px;"><strong>انطلقت رسميًا منصة <a href="https://www.notionarabs.com" style="color: #f5631e; text-decoration: none;">عرب نوشن</a></strong> — أول وأكبر منصة عربية مخصصة لكل ما يتعلق بعالم نوشن.</p>
-                  
-                  <p style="margin-bottom: 20px;">في عرب نوشن، جمعنا التعليم، الإبداع، والمجتمع في مكان واحد:</p>
-                  
-                  <ul style="margin-bottom: 20px; padding-right: 20px;">
-                    <li style="margin-bottom: 10px;">اكتشف قوالب عربية مميزة</li>
-                    <li style="margin-bottom: 10px;">تعلّم من المبدعين العرب</li>
-                    <li style="margin-bottom: 10px;">وشارك قوالبك مع آلاف المستخدمين</li>
-                  </ul>
-                  
-                  <p style="margin-bottom: 30px;"><strong>المنصة الآن مفتوحة وجاهزة ليك</strong></p>
-                  
-                  <div style="text-align: center;">
-                    <a href="https://www.notionarabs.com" class="cta-button">زور عرب نوشن الآن</a>
-                    <p style="margin-top: 10px; font-size: 14px; color: #666;">واكتشف أكبر منصة عربية لعشّاق نوشن</p>
-                  </div>
-                </div>
-                <div class="email-footer">
-                  <p><strong>تحياتنا،<br>فريق عرب نوشن</strong></p>
-                  <p style="color: #f5631e; margin: 10px 0;">بيت عشّاق نوشن في العالم العربي</p>
-                  
-                  <div style="margin: 20px 0;">
-                    <a href="https://www.notionarabs.com" style="color: #666; text-decoration: none; margin: 0 10px;">الموقع</a>
-                    <a href="https://t.me/Notion_Arabs" style="color: #666; text-decoration: none; margin: 0 10px;">تليجرام</a>
-                    <a href="https://twitter.com/notionarabs" style="color: #666; text-decoration: none; margin: 0 10px;">تويتر</a>
-                  </div>
-                  
-                  <p style="font-size: 12px; color: #999; margin-top: 20px;">
-                    <a href="https://www.notionarabs.com/unsubscribe?email=${encodeURIComponent(email)}" style="color: #999; text-decoration: underline;">إلغاء الاشتراك</a> 
-                    | 
-                    <a href="https://www.notionarabs.com/privacy" style="color: #999; text-decoration: underline;">سياسة الخصوصية</a>
-                  </p>
-                  
-                  <p style="font-size: 12px; color: #999; margin: 10px 0 0 0;">© 2025 عرب نوشن. جميع الحقوق محفوظة.</p>
-                </div>
-              </div>
-            </body>
-            </html>
-          `;
+        }));
 
-          // Create text version of the email
-          const textContent = `
-عرب نوشن - منصة المبدعين العرب في عالم نوشن
-
-مرحبًا
-
-نحب نشاركك خبر كبير
-
-انطلقت رسميًا منصة عرب نوشن — أول وأكبر منصة عربية مخصصة لكل ما يتعلق بعالم نوشن.
-
-في عرب نوشن، جمعنا التعليم، الإبداع، والمجتمع في مكان واحد:
-
-• اكتشف قوالب عربية مميزة
-• تعلّم من المبدعين العرب
-• وشارك قوالبك مع آلاف المستخدمين
-
-المنصة الآن مفتوحة وجاهزة ليك
-
-زور عرب نوشن الآن: https://www.notionarabs.com/
-
-تحياتنا،
-فريق عرب نوشن
-بيت عشّاق نوشن في العالم العربي
-
-تواصل معنا:
-الموقع: https://www.notionarabs.com
-تليجرام: https://t.me/Notion_Arabs
-تويتر: https://twitter.com/notionarabs
-
-إذا كنت لا ترغب في تلقي هذه الرسائل، يمكنك إلغاء الاشتراك هنا: https://www.notionarabs.com/unsubscribe?email=${encodeURIComponent(email)}
-          `.trim();
-
-          return transporter.sendMail({
-            from: `"عرب نوشن" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
-            to: email,
-            subject: subject,
-            html: htmlContent,
-            text: textContent
-          });
-        });
-
-        // Execute batch email sends
-        const batchResults = await Promise.allSettled(sendPromises);
-        results.push(...batchResults);
-
-        // Count successful and failed sends in this batch
-        const batchSuccessful = batchResults.filter(result => result.status === 'fulfilled').length;
-        const batchFailed = batchResults.filter(result => result.status === 'rejected').length;
-
-        successful += batchSuccessful;
-        failed += batchFailed;
-
-        console.log(`Batch completed: ${batchSuccessful} successful, ${batchFailed} failed`);
-
-        // Log detailed errors for failed emails in this batch
-        if (batchFailed > 0) {
-          batchResults.forEach((result, index) => {
-            if (result.status === 'rejected') {
-              console.error(`Email failed for ${batch[index]}:`, result.reason.message);
-            }
-          });
-        }
-
-        // Add a small delay between batches to prevent rate limiting
-        if (i + batchSize < validEmails.length) {
-          await new Promise(resolve => setTimeout(resolve, 1000)); // 1 second delay
+        // Small delay between batches
+        if (i + batchSize < targetUsers.length) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
         }
       }
-
-      // Log failed emails for debugging
-      if (failed > 0) {
-        const failedEmails = results
-          .map((result, index) => ({ result, email: validEmails[index] }))
-          .filter(({ result }) => result.status === 'rejected')
-          .map(({ email, result }) => ({ email, error: result.reason.message }));
-
-        console.error('Failed email sends:', failedEmails);
-      }
-
-      // Log the bulk email send activity
-      console.log(`Bulk email sent by admin ${req.user.email}: ${successful} successful, ${failed} failed`);
-
-      res.status(200).json({
-        success: true,
-        message: `تم إرسال ${successful} من أصل ${validEmails.length} بريد إلكتروني بنجاح`,
-        stats: {
-          total: validEmails.length,
-          successful,
-          failed
-        },
-        failedEmails: failed > 0 ? results
-          .map((result, index) => ({ result, email: validEmails[index] }))
-          .filter(({ result }) => result.status === 'rejected')
-          .map(({ email, result }) => ({ email, error: result.reason.message })) : []
-      });
-    } catch (emailError) {
-      console.error('Email service error:', emailError);
-      throw new Error('خطأ في خدمة البريد الإلكتروني: ' + emailError.message);
-    }
+      console.log(`Bulk sending finished: ${successful} successful, ${failed} failed.`);
+    })();
 
   } catch (error) {
-    console.error('Send bulk emails error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'حدث خطأ أثناء إرسال الرسائل',
-      error: error.message
-    });
+    console.error('Bulk email error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        message: 'خطأ في معالجة إرسال البريد الجماعي'
+      });
+    }
   }
 });
+
 
 // Pin/Unpin Templates
 // @route   PUT /api/admin/templates/:id/pin

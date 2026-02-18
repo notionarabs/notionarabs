@@ -21,7 +21,7 @@ export default function NavigationWrapper() {
   // Check if current page should hide the header
   const shouldHideHeader = pagesWithoutHeader.some(page =>
     pathname === page || pathname.startsWith(page + '/')
-  );
+  ) || pathname.includes('/embed');
 
   // Don't render header for specific pages
   if (shouldHideHeader) {
@@ -40,6 +40,7 @@ export default function NavigationWrapper() {
     if (pathname.startsWith('/careers')) return 'careers';
     if (pathname.startsWith('/consultation')) return 'consultation';
     if (pathname.startsWith('/contact')) return 'contact';
+    if (pathname.startsWith('/widgets')) return 'widgets';
     return '';
   };
 

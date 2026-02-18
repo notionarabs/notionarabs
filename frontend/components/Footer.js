@@ -80,6 +80,7 @@ export default function Footer() {
             <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">المتجر</h4>
             <ul className="space-y-2 sm:space-y-3">
               <li><Link href="/store" onClick={() => handleNavigation('/store')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المتجر</Link></li>
+              <li><Link href="/widgets" onClick={() => handleNavigation('/widgets')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الأدوات</Link></li>
               <li><Link href="/templates" onClick={() => handleNavigation('/templates')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">القوالب</Link></li>
               <li><Link href="/creators" onClick={() => handleNavigation('/creators')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المبدعين</Link></li>
               <li><Link href="/creators/apply" onClick={() => handleNavigation('/creators/apply')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">انضم كمبدع</Link></li>

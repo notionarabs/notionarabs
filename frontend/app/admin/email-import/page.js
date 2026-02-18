@@ -7,7 +7,7 @@ import { useToast } from '../../../contexts/ToastContext';
 import LoadingIndicator from '../../../components/LoadingIndicator';
 import { emailApi } from '../../../lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Upload, FileText, CheckCircle, XCircle, Mail, Download, Trash2, Send, AlertCircle, X } from 'lucide-react';
+import { ArrowLeft, Upload, FileText, CheckCircle, XCircle, Mail, Download, Trash2, Send, AlertCircle, X, Users } from 'lucide-react';
 
 export default function EmailImportPage() {
   const { user, loading: authLoading } = useAuth();
@@ -24,6 +24,8 @@ export default function EmailImportPage() {
   const [emailSubject, setEmailSubject] = useState('');
   const [emailMessage, setEmailMessage] = useState('');
   const [sendingEmails, setSendingEmails] = useState(false);
+  const [sendToAll, setSendToAll] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState('');
   const fileInputRef = useRef(null);
 
   // Email validation regex
@@ -132,6 +134,8 @@ export default function EmailImportPage() {
     setInvalidEmails([]);
     setUploadedFile(null);
     setProcessingStatus('idle');
+    setSendToAll(false);
+    setSelectedTemplate('');
     setShowEmailComposer(false);
     setEmailSubject('');
     setEmailMessage('');
@@ -142,7 +146,7 @@ export default function EmailImportPage() {
 
   // Handle email sending
   const handleSendEmails = async () => {
-    if (validEmails.length === 0) {
+    if (!sendToAll && validEmails.length === 0) {
       showError('لا توجد بريد إلكتروني صحيح للإرسال');
       return;
     }
@@ -162,7 +166,7 @@ export default function EmailImportPage() {
 
       // Make the actual API call to send emails using the emailApi instance with extended timeout
       const response = await emailApi.post('/admin/send-bulk-emails', {
-        emails: validEmails,
+        emails: sendToAll ? 'all' : validEmails,
         subject: emailSubject,
         message: emailMessage,
       });
@@ -242,6 +246,59 @@ export default function EmailImportPage() {
 
     URL.revokeObjectURL(url);
     showSuccess('تم تصدير البريد الإلكتروني غير الصحيح بنجاح');
+  };
+
+  // Predefined templates
+  const templates = [
+    {
+      id: 'widgets',
+      name: 'إعلان الودجتس الجديدة',
+      subject: '✨ جديد عرب نوشن: أدوات الصلاة والقرآن الكريم لمساحة عملك',
+      message: `مرحباً {{name}}،
+
+سعداء جداً اليوم بالإعلان عن إطلاق أحدث أدوات "عرب نوشن" التي ستغير طريقة استخدامك لمساحة عملك:
+
+1️⃣ ودجت مواقيت الصلاة: تتبع أوقات الصلاة مباشرة من داخل نوشن مع تصميم عصري يناسب كل الثيمات.
+2️⃣ ودجت القرآن الكريم: آية يومية متجددة تظهر لك في مساحة عملك لتبقى على صلة بكتاب الله.
+
+كل ما عليك فعله هو التوجه لصفحة الأدوات المحترفة في موقعنا، تخصيص الودجت الخاص بك، ثم نسخه ولصقه في صفحة نوشن!
+
+تفضل بزيارة صفحة الأدوات الآن: https://www.notionarabs.com/widgets
+
+تحياتنا،
+فريق عرب نوشن`
+    },
+    {
+      id: 'welcome',
+      name: 'رسالة ترحيب وتذكير',
+      subject: '👋 مرحباً بك في مجتمع عرب نوشن - هل استكشت القوالب الجديدة؟',
+      message: `أهلاً بك يا {{name}}،
+
+نحن في عرب نوشن نسعى دائماً لتوفير أفضل القوالب والأدوات التي تساعدك على تنظيم حياتك وعملك بذكاء.
+
+هل قمت بتفقد متجر القوالب مؤخراً؟ لدينا عشرات القوالب المجانية والمدفوعة التي صممت خصيصاً لتناسب احتياجات المستخدم العربي.
+
+كما يسعدنا أن نخبرك أننا قمنا بفتح باب الانضمام لـ "برنامج المبدعين"، إذا كنت تملك مهارة بناء القوالب، يمكنك الآن البدء في بيعها وجني الأرباح من خلال منصتنا!
+
+استكشف المتجر هنا: https://www.notionarabs.com/store
+
+فريقك في عرب نوشن`
+    },
+    {
+      id: 'empty',
+      name: 'قالب فارغ',
+      subject: '',
+      message: ''
+    }
+  ];
+
+  const applyTemplate = (templateId) => {
+    const template = templates.find(t => t.id === templateId);
+    if (template) {
+      setEmailSubject(template.subject);
+      setEmailMessage(template.message);
+      setSelectedTemplate(templateId);
+    }
   };
 
   // Check authentication
@@ -342,6 +399,31 @@ export default function EmailImportPage() {
               </label>
             </div>
 
+            <div className="flex items-center gap-4 mt-6">
+              <div className="h-px bg-gray-200 dark:bg-dark-card-border flex-1" />
+              <span className="text-sm text-gray-400 font-medium">أو</span>
+              <div className="h-px bg-gray-200 dark:bg-dark-card-border flex-1" />
+            </div>
+
+            <div className="mt-6 flex justify-center">
+              <button
+                onClick={() => {
+                  setSendToAll(true);
+                  setProcessingStatus('completed');
+                  setValidEmails([]);
+                  setEmails([]);
+                  showSuccess('تم اختيار جميع مستخدمي الموقع كهدف للإرسال');
+                }}
+                className={`flex items-center gap-3 px-8 py-4 rounded-2xl border-2 transition-all ${sendToAll ? 'bg-primary-50 border-primary-500 text-primary-700' : 'bg-white dark:bg-dark-tertiary border-gray-200 dark:border-dark-card-border text-gray-700 dark:text-gray-200 hover:border-primary-500'}`}
+              >
+                <Users className={`w-6 h-6 ${sendToAll ? 'text-primary-600' : 'text-gray-400'}`} />
+                <div className="text-right">
+                  <p className="font-bold text-lg">إرسال لجميع مستخدمي الموقع</p>
+                  <p className="text-sm opacity-70">سيتم استهداف كافة الحسابات المسجلة والنشطة</p>
+                </div>
+              </button>
+            </div>
+
             <AnimatePresence>
               {uploadedFile && (
                 <motion.div
@@ -397,8 +479,9 @@ export default function EmailImportPage() {
             {processingStatus === 'completed' && (
               <motion.div
                 key="completed"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
                 className="space-y-6"
               >
                 {/* Stats Grid */}
@@ -466,7 +549,7 @@ export default function EmailImportPage() {
                     <div className="space-y-3">
                       <button
                         onClick={() => setShowEmailComposer(true)}
-                        disabled={validEmails.length === 0}
+                        disabled={!sendToAll && validEmails.length === 0}
                         className="w-full btn-primary py-3 flex items-center justify-center gap-2 group disabled:opacity-50"
                       >
                         <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform rtl:group-hover:-translate-x-1" />
@@ -497,15 +580,23 @@ export default function EmailImportPage() {
                     <div className="flex items-center justify-between mb-6">
                       <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                        البريد الإلكتروني الصحيح
+                        {sendToAll ? 'جميع مستخدمي الموقع' : (validEmails.length > 0 ? 'البريد الإلكتروني الصحيح' : 'قائمة المستلمين')}
                       </h3>
                       <span className="text-sm px-3 py-1 bg-gray-100 dark:bg-dark-tertiary rounded-full text-gray-600 dark:text-gray-400 font-medium">
-                        {validEmails.length} مستلم
+                        {sendToAll ? 'الكل' : `${validEmails.length} مستلم`}
                       </span>
                     </div>
 
                     <div className="max-h-[400px] overflow-y-auto pr-2 custom-scrollbar space-y-2">
-                      {validEmails.length > 0 ? (
+                      {sendToAll ? (
+                        <div className="text-center py-12 flex flex-col items-center">
+                          <div className="w-16 h-16 bg-primary-50 dark:bg-primary-900/20 rounded-full flex items-center justify-center mb-4">
+                            <Users className="w-8 h-8 text-primary-500" />
+                          </div>
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white">وضع الإرسال للكل مفعل</h3>
+                          <p className="text-gray-500 dark:text-gray-400 max-w-sm">سيتم جلب كافة عناوين البريد الإلكتروني للمستخدمين المسجلين في الموقع تلقائياً عند الضغط على إرسال.</p>
+                        </div>
+                      ) : validEmails.length > 0 ? (
                         validEmails.map((email, index) => (
                           <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-dark-tertiary/50 rounded-xl border border-transparent hover:border-gray-200 dark:hover:border-dark-card-border transition-all">
                             <div className="w-8 h-8 rounded-full bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border flex items-center justify-center text-xs font-bold text-primary-600">
@@ -585,7 +676,7 @@ export default function EmailImportPage() {
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-gray-900 dark:text-white">إرسال رسالة جماعية</h3>
-                      <p className="text-sm text-gray-500">سيتم الإرسال إلى {validEmails.length} مستلم</p>
+                      <p className="text-sm text-gray-500">{sendToAll ? 'سيتم الإرسال لجميع مستخدمي الموقع' : `سيتم الإرسال إلى ${validEmails.length} مستلم`}</p>
                     </div>
                   </div>
                   <button
@@ -599,6 +690,27 @@ export default function EmailImportPage() {
                 {/* Modal Content */}
                 <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
                   <div className="space-y-6">
+                    {/* Template Selection */}
+                    <div className="bg-primary-50/50 dark:bg-primary-900/10 p-4 rounded-xl border border-primary-100 dark:border-primary-900/20">
+                      <label className="block text-sm font-bold text-primary-700 dark:text-primary-400 mb-3">
+                        اختر قالباً جاهزاً لتسريع العمل:
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        {templates.map((t) => (
+                          <button
+                            key={t.id}
+                            onClick={() => applyTemplate(t.id)}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${selectedTemplate === t.id ? 'bg-primary-600 text-white shadow-md' : 'bg-white dark:bg-dark-tertiary text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-dark-card-border hover:border-primary-400'}`}
+                          >
+                            {t.name}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="mt-3 text-[10px] text-primary-600/70 font-medium">
+                        💡 يمكنك استخدام <code className="bg-primary-100 dark:bg-primary-900/40 px-1 rounded">{"{{name}}"}</code> لوضع اسم المستخدم تلقائياً، أو <code className="bg-primary-100 dark:bg-primary-900/40 px-1 rounded">{"{{email}}"}</code> لبريده.
+                      </div>
+                    </div>
+
                     <div>
                       <label htmlFor="email-subject" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                         عنوان الرسالة <span className="text-red-500">*</span>
@@ -634,14 +746,30 @@ export default function EmailImportPage() {
                       </div>
                     </div>
 
-                    {/* Simple Preview Box */}
+                    {/* Branded Preview Box */}
                     {emailSubject && emailMessage && (
-                      <div className="bg-gray-50 dark:bg-dark-tertiary/30 rounded-xl p-4 border border-gray-100 dark:border-dark-card-border/50">
-                        <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">معاينة سريعة</h4>
-                        <div className="bg-white dark:bg-dark-secondary p-4 rounded-lg shadow-sm border border-gray-100 dark:border-dark-card-border">
-                          <h2 className="font-bold text-lg text-gray-900 dark:text-white mb-2">{emailSubject}</h2>
-                          <div className="prose dark:prose-invert max-w-none text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
-                            {emailMessage}
+                      <div className="bg-gray-100 dark:bg-dark-tertiary/30 rounded-2xl p-6 border border-gray-200 dark:border-dark-card-border">
+                        <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">معاينة البريد النهائي:</h4>
+
+                        <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-inner border border-gray-200 dark:border-dark-card-border overflow-hidden max-w-full overflow-x-auto text-right" dir="rtl">
+                          <div className="p-10">
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                              {emailSubject}
+                            </h2>
+                            <div className="prose dark:prose-invert max-w-none text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed">
+                              {emailMessage}
+                            </div>
+                          </div>
+
+                          <div className="p-10 pt-0 bg-white dark:bg-dark-secondary text-right">
+                            <div className="border-t border-gray-100 dark:border-dark-card-border pt-6">
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 font-medium">
+                                عرب نوشن — بيت عشّاق نوشن في العالم العربي
+                              </p>
+                              <p className="text-xs text-gray-400">
+                                إذا كنت لا ترغب في تلقي هذه الرسائل، يمكنك <span className="underline cursor-pointer">إلغاء الاشتراك هنا</span>.
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>

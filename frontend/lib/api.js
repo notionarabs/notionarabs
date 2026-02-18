@@ -70,16 +70,20 @@ api.interceptors.response.use(
   (error) => {
     const { response } = error;
 
-    // Log API error response times
+    // Log API error response times — skip /auth/me failures (expected when not logged in)
     if (error.config?.metadata?.startTime) {
       const duration = Date.now() - error.config.metadata.startTime;
-      console.error(`❌ API error: ${error.config.url} failed after ${duration}ms`);
+      const isAuthCheck = error.config.url?.includes('/auth/me');
+      if (!isAuthCheck) {
+        console.error(`❌ API error: ${error.config.url} failed after ${duration}ms`);
+      }
     }
 
     // Handle different error types
     if (response?.status === 401) {
-      // Token expired or invalid
-      if (typeof window !== 'undefined') {
+      // Token expired or invalid — but don't redirect if this is just the auth check
+      const isAuthCheck = error.config?.url?.includes('/auth/me');
+      if (!isAuthCheck && typeof window !== 'undefined') {
         const Cookies = require('js-cookie');
         Cookies.remove('authToken');
         delete api.defaults.headers.common['Authorization'];

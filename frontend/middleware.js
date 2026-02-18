@@ -8,12 +8,12 @@ export function middleware(request) {
   // Only enforce HTTPS and www redirects in production on the actual domain
   // Skip redirects for localhost, IP addresses, and development environments
   const isProduction = process.env.NODE_ENV === 'production';
-  const isLocalhost = hostname === 'localhost' || 
-                      hostname === '127.0.0.1' || 
-                      hostname.startsWith('192.168.') || 
-                      hostname.startsWith('10.') || 
-                      hostname.startsWith('172.') ||
-                      hostname.includes('.local');
+  const isLocalhost = hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    hostname.startsWith('192.168.') ||
+    hostname.startsWith('10.') ||
+    hostname.startsWith('172.') ||
+    hostname.includes('.local');
 
   // Only apply redirects in production and on the actual production domain
   if (isProduction && !isLocalhost && (hostname === 'notionarabs.com' || hostname === 'www.notionarabs.com')) {
@@ -91,7 +91,8 @@ export function middleware(request) {
     (pathname.match(/^\/templates\/[^\/]+$/) && pathname !== '/templates/create') || // /templates/[id] but not /templates/create
     (pathname.match(/^\/blog\/[^\/]+$/) && !pathname.startsWith('/blog/create') && !pathname.startsWith('/blog/edit/')) || // /blog/[id] but not /blog/create or /blog/edit/[id]
     pathname.match(/^\/creators\/[^\/]+$/) || // /creators/[username] - public creator profiles
-    pathname.match(/^\/categories\/[^\/]+$/); // /categories/[id] - public category pages
+    pathname.match(/^\/categories\/[^\/]+$/) || // /categories/[id] - public category pages
+    pathname.startsWith('/widgets'); // /widgets/* - all widget pages are public (embed + preview)
 
   // Check if it's a static asset or Next.js internal route
   const isStaticAsset =

@@ -70,11 +70,12 @@ api.interceptors.response.use(
   (error) => {
     const { response } = error;
 
-    // Log API error response times — skip /auth/me failures (expected when not logged in)
+    // Log API error response times — skip 401s and network errors (backend cold-starting)
     if (error.config?.metadata?.startTime) {
       const duration = Date.now() - error.config.metadata.startTime;
-      const isAuthCheck = error.config.url?.includes('/auth/me');
-      if (!isAuthCheck) {
+      const is401 = response?.status === 401;
+      const isNetworkError = !response; // no response = backend unreachable/cold-starting
+      if (!is401 && !isNetworkError) {
         console.error(`❌ API error: ${error.config.url} failed after ${duration}ms`);
       }
     }

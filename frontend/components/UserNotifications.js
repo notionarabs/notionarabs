@@ -23,7 +23,7 @@ export default function UserNotifications() {
         setUnreadCount(res.data.unreadCount);
       }
     } catch (e) {
-      console.error('Error fetching notifications', e);
+      // silently fail — interceptor in api.js logs real errors
     } finally {
       setLoading(false);
     }

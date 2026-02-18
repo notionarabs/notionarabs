@@ -1,9 +1,10 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import QuranWidget from '../../../../components/widgets/QuranWidget';
 
-export default function QuranEmbed() {
+function QuranEmbedContent() {
     const searchParams = useSearchParams();
 
     // Convert search params to config object
@@ -15,9 +16,15 @@ export default function QuranEmbed() {
         reciter: searchParams.get('reciter') || 'ar.alafasy'
     };
 
+    return <QuranWidget {...config} />;
+}
+
+export default function QuranEmbed() {
     return (
-        <div className="w-full h-screen flex items-center justify-center p-2 bg-transparent overflow-hidden">
-            <QuranWidget {...config} />
-        </div>
+        <Suspense fallback={null}>
+            <div className="w-full h-screen flex items-center justify-center p-2 bg-transparent overflow-hidden">
+                <QuranEmbedContent />
+            </div>
+        </Suspense>
     );
 }

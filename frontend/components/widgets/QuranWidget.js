@@ -25,7 +25,7 @@ export default function QuranWidget({
             try {
                 setLoading(true);
                 const randomAyah = Math.floor(Math.random() * 6236) + 1;
-                const res = await fetch(`https://api.alquran.cloud/v1/ayah/${randomAyah}/editions/quran-uthmani,${translationLang},${reciter}`);
+                const res = await fetch(`/api/quran/ayah?ayah=${randomAyah}&editions=quran-uthmani,${translationLang},${reciter}`);
                 const result = await res.json();
                 if (result.code === 200) {
                     setData({

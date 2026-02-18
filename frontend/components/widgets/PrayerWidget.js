@@ -30,29 +30,13 @@ export default function PrayerWidget({
             try {
                 setLoading(true);
 
-                // Step 1: Geocoding (City -> Lat/Lng)
-                const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(city)}&format=json&limit=1`);
-                const geoData = await geoRes.json();
-
-                let lat, lng;
-                if (geoData && geoData.length > 0) {
-                    lat = geoData[0].lat;
-                    lng = geoData[0].lon;
-                    // Format address for display (e.g., "Riyadh, Saudi Arabia")
-                    const simpleAddress = geoData[0].display_name.split(',').slice(0, 2).join(',');
-                    setResolvedAddress(simpleAddress);
-                } else {
-                    // Fallback to Riyadh
-                    lat = 24.7136;
-                    lng = 46.6753;
-                    setResolvedAddress(city);
-                }
-
-                // Step 2: Fetch Prayer Times using coordinates
-                const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lng}&method=${method}`);
+                // Single proxy call — geocoding + prayer times handled server-side
+                const res = await fetch(`/api/prayer/times?city=${encodeURIComponent(city)}&method=${method}`);
                 const result = await res.json();
+
                 if (result.code === 200) {
                     setData(result.data);
+                    setResolvedAddress(result.resolvedAddress || city);
                 }
             } catch (err) {
                 console.error(err);

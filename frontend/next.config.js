@@ -366,13 +366,10 @@ const nextConfig = {
   },
   async headers() {
     return [
+      // ─── All routes: base security headers (no X-Frame-Options here) ─────
       {
         source: '/(.*)',
         headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
           {
             key: 'X-Content-Type-Options',
             value: 'nosniff',
@@ -385,12 +382,20 @@ const nextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()',
           },
-          // Performance headers
           {
             key: 'X-DNS-Prefetch-Control',
             value: 'on',
           },
-          // Content Security Policy — main site (no external embedding)
+        ],
+      },
+      // ─── Non-embed pages: block framing entirely ──────────────────────────
+      {
+        source: '/((?!widgets\\/.*\\/embed).*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
           {
             key: 'Content-Security-Policy',
             value: [
@@ -408,16 +413,11 @@ const nextConfig = {
           },
         ],
       },
-      // ─── Widget embed routes: allow any site to iframe these ───────────────
+      // ─── Widget embed routes: allow any site to iframe these ──────────────
       {
         source: '/widgets/:path*/embed',
         headers: [
-          // Override X-Frame-Options for embed pages
-          {
-            key: 'X-Frame-Options',
-            value: 'ALLOWALL',
-          },
-          // CSP for embed pages — frame-ancestors * allows any site to embed
+          // NO X-Frame-Options here — omitting it + frame-ancestors * is the correct approach
           {
             key: 'Content-Security-Policy',
             value: [

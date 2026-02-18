@@ -1,19 +1,28 @@
 /**
- * Shared layout for all widget embed pages.
- * Injects the oEmbed discovery <link> tag so Notion and other platforms
- * automatically recognize these pages as embeddable iframes.
+ * Shared layout + base SEO metadata for all /widgets/* pages.
+ * Individual pages override `title` and `description` via their own metadata exports.
+ * The oEmbed discovery <link> lets Notion and other platforms identify embeddable pages.
  */
-export const metadata = {
-    title: 'Notion Arabs Widget',
-    description: 'Embeddable widget by Notion Arabs',
-    // oEmbed discovery — platforms like Notion read this to know the page is embeddable
-    alternates: {
-        types: {
-            'application/json+oembed': 'https://www.notionarabs.com/api/oembed',
-        },
-    },
-};
+import { generateMetadata } from '../../lib/seo';
 
-export default function WidgetEmbedLayout({ children }) {
+export const metadata = generateMetadata({
+    title: 'أدوات عرب نوشن',
+    description: 'مجموعة من الأدوات والودجتس المصممة خصيصاً للمستخدم العربي، تشمل ودجت آية اليوم القرآنية ومواقيت الصلاة، قابلة للتضمين في نوشن مباشرةً.',
+    url: '/widgets',
+    keywords: [
+        'ودجت نوشن',
+        'widget notion',
+        'notion widget arabic',
+        'أدوات نوشن',
+        'آية اليوم',
+        'مواقيت الصلاة',
+        'ودجت إسلامي',
+        'notion embed',
+        'تضمين نوشن',
+    ],
+});
+
+// oEmbed discovery — platforms like Notion read this to auto-detect embeddable pages
+export default function WidgetLayout({ children }) {
     return children;
 }

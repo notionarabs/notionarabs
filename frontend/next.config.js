@@ -97,6 +97,13 @@ const withPWA = require('next-pwa')({
   ]
 });
 
+const isDev = process.env.NODE_ENV !== 'production';
+
+// Extra connect-src origins allowed in development (local backend)
+const devConnectSrc = isDev
+  ? ' http://127.0.0.1:5000 http://localhost:5000'
+  : '';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
@@ -365,73 +372,63 @@ const nextConfig = {
     return config;
   },
   async headers() {
+    const cspNonEmbed = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.google-analytics.com https://www.googletagmanager.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com",
+      "img-src 'self' data: blob: https:",
+      `connect-src 'self' https://api.notionarabs.com https://notionarabs.com https://notion-arabs-fe5b3f214071.herokuapp.com https://api.brevo.com https://www.google-analytics.com https://www.googletagmanager.com https://api.alquran.cloud https://cdn.jsdelivr.net${devConnectSrc}`,
+      "media-src 'self' https://cdn.alquran.cloud https://server8.mp3quran.net https://server6.mp3quran.net https://server7.mp3quran.net https://server10.mp3quran.net https://server12.mp3quran.net https://download.quranicaudio.com",
+      "frame-src 'self' https://notionarabs.com https://www.notionarabs.com",
+      "worker-src 'self' blob:",
+      "frame-ancestors 'none'",
+    ].join('; ');
+
+    const cspEmbed = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.google-analytics.com https://www.googletagmanager.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com",
+      "img-src 'self' data: blob: https:",
+      `connect-src 'self' https://api.notionarabs.com https://notionarabs.com https://notion-arabs-fe5b3f214071.herokuapp.com https://api.brevo.com https://www.google-analytics.com https://www.googletagmanager.com https://api.alquran.cloud https://cdn.jsdelivr.net https://api.aladhan.com https://nominatim.openstreetmap.org${devConnectSrc}`,
+      "media-src 'self' https://cdn.alquran.cloud https://server8.mp3quran.net https://server6.mp3quran.net https://server7.mp3quran.net https://server10.mp3quran.net https://server12.mp3quran.net https://download.quranicaudio.com",
+      "worker-src 'self' blob:",
+      "frame-ancestors *",
+    ].join('; ');
+
     return [
-      // ─── All routes: base security headers (no X-Frame-Options here) ─────
+      // ─── All routes: base security headers ───────────────────────────────
       {
         source: '/(.*)',
         headers: [
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'strict-origin-when-cross-origin',
-          },
-          {
-            key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()',
-          },
-          {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on',
-          },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+          { key: 'X-DNS-Prefetch-Control', value: 'on' },
+          // Default CSP for all pages (embed routes will override below)
+          { key: 'Content-Security-Policy', value: cspNonEmbed },
+          // Default: block framing (embed routes will override below)
+          { key: 'X-Frame-Options', value: 'DENY' },
         ],
       },
-      // ─── Non-embed pages: block framing entirely ──────────────────────────
+      // ─── Widget embed routes: override framing headers to allow iframing ──
+      // Next.js applies headers in order; later rules for the same path WIN.
       {
-        source: '/((?!widgets\\/.*\\/embed).*)',
+        source: '/widgets/:widget/embed',
         headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'Content-Security-Policy',
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.google-analytics.com https://www.googletagmanager.com",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: blob: https:",
-              "connect-src 'self' https://api.notionarabs.com https://notionarabs.com https://notion-arabs-fe5b3f214071.herokuapp.com https://api.brevo.com https://www.google-analytics.com https://www.googletagmanager.com https://api.alquran.cloud https://cdn.jsdelivr.net",
-              "media-src 'self' https://cdn.alquran.cloud https://server8.mp3quran.net https://server6.mp3quran.net https://server7.mp3quran.net https://server10.mp3quran.net https://server12.mp3quran.net https://download.quranicaudio.com",
-              "frame-src 'self' https://notionarabs.com https://www.notionarabs.com",
-              "worker-src 'self' blob:",
-              "frame-ancestors 'none'",
-            ].join('; '),
-          },
+          { key: 'Content-Security-Policy', value: cspEmbed },
+          // X-Frame-Options SAMEORIGIN is overridden by frame-ancestors in CSP;
+          // we set it to SAMEORIGIN here just to clear the DENY set above —
+          // modern browsers use the CSP frame-ancestors directive instead.
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
         ],
       },
-      // ─── Widget embed routes: allow any site to iframe these ──────────────
       {
-        source: '/widgets/:path*/embed',
+        source: '/widgets/:widget/:sub/embed',
         headers: [
-          // NO X-Frame-Options here — omitting it + frame-ancestors * is the correct approach
-          {
-            key: 'Content-Security-Policy',
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.google-analytics.com https://www.googletagmanager.com",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: blob: https:",
-              "connect-src 'self' https://api.notionarabs.com https://notionarabs.com https://notion-arabs-fe5b3f214071.herokuapp.com https://api.brevo.com https://www.google-analytics.com https://www.googletagmanager.com https://api.alquran.cloud https://cdn.jsdelivr.net",
-              "media-src 'self' https://cdn.alquran.cloud https://server8.mp3quran.net https://server6.mp3quran.net https://server7.mp3quran.net https://server10.mp3quran.net https://server12.mp3quran.net https://download.quranicaudio.com",
-              "worker-src 'self' blob:",
-              "frame-ancestors *",
-            ].join('; '),
-          },
+          { key: 'Content-Security-Policy', value: cspEmbed },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
         ],
       },
       {

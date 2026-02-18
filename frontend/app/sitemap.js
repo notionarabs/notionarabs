@@ -92,6 +92,26 @@ export default async function sitemap() {
       changeFrequency: 'yearly',
       priority: 0.3,
     },
+    // Widget pages — high value discovery pages
+    {
+      url: `${baseUrl}/widgets`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/widgets/quran`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/widgets/prayer`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    // Note: /widgets/*/embed pages are intentionally excluded (noindex)
   ]
 
   // Category pages - using slugs from the centralized mapping

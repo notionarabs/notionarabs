@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Book, RefreshCw, Languages, Type, Settings, Play, Pause, Volume2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Book, RefreshCw, Settings, Play, Pause } from 'lucide-react';
 
 export default function QuranWidget({
     theme = 'dark',
@@ -14,7 +14,7 @@ export default function QuranWidget({
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [audio, setAudio] = useState(null);
+    const audioRef = useRef(null); // use ref instead of state to avoid re-renders
 
     const editUrl = typeof window !== 'undefined'
         ? `${window.location.origin}/widgets/${id}?theme=${theme}&font=${font}&showTranslation=${showTranslation}&reciter=${reciter}`
@@ -24,16 +24,33 @@ export default function QuranWidget({
         const fetchAyah = async () => {
             try {
                 setLoading(true);
+
+                // Stop any currently playing audio
+                if (audioRef.current) {
+                    audioRef.current.pause();
+                    audioRef.current = null;
+                }
+                setIsPlaying(false);
+
                 const randomAyah = Math.floor(Math.random() * 6236) + 1;
-                const res = await fetch(`/api/quran/ayah?ayah=${randomAyah}&editions=quran-uthmani,${translationLang},${reciter}`);
+
+                // Fetch all 3 editions: Arabic text, translation, and audio
+                const res = await fetch(
+                    `/api/quran/ayah?ayah=${randomAyah}&editions=quran-uthmani,${translationLang},${reciter}`
+                );
                 const result = await res.json();
+
                 if (result.code === 200) {
+                    // Use API-provided audio URL if available, otherwise construct it from CDN pattern
+                    const apiAudio = result.data[2]?.audio;
+                    const cdnAudio = `https://cdn.alquran.cloud/media/audio/ayah/${reciter}/128/${randomAyah}`;
+
                     setData({
                         arabic: result.data[0].text,
                         translation: result.data[1].text,
-                        audio: result.data[2].audio,
+                        audio: apiAudio || cdnAudio,
                         surah: result.data[0].surah.name,
-                        ayahNumber: result.data[0].numberInSurah
+                        ayahNumber: result.data[0].numberInSurah,
                     });
                 }
             } catch (err) {
@@ -44,35 +61,43 @@ export default function QuranWidget({
         };
 
         fetchAyah();
-    }, [translationLang, reciter]);
 
-    useEffect(() => {
-        // Stop and clear audio whenever data changes (reciter or new ayah)
-        if (audio) {
-            audio.pause();
-            setAudio(null);
-            setIsPlaying(false);
-        }
-    }, [data?.audio]);
+        // Cleanup on unmount or deps change
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current = null;
+            }
+        };
+    }, [translationLang, reciter]);
 
     const toggleAudio = () => {
         if (!data?.audio) return;
 
-        if (!audio) {
-            const newAudio = new Audio(data.audio);
-            newAudio.onended = () => setIsPlaying(false);
-            newAudio.play().catch(err => console.error("Audio play failed:", err));
-            setAudio(newAudio);
-            setIsPlaying(true);
-        } else {
+        // If already have an audio instance
+        if (audioRef.current) {
             if (isPlaying) {
-                audio.pause();
+                audioRef.current.pause();
                 setIsPlaying(false);
             } else {
-                audio.play().catch(err => console.error("Audio play failed:", err));
+                audioRef.current.play().catch(() => { });
                 setIsPlaying(true);
             }
+            return;
         }
+
+        // Create new audio instance
+        const newAudio = new Audio(data.audio);
+        newAudio.onended = () => setIsPlaying(false);
+        newAudio.onpause = () => setIsPlaying(false);
+        newAudio.onplay = () => setIsPlaying(true);
+        audioRef.current = newAudio;
+
+        newAudio.play().catch(err => {
+            console.warn('Audio play failed:', err);
+            setIsPlaying(false);
+        });
+        setIsPlaying(true);
     };
 
     const fontClasses = {
@@ -90,9 +115,11 @@ export default function QuranWidget({
     );
 
     return (
-        <div className={`w-full p-8 rounded-[2rem] transition-all duration-500 relative group overflow-hidden ${theme === 'dark' ? 'bg-[#191919] text-white border border-[#2f2f2f]' : 'bg-white text-accent-900 border border-gray-100 shadow-xl'
+        <div className={`w-full p-8 rounded-[2rem] transition-all duration-500 relative group overflow-hidden ${theme === 'dark'
+                ? 'bg-[#191919] text-white border border-[#2f2f2f]'
+                : 'bg-white text-accent-900 border border-gray-100 shadow-xl'
             }`}>
-            {/* Edit Button - Option 1 */}
+            {/* Edit Button */}
             <a
                 href={editUrl}
                 target="_blank"
@@ -115,7 +142,7 @@ export default function QuranWidget({
 
                 {showTranslation && (
                     <p className="text-sm md:text-base text-gray-500 dark:text-dark-text-secondary italic max-w-lg leading-relaxed border-t border-gray-100 dark:border-dark-card-border pt-6" dir="ltr">
-                        "{data?.translation}"
+                        &ldquo;{data?.translation}&rdquo;
                     </p>
                 )}
 
@@ -123,8 +150,8 @@ export default function QuranWidget({
                     <button
                         onClick={toggleAudio}
                         className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${isPlaying
-                            ? 'bg-primary-500 text-white shadow-lg glow'
-                            : 'bg-primary-50 text-primary-500 hover:bg-primary-500 hover:text-white'
+                                ? 'bg-primary-500 text-white shadow-lg'
+                                : 'bg-primary-50 text-primary-500 hover:bg-primary-500 hover:text-white'
                             }`}
                         title={isPlaying ? 'إيقاف' : 'استماع'}
                     >

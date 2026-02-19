@@ -14,7 +14,7 @@ const WIDGET_DATA = {
         description: 'ودجت احترافي لنوشن يعرض آيات قرآنية متجددة تلقائياً. يمكنك تخصيص الخط، اللغة، والوضع الليلي.',
         features: ['تحديث تلقائي', 'ترجمة عربي/إنجليزي', 'دعم الوضع المظلم', 'خطوط عربية متميزة'],
         settings: [
-            { id: 'theme', label: 'المظهر', type: 'select', options: [{ id: 'light', label: 'نهاري' }, { id: 'dark', label: 'ليلي' }] },
+            { id: 'theme', label: 'المظهر', type: 'select', options: [{ id: 'auto', label: 'تلقائي' }, { id: 'light', label: 'نهاري' }, { id: 'dark', label: 'ليلي' }] },
             {
                 id: 'font', label: 'الخط', type: 'select', options: [
                     { id: 'tajawal', label: 'تاجوال' },
@@ -40,7 +40,7 @@ const WIDGET_DATA = {
         description: 'ودجت يعرض مواقيت الصلاة لمدينتك واليوم الهجري. يتوافق تماماً مع واجهة نوشن.',
         features: ['مواقيت دقيقة', 'التاريخ الهجري', 'تحديد الموقع', 'تنبيهات الصلاة'],
         settings: [
-            { id: 'theme', label: 'المظهر', type: 'select', options: [{ id: 'light', label: 'نهاري' }, { id: 'dark', label: 'ليلي' }] },
+            { id: 'theme', label: 'المظهر', type: 'select', options: [{ id: 'auto', label: 'تلقائي' }, { id: 'light', label: 'نهاري' }, { id: 'dark', label: 'ليلي' }] },
             {
                 id: 'font', label: 'الخط', type: 'select', options: [
                     { id: 'tajawal', label: 'تاجوال' },
@@ -108,7 +108,7 @@ export default function WidgetDetailClient() {
     const searchParams = useSearchParams();
 
     const [config, setConfig] = useState({
-        theme: 'dark',
+        theme: 'auto',
         font: 'tajawal',
         showTranslation: true,
         reciter: 'ar.alafasy',
@@ -136,8 +136,12 @@ export default function WidgetDetailClient() {
     if (!widget) return <div className="p-20 text-center">Widget not found</div>;
 
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-    const queryParams = new URLSearchParams(config).toString();
-    const embedUrl = `${baseUrl}/widgets/${id}/embed?${queryParams}`;
+    // Exclude theme=auto from URL — embed page detects it via prefers-color-scheme
+    const filteredConfig = Object.fromEntries(
+        Object.entries(config).filter(([k, v]) => !(k === 'theme' && v === 'auto'))
+    );
+    const queryParams = new URLSearchParams(filteredConfig).toString();
+    const embedUrl = `${baseUrl}/widgets/${id}/embed${queryParams ? '?' + queryParams : ''}`;
 
     const handleConfigChange = (key, value) => {
         setConfig(prev => ({ ...prev, [key]: value }));

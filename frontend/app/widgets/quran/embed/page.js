@@ -1,22 +1,36 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import QuranWidget from '../../../../components/widgets/QuranWidget';
 
 function QuranEmbedContent() {
     const searchParams = useSearchParams();
+    const themeParam = searchParams.get('theme'); // 'dark', 'light', or null/auto
+
+    // Auto-detect system/browser dark-light preference (Notion follows the OS)
+    const [systemTheme, setSystemTheme] = useState('dark');
+
+    useEffect(() => {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        setSystemTheme(mq.matches ? 'dark' : 'light');
+        const handler = (e) => setSystemTheme(e.matches ? 'dark' : 'light');
+        mq.addEventListener('change', handler);
+        return () => mq.removeEventListener('change', handler);
+    }, []);
+
+    // Manual URL param overrides auto-detect; everything else falls back to system
+    const theme = (themeParam === 'dark' || themeParam === 'light') ? themeParam : systemTheme;
 
     const config = {
-        theme: searchParams.get('theme') || 'dark',
+        theme,
         font: searchParams.get('font') || 'tajawal',
         showTranslation: searchParams.get('showTranslation') !== 'false',
         translationLang: searchParams.get('translationLang') || 'en.pickthall',
         reciter: searchParams.get('reciter') || 'ar.alafasy'
     };
 
-    // Match Notion's exact background colors for seamless embedding
-    const bg = config.theme === 'dark' ? '#191919' : '#ffffff';
+    const bg = theme === 'dark' ? '#191919' : '#ffffff';
 
     return (
         <div
@@ -35,4 +49,3 @@ export default function QuranEmbed() {
         </Suspense>
     );
 }
-

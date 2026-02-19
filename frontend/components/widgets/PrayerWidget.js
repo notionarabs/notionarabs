@@ -8,8 +8,7 @@ export default function PrayerWidget({
     city = 'Riyadh',
     method = 4,
     font = 'tajawal',
-    id = 'prayer',
-    embed = false
+    id = 'prayer'
 }) {
     const editUrl = typeof window !== 'undefined'
         ? `${window.location.origin}/widgets/${id}?theme=${theme}&font=${font}&city=${city}`
@@ -89,24 +88,20 @@ export default function PrayerWidget({
     const nextPrayerKey = getNextPrayer();
 
     return (
-        <div className={`w-full transition-all duration-500 relative group overflow-hidden ${fontClasses[font]} ${embed
-                ? (theme === 'dark' ? 'bg-[#191919] text-white' : 'bg-white text-accent-900')
-                : (theme === 'dark'
-                    ? 'p-6 md:p-8 rounded-[2.5rem] bg-[#191919] text-white border border-[#2f2f2f]'
-                    : 'p-6 md:p-8 rounded-[2.5rem] bg-white text-accent-900 border border-gray-100 shadow-xl')
+        <div className={`w-full p-6 md:p-8 rounded-[2.5rem] transition-all duration-500 relative group overflow-hidden ${fontClasses[font]} ${theme === 'dark'
+            ? 'bg-[#191919] text-white border border-[#2f2f2f]'
+            : 'bg-white text-accent-900 border border-gray-100 shadow-xl'
             }`}>
-            {/* Edit Button — hidden in embed mode */}
-            {!embed && (
-                <a
-                    href={editUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="absolute top-4 left-4 p-2 rounded-full bg-gray-500/10 hover:bg-primary-500 hover:text-white transition-all duration-300 opacity-0 group-hover:opacity-100 z-50 text-gray-400"
-                    title="تعديل الودجت"
-                >
-                    <Settings className="w-4 h-4" />
-                </a>
-            )}
+            {/* Edit Button */}
+            <a
+                href={editUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute top-4 left-4 p-2 rounded-full bg-gray-500/10 hover:bg-primary-500 hover:text-white transition-all duration-300 opacity-0 group-hover:opacity-100 z-50 text-gray-400"
+                title="تعديل الودجت"
+            >
+                <Settings className="w-4 h-4" />
+            </a>
 
             <div className="flex flex-col space-y-8" dir="rtl">
                 {/* Header */}

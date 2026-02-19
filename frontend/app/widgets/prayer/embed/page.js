@@ -22,7 +22,7 @@ function PrayerEmbedContent() {
             className="w-full h-screen flex items-center justify-center px-4 py-6 overflow-hidden"
             style={{ backgroundColor: bg }}
         >
-            <PrayerWidget {...config} embed={true} />
+            <PrayerWidget {...config} />
         </div>
     );
 }

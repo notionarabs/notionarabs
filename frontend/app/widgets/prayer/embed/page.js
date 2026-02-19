@@ -16,6 +16,23 @@ function PrayerEmbedContent() {
         setSystemTheme(mq.matches ? 'dark' : 'light');
         const handler = (e) => setSystemTheme(e.matches ? 'dark' : 'light');
         mq.addEventListener('change', handler);
+
+        // Track usage
+        const trackUsage = async () => {
+            try {
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.notionarabs.com';
+                await fetch(`${apiUrl}/api/widgets/track`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ widgetId: 'prayer' })
+                });
+            } catch (err) {
+                // Ignore tracking errors
+                console.error('Tracking error:', err);
+            }
+        };
+        trackUsage();
+
         return () => mq.removeEventListener('change', handler);
     }, []);
 

@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Layout, Copy, ExternalLink, Zap, Sparkles } from 'lucide-react';
+import { Layout, Copy, ExternalLink, Zap, Sparkles, Users } from 'lucide-react';
 import Footer from '../../components/Footer';
 
 const widgets = [
@@ -26,6 +26,26 @@ const widgets = [
 export default function WidgetsClient() {
     const router = useRouter();
     const [copiedId, setCopiedId] = useState(null);
+    const [stats, setStats] = useState({ quran: 0, prayer: 0 }); // Show real counts only
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.notionarabs.com';
+                const res = await fetch(`${apiUrl}/api/widgets/stats`);
+                const data = await res.json();
+                if (data.success) {
+                    setStats({
+                        quran: data.stats.quran || 0,
+                        prayer: data.stats.prayer || 0
+                    });
+                }
+            } catch (err) {
+                console.error('Failed to fetch stats:', err);
+            }
+        };
+        fetchStats();
+    }, []);
 
     const copyEmbed = (e, id) => {
         e.stopPropagation(); // Prevent card click
@@ -35,6 +55,11 @@ export default function WidgetsClient() {
         setCopiedId(id);
         setTimeout(() => setCopiedId(null), 2000);
     };
+
+    const displayWidgets = widgets.map(w => ({
+        ...w,
+        users: stats[w.id].toLocaleString() + '+'
+    }));
 
     return (
         <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
@@ -56,7 +81,7 @@ export default function WidgetsClient() {
                 <div className="container-custom">
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {widgets.map((widget) => (
+                        {displayWidgets.map((widget) => (
                             <div
                                 key={widget.id}
                                 onClick={() => router.push(`/widgets/${widget.id}`)}
@@ -76,10 +101,16 @@ export default function WidgetsClient() {
                                     </div>
                                 </div>
                                 <div className="p-6 flex-1 flex flex-col">
-                                    <div className="flex items-center gap-2 mb-3">
+                                    <div className="flex items-center justify-between mb-3">
                                         <span className="px-3 py-1 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 text-xs font-bold rounded-full">
                                             {widget.category}
                                         </span>
+                                        {stats[widget.id] > 0 && (
+                                            <div className="flex items-center gap-1.5 text-gray-400 dark:text-gray-500">
+                                                <Users className="w-3.5 h-3.5" />
+                                                <span className="text-xs font-bold">{widget.users}</span>
+                                            </div>
+                                        )}
                                     </div>
                                     <h2 className="text-2xl font-bold tracking-normal text-accent-900 dark:text-white mb-2">
                                         {widget.title}

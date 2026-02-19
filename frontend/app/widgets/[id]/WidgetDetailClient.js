@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
-import { Copy, Check, ChevronLeft, Sparkles, Moon, Sun, Monitor, Type, MapPin, Globe } from 'lucide-react';
+import { Copy, Check, ChevronLeft, Sparkles, Moon, Sun, Monitor, Type, MapPin, Globe, Users } from 'lucide-react';
 import Link from 'next/link';
 import Footer from '../../../components/Footer';
 import QuranWidget from '../../../components/widgets/QuranWidget';
@@ -132,6 +132,26 @@ export default function WidgetDetailClient() {
     }, [searchParams]);
 
     const [copied, setCopied] = useState(false);
+    const [stats, setStats] = useState({ quran: 0, prayer: 0 });
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.notionarabs.com';
+                const res = await fetch(`${apiUrl}/api/widgets/stats`);
+                const data = await res.json();
+                if (data.success) {
+                    setStats({
+                        quran: data.stats.quran || 0,
+                        prayer: data.stats.prayer || 0
+                    });
+                }
+            } catch (err) {
+                console.error('Failed to fetch stats:', err);
+            }
+        };
+        fetchStats();
+    }, []);
 
     // Detect the website's current dark/light mode for the 'auto' preview
     const [siteTheme, setSiteTheme] = useState('dark');
@@ -263,9 +283,17 @@ export default function WidgetDetailClient() {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div>
-                                    <h1 className="text-3xl sm:text-4xl font-bold text-accent-900 dark:text-white mb-6 tracking-normal leading-relaxed">
+                                    <h1 className="text-3xl sm:text-4xl font-bold text-accent-900 dark:text-white mb-4 tracking-normal leading-relaxed">
                                         {widget.title}
                                     </h1>
+                                    {stats[id] > 0 && (
+                                        <div className="flex items-center gap-2 mb-6">
+                                            <div className="flex items-center gap-1.5 px-3 py-1 bg-primary-100 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-lg">
+                                                <Users className="w-3.5 h-3.5" />
+                                                <span className="text-xs font-bold">{stats[id].toLocaleString()}+ مستخدم نشط</span>
+                                            </div>
+                                        </div>
+                                    )}
                                     <p className="text-gray-500 dark:text-dark-text-secondary leading-relaxed">{widget.description}</p>
                                 </div>
                                 <div className="bg-white dark:bg-dark-secondary p-8 rounded-3xl border border-gray-100 dark:border-dark-card-border shadow-soft">

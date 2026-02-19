@@ -25,7 +25,7 @@ const PORT = process.env.PORT || 5000;
 // Trust proxy so req.secure and forwarded headers are accurate behind Render/Vercel proxies
 app.set('trust proxy', 1);
 const allowedOrigins = [
-  process.env.FRONTEND_URL ||'https://notionarabs.com',
+  process.env.FRONTEND_URL || 'https://notionarabs.com',
   'https://www.notionarabs.com',
   'https://api.notionarabs.com',
   'http://localhost:3000',
@@ -53,7 +53,7 @@ const corsOptions = {
     } else {
       // In production, be more permissive for common deployment platforms
       if (process.env.NODE_ENV === 'production' && origin && (
-        origin.includes('vercel.app') || 
+        origin.includes('vercel.app') ||
         origin.includes('vercel.dev') ||
         origin.includes('netlify.app') ||
         origin.includes('herokuapp.com') ||
@@ -172,6 +172,7 @@ const healthRoutes = require('./routes/health');
 const statsRoutes = require('./routes/stats');
 const unsubscribeRoutes = require('./routes/unsubscribe');
 const orderRoutes = require('./routes/orders');
+const widgetRoutes = require('./routes/widgets');
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/settings', adminRoutes); // Public settings endpoint
@@ -188,6 +189,7 @@ app.use('/api/health', healthRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/unsubscribe', unsubscribeRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/widgets', widgetRoutes);
 
 // Robots.txt for API - disallow all crawling
 app.get('/robots.txt', (req, res) => {

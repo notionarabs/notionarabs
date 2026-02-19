@@ -398,10 +398,12 @@ const nextConfig = {
     ].join('; ');
 
     return [
-      // ─── Non-embed routes: full security headers including X-Frame-Options DENY ─
-      // We explicitly exclude embed paths so they don't inherit the DENY rule.
+      // ─── All routes: base security headers ───────────────────────────────
+      // Next.js path-to-regexp does NOT support lookaheads, so we use a simple
+      // catch-all here and override embed routes below. Next.js applies all
+      // matching rules in order, with later rules overwriting the same header key.
       {
-        source: '/((?!widgets/.+/embed).*)',
+        source: '/(.*)',
         headers: [
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
@@ -411,30 +413,25 @@ const nextConfig = {
           { key: 'X-Frame-Options', value: 'DENY' },
         ],
       },
-      // ─── Widget embed routes: allow cross-origin iframing (e.g. Notion) ──
-      // CSP frame-ancestors * already allows all origins.
-      // We must NOT send X-Frame-Options here — it would block Notion (different origin).
-      // Since this route doesn't inherit from the rule above, no X-Frame-Options is sent.
+      // ─── Widget embed routes: override CSP + framing for Notion iframing ──
+      // Later rules overwrite matching header keys from the catch-all above.
+      // frame-ancestors * in cspEmbed takes precedence over X-Frame-Options
+      // per the CSP spec — all modern browsers (including Notion's Chromium)
+      // ignore X-Frame-Options when frame-ancestors is present in CSP.
       {
         source: '/widgets/:widget/embed',
         headers: [
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=*' },
-          { key: 'X-DNS-Prefetch-Control', value: 'on' },
           { key: 'Content-Security-Policy', value: cspEmbed },
-          // No X-Frame-Options header — frame-ancestors * in CSP is the sole authority.
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
         ],
       },
       {
         source: '/widgets/:widget/:sub/embed',
         headers: [
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=*' },
-          { key: 'X-DNS-Prefetch-Control', value: 'on' },
           { key: 'Content-Security-Policy', value: cspEmbed },
-          // No X-Frame-Options header — frame-ancestors * in CSP is the sole authority.
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
         ],
       },
       {

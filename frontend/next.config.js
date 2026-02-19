@@ -399,9 +399,10 @@ const nextConfig = {
 
     return [
       // ─── All routes: base security headers ───────────────────────────────
-      // Next.js path-to-regexp does NOT support lookaheads, so we use a simple
-      // catch-all here and override embed routes below. Next.js applies all
-      // matching rules in order, with later rules overwriting the same header key.
+      // We do NOT set X-Frame-Options — instead we rely solely on the
+      // frame-ancestors CSP directive which is the modern standard.
+      // cspNonEmbed has frame-ancestors 'none' (blocks all framing).
+      // cspEmbed has frame-ancestors * (allows Notion and any host to iframe).
       {
         source: '/(.*)',
         headers: [
@@ -410,20 +411,17 @@ const nextConfig = {
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
           { key: 'X-DNS-Prefetch-Control', value: 'on' },
           { key: 'Content-Security-Policy', value: cspNonEmbed },
-          { key: 'X-Frame-Options', value: 'DENY' },
+          // No X-Frame-Options — frame-ancestors 'none' in CSP handles this.
         ],
       },
-      // ─── Widget embed routes: override CSP + framing for Notion iframing ──
-      // Later rules overwrite matching header keys from the catch-all above.
-      // frame-ancestors * in cspEmbed takes precedence over X-Frame-Options
-      // per the CSP spec — all modern browsers (including Notion's Chromium)
-      // ignore X-Frame-Options when frame-ancestors is present in CSP.
+      // ─── Widget embed routes: override CSP to allow cross-origin iframing ─
+      // Next.js applies rules in order; later rules overwrite same header keys.
+      // cspEmbed has frame-ancestors * so Notion (any origin) can iframe it.
       {
         source: '/widgets/:widget/embed',
         headers: [
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=*' },
           { key: 'Content-Security-Policy', value: cspEmbed },
-          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
         ],
       },
       {
@@ -431,7 +429,6 @@ const nextConfig = {
         headers: [
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=*' },
           { key: 'Content-Security-Policy', value: cspEmbed },
-          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
         ],
       },
       {

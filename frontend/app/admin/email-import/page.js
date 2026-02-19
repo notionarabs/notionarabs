@@ -60,7 +60,23 @@ export default function EmailImportPage() {
     reader.onload = (e) => {
       try {
         const content = e.target.result;
+
+        if (isBinaryFile(content)) {
+          showError('ملفات Excel بصيغة .xlsx هي ملفات مشفرة لا يمكن قراءتها مباشرة. يرجى "حفظ باسم" (Save As) واختيار صيغة CSV (Comma delimited) من برنامج Excel ثم رفع الملف مرة أخرى.');
+          setLoading(false);
+          setProcessingStatus('error');
+          return;
+        }
+
         const emailList = parseFileContent(content, file.type);
+
+        if (emailList.length === 0) {
+          showError('لم نجد أي بريد إلكتروني في الملف. تأكد من أن الملف نصي أو بصيغة CSV.');
+          setLoading(false);
+          setProcessingStatus('error');
+          return;
+        }
+
         processEmails(emailList);
       } catch (error) {
         console.error('Error processing file:', error);
@@ -73,30 +89,71 @@ export default function EmailImportPage() {
     reader.readAsText(file);
   };
 
-  // Parse different file formats
+  const isBinaryFile = (content) => {
+    // Check for common binary Excel signatures or non-text characters
+    if (content.includes('PK\u0003\u0004')) return true; // XLSX/ZIP signature
+    if (content.includes('\u0000')) return true; // Null bytes usually mean binary
+    return false;
+  };
+
+  // Parse different file formats (Robust version)
   const parseFileContent = (content, fileType) => {
+    // Remove BOM if present
+    const cleanContent = content.replace(/^\uFEFF/, '');
+    const lines = cleanContent.split(/\r?\n/);
     const emails = [];
 
-    if (fileType === 'text/csv' || fileType.includes('csv')) {
-      // Parse CSV
-      const lines = content.split('\n');
-      lines.forEach(line => {
-        const trimmedLine = line.trim();
-        if (trimmedLine) {
-          // Split by comma and get first column (assuming email is in first column)
-          const columns = trimmedLine.split(',');
-          const email = columns[0].replace(/"/g, '').trim();
-          if (email) emails.push(email);
+    // Common email regex for extraction from text
+    const extractEmailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+
+    lines.forEach((line, index) => {
+      const trimmedLine = line.trim();
+      if (!trimmedLine) return;
+
+      // Skip common header keywords
+      const lowerLine = trimmedLine.toLowerCase();
+      if (index === 0 && (
+        lowerLine.includes('email') ||
+        lowerLine.includes('البريد') ||
+        lowerLine.includes('الاسم') ||
+        lowerLine.includes('name')
+      )) {
+        return;
+      }
+
+      // If it looks like a CSV line (has commas or semicolons)
+      if (trimmedLine.includes(',') || trimmedLine.includes(';')) {
+        const delimiter = trimmedLine.includes(',') ? ',' : ';';
+        const columns = trimmedLine.split(delimiter);
+
+        // Strategy: Look for the first column that matches email pattern
+        let foundInLine = false;
+        for (let col of columns) {
+          const cleanCol = col.replace(/"/g, '').trim();
+          if (emailRegex.test(cleanCol.toLowerCase())) {
+            emails.push(cleanCol);
+            foundInLine = true;
+            break;
+          }
         }
-      });
-    } else {
-      // Parse plain text (one email per line)
-      const lines = content.split('\n');
-      lines.forEach(line => {
-        const trimmedLine = line.trim();
-        if (trimmedLine) emails.push(trimmedLine);
-      });
-    }
+
+        // Fallback: If no strict match, try to extract any email string from the whole line
+        if (!foundInLine) {
+          const extracted = trimmedLine.match(extractEmailRegex);
+          if (extracted) {
+            extracted.forEach(e => emails.push(e));
+          }
+        }
+      } else {
+        // Plain text or single column
+        const extracted = trimmedLine.match(extractEmailRegex);
+        if (extracted) {
+          extracted.forEach(e => emails.push(e));
+        } else if (emailRegex.test(trimmedLine.toLowerCase())) {
+          emails.push(trimmedLine);
+        }
+      }
+    });
 
     return emails;
   };

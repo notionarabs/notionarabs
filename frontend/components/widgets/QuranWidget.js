@@ -41,14 +41,16 @@ export default function QuranWidget({
                 const result = await res.json();
 
                 if (result.code === 200) {
-                    // Use API-provided audio URL if available, otherwise construct it from CDN pattern
+                    // Use the reliable cdn.islamic.network CDN pattern
+                    // The API audio field sometimes points to unavailable hosts, so we always prefer the CDN URL
+                    const cdnAudio = `https://cdn.islamic.network/quran/audio/128/${reciter}/${randomAyah}.mp3`;
                     const apiAudio = result.data[2]?.audio;
-                    const cdnAudio = `https://cdn.alquran.cloud/media/audio/ayah/${reciter}/128/${randomAyah}`;
 
                     setData({
                         arabic: result.data[0].text,
                         translation: result.data[1].text,
-                        audio: apiAudio || cdnAudio,
+                        audio: cdnAudio,
+                        audioFallback: apiAudio || null,
                         surah: result.data[0].surah.name,
                         ayahNumber: result.data[0].numberInSurah,
                     });
@@ -86,11 +88,24 @@ export default function QuranWidget({
             return;
         }
 
-        // Create new audio instance
+        // Create new audio instance using primary CDN URL
         const newAudio = new Audio(data.audio);
         newAudio.onended = () => setIsPlaying(false);
         newAudio.onpause = () => setIsPlaying(false);
         newAudio.onplay = () => setIsPlaying(true);
+
+        // If primary CDN fails, try the API-provided fallback URL
+        newAudio.onerror = () => {
+            if (data.audioFallback && newAudio.src !== data.audioFallback) {
+                console.warn('Primary audio failed, trying fallback URL');
+                newAudio.src = data.audioFallback;
+                newAudio.play().catch(() => setIsPlaying(false));
+            } else {
+                console.warn('All audio sources failed');
+                setIsPlaying(false);
+            }
+        };
+
         audioRef.current = newAudio;
 
         newAudio.play().catch(err => {
@@ -116,8 +131,8 @@ export default function QuranWidget({
 
     return (
         <div className={`w-full p-8 rounded-[2rem] transition-all duration-500 relative group overflow-hidden ${theme === 'dark'
-                ? 'bg-[#191919] text-white border border-[#2f2f2f]'
-                : 'bg-white text-accent-900 border border-gray-100 shadow-xl'
+            ? 'bg-[#191919] text-white border border-[#2f2f2f]'
+            : 'bg-white text-accent-900 border border-gray-100 shadow-xl'
             }`}>
             {/* Edit Button */}
             <a
@@ -150,8 +165,8 @@ export default function QuranWidget({
                     <button
                         onClick={toggleAudio}
                         className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${isPlaying
-                                ? 'bg-primary-500 text-white shadow-lg'
-                                : 'bg-primary-50 text-primary-500 hover:bg-primary-500 hover:text-white'
+                            ? 'bg-primary-500 text-white shadow-lg'
+                            : 'bg-primary-50 text-primary-500 hover:bg-primary-500 hover:text-white'
                             }`}
                         title={isPlaying ? 'إيقاف' : 'استماع'}
                     >

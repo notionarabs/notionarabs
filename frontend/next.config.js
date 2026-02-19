@@ -379,7 +379,7 @@ const nextConfig = {
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https:",
       `connect-src 'self' https://api.notionarabs.com https://notionarabs.com https://notion-arabs-fe5b3f214071.herokuapp.com https://api.brevo.com https://www.google-analytics.com https://www.googletagmanager.com https://api.alquran.cloud https://cdn.jsdelivr.net${devConnectSrc}`,
-      "media-src 'self' https://cdn.alquran.cloud https://server8.mp3quran.net https://server6.mp3quran.net https://server7.mp3quran.net https://server10.mp3quran.net https://server12.mp3quran.net https://download.quranicaudio.com",
+      "media-src 'self' https://cdn.islamic.network https://cdn.alquran.cloud https://server8.mp3quran.net https://server6.mp3quran.net https://server7.mp3quran.net https://server10.mp3quran.net https://server12.mp3quran.net https://download.quranicaudio.com",
       "frame-src 'self' https://notionarabs.com https://www.notionarabs.com",
       "worker-src 'self' blob:",
       "frame-ancestors 'none'",
@@ -392,43 +392,49 @@ const nextConfig = {
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https:",
       `connect-src 'self' https://api.notionarabs.com https://notionarabs.com https://notion-arabs-fe5b3f214071.herokuapp.com https://api.brevo.com https://www.google-analytics.com https://www.googletagmanager.com https://api.alquran.cloud https://cdn.jsdelivr.net https://api.aladhan.com https://nominatim.openstreetmap.org${devConnectSrc}`,
-      "media-src 'self' https://cdn.alquran.cloud https://server8.mp3quran.net https://server6.mp3quran.net https://server7.mp3quran.net https://server10.mp3quran.net https://server12.mp3quran.net https://download.quranicaudio.com",
+      "media-src 'self' https://cdn.islamic.network https://cdn.alquran.cloud https://server8.mp3quran.net https://server6.mp3quran.net https://server7.mp3quran.net https://server10.mp3quran.net https://server12.mp3quran.net https://download.quranicaudio.com",
       "worker-src 'self' blob:",
       "frame-ancestors *",
     ].join('; ');
 
     return [
-      // ─── All routes: base security headers ───────────────────────────────
+      // ─── Non-embed routes: full security headers including X-Frame-Options DENY ─
+      // We explicitly exclude embed paths so they don't inherit the DENY rule.
       {
-        source: '/(.*)',
+        source: '/((?!widgets/.+/embed).*)',
         headers: [
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
           { key: 'X-DNS-Prefetch-Control', value: 'on' },
-          // Default CSP for all pages (embed routes will override below)
           { key: 'Content-Security-Policy', value: cspNonEmbed },
-          // Default: block framing (embed routes will override below)
           { key: 'X-Frame-Options', value: 'DENY' },
         ],
       },
-      // ─── Widget embed routes: override framing headers to allow iframing ──
-      // Next.js applies headers in order; later rules for the same path WIN.
+      // ─── Widget embed routes: allow cross-origin iframing (e.g. Notion) ──
+      // CSP frame-ancestors * already allows all origins.
+      // We must NOT send X-Frame-Options here — it would block Notion (different origin).
+      // Since this route doesn't inherit from the rule above, no X-Frame-Options is sent.
       {
         source: '/widgets/:widget/embed',
         headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=*' },
+          { key: 'X-DNS-Prefetch-Control', value: 'on' },
           { key: 'Content-Security-Policy', value: cspEmbed },
-          // X-Frame-Options SAMEORIGIN is overridden by frame-ancestors in CSP;
-          // we set it to SAMEORIGIN here just to clear the DENY set above —
-          // modern browsers use the CSP frame-ancestors directive instead.
-          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          // No X-Frame-Options header — frame-ancestors * in CSP is the sole authority.
         ],
       },
       {
         source: '/widgets/:widget/:sub/embed',
         headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=*' },
+          { key: 'X-DNS-Prefetch-Control', value: 'on' },
           { key: 'Content-Security-Policy', value: cspEmbed },
-          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          // No X-Frame-Options header — frame-ancestors * in CSP is the sole authority.
         ],
       },
       {

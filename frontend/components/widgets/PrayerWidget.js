@@ -98,7 +98,7 @@ export default function PrayerWidget({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="absolute top-4 left-4 p-2 rounded-full bg-gray-500/10 hover:bg-primary-500 hover:text-white transition-all duration-300 opacity-0 group-hover:opacity-100 z-50 text-gray-400"
-                title="تعديل الودجت"
+                title="تعديل الأداة"
             >
                 <Settings className="w-4 h-4" />
             </a>

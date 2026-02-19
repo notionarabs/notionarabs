@@ -46,7 +46,7 @@ export default function WidgetsClient() {
                             أدوات عرب نوشن
                         </h1>
                         <p className="text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary max-w-xs sm:max-w-2xl md:max-w-3xl mx-auto px-4 sm:px-0">
-                            مجموعة من الأدوات والودجتس المصممة خصيصاً للمستخدم العربي لتعزيز الإنتاجية والجمالية في نوشن.
+                            مجموعة من الأدوات المصممة خصيصاً للمستخدم العربي لتعزيز الإنتاجية والجمالية في نوشن.
                         </p>
                     </div>
                 </div>

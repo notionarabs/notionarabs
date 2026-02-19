@@ -11,7 +11,7 @@ import PrayerWidget from '../../../components/widgets/PrayerWidget';
 const WIDGET_DATA = {
     'quran': {
         title: 'آية اليوم الذكية',
-        description: 'ودجت احترافي لنوشن يعرض آيات قرآنية متجددة تلقائياً. يمكنك تخصيص الخط، اللغة، والوضع الليلي.',
+        description: 'أداة احترافية لنوشن تعرض آيات قرآنية متجددة تلقائياً. يمكنك تخصيص الخط، اللغة، والوضع الليلي.',
         features: ['تحديث تلقائي', 'ترجمة عربي/إنجليزي', 'دعم الوضع المظلم', 'خطوط عربية متميزة'],
         settings: [
             { id: 'theme', label: 'المظهر', type: 'select', options: [{ id: 'auto', label: 'تلقائي' }, { id: 'light', label: 'نهاري' }, { id: 'dark', label: 'ليلي' }] },
@@ -37,7 +37,7 @@ const WIDGET_DATA = {
     },
     'prayer': {
         title: 'مواقيت الصلاة',
-        description: 'ودجت يعرض مواقيت الصلاة لمدينتك واليوم الهجري. يتوافق تماماً مع واجهة نوشن.',
+        description: 'أداة تعرض مواقيت الصلاة لمدينتك واليوم الهجري. تتوافق تماماً مع واجهة نوشن.',
         features: ['مواقيت دقيقة', 'التاريخ الهجري', 'تحديد الموقع', 'تنبيهات الصلاة'],
         settings: [
             { id: 'theme', label: 'المظهر', type: 'select', options: [{ id: 'auto', label: 'تلقائي' }, { id: 'light', label: 'نهاري' }, { id: 'dark', label: 'ليلي' }] },
@@ -181,7 +181,7 @@ export default function WidgetDetailClient() {
                             <div className="bg-white dark:bg-dark-secondary rounded-3xl p-8 border border-gray-200 dark:border-dark-card-border shadow-soft">
                                 <h2 className="text-xl font-black mb-6 flex items-center gap-2">
                                     <Monitor className="w-5 h-5 text-primary-500" />
-                                    تخصيص الودجت
+                                    تخصيص الأداة
                                 </h2>
 
                                 <div className="space-y-6">

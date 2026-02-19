@@ -7,7 +7,6 @@ import PrayerWidget from '../../../../components/widgets/PrayerWidget';
 function PrayerEmbedContent() {
     const searchParams = useSearchParams();
 
-    // Convert search params to config object
     const config = {
         theme: searchParams.get('theme') || 'dark',
         font: searchParams.get('font') || 'tajawal',
@@ -15,15 +14,24 @@ function PrayerEmbedContent() {
         method: parseInt(searchParams.get('method') || '4')
     };
 
-    return <PrayerWidget {...config} />;
+    // Match Notion's exact background colors for seamless embedding
+    const bg = config.theme === 'dark' ? '#191919' : '#ffffff';
+
+    return (
+        <div
+            className="w-full h-screen flex items-center justify-center p-2 overflow-hidden"
+            style={{ backgroundColor: bg }}
+        >
+            <PrayerWidget {...config} />
+        </div>
+    );
 }
 
 export default function PrayerEmbed() {
     return (
         <Suspense fallback={null}>
-            <div className="w-full h-screen flex items-center justify-center p-2 bg-transparent overflow-hidden">
-                <PrayerEmbedContent />
-            </div>
+            <PrayerEmbedContent />
         </Suspense>
     );
 }
+

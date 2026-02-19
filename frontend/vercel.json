@@ -4,10 +4,6 @@
       "source": "/(.*)",
       "headers": [
         {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
           "key": "X-Content-Type-Options",
           "value": "nosniff"
         },
@@ -18,10 +14,6 @@
         {
           "key": "Strict-Transport-Security",
           "value": "max-age=31536000; includeSubDomains; preload"
-        },
-        {
-          "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.google-analytics.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.notionarabs.com https://notionarabs.com https://notion-arabs-fe5b3f214071.herokuapp.com https://api.brevo.com https://www.google-analytics.com https://www.googletagmanager.com; frame-src 'self' https://www.youtube.com https://player.vimeo.com https://www.dailymotion.com https://player.twitch.tv https://calendar.notion.so; frame-ancestors 'none'"
         },
         {
           "key": "X-XSS-Protection",

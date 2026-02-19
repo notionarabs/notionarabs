@@ -9,7 +9,8 @@ export default function QuranWidget({
     showTranslation = true,
     translationLang = 'en.pickthall',
     reciter = 'ar.alafasy',
-    id = 'quran'
+    id = 'quran',
+    embed = false
 }) {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -130,20 +131,24 @@ export default function QuranWidget({
     );
 
     return (
-        <div className={`w-full p-8 rounded-[2rem] transition-all duration-500 relative group overflow-hidden ${theme === 'dark'
-            ? 'bg-[#191919] text-white border border-[#2f2f2f]'
-            : 'bg-white text-accent-900 border border-gray-100 shadow-xl'
+        <div className={`w-full transition-all duration-500 relative group overflow-hidden ${embed
+                ? (theme === 'dark' ? 'bg-[#191919] text-white' : 'bg-white text-accent-900')
+                : (theme === 'dark'
+                    ? 'p-8 rounded-[2rem] bg-[#191919] text-white border border-[#2f2f2f]'
+                    : 'p-8 rounded-[2rem] bg-white text-accent-900 border border-gray-100 shadow-xl')
             }`}>
-            {/* Edit Button */}
-            <a
-                href={editUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="absolute top-4 left-4 p-2 rounded-full bg-gray-500/10 hover:bg-primary-500 hover:text-white transition-all duration-300 opacity-0 group-hover:opacity-100 z-50 text-gray-400"
-                title="تعديل الودجت"
-            >
-                <Settings className="w-4 h-4" />
-            </a>
+            {/* Edit Button — hidden in embed mode */}
+            {!embed && (
+                <a
+                    href={editUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute top-4 left-4 p-2 rounded-full bg-gray-500/10 hover:bg-primary-500 hover:text-white transition-all duration-300 opacity-0 group-hover:opacity-100 z-50 text-gray-400"
+                    title="تعديل الودجت"
+                >
+                    <Settings className="w-4 h-4" />
+                </a>
+            )}
 
             <div className="flex flex-col items-center text-center space-y-6" dir="rtl">
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary-500/10 text-primary-600 rounded-full text-xs font-bold mb-2">

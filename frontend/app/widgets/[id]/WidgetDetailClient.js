@@ -40,6 +40,7 @@ const WIDGET_DATA = {
         description: 'ودجت يعرض مواقيت الصلاة لمدينتك واليوم الهجري. يتوافق تماماً مع واجهة نوشن.',
         features: ['مواقيت دقيقة', 'التاريخ الهجري', 'تحديد الموقع', 'تنبيهات الصلاة'],
         settings: [
+            { id: 'theme', label: 'المظهر', type: 'select', options: [{ id: 'light', label: 'نهاري' }, { id: 'dark', label: 'ليلي' }] },
             {
                 id: 'font', label: 'الخط', type: 'select', options: [
                     { id: 'tajawal', label: 'تاجوال' },

@@ -20,10 +20,10 @@ function QuranEmbedContent() {
 
     return (
         <div
-            className="w-full h-screen flex items-center justify-center p-2 overflow-hidden"
+            className="w-full h-screen flex items-center justify-center px-4 py-6 overflow-hidden"
             style={{ backgroundColor: bg }}
         >
-            <QuranWidget {...config} />
+            <QuranWidget {...config} embed={true} />
         </div>
     );
 }

@@ -18,7 +18,8 @@ function PrayerEmbedContent() {
         const handler = (e) => setSystemTheme(e.matches ? 'dark' : 'light');
         mq.addEventListener('change', handler);
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.notionarabs.com';
+        const base = process.env.NEXT_PUBLIC_API_URL || 'https://api.notionarabs.com/api';
+        const apiUrl = base.endsWith('/api') ? base.slice(0, -4) : base;
 
         // Fetch stats
         const fetchStats = async () => {

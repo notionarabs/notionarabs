@@ -137,7 +137,8 @@ export default function WidgetDetailClient() {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.notionarabs.com';
+                const base = process.env.NEXT_PUBLIC_API_URL || 'https://api.notionarabs.com/api';
+                const apiUrl = base.endsWith('/api') ? base.slice(0, -4) : base;
                 const res = await fetch(`${apiUrl}/api/widgets/stats`);
                 const data = await res.json();
                 if (data.success) {

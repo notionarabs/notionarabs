@@ -133,6 +133,19 @@ export default function WidgetDetailClient() {
 
     const [copied, setCopied] = useState(false);
 
+    // Detect the website's current dark/light mode for the 'auto' preview
+    const [siteTheme, setSiteTheme] = useState('dark');
+    useEffect(() => {
+        const check = () => setSiteTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+        check();
+        const observer = new MutationObserver(check);
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+        return () => observer.disconnect();
+    }, []);
+
+    // What the preview actually renders (auto → follow site theme)
+    const previewTheme = config.theme === 'auto' ? siteTheme : config.theme;
+
     if (!widget) return <div className="p-20 text-center">Widget not found</div>;
 
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
@@ -228,7 +241,7 @@ export default function WidgetDetailClient() {
                         <div className="lg:col-span-8 space-y-8">
                             <div className="relative">
                                 <div className="absolute -inset-4 bg-primary-500/10 blur-3xl rounded-[3rem]"></div>
-                                <div className={`relative rounded-[3rem] p-12 border transition-all ${config.theme === 'dark' ? 'bg-[#0f0f0f] border-dark-card-border' : 'bg-white border-gray-100 shadow-2xl'
+                                <div className={`relative rounded-[3rem] p-12 border transition-all ${previewTheme === 'dark' ? 'bg-[#0f0f0f] border-dark-card-border' : 'bg-white border-gray-100 shadow-2xl'
                                     }`}>
                                     <div className="mb-8 flex items-center justify-between">
                                         <div className="flex gap-2">
@@ -242,8 +255,8 @@ export default function WidgetDetailClient() {
                                     </div>
 
                                     <div className="min-h-[300px] flex items-center justify-center">
-                                        {id === 'quran' && <QuranWidget {...config} />}
-                                        {id === 'prayer' && <PrayerWidget {...config} />}
+                                        {id === 'quran' && <QuranWidget {...config} theme={previewTheme} />}
+                                        {id === 'prayer' && <PrayerWidget {...config} theme={previewTheme} />}
                                     </div>
                                 </div>
                             </div>

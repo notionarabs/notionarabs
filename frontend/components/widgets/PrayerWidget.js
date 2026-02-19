@@ -8,7 +8,8 @@ export default function PrayerWidget({
     city = 'Riyadh',
     method = 4,
     font = 'tajawal',
-    id = 'prayer'
+    id = 'prayer',
+    userCount = 0
 }) {
     const editUrl = typeof window !== 'undefined'
         ? `${window.location.origin}/widgets/${id}?theme=${theme}&font=${font}&city=${city}`
@@ -102,6 +103,13 @@ export default function PrayerWidget({
             >
                 <Settings className="w-4 h-4" />
             </a>
+
+            {/* User Count / Social Proof */}
+            {userCount > 0 && (
+                <div className="absolute top-4 right-14 flex items-center gap-1 px-2 py-1 bg-gray-500/5 rounded-full border border-gray-500/10 opacity-40 group-hover:opacity-100 transition-opacity">
+                    <span className="text-[10px] font-bold text-gray-400">{userCount.toLocaleString()}+</span>
+                </div>
+            )}
 
             <div className="flex flex-col space-y-8" dir="rtl">
                 {/* Header */}

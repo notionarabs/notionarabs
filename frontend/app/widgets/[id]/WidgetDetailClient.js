@@ -275,8 +275,8 @@ export default function WidgetDetailClient() {
                                     </div>
 
                                     <div className="min-h-[300px] flex items-center justify-center">
-                                        {id === 'quran' && <QuranWidget {...config} theme={previewTheme} />}
-                                        {id === 'prayer' && <PrayerWidget {...config} theme={previewTheme} />}
+                                        {id === 'quran' && <QuranWidget {...config} theme={previewTheme} userCount={stats.quran} />}
+                                        {id === 'prayer' && <PrayerWidget {...config} theme={previewTheme} userCount={stats.prayer} />}
                                     </div>
                                 </div>
                             </div>

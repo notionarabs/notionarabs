@@ -9,7 +9,8 @@ export default function QuranWidget({
     showTranslation = true,
     translationLang = 'en.pickthall',
     reciter = 'ar.alafasy',
-    id = 'quran'
+    id = 'quran',
+    userCount = 0
 }) {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -144,6 +145,13 @@ export default function QuranWidget({
             >
                 <Settings className="w-4 h-4" />
             </a>
+
+            {/* User Count / Social Proof */}
+            {userCount > 0 && (
+                <div className="absolute top-4 right-4 flex items-center gap-1 px-2 py-1 bg-gray-500/5 rounded-full border border-gray-500/10 opacity-40 group-hover:opacity-100 transition-opacity">
+                    <span className="text-[10px] font-bold text-gray-400">{userCount.toLocaleString()}+</span>
+                </div>
+            )}
 
             <div className="flex flex-col items-center text-center space-y-6" dir="rtl">
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary-500/10 text-primary-600 rounded-full text-xs font-bold mb-2">

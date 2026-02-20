@@ -293,4 +293,13 @@ app.use((req, res) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`✅ Server listening on port ${PORT}`);
+
+  // Optional: Sync widgets to Notion on startup
+  // This makes it "automatic" as soon as the server runs/restarts
+  if (process.env.NODE_ENV === 'production' || process.env.SYNC_WIDGETS_ON_START === 'true') {
+    const { syncWidgets } = require('./scripts/sync-widgets');
+    syncWidgets().catch(err => console.error('Startup widget sync failed:', err));
+  }
+
 });
+

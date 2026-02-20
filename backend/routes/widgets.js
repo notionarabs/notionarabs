@@ -2,6 +2,24 @@ const express = require('express');
 const router = express.Router();
 const WidgetUsage = require('../models/WidgetUsage');
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
+
+// @route   GET /api/widgets
+// @desc    Get all widgets
+// @access  Public
+router.get('/', async (req, res) => {
+    try {
+        const widgetsPath = path.join(__dirname, '../data/widgets.json');
+        const widgetsData = fs.readFileSync(widgetsPath, 'utf8');
+        const widgets = JSON.parse(widgetsData);
+        res.json({ success: true, widgets });
+    } catch (error) {
+        console.error('Error fetching widgets:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
 
 // @route   POST /api/widgets/track
 // @desc    Track widget usage

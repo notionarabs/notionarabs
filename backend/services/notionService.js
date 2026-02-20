@@ -6,6 +6,8 @@ const NOTION_CREATORS_DATABASE_ID = process.env.NOTION_CREATORS_DATABASE_ID;
 const NOTION_CONSULTATIONS_DATABASE_ID = process.env.NOTION_CONSULTATIONS_DATABASE_ID;
 const NOTION_CAREERS_DATABASE_ID = process.env.NOTION_CAREERS_DATABASE_ID;
 const NOTION_CONTACT_DATABASE_ID = process.env.NOTION_CONTACT_DATABASE_ID;
+const NOTION_WIDGETS_DATABASE_ID = process.env.NOTION_WIDGETS_DATABASE_ID;
+
 
 // Helper function to check if Notion is configured
 function isNotionConfigured() {
@@ -958,14 +960,96 @@ async function addContactToNotion(payload) {
   }
 }
 
+/**
+ * Upsert a widget to Notion database (update if exists, create if not)
+ * @param {Object} widget - Widget object
+ * @returns {Promise<Object>} Notion response
+ */
+async function upsertWidgetToNotion(widget) {
+  let errorDetails = null;
+  try {
+    if (!NOTION_API_TOKEN || !NOTION_WIDGETS_DATABASE_ID) {
+      return { error: { message: 'Notion API not configured' } };
+    }
+
+    const schema = await getNotionDatabaseSchema(NOTION_WIDGETS_DATABASE_ID);
+    const titleProp = findProperty(schema, ['Name', 'Title', 'الاسم', 'العنوان'], ['title']);
+    const descriptionProp = findProperty(schema, ['Description', 'الوصف', 'تفاصيل'], ['rich_text']);
+    const linkProp = findProperty(schema, ['Link', 'الرابط', 'URL'], ['url']);
+
+    if (!titleProp) {
+      return { error: { message: 'Notion database is missing a title property' } };
+    }
+
+    // 1. Search for existing widget by title
+    const searchResponse = await axios.post(
+      `https://api.notion.com/v1/databases/${NOTION_WIDGETS_DATABASE_ID}/query`,
+      {
+        filter: {
+          property: titleProp.name,
+          title: {
+            equals: widget.title
+          }
+        }
+      },
+      { headers: getNotionHeaders() }
+    );
+
+    const existingPage = searchResponse.data.results?.[0];
+
+    // 2. Prepare properties
+    const properties = {
+      [titleProp.name]: {
+        title: [{ text: { content: widget.title || 'Unknown Widget' } }]
+      }
+    };
+
+    if (descriptionProp && widget.description) {
+      properties[descriptionProp.name] = {
+        rich_text: [{ text: { content: widget.description.substring(0, 2000) } }]
+      };
+    }
+
+    if (linkProp && widget.link) {
+      properties[linkProp.name] = { url: widget.link };
+    }
+
+    if (existingPage) {
+      // Update existing page
+      console.log('🔵 Notion: Updating existing widget:', widget.title);
+      const response = await axios.patch(
+        `https://api.notion.com/v1/pages/${existingPage.id}`,
+        { properties },
+        { headers: getNotionHeaders() }
+      );
+      return { ...response.data, updated: true };
+    } else {
+      // Create new page
+      console.log('🔵 Notion: Creating new widget:', widget.title);
+      const response = await axios.post(
+        'https://api.notion.com/v1/pages',
+        {
+          parent: { database_id: NOTION_WIDGETS_DATABASE_ID },
+          properties
+        },
+        { headers: getNotionHeaders() }
+      );
+      return { ...response.data, created: true };
+    }
+  } catch (error) {
+    console.error('❌ Error upserting widget to Notion:', error.response?.data || error.message);
+    return { error: error.response?.data || error.message };
+  }
+}
+
 module.exports = {
   addTemplateToNotion,
   addCreatorToNotion,
   addConsultationToNotion,
   addCareerApplicationToNotion,
   addContactToNotion,
+  upsertWidgetToNotion,
   isNotionConfigured,
   getNotionDatabaseSchema,
   getPriceSelectOptions
 };
-

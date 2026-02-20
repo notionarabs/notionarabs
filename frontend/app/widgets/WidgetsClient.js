@@ -6,46 +6,47 @@ import { useRouter } from 'next/navigation';
 import { Layout, Copy, ExternalLink, Zap, Sparkles, Users } from 'lucide-react';
 import Footer from '../../components/Footer';
 
-const widgets = [
-    {
-        id: 'quran',
-        title: 'آية اليوم الذكية',
-        description: 'عرض آيات قرآنية متجددة تلقائياً مع ترجمات متعددة وتصميمات عصرية.',
-        icon: <Sparkles className="w-6 h-6 text-orange-500" />,
-        category: 'إسلاميات'
-    },
-    {
-        id: 'prayer',
-        title: 'مواقيت الصلاة - رَمَضان 1447',
-        description: 'مواقيت الصلاة والتقويم الهجري لمدينتك بتنسيق مثالي لصفحات نوشن.',
-        icon: <Layout className="w-6 h-6 text-blue-500" />,
-        category: 'إسلاميات'
-    }
-];
+const iconMap = {
+    sparkles: <Sparkles className="w-6 h-6 text-orange-500" />,
+    layout: <Layout className="w-6 h-6 text-blue-500" />
+};
 
 export default function WidgetsClient() {
     const router = useRouter();
     const [copiedId, setCopiedId] = useState(null);
-    const [stats, setStats] = useState({ quran: 0, prayer: 0 }); // Show real counts only
+    const [widgets, setWidgets] = useState([]);
+    const [stats, setStats] = useState({});
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchStats = async () => {
+        const fetchData = async () => {
             try {
                 const base = process.env.NEXT_PUBLIC_API_URL || 'https://api.notionarabs.com/api';
                 const apiUrl = base.endsWith('/api') ? base.slice(0, -4) : base;
-                const res = await fetch(`${apiUrl}/api/widgets/stats`);
-                const data = await res.json();
-                if (data.success) {
-                    setStats({
-                        quran: data.stats.quran || 0,
-                        prayer: data.stats.prayer || 0
-                    });
+
+                // Fetch both widgets and stats
+                const [widgetsRes, statsRes] = await Promise.all([
+                    fetch(`${apiUrl}/api/widgets`),
+                    fetch(`${apiUrl}/api/widgets/stats`)
+                ]);
+
+                const widgetsData = await widgetsRes.json();
+                const statsData = await statsRes.json();
+
+                if (widgetsData.success) {
+                    setWidgets(widgetsData.widgets);
+                }
+
+                if (statsData.success) {
+                    setStats(statsData.stats);
                 }
             } catch (err) {
-                console.error('Failed to fetch stats:', err);
+                console.error('Failed to fetch data:', err);
+            } finally {
+                setLoading(false);
             }
         };
-        fetchStats();
+        fetchData();
     }, []);
 
     const copyEmbed = (e, id) => {
@@ -59,8 +60,10 @@ export default function WidgetsClient() {
 
     const displayWidgets = widgets.map(w => ({
         ...w,
-        users: stats[w.id].toLocaleString() + '+'
+        icon: iconMap[w.iconIdentifier] || <Zap className="w-6 h-6 text-gray-500" />,
+        users: (stats[w.id] || 0).toLocaleString() + '+'
     }));
+
 
     return (
         <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">

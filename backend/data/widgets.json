@@ -1,0 +1,18 @@
+[
+    {
+        "id": "quran",
+        "title": "آية اليوم الذكية",
+        "description": "عرض آيات قرآنية متجددة تلقائياً مع ترجمات متعددة وتصميمات عصرية.",
+        "category": "إسلاميات",
+        "iconIdentifier": "sparkles",
+        "link": "https://notionarabs.com/widgets/quran"
+    },
+    {
+        "id": "prayer",
+        "title": "مواقيت الصلاة - رَمَضان 1447",
+        "description": "مواقيت الصلاة والتقويم الهجري لمدينتك بتنسيق مثالي لصفحات نوشن.",
+        "category": "إسلاميات",
+        "iconIdentifier": "layout",
+        "link": "https://notionarabs.com/widgets/prayer"
+    }
+]

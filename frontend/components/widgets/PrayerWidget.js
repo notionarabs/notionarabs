@@ -111,7 +111,7 @@ export default function PrayerWidget({
                             <Moon className="w-6 h-6" />
                         </div>
                         <div>
-                            <h3 className="font-bold text-lg">{data?.date?.hijri?.month?.ar} {data?.date?.hijri?.year}</h3>
+                            <h3 className="font-bold text-lg">{data?.date?.hijri?.day} {data?.date?.hijri?.month?.ar} {data?.date?.hijri?.year}</h3>
                             <p className="text-xs text-gray-400 flex items-center gap-1">
                                 <MapPin className="w-3 h-3" />
                                 {resolvedAddress}

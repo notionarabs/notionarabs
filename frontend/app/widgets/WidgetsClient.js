@@ -16,7 +16,7 @@ const widgets = [
     },
     {
         id: 'prayer',
-        title: 'مواقيت الصلاة',
+        title: 'مواقيت الصلاة - رَمَضان 1447',
         description: 'مواقيت الصلاة والتقويم الهجري لمدينتك بتنسيق مثالي لصفحات نوشن.',
         icon: <Layout className="w-6 h-6 text-blue-500" />,
         category: 'إسلاميات'

@@ -36,7 +36,7 @@ const WIDGET_DATA = {
         ]
     },
     'prayer': {
-        title: 'مواقيت الصلاة',
+        title: 'مواقيت الصلاة - رَمَضان 1447',
         description: 'أداة تعرض مواقيت الصلاة لمدينتك واليوم الهجري. تتوافق تماماً مع واجهة نوشن.',
         features: ['مواقيت دقيقة', 'التاريخ الهجري', 'تحديد الموقع', 'تنبيهات الصلاة'],
         settings: [
@@ -199,6 +199,19 @@ export default function WidgetDetailClient() {
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                         {/* Customization Sidebar */}
                         <div className="lg:col-span-4 space-y-8">
+                            {id === 'prayer' && (
+                                <div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-3xl p-6 text-white shadow-lg overflow-hidden relative">
+                                    <div className="absolute -right-4 -top-4 opacity-20 transform rotate-12">
+                                        <Moon className="w-24 h-24" />
+                                    </div>
+                                    <div className="relative z-10">
+                                        <div className="text-xs font-bold uppercase tracking-widest opacity-80 mb-1">موسم رمضان ١٤٤٧</div>
+                                        <h3 className="text-2xl font-black italic">رَمَضان المبارك</h3>
+                                        <p className="text-sm opacity-90 mt-1">كل عام وأنتم بخير .. تقبل الله منا ومنكم</p>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="bg-white dark:bg-dark-secondary rounded-3xl p-8 border border-gray-200 dark:border-dark-card-border shadow-soft">
                                 <h2 className="text-xl font-black mb-6 flex items-center gap-2">
                                     <Monitor className="w-5 h-5 text-primary-500" />

@@ -10,7 +10,6 @@ function PrayerEmbedContent() {
 
     // Auto-detect system/browser dark-light preference (Notion follows the OS)
     const [systemTheme, setSystemTheme] = useState('dark');
-    const [userCount, setUserCount] = useState(0);
 
     useEffect(() => {
         const mq = window.matchMedia('(prefers-color-scheme: dark)');
@@ -20,20 +19,6 @@ function PrayerEmbedContent() {
 
         const base = process.env.NEXT_PUBLIC_API_URL || 'https://api.notionarabs.com/api';
         const apiUrl = base.endsWith('/api') ? base.slice(0, -4) : base;
-
-        // Fetch stats
-        const fetchStats = async () => {
-            try {
-                const res = await fetch(`${apiUrl}/api/widgets/stats`);
-                const data = await res.json();
-                if (data.success && data.stats.prayer) {
-                    setUserCount(data.stats.prayer);
-                }
-            } catch (err) {
-                console.error('Stats error:', err);
-            }
-        };
-        fetchStats();
 
         // Track usage
         const trackUsage = async () => {
@@ -70,7 +55,7 @@ function PrayerEmbedContent() {
             className="w-full h-screen flex items-center justify-center px-4 py-6 overflow-hidden"
             style={{ backgroundColor: bg }}
         >
-            <PrayerWidget {...config} userCount={userCount} />
+            <PrayerWidget {...config} />
         </div>
     );
 }

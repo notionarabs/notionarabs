@@ -5,7 +5,8 @@
         "description": "عرض آيات قرآنية متجددة تلقائياً مع ترجمات متعددة وتصميمات عصرية.",
         "category": "إسلاميات",
         "iconIdentifier": "sparkles",
-        "link": "https://notionarabs.com/widgets/quran"
+        "link": "https://notionarabs.com/widgets/quran",
+        "image": "https://res.cloudinary.com/dlnnwqgob/image/upload/v1771623639/notion-arabs/screenshots/screenshot_417b9233f8f11e8f_1771623639035.png"
     },
     {
         "id": "prayer",
@@ -13,6 +14,7 @@
         "description": "مواقيت الصلاة والتقويم الهجري لمدينتك بتنسيق مثالي لصفحات نوشن.",
         "category": "إسلاميات",
         "iconIdentifier": "layout",
-        "link": "https://notionarabs.com/widgets/prayer"
+        "link": "https://notionarabs.com/widgets/prayer",
+        "image": "https://res.cloudinary.com/dlnnwqgob/image/upload/v1771623701/notion-arabs/screenshots/screenshot_b40281c06c3c4e63_1771623700178.png"
     }
 ]

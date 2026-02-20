@@ -976,6 +976,7 @@ async function upsertWidgetToNotion(widget) {
     const titleProp = findProperty(schema, ['Name', 'Title', 'الاسم', 'العنوان'], ['title']);
     const descriptionProp = findProperty(schema, ['Description', 'الوصف', 'تفاصيل'], ['rich_text']);
     const linkProp = findProperty(schema, ['Link', 'الرابط', 'URL'], ['url']);
+    const imageProp = findProperty(schema, ['Image', 'الصورة', 'Cover', 'Preview'], ['files']);
 
     if (!titleProp) {
       return { error: { message: 'Notion database is missing a title property' } };
@@ -1013,6 +1014,21 @@ async function upsertWidgetToNotion(widget) {
     if (linkProp && widget.link) {
       properties[linkProp.name] = { url: widget.link };
     }
+
+    if (imageProp && widget.image) {
+      properties[imageProp.name] = {
+        files: [
+          {
+            type: 'external',
+            name: 'Widget Preview',
+            external: {
+              url: widget.image
+            }
+          }
+        ]
+      };
+    }
+
 
     if (existingPage) {
       // Update existing page

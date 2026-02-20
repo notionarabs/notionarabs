@@ -44,9 +44,11 @@ export default function TelegramPopup({ isOpen, onClose, onDismiss }) {
     // Non-blocking slide-in - position based on language direction
     // Responsive: full width on mobile, centered. Smaller width on desktop
     <div
+      id="telegram-popup"
       className={`fixed bottom-0 sm:bottom-4 z-[60] w-full sm:w-auto sm:max-w-sm transition-all duration-500 ease-out ${isRTL
-          ? 'left-0 sm:left-4'
-          : 'right-0 sm:right-4'
+
+        ? 'left-0 sm:left-4'
+        : 'right-0 sm:right-4'
         } ${isVisible
           ? 'translate-y-0 opacity-100'
           : 'translate-y-full opacity-0 pointer-events-none'

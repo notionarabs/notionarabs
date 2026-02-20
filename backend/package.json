@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "sync-widgets": "node scripts/sync-widgets.js"
+    "sync-widgets": "node scripts/sync-widgets.js",
+    "generate-screenshots": "node scripts/generate-widget-screenshots.js"
   },
   "dependencies": {
     "axios": "^1.12.2",

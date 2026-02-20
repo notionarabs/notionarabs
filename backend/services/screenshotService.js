@@ -40,8 +40,9 @@ class ScreenshotService {
 
   async uploadToCloudinary(filepath, filename) {
     try {
+      const publicId = filename.replace('.png', '');
       const result = await cloudinary.uploader.upload(filepath, {
-        public_id: `notion-arabs/screenshots/${filename.replace('.png', '')}`,
+        public_id: publicId,
         folder: 'notion-arabs/screenshots',
         resource_type: 'image',
         transformation: [
@@ -49,6 +50,7 @@ class ScreenshotService {
           { format: 'auto' }
         ]
       });
+
 
       return {
         success: true,
@@ -104,46 +106,21 @@ class ScreenshotService {
       // Production-optimized launch options
       const launchOptions = {
         headless: true,
+        ignoreDefaultArgs: ['--enable-automation'],
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage',
-          '--disable-gpu',
           '--disable-web-security',
-          '--disable-features=VizDisplayCompositor',
-          '--no-first-run',
-          '--disable-extensions',
-          '--disable-plugins',
-          '--disable-default-apps',
-          '--disable-sync',
-          '--disable-translate',
-          '--hide-scrollbars',
-          '--mute-audio',
-          '--no-default-browser-check',
-          '--disable-background-networking',
-          '--disable-component-extensions-with-background-pages',
-          '--disable-ipc-flooding-protection',
-          '--disable-renderer-backgrounding',
-          '--disable-features=TranslateUI,BlinkGenPropertyTrees',
-          '--disable-hang-monitor',
-          '--disable-prompt-on-repost',
-          '--disable-domain-reliability',
-          '--disable-client-side-phishing-detection',
-          '--disable-component-update',
-          '--force-color-profile=srgb',
-          '--enable-automation',
-          '--password-store=basic',
-          '--use-mock-keychain',
-          // Production-specific optimizations
-          '--memory-pressure-off',
-          '--max_old_space_size=512',
-          '--disable-background-timer-throttling',
-          '--disable-backgrounding-occluded-windows',
-          '--disable-renderer-backgrounding'
+          '--disable-features=IsolateOrigins,site-per-process',
+          '--font-render-hinting=none',
+          '--disable-blink-features=AutomationControlled'
         ],
         timeout: process.env.NODE_ENV === 'production' ? 45000 : 30000,
         protocolTimeout: process.env.NODE_ENV === 'production' ? 45000 : 30000
       };
+
+
 
       // Try to use system Chrome if available
       const chromePaths = [
@@ -183,11 +160,56 @@ class ScreenshotService {
 
       const page = await browser.newPage();
 
-      // Set viewport for consistent screenshots
-      await page.setViewport({ width: 1200, height: 800 });
+      // Mask puppeteer presence and proactively hide popups
+      await page.evaluateOnNewDocument(() => {
+        Object.defineProperty(navigator, 'webdriver', { get: () => false });
 
-      // Set user agent to avoid detection
-      await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+        // Set dismissal flags in localStorage as early as possible
+        try {
+          localStorage.setItem('telegramPopupDismissed', 'true');
+          localStorage.setItem('hasClosedPopup', 'true');
+          localStorage.setItem('hasSeenRatingPopup', 'true');
+          localStorage.setItem('dismissedRatingPopups', '["*"]');
+        } catch (e) { }
+
+        // Inject CSS to hide all possible popups/navbars/overlays
+        // Using a style tag that will be added to the head as soon as it exists
+        const hidePopups = () => {
+          const style = document.createElement('style');
+          style.id = 'hide-popups-style';
+          style.innerHTML = `
+            #telegram-popup, .telegram-popup, 
+            nav, footer, header, .notion-topbar, 
+            [class*="Navbar"], [class*="Footer"], [class*="Modal"], [class*="Popup"],
+            .cookie-consent, #cookie-banner, .modal-overlay, .popup-container, 
+            .toast-container, #__next-prerender-indicator,
+            .fixed, .absolute[style*="z-index"][style*="999"] {
+              display: none !important;
+              visibility: hidden !important;
+              opacity: 0 !important;
+              pointer-events: none !important;
+            }
+          `;
+          if (document.head) {
+            document.head.appendChild(style);
+          } else {
+            document.documentElement.appendChild(style);
+          }
+        };
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', hidePopups);
+        } else {
+          hidePopups();
+        }
+      });
+
+      // Set viewport for consistent screenshots
+      await page.setViewport({ width: 1200, height: 800, deviceScaleFactor: 2 });
+
+      // Set user agent to a realistic chrome version
+      await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+
 
       // Navigate to the URL with better options for Notion pages
       await page.goto(url, {
@@ -196,7 +218,8 @@ class ScreenshotService {
       });
 
       // Wait for basic content to load
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise(resolve => setTimeout(resolve, 7000));
+
 
       // Try to wait for Notion content, but don't fail if not found
       try {
@@ -223,7 +246,12 @@ class ScreenshotService {
         window.scrollTo(0, 0);
       });
 
+      // Additional wait to ensure everything is settled
       await new Promise(resolve => setTimeout(resolve, 1000));
+
+
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
 
       // Generate unique filename
       const filename = this.generateFilename(url);

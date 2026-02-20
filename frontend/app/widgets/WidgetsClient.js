@@ -93,17 +93,26 @@ export default function WidgetsClient() {
                             >
                                 <div className="h-48 bg-gradient-to-br from-orange-100 to-orange-50 dark:from-dark-tertiary dark:to-dark-primary flex items-center justify-center relative overflow-hidden">
                                     <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #f5631e 1px, transparent 0)', backgroundSize: '20px 20px' }}></div>
-                                    <div className="p-8 bg-white/80 dark:bg-dark-secondary/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 dark:border-dark-card-border transform group-hover:scale-105 transition-transform duration-500">
-                                        <div className="flex items-center gap-3">
-                                            {widget.icon}
-                                            <div className="h-2 w-24 bg-gray-200 dark:bg-dark-text-quaternary rounded"></div>
+                                    {widget.image ? (
+                                        <img
+                                            src={widget.image}
+                                            alt={widget.title}
+                                            className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+                                        />
+                                    ) : (
+                                        <div className="p-8 bg-white/80 dark:bg-dark-secondary/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 dark:border-dark-card-border transform group-hover:scale-105 transition-transform duration-500">
+                                            <div className="flex items-center gap-3">
+                                                {widget.icon}
+                                                <div className="h-2 w-24 bg-gray-200 dark:bg-dark-text-quaternary rounded"></div>
+                                            </div>
+                                            <div className="mt-4 space-y-2">
+                                                <div className="h-1.5 w-full bg-gray-100 dark:bg-dark-text-quaternary rounded"></div>
+                                                <div className="h-1.5 w-3/4 bg-gray-100 dark:bg-dark-text-quaternary rounded"></div>
+                                            </div>
                                         </div>
-                                        <div className="mt-4 space-y-2">
-                                            <div className="h-1.5 w-full bg-gray-100 dark:bg-dark-text-quaternary rounded"></div>
-                                            <div className="h-1.5 w-3/4 bg-gray-100 dark:bg-dark-text-quaternary rounded"></div>
-                                        </div>
-                                    </div>
+                                    )}
                                 </div>
+
                                 <div className="p-6 flex-1 flex flex-col">
                                     <div className="flex items-center justify-between mb-3">
                                         <span className="px-3 py-1 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 text-xs font-bold rounded-full">

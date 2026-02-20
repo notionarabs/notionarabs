@@ -14,6 +14,13 @@ export function useTelegramPopup() {
       return;
     }
 
+    // Don't initialize on embed pages or when screenshot service is active
+    if (window.location.pathname.includes('/embed') || window.location.search.includes('screenshotService=true')) {
+      setHasChecked(true);
+      return;
+    }
+
+
     // Check if popup was dismissed
     const isDismissed = localStorage.getItem(TELEGRAM_POPUP_STORAGE_KEY);
     if (isDismissed === 'true') {

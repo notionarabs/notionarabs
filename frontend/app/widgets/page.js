@@ -2,7 +2,7 @@ import { generateMetadata } from '../../lib/seo';
 import WidgetsClient from './WidgetsClient';
 
 export const metadata = generateMetadata({
-    title: 'أدوات',
+    title: 'الأدوات',
     description: 'اكتشف مجموعة ودجتس نوشن العربية المجانية: ودجت آية اليوم القرآنية ومواقيت الصلاة. قابلة للتضمين في أي صفحة نوشن بسطر واحد.',
     url: '/widgets',
     keywords: [

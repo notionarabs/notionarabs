@@ -85,58 +85,80 @@ export default function WidgetsClient() {
                 <div className="container-custom">
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {displayWidgets.map((widget) => (
-                            <div
-                                key={widget.id}
-                                onClick={() => router.push(`/widgets/${widget.id}`)}
-                                className="group card-interactive bg-white dark:bg-dark-secondary rounded-3xl overflow-hidden border border-gray-200 dark:border-dark-card-border shadow-soft cursor-pointer flex flex-col"
-                            >
-                                <div className="h-48 bg-gradient-to-br from-orange-100 to-orange-50 dark:from-dark-tertiary dark:to-dark-primary flex items-center justify-center relative overflow-hidden">
-                                    <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #f5631e 1px, transparent 0)', backgroundSize: '20px 20px' }}></div>
-                                    <div className="p-8 bg-white/80 dark:bg-dark-secondary/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 dark:border-dark-card-border transform group-hover:scale-105 transition-transform duration-500">
-                                        <div className="flex items-center gap-3">
-                                            {widget.icon}
-                                            <div className="h-2 w-24 bg-gray-200 dark:bg-dark-text-quaternary rounded"></div>
+                        {loading ? (
+                            [1, 2, 3].map((item) => (
+                                <div key={item} className="bg-white dark:bg-dark-secondary rounded-3xl overflow-hidden border border-gray-200 dark:border-dark-card-border shadow-soft flex flex-col h-[420px] animate-pulse">
+                                    <div className="h-48 bg-gray-200 dark:bg-dark-tertiary"></div>
+                                    <div className="p-6 flex-1 flex flex-col">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <div className="h-6 bg-gray-200 dark:bg-dark-text-quaternary rounded-full w-20"></div>
+                                            <div className="h-4 bg-gray-200 dark:bg-dark-text-quaternary rounded w-12"></div>
                                         </div>
-                                        <div className="mt-4 space-y-2">
-                                            <div className="h-1.5 w-full bg-gray-100 dark:bg-dark-text-quaternary rounded"></div>
-                                            <div className="h-1.5 w-3/4 bg-gray-100 dark:bg-dark-text-quaternary rounded"></div>
+                                        <div className="h-7 bg-gray-200 dark:bg-dark-text-quaternary rounded-lg w-3/4 mb-4"></div>
+                                        <div className="space-y-2 mb-6">
+                                            <div className="h-4 bg-gray-200 dark:bg-dark-text-quaternary rounded w-full"></div>
+                                            <div className="h-4 bg-gray-200 dark:bg-dark-text-quaternary rounded w-5/6"></div>
+                                        </div>
+                                        <div className="mt-auto flex gap-3">
+                                            <div className="flex-1 h-11 bg-gray-200 dark:bg-dark-text-quaternary rounded-xl"></div>
+                                            <div className="flex-1 h-11 bg-gray-200 dark:bg-dark-text-quaternary rounded-xl"></div>
                                         </div>
                                     </div>
                                 </div>
-
-                                <div className="p-6 flex-1 flex flex-col">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <span className="px-3 py-1 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 text-xs font-bold rounded-full">
-                                            {widget.category}
-                                        </span>
-                                        {stats[widget.id] > 0 && (
-                                            <div className="flex items-center gap-1.5 text-gray-400 dark:text-gray-500">
-                                                <Users className="w-3.5 h-3.5" />
-                                                <span className="text-xs font-bold">{widget.users}</span>
+                            ))
+                        ) : (
+                            displayWidgets.map((widget) => (
+                                <div
+                                    key={widget.id}
+                                    onClick={() => router.push(`/widgets/${widget.id}`)}
+                                    className="group card-interactive bg-white dark:bg-dark-secondary rounded-3xl overflow-hidden border border-gray-200 dark:border-dark-card-border shadow-soft cursor-pointer flex flex-col"
+                                >
+                                    <div className="h-48 bg-gradient-to-br from-orange-100 to-orange-50 dark:from-dark-tertiary dark:to-dark-primary flex items-center justify-center relative overflow-hidden">
+                                        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #f5631e 1px, transparent 0)', backgroundSize: '20px 20px' }}></div>
+                                        <div className="p-8 bg-white/80 dark:bg-dark-secondary/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 dark:border-dark-card-border transform group-hover:scale-105 transition-transform duration-500">
+                                            <div className="flex items-center gap-3">
+                                                {widget.icon}
+                                                <div className="h-2 w-24 bg-gray-200 dark:bg-dark-text-quaternary rounded"></div>
                                             </div>
-                                        )}
+                                            <div className="mt-4 space-y-2">
+                                                <div className="h-1.5 w-full bg-gray-100 dark:bg-dark-text-quaternary rounded"></div>
+                                                <div className="h-1.5 w-3/4 bg-gray-100 dark:bg-dark-text-quaternary rounded"></div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <h2 className="text-2xl font-bold tracking-normal text-accent-900 dark:text-white mb-2">
-                                        {widget.title}
-                                    </h2>
-                                    <p className="text-accent-600 dark:text-dark-text-secondary text-sm mb-6 line-clamp-2">
-                                        {widget.description}
-                                    </p>
-                                    <div className="mt-auto flex gap-3">
-                                        <button
-                                            onClick={(e) => copyEmbed(e, widget.id)}
-                                            className="flex-1 btn-primary py-2.5 px-4 text-sm flex items-center justify-center gap-2 relative z-10"
-                                        >
-                                            {copiedId === widget.id ? 'تم النسخ!' : <><Copy className="w-4 h-4" /> انسخ الرابط</>}
-                                        </button>
-                                        <div className="flex-1 btn-secondary py-2.5 px-4 text-sm flex items-center justify-center gap-2">
-                                            <ExternalLink className="w-4 h-4" /> التفاصيل
+
+                                    <div className="p-6 flex-1 flex flex-col">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <span className="px-3 py-1 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 text-xs font-bold rounded-full">
+                                                {widget.category}
+                                            </span>
+                                            {stats[widget.id] > 0 && (
+                                                <div className="flex items-center gap-1.5 text-gray-400 dark:text-gray-500">
+                                                    <Users className="w-3.5 h-3.5" />
+                                                    <span className="text-xs font-bold">{widget.users}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <h2 className="text-2xl font-bold tracking-normal text-accent-900 dark:text-white mb-2">
+                                            {widget.title}
+                                        </h2>
+                                        <p className="text-accent-600 dark:text-dark-text-secondary text-sm mb-6 line-clamp-2">
+                                            {widget.description}
+                                        </p>
+                                        <div className="mt-auto flex gap-3">
+                                            <button
+                                                onClick={(e) => copyEmbed(e, widget.id)}
+                                                className="flex-1 btn-primary py-2.5 px-4 text-sm flex items-center justify-center gap-2 relative z-10"
+                                            >
+                                                {copiedId === widget.id ? 'تم النسخ!' : <><Copy className="w-4 h-4" /> انسخ الرابط</>}
+                                            </button>
+                                            <div className="flex-1 btn-secondary py-2.5 px-4 text-sm flex items-center justify-center gap-2">
+                                                <ExternalLink className="w-4 h-4" /> التفاصيل
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            )))}
                     </div>
                 </div>
             </section>

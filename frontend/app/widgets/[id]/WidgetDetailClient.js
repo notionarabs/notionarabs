@@ -36,7 +36,7 @@ const WIDGET_DATA = {
         ]
     },
     'prayer': {
-        title: 'مواقيت الصلاة - رَمَضان 1447',
+        title: 'مواقيت الصلاة',
         description: 'أداة تعرض مواقيت الصلاة لمدينتك واليوم الهجري. تتوافق تماماً مع واجهة نوشن.',
         features: ['مواقيت دقيقة', 'التاريخ الهجري', 'تحديد الموقع', 'تنبيهات الصلاة'],
         settings: [
@@ -205,8 +205,8 @@ export default function WidgetDetailClient() {
                                         <Moon className="w-24 h-24" />
                                     </div>
                                     <div className="relative z-10">
-                                        <div className="text-xs font-bold uppercase tracking-widest opacity-80 mb-1">موسم رمضان ١٤٤٧</div>
-                                        <h3 className="text-2xl font-black italic">رَمَضان المبارك</h3>
+                                        <div className="text-xs font-bold uppercase tracking-widest opacity-80 mb-1">شهر رمضان ١٤٤٧</div>
+                                        <h3 className="text-2xl font-black italic">رمضان المبارك</h3>
                                         <p className="text-sm opacity-90 mt-1">كل عام وأنتم بخير .. تقبل الله منا ومنكم</p>
                                     </div>
                                 </div>

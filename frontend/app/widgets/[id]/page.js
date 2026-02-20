@@ -32,16 +32,38 @@ const WIDGET_SEO = {
     },
 };
 
+import { getApiUrl } from '../../../lib/apiConfig';
+
 // generateMetadata is called by Next.js with the route params
 // Next.js 15: params is a Promise and must be awaited before accessing properties
 export async function generateMetadata({ params }) {
     const { id } = await params;
     const seo = WIDGET_SEO[id];
+
+    // Fetch widget data to get the dynamic screenshot image
+    let imageUrl = undefined;
+    try {
+        const url = getApiUrl('/widgets');
+        // Fetch with a short revalidation time so screenshots update, but we don't spam the API
+        const res = await fetch(url, { next: { revalidate: 300 } });
+        const data = await res.json();
+
+        if (data.success && data.widgets) {
+            const widget = data.widgets.find(w => w.id === id);
+            if (widget && widget.image) {
+                imageUrl = widget.image;
+            }
+        }
+    } catch (error) {
+        console.error('Failed to fetch widget image for SEO:', error);
+    }
+
     if (!seo) {
         return gen({
             title: 'ودجت نوشن',
             description: 'ودجت قابل للتضمين في نوشن.',
             url: `/widgets/${id}`,
+            image: imageUrl,
         });
     }
     return gen({
@@ -49,6 +71,7 @@ export async function generateMetadata({ params }) {
         description: seo.description,
         url: `/widgets/${id}`,
         keywords: seo.keywords,
+        image: imageUrl,
     });
 }
 

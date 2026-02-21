@@ -78,6 +78,18 @@ const WIDGET_SEO = {
             'daily hadith notion',
         ],
     },
+    'habit-tracker': {
+        title: 'ودجت متتبع العادات التفاعلي لنوشن',
+        description: 'ودجت نوشن مجاني لتتبع عاداتك اليومية وتحقيق أهدافك. أضف عاداتك، تابع تقدمك، وحافظ على استمراريتك بتصميم أنيق.',
+        keywords: [
+            'متتبع عادات نوشن',
+            'habit tracker notion',
+            'ودجت عادات',
+            'تضمين متتبع عادات',
+            'إنتاجية نوشن',
+            'notion habits embed',
+        ],
+    },
 };
 
 import { getApiUrl } from '../../../lib/apiConfig';

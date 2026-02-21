@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Layout, Copy, ExternalLink, Zap, Sparkles, Users, Clock, Sun, Timer, BookOpen } from 'lucide-react';
+import { Layout, Copy, ExternalLink, Zap, Sparkles, Users, Clock, Sun, Timer, BookOpen, CheckSquare } from 'lucide-react';
 import Footer from '../../components/Footer';
 
 const iconMap = {
@@ -12,7 +12,8 @@ const iconMap = {
     clock: <Clock className="w-6 h-6 text-green-500" />,
     sun: <Sun className="w-6 h-6 text-yellow-500" />,
     timer: <Timer className="w-6 h-6 text-red-500" />,
-    'book-open': <BookOpen className="w-6 h-6 text-emerald-500" />
+    'book-open': <BookOpen className="w-6 h-6 text-emerald-500" />,
+    'check-square': <CheckSquare className="w-6 h-6 text-purple-500" />
 };
 
 export default function WidgetsClient() {
@@ -90,7 +91,7 @@ export default function WidgetsClient() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {loading ? (
-                            [1, 2, 3].map((item) => (
+                            [1, 2, 3, 4, 5, 6, 7].map((item) => (
                                 <div key={item} className="bg-white dark:bg-dark-secondary rounded-3xl overflow-hidden border border-gray-200 dark:border-dark-card-border shadow-soft flex flex-col h-[420px] animate-pulse">
                                     <div className="h-48 bg-gray-200 dark:bg-dark-tertiary"></div>
                                     <div className="p-6 flex-1 flex flex-col">

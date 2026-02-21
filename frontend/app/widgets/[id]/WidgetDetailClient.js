@@ -11,6 +11,7 @@ import CountdownWidget from '../../../components/widgets/CountdownWidget';
 import AthkarWidget from '../../../components/widgets/AthkarWidget';
 import PomodoroWidget from '../../../components/widgets/PomodoroWidget';
 import HadithWidget from '../../../components/widgets/HadithWidget';
+import HabitTrackerWidget from '../../../components/widgets/HabitTrackerWidget';
 
 const WIDGET_DATA = {
     'quran': {
@@ -138,6 +139,24 @@ const WIDGET_DATA = {
             },
             { id: 'showTranslation', label: 'إظهار الترجمة المصاحبة', type: 'toggle' }
         ]
+    },
+    'habit-tracker': {
+        title: 'متتبع العادات التفاعلي',
+        description: 'نظم يومك بفعالية مع متتبع العادات الذكي. صمم قائمتك، تابع إنجازك، وشاهد تقدمك اليومي مباشرة في نوشن.',
+        features: ['إضافة وحذف عادات', 'تتبع التقدم اليومي', 'حفظ تلقائي (Local)', 'قابل للتخصيص'],
+        settings: [
+            { id: 'theme', label: 'المظهر', type: 'select', options: [{ id: 'auto', label: 'تلقائي' }, { id: 'light', label: 'نهاري' }, { id: 'dark', label: 'ليلي' }] },
+            {
+                id: 'font', label: 'الخط', type: 'select', options: [
+                    { id: 'tajawal', label: 'تاجوال' },
+                    { id: 'cairo', label: 'كايرو' },
+                    { id: 'amiri', label: 'أميري' },
+                    { id: 'almarai', label: 'المراعي' },
+                    { id: 'changa', label: 'شانغا' }
+                ]
+            },
+            { id: 'habits', label: 'العادات الافتراضية (افصل بينها بفاصلة)', type: 'text' }
+        ]
     }
 };
 
@@ -207,7 +226,8 @@ export default function WidgetDetailClient() {
         pomodoroTime: 25,
         shortBreakTime: 5,
         longBreakTime: 15,
-        showTranslation: true
+        showTranslation: true,
+        habits: 'نصيحة اليوم,الرياضة,شرب الماء,مراجعة الدروس'
     });
 
     // Load config from URL if present
@@ -226,7 +246,7 @@ export default function WidgetDetailClient() {
     }, [searchParams]);
 
     const [copied, setCopied] = useState(false);
-    const [stats, setStats] = useState({ quran: 0, prayer: 0, countdown: 0, athkar: 0, pomodoro: 0, hadith: 0 });
+    const [stats, setStats] = useState({ quran: 0, prayer: 0, countdown: 0, athkar: 0, pomodoro: 0, hadith: 0, 'habit-tracker': 0 });
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -416,6 +436,7 @@ export default function WidgetDetailClient() {
                                         {id === 'athkar' && <AthkarWidget {...config} theme={previewTheme} />}
                                         {id === 'pomodoro' && <PomodoroWidget {...config} theme={previewTheme} />}
                                         {id === 'hadith' && <HadithWidget {...config} theme={previewTheme} />}
+                                        {id === 'habit-tracker' && <HabitTrackerWidget {...config} theme={previewTheme} habitsParam={config.habits} />}
                                     </div>
                                 </div>
                             </div>

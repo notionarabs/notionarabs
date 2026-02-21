@@ -10,9 +10,11 @@ export default function PrayerWidget({
     font = 'tajawal',
     id = 'prayer'
 }) {
-    const editUrl = typeof window !== 'undefined'
-        ? `${window.location.origin}/widgets/${id}?theme=${theme}&font=${font}&city=${city}`
-        : '#';
+    const [editUrl, setEditUrl] = useState('#');
+
+    useEffect(() => {
+        setEditUrl(`${window.location.origin}/widgets/${id}?theme=${theme}&font=${font}&city=${city}`);
+    }, [id, theme, font, city]);
 
     const fontClasses = {
         tajawal: 'font-tajawal',

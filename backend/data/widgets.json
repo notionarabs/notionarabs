@@ -16,5 +16,14 @@
         "iconIdentifier": "layout",
         "link": "https://notionarabs.com/widgets/prayer",
         "image": "https://res.cloudinary.com/dlnnwqgob/image/upload/v1771623701/notion-arabs/screenshots/screenshot_b40281c06c3c4e63_1771623700178.png"
+    },
+    {
+        "id": "countdown",
+        "title": "العداد التنازلي الذكي",
+        "description": "عداد تنازلي أنيق وقابل للتخصيص للمناسبات والفعاليات الخاصة بك.",
+        "category": "إنتاجية",
+        "iconIdentifier": "clock",
+        "link": "https://notionarabs.com/widgets/countdown",
+        "image": "https://res.cloudinary.com/dlnnwqgob/image/upload/v1771623701/notion-arabs/screenshots/countdown_placeholder.png"
     }
 ]

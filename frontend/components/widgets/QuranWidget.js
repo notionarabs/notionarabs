@@ -16,9 +16,11 @@ export default function QuranWidget({
     const [isPlaying, setIsPlaying] = useState(false);
     const audioRef = useRef(null); // use ref instead of state to avoid re-renders
 
-    const editUrl = typeof window !== 'undefined'
-        ? `${window.location.origin}/widgets/${id}?theme=${theme}&font=${font}&showTranslation=${showTranslation}&reciter=${reciter}`
-        : '#';
+    const [editUrl, setEditUrl] = useState('#');
+
+    useEffect(() => {
+        setEditUrl(`${window.location.origin}/widgets/${id}?theme=${theme}&font=${font}&showTranslation=${showTranslation}&reciter=${reciter}`);
+    }, [id, theme, font, showTranslation, reciter]);
 
     useEffect(() => {
         const fetchAyah = async () => {

@@ -30,6 +30,18 @@ const WIDGET_SEO = {
             'ودجت إسلامي نوشن',
         ],
     },
+    countdown: {
+        title: 'ودجت العداد التنازلي الذكي لنوشن',
+        description: 'ودجت نوشن مجاني لإنشاء عداد تنازلي لمناسباتك الخاصة. خصّص التاريخ، الخط، والألوان وانسخ رابط التضمين.',
+        keywords: [
+            'ودجت عداد تنازلي',
+            'countdown widget notion',
+            'عداد تنازلي نوشن',
+            'تضمين عداد تنازلي',
+            'notion countdown embed',
+            'ودجت إنتاجية نوشن',
+        ],
+    },
 };
 
 import { getApiUrl } from '../../../lib/apiConfig';

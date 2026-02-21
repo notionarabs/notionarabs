@@ -7,6 +7,7 @@ import Link from 'next/link';
 import Footer from '../../../components/Footer';
 import QuranWidget from '../../../components/widgets/QuranWidget';
 import PrayerWidget from '../../../components/widgets/PrayerWidget';
+import CountdownWidget from '../../../components/widgets/CountdownWidget';
 
 const WIDGET_DATA = {
     'quran': {
@@ -51,6 +52,26 @@ const WIDGET_DATA = {
                 ]
             },
             { id: 'city', label: 'المدينة / الموقع', type: 'input', placeholder: 'مثال: Riyadh' }
+        ]
+    },
+    'countdown': {
+        title: 'العداد التنازلي الذكي',
+        description: 'أداة احترافية لنوشن لإنشاء عدادات تنازلية أنيقة لمناسباتك. يمكنك تخصيص التاريخ، العنوان، والألوان.',
+        features: ['دقة بالثانية', 'تخصيص كامل للألوان', 'دعم الوضع الليلي', 'خطوط عربية متميزة'],
+        settings: [
+            { id: 'theme', label: 'المظهر', type: 'select', options: [{ id: 'auto', label: 'تلقائي' }, { id: 'light', label: 'نهاري' }, { id: 'dark', label: 'ليلي' }] },
+            {
+                id: 'font', label: 'الخط', type: 'select', options: [
+                    { id: 'tajawal', label: 'تاجوال' },
+                    { id: 'cairo', label: 'كايرو' },
+                    { id: 'amiri', label: 'أميري' },
+                    { id: 'almarai', label: 'المراعي' },
+                    { id: 'changa', label: 'شانغا' }
+                ]
+            },
+            { id: 'title', label: 'عنوان العداد', type: 'input', placeholder: 'مثال: رمضان المبارك' },
+            { id: 'targetDate', label: 'تاريخ المستهدف', type: 'datetime-local' },
+            { id: 'color', label: 'لون الطابع الشخصي', type: 'color' }
         ]
     }
 };
@@ -113,7 +134,10 @@ export default function WidgetDetailClient() {
         showTranslation: true,
         reciter: 'ar.alafasy',
         city: 'Riyadh',
-        country: 'Saudi Arabia'
+        country: 'Saudi Arabia',
+        targetDate: '2026-03-20T00:00:00',
+        title: 'عيد الفطر المبارك',
+        color: '#f5631e'
     });
 
     // Load config from URL if present
@@ -132,7 +156,7 @@ export default function WidgetDetailClient() {
     }, [searchParams]);
 
     const [copied, setCopied] = useState(false);
-    const [stats, setStats] = useState({ quran: 0, prayer: 0 });
+    const [stats, setStats] = useState({ quran: 0, prayer: 0, countdown: 0 });
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -144,7 +168,8 @@ export default function WidgetDetailClient() {
                 if (data.success) {
                     setStats({
                         quran: data.stats.quran || 0,
-                        prayer: data.stats.prayer || 0
+                        prayer: data.stats.prayer || 0,
+                        countdown: data.stats.countdown || 0
                     });
                 }
             } catch (err) {
@@ -205,9 +230,9 @@ export default function WidgetDetailClient() {
                                         <Moon className="w-24 h-24" />
                                     </div>
                                     <div className="relative z-10">
-                                        <div className="text-xs font-bold uppercase tracking-widest opacity-80 mb-1">شهر رمضان ١٤٤٧</div>
-                                        <h3 className="text-2xl font-black italic">رمضان المبارك</h3>
-                                        <p className="text-sm opacity-90 mt-1">كل عام وأنتم بخير .. تقبل الله منا ومنكم</p>
+                                        <div className="text-xs font-bold uppercase tracking-widest opacity-80 mb-1">اقترب العيد السعيد</div>
+                                        <h3 className="text-2xl font-black italic">عيد الفطر المبارك</h3>
+                                        <p className="text-sm opacity-90 mt-1">تقبل الله منا ومنكم الصيام والقيام .. كل عام وأنتم بخير</p>
                                     </div>
                                 </div>
                             )}
@@ -240,6 +265,29 @@ export default function WidgetDetailClient() {
                                                         onChange={(e) => handleConfigChange(setting.id, e.target.value)}
                                                         className="w-full bg-secondary-50 dark:bg-dark-tertiary border border-gray-100 dark:border-dark-card-border p-3.5 rounded-xl outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10 transition-all font-bold text-sm"
                                                     />
+                                                </div>
+                                            )}
+
+                                            {setting.type === 'datetime-local' && (
+                                                <div className="relative group/input">
+                                                    <input
+                                                        type="datetime-local"
+                                                        value={config[setting.id]}
+                                                        onChange={(e) => handleConfigChange(setting.id, e.target.value)}
+                                                        className="w-full bg-secondary-50 dark:bg-dark-tertiary border border-gray-100 dark:border-dark-card-border p-3.5 rounded-xl outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10 transition-all font-bold text-sm"
+                                                    />
+                                                </div>
+                                            )}
+
+                                            {setting.type === 'color' && (
+                                                <div className="flex items-center gap-4">
+                                                    <input
+                                                        type="color"
+                                                        value={config[setting.id]}
+                                                        onChange={(e) => handleConfigChange(setting.id, e.target.value)}
+                                                        className="w-12 h-12 rounded-xl cursor-pointer border-none bg-transparent"
+                                                    />
+                                                    <span className="text-sm font-mono opacity-50 uppercase">{config[setting.id]}</span>
                                                 </div>
                                             )}
 
@@ -291,6 +339,7 @@ export default function WidgetDetailClient() {
                                     <div className="min-h-[300px] flex items-center justify-center">
                                         {id === 'quran' && <QuranWidget {...config} theme={previewTheme} />}
                                         {id === 'prayer' && <PrayerWidget {...config} theme={previewTheme} />}
+                                        {id === 'countdown' && <CountdownWidget {...config} theme={previewTheme} />}
                                     </div>
                                 </div>
                             </div>

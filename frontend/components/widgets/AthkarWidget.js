@@ -174,8 +174,8 @@ export default function AthkarWidget({
                     <button
                         onClick={() => { setMode('morning'); setCurrentIndex(0); setCurrentCount(0); }}
                         className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all ${mode === 'morning'
-                                ? 'bg-orange-500/10 text-orange-500 shadow-sm'
-                                : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
+                            ? 'bg-orange-500/10 text-orange-500 shadow-sm'
+                            : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
                             }`}
                     >
                         <Sun className={`w-3.5 h-3.5 ${mode === 'morning' ? 'animate-pulse' : ''}`} />
@@ -184,8 +184,8 @@ export default function AthkarWidget({
                     <button
                         onClick={() => { setMode('evening'); setCurrentIndex(0); setCurrentCount(0); }}
                         className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all ${mode === 'evening'
-                                ? 'bg-blue-500/10 text-blue-500 shadow-sm'
-                                : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
+                            ? 'bg-blue-500/10 text-blue-500 shadow-sm'
+                            : 'text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
                             }`}
                     >
                         <Moon className={`w-3.5 h-3.5 ${mode === 'evening' ? 'animate-pulse' : ''}`} />
@@ -219,8 +219,8 @@ export default function AthkarWidget({
                         <div
                             onClick={handleIncrement}
                             className={`relative w-28 h-28 rounded-full flex flex-col items-center justify-center cursor-pointer transition-all duration-300 transform active:scale-95 group/counter ${isDone
-                                    ? 'bg-green-500 text-white shadow-lg shadow-green-500/20'
-                                    : 'bg-primary-500 text-white shadow-lg shadow-primary-500/20 hover:scale-105'
+                                ? 'bg-green-500 text-white shadow-lg shadow-green-500/20'
+                                : 'bg-primary-500 text-white shadow-lg shadow-primary-500/20 hover:scale-105'
                                 }`}
                         >
                             {isDone ? (
@@ -249,10 +249,10 @@ export default function AthkarWidget({
                             <div
                                 key={idx}
                                 className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentIndex
-                                        ? 'w-6 bg-primary-500'
-                                        : idx < currentIndex
-                                            ? 'w-1.5 bg-green-500/50'
-                                            : 'w-1.5 bg-gray-200 dark:bg-gray-800'
+                                    ? 'w-6 bg-primary-500'
+                                    : idx < currentIndex
+                                        ? 'w-1.5 bg-green-500/50'
+                                        : 'w-1.5 bg-gray-200 dark:bg-gray-800'
                                     }`}
                             />
                         ))}

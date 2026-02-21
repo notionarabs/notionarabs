@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
 router.post('/track', async (req, res) => {
     const { widgetId } = req.body;
 
-    if (!['quran', 'prayer', 'countdown', 'athkar', 'pomodoro'].includes(widgetId)) {
+    if (!['quran', 'prayer', 'countdown', 'athkar', 'pomodoro', 'hadith'].includes(widgetId)) {
         return res.status(400).json({ success: false, message: 'Invalid widget ID' });
     }
 
@@ -77,7 +77,8 @@ router.get('/stats', async (req, res) => {
             prayer: 0,
             countdown: 0,
             athkar: 0,
-            pomodoro: 0
+            pomodoro: 0,
+            hadith: 0
         };
 
         stats.forEach(s => {

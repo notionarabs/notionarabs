@@ -193,12 +193,12 @@ export default function PomodoroWidget({
                     <button
                         onClick={toggleTimer}
                         className={`flex-1 py-4 rounded-2xl font-bold flex items-center justify-center gap-3 transition-all active:scale-95 shadow-lg ${isActive
-                                ? 'bg-gray-100 dark:bg-white/5 text-gray-500'
-                                : mode === 'pomodoro'
-                                    ? 'bg-red-500 text-white shadow-red-500/20 hover:bg-red-600'
-                                    : mode === 'short'
-                                        ? 'bg-green-500 text-white shadow-green-500/20 hover:bg-green-600'
-                                        : 'bg-blue-500 text-white shadow-blue-500/20 hover:bg-blue-600'
+                            ? 'bg-gray-100 dark:bg-white/5 text-gray-500'
+                            : mode === 'pomodoro'
+                                ? 'bg-red-500 text-white shadow-red-500/20 hover:bg-red-600'
+                                : mode === 'short'
+                                    ? 'bg-green-500 text-white shadow-green-500/20 hover:bg-green-600'
+                                    : 'bg-blue-500 text-white shadow-blue-500/20 hover:bg-blue-600'
                             }`}
                     >
                         {isActive ? (

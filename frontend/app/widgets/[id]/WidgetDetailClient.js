@@ -10,6 +10,7 @@ import PrayerWidget from '../../../components/widgets/PrayerWidget';
 import CountdownWidget from '../../../components/widgets/CountdownWidget';
 import AthkarWidget from '../../../components/widgets/AthkarWidget';
 import PomodoroWidget from '../../../components/widgets/PomodoroWidget';
+import HadithWidget from '../../../components/widgets/HadithWidget';
 
 const WIDGET_DATA = {
     'quran': {
@@ -119,6 +120,24 @@ const WIDGET_DATA = {
             { id: 'shortBreakTime', label: 'راحة قصيرة (دقائق)', type: 'input', placeholder: '5' },
             { id: 'longBreakTime', label: 'راحة طويلة (دقائق)', type: 'input', placeholder: '15' }
         ]
+    },
+    'hadith': {
+        title: 'حديث اليوم الشريف',
+        description: 'أداة تمنحك حديثاً نبوياً متجدداً يومياً مع شرحه وترجمته. تدعم الوضع الليلي والخطوط العربية المتميزة.',
+        features: ['أحاديث صحيحة', 'ترجمة إنجليزية مدمجة', 'تنسيق مثالي لنوشن', 'دعم الخطوط العربية'],
+        settings: [
+            { id: 'theme', label: 'المظهر', type: 'select', options: [{ id: 'auto', label: 'تلقائي' }, { id: 'light', label: 'نهاري' }, { id: 'dark', label: 'ليلي' }] },
+            {
+                id: 'font', label: 'الخط', type: 'select', options: [
+                    { id: 'tajawal', label: 'تاجوال' },
+                    { id: 'cairo', label: 'كايرو' },
+                    { id: 'amiri', label: 'أميري' },
+                    { id: 'almarai', label: 'المراعي' },
+                    { id: 'changa', label: 'شانغا' }
+                ]
+            },
+            { id: 'showTranslation', label: 'إظهار الترجمة المصاحبة', type: 'toggle' }
+        ]
     }
 };
 
@@ -187,7 +206,8 @@ export default function WidgetDetailClient() {
         initialMode: 'auto',
         pomodoroTime: 25,
         shortBreakTime: 5,
-        longBreakTime: 15
+        longBreakTime: 15,
+        showTranslation: true
     });
 
     // Load config from URL if present
@@ -206,7 +226,7 @@ export default function WidgetDetailClient() {
     }, [searchParams]);
 
     const [copied, setCopied] = useState(false);
-    const [stats, setStats] = useState({ quran: 0, prayer: 0, countdown: 0, athkar: 0, pomodoro: 0 });
+    const [stats, setStats] = useState({ quran: 0, prayer: 0, countdown: 0, athkar: 0, pomodoro: 0, hadith: 0 });
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -221,7 +241,8 @@ export default function WidgetDetailClient() {
                         prayer: data.stats.prayer || 0,
                         countdown: data.stats.countdown || 0,
                         athkar: data.stats.athkar || 0,
-                        pomodoro: data.stats.pomodoro || 0
+                        pomodoro: data.stats.pomodoro || 0,
+                        hadith: data.stats.hadith || 0
                     });
                 }
             } catch (err) {
@@ -394,6 +415,7 @@ export default function WidgetDetailClient() {
                                         {id === 'countdown' && <CountdownWidget {...config} theme={previewTheme} />}
                                         {id === 'athkar' && <AthkarWidget {...config} theme={previewTheme} />}
                                         {id === 'pomodoro' && <PomodoroWidget {...config} theme={previewTheme} />}
+                                        {id === 'hadith' && <HadithWidget {...config} theme={previewTheme} />}
                                     </div>
                                 </div>
                             </div>

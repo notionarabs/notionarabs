@@ -43,5 +43,14 @@
         "iconIdentifier": "timer",
         "link": "https://notionarabs.com/widgets/pomodoro",
         "image": "https://res.cloudinary.com/dlnnwqgob/image/upload/v1771623701/notion-arabs/screenshots/pomodoro_placeholder.png"
+    },
+    {
+        "id": "hadith",
+        "title": "حديث اليوم الشريف",
+        "description": "استلهم يومك بحديث شريف جديد كل يوم مع الترجمة والتخريج بتصميم عصري.",
+        "category": "إسلاميات",
+        "iconIdentifier": "book-open",
+        "link": "https://notionarabs.com/widgets/hadith",
+        "image": "https://res.cloudinary.com/dlnnwqgob/image/upload/v1771623701/notion-arabs/screenshots/hadith_placeholder.png"
     }
 ]

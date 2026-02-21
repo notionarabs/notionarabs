@@ -34,5 +34,14 @@
         "iconIdentifier": "sun",
         "link": "https://notionarabs.com/widgets/athkar",
         "image": "https://res.cloudinary.com/dlnnwqgob/image/upload/v1771623701/notion-arabs/screenshots/athkar_placeholder.png"
+    },
+    {
+        "id": "pomodoro",
+        "title": "مؤقت التركيز (بومودورو)",
+        "description": "مؤقت بسيط وأنيق يساعدك على التركيز في مهامك مع فترات راحة منتظمة.",
+        "category": "إنتاجية",
+        "iconIdentifier": "timer",
+        "link": "https://notionarabs.com/widgets/pomodoro",
+        "image": "https://res.cloudinary.com/dlnnwqgob/image/upload/v1771623701/notion-arabs/screenshots/pomodoro_placeholder.png"
     }
 ]

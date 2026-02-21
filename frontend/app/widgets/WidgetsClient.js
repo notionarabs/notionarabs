@@ -3,14 +3,15 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Layout, Copy, ExternalLink, Zap, Sparkles, Users, Clock, Sun } from 'lucide-react';
+import { Layout, Copy, ExternalLink, Zap, Sparkles, Users, Clock, Sun, Timer } from 'lucide-react';
 import Footer from '../../components/Footer';
 
 const iconMap = {
     sparkles: <Sparkles className="w-6 h-6 text-orange-500" />,
     layout: <Layout className="w-6 h-6 text-blue-500" />,
     clock: <Clock className="w-6 h-6 text-green-500" />,
-    sun: <Sun className="w-6 h-6 text-yellow-500" />
+    sun: <Sun className="w-6 h-6 text-yellow-500" />,
+    timer: <Timer className="w-6 h-6 text-red-500" />
 };
 
 export default function WidgetsClient() {

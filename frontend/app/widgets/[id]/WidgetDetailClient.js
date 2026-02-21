@@ -9,6 +9,7 @@ import QuranWidget from '../../../components/widgets/QuranWidget';
 import PrayerWidget from '../../../components/widgets/PrayerWidget';
 import CountdownWidget from '../../../components/widgets/CountdownWidget';
 import AthkarWidget from '../../../components/widgets/AthkarWidget';
+import PomodoroWidget from '../../../components/widgets/PomodoroWidget';
 
 const WIDGET_DATA = {
     'quran': {
@@ -98,6 +99,26 @@ const WIDGET_DATA = {
                 ]
             }
         ]
+    },
+    'pomodoro': {
+        title: 'مؤقت التركيز (بومودورو)',
+        description: 'أداة احترافية لنوشن تساعدك على التركيز باستخدام تقنية بومودورو. يمكنك تخصيص فترات التركيز والراحة.',
+        features: ['مؤقت دقيق', 'فترات راحة قابلة للتخصيص', 'تنبيهات صوتية', 'تصميم مينيمالست'],
+        settings: [
+            { id: 'theme', label: 'المظهر', type: 'select', options: [{ id: 'auto', label: 'تلقائي' }, { id: 'light', label: 'نهاري' }, { id: 'dark', label: 'ليلي' }] },
+            {
+                id: 'font', label: 'الخط', type: 'select', options: [
+                    { id: 'tajawal', label: 'تاجوال' },
+                    { id: 'cairo', label: 'كايرو' },
+                    { id: 'amiri', label: 'أميري' },
+                    { id: 'almarai', label: 'المراعي' },
+                    { id: 'changa', label: 'شانغا' }
+                ]
+            },
+            { id: 'pomodoroTime', label: 'وقت التركيز (دقائق)', type: 'input', placeholder: '25' },
+            { id: 'shortBreakTime', label: 'راحة قصيرة (دقائق)', type: 'input', placeholder: '5' },
+            { id: 'longBreakTime', label: 'راحة طويلة (دقائق)', type: 'input', placeholder: '15' }
+        ]
     }
 };
 
@@ -163,7 +184,10 @@ export default function WidgetDetailClient() {
         targetDate: '2026-03-20T00:00:00',
         title: 'عيد الفطر المبارك',
         color: '#f5631e',
-        initialMode: 'auto'
+        initialMode: 'auto',
+        pomodoroTime: 25,
+        shortBreakTime: 5,
+        longBreakTime: 15
     });
 
     // Load config from URL if present
@@ -182,7 +206,7 @@ export default function WidgetDetailClient() {
     }, [searchParams]);
 
     const [copied, setCopied] = useState(false);
-    const [stats, setStats] = useState({ quran: 0, prayer: 0, countdown: 0, athkar: 0 });
+    const [stats, setStats] = useState({ quran: 0, prayer: 0, countdown: 0, athkar: 0, pomodoro: 0 });
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -196,7 +220,8 @@ export default function WidgetDetailClient() {
                         quran: data.stats.quran || 0,
                         prayer: data.stats.prayer || 0,
                         countdown: data.stats.countdown || 0,
-                        athkar: data.stats.athkar || 0
+                        athkar: data.stats.athkar || 0,
+                        pomodoro: data.stats.pomodoro || 0
                     });
                 }
             } catch (err) {
@@ -368,6 +393,7 @@ export default function WidgetDetailClient() {
                                         {id === 'prayer' && <PrayerWidget {...config} theme={previewTheme} />}
                                         {id === 'countdown' && <CountdownWidget {...config} theme={previewTheme} />}
                                         {id === 'athkar' && <AthkarWidget {...config} theme={previewTheme} />}
+                                        {id === 'pomodoro' && <PomodoroWidget {...config} theme={previewTheme} />}
                                     </div>
                                 </div>
                             </div>

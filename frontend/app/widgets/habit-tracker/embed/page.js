@@ -1,25 +1,28 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import HabitTrackerWidget from '../../../../components/widgets/HabitTrackerWidget';
-import { useEffect } from 'react';
 import { siteConfig } from '../../../../lib/seo';
 
 function HabitTrackerEmbedContent() {
     const searchParams = useSearchParams();
+    const themeParam = searchParams.get('theme');
 
-    // URL parameters for customization
-    const theme = searchParams.get('theme') || 'dark';
-    const font = searchParams.get('font') || 'tajawal';
+    const [systemTheme, setSystemTheme] = useState('dark');
 
-    // Track widget usage (client-side only)
     useEffect(() => {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        setSystemTheme(mq.matches ? 'dark' : 'light');
+        const handler = (e) => setSystemTheme(e.matches ? 'dark' : 'light');
+        mq.addEventListener('change', handler);
+
+        const base = process.env.NEXT_PUBLIC_API_URL || 'https://api.notionarabs.com/api';
+        const apiUrl = base.endsWith('/api') ? base.slice(0, -4) : base;
+
+        // Track widget usage
         const trackUsage = async () => {
             try {
-                const base = process.env.NEXT_PUBLIC_API_URL || 'https://api.notionarabs.com/api';
-                const apiUrl = base.endsWith('/api') ? base.slice(0, -4) : base;
-
                 await fetch(`${apiUrl}/api/widgets/track`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -30,13 +33,22 @@ function HabitTrackerEmbedContent() {
             }
         };
         trackUsage();
+
+        return () => mq.removeEventListener('change', handler);
     }, []);
 
+    const theme = (themeParam === 'dark' || themeParam === 'light') ? themeParam : systemTheme;
+
+    const bg = theme === 'dark' ? '#191919' : '#ffffff';
+
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 bg-transparent">
+        <div
+            className="w-full h-screen flex items-center justify-center px-4 py-6 overflow-hidden"
+            style={{ backgroundColor: bg }}
+        >
             <HabitTrackerWidget
                 theme={theme}
-                font={font}
+                font={searchParams.get('font') || 'tajawal'}
             />
         </div>
     );
@@ -44,8 +56,9 @@ function HabitTrackerEmbedContent() {
 
 export default function HabitTrackerEmbedPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-primary-500">جاري التحميل...</div>}>
+        <Suspense fallback={null}>
             <HabitTrackerEmbedContent />
         </Suspense>
     );
 }
+

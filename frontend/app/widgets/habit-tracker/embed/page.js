@@ -12,7 +12,6 @@ function HabitTrackerEmbedContent() {
     // URL parameters for customization
     const theme = searchParams.get('theme') || 'dark';
     const font = searchParams.get('font') || 'tajawal';
-    const habits = searchParams.get('habits');
 
     // Track widget usage (client-side only)
     useEffect(() => {
@@ -38,7 +37,6 @@ function HabitTrackerEmbedContent() {
             <HabitTrackerWidget
                 theme={theme}
                 font={font}
-                habitsParam={habits || undefined}
             />
         </div>
     );

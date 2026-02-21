@@ -53,8 +53,8 @@ export default function HabitTrackerWidget({
     }, [habits, mounted, id]);
 
     useEffect(() => {
-        setEditUrl(`${window.location.origin}/widgets/${id}?theme=${theme}&font=${font}&habits=${encodeURIComponent(habits.map(h => h.name).join(','))}`);
-    }, [id, theme, font, habits]);
+        setEditUrl(`${window.location.origin}/widgets/${id}?theme=${theme}&font=${font}`);
+    }, [id, theme, font]);
 
     const [isAdding, setIsAdding] = useState(false);
     const [newHabitName, setNewHabitName] = useState('');
@@ -178,8 +178,8 @@ export default function HabitTrackerWidget({
                                 onChange={(e) => setNewHabitName(e.target.value)}
                                 placeholder="اسم العادة الجديدة..."
                                 className={`flex-1 p-4 rounded-2xl border-2 transition-all outline-none ${theme === 'dark'
-                                        ? 'bg-white/5 border-white/10 focus:border-primary-500/50 text-white'
-                                        : 'bg-gray-50 border-gray-100 focus:border-primary-500/50 text-accent-900'
+                                    ? 'bg-white/5 border-white/10 focus:border-primary-500/50 text-white'
+                                    : 'bg-gray-50 border-gray-100 focus:border-primary-500/50 text-accent-900'
                                     }`}
                                 onBlur={() => !newHabitName && setIsAdding(false)}
                             />

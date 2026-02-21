@@ -154,8 +154,7 @@ const WIDGET_DATA = {
                     { id: 'almarai', label: 'المراعي' },
                     { id: 'changa', label: 'شانغا' }
                 ]
-            },
-            { id: 'habits', label: 'العادات الافتراضية (افصل بينها بفاصلة)', type: 'text' }
+            }
         ]
     }
 };
@@ -226,8 +225,7 @@ export default function WidgetDetailClient() {
         pomodoroTime: 25,
         shortBreakTime: 5,
         longBreakTime: 15,
-        showTranslation: true,
-        habits: 'نصيحة اليوم,الرياضة,شرب الماء,مراجعة الدروس'
+        showTranslation: true
     });
 
     // Load config from URL if present
@@ -436,7 +434,7 @@ export default function WidgetDetailClient() {
                                         {id === 'athkar' && <AthkarWidget {...config} theme={previewTheme} />}
                                         {id === 'pomodoro' && <PomodoroWidget {...config} theme={previewTheme} />}
                                         {id === 'hadith' && <HadithWidget {...config} theme={previewTheme} />}
-                                        {id === 'habit-tracker' && <HabitTrackerWidget {...config} theme={previewTheme} habitsParam={config.habits} />}
+                                        {id === 'habit-tracker' && <HabitTrackerWidget {...config} theme={previewTheme} />}
                                     </div>
                                 </div>
                             </div>

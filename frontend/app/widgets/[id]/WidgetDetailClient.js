@@ -8,6 +8,7 @@ import Footer from '../../../components/Footer';
 import QuranWidget from '../../../components/widgets/QuranWidget';
 import PrayerWidget from '../../../components/widgets/PrayerWidget';
 import CountdownWidget from '../../../components/widgets/CountdownWidget';
+import AthkarWidget from '../../../components/widgets/AthkarWidget';
 
 const WIDGET_DATA = {
     'quran': {
@@ -73,6 +74,30 @@ const WIDGET_DATA = {
             { id: 'targetDate', label: 'تاريخ المستهدف', type: 'datetime-local' },
             { id: 'color', label: 'لون الطابع الشخصي', type: 'color' }
         ]
+    },
+    'athkar': {
+        title: 'أذكار المسلم التفاعلية',
+        description: 'أذكار الصباح والمساء مع عداد تفاعلي. تتبدل تلقائياً حسب الوقت أو يمكنك اختيار الفترة يدوياً.',
+        features: ['عداد تفاعلي', 'تبديل تلقائي (صباح/مساء)', 'دعم كامل للخطوط العربية', 'متوافق مع الوضع الليلي'],
+        settings: [
+            { id: 'theme', label: 'المظهر', type: 'select', options: [{ id: 'auto', label: 'تلقائي' }, { id: 'light', label: 'نهاري' }, { id: 'dark', label: 'ليلي' }] },
+            {
+                id: 'font', label: 'الخط', type: 'select', options: [
+                    { id: 'tajawal', label: 'تاجوال' },
+                    { id: 'cairo', label: 'كايرو' },
+                    { id: 'amiri', label: 'أميري' },
+                    { id: 'almarai', label: 'المراعي' },
+                    { id: 'changa', label: 'شانغا' }
+                ]
+            },
+            {
+                id: 'initialMode', label: 'فترة الأذكار', type: 'select', options: [
+                    { id: 'auto', label: 'تلقائي' },
+                    { id: 'morning', label: 'أذكار الصباح' },
+                    { id: 'evening', label: 'أذكار المساء' }
+                ]
+            }
+        ]
     }
 };
 
@@ -137,7 +162,8 @@ export default function WidgetDetailClient() {
         country: 'Saudi Arabia',
         targetDate: '2026-03-20T00:00:00',
         title: 'عيد الفطر المبارك',
-        color: '#f5631e'
+        color: '#f5631e',
+        initialMode: 'auto'
     });
 
     // Load config from URL if present
@@ -156,7 +182,7 @@ export default function WidgetDetailClient() {
     }, [searchParams]);
 
     const [copied, setCopied] = useState(false);
-    const [stats, setStats] = useState({ quran: 0, prayer: 0, countdown: 0 });
+    const [stats, setStats] = useState({ quran: 0, prayer: 0, countdown: 0, athkar: 0 });
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -169,7 +195,8 @@ export default function WidgetDetailClient() {
                     setStats({
                         quran: data.stats.quran || 0,
                         prayer: data.stats.prayer || 0,
-                        countdown: data.stats.countdown || 0
+                        countdown: data.stats.countdown || 0,
+                        athkar: data.stats.athkar || 0
                     });
                 }
             } catch (err) {
@@ -340,6 +367,7 @@ export default function WidgetDetailClient() {
                                         {id === 'quran' && <QuranWidget {...config} theme={previewTheme} />}
                                         {id === 'prayer' && <PrayerWidget {...config} theme={previewTheme} />}
                                         {id === 'countdown' && <CountdownWidget {...config} theme={previewTheme} />}
+                                        {id === 'athkar' && <AthkarWidget {...config} theme={previewTheme} />}
                                     </div>
                                 </div>
                             </div>

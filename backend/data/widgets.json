@@ -25,5 +25,14 @@
         "iconIdentifier": "clock",
         "link": "https://notionarabs.com/widgets/countdown",
         "image": "https://res.cloudinary.com/dlnnwqgob/image/upload/v1771623701/notion-arabs/screenshots/countdown_placeholder.png"
+    },
+    {
+        "id": "athkar",
+        "title": "أذكار المسلم التفاعلية",
+        "description": "أذكار الصباح والمساء مع عداد تفاعلي وتصميم أنيق لصفحاتك في نوشن.",
+        "category": "إسلاميات",
+        "iconIdentifier": "sun",
+        "link": "https://notionarabs.com/widgets/athkar",
+        "image": "https://res.cloudinary.com/dlnnwqgob/image/upload/v1771623701/notion-arabs/screenshots/athkar_placeholder.png"
     }
 ]

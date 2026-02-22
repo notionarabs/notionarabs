@@ -14,6 +14,7 @@ export default function QuranWidget({
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [isAudioLoading, setIsAudioLoading] = useState(false);
     const audioRef = useRef(null); // use ref instead of state to avoid re-renders
 
     const [editUrl, setEditUrl] = useState('#');
@@ -33,6 +34,7 @@ export default function QuranWidget({
                     audioRef.current = null;
                 }
                 setIsPlaying(false);
+                setIsAudioLoading(false);
 
                 const randomAyah = Math.floor(Math.random() * 6236) + 1;
 
@@ -57,8 +59,8 @@ export default function QuranWidget({
                     // Map common reciter IDs to EveryAyah folder names
                     const reciterMap = {
                         'ar.alafasy': 'Alafasy_128kbps',
-                        'ar.minshawi': 'Minshawi_Mujawwad_192kbps',
-                        'ar.abdulsamad': 'Abdul_Basit_Mujawwad_128kbps',
+                        'ar.minshawi': 'Minshawy_Mujawwad_192kbps',
+                        'ar.abdulsamad': 'AbdulSamad_64kbps_QuranExplorer.Com',
                         'ar.husary': 'Husary_128kbps'
                     };
 
@@ -77,8 +79,8 @@ export default function QuranWidget({
                     setData({
                         arabic: ayahData.text,
                         translation: translationData.text,
-                        audio: mainAudio || everyAyahUrl,
-                        fallbacks: [everyAyahUrl, cdnAudio],
+                        audio: everyAyahUrl, // Put EveryAyah first as it's most reliable
+                        fallbacks: [mainAudio, cdnAudio].filter(Boolean),
                         surah: ayahData.surah.name,
                         surahNumber: surahNum,
                         ayahNumber: ayahNum,
@@ -112,6 +114,7 @@ export default function QuranWidget({
                 audioRef.current.play().catch(e => {
                     console.warn('Playback resume failed:', e);
                     setIsPlaying(false);
+                    setIsAudioLoading(false);
                 });
                 setIsPlaying(true);
             }
@@ -120,30 +123,41 @@ export default function QuranWidget({
 
         const newAudio = new Audio();
         newAudio.src = data.audio;
-        // Don't use crossOrigin for plain playback unless needed (helps with some CDNs)
 
-        newAudio.onended = () => setIsPlaying(false);
+        // State listeners
+        newAudio.onloadstart = () => setIsAudioLoading(true);
+        newAudio.oncanplay = () => setIsAudioLoading(false);
+        newAudio.onwaiting = () => setIsAudioLoading(true);
+        newAudio.onplaying = () => {
+            setIsAudioLoading(false);
+            setIsPlaying(true);
+        };
+        newAudio.onended = () => {
+            setIsPlaying(false);
+            setIsAudioLoading(false);
+        };
         newAudio.onpause = () => setIsPlaying(false);
-        newAudio.onplay = () => setIsPlaying(true);
 
         let fallbackIdx = 0;
         newAudio.onerror = () => {
+            setIsAudioLoading(true); // show loader while switching
             if (data.fallbacks && fallbackIdx < data.fallbacks.length) {
                 const nextUrl = data.fallbacks[fallbackIdx];
                 fallbackIdx++;
                 console.warn(`Audio failed, trying fallback ${fallbackIdx}: ${nextUrl}`);
                 newAudio.src = nextUrl;
+                newAudio.load();
                 newAudio.play().catch(() => { });
             } else {
                 console.error('All audio sources failed');
                 setIsPlaying(false);
+                setIsAudioLoading(false);
             }
         };
 
         audioRef.current = newAudio;
         newAudio.play().catch(err => {
             console.warn('Initial play failed:', err);
-            // Let onerror handle tries
         });
         setIsPlaying(true);
     };
@@ -199,13 +213,24 @@ export default function QuranWidget({
                 <div className="flex items-center justify-center gap-6 w-full pt-4 border-t border-gray-100 dark:border-dark-card-border">
                     <button
                         onClick={toggleAudio}
-                        className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${isPlaying
-                            ? 'bg-primary-500 text-white shadow-lg'
-                            : 'bg-primary-50 text-primary-500 hover:bg-primary-500 hover:text-white'
-                            }`}
-                        title={isPlaying ? 'إيقاف' : 'استماع'}
+                        disabled={isAudioLoading && !isPlaying}
+                        className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-500 relative ${isPlaying
+                            ? 'bg-primary-500 text-white shadow-[0_0_20px_rgba(59,130,246,0.5)] scale-110'
+                            : 'bg-primary-50 text-primary-500 hover:bg-primary-100 hover:scale-105'
+                            } ${isAudioLoading ? 'cursor-wait opacity-80' : ''}`}
+                        title={isAudioLoading ? 'جاري التحميل...' : isPlaying ? 'إيقاف' : 'استماع'}
                     >
-                        {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                        {isAudioLoading && (
+                            <div className="absolute inset-0 rounded-full border-2 border-primary-500/30 border-t-primary-500 animate-spin" />
+                        )}
+
+                        {isAudioLoading && !isPlaying ? (
+                            <div className="w-5 h-5 bg-primary-500/20 rounded-full animate-pulse" />
+                        ) : isPlaying ? (
+                            <Pause className="w-6 h-6 fill-current" />
+                        ) : (
+                            <Play className="w-6 h-6 fill-current" />
+                        )}
                     </button>
 
                     <div className="text-right">

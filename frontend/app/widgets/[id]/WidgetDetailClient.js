@@ -82,7 +82,8 @@ const WIDGET_DATA = {
             { id: 'city', label: 'المدينة / الموقع', type: 'input', placeholder: 'مثال: Cairo' },
             { id: 'useArabicDigits', label: 'استخدام الأرقام العربية (٠١٢٣)', type: 'toggle' },
             { id: 'hour12', label: 'نظام 12 ساعة (ص/م)', type: 'toggle' },
-            { id: 'showSeconds', label: 'إظهار الثواني', type: 'toggle' }
+            { id: 'showSeconds', label: 'إظهار الثواني', type: 'toggle' },
+            { id: 'showHijri', label: 'إظهار التاريخ الهجري', type: 'toggle' }
         ]
     },
     'quran': {
@@ -301,7 +302,8 @@ export default function WidgetDetailClient() {
         showForecast: true,
         initialAmbient: 'none',
         hour12: true,
-        city: ''
+        city: '',
+        showHijri: true
     });
 
     // Load config from URL if present

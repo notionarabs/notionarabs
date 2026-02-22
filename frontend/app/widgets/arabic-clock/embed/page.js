@@ -14,6 +14,7 @@ function ArabicClockEmbedContent() {
         useArabicDigits: searchParams.get('useArabicDigits') !== 'false',
         hour12: searchParams.get('hour12') !== 'false',
         city: searchParams.get('city') || '',
+        showHijri: searchParams.get('showHijri') !== 'false',
     };
 
     // System theme detection for 'auto'

@@ -9,6 +9,7 @@ export default function ArabicClockWidget({
     showSeconds = true,
     useArabicDigits = true,
     hour12 = true,
+    showHijri = true,
     city = '',
     id = 'arabic-clock'
 }) {
@@ -56,11 +57,12 @@ export default function ArabicClockWidget({
                 showSeconds,
                 useArabicDigits,
                 hour12,
+                showHijri,
                 city
             });
             setEditUrl(`${window.location.origin}/widgets/${id}?${params.toString()}`);
         }
-    }, [id, theme, font, showSeconds, useArabicDigits, hour12, city]);
+    }, [id, theme, font, showSeconds, useArabicDigits, hour12, showHijri, city]);
 
     const fontClasses = {
         'tajawal': 'font-tajawal',
@@ -122,6 +124,16 @@ export default function ArabicClockWidget({
     const monthName = time ? time.toLocaleDateString('ar-SA', { ...dateOptions, month: 'long' }) : '';
     const year = time ? time.toLocaleDateString('ar-SA', { ...dateOptions, year: 'numeric' }) : '';
 
+    // Hijri Date calculation
+    const hijriOptions = {
+        ...dateOptions,
+        calendar: 'islamic-uma',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    };
+    const hijriDate = time ? time.toLocaleDateString('ar-SA-u-ca-islamic-uma', hijriOptions) : '';
+
     if (!mounted) return <div className={`w-full min-h-[300px] rounded-[2.5rem] animate-pulse ${theme === 'dark' ? 'bg-[#191919]' : 'bg-gray-50'}`}></div>;
 
     return (
@@ -182,10 +194,17 @@ export default function ArabicClockWidget({
                 </div>
 
                 {/* Full Date */}
-                <div className="mt-6 flex flex-wrap justify-center gap-2 text-sm md:text-base font-bold opacity-70">
-                    <span>{toArabicDigits(day)}</span>
-                    <span className="text-primary-500">{toArabicDigits(monthName)}</span>
-                    <span>{toArabicDigits(year)}</span>
+                <div className="mt-6 flex flex-col items-center gap-2 text-sm md:text-base font-bold opacity-70">
+                    <div className="flex flex-wrap justify-center gap-2">
+                        <span>{toArabicDigits(day)}</span>
+                        <span className="text-primary-500">{toArabicDigits(monthName)}</span>
+                        <span>{toArabicDigits(year)}</span>
+                    </div>
+                    {showHijri && hijriDate && (
+                        <div className="text-xs md:text-sm text-primary-500/80">
+                            {toArabicDigits(hijriDate)}
+                        </div>
+                    )}
                 </div>
 
                 {/* Islamic Geometric Border (Decoration) */}

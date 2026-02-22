@@ -97,5 +97,14 @@
         "iconIdentifier": "star",
         "link": "/widgets/small-deeds",
         "image": "https://images.unsplash.com/photo-1590412200988-a436bbd96009?auto=format&fit=crop&q=80&w=300&h=200"
+    },
+    {
+        "id": "zakat-calculator",
+        "title": "حاسبة الزكاة والصدقة",
+        "description": "حاسبة تفاعلية عصرية لحساب مقدار الزكاة الواجبة مع متتبع لأهداف الصدقة الشهرية وتنبيهات بلوغ النصاب.",
+        "category": "إسلاميات",
+        "iconIdentifier": "landmark",
+        "link": "/widgets/zakat-calculator",
+        "image": "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&q=80&w=300&h=200"
     }
 ]

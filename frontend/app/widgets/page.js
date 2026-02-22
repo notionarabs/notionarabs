@@ -17,6 +17,8 @@ export const metadata = generateMetadata({
         'أدوات نوشن',
         'تضمين نوشن',
         'إضافات نوشن',
+        'حاسبة الزكاة',
+        'zakat calculator',
     ],
 });
 

@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Layout, Copy, ExternalLink, Zap, Sparkles, Users, Clock, Sun, Timer, BookOpen, CheckSquare, Search, Filter, X, Cloud, Star } from 'lucide-react';
+import { Layout, Copy, ExternalLink, Zap, Sparkles, Users, Clock, Sun, Timer, BookOpen, CheckSquare, Search, Filter, X, Cloud, Star, Calculator, Landmark } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Footer from '../../components/Footer';
 
 const iconMap = {
@@ -15,7 +16,9 @@ const iconMap = {
     'book-open': <BookOpen className="w-6 h-6 text-emerald-500" />,
     'check-square': <CheckSquare className="w-6 h-6 text-purple-500" />,
     cloud: <Cloud className="w-6 h-6 text-sky-500" />,
-    star: <Star className="w-6 h-6 text-emerald-500" />
+    star: <Star className="w-6 h-6 text-emerald-500" />,
+    calculator: <Calculator className="w-6 h-6 text-indigo-500" />,
+    landmark: <Landmark className="w-6 h-6 text-emerald-600" />
 };
 
 export default function WidgetsClient() {
@@ -81,14 +84,21 @@ export default function WidgetsClient() {
         .slice(0, 3)
         .map(([id]) => id);
 
-    const newWidgets = ['weather', 'small-deeds', 'cultural-timer', 'habit-tracker'];
+    const newWidgets = ['weather', 'small-deeds', 'cultural-timer', 'habit-tracker', 'zakat-calculator'];
+
+    const categoryGradients = {
+        'إسلاميات': 'from-emerald-100 to-emerald-50 dark:from-emerald-950/40 dark:to-dark-primary',
+        'إنتاجية': 'from-blue-100 to-blue-50 dark:from-blue-950/40 dark:to-dark-primary',
+        'جماليات': 'from-purple-100 to-purple-50 dark:from-purple-950/40 dark:to-dark-primary',
+    };
 
     const displayWidgets = filteredWidgets.map(w => ({
         ...w,
         icon: iconMap[w.iconIdentifier] || <Zap className="w-6 h-6 text-gray-500" />,
         users: (stats[w.id] || 0).toLocaleString() + '+',
         isPopular: sortedByUsers.includes(w.id),
-        isNew: newWidgets.includes(w.id)
+        isNew: newWidgets.includes(w.id),
+        gradient: categoryGradients[w.category] || 'from-orange-100 to-orange-50 dark:from-orange-950/40 dark:to-dark-primary'
     }));
 
     return (
@@ -177,7 +187,7 @@ export default function WidgetsClient() {
                                     onClick={() => router.push(`/widgets/${widget.id}`)}
                                     className="group card-interactive bg-white dark:bg-dark-secondary rounded-3xl overflow-hidden border border-gray-200 dark:border-dark-card-border shadow-soft cursor-pointer flex flex-col"
                                 >
-                                    <div className="h-48 bg-gradient-to-br from-orange-100 to-orange-50 dark:from-dark-tertiary dark:to-dark-primary flex items-center justify-center relative overflow-hidden">
+                                    <div className={`h-48 bg-gradient-to-br ${widget.gradient} flex items-center justify-center relative overflow-hidden`}>
                                         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #f5631e 1px, transparent 0)', backgroundSize: '20px 20px' }}></div>
 
                                         {/* Status Badges */}
@@ -196,11 +206,13 @@ export default function WidgetsClient() {
                                             )}
                                         </div>
 
-                                        <div className="p-8 bg-white/80 dark:bg-dark-secondary/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 dark:border-dark-card-border transform group-hover:scale-105 transition-transform duration-500">
+                                        <div className="relative z-10 p-8 bg-white/80 dark:bg-dark-secondary/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 dark:border-dark-card-border transform group-hover:scale-105 transition-transform duration-500">
                                             <div className="flex items-center gap-3">
                                                 {widget.icon}
                                                 <div className="h-2 w-24 bg-gray-200 dark:bg-dark-text-quaternary rounded"></div>
                                             </div>
+
+                                            {/* Micro-Interaction Skeletons */}
                                             <div className="mt-4 space-y-2">
                                                 <div className="h-1.5 w-full bg-gray-100 dark:bg-dark-text-quaternary rounded"></div>
                                                 <div className="h-1.5 w-3/4 bg-gray-100 dark:bg-dark-text-quaternary rounded"></div>

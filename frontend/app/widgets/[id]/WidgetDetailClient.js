@@ -16,6 +16,7 @@ import ArabicClockWidget from '../../../components/widgets/ArabicClockWidget';
 import CulturalTimerWidget from '../../../components/widgets/CulturalTimerWidget';
 import WeatherWidget from '../../../components/widgets/WeatherWidget';
 import SmallDeedsWidget from '../../../components/widgets/SmallDeedsWidget';
+import ZakatCalculatorWidget from '../../../components/widgets/ZakatCalculatorWidget';
 
 const WIDGET_DATA = {
     'weather': {
@@ -262,6 +263,26 @@ const WIDGET_DATA = {
                 ]
             }
         ]
+    },
+    'zakat-calculator': {
+        title: 'حاسبة الزكاة والصدقة',
+        description: 'أداة احترافية لحساب الزكاة والصدقات. تساعدك على حساب زكاة المال، الذهب، والفضة، مع إمكانية تحديد أهداف شهرية للصدقة وتتبع تقدمك نحوها.',
+        features: ['حساب زكاة المال (2.5%)', 'تنبيه بلوغ النصاب', 'متتبع أهداف الصدقة', 'دعم عملات متعددة'],
+        settings: [
+            { id: 'theme', label: 'المظهر', type: 'select', options: [{ id: 'auto', label: 'تلقائي' }, { id: 'light', label: 'نهاري' }, { id: 'dark', label: 'ليلي' }] },
+            {
+                id: 'font', label: 'الخط', type: 'select', options: [
+                    { id: 'tajawal', label: 'تاجوال' },
+                    { id: 'cairo', label: 'كايرو' },
+                    { id: 'amiri', label: 'أميري' },
+                    { id: 'almarai', label: 'المراعي' },
+                    { id: 'changa', label: 'شانغا' }
+                ]
+            },
+            { id: 'currency', label: 'العملة', type: 'input', placeholder: 'مثال: USD' },
+            { id: 'nisab', label: 'النصاب الحالي', type: 'input', placeholder: 'مثال: 5000' },
+            { id: 'showSadaqah', label: 'إظهار متتبع الصدقة', type: 'toggle' }
+        ]
     }
 };
 
@@ -336,9 +357,11 @@ export default function WidgetDetailClient() {
         showForecast: true,
         initialAmbient: 'none',
         hour12: true,
-        city: '',
         showHijri: true,
-        showControls: true
+        showControls: true,
+        currency: 'USD',
+        nisab: '13956',
+        showSadaqah: true
     });
 
     // Load config from URL if present
@@ -357,7 +380,7 @@ export default function WidgetDetailClient() {
     }, [searchParams]);
 
     const [copied, setCopied] = useState(false);
-    const [stats, setStats] = useState({ quran: 0, prayer: 0, countdown: 0, athkar: 0, pomodoro: 0, hadith: 0, 'habit-tracker': 0 });
+    const [stats, setStats] = useState({ quran: 0, prayer: 0, countdown: 0, athkar: 0, pomodoro: 0, hadith: 0, 'habit-tracker': 0, 'zakat-calculator': 0 });
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -373,7 +396,9 @@ export default function WidgetDetailClient() {
                         countdown: data.stats.countdown || 0,
                         athkar: data.stats.athkar || 0,
                         pomodoro: data.stats.pomodoro || 0,
-                        hadith: data.stats.hadith || 0
+                        hadith: data.stats.hadith || 0,
+                        'habit-tracker': data.stats['habit-tracker'] || 0,
+                        'zakat-calculator': data.stats['zakat-calculator'] || 0
                     });
                 }
             } catch (err) {
@@ -464,7 +489,7 @@ export default function WidgetDetailClient() {
                                                 <div className="relative group/input">
                                                     <input
                                                         type="text"
-                                                        value={config[setting.id]}
+                                                        value={config[setting.id] || ''}
                                                         placeholder={setting.placeholder}
                                                         onChange={(e) => handleConfigChange(setting.id, e.target.value)}
                                                         className="w-full bg-secondary-50 dark:bg-dark-tertiary border border-gray-100 dark:border-dark-card-border p-3.5 rounded-xl outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10 transition-all font-bold text-sm"
@@ -476,7 +501,7 @@ export default function WidgetDetailClient() {
                                                 <div className="relative group/input">
                                                     <input
                                                         type="datetime-local"
-                                                        value={config[setting.id]}
+                                                        value={config[setting.id] || ''}
                                                         onChange={(e) => handleConfigChange(setting.id, e.target.value)}
                                                         className="w-full bg-secondary-50 dark:bg-dark-tertiary border border-gray-100 dark:border-dark-card-border p-3.5 rounded-xl outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10 transition-all font-bold text-sm"
                                                     />
@@ -487,7 +512,7 @@ export default function WidgetDetailClient() {
                                                 <div className="flex items-center gap-4">
                                                     <input
                                                         type="color"
-                                                        value={config[setting.id]}
+                                                        value={config[setting.id] || '#000000'}
                                                         onChange={(e) => handleConfigChange(setting.id, e.target.value)}
                                                         className="w-12 h-12 rounded-xl cursor-pointer border-none bg-transparent"
                                                     />
@@ -559,6 +584,7 @@ export default function WidgetDetailClient() {
                                         {id === 'small-deeds' && <SmallDeedsWidget {...config} theme={previewTheme} />}
                                         {id === 'cultural-timer' && <CulturalTimerWidget {...config} theme={previewTheme} />}
                                         {id === 'weather' && <WeatherWidget {...config} theme={previewTheme} />}
+                                        {id === 'zakat-calculator' && <ZakatCalculatorWidget {...config} theme={previewTheme} />}
                                     </div>
                                 </div>
                             </div>

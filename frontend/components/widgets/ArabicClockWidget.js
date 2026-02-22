@@ -8,19 +8,59 @@ export default function ArabicClockWidget({
     font = 'reem-kufi',
     showSeconds = true,
     useArabicDigits = true,
+    hour12 = true,
+    city = '',
     id = 'arabic-clock'
 }) {
-    const [time, setTime] = useState(new Date());
+    const [time, setTime] = useState(null);
+    const [mounted, setMounted] = useState(false);
+    const [timezone, setTimezone] = useState(null);
     const [editUrl, setEditUrl] = useState('#');
 
     useEffect(() => {
+        setMounted(true);
         const timer = setInterval(() => setTime(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
 
     useEffect(() => {
-        setEditUrl(`${window.location.origin}/widgets/${id}?theme=${theme}&font=${font}&showSeconds=${showSeconds}&useArabicDigits=${useArabicDigits}`);
-    }, [id, theme, font, showSeconds, useArabicDigits]);
+        if (city) {
+            // Fetch timezone for city
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city)}&limit=1`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        return fetch(`https://api.open-meteo.com/v1/forecast?latitude=${data[0].lat}&longitude=${data[0].lon}&current_weather=true&timezone=auto`);
+                    }
+                })
+                .then(res => res && res.json())
+                .then(data => {
+                    if (data && data.timezone) {
+                        setTimezone(data.timezone);
+                    }
+                })
+                .catch(err => {
+                    console.error('Failed to detect timezone for city, falling back to local:', err);
+                    setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+                });
+        } else {
+            setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+        }
+    }, [city]);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams({
+                theme,
+                font,
+                showSeconds,
+                useArabicDigits,
+                hour12,
+                city
+            });
+            setEditUrl(`${window.location.origin}/widgets/${id}?${params.toString()}`);
+        }
+    }, [id, theme, font, showSeconds, useArabicDigits, hour12, city]);
 
     const fontClasses = {
         'tajawal': 'font-tajawal',
@@ -33,21 +73,56 @@ export default function ArabicClockWidget({
     };
 
     const toArabicDigits = (str) => {
-        if (!useArabicDigits) return str;
-        const id = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-        return str.replace(/[0-9]/g, function (w) {
-            return id[+w];
+        if (!useArabicDigits || str === null || str === undefined) return str;
+        const idMap = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+        return str.toString().replace(/[0-9]/g, function (w) {
+            return idMap[+w];
         });
     };
 
-    const hours = time.getHours().toString().padStart(2, '0');
-    const minutes = time.getMinutes().toString().padStart(2, '0');
-    const seconds = time.getSeconds().toString().padStart(2, '0');
+    // Calculate time in the specific timezone
+    const getZonedTime = () => {
+        if (!time) return null;
+        if (!timezone) return time;
+        try {
+            // Use Intl to get parts in target timezone
+            const parts = new Intl.DateTimeFormat('en-US', {
+                timeZone: timezone,
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric',
+                hour12: false
+            }).formatToParts(time);
 
-    const dayName = time.toLocaleDateString('ar-SA', { weekday: 'long' });
-    const day = time.toLocaleDateString('ar-SA', { day: 'numeric' });
-    const monthName = time.toLocaleDateString('ar-SA', { month: 'long' });
-    const year = time.toLocaleDateString('ar-SA', { year: 'numeric' });
+            const hours = parseInt(parts.find(p => p.type === 'hour').value);
+            const minutes = parseInt(parts.find(p => p.type === 'minute').value);
+            const seconds = parseInt(parts.find(p => p.type === 'second').value);
+
+            return { hours, minutes, seconds };
+        } catch (e) {
+            return {
+                hours: time.getHours(),
+                minutes: time.getMinutes(),
+                seconds: time.getSeconds()
+            };
+        }
+    };
+
+    const zonedTime = getZonedTime();
+    const rawHours = zonedTime ? zonedTime.hours : 0;
+    const displayHours = hour12 ? (rawHours % 12 || 12) : rawHours;
+    const hours = (zonedTime ? displayHours : 0).toString().padStart(2, '0');
+    const minutes = (zonedTime ? zonedTime.minutes : 0).toString().padStart(2, '0');
+    const seconds = (zonedTime ? zonedTime.seconds : 0).toString().padStart(2, '0');
+    const period = hour12 ? (rawHours >= 12 ? 'م' : 'ص') : '';
+
+    const dateOptions = { timeZone: timezone || undefined };
+    const dayName = time ? time.toLocaleDateString('ar-SA', { ...dateOptions, weekday: 'long' }) : '';
+    const day = time ? time.toLocaleDateString('ar-SA', { ...dateOptions, day: 'numeric' }) : '';
+    const monthName = time ? time.toLocaleDateString('ar-SA', { ...dateOptions, month: 'long' }) : '';
+    const year = time ? time.toLocaleDateString('ar-SA', { ...dateOptions, year: 'numeric' }) : '';
+
+    if (!mounted) return <div className={`w-full min-h-[300px] rounded-[2.5rem] animate-pulse ${theme === 'dark' ? 'bg-[#191919]' : 'bg-gray-50'}`}></div>;
 
     return (
         <div className={`w-full p-8 md:p-12 rounded-[2.5rem] transition-all duration-700 relative group overflow-hidden ${fontClasses[font] || 'font-reem-kufi'} ${theme === 'dark'
@@ -81,7 +156,7 @@ export default function ArabicClockWidget({
                 </div>
 
                 {/* Main Time Display */}
-                <div className="flex items-baseline justify-center" dir={useArabicDigits ? 'rtl' : 'ltr'}>
+                <div className="flex items-baseline justify-center" dir="ltr">
                     <span className="text-7xl md:text-8xl font-black tracking-tight drop-shadow-2xl transition-all duration-500">
                         {toArabicDigits(hours)}
                     </span>
@@ -91,8 +166,13 @@ export default function ArabicClockWidget({
                     <span className="text-7xl md:text-8xl font-black tracking-tight drop-shadow-2xl transition-all duration-500">
                         {toArabicDigits(minutes)}
                     </span>
+                    {hour12 && period && (
+                        <span className="text-xl md:text-2xl font-bold text-primary-500/60 ml-2">
+                            {period}
+                        </span>
+                    )}
                     {showSeconds && (
-                        <div className={`${useArabicDigits ? 'mr-4' : 'ml-4'} flex flex-col items-start`}>
+                        <div className="ml-4 flex flex-col items-start">
                             <span className="text-2xl md:text-3xl font-bold text-primary-500/60 tabular-nums">
                                 {toArabicDigits(seconds)}
                             </span>

@@ -79,7 +79,9 @@ const WIDGET_DATA = {
                     { id: 'tajawal', label: 'خط مودرن' }
                 ]
             },
+            { id: 'city', label: 'المدينة / الموقع', type: 'input', placeholder: 'مثال: Cairo' },
             { id: 'useArabicDigits', label: 'استخدام الأرقام العربية (٠١٢٣)', type: 'toggle' },
+            { id: 'hour12', label: 'نظام 12 ساعة (ص/م)', type: 'toggle' },
             { id: 'showSeconds', label: 'إظهار الثواني', type: 'toggle' }
         ]
     },
@@ -297,7 +299,9 @@ export default function WidgetDetailClient() {
         longBreakTime: 15,
         unit: 'celsius',
         showForecast: true,
-        initialAmbient: 'none'
+        initialAmbient: 'none',
+        hour12: true,
+        city: ''
     });
 
     // Load config from URL if present

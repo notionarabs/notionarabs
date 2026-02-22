@@ -12,6 +12,8 @@ function ArabicClockEmbedContent() {
         font: searchParams.get('font') || 'reem-kufi',
         showSeconds: searchParams.get('showSeconds') !== 'false',
         useArabicDigits: searchParams.get('useArabicDigits') !== 'false',
+        hour12: searchParams.get('hour12') !== 'false',
+        city: searchParams.get('city') || '',
     };
 
     // System theme detection for 'auto'

@@ -172,6 +172,12 @@ export async function generateMetadata({ params }) {
     });
 }
 
+import { Suspense } from 'react';
+
 export default function WidgetDetailPage() {
-    return <WidgetDetailClient />;
+    return (
+        <Suspense fallback={null}>
+            <WidgetDetailClient />
+        </Suspense>
+    );
 }

@@ -13,8 +13,56 @@ import PomodoroWidget from '../../../components/widgets/PomodoroWidget';
 import HadithWidget from '../../../components/widgets/HadithWidget';
 import HabitTrackerWidget from '../../../components/widgets/HabitTrackerWidget';
 import ArabicClockWidget from '../../../components/widgets/ArabicClockWidget';
+import CulturalTimerWidget from '../../../components/widgets/CulturalTimerWidget';
+import WeatherWidget from '../../../components/widgets/WeatherWidget';
 
 const WIDGET_DATA = {
+    'weather': {
+        title: 'الطقس البسيط',
+        description: 'أضف لمسة حيوية لصفحتك مع ودجت طقس يكتشف موقعك تلقائياً ويعرض درجات الحرارة وتوقعات الأيام القادمة بتصميم عصري وبسيط.',
+        features: ['تحديد تلقائي للموقع', 'توقعات لـ 3 أيام', 'تحديث لحظي', 'تصميم زجاجي (Glassmorphism)'],
+        settings: [
+            { id: 'theme', label: 'المظهر', type: 'select', options: [{ id: 'auto', label: 'تلقائي' }, { id: 'light', label: 'نهاري' }, { id: 'dark', label: 'ليلي' }] },
+            {
+                id: 'font', label: 'الخط', type: 'select', options: [
+                    { id: 'tajawal', label: 'تاجوال' },
+                    { id: 'cairo', label: 'كايرو' },
+                    { id: 'amiri', label: 'أميري' }
+                ]
+            },
+            { id: 'city', label: 'المدينة', type: 'input', placeholder: 'مثال: Riyadh' },
+            { id: 'unit', label: 'وحدة القياس', type: 'select', options: [{ id: 'celsius', label: 'مئوية (C)' }, { id: 'fahrenheit', label: 'فهرنهايت (F)' }] },
+            { id: 'showForecast', label: 'إظهار التوقعات', type: 'toggle' }
+        ]
+    },
+    'cultural-timer': {
+        title: 'مؤقت الأجواء الثقافية',
+        description: 'مؤقت إنتاجية (بومودورو) يدمج التركيز مع أصوات محيطية من قلب العالم العربي. استرخِ مع صوت مطر دمشق أو هدوء قرية مغربية بينما تنجز مهامك.',
+        features: ['أصوات ثقافية محيطية', 'نظام بومودورو متكامل', 'تصميم تفاعلي مودرن', 'تخصيص كامل للأوقات'],
+        settings: [
+            { id: 'theme', label: 'المظهر', type: 'select', options: [{ id: 'auto', label: 'تلقائي' }, { id: 'light', label: 'نهاري' }, { id: 'dark', label: 'ليلي' }] },
+            {
+                id: 'font', label: 'الخط', type: 'select', options: [
+                    { id: 'tajawal', label: 'تاجوال' },
+                    { id: 'cairo', label: 'كايرو' },
+                    { id: 'amiri', label: 'أميري' },
+                    { id: 'reem-kufi', label: 'خط كوفي' },
+                    { id: 'aref-ruqaa', label: 'خط رقعة' }
+                ]
+            },
+            {
+                id: 'initialAmbient', label: 'الأجواء الافتراضية', type: 'select', options: [
+                    { id: 'none', label: 'بدون صوت' },
+                    { id: 'andalusia-garden', label: 'نسمات أندلسية' },
+                    { id: 'desert-calm', label: 'هدوء الصحراء' },
+                    { id: 'damascus-rain', label: 'مطر دمشقي' },
+                    { id: 'baghdad-library', label: 'مكتبة الحكمة' }
+                ]
+            },
+            { id: 'pomodoroTime', label: 'وقت التركيز (دقيقة)', type: 'input', placeholder: '25' },
+            { id: 'shortBreakTime', label: 'استراحة قصيرة (دقيقة)', type: 'input', placeholder: '5' }
+        ]
+    },
     'arabic-clock': {
         title: 'ساعة الخط العربي',
         description: 'أضف لمسة جمالية لمساحتك في نوشن مع ساعة تعرض الوقت والتاريخ بأرقى الخطوط العربية الفنية. يمكنك تخصيص الألوان، نوع الخط، وتنسيق الأرقام.',
@@ -246,7 +294,9 @@ export default function WidgetDetailClient() {
         pomodoroTime: 25,
         shortBreakTime: 5,
         longBreakTime: 15,
-        showTranslation: true
+        unit: 'celsius',
+        showForecast: true,
+        initialAmbient: 'none'
     });
 
     // Load config from URL if present
@@ -457,6 +507,8 @@ export default function WidgetDetailClient() {
                                         {id === 'pomodoro' && <PomodoroWidget {...config} theme={previewTheme} />}
                                         {id === 'hadith' && <HadithWidget {...config} theme={previewTheme} />}
                                         {id === 'habit-tracker' && <HabitTrackerWidget {...config} theme={previewTheme} />}
+                                        {id === 'cultural-timer' && <CulturalTimerWidget {...config} theme={previewTheme} />}
+                                        {id === 'weather' && <WeatherWidget {...config} theme={previewTheme} />}
                                     </div>
                                 </div>
                             </div>

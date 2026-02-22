@@ -70,5 +70,23 @@
         "iconIdentifier": "clock",
         "link": "/widgets/arabic-clock",
         "image": "https://images.unsplash.com/photo-1549416805-3e283f3e691b?auto=format&fit=crop&q=80&w=300&h=200"
+    },
+    {
+        "id": "cultural-timer",
+        "title": "مؤقت الأجواء الثقافية",
+        "description": "مؤقت إنتاجية يدمج التركيز مع أصوات محيطية من قلب العالم العربي (مطر دمشقي، مكتبة الحكمة، نسمات أندلسية).",
+        "category": "إنتاجية",
+        "iconIdentifier": "timer",
+        "link": "/widgets/cultural-timer",
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&q=80&w=300&h=200"
+    },
+    {
+        "id": "weather",
+        "title": "الطقس البسيط",
+        "description": "ودجت طقس أنيق يكتشف موقعك تلقائياً ويعرض درجات الحرارة وتوقعات الأيام القادمة بتصميم عصري.",
+        "category": "جماليات",
+        "iconIdentifier": "cloud",
+        "link": "/widgets/weather",
+        "image": "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?auto=format&fit=crop&q=80&w=300&h=200"
     }
 ]

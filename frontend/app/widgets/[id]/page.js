@@ -103,6 +103,30 @@ const WIDGET_SEO = {
             'notion habits embed',
         ],
     },
+    'cultural-timer': {
+        title: 'مؤقت الأجواء الثقافية لنوشن - Pomodoro',
+        description: 'ودجت نوشن مجاني يجمع بين مؤقت بومودورو وأصوات محيطية عربية (مطر، رياح، هدوء). زِد إنتاجيتك بجو ثقافي مميز.',
+        keywords: [
+            'مؤقت بومودورو نوشن',
+            'ambient noise notion',
+            'أصوات محيطية نوشن',
+            'cultural ambient timer',
+            'مؤقت تركيز مع صوت',
+            'notion productivity widget',
+        ],
+    },
+    weather: {
+        title: 'ودجت الطقس البسيط لنوشن - Minimal Weather',
+        description: 'ودجت طقس مجاني لنوشن يكتشف موقعك تلقائياً ويعرض درجات الحرارة بدقة مع توقعات الأيام القادمة وتصاميم عصرية.',
+        keywords: [
+            'ودجت طقس نوشن',
+            'weather widget notion',
+            'الطقس في نوشن',
+            'تضمين الطقس مجاناً',
+            'notion weather embed',
+            'ودجت جمالي نوشن',
+        ],
+    },
 };
 
 import { getApiUrl } from '../../../lib/apiConfig';

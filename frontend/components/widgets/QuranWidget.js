@@ -52,13 +52,24 @@ export default function QuranWidget({
     const [currentAyahId, setCurrentAyahId] = useState(null);
     const [playbackMode, setPlaybackMode] = useState('off'); // 'off', 'repeat', 'continuous'
     const [autoStartNext, setAutoStartNext] = useState(false);
+    const [nextAyahBuffer, setNextAyahBuffer] = useState(null);
     const audioRef = useRef(null);
     const playbackModeRef = useRef(playbackMode);
+    const dataRef = useRef(data);
+    const nextAyahBufferRef = useRef(nextAyahBuffer);
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
         playbackModeRef.current = playbackMode;
     }, [playbackMode]);
+
+    useEffect(() => {
+        dataRef.current = data;
+    }, [data]);
+
+    useEffect(() => {
+        nextAyahBufferRef.current = nextAyahBuffer;
+    }, [nextAyahBuffer]);
 
     const [editUrl, setEditUrl] = useState('#');
 
@@ -74,17 +85,19 @@ export default function QuranWidget({
         }
     }, [id, theme, font, showTranslation, reciter, showControls]);
 
-    const fetchAyah = async (ayahId) => {
+    const fetchAyah = async (ayahId, isPrefetch = false) => {
         try {
-            setLoading(true);
+            if (!isPrefetch) {
+                setLoading(true);
 
-            // Stop any currently playing audio
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current = null;
+                // Stop any currently playing audio
+                if (audioRef.current) {
+                    audioRef.current.pause();
+                    audioRef.current = null;
+                }
+                setIsPlaying(false);
+                setIsAudioLoading(false);
             }
-            setIsPlaying(false);
-            setIsAudioLoading(false);
 
             // Fetch all 3 editions: Arabic text, translation, and audio
             const res = await fetch(
@@ -139,7 +152,7 @@ export default function QuranWidget({
                         .trim();
                 };
 
-                setData({
+                const formattedData = {
                     id: ayahId,
                     arabic: cleanArabic(ayahData.text),
                     translation: translationData.text,
@@ -148,17 +161,41 @@ export default function QuranWidget({
                     surah: cleanArabic(ayahData.surah.name),
                     surahNumber: surahNum,
                     ayahNumber: ayahNum,
-                });
+                    totalAyahsInSurah: ayahData.surah.numberOfAyahs
+                };
+
+                if (isPrefetch) {
+                    nextAyahBufferRef.current = formattedData;
+                    setNextAyahBuffer(formattedData);
+                } else {
+                    dataRef.current = formattedData;
+                    setData(formattedData);
+                }
             }
         } catch (err) {
-            console.error('Quran fetch error:', err);
+            if (!isPrefetch) console.error('Quran fetch error:', err);
         } finally {
-            setLoading(false);
+            if (!isPrefetch) setLoading(false);
         }
     };
 
+    // Prefetch next ayah when content starts playing in continuous mode
+    useEffect(() => {
+        if (isPlaying && playbackMode === 'continuous' && data) {
+            const nextId = getNextAyahId(data);
+            // Only prefetch if we haven't already or if the buffer is for a different ayah
+            if (!nextAyahBuffer || nextAyahBuffer.id !== nextId) {
+                fetchAyah(nextId, true);
+            }
+        }
+    }, [isPlaying, playbackMode, data?.id]);
+
     useEffect(() => {
         if (currentAyahId) {
+            // If data is already current (e.g. from buffer), don't refetch
+            if (dataRef.current?.id === currentAyahId) {
+                return;
+            }
             fetchAyah(currentAyahId);
         }
     }, [currentAyahId, translationLang, reciter]);
@@ -170,30 +207,81 @@ export default function QuranWidget({
         }
     }, [loading, data, autoStartNext, currentAyahId]);
 
+    const getNextAyahId = (currData) => {
+        const activeData = currData || dataRef.current;
+        const currentId = activeData?.id || currentAyahId || 1;
+
+        // If we don't have surah metadata yet, just increment globally
+        if (!activeData?.ayahNumber || !activeData?.totalAyahsInSurah) {
+            return currentId >= 6236 ? 1 : currentId + 1;
+        }
+
+        const { id, ayahNumber, totalAyahsInSurah } = activeData;
+
+        // If it's the last ayah of the surah, loop back to the first ayah of the same surah
+        if (ayahNumber >= totalAyahsInSurah) {
+            return id - ayahNumber + 1;
+        }
+
+        return id + 1;
+    };
+
+    const getPrevAyahId = (currData) => {
+        const activeData = currData || dataRef.current;
+        const currentId = activeData?.id || currentAyahId || 1;
+
+        if (!activeData?.ayahNumber || !activeData?.totalAyahsInSurah) {
+            return currentId <= 1 ? 6236 : currentId - 1;
+        }
+
+        const { id, ayahNumber, totalAyahsInSurah } = activeData;
+
+        // If it's the first ayah of the surah, go to the last ayah of the same surah
+        if (ayahNumber <= 1) {
+            return id + totalAyahsInSurah - 1;
+        }
+
+        return id - 1;
+    };
+
     const nextAyah = () => {
-        setCurrentAyahId(prev => (prev >= 6236 ? 1 : prev + 1));
+        setCurrentAyahId(getNextAyahId(data));
     };
 
     const prevAyah = () => {
-        setCurrentAyahId(prev => (prev <= 1 ? 6236 : prev - 1));
+        setCurrentAyahId(getPrevAyahId(data));
     };
 
     const toggleAudio = (autoStart = true) => {
         if (!data?.audio) return;
 
         if (audioRef.current) {
-            if (isPlaying) {
-                audioRef.current.pause();
-                setIsPlaying(false);
-            } else {
-                audioRef.current.play().catch(e => {
-                    console.warn('Playback resume failed:', e);
+            // Check if the current audio player is already loaded with the correct src
+            const isSameSource = audioRef.current.src === data.audio ||
+                data.fallbacks?.some(f => audioRef.current?.src === f);
+
+            if (isSameSource) {
+                if (isPlaying) {
+                    audioRef.current.pause();
                     setIsPlaying(false);
-                    setIsAudioLoading(false);
-                });
-                setIsPlaying(true);
+                } else {
+                    audioRef.current.play().catch(e => {
+                        console.warn('Playback resume failed:', e);
+                        setIsPlaying(false);
+                        setIsAudioLoading(false);
+                    });
+                    setIsPlaying(true);
+                }
+                return;
+            } else {
+                // Not the same source! This happens when we switch ayahs via buffer.
+                // We must clean up the old player before creating a new one.
+                audioRef.current.pause();
+                audioRef.current.onended = null; // Remove old listener
+                audioRef.current.onerror = null;
+                audioRef.current = null;
+                setIsPlaying(false);
             }
-            return;
         }
 
         const newAudio = new Audio();
@@ -209,11 +297,26 @@ export default function QuranWidget({
         newAudio.onended = () => {
             setIsPlaying(false);
             setIsAudioLoading(false);
-            if (playbackModeRef.current === 'repeat') {
+
+            const currentMode = playbackModeRef.current;
+            const buffer = nextAyahBufferRef.current;
+
+            if (currentMode === 'repeat') {
                 toggleAudio(true);
-            } else if (playbackModeRef.current === 'continuous') {
-                setAutoStartNext(true);
-                nextAyah();
+            } else if (currentMode === 'continuous') {
+                if (buffer) {
+                    // Critical: Update ref and state simultaneously
+                    dataRef.current = buffer;
+                    nextAyahBufferRef.current = null;
+
+                    setData(buffer);
+                    setCurrentAyahId(buffer.id);
+                    setNextAyahBuffer(null);
+                    setAutoStartNext(true);
+                } else {
+                    setAutoStartNext(true);
+                    nextAyah();
+                }
             }
         };
         newAudio.onpause = () => setIsPlaying(false);

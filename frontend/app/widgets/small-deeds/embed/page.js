@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import SmallDeedsWidget from '../../../components/widgets/SmallDeedsWidget';
+import SmallDeedsWidget from '../../../../components/widgets/SmallDeedsWidget';
 import { Suspense, useEffect, useState } from 'react';
 
 function SmallDeedsEmbedContent() {

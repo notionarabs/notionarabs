@@ -46,7 +46,8 @@ function QuranEmbedContent() {
         font: searchParams.get('font') || 'tajawal',
         showTranslation: searchParams.get('showTranslation') !== 'false',
         translationLang: searchParams.get('translationLang') || 'en.pickthall',
-        reciter: searchParams.get('reciter') || 'ar.alafasy'
+        reciter: searchParams.get('reciter') || 'ar.alafasy',
+        showControls: searchParams.get('showControls') !== 'false'
     };
 
     const bg = theme === 'dark' ? '#191919' : '#ffffff';

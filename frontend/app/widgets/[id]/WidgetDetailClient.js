@@ -142,7 +142,8 @@ const WIDGET_DATA = {
                     { id: 'ar.husary', label: 'الحصري' }
                 ]
             },
-            { id: 'showTranslation', label: 'إظهار الترجمة', type: 'toggle' }
+            { id: 'showTranslation', label: 'إظهار الترجمة', type: 'toggle' },
+            { id: 'showControls', label: 'أزرار التحكم (التالي/السابق/تكرار)', type: 'toggle' }
         ]
     },
     'prayer': {
@@ -336,7 +337,8 @@ export default function WidgetDetailClient() {
         initialAmbient: 'none',
         hour12: true,
         city: '',
-        showHijri: true
+        showHijri: true,
+        showControls: true
     });
 
     // Load config from URL if present

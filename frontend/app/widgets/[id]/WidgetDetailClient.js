@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
-import { Copy, Check, ChevronLeft, Sparkles, Moon, Sun, Monitor, Type, MapPin, Globe, Users } from 'lucide-react';
+import { Copy, Check, ChevronLeft, Sparkles, Moon, Sun, Monitor, Type, MapPin, Globe, Users, MousePointer2, Info, HelpCircle, X } from 'lucide-react';
 import Link from 'next/link';
 import Footer from '../../../components/Footer';
 import QuranWidget from '../../../components/widgets/QuranWidget';
@@ -279,6 +279,7 @@ export default function WidgetDetailClient() {
     const widget = WIDGET_DATA[id];
 
     const searchParams = useSearchParams();
+    const [showGuide, setShowGuide] = useState(false);
 
     const [config, setConfig] = useState({
         theme: 'auto',
@@ -478,6 +479,13 @@ export default function WidgetDetailClient() {
                                     {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
                                     {copied ? 'تم النسخ!' : 'انسخ الرابط'}
                                 </button>
+                                <button
+                                    onClick={() => setShowGuide(true)}
+                                    className="w-full mt-3 flex items-center justify-center gap-2 text-xs font-bold text-white/60 hover:text-white transition-colors"
+                                >
+                                    <HelpCircle className="w-3.5 h-3.5" />
+                                    كيف أقوم بتضمين هذا الودجت في نوشن؟
+                                </button>
                             </div>
                         </div>
 
@@ -545,6 +553,84 @@ export default function WidgetDetailClient() {
                 </div>
             </div>
             <Footer />
+
+            {/* How to Embed Guide Modal */}
+            {showGuide && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6" dir="rtl">
+                    <div
+                        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
+                        onClick={() => setShowGuide(false)}
+                    ></div>
+                    <div className="relative bg-white dark:bg-dark-secondary w-full max-w-lg rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-dark-card-border overflow-hidden animate-scale-in">
+                        <div className="p-8 sm:p-10">
+                            <div className="flex items-center justify-between mb-8">
+                                <h3 className="text-2xl font-black text-accent-900 dark:text-white flex items-center gap-3">
+                                    <div className="p-2 bg-primary-500/10 rounded-xl">
+                                        <Info className="w-6 h-6 text-primary-500" />
+                                    </div>
+                                    طريقة التضمين في نوشن
+                                </h3>
+                                <button
+                                    onClick={() => setShowGuide(false)}
+                                    className="p-2 rounded-xl bg-gray-100 dark:bg-dark-tertiary text-gray-500 hover:text-red-500 transition-colors"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            <div className="space-y-8">
+                                {/* Step 1 */}
+                                <div className="flex gap-4">
+                                    <div className="flex flex-col items-center">
+                                        <div className="w-10 h-10 rounded-full bg-primary-500 text-white flex items-center justify-center font-black shadow-lg shadow-primary-500/20">
+                                            1
+                                        </div>
+                                        <div className="flex-1 w-0.5 bg-gray-100 dark:bg-dark-tertiary my-2"></div>
+                                    </div>
+                                    <div className="pb-4">
+                                        <h4 className="font-bold text-accent-900 dark:text-white mb-1">انسخ رابط التضمين</h4>
+                                        <p className="text-sm text-gray-500 dark:text-dark-text-secondary">قم بتخصيص الودجت أولاً حسب رغبتك، ثم اضغط على زر "انسخ الرابط" باللون الأبيض.</p>
+                                    </div>
+                                </div>
+
+                                {/* Step 2 */}
+                                <div className="flex gap-4">
+                                    <div className="flex flex-col items-center">
+                                        <div className="w-10 h-10 rounded-full bg-primary-500 text-white flex items-center justify-center font-black shadow-lg shadow-primary-500/20">
+                                            2
+                                        </div>
+                                        <div className="flex-1 w-0.5 bg-gray-100 dark:bg-dark-tertiary my-2"></div>
+                                    </div>
+                                    <div className="pb-4">
+                                        <h4 className="font-bold text-accent-900 dark:text-white mb-1">اللصق في صفحة نوشن</h4>
+                                        <p className="text-sm text-gray-500 dark:text-dark-text-secondary">اذهب إلى صفحتك في نوشن، وقم بعمل لصق (Paste) في المكان الذي تريد ظهور الودجت فيه.</p>
+                                    </div>
+                                </div>
+
+                                {/* Step 3 */}
+                                <div className="flex gap-4">
+                                    <div className="flex flex-col items-center">
+                                        <div className="w-10 h-10 rounded-full bg-primary-500 text-white flex items-center justify-center font-black shadow-lg shadow-primary-500/20">
+                                            3
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-accent-900 dark:text-white mb-1">اختر Create Embed</h4>
+                                        <p className="text-sm text-gray-500 dark:text-dark-text-secondary">ستظهر لك قائمة صغيرة، اختر منها خيار <span className="font-black text-primary-500">"Create Embed"</span>. سيتحول الرابط فوراً إلى الودجت الجميل الذي صممته!</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={() => setShowGuide(false)}
+                                className="w-full mt-10 py-4 bg-accent-900 dark:bg-white dark:text-accent-900 text-white font-black rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all"
+                            >
+                                فهمت، شكراً جزيلاً!
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </main>
     );
 }

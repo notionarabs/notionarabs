@@ -75,10 +75,19 @@ export default function WidgetsClient() {
         return matchesCategory && matchesSearch;
     });
 
+    const sortedByUsers = Object.entries(stats)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 3)
+        .map(([id]) => id);
+
+    const newWidgets = ['weather', 'cultural-timer', 'habit-tracker'];
+
     const displayWidgets = filteredWidgets.map(w => ({
         ...w,
         icon: iconMap[w.iconIdentifier] || <Zap className="w-6 h-6 text-gray-500" />,
-        users: (stats[w.id] || 0).toLocaleString() + '+'
+        users: (stats[w.id] || 0).toLocaleString() + '+',
+        isPopular: sortedByUsers.includes(w.id),
+        isNew: newWidgets.includes(w.id)
     }));
 
     return (
@@ -169,6 +178,23 @@ export default function WidgetsClient() {
                                 >
                                     <div className="h-48 bg-gradient-to-br from-orange-100 to-orange-50 dark:from-dark-tertiary dark:to-dark-primary flex items-center justify-center relative overflow-hidden">
                                         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #f5631e 1px, transparent 0)', backgroundSize: '20px 20px' }}></div>
+
+                                        {/* Status Badges */}
+                                        <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
+                                            {widget.isPopular && (
+                                                <div className="flex items-center gap-1.5 px-3 py-1 bg-red-500 text-white text-[10px] font-black uppercase tracking-tighter rounded-lg shadow-lg">
+                                                    <Zap className="w-3 h-3 fill-current" />
+                                                    الأكثر استخداماً
+                                                </div>
+                                            )}
+                                            {widget.isNew && (
+                                                <div className="flex items-center gap-1.5 px-3 py-1 bg-primary-500 text-white text-[10px] font-black uppercase tracking-tighter rounded-lg shadow-lg">
+                                                    <Sparkles className="w-3 h-3 fill-current" />
+                                                    جديد
+                                                </div>
+                                            )}
+                                        </div>
+
                                         <div className="p-8 bg-white/80 dark:bg-dark-secondary/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 dark:border-dark-card-border transform group-hover:scale-105 transition-transform duration-500">
                                             <div className="flex items-center gap-3">
                                                 {widget.icon}

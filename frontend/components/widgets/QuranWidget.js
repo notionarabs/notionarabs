@@ -43,22 +43,49 @@ export default function QuranWidget({
                 const result = await res.json();
 
                 if (result.code === 200) {
-                    // Use the reliable cdn.islamic.network CDN pattern
-                    // The API audio field sometimes points to unavailable hosts, so we always prefer the CDN URL
+                    const ayahData = result.data[0];
+                    const translationData = result.data[1];
+                    const audioData = result.data[2];
+
+                    const surahNum = ayahData.surah.number;
+                    const ayahNum = ayahData.numberInSurah;
+
+                    // Format for EveryAyah: Surah (3 digits) + Ayah (3 digits)
+                    const paddedSurah = surahNum.toString().padStart(3, '0');
+                    const paddedAyah = ayahNum.toString().padStart(3, '0');
+
+                    // Map common reciter IDs to EveryAyah folder names
+                    const reciterMap = {
+                        'ar.alafasy': 'Alafasy_128kbps',
+                        'ar.minshawi': 'Minshawi_Mujawwad_192kbps',
+                        'ar.abdulsamad': 'Abdul_Basit_Mujawwad_128kbps',
+                        'ar.husary': 'Husary_128kbps'
+                    };
+
+                    const everyAyahFolder = reciterMap[reciter] || 'Alafasy_128kbps';
+                    const everyAyahUrl = `https://everyayah.com/data/${everyAyahFolder}/${paddedSurah}${paddedAyah}.mp3`;
+
+                    // Primary from API
+                    let mainAudio = audioData?.audio;
+                    if (mainAudio && mainAudio.startsWith('http:')) {
+                        mainAudio = mainAudio.replace('http:', 'https:');
+                    }
+
+                    // Reliable fallback pattern
                     const cdnAudio = `https://cdn.islamic.network/quran/audio/128/${reciter}/${randomAyah}.mp3`;
-                    const apiAudio = result.data[2]?.audio;
 
                     setData({
-                        arabic: result.data[0].text,
-                        translation: result.data[1].text,
-                        audio: cdnAudio,
-                        audioFallback: apiAudio || null,
-                        surah: result.data[0].surah.name,
-                        ayahNumber: result.data[0].numberInSurah,
+                        arabic: ayahData.text,
+                        translation: translationData.text,
+                        audio: mainAudio || everyAyahUrl,
+                        fallbacks: [everyAyahUrl, cdnAudio],
+                        surah: ayahData.surah.name,
+                        surahNumber: surahNum,
+                        ayahNumber: ayahNum,
                     });
                 }
             } catch (err) {
-                console.error(err);
+                console.error('Quran fetch error:', err);
             } finally {
                 setLoading(false);
             }
@@ -66,7 +93,6 @@ export default function QuranWidget({
 
         fetchAyah();
 
-        // Cleanup on unmount or deps change
         return () => {
             if (audioRef.current) {
                 audioRef.current.pause();
@@ -78,44 +104,51 @@ export default function QuranWidget({
     const toggleAudio = () => {
         if (!data?.audio) return;
 
-        // If already have an audio instance
         if (audioRef.current) {
             if (isPlaying) {
                 audioRef.current.pause();
                 setIsPlaying(false);
             } else {
-                audioRef.current.play().catch(() => { });
+                audioRef.current.play().catch(e => {
+                    console.warn('Playback resume failed:', e);
+                    setIsPlaying(false);
+                });
                 setIsPlaying(true);
             }
             return;
         }
 
-        // Create new audio instance using primary CDN URL
-        const newAudio = new Audio(data.audio);
+        const newAudio = new Audio();
+        newAudio.src = data.audio;
+        // Don't use crossOrigin for plain playback unless needed (helps with some CDNs)
+
         newAudio.onended = () => setIsPlaying(false);
         newAudio.onpause = () => setIsPlaying(false);
         newAudio.onplay = () => setIsPlaying(true);
 
-        // If primary CDN fails, try the API-provided fallback URL
+        let fallbackIdx = 0;
         newAudio.onerror = () => {
-            if (data.audioFallback && newAudio.src !== data.audioFallback) {
-                console.warn('Primary audio failed, trying fallback URL');
-                newAudio.src = data.audioFallback;
-                newAudio.play().catch(() => setIsPlaying(false));
+            if (data.fallbacks && fallbackIdx < data.fallbacks.length) {
+                const nextUrl = data.fallbacks[fallbackIdx];
+                fallbackIdx++;
+                console.warn(`Audio failed, trying fallback ${fallbackIdx}: ${nextUrl}`);
+                newAudio.src = nextUrl;
+                newAudio.play().catch(() => { });
             } else {
-                console.warn('All audio sources failed');
+                console.error('All audio sources failed');
                 setIsPlaying(false);
             }
         };
 
         audioRef.current = newAudio;
-
         newAudio.play().catch(err => {
-            console.warn('Audio play failed:', err);
-            setIsPlaying(false);
+            console.warn('Initial play failed:', err);
+            // Let onerror handle tries
         });
         setIsPlaying(true);
     };
+
+
 
     const fontClasses = {
         tajawal: 'font-tajawal',

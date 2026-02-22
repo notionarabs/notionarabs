@@ -30,6 +30,10 @@ module.exports = {
         'amiri': ['Amiri', 'serif'],
         'almarai': ['Almarai', 'sans-serif'],
         'changa': ['Changa', 'sans-serif'],
+        'reem-kufi': ['Reem Kufi', 'sans-serif'],
+        'aref-ruqaa': ['Aref Ruqaa', 'serif'],
+        'vibes': ['Vibes', 'cursive'],
+        'katibeh': ['Katibeh', 'display'],
       },
       colors: {
         primary: {

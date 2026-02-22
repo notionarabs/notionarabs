@@ -12,8 +12,29 @@ import AthkarWidget from '../../../components/widgets/AthkarWidget';
 import PomodoroWidget from '../../../components/widgets/PomodoroWidget';
 import HadithWidget from '../../../components/widgets/HadithWidget';
 import HabitTrackerWidget from '../../../components/widgets/HabitTrackerWidget';
+import ArabicClockWidget from '../../../components/widgets/ArabicClockWidget';
 
 const WIDGET_DATA = {
+    'arabic-clock': {
+        title: 'ساعة الخط العربي',
+        description: 'أضف لمسة جمالية لمساحتك في نوشن مع ساعة تعرض الوقت والتاريخ بأرقى الخطوط العربية الفنية. يمكنك تخصيص الألوان، نوع الخط، وتنسيق الأرقام.',
+        features: ['خطوط خط عربي متميزة', 'أرقام عربية/بحتة', 'دعم الوضع الليلي', 'تحديث لحظي'],
+        settings: [
+            { id: 'theme', label: 'المظهر', type: 'select', options: [{ id: 'auto', label: 'تلقائي' }, { id: 'light', label: 'نهاري' }, { id: 'dark', label: 'ليلي' }] },
+            {
+                id: 'font', label: 'نوع الخط الفني', type: 'select', options: [
+                    { id: 'reem-kufi', label: 'خط كوفي مدمج' },
+                    { id: 'vibes', label: 'خط سحب فني' },
+                    { id: 'aref-ruqaa', label: 'خط رقعة كلاسيك' },
+                    { id: 'katibeh', label: 'خط النسخ الطباعي' },
+                    { id: 'amiri', label: 'خط أميري كلاسيك' },
+                    { id: 'tajawal', label: 'خط مودرن' }
+                ]
+            },
+            { id: 'useArabicDigits', label: 'استخدام الأرقام العربية (٠١٢٣)', type: 'toggle' },
+            { id: 'showSeconds', label: 'إظهار الثواني', type: 'toggle' }
+        ]
+    },
     'quran': {
         title: 'آية اليوم الذكية',
         description: 'أداة احترافية لنوشن تعرض آيات قرآنية متجددة تلقائياً. يمكنك تخصيص الخط، اللغة، والوضع الليلي.',
@@ -428,6 +449,7 @@ export default function WidgetDetailClient() {
                                     </div>
 
                                     <div className="min-h-[300px] flex items-center justify-center">
+                                        {id === 'arabic-clock' && <ArabicClockWidget {...config} theme={previewTheme} />}
                                         {id === 'quran' && <QuranWidget {...config} theme={previewTheme} />}
                                         {id === 'prayer' && <PrayerWidget {...config} theme={previewTheme} />}
                                         {id === 'countdown' && <CountdownWidget {...config} theme={previewTheme} />}

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Layout, Copy, ExternalLink, Zap, Sparkles, Users, Clock, Sun, Timer, BookOpen, CheckSquare } from 'lucide-react';
+import { Layout, Copy, ExternalLink, Zap, Sparkles, Users, Clock, Sun, Timer, BookOpen, CheckSquare, Search, Filter, X } from 'lucide-react';
 import Footer from '../../components/Footer';
 
 const iconMap = {
@@ -22,6 +22,8 @@ export default function WidgetsClient() {
     const [widgets, setWidgets] = useState([]);
     const [stats, setStats] = useState({});
     const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [activeCategory, setActiveCategory] = useState('الكل');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -63,35 +65,81 @@ export default function WidgetsClient() {
         setTimeout(() => setCopiedId(null), 2000);
     };
 
-    const displayWidgets = widgets.map(w => ({
+    const categories = ['الكل', ...new Set(widgets.map(w => w.category))];
+
+    const filteredWidgets = widgets.filter(w => {
+        const matchesCategory = activeCategory === 'الكل' || w.category === activeCategory;
+        const matchesSearch = w.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            w.description.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCategory && matchesSearch;
+    });
+
+    const displayWidgets = filteredWidgets.map(w => ({
         ...w,
         icon: iconMap[w.iconIdentifier] || <Zap className="w-6 h-6 text-gray-500" />,
         users: (stats[w.id] || 0).toLocaleString() + '+'
     }));
 
-
     return (
         <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
 
-            <section className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300 py-12 sm:py-16 md:py-20 lg:py-24">
+            <section className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300 py-12 sm:py-16 md:py-20">
                 <div className="container-custom">
                     <div className="text-center">
-                        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-normal text-accent-900 dark:text-white mb-6 leading-relaxed">
+                        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-normal text-accent-900 dark:text-white mb-6 leading-relaxed">
                             أدوات عرب نوشن
                         </h1>
-                        <p className="text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary max-w-xs sm:max-w-2xl md:max-w-3xl mx-auto px-4 sm:px-0">
+                        <p className="text-base sm:text-lg text-accent-700 dark:text-dark-text-secondary max-w-2xl mx-auto px-4 sm:px-0 leading-relaxed font-tajawal">
                             مجموعة من الأدوات المصممة خصيصاً للمستخدم العربي لتعزيز الإنتاجية والجمالية في نوشن.
                         </p>
                     </div>
                 </div>
             </section>
 
-            <section className="pt-16 sm:pt-20 lg:pt-24 pb-24 px-4 bg-secondary-50 dark:bg-dark-primary">
+            <section className="py-12 pb-24 px-4 bg-secondary-50 dark:bg-dark-primary min-h-[600px]">
                 <div className="container-custom">
+                    {/* Filter & Search Bar */}
+                    <div className="mb-12 flex flex-col md:flex-row gap-6 items-center justify-between">
+                        {/* Categories */}
+                        <div className="flex items-center gap-2 overflow-x-auto pb-4 md:pb-0 w-full md:w-auto no-scrollbar scroll-smooth">
+                            {categories.map((cat) => (
+                                <button
+                                    key={cat}
+                                    onClick={() => setActiveCategory(cat)}
+                                    className={`px-6 py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 whitespace-nowrap border ${activeCategory === cat
+                                        ? 'bg-primary-500 text-white border-primary-500 shadow-lg shadow-primary-500/20'
+                                        : 'bg-white dark:bg-dark-secondary text-gray-500 dark:text-gray-400 border-gray-100 dark:border-dark-card-border hover:border-primary-500/50'
+                                        }`}
+                                >
+                                    {cat}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Search Input */}
+                        <div className="relative w-full md:w-80 group">
+                            <Search className={`absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-300 ${searchQuery ? 'text-primary-500' : 'text-gray-400 group-focus-within:text-primary-500'}`} />
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="ابحث عن أداة..."
+                                className="w-full bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border rounded-2xl py-3.5 pr-11 pl-4 text-sm focus:outline-none focus:border-primary-500 transition-all duration-300 shadow-soft font-tajawal"
+                            />
+                            {searchQuery && (
+                                <button
+                                    onClick={() => setSearchQuery('')}
+                                    className="absolute left-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-dark-tertiary rounded-full transition-colors"
+                                >
+                                    <X className="w-3.5 h-3.5 text-gray-400" />
+                                </button>
+                            )}
+                        </div>
+                    </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {loading ? (
-                            [1, 2, 3, 4, 5, 6, 7].map((item) => (
+                            [1, 2, 3, 4, 5, 6].map((item) => (
                                 <div key={item} className="bg-white dark:bg-dark-secondary rounded-3xl overflow-hidden border border-gray-200 dark:border-dark-card-border shadow-soft flex flex-col h-[420px] animate-pulse">
                                     <div className="h-48 bg-gray-200 dark:bg-dark-tertiary"></div>
                                     <div className="p-6 flex-1 flex flex-col">
@@ -100,9 +148,9 @@ export default function WidgetsClient() {
                                             <div className="h-4 bg-gray-200 dark:bg-dark-text-quaternary rounded w-12"></div>
                                         </div>
                                         <div className="h-7 bg-gray-200 dark:bg-dark-text-quaternary rounded-lg w-3/4 mb-4"></div>
-                                        <div className="space-y-2 mb-6">
-                                            <div className="h-4 bg-gray-200 dark:bg-dark-text-quaternary rounded w-full"></div>
-                                            <div className="h-4 bg-gray-200 dark:bg-dark-text-quaternary rounded w-5/6"></div>
+                                        <div className="space-y-2 mb-6 text-right">
+                                            <div className="h-4 bg-gray-200 dark:bg-dark-text-quaternary rounded w-full ml-auto"></div>
+                                            <div className="h-4 bg-gray-200 dark:bg-dark-text-quaternary rounded w-5/6 ml-auto"></div>
                                         </div>
                                         <div className="mt-auto flex gap-3">
                                             <div className="flex-1 h-11 bg-gray-200 dark:bg-dark-text-quaternary rounded-xl"></div>
@@ -111,7 +159,7 @@ export default function WidgetsClient() {
                                     </div>
                                 </div>
                             ))
-                        ) : (
+                        ) : displayWidgets.length > 0 ? (
                             displayWidgets.map((widget) => (
                                 <div
                                     key={widget.id}
@@ -163,7 +211,24 @@ export default function WidgetsClient() {
                                         </div>
                                     </div>
                                 </div>
-                            )))}
+                            ))
+                        ) : (
+                            <div className="col-span-full flex flex-col items-center justify-center py-20 text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                <div className="w-20 h-20 bg-gray-100 dark:bg-dark-secondary rounded-full flex items-center justify-center mb-6">
+                                    <Search className="w-8 h-8 text-gray-400" />
+                                </div>
+                                <h3 className="text-xl font-bold text-accent-900 dark:text-white mb-2 leading-relaxed">لم يتم العثور على نتائج</h3>
+                                <p className="text-gray-500 dark:text-dark-text-secondary max-w-xs mx-auto font-tajawal">
+                                    جرب البحث بكلمات أخرى أو اختر تصنيفاً مختلفاً
+                                </p>
+                                <button
+                                    onClick={() => { setSearchQuery(''); setActiveCategory('الكل') }}
+                                    className="mt-6 text-primary-500 font-bold hover:underline flex items-center gap-2"
+                                >
+                                    <X className="w-4 h-4" /> إيقاف التصفية
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </section>

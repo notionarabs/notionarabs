@@ -3,6 +3,19 @@ import WidgetDetailClient from './WidgetDetailClient';
 
 // Per-widget SEO data (mirrors WIDGET_DATA in the client component)
 const WIDGET_SEO = {
+    'arabic-clock': {
+        title: 'ودجت ساعة الخط العربي لنوشن',
+        description: 'ودجت نوشن مجاني يعرض الوقت والتاريخ بأجمل الخطوط العربية الفنية. خصّص المظهر، نوع الخط، وشكل الأرقام وانسخ رابط التضمين.',
+        keywords: [
+            'ساعة عربية نوشن',
+            'arabic clock widget notion',
+            'ساعة الخط العربي',
+            'تضمين ساعة نوشن',
+            'ودجت جمالي نوشن',
+            'notion arabic clock embed',
+            'خطوط عربية نوشن',
+        ],
+    },
     quran: {
         title: 'ودجت آية اليوم الذكية لنوشن',
         description: 'ودجت نوشن مجاني يعرض آية قرآنية جديدة كل يوم مع ترجمة إنجليزية وتشغيل صوتي. خصّص الخط والثيم وانسخ رابط التضمين في ثانية.',

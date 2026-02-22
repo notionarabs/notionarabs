@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
-import { Copy, Check, ChevronLeft, Sparkles, Moon, Sun, Monitor, Type, MapPin, Globe, Users, MousePointer2, Info, HelpCircle, X } from 'lucide-react';
+import { Copy, Check, ChevronLeft, Sparkles, Moon, Sun, Monitor, Type, MapPin, Globe, Users, MousePointer2, Info, HelpCircle, X, Star } from 'lucide-react';
 import Link from 'next/link';
 import Footer from '../../../components/Footer';
 import QuranWidget from '../../../components/widgets/QuranWidget';
@@ -15,6 +15,7 @@ import HabitTrackerWidget from '../../../components/widgets/HabitTrackerWidget';
 import ArabicClockWidget from '../../../components/widgets/ArabicClockWidget';
 import CulturalTimerWidget from '../../../components/widgets/CulturalTimerWidget';
 import WeatherWidget from '../../../components/widgets/WeatherWidget';
+import SmallDeedsWidget from '../../../components/widgets/SmallDeedsWidget';
 
 const WIDGET_DATA = {
     'weather': {
@@ -84,6 +85,38 @@ const WIDGET_DATA = {
             { id: 'hour12', label: 'نظام 12 ساعة (ص/م)', type: 'toggle' },
             { id: 'showSeconds', label: 'إظهار الثواني', type: 'toggle' },
             { id: 'showHijri', label: 'إظهار التاريخ الهجري', type: 'toggle' }
+        ]
+    },
+    'small-deeds': {
+        id: 'small-deeds',
+        title: 'متتبع السنن والرواتب',
+        description: 'تتبع السنن الرواتب، الأذكار، وورد القرآن اليومي بطريقة مرئية جميلة.',
+        icon: <Star className="w-5 h-5 text-emerald-500" />,
+        embedPath: '/widgets/small-deeds/embed',
+        features: ['السنن الرواتب', 'أذكار الصباح والمساء', 'ورد القرآن اليومي', 'تصميم إسلامي عصري'],
+        settings: [
+            {
+                id: 'theme',
+                label: 'المظهر',
+                type: 'select',
+                options: [
+                    { id: 'dark', label: 'داكن' },
+                    { id: 'light', label: 'فاتح' },
+                    { id: 'auto', label: 'تلقائي (حسب النظام)' }
+                ]
+            },
+            {
+                id: 'font',
+                label: 'الخط العربي',
+                type: 'select',
+                options: [
+                    { id: 'tajawal', label: 'تاجوال' },
+                    { id: 'cairo', label: 'كايرو' },
+                    { id: 'amiri', label: 'الأميري (كلاسيك)' },
+                    { id: 'reem-kufi', label: 'ريم كوفي' },
+                    { id: 'aref-ruqaa', label: 'عارف رقعة' }
+                ]
+            }
         ]
     },
     'quran': {
@@ -521,6 +554,7 @@ export default function WidgetDetailClient() {
                                         {id === 'pomodoro' && <PomodoroWidget {...config} theme={previewTheme} />}
                                         {id === 'hadith' && <HadithWidget {...config} theme={previewTheme} />}
                                         {id === 'habit-tracker' && <HabitTrackerWidget {...config} theme={previewTheme} />}
+                                        {id === 'small-deeds' && <SmallDeedsWidget {...config} theme={previewTheme} />}
                                         {id === 'cultural-timer' && <CulturalTimerWidget {...config} theme={previewTheme} />}
                                         {id === 'weather' && <WeatherWidget {...config} theme={previewTheme} />}
                                     </div>

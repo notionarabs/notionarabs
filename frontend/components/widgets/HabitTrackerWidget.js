@@ -131,7 +131,7 @@ export default function HabitTrackerWidget({
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">الإنجاز اليومي</span>
                         <span className="text-sm font-black text-primary-500">{Math.round(progress)}%</span>
                     </div>
-                    <div className="h-2 w-full bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
+                    <div className={`h-2 w-full rounded-full overflow-hidden ${theme === 'dark' ? 'bg-white/5' : 'bg-gray-100'}`}>
                         <div
                             className="h-full bg-primary-500 transition-all duration-1000 ease-out"
                             style={{ width: `${progress}%` }}
@@ -147,22 +147,25 @@ export default function HabitTrackerWidget({
                             onClick={() => toggleHabit(habit.id)}
                             className={`flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all duration-300 transform active:scale-95 group/habit ${habit.completed
                                 ? 'bg-primary-500/10 border border-primary-500/20'
-                                : 'bg-gray-50 dark:bg-white/5 border border-transparent hover:border-gray-200 dark:hover:border-white/10'
+                                : `${theme === 'dark' ? 'bg-white/5 hover:border-white/10' : 'bg-gray-50 hover:border-gray-200'} border border-transparent`
                                 }`}
                         >
                             <div className="flex items-center gap-4">
                                 {habit.completed ? (
                                     <CheckCircle2 className="w-6 h-6 text-primary-500 animate-scale-in" />
                                 ) : (
-                                    <Circle className="w-6 h-6 text-gray-300 dark:text-gray-600" />
+                                    <Circle className={`w-6 h-6 ${theme === 'dark' ? 'text-gray-600' : 'text-gray-300'}`} />
                                 )}
-                                <span className={`font-bold transition-all ${habit.completed ? 'text-primary-600 dark:text-primary-400 line-through opacity-70' : 'text-accent-900 dark:text-white'}`}>
+                                <span className={`font-bold transition-all ${habit.completed
+                                    ? (theme === 'dark' ? 'text-primary-400 line-through opacity-70' : 'text-primary-600 line-through opacity-70')
+                                    : (theme === 'dark' ? 'text-white' : 'text-accent-900')
+                                    }`}>
                                     {habit.name}
                                 </span>
                             </div>
                             <button
                                 onClick={(e) => deleteHabit(e, habit.id)}
-                                className="p-2 rounded-lg text-gray-300 dark:text-gray-600 hover:text-red-500 hover:bg-red-500/10 opacity-0 group-hover/habit:opacity-100 transition-all"
+                                className={`p-2 rounded-lg hover:text-red-500 hover:bg-red-500/10 opacity-0 group-hover/habit:opacity-100 transition-all ${theme === 'dark' ? 'text-gray-600' : 'text-gray-300'}`}
                             >
                                 <Trash2 className="w-4 h-4" />
                             </button>
@@ -195,7 +198,7 @@ export default function HabitTrackerWidget({
                     {!isAdding && (
                         <button
                             onClick={() => setIsAdding(true)}
-                            className="w-full py-4 rounded-2xl border-2 border-dashed border-gray-100 dark:border-white/5 text-gray-400 hover:text-primary-500 hover:border-primary-500/30 transition-all flex items-center justify-center gap-2 group/add"
+                            className={`w-full py-4 rounded-2xl border-2 border-dashed text-gray-400 hover:text-primary-500 hover:border-primary-500/30 transition-all flex items-center justify-center gap-2 group/add ${theme === 'dark' ? 'border-white/5' : 'border-gray-100'}`}
                         >
                             <Plus className="w-5 h-5 group-hover/add:rotate-90 transition-transform" />
                             <span className="text-sm font-bold">إضافة عادة جديدة</span>
@@ -204,7 +207,7 @@ export default function HabitTrackerWidget({
                 </div>
 
                 {/* Footer Info */}
-                <div className="flex items-center justify-between pt-4 border-t border-gray-50 dark:border-dark-card-border">
+                <div className={`flex items-center justify-between pt-4 border-t ${theme === 'dark' ? 'border-white/5' : 'border-gray-50'}`}>
                     <div className="flex items-center gap-2 text-gray-400">
                         <CalendarIcon className="w-4 h-4" />
                         <span className="text-[10px] font-bold uppercase tracking-widest">{new Date().toLocaleDateString('ar-SA', { weekday: 'long' })}</span>

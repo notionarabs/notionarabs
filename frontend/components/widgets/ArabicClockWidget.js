@@ -125,14 +125,24 @@ export default function ArabicClockWidget({
     const year = time ? time.toLocaleDateString('ar-SA', { ...dateOptions, year: 'numeric' }) : '';
 
     // Hijri Date calculation
-    const hijriOptions = {
-        ...dateOptions,
-        calendar: 'islamic-uma',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
+    const getHijriDate = () => {
+        if (!time) return '';
+        const calendars = ['islamic-umalqura', 'islamic-uma', 'islamic'];
+        for (const cal of calendars) {
+            try {
+                return new Intl.DateTimeFormat(`ar-SA-u-ca-${cal}`, {
+                    ...dateOptions,
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                }).format(time);
+            } catch (e) {
+                continue;
+            }
+        }
+        return '';
     };
-    const hijriDate = time ? time.toLocaleDateString('ar-SA-u-ca-islamic-uma', hijriOptions) : '';
+    const hijriDate = getHijriDate();
 
     if (!mounted) return <div className={`w-full min-h-[300px] rounded-[2.5rem] animate-pulse ${theme === 'dark' ? 'bg-[#191919]' : 'bg-gray-50'}`}></div>;
 

@@ -81,7 +81,7 @@ export default function ArabicClockWidget({
                 </div>
 
                 {/* Main Time Display */}
-                <div className="flex items-baseline justify-center">
+                <div className="flex items-baseline justify-center" dir={useArabicDigits ? 'rtl' : 'ltr'}>
                     <span className="text-7xl md:text-8xl font-black tracking-tight drop-shadow-2xl transition-all duration-500">
                         {toArabicDigits(hours)}
                     </span>
@@ -92,7 +92,7 @@ export default function ArabicClockWidget({
                         {toArabicDigits(minutes)}
                     </span>
                     {showSeconds && (
-                        <div className="ml-4 flex flex-col items-start">
+                        <div className={`${useArabicDigits ? 'mr-4' : 'ml-4'} flex flex-col items-start`}>
                             <span className="text-2xl md:text-3xl font-bold text-primary-500/60 tabular-nums">
                                 {toArabicDigits(seconds)}
                             </span>

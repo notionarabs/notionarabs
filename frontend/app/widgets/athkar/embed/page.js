@@ -35,6 +35,11 @@ function AthkarEmbedContent() {
         };
         trackUsage();
 
+        // Force body background to be transparent
+        if (typeof document !== 'undefined') {
+            document.body.style.backgroundColor = 'transparent';
+        }
+
         return () => mq.removeEventListener('change', handler);
     }, []);
 

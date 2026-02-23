@@ -112,6 +112,14 @@ export default function RootLayout({ children }) {
                   
                   // Store the theme in a data attribute for React to read
                   document.documentElement.setAttribute('data-theme', initialTheme);
+
+                  // Force transparent background for Notion embeds
+                  if (window.location.pathname.includes('/embed')) {
+                    document.documentElement.style.backgroundColor = 'transparent';
+                    const style = document.createElement('style');
+                    style.textContent = 'body { background-color: transparent !important; }';
+                    document.head.appendChild(style);
+                  }
                 } catch (e) {
                   // Fallback to light theme if there's any error
                   document.documentElement.classList.remove('dark');

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Layout, Copy, ExternalLink, Zap, Sparkles, Users, Clock, Sun, Timer, BookOpen, CheckSquare, Search, Filter, X, Cloud, Star, Calculator, Landmark, Lock } from 'lucide-react';
+import { Layout, Copy, ExternalLink, Zap, Sparkles, Users, Clock, Sun, Timer, BookOpen, CheckSquare, Search, Filter, X, Cloud, Star, Calculator, Landmark, Lock, ArrowUpDown, ChevronDown, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import Footer from '../../components/Footer';
@@ -31,6 +31,8 @@ export default function WidgetsClient() {
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [activeCategory, setActiveCategory] = useState('الكل');
+    const [sortBy, setSortBy] = useState('popular');
+    const [isSortOpen, setIsSortOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -81,12 +83,24 @@ export default function WidgetsClient() {
         return matchesCategory && matchesSearch;
     });
 
+    const sortedWidgets = [...filteredWidgets].sort((a, b) => {
+        if (sortBy === 'popular') {
+            return (stats[b.id] || 0) - (stats[a.id] || 0);
+        }
+        if (sortBy === 'newest') {
+            // Sort by createdAt date (newest first)
+            return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+        }
+        if (sortBy === 'alphabetical') {
+            return a.title.localeCompare(b.title, 'ar');
+        }
+        return 0;
+    });
+
     const sortedByUsers = Object.entries(stats)
         .sort(([, a], [, b]) => b - a)
         .slice(0, 3)
         .map(([id]) => id);
-
-    const newWidgets = ['weather', 'small-deeds', 'cultural-timer', 'habit-tracker', 'zakat-calculator'];
 
     const categoryGradients = {
         'إسلاميات': 'from-emerald-100 to-emerald-50 dark:from-emerald-950/40 dark:to-dark-primary',
@@ -94,14 +108,20 @@ export default function WidgetsClient() {
         'جماليات': 'from-purple-100 to-purple-50 dark:from-purple-950/40 dark:to-dark-primary',
     };
 
-    const displayWidgets = filteredWidgets.map(w => ({
-        ...w,
-        icon: iconMap[w.iconIdentifier] || <Zap className="w-6 h-6 text-gray-500" />,
-        users: (stats[w.id] || 0).toLocaleString() + '+',
-        isPopular: sortedByUsers.includes(w.id),
-        isNew: newWidgets.includes(w.id),
-        gradient: categoryGradients[w.category] || 'from-orange-100 to-orange-50 dark:from-orange-950/40 dark:to-dark-primary'
-    }));
+    const displayWidgets = sortedWidgets.map(w => {
+        // Automatic "New" logic: added in the last 14 days
+        const isNew = w.createdAt && (new Date() - new Date(w.createdAt)) < 14 * 24 * 60 * 60 * 1000;
+        const isPopular = sortedByUsers.includes(w.id);
+
+        return {
+            ...w,
+            icon: iconMap[w.iconIdentifier] || <Zap className="w-6 h-6 text-gray-500" />,
+            users: (stats[w.id] || 0).toLocaleString() + '+',
+            isPopular,
+            isNew,
+            gradient: categoryGradients[w.category] || 'from-orange-100 to-orange-50 dark:from-orange-950/40 dark:to-dark-primary'
+        };
+    });
 
     return (
         <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
@@ -139,24 +159,80 @@ export default function WidgetsClient() {
                             ))}
                         </div>
 
-                        {/* Search Input */}
-                        <div className="relative w-full md:w-80 group">
-                            <Search className={`absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-300 ${searchQuery ? 'text-primary-500' : 'text-gray-400 group-focus-within:text-primary-500'}`} />
-                            <input
-                                type="text"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="ابحث عن أداة..."
-                                className="w-full bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border rounded-2xl py-3.5 pr-11 pl-4 text-sm focus:outline-none focus:border-primary-500 transition-all duration-300 shadow-soft font-tajawal"
-                            />
-                            {searchQuery && (
+                        {/* Actions (Search + Sort) */}
+                        <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+                            {/* Sort Dropdown */}
+                            <div className="relative w-full sm:w-48">
                                 <button
-                                    onClick={() => setSearchQuery('')}
-                                    className="absolute left-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-dark-tertiary rounded-full transition-colors"
+                                    onClick={() => setIsSortOpen(!isSortOpen)}
+                                    className="w-full flex items-center justify-between bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border px-4 py-3.5 rounded-2xl text-sm font-bold text-gray-500 dark:text-gray-400 hover:border-primary-500/50 transition-all shadow-soft overflow-hidden group"
                                 >
-                                    <X className="w-3.5 h-3.5 text-gray-400" />
+                                    <div className="flex items-center gap-2">
+                                        <ArrowUpDown className="w-4 h-4 text-primary-500" />
+                                        <span>
+                                            {sortBy === 'popular' && 'الأكثر استخداماً'}
+                                            {sortBy === 'newest' && 'الأحدث أولاً'}
+                                        </span>
+                                    </div>
+                                    <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isSortOpen ? 'rotate-180' : ''}`} />
                                 </button>
-                            )}
+
+                                <AnimatePresence>
+                                    {isSortOpen && (
+                                        <>
+                                            <div className="fixed inset-0 z-40" onClick={() => setIsSortOpen(false)}></div>
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border rounded-2xl shadow-2xl z-50 overflow-hidden"
+                                            >
+                                                <div className="p-1.5 space-y-1">
+                                                    {[
+                                                        { id: 'popular', label: 'الأكثر استخداماً' },
+                                                        { id: 'newest', label: 'الأحدث' }
+                                                    ].map((option) => (
+                                                        <button
+                                                            key={option.id}
+                                                            onClick={() => {
+                                                                setSortBy(option.id);
+                                                                setIsSortOpen(false);
+                                                            }}
+                                                            className={`w-full text-right px-4 py-3 text-sm font-bold transition-all rounded-xl flex items-center justify-between ${sortBy === option.id
+                                                                ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20'
+                                                                : 'hover:bg-secondary-100 dark:hover:bg-dark-tertiary text-gray-500 dark:text-dark-text-secondary'
+                                                                }`}
+                                                        >
+                                                            <span>{option.label}</span>
+                                                            {sortBy === option.id && <Check className="w-4 h-4" />}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </motion.div>
+                                        </>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+
+                            {/* Search Input */}
+                            <div className="relative w-full md:w-80 group">
+                                <Search className={`absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-300 ${searchQuery ? 'text-primary-500' : 'text-gray-400 group-focus-within:text-primary-500'}`} />
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    placeholder="ابحث عن أداة..."
+                                    className="w-full bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border rounded-2xl py-3.5 pr-11 pl-4 text-sm focus:outline-none focus:border-primary-500 transition-all duration-300 shadow-soft font-tajawal"
+                                />
+                                {searchQuery && (
+                                    <button
+                                        onClick={() => setSearchQuery('')}
+                                        className="absolute left-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-dark-tertiary rounded-full transition-colors"
+                                    >
+                                        <X className="w-3.5 h-3.5 text-gray-400" />
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </div>
 

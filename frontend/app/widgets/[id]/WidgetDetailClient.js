@@ -18,6 +18,7 @@ import CulturalTimerWidget from '../../../components/widgets/CulturalTimerWidget
 import WeatherWidget from '../../../components/widgets/WeatherWidget';
 import SmallDeedsWidget from '../../../components/widgets/SmallDeedsWidget';
 import ZakatCalculatorWidget from '../../../components/widgets/ZakatCalculatorWidget';
+import ArabicHeaderWidget from '../../../components/widgets/ArabicHeaderWidget';
 
 const WIDGET_DATA = {
     'weather': {
@@ -64,6 +65,48 @@ const WIDGET_DATA = {
             },
             { id: 'pomodoroTime', label: 'وقت التركيز (دقيقة)', type: 'input', placeholder: '25' },
             { id: 'shortBreakTime', label: 'استراحة قصيرة (دقيقة)', type: 'input', placeholder: '5' }
+        ]
+    },
+    'arabic-header': {
+        title: 'عناوين نوشن الفنية',
+        description: 'حوّل عناوين صفحاتك في نوشن إلى لوحات فنية. اختر من بين أرقى الخطوط العربية (كوفي، ثلث، رقعة) وخصص الألوان والأحجام لتناسب ذوقك.',
+        features: ['خطوط عربية احترافية', 'تخصيص كامل للألوان', 'خلفية شفافة تماماً', 'أحجام خط مرنة'],
+        settings: [
+            { id: 'text', label: 'نص العنوان', type: 'input', placeholder: 'اكتب عنوانك هنا...' },
+            {
+                id: 'font', label: 'نوع الخط الفني', type: 'select', options: [
+                    { id: 'tajawal', label: 'خط مودرن (تاجوال)' },
+                    { id: 'cairo', label: 'خط كايرو' },
+                    { id: 'amiri', label: 'خط أميري كلاسيك' },
+                    { id: 'kufi', label: 'خط كوفي' },
+                    { id: 'ruqaa', label: 'خط رقعة' },
+                    { id: 'lemon', label: 'خط ليمونادة' }
+                ]
+            },
+            { id: 'color', label: 'لون الخط', type: 'color' },
+            {
+                id: 'fontSize', label: 'حجم الخط', type: 'select', options: [
+                    { id: '24px', label: 'صغير' },
+                    { id: '32px', label: 'متوسط' },
+                    { id: '48px', label: 'كبير' },
+                    { id: '64px', label: 'ضخم' },
+                    { id: '80px', label: 'عملاق' }
+                ]
+            },
+            {
+                id: 'textAlign', label: 'محاذاة النص', type: 'select', options: [
+                    { id: 'center', label: 'منتصف' },
+                    { id: 'right', label: 'يمين' },
+                    { id: 'left', label: 'يسار' }
+                ]
+            },
+            {
+                id: 'fontWeight', label: 'سمك الخط', type: 'select', options: [
+                    { id: '400', label: 'عادي' },
+                    { id: '700', label: 'عريض' },
+                    { id: '900', label: 'عريض جداً' }
+                ]
+            }
         ]
     },
     'arabic-clock': {
@@ -604,6 +647,7 @@ export default function WidgetDetailClient() {
                                         {id === 'cultural-timer' && <CulturalTimerWidget {...config} theme={previewTheme} />}
                                         {id === 'weather' && <WeatherWidget {...config} theme={previewTheme} />}
                                         {id === 'zakat-calculator' && <ZakatCalculatorWidget {...config} theme={previewTheme} />}
+                                        {id === 'arabic-header' && <ArabicHeaderWidget {...config} theme={previewTheme} />}
                                     </div>
                                 </div>
                             </div>

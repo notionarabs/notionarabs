@@ -6,7 +6,8 @@
         "category": "إسلاميات",
         "iconIdentifier": "sparkles",
         "link": "https://notionarabs.com/widgets/quran",
-        "image": "https://res.cloudinary.com/dlnnwqgob/image/upload/v1771623639/notion-arabs/screenshots/screenshot_417b9233f8f11e8f_1771623639035.png"
+        "image": "https://res.cloudinary.com/dlnnwqgob/image/upload/v1771623639/notion-arabs/screenshots/screenshot_417b9233f8f11e8f_1771623639035.png",
+        "createdAt": "2026-01-01T00:00:00Z"
     },
     {
         "id": "prayer",
@@ -15,7 +16,8 @@
         "category": "إسلاميات",
         "iconIdentifier": "layout",
         "link": "https://notionarabs.com/widgets/prayer",
-        "image": "https://res.cloudinary.com/dlnnwqgob/image/upload/v1771623701/notion-arabs/screenshots/screenshot_b40281c06c3c4e63_1771623700178.png"
+        "image": "https://res.cloudinary.com/dlnnwqgob/image/upload/v1771623701/notion-arabs/screenshots/screenshot_b40281c06c3c4e63_1771623700178.png",
+        "createdAt": "2026-01-01T00:00:00Z"
     },
     {
         "id": "countdown",
@@ -24,7 +26,8 @@
         "category": "إنتاجية",
         "iconIdentifier": "clock",
         "link": "https://notionarabs.com/widgets/countdown",
-        "image": "https://res.cloudinary.com/dlnnwqgob/image/upload/v1771623701/notion-arabs/screenshots/countdown_placeholder.png"
+        "image": "https://res.cloudinary.com/dlnnwqgob/image/upload/v1771623701/notion-arabs/screenshots/countdown_placeholder.png",
+        "createdAt": "2026-01-01T00:00:00Z"
     },
     {
         "id": "athkar",
@@ -33,7 +36,8 @@
         "category": "إسلاميات",
         "iconIdentifier": "sun",
         "link": "https://notionarabs.com/widgets/athkar",
-        "image": "https://res.cloudinary.com/dlnnwqgob/image/upload/v1771623701/notion-arabs/screenshots/athkar_placeholder.png"
+        "image": "https://res.cloudinary.com/dlnnwqgob/image/upload/v1771623701/notion-arabs/screenshots/athkar_placeholder.png",
+        "createdAt": "2026-01-01T00:00:00Z"
     },
     {
         "id": "pomodoro",
@@ -42,7 +46,8 @@
         "category": "إنتاجية",
         "iconIdentifier": "timer",
         "link": "https://notionarabs.com/widgets/pomodoro",
-        "image": "https://res.cloudinary.com/dlnnwqgob/image/upload/v1771623701/notion-arabs/screenshots/pomodoro_placeholder.png"
+        "image": "https://res.cloudinary.com/dlnnwqgob/image/upload/v1771623701/notion-arabs/screenshots/pomodoro_placeholder.png",
+        "createdAt": "2026-01-01T00:00:00Z"
     },
     {
         "id": "hadith",
@@ -51,7 +56,8 @@
         "category": "إسلاميات",
         "iconIdentifier": "book-open",
         "link": "https://notionarabs.com/widgets/hadith",
-        "image": "https://res.cloudinary.com/dlnnwqgob/image/upload/v1771623701/notion-arabs/screenshots/hadith_placeholder.png"
+        "image": "https://res.cloudinary.com/dlnnwqgob/image/upload/v1771623701/notion-arabs/screenshots/hadith_placeholder.png",
+        "createdAt": "2026-01-01T00:00:00Z"
     },
     {
         "id": "habit-tracker",
@@ -60,7 +66,8 @@
         "category": "إنتاجية",
         "iconIdentifier": "check-square",
         "link": "/widgets/habit-tracker",
-        "image": "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&q=80&w=300&h=200"
+        "image": "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&q=80&w=300&h=200",
+        "createdAt": "2026-02-21T00:00:00Z"
     },
     {
         "id": "arabic-clock",
@@ -69,7 +76,8 @@
         "category": "جماليات",
         "iconIdentifier": "clock",
         "link": "/widgets/arabic-clock",
-        "image": "https://images.unsplash.com/photo-1549416805-3e283f3e691b?auto=format&fit=crop&q=80&w=300&h=200"
+        "image": "https://images.unsplash.com/photo-1549416805-3e283f3e691b?auto=format&fit=crop&q=80&w=300&h=200",
+        "createdAt": "2026-01-01T00:00:00Z"
     },
     {
         "id": "cultural-timer",
@@ -78,7 +86,8 @@
         "category": "إنتاجية",
         "iconIdentifier": "timer",
         "link": "/widgets/cultural-timer",
-        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&q=80&w=300&h=200"
+        "image": "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&q=80&w=300&h=200",
+        "createdAt": "2026-02-21T00:00:00Z"
     },
     {
         "id": "weather",
@@ -87,7 +96,8 @@
         "category": "جماليات",
         "iconIdentifier": "cloud",
         "link": "/widgets/weather",
-        "image": "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?auto=format&fit=crop&q=80&w=300&h=200"
+        "image": "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?auto=format&fit=crop&q=80&w=300&h=200",
+        "createdAt": "2026-02-22T00:00:00Z"
     },
     {
         "id": "small-deeds",
@@ -96,7 +106,8 @@
         "category": "إسلاميات",
         "iconIdentifier": "star",
         "link": "/widgets/small-deeds",
-        "image": "https://images.unsplash.com/photo-1590412200988-a436bbd96009?auto=format&fit=crop&q=80&w=300&h=200"
+        "image": "https://images.unsplash.com/photo-1590412200988-a436bbd96009?auto=format&fit=crop&q=80&w=300&h=200",
+        "createdAt": "2026-02-22T00:00:00Z"
     },
     {
         "id": "zakat-calculator",
@@ -105,6 +116,17 @@
         "category": "إسلاميات",
         "iconIdentifier": "landmark",
         "link": "/widgets/zakat-calculator",
-        "image": "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&q=80&w=300&h=200"
+        "image": "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&q=80&w=300&h=200",
+        "createdAt": "2026-02-23T00:00:00Z"
+    },
+    {
+        "id": "arabic-header",
+        "title": "عناوين نوشن الفنية",
+        "description": "حوّل عناوين صفحاتك في نوشن إلى لوحات فنية باستخدام أرقى الخطوط العربية الفنية.",
+        "category": "جماليات",
+        "iconIdentifier": "sparkles",
+        "link": "/widgets/arabic-header",
+        "image": "https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&q=80&w=300&h=200",
+        "createdAt": "2026-02-23T14:00:00Z"
     }
 ]

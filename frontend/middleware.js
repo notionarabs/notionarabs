@@ -92,7 +92,7 @@ export function middleware(request) {
     (pathname.match(/^\/blog\/[^\/]+$/) && !pathname.startsWith('/blog/create') && !pathname.startsWith('/blog/edit/')) || // /blog/[id] but not /blog/create or /blog/edit/[id]
     pathname.match(/^\/creators\/[^\/]+$/) || // /creators/[username] - public creator profiles
     pathname.match(/^\/categories\/[^\/]+$/) || // /categories/[id] - public category pages
-    pathname.startsWith('/widgets'); // /widgets/* - all widget pages are public (embed + preview)
+    (pathname.startsWith('/widgets') && !pathname.includes('/embed')); // /widgets but not /widgets/*/embed
 
   // Check if it's a static asset or Next.js internal route
   const isStaticAsset =

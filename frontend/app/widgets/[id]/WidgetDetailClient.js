@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
-import { Copy, Check, ChevronLeft, Sparkles, Moon, Sun, Monitor, Type, MapPin, Globe, Users, MousePointer2, Info, HelpCircle, X, Star } from 'lucide-react';
+import { Copy, Check, ChevronLeft, Sparkles, Moon, Sun, Monitor, Type, MapPin, Globe, Users, MousePointer2, Info, HelpCircle, X, Star, Lock } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '../../../contexts/AuthContext';
 import Footer from '../../../components/Footer';
 import QuranWidget from '../../../components/widgets/QuranWidget';
 import PrayerWidget from '../../../components/widgets/PrayerWidget';
@@ -332,6 +333,7 @@ const CustomSelect = ({ value, options, onChange }) => {
 };
 
 export default function WidgetDetailClient() {
+    const { user, isAuthenticated } = useAuth();
     const params = useParams();
     const id = params.id;
     const widget = WIDGET_DATA[id];
@@ -537,21 +539,38 @@ export default function WidgetDetailClient() {
 
                             <div className="bg-primary-500 text-white rounded-3xl p-8 shadow-large">
                                 <h3 className="font-black text-lg mb-2">رابط التضمين الذكي</h3>
-                                <p className="text-sm text-white/80 mb-6">يتغير الرابط تلقائياً بناءً على اختياراتك في الأعلى.</p>
-                                <button
-                                    onClick={copyEmbed}
-                                    className="w-full bg-white text-primary-600 font-bold py-4 rounded-2xl flex items-center justify-center gap-2 hover:scale-105 transition-all"
-                                >
-                                    {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-                                    {copied ? 'تم النسخ!' : 'انسخ الرابط'}
-                                </button>
-                                <button
-                                    onClick={() => setShowGuide(true)}
-                                    className="w-full mt-3 flex items-center justify-center gap-2 text-xs font-bold text-white/60 hover:text-white transition-colors"
-                                >
-                                    <HelpCircle className="w-3.5 h-3.5" />
-                                    كيف أقوم بتضمين هذا الودجت في نوشن؟
-                                </button>
+                                <p className="text-sm text-white/80 mb-6">
+                                    {isAuthenticated
+                                        ? 'يتغير الرابط تلقائياً بناءً على اختياراتك في الأعلى.'
+                                        : 'يجب تسجيل الدخول لتتمكن من الحصول على رابط التضمين واستخدامه في نوشن.'}
+                                </p>
+
+                                {isAuthenticated ? (
+                                    <>
+                                        <button
+                                            onClick={copyEmbed}
+                                            className="w-full bg-white text-primary-600 font-bold py-4 rounded-2xl flex items-center justify-center gap-2 hover:scale-105 transition-all"
+                                        >
+                                            {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                                            {copied ? 'تم النسخ!' : 'انسخ الرابط'}
+                                        </button>
+                                        <button
+                                            onClick={() => setShowGuide(true)}
+                                            className="w-full mt-3 flex items-center justify-center gap-2 text-xs font-bold text-white/60 hover:text-white transition-colors"
+                                        >
+                                            <HelpCircle className="w-3.5 h-3.5" />
+                                            كيف أقوم بتضمين هذا الودجت في نوشن؟
+                                        </button>
+                                    </>
+                                ) : (
+                                    <Link
+                                        href={`/login?redirect=/widgets/${id}`}
+                                        className="w-full bg-white text-primary-600 font-bold py-4 rounded-2xl flex items-center justify-center gap-2 hover:scale-105 transition-all"
+                                    >
+                                        <Lock className="w-5 h-5" />
+                                        تسجيل الدخول للتضمين
+                                    </Link>
+                                )}
                             </div>
                         </div>
 

@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Layout, Copy, ExternalLink, Zap, Sparkles, Users, Clock, Sun, Timer, BookOpen, CheckSquare, Search, Filter, X, Cloud, Star, Calculator, Landmark } from 'lucide-react';
+import { Layout, Copy, ExternalLink, Zap, Sparkles, Users, Clock, Sun, Timer, BookOpen, CheckSquare, Search, Filter, X, Cloud, Star, Calculator, Landmark, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../../contexts/AuthContext';
 import Footer from '../../components/Footer';
 
 const iconMap = {
@@ -22,6 +23,7 @@ const iconMap = {
 };
 
 export default function WidgetsClient() {
+    const { isAuthenticated } = useAuth();
     const router = useRouter();
     const [copiedId, setCopiedId] = useState(null);
     const [widgets, setWidgets] = useState([]);
@@ -239,12 +241,22 @@ export default function WidgetsClient() {
                                             {widget.description}
                                         </p>
                                         <div className="mt-auto flex gap-3">
-                                            <button
-                                                onClick={(e) => copyEmbed(e, widget.id)}
-                                                className="flex-1 btn-primary py-2.5 px-4 text-sm flex items-center justify-center gap-2 relative z-10"
-                                            >
-                                                {copiedId === widget.id ? 'تم النسخ!' : <><Copy className="w-4 h-4" /> انسخ الرابط</>}
-                                            </button>
+                                            {isAuthenticated ? (
+                                                <button
+                                                    onClick={(e) => copyEmbed(e, widget.id)}
+                                                    className="flex-1 btn-primary py-2.5 px-4 text-sm flex items-center justify-center gap-2 relative z-10"
+                                                >
+                                                    {copiedId === widget.id ? 'تم النسخ!' : <><Copy className="w-4 h-4" /> انسخ الرابط</>}
+                                                </button>
+                                            ) : (
+                                                <Link
+                                                    href={`/widgets/${widget.id}`}
+                                                    className="flex-1 btn-primary py-2.5 px-4 text-sm flex items-center justify-center gap-2 relative z-10"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <Lock className="w-4 h-4" /> سجّل للتضمين
+                                                </Link>
+                                            )}
                                             <div className="flex-1 btn-secondary py-2.5 px-4 text-sm flex items-center justify-center gap-2">
                                                 <ExternalLink className="w-4 h-4" /> التفاصيل
                                             </div>

@@ -30,7 +30,7 @@ router.post('/track', async (req, res) => {
     const validIds = [
         'quran', 'prayer', 'countdown', 'athkar', 'pomodoro',
         'hadith', 'habit-tracker', 'weather', 'arabic-clock',
-        'cultural-timer', 'small-deeds', 'zakat-calculator'
+        'cultural-timer', 'small-deeds', 'zakat-calculator', 'arabic-header'
     ];
     if (!validIds.includes(widgetId)) {
         return res.status(400).json({ success: false, message: 'Invalid widget ID' });
@@ -89,7 +89,8 @@ router.get('/stats', async (req, res) => {
             'arabic-clock': 0,
             'cultural-timer': 0,
             'small-deeds': 0,
-            'zakat-calculator': 0
+            'zakat-calculator': 0,
+            'arabic-header': 0
         };
 
         stats.forEach(s => {

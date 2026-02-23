@@ -46,12 +46,9 @@ function ZakatCalculatorEmbedContent() {
         showSadaqah: searchParams.get('showSadaqah') !== 'false'
     };
 
-    const bg = theme === 'dark' ? '#191919' : '#ffffff';
-
     return (
         <div
-            className="w-full min-h-screen flex items-center justify-center px-4 py-6 overflow-hidden"
-            style={{ backgroundColor: bg }}
+            className="w-full min-h-screen flex items-center justify-center px-4 py-6 overflow-hidden bg-transparent"
         >
             <ZakatCalculatorWidget {...config} />
         </div>

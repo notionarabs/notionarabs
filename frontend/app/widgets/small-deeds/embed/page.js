@@ -15,17 +15,34 @@ function SmallDeedsEmbedContent() {
     const [systemTheme, setSystemTheme] = useState('dark');
 
     useEffect(() => {
-        if (config.theme === 'auto') {
-            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            setSystemTheme(isDark ? 'dark' : 'light');
-        }
-    }, [config.theme]);
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        setSystemTheme(mq.matches ? 'dark' : 'light');
+        const handler = (e) => setSystemTheme(e.matches ? 'dark' : 'light');
+        mq.addEventListener('change', handler);
+
+        // Usage Tracking
+        const trackUsage = async () => {
+            try {
+                const base = process.env.NEXT_PUBLIC_API_URL || 'https://api.notionarabs.com/api';
+                const apiUrl = base.endsWith('/api') ? base.slice(0, -4) : base;
+                await fetch(`${apiUrl}/api/widgets/track`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ widgetId: 'small-deeds' })
+                });
+            } catch (err) {
+                console.warn('Tracking failed:', err);
+            }
+        };
+        trackUsage();
+
+        return () => mq.removeEventListener('change', handler);
+    }, []);
 
     const activeTheme = config.theme === 'auto' ? systemTheme : config.theme;
 
     return (
-        <div className={`min-h-screen flex items-center justify-center p-4 transition-colors duration-500 ${activeTheme === 'dark' ? 'bg-[#121212]' : 'bg-transparent'
-            }`}>
+        <div className="min-h-screen flex items-center justify-center p-4 bg-transparent">
             <SmallDeedsWidget
                 {...config}
                 theme={activeTheme}

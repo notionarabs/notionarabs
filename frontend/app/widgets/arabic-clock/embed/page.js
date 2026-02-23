@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ArabicClockWidget from '../../../../components/widgets/ArabicClockWidget';
 
@@ -17,15 +17,38 @@ function ArabicClockEmbedContent() {
         showHijri: searchParams.get('showHijri') !== 'false',
     };
 
-    // System theme detection for 'auto'
-    const [systemTheme, setSystemTheme] = typeof window !== 'undefined'
-        ? [window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light']
-        : ['dark'];
+    // Auto-detect system/browser dark-light preference
+    const [systemTheme, setSystemTheme] = useState('dark');
+
+    useEffect(() => {
+        const mq = window.matchMedia('(prefers-color-scheme: dark)');
+        setSystemTheme(mq.matches ? 'dark' : 'light');
+        const handler = (e) => setSystemTheme(e.matches ? 'dark' : 'light');
+        mq.addEventListener('change', handler);
+
+        // Usage Tracking
+        const trackUsage = async () => {
+            try {
+                const base = process.env.NEXT_PUBLIC_API_URL || 'https://api.notionarabs.com/api';
+                const apiUrl = base.endsWith('/api') ? base.slice(0, -4) : base;
+                await fetch(`${apiUrl}/api/widgets/track`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ widgetId: 'arabic-clock' })
+                });
+            } catch (err) {
+                console.warn('Tracking failed:', err);
+            }
+        };
+        trackUsage();
+
+        return () => mq.removeEventListener('change', handler);
+    }, []);
 
     const resolvedTheme = config.theme === 'auto' ? systemTheme : config.theme;
 
     return (
-        <div className={`min-h-screen flex items-center justify-center p-4 ${resolvedTheme === 'dark' ? 'bg-[#191919]' : 'bg-transparent'}`}>
+        <div className="min-h-screen flex items-center justify-center p-4 bg-transparent">
             <ArabicClockWidget {...config} theme={resolvedTheme} />
         </div>
     );

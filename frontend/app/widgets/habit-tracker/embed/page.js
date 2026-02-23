@@ -39,12 +39,9 @@ function HabitTrackerEmbedContent() {
 
     const theme = (themeParam === 'dark' || themeParam === 'light') ? themeParam : systemTheme;
 
-    const bg = theme === 'dark' ? '#191919' : '#ffffff';
-
     return (
         <div
-            className="w-full h-screen flex items-center justify-center px-4 py-6 overflow-hidden"
-            style={{ backgroundColor: bg }}
+            className="w-full h-screen flex items-center justify-center px-4 py-6 overflow-hidden bg-transparent"
         >
             <HabitTrackerWidget
                 theme={theme}

@@ -72,6 +72,7 @@ const WIDGET_DATA = {
         description: 'حوّل عناوين صفحاتك في نوشن إلى لوحات فنية. اختر من بين أرقى الخطوط العربية (كوفي، ثلث، رقعة) وخصص الألوان والأحجام لتناسب ذوقك.',
         features: ['خطوط عربية احترافية', 'تخصيص كامل للألوان', 'خلفية شفافة تماماً', 'أحجام خط مرنة'],
         settings: [
+            { id: 'theme', label: 'المظهر', type: 'select', options: [{ id: 'auto', label: 'تلقائي' }, { id: 'light', label: 'نهاري' }, { id: 'dark', label: 'ليلي' }] },
             { id: 'text', label: 'نص العنوان', type: 'input', placeholder: 'اكتب عنوانك هنا...' },
             {
                 id: 'font', label: 'نوع الخط الفني', type: 'select', options: [
@@ -425,7 +426,21 @@ export default function WidgetDetailClient() {
     }, [searchParams]);
 
     const [copied, setCopied] = useState(false);
-    const [stats, setStats] = useState({ quran: 0, prayer: 0, countdown: 0, athkar: 0, pomodoro: 0, hadith: 0, 'habit-tracker': 0, 'zakat-calculator': 0 });
+    const [stats, setStats] = useState({
+        quran: 0,
+        prayer: 0,
+        countdown: 0,
+        athkar: 0,
+        pomodoro: 0,
+        hadith: 0,
+        'habit-tracker': 0,
+        'zakat-calculator': 0,
+        'weather': 0,
+        'cultural-timer': 0,
+        'arabic-clock': 0,
+        'small-deeds': 0,
+        'arabic-header': 0
+    });
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -443,7 +458,12 @@ export default function WidgetDetailClient() {
                         pomodoro: data.stats.pomodoro || 0,
                         hadith: data.stats.hadith || 0,
                         'habit-tracker': data.stats['habit-tracker'] || 0,
-                        'zakat-calculator': data.stats['zakat-calculator'] || 0
+                        'zakat-calculator': data.stats['zakat-calculator'] || 0,
+                        'weather': data.stats.weather || 0,
+                        'cultural-timer': data.stats['cultural-timer'] || 0,
+                        'arabic-clock': data.stats['arabic-clock'] || 0,
+                        'small-deeds': data.stats['small-deeds'] || 0,
+                        'arabic-header': data.stats['arabic-header'] || 0
                     });
                 }
             } catch (err) {

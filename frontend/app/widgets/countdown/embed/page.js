@@ -48,12 +48,9 @@ function CountdownEmbedContent() {
         id: 'countdown'
     };
 
-    const bg = theme === 'dark' ? '#191919' : '#ffffff';
-
     return (
         <div
-            className="w-full h-screen flex items-center justify-center px-4 py-6 overflow-hidden"
-            style={{ backgroundColor: bg }}
+            className="w-full h-screen flex items-center justify-center px-4 py-6 overflow-hidden bg-transparent"
         >
             <CountdownWidget {...config} />
         </div>

@@ -21,6 +21,11 @@ const ArabicHeaderWidget = ({
         'lemon': "'Lemonada', cursive"
     };
 
+    const isDefaultColor = color === '#f5631e' || color === '#000000' || color === '#ffffff';
+    const finalColor = isDefaultColor
+        ? (theme === 'dark' ? '#ffffff' : color === '#f5631e' ? '#f5631e' : '#37352f')
+        : color;
+
     const containerStyle = {
         display: 'flex',
         alignItems: 'center',
@@ -34,7 +39,7 @@ const ArabicHeaderWidget = ({
 
     const textStyle = {
         fontFamily: fontMap[font] || fontMap.tajawal,
-        color: color,
+        color: finalColor,
         fontSize: fontSize,
         fontWeight: fontWeight,
         margin: 0,

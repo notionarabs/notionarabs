@@ -30,16 +30,6 @@ export function middleware(request) {
   // 2. Get the auth token from cookies
   const token = request.cookies.get('authToken')?.value;
 
-  // 3. SECURE WIDGET EMBEDS: Explicitly check for /embed in widgets
-  // This must be checked BEFORE any public route allow-list
-  if (pathname.startsWith('/widgets/') && pathname.includes('/embed')) {
-    if (!token) {
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-    return NextResponse.next();
-  }
 
   // 4. Handle redirects and old routes
   const templateCategoryMatch = pathname.match(/^\/templates\/category\/(.+)$/);
@@ -77,7 +67,7 @@ export function middleware(request) {
     (pathname.match(/^\/blog\/[^\/]+$/) && !pathname.startsWith('/blog/create') && !pathname.startsWith('/blog/edit/')) ||
     pathname.match(/^\/creators\/[^\/]+$/) ||
     pathname.match(/^\/categories\/[^\/]+$/) ||
-    (pathname.startsWith('/widgets/') && !pathname.includes('/embed'));
+    pathname.startsWith('/widgets/');
 
   const isStaticAsset =
     pathname.startsWith('/_next') ||

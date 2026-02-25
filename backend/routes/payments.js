@@ -55,15 +55,21 @@ router.post('/create-checkout-session', auth, async (req, res) => {
         console.log('📝 Pending order saved in database:', order._id);
 
         // 4. Use Paymob Intention API (new unified checkout — iFrames are deprecated)
-        // Integration ID: 5555012 (MIGS, EGP, Test Mode — created 2026-02-25)
-        const integrationId = process.env.PAYMOB_INTEGRATION_ID_ONLINE || 5555012;
+        // Pass all known integration IDs — Paymob accepts whichever are valid for this account
+        const knownIds = [
+            process.env.PAYMOB_INTEGRATION_ID_ONLINE, // env var (5555012)
+            5555012,  // new MIGS (created 2026-02-25)
+            5550521,  // old MIGS
+            5550523   // old UIG
+        ].filter(Boolean).map(Number);
+        const integrationIds = [...new Set(knownIds)];
 
         const frontendUrl = process.env.FRONTEND_URL || 'https://www.notionarabs.com';
 
         const { clientSecret, publicKey } = await paymobService.createIntention({
             amountCents,
             currency: 'EGP',
-            integrationId: Number(integrationId),
+            integrationIds,
             billingData,
             itemName: cleanTitle,
             redirectionUrl: `${frontendUrl}/payment/callback`

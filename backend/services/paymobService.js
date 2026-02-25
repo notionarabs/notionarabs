@@ -30,7 +30,7 @@ class PaymobService {
      * @param {Object} options
      * @returns {Promise<string>} client_secret for the unified checkout URL
      */
-    async createIntention({ amountCents, currency = 'EGP', integrationId, billingData = {}, itemName = 'Purchase', redirectionUrl }) {
+    async createIntention({ amountCents, currency = 'EGP', integrationIds = [], billingData = {}, itemName = 'Purchase', redirectionUrl }) {
         if (!this.secretKey) {
             console.error('❌ PAYMOB_SECRET_KEY is missing in environment variables');
             throw new Error('Paymob configuration error: Secret Key missing');
@@ -50,7 +50,6 @@ class PaymobService {
         const requestBody = {
             amount: amount,
             currency: currency,
-            payment_methods: [Number(integrationId)],
             items: [
                 {
                     name: (itemName || 'Purchase').substring(0, 50),
@@ -81,6 +80,15 @@ class PaymobService {
             },
             redirection_url: redirectionUrl || 'https://www.notionarabs.com/payment/callback'
         };
+
+        // Only specify payment_methods if we have valid IDs
+        // If omitted, Paymob will show ALL available methods for this account
+        if (integrationIds.length > 0) {
+            requestBody.payment_methods = integrationIds.map(Number);
+            console.log('💳 Payment methods (integration IDs):', requestBody.payment_methods);
+        } else {
+            console.log('💳 No integration IDs specified — Paymob will show all available methods');
+        }
 
         try {
             console.log('📤 Sending Intention API request to Paymob...');

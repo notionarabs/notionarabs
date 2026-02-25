@@ -68,6 +68,12 @@ const orderSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  paymobOrderId: {
+    type: String,
+    default: null,
+    index: true
+  },
+
   notes: {
     type: String,
     trim: true,

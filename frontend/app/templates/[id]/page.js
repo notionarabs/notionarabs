@@ -47,6 +47,7 @@ export default function TemplateDetailPage() {
   const [isDownloaded, setIsDownloaded] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isPurchasing, setIsPurchasing] = useState(false);
   const [userRating, setUserRating] = useState(null);
   const [userComment, setUserComment] = useState(null);
   const [templateRatings, setTemplateRatings] = useState([]);
@@ -742,6 +743,45 @@ export default function TemplateDetailPage() {
     }
   };
 
+  // Handle template purchase
+  const handlePurchase = async () => {
+    if (!template) return;
+
+    // Check authentication first
+    if (!isAuthenticated) {
+      window.location.href = `/login?redirect=/templates/${template.slug || template._id}`;
+      return;
+    }
+
+    // If user already has the template, just open it
+    if (userHasTemplate) {
+      window.open(template.notionLink, '_blank');
+      return;
+    }
+
+    setIsPurchasing(true);
+
+    try {
+      const response = await api.post('/payments/create-checkout-session', {
+        templateId: template._id
+      });
+
+      if (response.data.success && response.data.checkoutUrl) {
+        // Redirect to Paymob checkout
+        window.location.href = response.data.checkoutUrl;
+      } else {
+        throw new Error('Failed to get checkout URL');
+      }
+    } catch (error) {
+      console.error('Full Purchase Error Object:', error);
+      console.error('Error Response Data:', error.response?.data);
+      alert(`خطأ في عملية الشراء: ${error.response?.data?.details?.message || error.response?.data?.message || 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.'}`);
+    } finally {
+
+      setIsPurchasing(false);
+    }
+  };
+
   // Show loading state
   if (loading) {
     return (
@@ -1293,11 +1333,26 @@ export default function TemplateDetailPage() {
                   <div className="flex-1 min-w-0 w-full">
                     {template.isPaid ? (
                       <button
-                        onClick={() => window.open(template.purchaseLink, '_blank')}
-                        className="w-full h-full min-h-[52px] rounded-xl font-bold text-base transition-all duration-300 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white shadow-lg hover:shadow-primary-500/30 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
+                        onClick={handlePurchase}
+                        disabled={isPurchasing || checkingOwnership || userHasTemplate}
+                        className="w-full h-full min-h-[52px] rounded-xl font-bold text-base transition-all duration-300 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 text-white shadow-lg hover:shadow-primary-500/30 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 disabled:opacity-70 disabled:transform-none"
                       >
-                        <ShoppingCart className="w-5 h-5" />
-                        <span>شراء القالب الآن</span>
+                        {isPurchasing ? (
+                          <>
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            جاري التحويل للدفع...
+                          </>
+                        ) : userHasTemplate ? (
+                          <>
+                            <Folder className="w-5 h-5" />
+                            فتح القالب
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingCart className="w-5 h-5" />
+                            <span>شراء القالب الآن</span>
+                          </>
+                        )}
                       </button>
                     ) : (
                       <button

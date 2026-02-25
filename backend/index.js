@@ -173,6 +173,8 @@ const statsRoutes = require('./routes/stats');
 const unsubscribeRoutes = require('./routes/unsubscribe');
 const orderRoutes = require('./routes/orders');
 const widgetRoutes = require('./routes/widgets');
+const paymentRoutes = require('./routes/payments');
+
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/settings', adminRoutes); // Public settings endpoint
@@ -190,6 +192,7 @@ app.use('/api/stats', statsRoutes);
 app.use('/api/unsubscribe', unsubscribeRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/widgets', widgetRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Robots.txt for API - disallow all crawling
 app.get('/robots.txt', (req, res) => {

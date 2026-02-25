@@ -106,7 +106,7 @@ class PaymobService {
                 street: 'Nasr Street',
                 building: '1',
                 phone_number: billingDataToUse.phone || '01012345678',
-                shipping_method: 'NA',
+                shipping_method: 'PKG',
                 postal_code: '11511',
                 city: 'Cairo',
                 country: 'EG',

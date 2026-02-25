@@ -102,12 +102,12 @@ class PaymobService {
             };
 
             const normalizedBillingData = {
-                apartment: 'NA',
+                apartment: '1',
                 email: billingDataToUse.email || 'customer@notionarabs.com',
-                floor: 'NA',
+                floor: '1',
                 first_name: sanitizeName(billingDataToUse.firstName, 'NotionArabs'),
-                street: 'Nasr Street',
-                building: 'NA',
+                street: 'StreetName',
+                building: '1',
                 phone_number: (billingDataToUse.phone || '01012345678').replace(/\D/g, ''),
                 shipping_method: 'PKG',
                 postal_code: '11511',
@@ -119,14 +119,22 @@ class PaymobService {
 
             const requestBody = {
                 auth_token: authToken,
-                amount_cents: Math.trunc(amountCents),
-                expiration: expiration,
-                order_id: parseInt(orderId),
+                amount_cents: Number(amountCents),
+                expiration: Number(expiration),
+                order_id: Number(orderId),
                 billing_data: normalizedBillingData,
                 shipping_data: normalizedBillingData,
+                items: [
+                    {
+                        name: "Purchase",
+                        amount_cents: Number(amountCents),
+                        quantity: 1,
+                        description: "Digital Template"
+                    }
+                ],
                 currency: currency,
-                integration_id: parseInt(integrationId),
-                lock_order_when_paid: true,
+                integration_id: Number(integrationId),
+                lock_order_when_paid: false,
                 redirection_url: `${process.env.FRONTEND_URL}/payment-success?id=${orderId}`
             };
 

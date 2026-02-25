@@ -126,10 +126,10 @@ class PaymobService {
                 shipping_data: normalizedBillingData,
                 items: [
                     {
-                        name: "Template Purchase",
+                        name: "Item",
                         amount_cents: Math.round(amountCents),
                         quantity: 1,
-                        description: "Notion Template"
+                        description: "Ordered"
                     }
                 ],
                 currency: currency,

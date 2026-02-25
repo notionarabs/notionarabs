@@ -55,15 +55,16 @@ router.post('/create-checkout-session', auth, async (req, res) => {
         console.log('📝 Pending order saved in database:', order._id);
 
         // 4. Use Paymob Intention API (new unified checkout — iFrames are deprecated)
-        // ⚠️  NOT passing payment_methods — let Paymob use all default methods for this account
-        // This avoids "Integration ID does not exist" errors from mismatched account/integration
+        // ✅ Using test card integration ID 5555012 provided by Paymob support
+        // Switch PAYMOB_INTEGRATION_ID in .env to the live ID once Paymob approves
 
         const frontendUrl = process.env.FRONTEND_URL || 'https://www.notionarabs.com';
+        const integrationId = parseInt(process.env.PAYMOB_INTEGRATION_ID || '5555012', 10);
 
         const { clientSecret, publicKey } = await paymobService.createIntention({
             amountCents,
             currency: 'EGP',
-            integrationIds: [],   // empty = omit payment_methods field entirely
+            integrationIds: [integrationId],  // 5555012 = Paymob test card integration
             billingData,
             itemName: cleanTitle,
             redirectionUrl: `${frontendUrl}/payment/callback`

@@ -91,26 +91,27 @@ class PaymobService {
         try {
             console.log(`🔄 Requesting payment key for order ${orderId}...`);
 
-            // Paymob requires all these fields in billing_data
-            const billingDataToUse = billingData || {};
-
-            // Clean item name (remove Arabic/Special chars for this specific field to prevent Paymob UI lag)
-            const cleanItemName = (billingDataToUse.itemName || 'Template')
-                .replace(/[^\w\s-]/gi, '') || 'Template';
+            // Paymob's UI often crashes if billing names contain Arabic characters
+            // We sanitize to English placeholders for the gateway only
+            const sanitizeName = (name, fallback) => {
+                if (!name) return fallback;
+                // If contains non-Latin characters, use fallback
+                return /[^\x00-\x7F]/.test(name) ? fallback : name;
+            };
 
             const normalizedBillingData = {
                 apartment: 'NA',
-                email: billingDataToUse.email || 'guest@notionarabs.com',
+                email: billingDataToUse.email || 'customer@notionarabs.com',
                 floor: 'NA',
-                first_name: (billingDataToUse.firstName || 'Guest').substring(0, 50),
+                first_name: sanitizeName(billingDataToUse.firstName, 'NotionArabs'),
                 street: 'Nasr Street',
                 building: 'NA',
-                phone_number: billingDataToUse.phone || '01012345678',
+                phone_number: (billingDataToUse.phone || '01012345678').replace(/\D/g, ''),
                 shipping_method: 'PKG',
                 postal_code: '11511',
                 city: 'Cairo',
                 country: 'EG',
-                last_name: (billingDataToUse.lastName || 'User').substring(0, 50),
+                last_name: sanitizeName(billingDataToUse.lastName, 'Member'),
                 state: 'Cairo'
             };
 

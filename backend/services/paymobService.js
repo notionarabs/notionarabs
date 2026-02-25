@@ -106,7 +106,7 @@ class PaymobService {
                 street: 'Nasr Street',
                 building: '1',
                 phone_number: billingDataToUse.phone || '01012345678',
-                shipping_method: 'PKG',
+                shipping_method: 'NA',
                 postal_code: '11511',
                 city: 'Cairo',
                 country: 'EG',
@@ -116,22 +116,22 @@ class PaymobService {
 
             const requestBody = {
                 auth_token: authToken,
-                amount_cents: parseInt(amountCents),
+                amount_cents: Math.round(amountCents),
                 expiration: expiration,
                 order_id: parseInt(orderId),
                 billing_data: normalizedBillingData,
                 shipping_data: { ...normalizedBillingData },
                 items: [
                     {
-                        name: cleanItemName.substring(0, 50),
-                        amount_cents: parseInt(amountCents),
+                        name: 'Template',
+                        amount_cents: Math.round(amountCents),
                         quantity: 1,
                         description: 'Digital Product'
                     }
                 ],
                 currency: currency,
                 integration_id: parseInt(integrationId),
-                lock_order_when_paid: true,
+                lock_order_when_paid: false,
                 redirection_url: `${process.env.FRONTEND_URL}/payment-success?id=${orderId}`
             };
 

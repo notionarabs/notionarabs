@@ -99,24 +99,24 @@ class PaymobService {
                 .replace(/[^\w\s-]/gi, '') || 'Template';
 
             const normalizedBillingData = {
-                apartment: '1',
+                apartment: 'NA',
                 email: billingDataToUse.email || 'guest@notionarabs.com',
-                floor: '1',
-                first_name: billingDataToUse.firstName || 'Guest',
+                floor: 'NA',
+                first_name: (billingDataToUse.firstName || 'Guest').substring(0, 50),
                 street: 'Nasr Street',
-                building: '1',
+                building: 'NA',
                 phone_number: billingDataToUse.phone || '01012345678',
                 shipping_method: 'PKG',
                 postal_code: '11511',
                 city: 'Cairo',
                 country: 'EG',
-                last_name: billingDataToUse.lastName || 'User',
+                last_name: (billingDataToUse.lastName || 'User').substring(0, 50),
                 state: 'Cairo'
             };
 
             const requestBody = {
                 auth_token: authToken,
-                amount_cents: Math.round(amountCents),
+                amount_cents: Math.trunc(amountCents),
                 expiration: expiration,
                 order_id: parseInt(orderId),
                 billing_data: normalizedBillingData,

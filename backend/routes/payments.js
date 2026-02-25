@@ -29,16 +29,19 @@ router.post('/create-checkout-session', auth, async (req, res) => {
         // 2. Paymob Flow - Step 1: Auth
         const authToken = await paymobService.authenticate();
 
+        // Clean title for Paymob items list (ASCII only to prevent UI calculation issues)
+        const cleanTitle = template.title.replace(/[^\w\s-]/gi, '') || 'Template';
+
         const paymobOrderId = await paymobService.registerOrder(authToken, {
             amountCents,
             currency: 'EGP',
             merchantOrderId: `${Date.now()}`.slice(-10), // Purely numeric for MIGS
             items: [
                 {
-                    name: template.title.substring(0, 100),
+                    name: cleanTitle.substring(0, 50),
                     amount_cents: amountCents,
                     quantity: 1,
-                    description: `Purchase of ${template.title}`.substring(0, 250)
+                    description: 'Digital Template'
                 }
             ]
         });

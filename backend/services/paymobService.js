@@ -91,6 +91,8 @@ class PaymobService {
         try {
             console.log(`🔄 Requesting payment key for order ${orderId}...`);
 
+            const billingDataToUse = billingData || {};
+
             // Paymob's UI often crashes if billing names contain Arabic characters
             // We sanitize to English placeholders for the gateway only
             const sanitizeName = (name, fallback) => {

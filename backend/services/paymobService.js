@@ -119,13 +119,14 @@ class PaymobService {
 
             const requestBody = {
                 auth_token: authToken,
-                amount_cents: Number(amountCents),
+                amount_cents: Number(amountCents).toString(), // Send as string just in case
                 expiration: 3600,
                 order_id: Number(orderId),
                 billing_data: normalizedBillingData,
+                shipping_data: { ...normalizedBillingData },
                 currency: currency,
                 integration_id: Number(integrationId),
-                lock_order_when_paid: false,
+                lock_order_when_paid: "false", // Send as string per some docs
                 redirection_url: `${process.env.FRONTEND_URL}/payment-success?id=${orderId}`
             };
 

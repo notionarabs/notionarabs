@@ -3,151 +3,108 @@ const crypto = require('crypto');
 
 /**
  * Service to handle Paymob payment integration
+ * Uses the new Intention API (v1) — iFrames and legacy 3-step flow are deprecated by Paymob.
+ *
+ * Flow:
+ *   1. POST /v1/intention/ → get client_secret
+ *   2. Redirect to https://accept.paymob.com/unifiedcheckout/?publicKey=<pk>&clientSecret=<cs>
  */
 class PaymobService {
+
     constructor() {
-        this.apiKey = process.env.PAYMOB_API_KEY;
-        this.baseUrl = 'https://accept.paymob.com/api';
-        this.token = null;
-        this.tokenExpiry = null;
+        this.secretKey = process.env.PAYMOB_SECRET_KEY;
+        this.publicKey = process.env.PAYMOB_PUBLIC_KEY;
+        this.intentionBaseUrl = 'https://accept.paymob.com/v1/intention/';
     }
 
     /**
-     * Step 1: Authenticate with Paymob and get an auth token
-     * This token is used for subsequent requests.
-     * @returns {Promise<string>} The auth token
+     * Sanitize a name to ASCII only (Paymob billing data rejects Arabic characters)
      */
-    async authenticate() {
-        if (!this.apiKey) {
-            console.error('❌ PAYMOB_API_KEY is missing in environment variables');
-            throw new Error('Paymob configuration error: API Key missing');
-        }
-
-        try {
-            // Check if we have a valid cached token (Paymob tokens are usually valid for 1 hour)
-            if (this.token && this.tokenExpiry && new Date() < this.tokenExpiry) {
-                return this.token;
-            }
-
-            console.log('🔄 Authenticating with Paymob...');
-            const response = await axios.post(`${this.baseUrl}/auth/tokens`, {
-                api_key: this.apiKey,
-            });
-
-            if (response.data && response.data.token) {
-                this.token = response.data.token;
-                // Cache token for 50 minutes to be safe
-                this.tokenExpiry = new Date(new Date().getTime() + 50 * 60 * 1000);
-                console.log('✅ Paymob authentication successful');
-                return this.token;
-            }
-
-            throw new Error('Auth token not found in Paymob response');
-        } catch (error) {
-            console.error('❌ Paymob Authentication Failed:', error.response?.data || error.message);
-            const apiError = new Error('Paymob authentication failed');
-            apiError.response = error.response;
-            throw apiError;
-        }
+    _sanitizeName(name, fallback) {
+        if (!name) return fallback;
+        return /[^\x00-\x7F]/.test(name) ? fallback : name;
     }
 
     /**
-     * Step 2: Register an order with Paymob
-     * @param {string} authToken - The auth token from authenticate()
-     * @param {Object} orderData - Order details
-     * @returns {Promise<number>} The Paymob order ID
+     * Create a payment intention using the Paymob Intention API (v1)
+     * @param {Object} options
+     * @returns {Promise<string>} client_secret for the unified checkout URL
      */
-    async registerOrder(authToken, { amountCents, currency = 'EGP', items = [], merchantOrderId = '' }) {
-        try {
-            console.log(`🔄 Registering order with Paymob for ${amountCents} cents...`);
-            const response = await axios.post(`${this.baseUrl}/ecommerce/orders`, {
-                auth_token: authToken,
-                delivery_needed: false,
-                amount_cents: amountCents,
-                currency: currency,
-                terminal_id: null,
-                merchant_order_id: merchantOrderId || undefined,
-                items: items
-            });
-
-            console.log('✅ Paymob order registered. ID:', response.data.id);
-            return response.data.id;
-        } catch (error) {
-            console.error('❌ Paymob Order Registration Failed:', error.response?.data || error.message);
-            const apiError = new Error('Failed to register order with Paymob');
-            apiError.response = error.response;
-            throw apiError;
+    async createIntention({ amountCents, currency = 'EGP', integrationId, billingData = {}, itemName = 'Purchase', redirectionUrl }) {
+        if (!this.secretKey) {
+            console.error('❌ PAYMOB_SECRET_KEY is missing in environment variables');
+            throw new Error('Paymob configuration error: Secret Key missing');
         }
-    }
 
-    /**
-     * Step 3: Get a payment key for the checkout
-     * @param {string} authToken - The auth token from authenticate()
-     * @param {number} orderId - The order ID from registerOrder()
-     * @param {Object} paymentData - Payment details
-     * @returns {Promise<string>} The payment key token (used in the iframe)
-     */
-    async getPaymentKey(authToken, orderId, { amountCents, currency = 'EGP', expiration = 3600, billingData, integrationId }) {
-        try {
-            console.log(`🔄 Requesting payment key for order ${orderId}...`);
+        if (!this.publicKey) {
+            console.error('❌ PAYMOB_PUBLIC_KEY is missing in environment variables');
+            throw new Error('Paymob configuration error: Public Key missing');
+        }
 
-            const billingDataToUse = billingData || {};
+        const firstName = this._sanitizeName(billingData.firstName, 'Notion');
+        const lastName = this._sanitizeName(billingData.lastName, 'Member');
+        const phone = (billingData.phone || '01012345678').replace(/\D/g, '');
+        const email = billingData.email || 'customer@notionarabs.com';
+        const amount = Math.round(amountCents);
 
-            // Paymob's UI often crashes if billing names contain Arabic characters
-            // We sanitize to English placeholders for the gateway only
-            const sanitizeName = (name, fallback) => {
-                if (!name) return fallback;
-                // If contains non-Latin characters, use fallback
-                return /[^\x00-\x7F]/.test(name) ? fallback : name;
-            };
-
-            const normalizedBillingData = {
+        const requestBody = {
+            amount: amount,
+            currency: currency,
+            payment_methods: [Number(integrationId)],
+            items: [
+                {
+                    name: (itemName || 'Purchase').substring(0, 50),
+                    amount: amount,
+                    description: 'Digital Template',
+                    quantity: 1
+                }
+            ],
+            billing_data: {
                 apartment: '1',
-                email: billingDataToUse.email || 'customer@notionarabs.com',
+                email: email,
                 floor: '1',
-                first_name: sanitizeName(billingDataToUse.firstName, 'Notion'),
+                first_name: firstName,
                 street: 'Nasr Street',
                 building: '1',
-                phone_number: (billingDataToUse.phone || '01012345678').replace(/\D/g, ''),
+                phone_number: phone,
                 shipping_method: 'PKG',
                 postal_code: '11511',
                 city: 'Cairo',
                 country: 'EG',
-                last_name: sanitizeName(billingDataToUse.lastName, 'Member'),
+                last_name: lastName,
                 state: 'Cairo'
-            };
+            },
+            customer: {
+                first_name: firstName,
+                last_name: lastName,
+                email: email
+            },
+            redirection_url: redirectionUrl || 'https://www.notionarabs.com/payment/callback'
+        };
 
-            const requestBody = {
-                auth_token: authToken,
-                amount_cents: Math.round(amountCents).toString(),
-                expiration: 3600,
-                order_id: orderId.toString(),
-                billing_data: normalizedBillingData,
-                shipping_data: normalizedBillingData,
-                items: [
-                    {
-                        name: "Purchase",
-                        amount_cents: Math.round(amountCents).toString(),
-                        quantity: "1",
-                        description: "Standard"
-                    }
-                ],
-                currency: currency,
-                integration_id: Number(integrationId),
-                lock_order_when_paid: "false"
-            };
+        try {
+            console.log('📤 Sending Intention API request to Paymob...');
+            const response = await axios.post(this.intentionBaseUrl, requestBody, {
+                headers: {
+                    'Authorization': `Token ${this.secretKey}`,
+                    'Content-Type': 'application/json'
+                }
+            });
 
-            console.log('📤 Sending Final MIGS Payload to Paymob:', JSON.stringify(requestBody));
+            const clientSecret = response.data.client_secret;
+            if (!clientSecret) {
+                throw new Error('client_secret not found in Paymob Intention API response');
+            }
 
-            const response = await axios.post(`${this.baseUrl}/acceptance/payment_keys`, requestBody);
-            return response.data.token;
+            console.log('✅ Paymob Intention created. client_secret received.');
+            return { clientSecret, publicKey: this.publicKey };
+
         } catch (error) {
-            console.error('❌ Paymob Payment Key Failed:', error.response?.data || error.message);
-            const apiError = new Error('Failed to generate Paymob payment key');
-            apiError.response = error.response; // Attach original response for the route handler
+            console.error('❌ Paymob Intention API Failed:', error.response?.data || error.message);
+            const apiError = new Error('Failed to create Paymob payment intention');
+            apiError.response = error.response;
             throw apiError;
         }
-
     }
 
     /**
@@ -157,8 +114,6 @@ class PaymobService {
      * @returns {string} The calculated HMAC
      */
     calculateHmac(data, hmacSecret) {
-
-        // Paymob HMAC V1 / V2 fields order is specific
         const {
             amount_cents,
             created_at,
@@ -226,7 +181,6 @@ class PaymobService {
             return false;
         }
 
-        // Sort keys alphabetically as required for transaction HMAC
         const keys = Object.keys(query).sort();
         let concatenatedString = '';
 

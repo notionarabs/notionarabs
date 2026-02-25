@@ -65,9 +65,9 @@ router.post('/create-checkout-session', auth, async (req, res) => {
         console.log('📝 Pending order saved in database:', order._id);
 
         // 4. Paymob Flow - Step 3: Get Payment Key
-        // ⚠️  5550521 is CONFIRMED BROKEN ("Invalid Payment method integration" from Paymob)
-        // Using 5550523 (UIG) instead until Paymob fixes 5550521
-        const integrationId = process.env.PAYMOB_INTEGRATION_ID_UIG || process.env.PAYMOB_INTEGRATION_ID_ONLINE || 5550523;
+        // ✅ 5555012 is the new MIGS test integration (EGP) created on 2026-02-25
+        // ⚠️  5550521 was CONFIRMED BROKEN ("Invalid Payment method integration" from Paymob)
+        const integrationId = process.env.PAYMOB_INTEGRATION_ID_ONLINE || 5555012;
 
         // Prepare billing data
         const billingData = {

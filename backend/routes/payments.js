@@ -65,8 +65,9 @@ router.post('/create-checkout-session', auth, async (req, res) => {
         console.log('📝 Pending order saved in database:', order._id);
 
         // 4. Paymob Flow - Step 3: Get Payment Key
-        // Use the ID from your .env file
-        const integrationId = process.env.PAYMOB_INTEGRATION_ID_ONLINE || 5550521;
+        // ⚠️  5550521 is CONFIRMED BROKEN ("Invalid Payment method integration" from Paymob)
+        // Using 5550523 (UIG) instead until Paymob fixes 5550521
+        const integrationId = process.env.PAYMOB_INTEGRATION_ID_UIG || process.env.PAYMOB_INTEGRATION_ID_ONLINE || 5550523;
 
         // Prepare billing data
         const billingData = {
@@ -84,14 +85,21 @@ router.post('/create-checkout-session', auth, async (req, res) => {
             billingData
         });
 
-        console.log('✅ Payment key received');
+        console.log('✅ Payment key received for integration', integrationId);
+
+        // Smart URL: use iframe if configured, otherwise unified checkout
+        const iframeId = process.env.PAYMOB_IFRAME_ID;
+        const checkoutUrl = iframeId
+            ? `https://accept.paymob.com/api/acceptance/iframes/${iframeId}?payment_token=${paymentKey}`
+            : `https://accept.paymob.com/unifiedcheckout/?pulse_token=${paymentKey}`;
+
+        console.log(`🔗 Checkout URL (${iframeId ? 'iframe' : 'unified'}):`, checkoutUrl);
 
         res.json({
             success: true,
             paymentKey,
             paymobOrderId: paymobOrderId.toString(),
-            // Unified Checkout REDIRECT flow
-            checkoutUrl: `https://accept.paymob.com/unifiedcheckout/?pulse_token=${paymentKey}`
+            checkoutUrl
         });
 
 

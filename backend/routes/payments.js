@@ -87,13 +87,11 @@ router.post('/create-checkout-session', auth, async (req, res) => {
 
         console.log('✅ Payment key received for integration', integrationId);
 
-        // Smart URL: use iframe if configured, otherwise unified checkout
-        const iframeId = process.env.PAYMOB_IFRAME_ID;
-        const checkoutUrl = iframeId
-            ? `https://accept.paymob.com/api/acceptance/iframes/${iframeId}?payment_token=${paymentKey}`
-            : `https://accept.paymob.com/unifiedcheckout/?pulse_token=${paymentKey}`;
+        // ✅ Paymob Unified Checkout (iFrames are deprecated by Paymob as of 2026)
+        // Correct parameter is `payment_token` (not `pulse_token`)
+        const checkoutUrl = `https://accept.paymob.com/unifiedcheckout/?payment_token=${paymentKey}`;
 
-        console.log(`🔗 Checkout URL (${iframeId ? 'iframe' : 'unified'}):`, checkoutUrl);
+        console.log(`🔗 Unified Checkout URL:`, checkoutUrl);
 
         res.json({
             success: true,

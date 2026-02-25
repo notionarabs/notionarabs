@@ -120,18 +120,10 @@ class PaymobService {
                 expiration: expiration,
                 order_id: parseInt(orderId),
                 billing_data: normalizedBillingData,
-                shipping_data: { ...normalizedBillingData },
-                items: [
-                    {
-                        name: 'Template',
-                        amount_cents: Math.round(amountCents),
-                        quantity: 1,
-                        description: 'Digital Product'
-                    }
-                ],
+                shipping_data: normalizedBillingData,
                 currency: currency,
                 integration_id: parseInt(integrationId),
-                lock_order_when_paid: false,
+                lock_order_when_paid: true,
                 redirection_url: `${process.env.FRONTEND_URL}/payment-success?id=${orderId}`
             };
 

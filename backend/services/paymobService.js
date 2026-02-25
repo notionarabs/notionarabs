@@ -92,23 +92,25 @@ class PaymobService {
             console.log(`🔄 Requesting payment key for order ${orderId}...`);
 
             // Paymob requires all these fields in billing_data
+            const billingDataToUse = billingData || {};
+
             // Clean item name (remove Arabic/Special chars for this specific field to prevent Paymob UI lag)
-            const cleanItemName = (billingData.itemName || 'Template')
+            const cleanItemName = (billingDataToUse.itemName || 'Template')
                 .replace(/[^\w\s-]/gi, '') || 'Template';
 
             const normalizedBillingData = {
                 apartment: '1',
-                email: billingData.email || 'guest@notionarabs.com',
+                email: billingDataToUse.email || 'guest@notionarabs.com',
                 floor: '1',
-                first_name: billingData.firstName || 'Guest',
-                street: 'Street',
+                first_name: billingDataToUse.firstName || 'Guest',
+                street: 'Nasr Street',
                 building: '1',
-                phone_number: billingData.phone || '01012345678',
-                shipping_method: 'DEFAULT',
+                phone_number: billingDataToUse.phone || '01012345678',
+                shipping_method: 'PKG',
                 postal_code: '11511',
                 city: 'Cairo',
                 country: 'EG',
-                last_name: billingData.lastName || 'User',
+                last_name: billingDataToUse.lastName || 'User',
                 state: 'Cairo'
             };
 

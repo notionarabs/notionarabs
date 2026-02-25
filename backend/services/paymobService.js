@@ -119,31 +119,27 @@ class PaymobService {
 
             const requestBody = {
                 auth_token: authToken,
-                amount_cents: Math.round(amountCents),
+                amount_cents: Math.round(amountCents).toString(),
                 expiration: 3600,
-                order_id: Number(orderId),
+                order_id: orderId.toString(),
                 billing_data: normalizedBillingData,
                 shipping_data: normalizedBillingData,
                 items: [
                     {
-                        name: "Item",
-                        amount_cents: Math.round(amountCents),
-                        quantity: 1,
-                        description: "Ordered"
+                        name: "Purchase",
+                        amount_cents: Math.round(amountCents).toString(),
+                        quantity: "1",
+                        description: "Standard"
                     }
                 ],
                 currency: currency,
                 integration_id: Number(integrationId),
-                lock_order_when_paid: false,
-                redirection_url: `${process.env.FRONTEND_URL}/payment-success?id=${orderId}`
+                lock_order_when_paid: "false"
             };
 
-
-            console.log('📤 Sending to Paymob /payment_keys:', JSON.stringify(requestBody, null, 2));
+            console.log('📤 Sending Final MIGS Payload to Paymob:', JSON.stringify(requestBody));
 
             const response = await axios.post(`${this.baseUrl}/acceptance/payment_keys`, requestBody);
-
-            console.log('✅ Paymob payment key generated');
             return response.data.token;
         } catch (error) {
             console.error('❌ Paymob Payment Key Failed:', error.response?.data || error.message);

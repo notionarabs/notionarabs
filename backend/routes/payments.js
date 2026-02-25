@@ -46,33 +46,9 @@ router.post('/create-checkout-session', auth, async (req, res) => {
             ]
         });
 
-        // 4. Paymob Flow - Step 3: Get Payment Key
-        // Use the ID from your .env file (e.g., 5550523 for Wallets or 5550521 for Cards)
-        const integrationId = process.env.PAYMOB_INTEGRATION_ID_ONLINE || 5550523;
-
-        console.log(`🚀 Initiating payment for Integration ID: ${integrationId}`);
-
-        // Prepare billing data from user profile
-        const billingData = {
-            firstName: req.user.name?.split(' ')[0] || 'Guest',
-            lastName: req.user.name?.split(' ').slice(1).join(' ') || 'User',
-            email: req.user.email,
-            phone: req.user.phone || '01012345678', // Paymob requires a valid phone number
-            itemName: template.title
-        };
-
-        const paymentKey = await paymobService.getPaymentKey(authToken, paymobOrderId, {
-            amountCents,
-            currency: 'EGP',
-            integrationId: parseInt(integrationId),
-            billingData
-        });
-
-        console.log('✅ Payment key received');
-
-        // 5. Create a pending order in our system
+        // 3. Create the order in our system immediately so it shows up on the website
         const order = new Order({
-            user: req.user.id,
+            user: req.user._id, // Use _id for MongoDB compatibility
             items: [{
                 templateId: template._id,
                 name: template.title,
@@ -86,6 +62,29 @@ router.post('/create-checkout-session', auth, async (req, res) => {
         });
 
         await order.save();
+        console.log('📝 Pending order saved in database:', order._id);
+
+        // 4. Paymob Flow - Step 3: Get Payment Key
+        // Use the ID from your .env file
+        const integrationId = process.env.PAYMOB_INTEGRATION_ID_ONLINE || 5550521;
+
+        // Prepare billing data
+        const billingData = {
+            firstName: req.user.name?.split(' ')[0] || 'Guest',
+            lastName: req.user.name?.split(' ').slice(1).join(' ') || 'User',
+            email: req.user.email,
+            phone: req.user.phone || '01012345678',
+            itemName: template.title
+        };
+
+        const paymentKey = await paymobService.getPaymentKey(authToken, paymobOrderId, {
+            amountCents,
+            currency: 'EGP',
+            integrationId: parseInt(integrationId),
+            billingData
+        });
+
+        console.log('✅ Payment key received');
 
         res.json({
             success: true,

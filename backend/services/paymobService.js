@@ -105,8 +105,8 @@ class PaymobService {
                 apartment: '1',
                 email: billingDataToUse.email || 'customer@notionarabs.com',
                 floor: '1',
-                first_name: sanitizeName(billingDataToUse.firstName, 'NotionArabs'),
-                street: 'StreetName',
+                first_name: sanitizeName(billingDataToUse.firstName, 'Notion'),
+                street: 'Nasr Street',
                 building: '1',
                 phone_number: (billingDataToUse.phone || '01012345678').replace(/\D/g, ''),
                 shipping_method: 'PKG',
@@ -120,18 +120,9 @@ class PaymobService {
             const requestBody = {
                 auth_token: authToken,
                 amount_cents: Number(amountCents),
-                expiration: Number(expiration),
+                expiration: 3600,
                 order_id: Number(orderId),
                 billing_data: normalizedBillingData,
-                shipping_data: normalizedBillingData,
-                items: [
-                    {
-                        name: "Purchase",
-                        amount_cents: Number(amountCents),
-                        quantity: 1,
-                        description: "Digital Template"
-                    }
-                ],
                 currency: currency,
                 integration_id: Number(integrationId),
                 lock_order_when_paid: false,

@@ -59,7 +59,7 @@ router.post('/create-checkout-session', auth, async (req, res) => {
         // Switch PAYMOB_INTEGRATION_ID in .env to the live ID once Paymob approves
 
         const frontendUrl = process.env.FRONTEND_URL || 'https://www.notionarabs.com';
-        const integrationId = parseInt(process.env.PAYMOB_INTEGRATION_ID || '5555012', 10);
+        const integrationId = parseInt(process.env.PAYMOB_INTEGRATION_ID_ONLINE || '5555012', 10);
 
         const { clientSecret, publicKey } = await paymobService.createIntention({
             amountCents,

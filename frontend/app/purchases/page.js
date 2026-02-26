@@ -73,7 +73,7 @@ export default function PurchasesPage() {
         date: o.date,
         status: o.status,
         // Ensure we have a valid templateId, checking all possible locations including populated template object
-        templateId: i.templateId || (typeof i.template === 'object' ? i.template?._id : i.template) || i.id,
+        templateId: (i.templateId || (typeof i.template === 'object' ? i.template?._id : i.template) || i.id)?.toString(),
         // Ensure we have a valid name
         name: i.name || (typeof i.template === 'object' ? i.template?.title : null) || 'قالب بدون عنوان',
         // Ensure we have a valid image
@@ -283,7 +283,7 @@ export default function PurchasesPage() {
 
                   <div className="mt-auto pt-4 flex flex-col gap-3">
                     <button
-                      onClick={() => window.open(item.notionLink || `/templates/${item.templateId || item.id}`, '_blank')}
+                      onClick={() => window.open(item.notionLink || `/templates/${item.templateId?.toString() || item.id?.toString()}`, '_blank')}
                       className="w-full py-3 px-4 bg-gray-50 dark:bg-dark-tertiary hover:bg-gray-100 dark:hover:bg-dark-card-border text-gray-700 dark:text-gray-200 font-bold rounded-xl flex items-center justify-center gap-2 transition-colors group/btn"
                     >
                       <span>عرض القالب</span>
@@ -297,7 +297,7 @@ export default function PurchasesPage() {
                       </div>
                     ) : (
                       <button
-                        onClick={() => window.open(item.notionLink || `/templates/${item.templateId || item.id}`, '_blank')}
+                        onClick={() => window.open(item.notionLink || `/templates/${item.templateId?.toString() || item.id?.toString()}`, '_blank')}
                         className="w-full py-3 px-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary-500/20 hover:shadow-primary-500/40"
                       >
                         <Download size={18} />

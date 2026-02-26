@@ -78,7 +78,10 @@ class PaymobService {
                 last_name: lastName,
                 email: email
             },
-            redirection_url: redirectionUrl || 'https://www.notionarabs.com/payment/callback'
+            redirection_url: redirectionUrl || 'https://www.notionarabs.com/payment/callback',
+            notification_url: process.env.BACKEND_URL
+                ? `${process.env.BACKEND_URL}/api/payments/callback`
+                : 'https://notion-arabs-fe5b3f214071.herokuapp.com/api/payments/callback'
         };
 
         // Only specify payment_methods if we have valid IDs

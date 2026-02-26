@@ -73,13 +73,17 @@ export default function PurchasesPage() {
         date: o.date,
         status: o.status,
         // Ensure we have a valid templateId, checking all possible locations including populated template object
-        templateId: (i.templateId || (typeof i.template === 'object' ? i.template?._id : i.template) || i.id)?.toString(),
+        // templateId is populated by the API, so it may be a full object { _id, title, notionLink... }
+        templateId: (typeof i.templateId === 'object' && i.templateId !== null
+          ? i.templateId._id
+          : i.templateId
+        )?.toString(),
         // Ensure we have a valid name
-        name: i.name || (typeof i.template === 'object' ? i.template?.title : null) || 'قالب بدون عنوان',
+        name: i.name || (typeof i.templateId === 'object' ? i.templateId?.title : null) || (typeof i.template === 'object' ? i.template?.title : null) || 'قالب بدون عنوان',
         // Ensure we have a valid image
-        previewImage: i.previewImage || (typeof i.template === 'object' ? (i.template?.previewImage || i.template?.previewImages?.[0]) : null) || '',
-        // Ensure we have a notion link
-        notionLink: i.notionLink || (typeof i.template === 'object' ? i.template?.notionLink : null) || ''
+        previewImage: i.previewImage || (typeof i.templateId === 'object' ? (i.templateId?.previewImage || i.templateId?.previewImages?.[0]) : null) || (typeof i.template === 'object' ? (i.template?.previewImage || i.template?.previewImages?.[0]) : null) || '',
+        // Ensure we have a notion link — pull from populated templateId object
+        notionLink: i.notionLink || (typeof i.templateId === 'object' ? i.templateId?.notionLink : null) || (typeof i.template === 'object' ? i.template?.notionLink : null) || ''
       })))
       // Filter for valid items: downloaded OR completed order OR (legacy) paid status
       .filter((i) => i.downloaded || i.status === 'completed' || i.status === 'paid')

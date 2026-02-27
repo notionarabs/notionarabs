@@ -12,8 +12,20 @@ const crypto = require('crypto');
 class PaymobService {
 
     constructor() {
-        this.secretKey = process.env.PAYMOB_SECRET_KEY;
-        this.publicKey = process.env.PAYMOB_PUBLIC_KEY;
+        const isLive = process.env.NODE_ENV === 'production';
+        this.secretKey = isLive
+            ? process.env.PAYMOB_SECRET_KEY_LIVE
+            : process.env.PAYMOB_SECRET_KEY_TEST;
+        this.publicKey = isLive
+            ? process.env.PAYMOB_PUBLIC_KEY_LIVE
+            : process.env.PAYMOB_PUBLIC_KEY_TEST;
+        this.integrationId = isLive
+            ? parseInt(process.env.PAYMOB_INTEGRATION_ID_LIVE || '0', 10)
+            : parseInt(process.env.PAYMOB_INTEGRATION_ID_TEST || '5555012', 10);
+        this.hmacSecret = isLive
+            ? process.env.PAYMOB_HMAC_SECRET_LIVE
+            : process.env.PAYMOB_HMAC_SECRET_TEST;
+        this.isLive = isLive;
         this.intentionBaseUrl = 'https://accept.paymob.com/v1/intention/';
     }
 
@@ -185,7 +197,7 @@ class PaymobService {
      * @returns {boolean} True if verified
      */
     verifyTransactionHmac(query, hmacFromRequest) {
-        const hmacSecret = process.env.PAYMOB_HMAC_SECRET;
+        const hmacSecret = this.hmacSecret;
 
         if (!hmacSecret) {
             console.error('❌ PAYMOB_HMAC_SECRET is missing');

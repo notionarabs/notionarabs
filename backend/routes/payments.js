@@ -54,17 +54,15 @@ router.post('/create-checkout-session', auth, async (req, res) => {
         await order.save();
         console.log('📝 Pending order saved in database:', order._id);
 
-        // 4. Use Paymob Intention API (new unified checkout — iFrames are deprecated)
-        // ✅ Using test card integration ID 5555012 provided by Paymob support
-        // Switch PAYMOB_INTEGRATION_ID in .env to the live ID once Paymob approves
+        // 4. Use Paymob Intention API (new unified checkout)
+        // Automatically picks TEST or LIVE integration based on NODE_ENV
 
         const frontendUrl = process.env.FRONTEND_URL || 'https://www.notionarabs.com';
-        const integrationId = parseInt(process.env.PAYMOB_INTEGRATION_ID_ONLINE || '5555012', 10);
 
         const { clientSecret, publicKey } = await paymobService.createIntention({
             amountCents,
             currency: 'EGP',
-            integrationIds: [integrationId],  // 5555012 = Paymob test card integration
+            integrationIds: [paymobService.integrationId],
             billingData,
             itemName: cleanTitle,
             redirectionUrl: `${frontendUrl}/payment/callback`
@@ -110,7 +108,7 @@ router.post('/create-checkout-session', auth, async (req, res) => {
 router.post('/callback', async (req, res) => {
     try {
         const { obj, type } = req.body;
-        const hmacSecret = process.env.PAYMOB_HMAC_SECRET;
+        const hmacSecret = paymobService.hmacSecret;
         const receivedHmac = req.query.hmac;
 
         console.log(`📩 Paymob Webhook Received: Type=${type}`);

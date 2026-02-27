@@ -23,8 +23,8 @@ export const siteConfig = {
     'قوالب مجانية'
   ],
   locale: 'ar_EG',
-  currency: 'SAR', // Saudi Riyal (used for pricing)
-  currencySymbol: 'ر.س'
+  currency: 'EGP', // Egyptian Pound (used for pricing)
+  currencySymbol: 'ج.م'
 };
 
 // Utility function to get absolute image URL

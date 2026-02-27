@@ -88,7 +88,7 @@ export function TemplateSchema({ template }) {
     "offers": {
       "@type": "Offer",
       "price": template.price,
-      "priceCurrency": "SAR",
+      "priceCurrency": "EGP",
       "availability": "https://schema.org/InStock",
       "url": `${siteConfig.url}/templates/${template.slug || template._id}`,
       "seller": {
@@ -121,7 +121,7 @@ export function TemplateSchema({ template }) {
     "offers": {
       "@type": "Offer",
       "price": "0",
-      "priceCurrency": "SAR",
+      "priceCurrency": "EGP",
       "availability": "https://schema.org/InStock"
     },
     "author": {

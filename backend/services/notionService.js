@@ -1032,7 +1032,6 @@ async function upsertWidgetToNotion(widget) {
 
     if (existingPage) {
       // Update existing page
-      console.log('🔵 Notion: Updating existing widget:', widget.title);
       const response = await axios.patch(
         `https://api.notion.com/v1/pages/${existingPage.id}`,
         { properties },
@@ -1041,7 +1040,6 @@ async function upsertWidgetToNotion(widget) {
       return { ...response.data, updated: true };
     } else {
       // Create new page
-      console.log('🔵 Notion: Creating new widget:', widget.title);
       const response = await axios.post(
         'https://api.notion.com/v1/pages',
         {

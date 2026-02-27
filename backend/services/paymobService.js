@@ -127,7 +127,13 @@ class PaymobService {
             return { clientSecret, publicKey: this.publicKey };
 
         } catch (error) {
-            console.error('❌ Paymob Intention API Failed:', error.response?.data || error.message);
+            console.error('❌ Paymob Intention API Failed');
+            if (error.response) {
+                console.error('🔹 Status:', error.response.status);
+                console.error('🔹 Response Data:', JSON.stringify(error.response.data, null, 2));
+            } else {
+                console.error('🔹 Error:', error.message);
+            }
             const apiError = new Error('Failed to create Paymob payment intention');
             apiError.response = error.response;
             throw apiError;

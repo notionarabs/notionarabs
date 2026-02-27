@@ -62,7 +62,7 @@ router.post('/create-checkout-session', auth, async (req, res) => {
         const { clientSecret, publicKey } = await paymobService.createIntention({
             amountCents,
             currency: 'EGP',
-            integrationIds: [paymobService.integrationId],
+            integrationIds: [], // Empty array allows all active integrations (Card, Wallet, etc.)
             billingData,
             itemName: cleanTitle,
             redirectionUrl: `${frontendUrl}/payment/callback`

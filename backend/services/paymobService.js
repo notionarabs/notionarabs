@@ -107,6 +107,10 @@ class PaymobService {
 
         try {
             console.log('📤 Sending Intention API request to Paymob...');
+            console.log('🔹 Environment:', process.env.NODE_ENV);
+            console.log('🔹 Using Key:', this.secretKey ? this.secretKey.substring(0, 10) + '...' : 'MISSING');
+            console.log('🔹 Integration IDs:', requestBody.payment_methods);
+
             const response = await axios.post(this.intentionBaseUrl, requestBody, {
                 headers: {
                     'Authorization': `Token ${this.secretKey}`,

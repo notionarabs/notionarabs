@@ -12,19 +12,24 @@ const crypto = require('crypto');
 class PaymobService {
 
     constructor() {
-        const isLive = process.env.NODE_ENV === 'production';
+        // Force test mode for Paymob even in production, as requested for now
+        const forceTestMode = true;
+        const isLive = process.env.NODE_ENV === 'production' && !forceTestMode;
         this.secretKey = isLive
             ? process.env.PAYMOB_SECRET_KEY_LIVE
-            : process.env.PAYMOB_SECRET_KEY_TEST;
+            : (process.env.PAYMOB_SECRET_KEY_TEST || 'egy_sk_test_8b1bd62800c456156d4f199f8e5ef2ddb5eafa744d47c18a5f376b41871c4097');
         this.publicKey = isLive
             ? process.env.PAYMOB_PUBLIC_KEY_LIVE
-            : process.env.PAYMOB_PUBLIC_KEY_TEST;
-        this.integrationId = isLive
-            ? parseInt(process.env.PAYMOB_INTEGRATION_ID_LIVE || '0', 10)
-            : parseInt(process.env.PAYMOB_INTEGRATION_ID_TEST || '5555012', 10);
+            : (process.env.PAYMOB_PUBLIC_KEY_TEST || 'egy_pk_test_YL3u4OZI0Q5tiCc3CNt4ZglCD2BKxhK0');
+        this.cardIntegrationId = isLive
+            ? parseInt(process.env.PAYMOB_CARD_INTEGRATION_ID_LIVE || '5550521', 10)
+            : parseInt(process.env.PAYMOB_CARD_INTEGRATION_ID_TEST || '5555012', 10);
+        this.walletIntegrationId = isLive
+            ? parseInt(process.env.PAYMOB_WALLET_INTEGRATION_ID_LIVE || '5550523', 10)
+            : parseInt(process.env.PAYMOB_WALLET_INTEGRATION_ID_TEST || '5560369', 10);
         this.hmacSecret = isLive
             ? process.env.PAYMOB_HMAC_SECRET_LIVE
-            : process.env.PAYMOB_HMAC_SECRET_TEST;
+            : (process.env.PAYMOB_HMAC_SECRET_TEST || 'F90FD1AA9AAA628C36F247CA0914EDD3');
         this.isLive = isLive;
         this.intentionBaseUrl = 'https://accept.paymob.com/v1/intention/';
     }
@@ -98,9 +103,12 @@ class PaymobService {
 
         // Only specify payment_methods if we have valid IDs
         // If omitted, Paymob will show ALL available methods for this account
-        if (integrationIds.length > 0) {
+        if (integrationIds && integrationIds.length > 0) {
             requestBody.payment_methods = integrationIds.map(Number);
-            console.log('💳 Payment methods (integration IDs):', requestBody.payment_methods);
+            console.log('💳 Payment methods (integration IDs passed manually):', requestBody.payment_methods);
+        } else if (this.cardIntegrationId && this.walletIntegrationId) {
+            requestBody.payment_methods = [this.cardIntegrationId, this.walletIntegrationId];
+            console.log('💳 Payment methods (integration IDs from config):', requestBody.payment_methods);
         } else {
             console.log('💳 No integration IDs specified — Paymob will show all available methods');
         }

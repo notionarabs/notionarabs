@@ -1014,7 +1014,7 @@ function CreateTemplatePageContent() {
                           </div>
                         </div>
                         <p className="text-xs text-green-600 dark:text-green-400 mt-2">
-                          أدخل السعر بالريال السعودي (ر.س)
+                          أدخل السعر بالجنيه المصري (ج.م)
                         </p>
                       </div>
 

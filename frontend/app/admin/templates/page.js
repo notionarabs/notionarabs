@@ -592,7 +592,7 @@ export default function AdminTemplatesPage() {
                         <div className="flex items-center gap-1.5">
                           {template.isPaid ? (
                             <div className="flex items-center gap-1 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg border border-emerald-100 dark:border-emerald-900/30 font-black text-[11px]">
-                              {template.price} ر.س
+                              {template.price} ج.م
                               <CreditCard className="w-3 h-3" />
                             </div>
                           ) : (
@@ -844,7 +844,7 @@ export default function AdminTemplatesPage() {
                           <div>
                             <label className="text-xs font-black text-accent-300 uppercase tracking-widest block mb-1">السعر</label>
                             <span className="text-lg font-black text-emerald-500">
-                              {selectedTemplateDetails.isPaid ? `${selectedTemplateDetails.price} ر.س` : 'مجاني'}
+                              {selectedTemplateDetails.isPaid ? `${selectedTemplateDetails.price} ج.م` : 'مجاني'}
                             </span>
                           </div>
                         </div>

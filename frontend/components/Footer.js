@@ -96,6 +96,7 @@ export default function Footer() {
               <li><Link href="/privacy" onClick={() => handleNavigation('/privacy')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الخصوصية</Link></li>
               <li><Link href="/terms" onClick={() => handleNavigation('/terms')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الشروط</Link></li>
               <li><Link href="/cookies" onClick={() => handleNavigation('/cookies')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">ملفات تعريف الارتباط</Link></li>
+              <li><Link href="/refund-policy" onClick={() => handleNavigation('/refund-policy')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">سياسة الاسترجاع</Link></li>
             </ul>
           </div>
         </div>
@@ -109,6 +110,7 @@ export default function Footer() {
               <Link href="/privacy" onClick={() => handleNavigation('/privacy')} className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-xs sm:text-sm transition-colors">سياسة الخصوصية</Link>
               <Link href="/terms" onClick={() => handleNavigation('/terms')} className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-xs sm:text-sm transition-colors">شروط الاستخدام</Link>
               <Link href="/cookies" onClick={() => handleNavigation('/cookies')} className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-xs sm:text-sm transition-colors">ملفات تعريف الارتباط</Link>
+              <Link href="/refund-policy" onClick={() => handleNavigation('/refund-policy')} className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-xs sm:text-sm transition-colors">سياسة الاسترجاع</Link>
             </div>
           </div>
         </div>

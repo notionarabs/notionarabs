@@ -398,7 +398,7 @@ const sendOrderConfirmationEmail = async (user, order) => {
     itemsList = order.items.map(item => `
             <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
                 ${item.template ? item.template.title : 'قالب'} 
-                <span style="float: left;">${item.price} ر.س</span>
+                <span style="float: left;">${item.price} ج.م</span>
             </li>
         `).join('');
   }
@@ -435,7 +435,7 @@ const sendOrderConfirmationEmail = async (user, order) => {
                 ${itemsList}
               </ul>
               <div class="total">
-                المجموع: ${order.total} ر.س
+                المجموع: ${order.total} ج.م
               </div>
             </div>
 
@@ -454,7 +454,7 @@ const sendOrderConfirmationEmail = async (user, order) => {
     </html>
   `;
 
-  const text = `مرحباً ${user.name}،\n\nشكراً لطلبك! تم استلام طلبك رقم #${order._id.toString().slice(-6).toUpperCase()} بنجاح.\n\nالمجموع الكلي: ${order.total} ر.س\n\nيمكنك عرض مشترياتك هنا: ${orderLink}\n\nعرب نوشن`;
+  const text = `مرحباً ${user.name}،\n\nشكراً لطلبك! تم استلام طلبك رقم #${order._id.toString().slice(-6).toUpperCase()} بنجاح.\n\nالمجموع الكلي: ${order.total} ج.م\n\nيمكنك عرض مشترياتك هنا: ${orderLink}\n\nعرب نوشن`;
 
   await sendEmail({
     to: user.email,

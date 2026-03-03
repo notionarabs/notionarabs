@@ -1316,7 +1316,7 @@ export default function TemplateDetailPage() {
                       <div className="flex flex-col items-start justify-center h-full p-2.5 rounded-xl bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/20">
                         <span className="text-[10px] text-orange-600 dark:text-orange-400 font-medium leading-none mb-1">السعر</span>
                         <span className="text-2xl font-bold text-accent-900 dark:text-dark-text-primary tracking-tight">
-                          {template.price} <span className="text-sm font-normal text-accent-500">ر.س</span>
+                          {template.price} <span className="text-sm font-normal text-accent-500 dark:text-dark-text-secondary">ج.م</span>
                         </span>
                       </div>
                     ) : (
@@ -1608,7 +1608,7 @@ export default function TemplateDetailPage() {
                       <div className="absolute top-3 right-3 flex flex-col gap-2">
                         {relatedTemplate.isPaid ? (
                           <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-white/90 dark:bg-black/80 backdrop-blur-md text-xs font-bold text-accent-900 dark:text-white shadow-sm">
-                            {relatedTemplate.price} ر.س
+                            {relatedTemplate.price} ج.م
                           </span>
                         ) : (
                           <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-white/90 dark:bg-black/80 backdrop-blur-md text-xs font-bold text-accent-900 dark:text-white shadow-sm">

@@ -294,7 +294,7 @@ router.post('/', auth, [
     // Create admin notification for new template submission (only if not auto-approved)
     if (!autoApprove) {
       try {
-        const priceInfo = template.isPaid ? ` (مدفوع - ${template.price} ر.س)` : ' (مجاني)';
+        const priceInfo = template.isPaid ? ` (مدفوع - ${template.price} ج.م)` : ' (مجاني)';
         await Notification.create({
           user: null, // Admin notifications don't have a specific user
           type: 'admin_template_pending',

@@ -1,6 +1,6 @@
 import { generateMetadata } from '../../lib/seo';
 import Link from 'next/link';
-import { Mail } from 'lucide-react';
+import { Mail, Phone } from 'lucide-react';
 import Footer from '../../components/Footer';
 import ContactForm from '../../components/ContactForm';
 
@@ -73,35 +73,47 @@ export default function ContactPage() {
         </div>
 
         <div className="container-custom">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-20 items-center">
 
             {/* Text Content Column */}
-            <div className="text-center lg:text-right">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-accent-900 dark:text-white mb-6 leading-tight">
+            <div className="text-center lg:text-right order-1">
+              <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-accent-900 dark:text-white mb-4 sm:mb-6 leading-tight">
                 تواصل معنا
               </h1>
-              <p className="text-lg sm:text-xl text-accent-600 dark:text-dark-text-secondary leading-relaxed mb-8 max-w-2xl mx-auto lg:mx-0">
+              <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary leading-relaxed mb-6 sm:mb-8 max-w-xl mx-auto lg:mx-0">
                 اشرح لنا احتياجك وسنقترح عليك أفضل حل لبناء نظام نوشن يناسب فريقك. نحن هنا لمساعدتك في كل خطوة.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 w-full lg:max-w-2xl mx-auto lg:mx-0">
                 <a
                   href="mailto:support@notionarabs.com"
-                  className="inline-flex items-center justify-center gap-3 bg-white dark:bg-dark-secondary text-accent-700 dark:text-dark-text-primary px-8 py-4 rounded-xl shadow-sm hover:shadow-md border border-gray-200 dark:border-dark-card-border transition-all duration-300 group"
+                  className="w-full inline-flex items-center justify-center gap-2 sm:gap-3 bg-white dark:bg-dark-secondary text-accent-700 dark:text-dark-text-primary px-3 sm:px-4 py-3 sm:py-4 rounded-xl shadow-sm hover:shadow-md border border-gray-200 dark:border-dark-card-border transition-all duration-300 group"
                 >
-                  <div className="w-10 h-10 rounded-full bg-primary-50 dark:bg-dark-tertiary flex items-center justify-center group-hover:bg-primary-100 dark:group-hover:bg-dark-card-hover transition-colors">
-                    <Mail className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary-50 dark:bg-dark-tertiary flex items-center justify-center group-hover:bg-primary-100 dark:group-hover:bg-dark-card-hover transition-colors shrink-0">
+                    <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600 dark:text-primary-400" />
                   </div>
-                  <div className="text-right">
-                    <span className="block text-xs text-accent-500 dark:text-dark-text-tertiary font-medium">البريد الإلكتروني</span>
-                    <span className="block font-semibold dir-ltr">support@notionarabs.com</span>
+                  <div className="text-right min-w-0">
+                    <span className="block text-[11px] sm:text-xs text-accent-500 dark:text-dark-text-tertiary font-medium">البريد الإلكتروني</span>
+                    <span className="block font-semibold text-xs sm:text-sm truncate">support@notionarabs.com</span>
+                  </div>
+                </a>
+                <a
+                  href="tel:+201145096563"
+                  className="w-full inline-flex items-center justify-center gap-2 sm:gap-3 bg-white dark:bg-dark-secondary text-accent-700 dark:text-dark-text-primary px-3 sm:px-4 py-3 sm:py-4 rounded-xl shadow-sm hover:shadow-md border border-gray-200 dark:border-dark-card-border transition-all duration-300 group"
+                >
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary-50 dark:bg-dark-tertiary flex items-center justify-center group-hover:bg-primary-100 dark:group-hover:bg-dark-card-hover transition-colors shrink-0">
+                    <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600 dark:text-primary-400" />
+                  </div>
+                  <div className="text-right min-w-0">
+                    <span className="block text-[11px] sm:text-xs text-accent-500 dark:text-dark-text-tertiary font-medium">رقم الموبايل</span>
+                    <span className="block font-semibold text-xs sm:text-sm truncate" dir="ltr">+20 114 509 6563</span>
                   </div>
                 </a>
               </div>
             </div>
 
             {/* Contact Form Column */}
-            <div className="relative">
+            <div className="relative order-2">
               <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-accent-500/5 rounded-3xl blur-2xl -z-10"></div>
               <div className="bg-white/80 dark:bg-dark-secondary/80 backdrop-blur-xl rounded-2xl border border-white/60 dark:border-dark-card-border/60 shadow-xl p-2 sm:p-4">
                 <ContactForm />
@@ -113,6 +125,6 @@ export default function ContactPage() {
       </section>
 
       <Footer />
-    </main>
+    </main >
   );
 }

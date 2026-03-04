@@ -4,11 +4,12 @@ import { siteConfig } from '../lib/seo'
 export function OrganizationSchema() {
   const schema = {
     "@context": "https://schema.org",
-    "@type": "Organization",
+    "@type": "Corporation",
     "name": siteConfig.name,
+    "alternateName": ["Notion Arabs", "Notion Arabia", "عرب نوشن"],
     "url": siteConfig.url,
-    "logo": `${siteConfig.url}/logo.png`,
-    "description": siteConfig.description,
+    "logo": `${siteConfig.url}/icon-512x512.png`,
+    "description": "عرب نوشن (Notion Arabs) هي الشركة والمنصة الرائدة لمتجر قوالب نوشن العربية، تقدم خدمات استشارية وبناء أنظمة عمل مخصصة للشركات والأفراد.",
     "sameAs": [
       "https://twitter.com/notionarabs",
       "https://github.com/notionarabs",
@@ -28,7 +29,7 @@ export function OrganizationSchema() {
       "@type": "Person",
       "name": "Hazem Yasser"
     },
-    "foundingDate": "2024",
+    "foundingDate": "2024-01-01",
     "inLanguage": ["ar", "en"]
   }
 

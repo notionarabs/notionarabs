@@ -3,8 +3,8 @@ import { getCategorySlug } from './categoryMapping';
 
 export const siteConfig = {
   name: 'عرب نوشن',
-  title: 'عرب نوشن - خدمات نوشن وأنظمة عمل مخصصة',
-  description: 'نصمم أنظمة نوشن عربية مخصصة للشركات والفرق، مع متجر قوالب ومبدعين لمساعدتك على التنظيم والأتمتة والنمو.',
+  title: 'عرب نوشن | Notion Arabs - خدمات نوشن وأنظمة عمل مخصصة',
+  description: 'عرب نوشن (Notion Arabs) هي المنصة الرائدة والأولى في العالم العربي لمتجر قوالب نوشن وتقديم استشارات بناء أنظمة عمل مخصصة للشركات والأفراد.',
   url: 'https://www.notionarabs.com',
   ogImage: '/og-image.png',
   creator: '@notionarabs',

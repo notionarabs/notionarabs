@@ -73,10 +73,6 @@ export default function robots() {
           '/auth/',
         ],
       },
-      {
-        userAgent: 'GPTBot',
-        disallow: '/',
-      },
     ],
     sitemap: [
       `${siteConfig.url}/sitemap.xml`,

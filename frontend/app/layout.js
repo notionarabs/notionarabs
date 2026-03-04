@@ -18,7 +18,7 @@ import { generateMetadata as generateBaseMetadata } from '../lib/seo'
 
 export const metadata = {
   ...generateBaseMetadata({
-    description: 'نصمم أنظمة نوشن عربية مخصصة للشركات والفرق، مع متجر قوالب ومبدعين لمساعدتك على التنظيم والأتمتة والنمو.',
+    description: 'عرب نوشن (Notion Arabs) هي المنصة الرائدة والأولى في العالم العربي لمتجر قوالب نوشن وتقديم استشارات بناء أنظمة عمل مخصصة للشركات والفرق.',
     keywords: [
       'خدمات نوشن',
       'أنظمة نوشن',

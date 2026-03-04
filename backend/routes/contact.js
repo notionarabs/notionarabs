@@ -45,7 +45,10 @@ const createTransporter = () => {
     },
     verify: (callback) => {
       console.log('✅ Brevo API key is configured');
-      callback(null, true);
+      if (callback) {
+        callback(null, true);
+      }
+      return Promise.resolve(true);
     }
   };
 };
@@ -530,6 +533,90 @@ router.post('/consultation', [
         success: false,
         message: 'تعذر حفظ الحجز في نوشن. يرجى المحاولة لاحقاً.',
         error: process.env.NODE_ENV === 'development' ? result.error : undefined
+      });
+    }
+
+    // Try to send email to the user with the booking link
+    if (process.env.BREVO_API_KEY) {
+      setImmediate(async () => {
+        try {
+          const transporter = createTransporter();
+          await transporter.verify();
+
+          const mailOptions = {
+            from: `"فريق عرب نوشن" <${process.env.EMAIL_FROM || process.env.EMAIL_USER || 'no-reply@notionarabs.com'}>`,
+            to: payload.email,
+            subject: `حجز موعد الاستشارة - عرب نوشن`,
+            html: `
+            <!DOCTYPE html>
+            <html lang="ar" dir="rtl">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>حجز موعد استشارة - عرب نوشن</title>
+              <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+            </head>
+            <body style="margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; background-color: #f8f9fa;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f8f9fa;">
+                <tr>
+                  <td align="center" style="padding: 40px 20px;">
+                    <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                      
+                      <!-- Header -->
+                      <tr>
+                      <td style="padding: 40px; text-align: center; background-color: #f5631e; border-radius: 12px 12px 0 0;">
+                        <img src="https://www.notionarabs.com/favicon.png" alt="عرب نوشن" style="height: 60px; width: auto;" />
+                        <h1 style="color: #ffffff; margin: 20px 0 10px; font-size: 24px; font-weight: 700;">حجز موعد استشارة</h1>
+                      </td>
+                      </tr>
+                      
+                      <!-- Body -->
+                      <tr>
+                        <td style="padding: 40px; text-align: right; direction: rtl;">
+                          <h2 style="color: #132859; font-size: 20px; margin: 0 0 20px; font-weight: 600; text-align: right;">أهلاً بك ${payload.name}،</h2>
+                          
+                          <p style="color: #333; font-size: 16px; line-height: 1.6; text-align: right;">
+                            شكراً لطلبك الحصول على استشارة من فريق عرب نوشن. نحن متحمسون للعمل معك!
+                          </p>
+                          <p style="color: #333; font-size: 16px; line-height: 1.6; text-align: right;">
+                            لاستكمال طلبك، يرجى اختيار الوقت المناسب للاجتماع من خلال الرابط أدناه:
+                          </p>
+                          
+                          <!-- Button -->
+                          <div style="text-align: center; margin: 30px 0;">
+                            <a href="https://calendar.notion.so/meet/notionarabs/discovery-call" style="display: inline-block; background-color: #f5631e; color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-size: 16px; font-weight: 600;">
+                              احجز موعد الاستشارة الآن
+                            </a>
+                          </div>
+
+                          <p style="color: #777; font-size: 14px; line-height: 1.6; text-align: right; margin-top: 20px;">
+                            في حال واجهت أي مشكلة، يمكنك الرد على هذه الرسالة وسنقوم بمساعدتك في أسرع وقت.
+                          </p>
+                        </td>
+                      </tr>
+                      
+                      <!-- Footer -->
+                      <tr>
+                        <td style="padding: 30px; background-color: #132859; text-align: center; border-radius: 0 0 12px 12px;">
+                          <h3 style="color: #ffffff; font-size: 18px; margin: 0 0 10px; font-weight: 700;">عرب نوشن</h3>
+                          <p style="color: #9aa0a6; font-size: 14px; margin: 0 0 15px;">منصة القوالب العربية</p>
+                          <a href="https://www.notionarabs.com" style="color: #f5631e; text-decoration: none; font-weight: 600;">www.notionarabs.com</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </body>
+            </html>
+            `
+          };
+
+          await transporter.sendMail(mailOptions);
+          console.log('✅ Consultation link email sent successfully to user:', payload.email);
+        } catch (emailError) {
+          console.log('❌ Email sending failed (background consultation):', emailError.message);
+        }
       });
     }
 

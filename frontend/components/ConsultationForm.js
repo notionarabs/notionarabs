@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { getApiBaseUrl } from '../lib/apiConfig';
 import { ArrowLeft, ArrowRight, Check, CheckCircle2 } from 'lucide-react';
@@ -116,7 +116,6 @@ export default function ConsultationForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [status, setStatus] = useState({ type: '', message: '' });
-  const [showCalendar, setShowCalendar] = useState(false);
 
 
   // --- Steps Definition ---
@@ -276,11 +275,7 @@ export default function ConsultationForm() {
       }
 
       setStatus({ type: 'success', message: 'تم استلام طلبك بنجاح! سنتواصل معك قريباً.' });
-      
-      // Auto-open calendar after a short delay to ensure user sees success message
-      setTimeout(() => {
-        setShowCalendar(true);
-      }, 1000);
+
 
     } catch (error) {
       setStatus({ type: 'error', message: error.message || 'حدث خطأ. حاول مرة أخرى.' });
@@ -392,16 +387,8 @@ export default function ConsultationForm() {
         </div>
         <h2 className="text-3xl font-bold mb-4 text-accent-800 dark:text-white">تم استلام طلبك بنجاح!</h2>
         <p className="text-lg text-accent-600 dark:text-gray-400 max-w-xl mb-8">
-          شكراً لتواصلك معنا. يرجى اختيار الموعد المناسب للاجتماع لاستكمال الاستشارة.
+          شكراً لتواصلك معنا. لقد قمنا بإرسال رابط حجز الموعد إلى بريدك الإلكتروني. يرجى التحقق من صندوق الوارد (أو مجلد الرسائل غير المرغوب فيها) لاختيار الوقت المناسب للاجتماع.
         </p>
-
-        <button
-          onClick={() => setShowCalendar(true)}
-          type="button"
-          className="btn-primary text-xl px-10 py-4 rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex items-center gap-2"
-        >
-          اختر موعد الاستشارة
-        </button>
 
         <button
           onClick={() => window.location.reload()}
@@ -410,44 +397,6 @@ export default function ConsultationForm() {
         >
           العودة للرئيسية
         </button>
-
-        {/* Calendar Modal */}
-        {showCalendar && mounted && (
-          createPortal(
-            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm">
-              <motion.div
-                initial={{ scale: 0.95, opacity: 0, y: 20 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                className="relative w-full max-w-5xl h-[85vh] bg-white dark:bg-dark-card-bg rounded-2xl shadow-2xl overflow-hidden flex flex-col"
-              >
-                <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-white dark:bg-dark-card-bg z-10">
-                  <h3 className="text-lg font-bold text-gray-800 dark:text-white">حجز موعد</h3>
-                  <button
-                    onClick={() => setShowCalendar(false)}
-                    type="button"
-                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                  >
-                    ✕
-                  </button>
-                </div>
-
-                <div className="flex-1 w-full bg-white relative">
-                  <div className="absolute inset-0 flex items-center justify-center text-gray-400 -z-10">
-                    جاري تحميل التقويم...
-                  </div>
-                  <iframe
-                    src="https://calendar.notion.so/meet/notionarabs/discovery-call"
-                    style={{ border: 0 }}
-                    width="100%"
-                    height="100%"
-                    title="Notion Calendar Scheduling"
-                  ></iframe>
-                </div>
-              </motion.div>
-            </div>,
-            document.body
-          )
-        )}
       </div>
     );
   }

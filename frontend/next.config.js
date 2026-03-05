@@ -380,7 +380,7 @@ const nextConfig = {
       "img-src 'self' data: blob: https:",
       `connect-src 'self' https://api.notionarabs.com https://notionarabs.com https://notion-arabs-fe5b3f214071.herokuapp.com https://api.brevo.com https://www.google-analytics.com https://www.googletagmanager.com https://api.alquran.cloud https://everyayah.com https://cdn.islamic.network https://cdn.alquran.cloud https://server8.mp3quran.net https://server6.mp3quran.net https://server7.mp3quran.net https://server10.mp3quran.net https://server12.mp3quran.net https://download.quranicaudio.com https://cdn.jsdelivr.net https://assets.mixkit.co https://api.open-meteo.com https://nominatim.openstreetmap.org${devConnectSrc}`,
       "media-src 'self' https://everyayah.com https://cdn.islamic.network https://cdn.alquran.cloud https://server8.mp3quran.net https://server6.mp3quran.net https://server7.mp3quran.net https://server10.mp3quran.net https://server12.mp3quran.net https://download.quranicaudio.com https://assets.mixkit.co",
-      "frame-src 'self' https://notionarabs.com https://www.notionarabs.com https://www.youtube.com https://www.youtube-nocookie.com https://youtube.com https://player.vimeo.com https://vimeo.com https://vercel.live https://accept.paymob.com",
+      "frame-src 'self' https://notionarabs.com https://www.notionarabs.com https://www.youtube.com https://www.youtube-nocookie.com https://youtube.com https://player.vimeo.com https://vimeo.com https://vercel.live https://accept.paymob.com https://www.credly.com",
       "worker-src 'self' blob:",
       "frame-ancestors 'none'",
     ].join('; ');
@@ -393,7 +393,7 @@ const nextConfig = {
       "img-src 'self' data: blob: https:",
       `connect-src 'self' https://api.notionarabs.com https://notionarabs.com https://notion-arabs-fe5b3f214071.herokuapp.com https://api.brevo.com https://www.google-analytics.com https://www.googletagmanager.com https://api.alquran.cloud https://everyayah.com https://cdn.islamic.network https://cdn.alquran.cloud https://server8.mp3quran.net https://server6.mp3quran.net https://server7.mp3quran.net https://server10.mp3quran.net https://server12.mp3quran.net https://download.quranicaudio.com https://cdn.jsdelivr.net https://api.aladhan.com https://nominatim.openstreetmap.org https://assets.mixkit.co https://api.open-meteo.com${devConnectSrc}`,
       "media-src 'self' https://everyayah.com https://cdn.islamic.network https://cdn.alquran.cloud https://server8.mp3quran.net https://server6.mp3quran.net https://server7.mp3quran.net https://server10.mp3quran.net https://server12.mp3quran.net https://download.quranicaudio.com https://assets.mixkit.co",
-      "frame-src 'self' https://notionarabs.com https://www.notionarabs.com https://www.youtube.com https://www.youtube-nocookie.com https://youtube.com https://player.vimeo.com https://vimeo.com https://vercel.live https://accept.paymob.com",
+      "frame-src 'self' https://notionarabs.com https://www.notionarabs.com https://www.youtube.com https://www.youtube-nocookie.com https://youtube.com https://player.vimeo.com https://vimeo.com https://vercel.live https://accept.paymob.com https://www.credly.com",
       "worker-src 'self' blob:",
       "frame-ancestors *",
     ].join('; ');

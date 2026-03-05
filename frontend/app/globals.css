@@ -664,6 +664,69 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* ── Certification Badge Card ── */
+
+  /* Outer pulsing ring */
+  .cert-pulse-ring {
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.25);
+    animation: certRingPulse 2.8s ease-in-out infinite;
+    border-radius: 1.5rem;
+    pointer-events: none;
+  }
+
+  .dark .cert-pulse-ring {
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.35);
+  }
+
+  @keyframes certRingPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.25); }
+    50%  { box-shadow: 0 0 0 14px rgba(249, 115, 22, 0.08); }
+    100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+  }
+
+  /* Shimmer sweep that runs on the card */
+  .cert-shimmer {
+    z-index: 1;
+  }
+
+  .cert-shimmer-inner {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      110deg,
+      transparent 20%,
+      rgba(255, 255, 255, 0.55) 50%,
+      transparent 80%
+    );
+    transform: translateX(-100%) skewX(-12deg);
+    animation: certShimmer 3.5s ease-in-out infinite 1s;
+  }
+
+  .dark .cert-shimmer-inner {
+    background: linear-gradient(
+      110deg,
+      transparent 20%,
+      rgba(255, 200, 120, 0.12) 50%,
+      transparent 80%
+    );
+  }
+
+  @keyframes certShimmer {
+    0%   { transform: translateX(-100%) skewX(-12deg); }
+    40%, 100% { transform: translateX(200%) skewX(-12deg); }
+  }
+
+  /* Hero cert badge */
+  .hero-cert-badge {
+    animation: heroBadgeFadeIn 0.6s ease-out forwards 1.2s;
+    opacity: 0;
+  }
+
+  @keyframes heroBadgeFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
 }
 
 @layer utilities {

@@ -4,7 +4,11 @@ const WidgetUsageSchema = new mongoose.Schema({
     widgetId: {
         type: String,
         required: true,
-        enum: ['quran', 'prayer']
+        enum: [
+            'quran', 'prayer', 'countdown', 'athkar', 'pomodoro',
+            'hadith', 'habit-tracker', 'weather', 'arabic-clock',
+            'cultural-timer', 'small-deeds', 'zakat-calculator', 'arabic-header'
+        ]
     },
     origin: {
         type: String,

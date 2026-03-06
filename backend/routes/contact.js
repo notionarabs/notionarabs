@@ -210,7 +210,7 @@ router.post('/creator', [
                       <tr>
                         <td style="padding: 30px; background-color: #132859; text-align: center; border-radius: 0 0 12px 12px;">
                           <h3 style="color: #ffffff; font-size: 18px; margin: 0 0 10px; font-weight: 700;">عرب نوشن</h3>
-                          <p style="color: #9aa0a6; font-size: 14px; margin: 0 0 15px;">منصة القوالب العربية</p>
+                          <p style="color: #9aa0a6; font-size: 14px; margin: 0 0 15px;">استشارات • بناء أنظمة • قوالب احترافية • تدريب</p>
                           <a href="https://www.notionarabs.com" style="color: #f5631e; text-decoration: none; font-weight: 600;">www.notionarabs.com</a>
                         </td>
                       </tr>
@@ -599,7 +599,7 @@ router.post('/consultation', [
                       <tr>
                         <td style="padding: 30px; background-color: #132859; text-align: center; border-radius: 0 0 12px 12px;">
                           <h3 style="color: #ffffff; font-size: 18px; margin: 0 0 10px; font-weight: 700;">عرب نوشن</h3>
-                          <p style="color: #9aa0a6; font-size: 14px; margin: 0 0 15px;">منصة القوالب العربية</p>
+                          <p style="color: #9aa0a6; font-size: 14px; margin: 0 0 15px;">استشارات • بناء أنظمة • قوالب احترافية • تدريب</p>
                           <a href="https://www.notionarabs.com" style="color: #f5631e; text-decoration: none; font-weight: 600;">www.notionarabs.com</a>
                         </td>
                       </tr>

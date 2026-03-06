@@ -29,6 +29,7 @@ import SpotlightFeaturesSection from './components/SpotlightFeaturesSection';
 import ValuesSection from './components/ValuesSection';
 import TeamSection from './components/TeamSection';
 import JourneySection from './components/JourneySection';
+import CertificationSection from './components/CertificationSection';
 
 
 
@@ -62,6 +63,9 @@ export default function AboutClient() {
 
             {/* Team Section */}
             <TeamSection />
+
+            {/* Certification Section */}
+            <CertificationSection />
 
 
 

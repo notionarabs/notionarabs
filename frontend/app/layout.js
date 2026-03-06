@@ -36,13 +36,13 @@ export const metadata = {
   }),
   icons: {
     icon: [
-      { url: '/favicon.svg', type: 'image/svg+xml' }
+      { url: '/favicon.png', type: 'image/png' }
     ],
     shortcut: [
-      { url: '/favicon.svg', type: 'image/svg+xml' }
+      { url: '/favicon.png', type: 'image/png' }
     ],
     apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }
+      { url: '/favicon.png', sizes: '180x180', type: 'image/png' }
     ]
   }
 }
@@ -63,9 +63,9 @@ export default function RootLayout({ children }) {
         <WebsiteSchema />
 
 
-        {/* Favicon - Using SVG for best quality on all devices */}
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <link rel="shortcut icon" href="/favicon.svg" />
+        {/* Favicon - PNG */}
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="shortcut icon" href="/favicon.png" />
         {/* Resource hints for critical resources */}
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="dns-prefetch" href="https://fonts.gstatic.com" />

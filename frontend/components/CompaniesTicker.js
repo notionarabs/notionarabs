@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 const companies = [
     { name: 'شركة Trend Design', logo: '/clients/Trend Design.webp', invertInLight: false },
     { name: 'منصة رسالتك', logo: '/clients/Resaltk.webp', invertInLight: true },
-    { name: 'Mostafa', logo: '/clients/Mostafa.webp', invertInLight: true },
+    { name: 'Mostafa', logo: '/clients/Mostafa.webp', invertInLight: false },
     { name: 'Hazem', logo: '/clients/Hazem.webp', invertInLight: true },
     { name: 'Shoiep Studio', logo: '/clients/Shoiep Studio.webp', invertInLight: false },
     { name: 'أكاديمية YuYan', logo: '/clients/YuYan Academy.svg', invertInLight: false }

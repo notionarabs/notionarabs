@@ -126,16 +126,14 @@ export default function WidgetsClient() {
     return (
         <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
 
-            <section className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300 py-12 sm:py-16 md:py-20">
-                <div className="container-custom">
-                    <div className="text-center">
-                        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-accent-900 dark:text-white mb-4 sm:mb-6">
-                            أدوات عرب نوشن
-                        </h1>
-                        <p className="text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary max-w-xs sm:max-w-2xl md:max-w-3xl mx-auto px-4 sm:px-0">
-                            مجموعة من الأدوات المصممة خصيصاً للمستخدم العربي لتعزيز الإنتاجية والجمالية في نوشن.
-                        </p>
-                    </div>
+            <section className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300 py-12 sm:py-16 md:py-20 lg:py-24">
+                <div className="container-custom text-center relative z-10 px-4 sm:px-6">
+                    <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-accent-900 dark:text-white mb-4 sm:mb-6">
+                        أدوات عرب نوشن
+                    </h1>
+                    <p className="text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary max-w-2xl mx-auto mb-6 sm:mb-8 px-4">
+                        مجموعة من الأدوات المصممة خصيصاً للمستخدم العربي لتعزيز الإنتاجية والجمالية في نوشن.
+                    </p>
                 </div>
             </section>
 

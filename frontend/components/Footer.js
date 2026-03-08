@@ -69,6 +69,7 @@ export default function Footer() {
             <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">الشركة</h4>
             <ul className="space-y-2 sm:space-y-3">
               <li><Link href="/about" onClick={() => handleNavigation('/about')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">من نحن</Link></li>
+              <li><Link href="/projects" onClick={() => handleNavigation('/projects')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">مشاريعنا</Link></li>
               <li><Link href="/blog" onClick={() => handleNavigation('/blog')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المدونة</Link></li>
               <li><Link href="/careers" onClick={() => handleNavigation('/careers')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">انضم للفريق</Link></li>
               <li><Link href="/consultation" onClick={() => handleNavigation('/consultation')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">احجز استشارة</Link></li>

@@ -617,6 +617,7 @@ export default function HomePage() {
 
 
       {/* Testimonials */}
+      {/* 
       <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-dark-secondary transition-colors duration-300" data-reveal-section>
         <div className="container-custom">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] items-start">
@@ -658,9 +659,10 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      */}
 
       {/* FAQ Section */}
-      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" data-reveal-section>
+      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-dark-secondary transition-colors duration-300" data-reveal-section>
         <div className="container-custom">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] items-start">
             <div className="text-center lg:text-right lg:sticky lg:top-24 self-start">

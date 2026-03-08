@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ExternalLink, Briefcase, Calendar, X, ChevronLeft } from 'lucide-react';
 import Footer from '../../../components/Footer';
 import ReactMarkdown from 'react-markdown';
@@ -43,15 +44,26 @@ function LightboxModal({ project, initialIndex, onClose }) {
                 )}
 
                 <div className="relative flex-1 flex flex-col items-center">
-                    <Image
-                        src={images[current]}
-                        alt={`${project.name} — صورة ${current + 1}`}
-                        width={1200}
-                        height={800}
-                        className="w-full h-auto rounded-xl object-contain max-h-[85vh] shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10"
-                        quality={90}
-                        unoptimized
-                    />
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={current}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.4, ease: "easeInOut" }}
+                            className="w-full flex justify-center"
+                        >
+                            <Image
+                                src={images[current]}
+                                alt={`${project.name} — صورة ${current + 1}`}
+                                width={1200}
+                                height={800}
+                                className="w-full h-auto rounded-xl object-contain max-h-[85vh] shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10"
+                                quality={90}
+                                unoptimized
+                            />
+                        </motion.div>
+                    </AnimatePresence>
                     {total > 1 && (
                         <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
                             {images.map((_, idx) => (
@@ -76,7 +88,7 @@ function LightboxModal({ project, initialIndex, onClose }) {
                     </button>
                 )}
             </div>
-        </div>
+        </div >
     );
 }
 
@@ -96,19 +108,30 @@ function ProjectImageSlider({ images, projectName, onImageClick }) {
     if (!images || images.length === 0) return null;
 
     return (
-        <div className="relative w-full aspect-video rounded-3xl overflow-hidden border border-gray-200 dark:border-dark-card-border shadow-lg group">
+        <div className="relative w-full rounded-3xl overflow-hidden border border-gray-200 dark:border-dark-card-border shadow-lg group bg-white dark:bg-dark-secondary">
             {/* Main Image */}
             <div
-                className="relative w-full h-full cursor-zoom-in"
+                className="relative w-full cursor-zoom-in"
                 onClick={() => onImageClick(current)}
             >
-                <Image
-                    src={images[current]}
-                    alt={`${projectName} - slide ${current + 1}`}
-                    fill
-                    className="object-cover transition-all duration-500"
-                    unoptimized
-                />
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={current}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.4, ease: "easeInOut" }}
+                    >
+                        <Image
+                            src={images[current]}
+                            alt={`${projectName} - slide ${current + 1}`}
+                            width={1200}
+                            height={800}
+                            className="w-full h-auto"
+                            unoptimized
+                        />
+                    </motion.div>
+                </AnimatePresence>
             </div>
 
             {/* Navigation Arrows */}
@@ -182,21 +205,26 @@ export default function ProjectDetailClient({ project }) {
                 <span>{children}</span>
             </li>
         ),
-        strong: ({ children }) => <strong className="font-bold text-accent-900 dark:text-white bg-primary-50/50 dark:bg-orange-500/10 px-1 rounded">{children}</strong>,
+        strong: ({ children }) => <strong className={`font-bold text-accent-900 dark:text-white ${project.accent.replace('bg-', 'bg-')}/10 dark:${project.accent.replace('bg-', 'bg-')}/20 px-1 rounded`}>{children}</strong>,
         hr: () => <hr className="my-10 border-gray-200 dark:border-dark-card-border border-dashed" />,
     };
 
     return (
-        <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
+        <main className="min-h-screen bg-white dark:bg-dark-primary transition-colors duration-300" dir="rtl">
             {lightbox !== null && (
                 <LightboxModal project={project} initialIndex={lightbox} onClose={() => setLightbox(null)} />
             )}
 
-            {/* Hero Section */}
-            <section className="relative overflow-hidden py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 border-b border-gray-200 dark:border-dark-card-border">
-                {/* Background Gradients */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white via-white to-secondary-50/50 dark:from-dark-secondary dark:via-dark-secondary dark:to-dark-primary" />
-                <div className={`absolute top-0 right-0 w-full h-full bg-gradient-to-br ${project.color} opacity-50 dark:opacity-20`} />
+            <section className="relative overflow-hidden py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 border-b border-gray-100 dark:border-dark-card-border/50">
+                {/* Background Components */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white via-secondary-50/30 to-white dark:from-dark-primary dark:via-dark-primary dark:to-dark-secondary" />
+                <div className={`absolute top-0 right-0 w-full h-full bg-gradient-to-br ${project.color} opacity-[0.4] dark:opacity-[0.15]`} />
+
+                {/* Subtle Grid Pattern (Consistent with Homepage) */}
+                <div className="absolute inset-0 opacity-[0.015] dark:opacity-[0.04]" style={{
+                    backgroundImage: `radial-gradient(circle at 1px 1px, rgba(0,0,0,0.3) 1px, transparent 0)`,
+                    backgroundSize: '24px 24px'
+                }}></div>
 
                 <div className="container-custom relative z-10">
                     <div className="max-w-4xl">
@@ -244,7 +272,7 @@ export default function ProjectDetailClient({ project }) {
             </section>
 
             {/* Main Content Area */}
-            <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 relative">
+            <section className="py-16 sm:py-20 md:py-24 px-4 sm:px-6 lg:px-8 relative bg-secondary-50/50 dark:bg-dark-primary">
                 <div className="container-custom grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-10 lg:gap-16 items-start">
 
                     {/* Left Column: Markdown Content & Images */}
@@ -305,22 +333,27 @@ export default function ProjectDetailClient({ project }) {
                         </div>
 
                         {/* Sidebar CTA */}
-                        <div className={`bg-gradient-to-br ${project.color} border ${project.accentBorder} p-6 sm:p-8 rounded-3xl shadow-sm text-center bg-white/60 dark:bg-dark-secondary/60 backdrop-blur-sm`}>
-                            <div className={`w-12 h-12 rounded-2xl ${project.accent} flex items-center justify-center mx-auto mb-4 text-white shadow-md`}>
-                                <Briefcase className="w-6 h-6" />
+                        <div className={`relative overflow-hidden border ${project.accentBorder} p-8 rounded-3xl shadow-xl dark:shadow-dark-medium text-center bg-white dark:bg-dark-secondary`}>
+                            {/* Subtle Background Accent */}
+                            <div className={`absolute inset-0 bg-gradient-to-br ${project.color} opacity-40 dark:opacity-10`} />
+
+                            <div className="relative z-10">
+                                <div className={`w-14 h-14 rounded-2xl ${project.accent} flex items-center justify-center mx-auto mb-6 text-white shadow-lg`}>
+                                    <Briefcase className="w-7 h-7" />
+                                </div>
+                                <h3 className="text-xl sm:text-2xl font-bold text-accent-900 dark:text-white mb-4">
+                                    هل تحتاج إلى نظام مشابه؟
+                                </h3>
+                                <p className="text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed mb-8 font-medium">
+                                    نستطيع تصميم مساحة عمل مخصصة بالكامل تناسب احتياجات فريقك كأنها بنيت خصيصاً لك.
+                                </p>
+                                <Link
+                                    href="/consultation"
+                                    className={`flex items-center justify-center gap-2 w-full py-4 rounded-xl ${project.accent} text-white font-bold shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-lg`}
+                                >
+                                    احجز استشارة مجانية
+                                </Link>
                             </div>
-                            <h3 className="text-xl font-bold text-accent-900 dark:text-white mb-3">
-                                هل تحتاج إلى نظام مشابه؟
-                            </h3>
-                            <p className="text-sm text-accent-600 dark:text-dark-text-secondary leading-relaxed mb-6">
-                                نستطيع تصميم مساحة عمل مخصصة بالكامل تناسب احتياجات فريقك كأنها بنيت خصيصاً لك.
-                            </p>
-                            <Link
-                                href="/consultation"
-                                className={`flex items-center justify-center gap-2 w-full py-3.5 rounded-xl ${project.accent} text-white font-bold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300`}
-                            >
-                                احجز استشارة مجانية
-                            </Link>
                         </div>
                     </aside>
 

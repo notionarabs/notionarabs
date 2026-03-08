@@ -10,10 +10,10 @@ export const projects = [
         description:
             'تصميم وتطوير صفحة هبوط مؤقتة لجمع بيانات الطلاب المهتمين (الاسم، البريد الإلكتروني، رقم الهاتف) حتى يتم إطلاق الموقع الرسمي، مع مزامنة هذه البيانات لحظياً مع قاعدة بيانات Notion.',
         tags: ['تطوير ويب', 'Notion API', 'تعليم'],
-        color: 'from-emerald-500/10 to-teal-500/5',
-        accent: 'bg-emerald-500',
-        accentText: 'text-emerald-600 dark:text-emerald-400',
-        accentBorder: 'border-emerald-200 dark:border-emerald-500/20',
+        color: 'from-primary-500/10 to-orange-500/5',
+        accent: 'bg-primary-500',
+        accentText: 'text-primary-600 dark:text-orange-400',
+        accentBorder: 'border-primary-200 dark:border-orange-500/20',
         images: [
             '/projects/YuYan Academy/Contact Form.png',
             '/projects/YuYan Academy/Notion DB.png',
@@ -48,10 +48,10 @@ export const projects = [
         description:
             'تطوير معرض أعمال (Portfolio) تعرض خدمات تطوير المواقع، متصلة بـ Notion API لاستقبال طلبات العملاء.',
         tags: ['تطوير ويب', 'Notion API', 'مستقل'],
-        color: 'from-blue-500/10 to-sky-500/5',
-        accent: 'bg-blue-500',
-        accentText: 'text-blue-600 dark:text-blue-400',
-        accentBorder: 'border-blue-200 dark:border-blue-500/20',
+        color: 'from-accent-500/10 to-primary-500/5',
+        accent: 'bg-primary-500',
+        accentText: 'text-primary-600 dark:text-orange-400',
+        accentBorder: 'border-primary-200 dark:border-orange-500/20',
         images: [
             '/projects/Personal Portfolio/HeroSection.png',
             '/projects/Personal Portfolio/Contact Form.png',
@@ -78,6 +78,25 @@ export const projects = [
 - **تحكم فوري:** يمنحك سرعة هائلة في متابعة استفسارات العملاء والتواصل معهم فوراً.
 
 يضمن هذا الربط كفاءة عالية وتوفير وقت هائل لأي فرد أو فريق عمل!
+
+---
+
+## البنية التحتية والتقنيات (The Engine)
+
+هذا الموقع ليس مجرد واجهة بصرية، بل هو بنية هندسية متكاملة صُممت لتقديم أداء فائق وتجربة مستخدم غامرة، تجمع بين منطق الـ Backend المعقد والإبداع في الـ Frontend.
+
+### الواجهة الأمامية وتجربة المستخدم (Frontend & UX)
+- **Next.js (App Router):** نعتمد على أحدث معمارية من Next.js لضمان توجيه ديناميكي سريع (Routing) واستخدام تقنيات SSR و ISR لتقديم المحتوى بأقصى سرعة ممكنة مع تحسين محركات البحث (SEO).
+- **TypeScript:** نستخدم TypeScript لضمان أمان البيانات (Type-safety) وتقليل الأخطاء البرمجية، مما يجعل الكود قابلاً للتوسع والصيانة طويلة الأمد.
+- **Tailwind CSS & Framer Motion:** مزيج القوة والمرونة؛ بناء واجهات رشيقة مع حركات سلسة (Fluid Animations) تعزز التفاعل دون التأثير على سرعة التحميل.
+
+### الإبداع الرقمي والـ 3D (Creative Web)
+- **Three.js & WebGL:** دمج العناصر ثلاثية الأبعاد التفاعلية في قلب المتصفح، مما يسمح بخلق تجارب بصرية غامرة (مثل مشروع Interactive Galaxy) تخرج عن نمط الويب التقليدي.
+
+### الخلفية البرمجية والبيانات (Backend & Infrastructure)
+- **Full-Stack Logic:** نعتمد على **Node.js** و **Express** لبناء جسور قوية بين واجهات الـ RESTful APIs وقواعد البيانات المتنوعة (**PostgreSQL** للبيانات المنظمة و **MongoDB** للمرونة).
+- **Database to Pixels Efficiency:** فلسفتنا تركز على كفاءة نقل البيانات من قاعدة البيانات وصولاً إلى الشاشة (Pixel)، مع تحسين دائم لاستجابة الخادم (TTFB) وسهولة الوصول (Accessibility).
+- **Infrastructure:** نستخدم **Vercel** للنشر السحابي السريع، و **Docker** لضمان بيئة تطوير متسقة، مع إدارة صارمة للإصدارات عبر **Git/Linux**.
 `
     },
     {
@@ -90,10 +109,10 @@ export const projects = [
         title: 'منصة شخصية لبيع القوالب وخدمات نوشن (Notion)',
         description: 'بناء منصة متكاملة لخبير بناء أنظمة نوشن، مزودة ببوابة دخول للعملاء وربط مباشر لاستفساراتهم بنظام إدارة العملاء الداخلي.',
         tags: ['استشارات', 'Notion API', 'بوابة عملاء'],
-        color: 'from-blue-500/10 to-indigo-500/5',
-        accent: 'bg-indigo-500',
-        accentText: 'text-indigo-600 dark:text-indigo-400',
-        accentBorder: 'border-indigo-200 dark:border-indigo-500/20',
+        color: 'from-primary-500/10 to-accent-500/5',
+        accent: 'bg-primary-500',
+        accentText: 'text-primary-600 dark:text-orange-400',
+        accentBorder: 'border-primary-200 dark:border-orange-500/20',
         images: [
             '/projects/Personal Portfolio - 2/HeroSection.png',
             '/projects/Personal Portfolio - 2/Contact Form.png',
@@ -120,7 +139,26 @@ export const projects = [
 - **تسجيل الدخول (Sign In):** مزامنة بيانات تسجيل الدخول وتوثيقها لتسهيل المتابعة والإدارة بسلاسة.
 - **توفير الوقت والجهد:** إلغاء الحاجة لنسخ ولصق البيانات يدوياً بفضل الأتمتة الكاملة للتدفق بين الموقع ومساحة العمل الخاصة بالعميل.
 
-يعد هذا النظام حلاً مثالياً للمستقلين الذين يبحثون عن مركز عمليات (CRM) سهل ومباشر يعتمد بالكامل على Notion.`
+يعد هذا النظام حلاً مثالياً للمستقلين الذين يبحثون عن مركز عمليات (CRM) سهل ومباشر يعتمد بالكامل على Notion.
+
+---
+
+## فلسفة البناء الهندسي (Architecture & Systems)
+
+تم بناء منصة **mostafayasser.com** لتكون أكثر من مجرد موقع شخصي؛ إنها نظام تشغيل متكامل (Operating System) مصمم لتحويل الزوار إلى عملاء دائمين من خلال تجربة تقنية فائقة الدقة.
+
+### الأداء والمعمارية (Architecture & Performance)
+- **Next.js & TypeScript:** اخترنا هذه المعمارية لضمان أقصى درجات السرعة والتجاوب (Core Web Vitals). استخدام TypeScript يضمن استقرار النظام الهندسي أثناء معالجة بيانات القوالب والطلبات المعقدة.
+- **التصميم البسيط (Minimalist UI):** الكود مصمم ليتبع فلسفة "الإنتاجية الهادئة"، مع التركيز على سرعة التنقل (Seamless Navigation) والوضوح البصري الذي يعكس هوية **Mostafa Yasser**.
+
+### أدوات الإنتاجية المدمجة (Integrated Productivity Tools)
+- **React-based Utilities:** قمنا ببرمجة أدوات إنتاجية مخصصة داخل الموقع، مثل **مؤقت بومودورو (Pomodoro Timer)** المتكامل، لتعزيز القيمة المضافة للزوار وربطهم بالأدوات التي يروج لها الموقع.
+- **E-commerce Logic:** الكود يدير رحلة المستخدم برمجياً من قراءة المقالات (Blog) وصولاً إلى شراء القوالب (Templates) بسلاسة تامة، مع معالجة ذكية للتوزيع والتحميل.
+
+### تكامل الأنظمة والتوسع (Ecosystem Scalability)
+- **Deep Notion API Integration:** يكمن التحدي الهندسي في هذا المشروع في محاكاة "تجربة نوشن" داخل بيئة ويب مخصصة. قمنا ببرمجة روابط ذكية تدير قواعد البيانات، علاقات المهام، وأتمتة العمليات (Workflows) للأفراد والفرق بشكل لحظي.
+- **Backend & Auth:** نستخدم **Auth.js** لضمان دخول آمن وموثوق، مع قاعدة بيانات (**PostgreSQL/MongoDB**) لمتابعة إحصائيات الأداء الداخلية وتحسين مسارات التحويل (Conversion Paths) بشكل مستمر.
+`
     },
     {
         id: 'resaltk',
@@ -133,10 +171,10 @@ export const projects = [
         description:
             'نظام مركزي لإدارة مهام وأفكار واجتماعات ومستندات تطوير تطبيق موجه لطلاب الماجستير والدكتوراه والباحثين.',
         tags: ['إدارة مشاريع', 'لوحة تحكم', 'أتمتة'],
-        color: 'from-violet-500/10 to-purple-500/5',
-        accent: 'bg-violet-500',
-        accentText: 'text-violet-600 dark:text-violet-400',
-        accentBorder: 'border-violet-200 dark:border-violet-500/20',
+        color: 'from-primary-500/15 to-orange-500/5',
+        accent: 'bg-primary-600',
+        accentText: 'text-primary-600 dark:text-orange-400',
+        accentBorder: 'border-primary-300 dark:border-orange-500/20',
         images: [
             '/projects/Resaltk/Dashboard.webp',
             '/projects/Resaltk/9.webp',
@@ -271,10 +309,10 @@ export const projects = [
         description:
             'لوحة تحكم مخصصة تعتمد على ربط مباشر بأسعار الذهب وحساب الأرباح ونسبة العائد تلقائيًا.',
         tags: ['مالية', 'تتبع الاستثمارات', 'تقارير'],
-        color: 'from-amber-500/10 to-yellow-500/5',
-        accent: 'bg-amber-500',
-        accentText: 'text-amber-600 dark:text-amber-400',
-        accentBorder: 'border-amber-200 dark:border-amber-500/20',
+        color: 'from-orange-500/10 to-amber-500/5',
+        accent: 'bg-primary-500',
+        accentText: 'text-primary-600 dark:text-orange-400',
+        accentBorder: 'border-primary-200 dark:border-orange-500/20',
         images: [
             '/projects/Gold Tracker/Dashboard.webp',
         ],
@@ -341,10 +379,10 @@ export const projects = [
         description:
             'نظام متكامل يربط المشاريع، العملاء، التصميم، المالية، المبيعات، الموارد البشرية، والتسويق في لوحة تحكم مركزية واحدة.',
         tags: ['تصميم', 'إدارة العملاء', 'إبداع'],
-        color: 'from-rose-500/10 to-pink-500/5',
-        accent: 'bg-rose-500',
-        accentText: 'text-rose-600 dark:text-rose-400',
-        accentBorder: 'border-rose-200 dark:border-rose-500/20',
+        color: 'from-primary-500/10 to-accent-500/5',
+        accent: 'bg-primary-500',
+        accentText: 'text-primary-600 dark:text-orange-400',
+        accentBorder: 'border-primary-200 dark:border-orange-500/20',
         images: [
             '/projects/Trend Design/11.webp',
             '/projects/Trend Design/12.webp',

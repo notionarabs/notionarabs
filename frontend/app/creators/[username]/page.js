@@ -530,7 +530,7 @@ export default function PublicProfilePage() {
           {/* Open Graph */}
           <meta property="og:title" content={`${creator.displayName || creator.name} - مبدع قوالب نوشن`} />
           <meta property="og:description" content={`تعرف على ${creator.displayName || creator.name}، مبدع قوالب Notion باللغة العربية. ${pagination.total || creator.templateCount || creatorTemplates.length || 0} قالب متاح.`} />
-          <meta property="og:image" content={creator.profilePicture || 'https://www.notionarabs.com/og-image.png'} />
+          <meta property="og:image" content={creator.profilePicture || 'https://www.notionarabs.com/images/og-image.png'} />
           <meta property="og:url" content={`https://www.notionarabs.com/creators/${creator.username}`} />
           <meta property="og:type" content="profile" />
 
@@ -538,7 +538,7 @@ export default function PublicProfilePage() {
           <meta name="twitter:card" content="summary_large_image" />
           <meta name="twitter:title" content={`${creator.displayName || creator.name} - مبدع قوالب نوشن`} />
           <meta name="twitter:description" content={`تعرف على ${creator.displayName || creator.name}، مبدع قوالب Notion باللغة العربية.`} />
-          <meta name="twitter:image" content={creator.profilePicture || 'https://www.notionarabs.com/og-image.png'} />
+          <meta name="twitter:image" content={creator.profilePicture || 'https://www.notionarabs.com/images/og-image.png'} />
         </Head>
       )}
 

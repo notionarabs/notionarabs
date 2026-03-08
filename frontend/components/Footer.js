@@ -30,7 +30,7 @@ export default function Footer() {
           <div>
             <div className="flex items-center mb-4 sm:mb-6">
               <Image
-                src="/NavLogoLight.svg"
+                src="/brand/NavLogoLight.svg"
                 alt="عرب نوشن"
                 width={60}
                 height={40}

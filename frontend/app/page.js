@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { BookOpen, FolderTree, Target, Zap } from 'lucide-react';
 import Footer from '../components/Footer';
+import CompaniesTicker from '../components/CompaniesTicker';
 import { processSteps, services, testimonials } from '../lib/marketingContent';
 
 export default function HomePage() {
@@ -273,7 +274,7 @@ export default function HomePage() {
                 >
                   {/* Badge image */}
                   <img
-                    src="/NotionLogo.png"
+                    src="/brand/NotionLogo.png"
                     alt="Notion"
                     className="w-10 h-10 object-contain flex-shrink-0 transition-transform duration-300 group-hover:scale-110"
                   />
@@ -319,10 +320,10 @@ export default function HomePage() {
                   </svg>
                 </Link>
                 <Link
-                  href="/store"
+                  href="/projects"
                   className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-white/95 dark:bg-dark-tertiary/95 backdrop-blur-sm text-accent-700 dark:text-dark-text-primary rounded-xl border-2 border-primary-300 dark:border-orange-400/50 hover:bg-primary-50 dark:hover:bg-orange-900/20 transition-all duration-300 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
                 >
-                  تصفح القوالب
+                  تصفح أعمالنا
                 </Link>
               </div>
 
@@ -333,8 +334,11 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Companies Ticker Section */}
+      <CompaniesTicker />
+
       {/* Problems We Solve */}
-      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-secondary transition-colors duration-300" data-reveal-section>
+      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-dark-secondary transition-colors duration-300" data-reveal-section>
         <div className="container-custom">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] items-start">
             <div className="text-center lg:text-right">
@@ -405,7 +409,7 @@ export default function HomePage() {
 
 
       {/* Services Overview */}
-      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-black transition-colors duration-300" data-reveal-section>
+      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-black transition-colors duration-300" data-reveal-section>
         <div className="container-custom">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] items-start">
             <div className="order-1 lg:order-1 lg:sticky lg:top-24 self-start">
@@ -442,7 +446,7 @@ export default function HomePage() {
       </section>
 
       {/* How We Do It Section */}
-      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-secondary transition-colors duration-300" data-reveal-section>
+      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-dark-secondary transition-colors duration-300" data-reveal-section>
         <div className="container-custom">
           <div className="text-center mb-8 sm:mb-10 md:mb-12">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
@@ -480,7 +484,7 @@ export default function HomePage() {
                   <div className={`sm:col-start-1 sm:pr-8 sm:text-right ${idx % 2 === 0 ? 'block' : 'hidden sm:invisible sm:block'}`}>
                     {idx % 2 === 0 && (
                       <div
-                        className={`card-interactive cursor-default p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-dark-card-border bg-white dark:bg-dark-primary step-card w-full ml-auto ${inViewSteps.includes(idx) ? 'is-visible' : ''
+                        className={`card-interactive cursor-default p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-dark-card-border bg-secondary-50 dark:bg-dark-primary step-card w-full ml-auto ${inViewSteps.includes(idx) ? 'is-visible' : ''
                           } from-right`}
                       >
                         <div className="step-card-shine absolute inset-0 pointer-events-none"></div>
@@ -515,7 +519,7 @@ export default function HomePage() {
                   <div className={`sm:col-start-3 sm:pl-8 sm:text-left ${idx % 2 !== 0 ? 'block' : 'hidden sm:invisible sm:block'}`}>
                     {idx % 2 !== 0 && (
                       <div
-                        className={`card-interactive cursor-default p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-dark-card-border bg-white dark:bg-dark-primary step-card w-full mr-auto ${inViewSteps.includes(idx) ? 'is-visible' : ''
+                        className={`card-interactive cursor-default p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-dark-card-border bg-secondary-50 dark:bg-dark-primary step-card w-full mr-auto ${inViewSteps.includes(idx) ? 'is-visible' : ''
                           } from-left`}
                       >
                         <div className="step-card-shine absolute inset-0 pointer-events-none"></div>
@@ -545,7 +549,7 @@ export default function HomePage() {
       </section>
 
       {/* What Makes Us Different Section */}
-      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-dark-primary transition-colors duration-300" data-reveal-section>
+      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" data-reveal-section>
         <div className="container-custom">
           <div className="text-center mb-8 sm:mb-10 md:mb-12">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
@@ -611,58 +615,17 @@ export default function HomePage() {
 
 
 
-      {/* Companies We Worked With */}
-      {/* <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" data-reveal-section>
-        <div className="container-custom">
-          <div className="relative overflow-hidden rounded-3xl border border-gray-200 dark:border-dark-card-border bg-gradient-to-br from-white via-secondary-50 to-primary-50/60 dark:from-dark-secondary dark:via-dark-secondary dark:to-dark-primary p-6 sm:p-8 md:p-10 lg:p-12">
-            <div className="absolute -top-20 -left-20 w-64 h-64 rounded-full bg-primary-100/40 dark:bg-orange-500/10 blur-3xl"></div>
-            <div className="absolute -bottom-24 -right-10 w-72 h-72 rounded-full bg-secondary-100/60 dark:bg-dark-tertiary/30 blur-3xl"></div>
-            <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] items-center">
-              <div className="text-center lg:text-right">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
-                  شركات عملنا معها
-                </h2>
-                <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary max-w-2xl mx-auto lg:mx-0">
-                  خبرات عملية مع فرق وشركات مختلفة لبناء نظم نوشن قابلة للاعتماد.
-                </p>
-                <div className="relative mt-8 text-center lg:text-right">
-                  <Link href="/success-stories" className="btn-outline inline-flex items-center text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3">
-                    شاهد قصص النجاح
-                    <svg className="mr-2 w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </Link>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { label: 'مشروع مكتمل', value: '+100' },
-                  { label: 'فرق اعتمدت نوشن', value: '+30' },
-                  { label: 'تحسين كفاءة العمل', value: '40%' },
-                  { label: 'نظم مخصصة', value: '+70' }
-                ].map((stat, idx) => (
-                  <div key={idx} className="rounded-2xl bg-white/90 dark:bg-dark-tertiary/80 border border-white/70 dark:border-dark-card-border/70 p-4 sm:p-5 text-center shadow-sm">
-                    <div className="text-lg sm:text-xl font-bold text-accent-500 dark:text-dark-text-primary">{stat.value}</div>
-                    <div className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary mt-1">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section> */}
 
       {/* Testimonials */}
-      {/* <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-dark-secondary transition-colors duration-300" data-reveal-section>
+      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-dark-secondary transition-colors duration-300" data-reveal-section>
         <div className="container-custom">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] items-start">
             <div className="text-center lg:text-right">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
-                آراء العملاء
+                آراء عملائنا
               </h2>
               <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary max-w-xl mx-auto lg:mx-0">
-                تجارب حقيقية من فرق اعتمدت نظم نوشن لتطوير عملها.
+                قصص نجاح حقيقية من مؤسسات وفرق اعتمدت نظم عرب نوشن لتطوير وتوسعة أعمالها.
               </p>
             </div>
             <div className="space-y-4 sm:space-y-5">
@@ -672,23 +635,20 @@ export default function HomePage() {
                     <div className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed">
                       “{testimonial.quote}”
                     </div>
-                    <div className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full bg-white dark:bg-dark-tertiary text-accent-500 dark:text-dark-text-tertiary text-lg font-semibold">
-                      {testimonial.name?.[0] || '؟'}
-                    </div>
                   </div>
                   <div className="mt-4 flex items-center justify-between text-sm">
                     <span className="font-semibold text-accent-900 dark:text-dark-text-primary">
                       {testimonial.name}
                     </span>
-                    <span className="text-xs text-accent-500 dark:text-dark-text-tertiary">
+                    <span className="text-xs text-accent-500 dark:text-dark-text-tertiary font-medium">
                       {testimonial.role}
                     </span>
                   </div>
                 </div>
               ))}
-              <div className="text-center lg:text-right">
-                <Link href="/success-stories" className="btn-outline inline-flex items-center text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3">
-                  شاهد المزيد من الآراء
+              <div className="text-center lg:text-right pt-4">
+                <Link href="/projects" className="btn-outline inline-flex items-center text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3">
+                  تصفح جميع أعمالنا
                   <svg className="mr-2 w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
@@ -697,7 +657,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section> */}
+      </section>
 
       {/* FAQ Section */}
       <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" data-reveal-section>
@@ -732,7 +692,7 @@ export default function HomePage() {
                 },
                 {
                   question: 'هل تقدّمون خدمات برمجية؟',
-                  answer: 'نعم، نقدم خدمات برمجية متكاملة، بما في ذلك ربط أنظمتك ومواقعك بنوشن لتسهيل إدارة البيانات والأتمتة بسلاسة داخل النظام.'
+                  answer: 'نعم، نقدم خدمات برمجية متكاملة وبناء تطبيقات ويب مخصصة تعتمد على نوشن كقاعدة بيانات قوية، مع كتابة أكواد متقدمة لكسر حدود النظام التقليدية وتوسيع إمكانياته لتطابق احتياجاتك بدقة.'
                 },
                 {
                   question: 'كم يستغرق بناء النظام؟',

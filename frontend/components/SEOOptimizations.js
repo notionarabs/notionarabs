@@ -228,7 +228,7 @@ export function TwitterCardMeta({
   creator = '@notionarabs'
 }) {
   const baseUrl = 'https://www.notionarabs.com';
-  const imageUrl = image ? (image.startsWith('http') ? image : `${baseUrl}${image}`) : `${baseUrl}/og-image.png`;
+  const imageUrl = image ? (image.startsWith('http') ? image : `${baseUrl}${image}`) : `${baseUrl}/images/og-image.png`;
 
   return (
     <>

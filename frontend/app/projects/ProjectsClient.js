@@ -11,7 +11,7 @@ const projects = [
     {
         id: 'yuyan-academy',
         slug: 'yuyan-academy',
-        name: 'YuYan Academy',
+        name: 'أكاديمية YuYan',
         logo: '/projects/YuYan Academy/logo.svg',
         invertLogoInLight: false,
         cover: '/projects/YuYan Academy/Contact Form.png',
@@ -27,7 +27,7 @@ const projects = [
     {
         id: 'resaltk',
         slug: 'resaltk',
-        name: 'رسالتك',
+        name: 'منصة رسالتك',
         logo: '/projects/Resaltk/Logo.webp',
         invertLogoInLight: true,
         cover: '/projects/Resaltk/Dashboard.webp',
@@ -45,7 +45,7 @@ const projects = [
     {
         id: 'gold-tracker',
         slug: 'gold-investment',
-        name: 'Gold Tracker',
+        name: 'نظام متتبع الذهب',
         logo: '/projects/Gold Tracker/Logo.webp',
         cover: '/projects/Gold Tracker/Dashboard.webp',
         description:
@@ -60,7 +60,7 @@ const projects = [
     {
         id: 'trend-design',
         slug: 'trend-design',
-        name: 'Trend Design',
+        name: 'شركة Trend Design',
         logo: '/projects/Trend Design/Logo.webp',
         cover: '/projects/Trend Design/11.webp',
         description:
@@ -77,18 +77,37 @@ const projects = [
     {
         id: 'personal-portfolio',
         slug: 'personal-portfolio',
-        name: 'موقع شخصي',
+        name: 'موقع أعمال لمطور ويب',
         logo: '/projects/Personal Portfolio/Logo.png',
         invertLogoInLight: true,
         cover: '/projects/Personal Portfolio/HeroSection.png',
-        description: 'بناء موقع شخصي حديث مدعوم بـ Notion API لمزامنة نماذج التواصل مباشرة مع مساحة العمل.',
-        tags: ['تطوير ويب', 'Notion API', 'أتمتة'],
+        description: 'تطوير معرض أعمال (Portfolio) تعرض خدمات تطوير المواقع، متصلة بـ Notion API لاستقبال طلبات العملاء.',
+        tags: ['تطوير ويب', 'Notion API', 'مستقل'],
         color: 'from-blue-500/10 to-sky-500/5',
         accent: 'bg-blue-500',
         images: [
             '/projects/Personal Portfolio/HeroSection.png',
             '/projects/Personal Portfolio/Contact Form.png',
             '/projects/Personal Portfolio/Notion DB.png',
+        ],
+    },
+    {
+        id: 'personal-portfolio-2',
+        slug: 'personal-portfolio-2',
+        name: 'موقع شخصي لخبير نوشن',
+        logo: '/projects/Personal Portfolio - 2/Logo.webp',
+        invertLogoInLight: true,
+        cover: '/projects/Personal Portfolio - 2/HeroSection.png',
+        description: 'بناء منصة متكاملة لخبير بناء أنظمة نوشن، مزودة ببوابة دخول للعملاء وربط مباشر لاستفساراتهم بنظام إدارة العملاء الداخلي.',
+        tags: ['استشارات', 'Notion API', 'بوابة عملاء'],
+        color: 'from-blue-500/10 to-indigo-500/5',
+        accent: 'bg-indigo-500',
+        images: [
+            '/projects/Personal Portfolio - 2/HeroSection.png',
+            '/projects/Personal Portfolio - 2/Contact Form.png',
+            '/projects/Personal Portfolio - 2/Sign In Form.png',
+            '/projects/Personal Portfolio - 2/Notion DB (Contact Form).png',
+            '/projects/Personal Portfolio - 2/Notion DB (SignIn Form).png',
         ],
     },
 ];

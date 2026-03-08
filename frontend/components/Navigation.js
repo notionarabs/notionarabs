@@ -107,7 +107,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
             onClick={() => handleNavigation('/')}
           >
             <Image
-              src="/NavLogoLight.svg"
+              src="/brand/NavLogoLight.svg"
               alt="عرب نوشن"
               width={180}
               height={60}

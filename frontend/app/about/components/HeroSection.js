@@ -106,7 +106,7 @@ export default function HeroSection() {
                                 <div className="absolute inset-0 bg-grid-pattern opacity-5" />
                                 <div className="relative w-full h-full p-8 flex items-center justify-center">
                                     <Image
-                                        src="/aboutHeroSection.svg"
+                                        src="/images/aboutHeroSection.svg"
                                         alt="Notion Arabs System"
                                         width={300}
                                         height={300}

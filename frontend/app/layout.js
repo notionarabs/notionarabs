@@ -36,13 +36,13 @@ export const metadata = {
   }),
   icons: {
     icon: [
-      { url: '/favicon.png', type: 'image/png' }
+      { url: '/icons/favicon.png', type: 'image/png' }
     ],
     shortcut: [
-      { url: '/favicon.png', type: 'image/png' }
+      { url: '/icons/favicon.png', type: 'image/png' }
     ],
     apple: [
-      { url: '/favicon.png', sizes: '180x180', type: 'image/png' }
+      { url: '/icons/favicon.png', sizes: '180x180', type: 'image/png' }
     ]
   }
 }
@@ -64,21 +64,21 @@ export default function RootLayout({ children }) {
 
 
         {/* Favicon - PNG */}
-        <link rel="icon" type="image/png" href="/favicon.png" />
-        <link rel="shortcut icon" href="/favicon.png" />
+        <link rel="icon" type="image/png" href="/icons/favicon.png" />
+        <link rel="shortcut icon" href="/icons/favicon.png" />
         {/* Resource hints for critical resources */}
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
 
         {/* Apple Touch Icon for iOS devices */}
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="عرب نوشن" />
 
         {/* Web App Manifest - PWA Support */}
-        <link rel="manifest" href="/manifest.json" />
+        <link rel="manifest" href="/metadata/manifest.json" />
         {/* Font preconnect for faster font loading */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

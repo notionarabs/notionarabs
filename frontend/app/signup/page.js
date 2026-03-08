@@ -140,7 +140,7 @@ export default function SignupPage() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-block mb-6 transform hover:scale-105 transition-transform duration-200">
             <Image
-              src="/NavLogoLight.svg"
+              src="/brand/NavLogoLight.svg"
               alt="عرب نوشن"
               width={140}
               height={45}

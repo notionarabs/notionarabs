@@ -55,7 +55,7 @@ export default function CertificationSection() {
                                 <div className="relative">
                                     <div className="absolute inset-0 rounded-3xl bg-primary-200/40 dark:bg-orange-400/20 blur-2xl scale-125 transition-all duration-500 group-hover:scale-150 group-hover:bg-primary-300/50"></div>
                                     <img
-                                        src="/Notion Service Specialist.png"
+                                        src="/brand/Notion Service Specialist.png"
                                         alt="Notion Service Specialist Certification Badge"
                                         className="relative w-36 h-36 object-contain drop-shadow-xl transition-transform duration-500 group-hover:scale-105"
                                     />

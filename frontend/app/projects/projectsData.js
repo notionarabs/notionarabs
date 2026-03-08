@@ -2,7 +2,7 @@ export const projects = [
     {
         id: 'yuyan-academy',
         slug: 'yuyan-academy',
-        name: 'YuYan Academy',
+        name: 'أكاديمية YuYan',
         logo: '/projects/YuYan Academy/logo.svg',
         invertLogoInLight: false,
         cover: '/projects/YuYan Academy/Contact Form.png',
@@ -40,14 +40,14 @@ export const projects = [
     {
         id: 'personal-portfolio',
         slug: 'personal-portfolio',
-        name: 'موقع شخصي',
+        name: 'موقع أعمال لمطور ويب',
         logo: '/projects/Personal Portfolio/Logo.png',
         invertLogoInLight: true,
         cover: '/projects/Personal Portfolio/HeroSection.png',
-        title: 'بناء موقع حديث مدعوم بـ Notion API',
+        title: 'بناء موقع شخصي لمطور ويب ودمج Notion API',
         description:
-            'قمنا بتطوير موقع شخصي حديث وربط نماذج التواصل الخاصة به بشكل سلس مع واجهة Notion API لمزامنة البيانات لحظياً وتلقائياً.',
-        tags: ['تطوير ويب', 'Notion API', 'أتمتة'],
+            'تطوير معرض أعمال (Portfolio) تعرض خدمات تطوير المواقع، متصلة بـ Notion API لاستقبال طلبات العملاء.',
+        tags: ['تطوير ويب', 'Notion API', 'مستقل'],
         color: 'from-blue-500/10 to-sky-500/5',
         accent: 'bg-blue-500',
         accentText: 'text-blue-600 dark:text-blue-400',
@@ -59,7 +59,7 @@ export const projects = [
         ],
         videoUrl: 'https://www.youtube.com/embed/9Oiwr-9P608',
         meta: [
-            { label: 'نوع العميل', value: 'مستقل (Freelancer)' },
+            { label: 'نوع العميل', value: 'مستقل (مطور ويب)' },
             { label: 'نطاق العمل', value: 'تصميم موقع ويب وربط قواعد البيانات بـ Notion API' },
             { label: 'الأداة المستخدمة', value: 'Next.js + Notion API' },
         ],
@@ -81,9 +81,51 @@ export const projects = [
 `
     },
     {
+        id: 'personal-portfolio-2',
+        slug: 'personal-portfolio-2',
+        name: 'موقع شخصي لخبير نوشن',
+        logo: '/projects/Personal Portfolio - 2/Logo.webp',
+        invertLogoInLight: true,
+        cover: '/projects/Personal Portfolio - 2/HeroSection.png',
+        title: 'منصة شخصية لبيع القوالب وخدمات نوشن (Notion)',
+        description: 'بناء منصة متكاملة لخبير بناء أنظمة نوشن، مزودة ببوابة دخول للعملاء وربط مباشر لاستفساراتهم بنظام إدارة العملاء الداخلي.',
+        tags: ['استشارات', 'Notion API', 'بوابة عملاء'],
+        color: 'from-blue-500/10 to-indigo-500/5',
+        accent: 'bg-indigo-500',
+        accentText: 'text-indigo-600 dark:text-indigo-400',
+        accentBorder: 'border-indigo-200 dark:border-indigo-500/20',
+        images: [
+            '/projects/Personal Portfolio - 2/HeroSection.png',
+            '/projects/Personal Portfolio - 2/Contact Form.png',
+            '/projects/Personal Portfolio - 2/Sign In Form.png',
+            '/projects/Personal Portfolio - 2/Notion DB (Contact Form).png',
+            '/projects/Personal Portfolio - 2/Notion DB (SignIn Form).png',
+        ],
+        meta: [
+            { label: 'نوع العميل', value: 'خبير ومستشار (Notion)' },
+            { label: 'نطاق العمل', value: 'تصميم موقع ويب وربط قواعد البيانات بـ Notion API' },
+            { label: 'الأداة المستخدمة', value: 'تطوير مخصص + Notion API' },
+        ],
+        content: `قمنا بتطوير منصة شخصية حديثة ومُخصصة لخبير في تصميم قوالب، أنظمة، واستشارات **Notion**، مع ميزات متقدمة مثل تسجيل الدخول ونماذج الاستفسار.
+        
+المنصة تعمل كواجهة أمامية لبيع القوالب وعرض الخدمات، بينما يتم إدارة كل هذه العمليات (Backend) بمرونة داخل مساحة عمل العميل في Notion.
+
+---
+
+## التكامل المباشر مع Notion
+
+بدلاً من استخدام أنظمة خلفية (Backends) معقدة لتتبع طلبات تسجيل الدخول والرسائل، اعتمدنا على **Notion**:
+
+- **نماذج التواصل (Contact Forms):** جميع الرسائل والإيميلات تصل فوراً إلى قواعد البيانات المخصصة.
+- **تسجيل الدخول (Sign In):** مزامنة بيانات تسجيل الدخول وتوثيقها لتسهيل المتابعة والإدارة بسلاسة.
+- **توفير الوقت والجهد:** إلغاء الحاجة لنسخ ولصق البيانات يدوياً بفضل الأتمتة الكاملة للتدفق بين الموقع ومساحة العمل الخاصة بالعميل.
+
+يعد هذا النظام حلاً مثالياً للمستقلين الذين يبحثون عن مركز عمليات (CRM) سهل ومباشر يعتمد بالكامل على Notion.`
+    },
+    {
         id: 'resaltk',
         slug: 'resaltk',
-        name: 'رسالتك',
+        name: 'منصة رسالتك',
         logo: '/projects/Resaltk/Logo.webp',
         invertLogoInLight: true,
         cover: '/projects/Resaltk/Dashboard.webp',
@@ -222,10 +264,10 @@ export const projects = [
     {
         id: 'gold-investment',
         slug: 'gold-investment',
-        name: 'Gold Tracker',
+        name: 'نظام متتبع الذهب',
         logo: '/projects/Gold Tracker/Logo.webp',
         cover: '/projects/Gold Tracker/Dashboard.webp',
-        title: 'نظام تتبع استثمار الذهب في الوقت الفعلي',
+        title: 'متتبع الذهب – نظام تتبع استثمار الذهب في الوقت الفعلي',
         description:
             'لوحة تحكم مخصصة تعتمد على ربط مباشر بأسعار الذهب وحساب الأرباح ونسبة العائد تلقائيًا.',
         tags: ['مالية', 'تتبع الاستثمارات', 'تقارير'],
@@ -238,11 +280,10 @@ export const projects = [
         ],
         meta: [
             { label: 'نوع العميل', value: 'مستثمر فردي' },
-            { label: 'الموقع', value: 'مستثمر مصري مقيم في السعودية' },
-            { label: 'نطاق العمل', value: 'نظام مخصص لتتبع محفظة الذهب لحظيًا' },
+            { label: 'نطاق العمل', value: 'نظام مخصص لتتبع استثمارات الذهب لحظيًا' },
             { label: 'الأدوات المستخدمة', value: 'Notion · Gold Price API · Google Apps Script' },
         ],
-        content: `إذا كنت تتابع استثماراتك في الذهب يدويًا وتحسب الأرباح بنفسك، فهذا المشروع يوضح كيف يمكن لنظام مخصص داخل Notion أن يمنحك رؤية لحظية ودقيقة لمحفظتك الاستثمارية.
+        content: `إذا كنت تتابع استثماراتك في الذهب يدويًا وتحسب الأرباح بنفسك، فهذا المشروع يوضح كيف يمكن لنظام مخصص داخل Notion أن يمنحك رؤية لحظية ودقيقة لاستثماراتك المالية.
 
 ---
 
@@ -268,7 +309,7 @@ export const projects = [
 - ربط مباشر بواجهة برمجة أسعار الذهب
 - تحديث تلقائي للأسعار
 - تحويل العملات تلقائيًا
-- ربط قاعدة بيانات المحفظة بالسعر اللحظي
+- ربط قاعدة بيانات الاستثمارات بالسعر اللحظي
 
 يقوم النظام بحساب:
 
@@ -285,7 +326,7 @@ export const projects = [
 
 أصبح لدى العميل:
 
-- رؤية لحظية لمحفظته
+- رؤية لحظية لاستثماراته
 - حساب أرباح وخسائر تلقائي
 - قرارات استثمارية أسرع
 - نظام واحد منظم بدل الحسابات اليدوية`,
@@ -293,7 +334,7 @@ export const projects = [
     {
         id: 'trend-design',
         slug: 'trend-design',
-        name: 'Trend Design',
+        name: 'شركة Trend Design',
         logo: '/projects/Trend Design/Logo.webp',
         cover: '/projects/Trend Design/11.webp',
         title: 'Trend Design – نظام تشغيل متكامل لإدارة شركة تصميم داخلي داخل نوشن',
@@ -312,7 +353,6 @@ export const projects = [
         meta: [
             { label: 'العميل', value: 'Trend Design' },
             { label: 'المجال', value: 'التصميم الداخلي' },
-            { label: 'الموقع', value: 'المملكة العربية السعودية' },
             { label: 'نطاق العمل', value: 'بناء نظام تشغيل داخلي متكامل للشركة' },
             { label: 'الأداة المستخدمة', value: 'Notion' },
         ],

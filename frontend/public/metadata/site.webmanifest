@@ -4,23 +4,23 @@
   "description": "اكتشف وبيع قوالب نوشن باللغة العربية - منصة مخصصة للمبدعين والمشترين العرب",
   "icons": [
     {
-      "src": "/favicon.png",
+      "src": "/icons/favicon.png",
       "sizes": "any",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/favicon.ico",
+      "src": "/icons/favicon.ico",
       "sizes": "16x16 32x32 48x48",
       "type": "image/x-icon"
     },
     {
-      "src": "/favicon.svg",
+      "src": "/icons/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml"
     },
     {
-      "src": "/apple-touch-icon.png",
+      "src": "/icons/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png"
     }

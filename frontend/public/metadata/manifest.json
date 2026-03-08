@@ -10,38 +10,42 @@
   "scope": "/",
   "lang": "ar",
   "dir": "rtl",
-  "categories": ["productivity", "business", "education"],
+  "categories": [
+    "productivity",
+    "business",
+    "education"
+  ],
   "icons": [
     {
-      "src": "/favicon.png",
+      "src": "/icons/favicon.png",
       "sizes": "any",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-192x192.png",
+      "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-512x512.png",
+      "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/favicon.ico",
+      "src": "/icons/favicon.ico",
       "sizes": "16x16 32x32 48x48",
       "type": "image/x-icon"
     },
     {
-      "src": "/favicon.svg",
+      "src": "/icons/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml"
     },
     {
-      "src": "/apple-touch-icon.png",
+      "src": "/icons/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png"
     }
@@ -54,7 +58,7 @@
       "url": "/templates",
       "icons": [
         {
-          "src": "/favicon.png",
+          "src": "/icons/favicon.png",
           "sizes": "any"
         }
       ]
@@ -66,7 +70,7 @@
       "url": "/templates/create",
       "icons": [
         {
-          "src": "/favicon.png",
+          "src": "/icons/favicon.png",
           "sizes": "any"
         }
       ]
@@ -78,7 +82,7 @@
       "url": "/blog",
       "icons": [
         {
-          "src": "/favicon.png",
+          "src": "/icons/favicon.png",
           "sizes": "any"
         }
       ]

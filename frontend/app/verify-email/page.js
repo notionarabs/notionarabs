@@ -89,7 +89,7 @@ function VerifyEmailForm() {
 
     const tokenFromUrl = searchParams.get('token');
     const emailFromUrl = searchParams.get('email');
-    
+
     hasInitialized.current = true;
 
     // Validate token format for security
@@ -178,7 +178,7 @@ function VerifyEmailForm() {
                 decoding="async"
                 data-nimg="1"
                 className="h-8 sm:h-10 lg:h-12 w-auto"
-                src="/NavLogoLight.svg"
+                src="/brand/NavLogoLight.svg"
                 style={{ color: 'transparent' }}
               />
             </Link>
@@ -246,7 +246,7 @@ function VerifyEmailForm() {
                 decoding="async"
                 data-nimg="1"
                 className="h-8 sm:h-10 lg:h-12 w-auto"
-                src="/NavLogoLight.svg"
+                src="/brand/NavLogoLight.svg"
                 style={{ color: 'transparent' }}
               />
             </Link>
@@ -287,7 +287,7 @@ function VerifyEmailForm() {
                 decoding="async"
                 data-nimg="1"
                 className="h-8 sm:h-10 lg:h-12 w-auto"
-                src="/NavLogoLight.svg"
+                src="/brand/NavLogoLight.svg"
                 style={{ color: 'transparent' }}
               />
             </Link>
@@ -353,7 +353,7 @@ function VerifyEmailForm() {
               decoding="async"
               data-nimg="1"
               className="h-8 sm:h-10 lg:h-12 w-auto"
-              src="/NavLogoLight.svg"
+              src="/brand/NavLogoLight.svg"
               style={{ color: 'transparent' }}
             />
           </Link>
@@ -489,7 +489,7 @@ export default function VerifyEmailPage() {
                 decoding="async"
                 data-nimg="1"
                 className="h-8 sm:h-10 lg:h-12 w-auto"
-                src="/NavLogoLight.svg"
+                src="/brand/NavLogoLight.svg"
                 style={{ color: 'transparent' }}
               />
             </div>

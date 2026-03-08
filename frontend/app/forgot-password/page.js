@@ -54,7 +54,7 @@ export default function ForgotPasswordPage() {
             <div className="text-center mb-4 sm:mb-6 md:mb-8 lg:mb-10">
               <Link href="/" className="inline-flex items-center justify-center mb-3 sm:mb-4 md:mb-6 hover:opacity-80 transition-opacity">
                 <Image
-                  src={theme === 'dark' ? "/NavLogoDark.svg" : "/NavLogoLight.svg"}
+                  src={theme === 'dark' ? "/brand/NavLogoDark.svg" : "/brand/NavLogoLight.svg"}
                   alt="عرب نوشن"
                   width={120}
                   height={40}
@@ -130,7 +130,7 @@ export default function ForgotPasswordPage() {
           <div className="text-center mb-4 sm:mb-6 md:mb-8 lg:mb-10">
             <Link href="/" className="inline-flex items-center justify-center mb-3 sm:mb-4 md:mb-6 hover:opacity-80 transition-opacity">
               <Image
-                src={theme === 'dark' ? "/NavLogoDark.svg" : "/NavLogoLight.svg"}
+                src={theme === 'dark' ? "/brand/NavLogoDark.svg" : "/brand/NavLogoLight.svg"}
                 alt="عرب نوشن"
                 width={120}
                 height={40}

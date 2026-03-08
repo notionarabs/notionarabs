@@ -92,7 +92,7 @@ function ResetPasswordForm() {
             <div className="text-center mb-6 sm:mb-8 md:mb-10">
               <Link href="/" className="flex items-center justify-center mb-4 sm:mb-6">
                 <Image
-                  src={theme === 'dark' ? "/NavLogoDark.svg" : "/NavLogoLight.svg"}
+                  src={theme === 'dark' ? "/brand/NavLogoDark.svg" : "/brand/NavLogoLight.svg"}
                   alt="عرب نوشن"
                   width={120}
                   height={40}
@@ -175,7 +175,7 @@ function ResetPasswordForm() {
             <div className="text-center mb-6 sm:mb-8 md:mb-10">
               <Link href="/" className="flex items-center justify-center mb-4 sm:mb-6">
                 <Image
-                  src={theme === 'dark' ? "/NavLogoDark.svg" : "/NavLogoLight.svg"}
+                  src={theme === 'dark' ? "/brand/NavLogoDark.svg" : "/brand/NavLogoLight.svg"}
                   alt="عرب نوشن"
                   width={120}
                   height={40}
@@ -248,7 +248,7 @@ function ResetPasswordForm() {
           <div className="text-center mb-6 sm:mb-8 md:mb-10">
             <Link href="/" className="flex items-center justify-center mb-4 sm:mb-6">
               <Image
-                src={theme === 'dark' ? "/NavLogoDark.svg" : "/NavLogoLight.svg"}
+                src={theme === 'dark' ? "/brand/NavLogoDark.svg" : "/brand/NavLogoLight.svg"}
                 alt="عرب نوشن"
                 width={120}
                 height={40}

@@ -6,7 +6,7 @@ export const siteConfig = {
   title: 'عرب نوشن | Notion Arabs - خدمات نوشن وأنظمة عمل مخصصة',
   description: 'عرب نوشن (Notion Arabs) هي المنصة الرائدة والأولى في العالم العربي لمتجر قوالب نوشن وتقديم استشارات بناء أنظمة عمل مخصصة للشركات والأفراد.',
   url: 'https://www.notionarabs.com',
-  ogImage: '/og-image.png',
+  ogImage: '/images/og-image.png',
   creator: '@notionarabs',
   keywords: [
     'خدمات نوشن',
@@ -29,7 +29,7 @@ export const siteConfig = {
 
 // Utility function to get absolute image URL
 export function getAbsoluteImageUrl(imageUrl) {
-  if (!imageUrl) return `${siteConfig.url}/og-image.png`;
+  if (!imageUrl) return `${siteConfig.url}/images/og-image.png`;
   if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) return imageUrl;
 
   const backendUrl = 'https://notion-arabs-fe5b3f214071.herokuapp.com';
@@ -216,7 +216,7 @@ export function generateBlogMetadata(blog) {
     title,
     description,
     keywords,
-    image: seoImage || '/blog-fallback.png',
+    image: seoImage || '/images/blog-fallback.png',
     url: `/blog/${blog.slug}`,
     type: 'article',
     publishedTime: blog.publishedAt,

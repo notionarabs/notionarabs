@@ -80,8 +80,94 @@ function LightboxModal({ project, initialIndex, onClose }) {
     );
 }
 
+function ProjectImageSlider({ images, projectName, onImageClick }) {
+    const [current, setCurrent] = useState(0);
+    const total = images.length;
+
+    const prev = (e) => {
+        e.stopPropagation();
+        setCurrent((i) => (i - 1 + total) % total);
+    };
+    const next = (e) => {
+        e.stopPropagation();
+        setCurrent((i) => (i + 1) % total);
+    };
+
+    if (!images || images.length === 0) return null;
+
+    return (
+        <div className="relative w-full aspect-video rounded-3xl overflow-hidden border border-gray-200 dark:border-dark-card-border shadow-lg group">
+            {/* Main Image */}
+            <div
+                className="relative w-full h-full cursor-zoom-in"
+                onClick={() => onImageClick(current)}
+            >
+                <Image
+                    src={images[current]}
+                    alt={`${projectName} - slide ${current + 1}`}
+                    fill
+                    className="object-cover transition-all duration-500"
+                    unoptimized
+                />
+            </div>
+
+            {/* Navigation Arrows */}
+            {total > 1 && (
+                <>
+                    <button
+                        onClick={prev}
+                        className="absolute top-1/2 right-4 -translate-y-1/2 p-2 rounded-full bg-black/30 hover:bg-black/50 text-white transition-all opacity-0 group-hover:opacity-100 z-10 flex items-center justify-center transform hover:scale-110 active:scale-95"
+                        aria-label="Previous Slide"
+                    >
+                        <ChevronRight className="w-7 h-7" />
+                    </button>
+                    <button
+                        onClick={next}
+                        className="absolute top-1/2 left-4 -translate-y-1/2 p-2 rounded-full bg-black/30 hover:bg-black/50 text-white transition-all opacity-0 group-hover:opacity-100 z-10 flex items-center justify-center transform hover:scale-110 active:scale-95"
+                        aria-label="Next Slide"
+                    >
+                        <ChevronLeft className="w-7 h-7" />
+                    </button>
+                </>
+            )}
+
+            {/* Slide Indicators */}
+            {total > 1 && (
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                    {images.map((_, idx) => (
+                        <button
+                            key={idx}
+                            onClick={(e) => { e.stopPropagation(); setCurrent(idx); }}
+                            className={`w-2 h-2 rounded-full transition-all duration-300 ${idx === current ? 'bg-white scale-125 shadow-sm' : 'bg-white/40 hover:bg-white/60'}`}
+                            aria-label={`Go to slide ${idx + 1}`}
+                        />
+                    ))}
+                </div>
+            )}
+
+            {/* Zoom Badge */}
+            <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-sm text-white/90 text-xs font-medium py-1.5 px-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none flex items-center gap-1.5">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                </svg>
+                تكبير
+            </div>
+
+            {/* Slide Count */}
+            {total > 1 && (
+                <div className="absolute top-4 left-4 bg-black/40 backdrop-blur-sm text-white/90 text-xs font-medium py-1.5 px-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    {current + 1} / {total}
+                </div>
+            )}
+        </div>
+    );
+}
+
 export default function ProjectDetailClient({ project }) {
     const [lightbox, setLightbox] = useState(null);
+
+    // Filter images to remove duplicates if cover is already in images array
+    const allImages = project.images || [];
 
     // Custom renderers for React Markdown
     const markdownRenderers = {
@@ -137,7 +223,7 @@ export default function ProjectDetailClient({ project }) {
                                 </div>
                             </div>
                             <div>
-                                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-accent-900 dark:text-white leading-tight mb-3">
+                                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-accent-900 dark:text-white leading-[1.3] lg:leading-[1.4] mb-4">
                                     {project.title}
                                 </h1>
                                 <div className="flex flex-wrap gap-2">
@@ -164,27 +250,12 @@ export default function ProjectDetailClient({ project }) {
                     {/* Left Column: Markdown Content & Images */}
                     <div className="order-2 lg:order-1 space-y-12">
 
-                        {/* Main Cover Image */}
-                        <div
-                            className="relative w-full aspect-video rounded-3xl overflow-hidden border border-gray-200 dark:border-dark-card-border shadow-lg cursor-zoom-in group"
-                            onClick={() => setLightbox(0)}
-                        >
-                            <Image
-                                src={project.cover}
-                                alt={project.title}
-                                fill
-                                className="object-cover group-hover:scale-105 transition-transform duration-700"
-                                priority
-                                unoptimized
-                            />
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-                            <div className="absolute bottom-4 right-4 bg-white/90 dark:bg-dark-secondary/90 backdrop-blur text-accent-900 dark:text-white text-sm font-medium py-2 px-4 rounded-full shadow-md flex items-center gap-2 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
-                                </svg>
-                                تكبير الصورة
-                            </div>
-                        </div>
+                        {/* Image Slider Case */}
+                        <ProjectImageSlider
+                            images={allImages}
+                            projectName={project.name}
+                            onImageClick={(idx) => setLightbox(idx)}
+                        />
 
                         {/* Video Showcase */}
                         {project.videoUrl && (
@@ -210,31 +281,6 @@ export default function ProjectDetailClient({ project }) {
                                 {project.content}
                             </ReactMarkdown>
                         </article>
-
-                        {/* Additional Project Gallery */}
-                        {project.images.length > 1 && (
-                            <div className="pt-8 border-t border-gray-200 dark:border-dark-card-border mt-12">
-                                <h3 className="text-2xl font-bold text-accent-900 dark:text-white mb-6">صور من المشروع</h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                                    {project.images.slice(1).map((img, idx) => (
-                                        <div
-                                            key={idx}
-                                            className="relative aspect-video rounded-2xl overflow-hidden border border-gray-200 dark:border-dark-card-border shadow-sm group cursor-zoom-in"
-                                            onClick={() => setLightbox(idx + 1)}
-                                        >
-                                            <Image
-                                                src={img}
-                                                alt={`${project.name} لقطة شاشة ${idx + 2}`}
-                                                fill
-                                                className="object-cover group-hover:scale-105 transition-transform duration-500"
-                                                unoptimized
-                                            />
-                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
                     </div>
 
                     {/* Right Column: Sidebar Meta Info */}

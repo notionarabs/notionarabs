@@ -190,7 +190,7 @@ export default function HomePage() {
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
 
       {/* Enhanced Hero Section with Notion-inspired Animations */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-6 sm:py-8 md:py-12 lg:py-14 xl:py-16 transition-colors duration-300 min-h-[calc(100vh-64px)] sm:min-h-[calc(100vh-72px)] flex items-center">
+      <section className="relative overflow-hidden bg-white dark:bg-dark-primary px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-6 sm:py-8 md:py-12 lg:py-14 xl:py-16 transition-colors duration-300 min-h-[calc(100vh-64px)] sm:min-h-[calc(100vh-72px)] flex items-center">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
           {/* Floating Notion-style Blocks */}
@@ -201,8 +201,8 @@ export default function HomePage() {
           <div className="hidden md:block absolute bottom-20 right-10 w-18 h-18 bg-white/40 dark:bg-dark-tertiary/40 rounded-2xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover"></div>
 
           {/* Gradient Orbs */}
-          <div className="hidden sm:block absolute top-0 left-0 w-96 h-96 bg-gradient-to-r from-blue-100/30 to-purple-100/30 dark:from-orange-500/10 dark:to-orange-600/10 rounded-full blur-3xl motion-safe:animate-pulse"></div>
-          <div className="hidden sm:block absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-l from-gray-100/40 to-black/20 dark:from-dark-tertiary/20 dark:to-dark-primary/40 rounded-full blur-3xl motion-safe:animate-pulse"></div>
+          <div className="hidden sm:block absolute top-0 left-0 w-96 h-96 bg-gradient-to-r from-orange-100/30 to-amber-100/30 dark:from-orange-500/5 dark:to-orange-600/5 rounded-full blur-3xl motion-safe:animate-pulse"></div>
+          <div className="hidden sm:block absolute bottom-0 right-0 w-80 h-80 bg-gradient-to-l from-gray-50/40 to-white/20 dark:from-dark-tertiary/10 dark:to-dark-primary/20 rounded-full blur-3xl motion-safe:animate-pulse"></div>
 
           {/* Subtle Grid Pattern */}
           <div className="absolute inset-0 opacity-[0.015] dark:opacity-[0.05]" style={{
@@ -334,7 +334,7 @@ export default function HomePage() {
       </section>
 
       {/* Problems We Solve */}
-      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-dark-secondary transition-colors duration-300" data-reveal-section>
+      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-secondary transition-colors duration-300" data-reveal-section>
         <div className="container-custom">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] items-start">
             <div className="text-center lg:text-right">
@@ -405,7 +405,7 @@ export default function HomePage() {
 
 
       {/* Services Overview */}
-      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-black transition-colors duration-300" data-reveal-section>
+      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-black transition-colors duration-300" data-reveal-section>
         <div className="container-custom">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] items-start">
             <div className="order-1 lg:order-1 lg:sticky lg:top-24 self-start">
@@ -442,7 +442,7 @@ export default function HomePage() {
       </section>
 
       {/* How We Do It Section */}
-      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-dark-secondary transition-colors duration-300" data-reveal-section>
+      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-secondary transition-colors duration-300" data-reveal-section>
         <div className="container-custom">
           <div className="text-center mb-8 sm:mb-10 md:mb-12">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
@@ -480,7 +480,7 @@ export default function HomePage() {
                   <div className={`sm:col-start-1 sm:pr-8 sm:text-right ${idx % 2 === 0 ? 'block' : 'hidden sm:invisible sm:block'}`}>
                     {idx % 2 === 0 && (
                       <div
-                        className={`card-interactive cursor-default p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-dark-card-border bg-secondary-50 dark:bg-dark-primary step-card w-full ml-auto ${inViewSteps.includes(idx) ? 'is-visible' : ''
+                        className={`card-interactive cursor-default p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-dark-card-border bg-white dark:bg-dark-primary step-card w-full ml-auto ${inViewSteps.includes(idx) ? 'is-visible' : ''
                           } from-right`}
                       >
                         <div className="step-card-shine absolute inset-0 pointer-events-none"></div>
@@ -515,7 +515,7 @@ export default function HomePage() {
                   <div className={`sm:col-start-3 sm:pl-8 sm:text-left ${idx % 2 !== 0 ? 'block' : 'hidden sm:invisible sm:block'}`}>
                     {idx % 2 !== 0 && (
                       <div
-                        className={`card-interactive cursor-default p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-dark-card-border bg-secondary-50 dark:bg-dark-primary step-card w-full mr-auto ${inViewSteps.includes(idx) ? 'is-visible' : ''
+                        className={`card-interactive cursor-default p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-dark-card-border bg-white dark:bg-dark-primary step-card w-full mr-auto ${inViewSteps.includes(idx) ? 'is-visible' : ''
                           } from-left`}
                       >
                         <div className="step-card-shine absolute inset-0 pointer-events-none"></div>
@@ -545,7 +545,7 @@ export default function HomePage() {
       </section>
 
       {/* What Makes Us Different Section */}
-      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" data-reveal-section>
+      <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-dark-primary transition-colors duration-300" data-reveal-section>
         <div className="container-custom">
           <div className="text-center mb-8 sm:mb-10 md:mb-12">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">

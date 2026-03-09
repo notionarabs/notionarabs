@@ -105,11 +105,8 @@ class PaymobService {
         if (integrationIds && integrationIds.length > 0) {
             requestBody.payment_methods = integrationIds.map(Number);
             console.log('💳 Payment methods (integration IDs passed manually):', requestBody.payment_methods);
-        } else if (this.cardIntegrationId && this.walletIntegrationId) {
-            requestBody.payment_methods = [this.cardIntegrationId, this.walletIntegrationId];
-            console.log('💳 Payment methods (integration IDs from config):', requestBody.payment_methods);
         } else {
-            console.log('💳 No integration IDs specified — Paymob will show all available methods');
+            console.log('💳 No explicit integration IDs specified — Paymob will show all active methods for your account');
         }
 
         try {

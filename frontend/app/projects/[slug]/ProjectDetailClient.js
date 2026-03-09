@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ExternalLink, Briefcase, Calendar, X, ChevronLeft } from 'lucide-react';
 import Footer from '../../../components/Footer';
 import ReactMarkdown from 'react-markdown';
+import { VideoSchema } from '../../../components/StructuredData';
 
 function LightboxModal({ project, initialIndex, onClose }) {
     const [current, setCurrent] = useState(initialIndex);
@@ -60,7 +61,6 @@ function LightboxModal({ project, initialIndex, onClose }) {
                                 height={800}
                                 className="w-full h-auto rounded-xl object-contain max-h-[85vh] shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10"
                                 quality={90}
-                                unoptimized
                             />
                         </motion.div>
                     </AnimatePresence>
@@ -128,7 +128,6 @@ function ProjectImageSlider({ images, projectName, onImageClick }) {
                             width={1200}
                             height={800}
                             className="w-full h-auto"
-                            unoptimized
                         />
                     </motion.div>
                 </AnimatePresence>
@@ -246,7 +245,6 @@ export default function ProjectDetailClient({ project }) {
                                         alt={project.name}
                                         fill
                                         className={`object-contain transition-all duration-300 ${project.invertLogoInLight ? 'dark:invert-0 invert filter' : ''}`}
-                                        unoptimized
                                     />
                                 </div>
                             </div>
@@ -287,20 +285,31 @@ export default function ProjectDetailClient({ project }) {
 
                         {/* Video Showcase */}
                         {project.videoUrl && (
-                            <div className="pt-4 pb-8 mb-4 border-b border-gray-200 dark:border-dark-card-border">
-                                <h3 className="text-xl sm:text-2xl font-bold text-accent-900 dark:text-white mb-6">فيديو استعراض المشروع</h3>
-                                <div className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-lg border border-gray-200 dark:border-dark-card-border">
-                                    <iframe
-                                        src={project.videoUrl}
-                                        title="YouTube video player"
-                                        frameBorder="0"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                        referrerPolicy="strict-origin-when-cross-origin"
-                                        allowFullScreen
-                                        className="absolute top-0 left-0 w-full h-full"
-                                    ></iframe>
+                            <>
+                                <VideoSchema
+                                    video={{
+                                        title: project.title,
+                                        description: project.description,
+                                        thumbnailUrl: `https://img.youtube.com/vi/${project.videoUrl.split('embed/')[1]?.split('?')[0] || project.videoUrl.split('/').pop()}/maxresdefault.jpg`,
+                                        uploadDate: '2024-01-01T08:00:00+08:00',
+                                        embedUrl: project.videoUrl,
+                                    }}
+                                />
+                                <div className="pt-4 pb-8 mb-4 border-b border-gray-200 dark:border-dark-card-border">
+                                    <h3 className="text-xl sm:text-2xl font-bold text-accent-900 dark:text-white mb-6">فيديو استعراض المشروع</h3>
+                                    <div className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-lg border border-gray-200 dark:border-dark-card-border">
+                                        <iframe
+                                            src={project.videoUrl}
+                                            title="YouTube video player"
+                                            frameBorder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                            referrerPolicy="strict-origin-when-cross-origin"
+                                            allowFullScreen
+                                            className="absolute top-0 left-0 w-full h-full"
+                                        ></iframe>
+                                    </div>
                                 </div>
-                            </div>
+                            </>
                         )}
 
                         {/* Markdown Body */}

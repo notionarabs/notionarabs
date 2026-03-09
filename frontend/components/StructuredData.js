@@ -330,3 +330,37 @@ export function ItemListSchema({ items, listName = 'قوالب نوشن' }) {
     />
   )
 }
+// Video structured data
+export function VideoSchema({ video }) {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    "name": video.title,
+    "description": video.description,
+    "thumbnailUrl": [video.thumbnailUrl],
+    "uploadDate": video.uploadDate || "2024-01-01T08:00:00+08:00",
+    "embedUrl": video.embedUrl,
+    "contentUrl": video.contentUrl,
+    "duration": video.duration,
+    "interactionStatistic": video.views ? {
+      "@type": "InteractionCounter",
+      "interactionType": { "@type": "WatchAction" },
+      "userInteractionCount": video.views
+    } : undefined,
+    "regionsAllowed": "ALL"
+  }
+
+  // Remove undefined values
+  Object.keys(schema).forEach(key => {
+    if (schema[key] === undefined) {
+      delete schema[key]
+    }
+  })
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  )
+}

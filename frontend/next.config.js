@@ -131,8 +131,11 @@ const nextConfig = {
     // Enable image optimization
     dangerouslyAllowSVG: true,
     // contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    // Enable lazy loading by default for offscreen images
-    unoptimized: true,
+    // Use a custom loader for external providers like Cloudinary
+    loader: 'custom',
+    loaderFile: './lib/imageLoader.js',
+    unoptimized: false,
+    qualities: [75, 80, 85, 90, 100],
     remotePatterns: [
       {
         protocol: 'https',

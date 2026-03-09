@@ -107,7 +107,7 @@ const ProfileSidebar = ({ userStatus, onNavigate, activeSection }) => {
                 <div className="mb-6 px-3">
                     <Link href="/" className="flex items-center">
                         <Image
-                            src="/NavLogo.svg"
+                            src="/brand/NavLogoDark.svg"
                             alt="عرب نوشن"
                             width={140}
                             height={40}
@@ -115,7 +115,7 @@ const ProfileSidebar = ({ userStatus, onNavigate, activeSection }) => {
                             unoptimized
                         />
                         <Image
-                            src="/NavLogoLight.svg"
+                            src="/brand/NavLogoLight.svg"
                             alt="عرب نوشن"
                             width={140}
                             height={40}

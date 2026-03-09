@@ -100,18 +100,24 @@ class PaymobService {
                 : 'https://notion-arabs-fe5b3f214071.herokuapp.com/api/payments/callback'
         };
 
-        // Only specify payment_methods if we have valid IDs
-        // If omitted, Paymob will show ALL available methods for this account
+        // Paymob Intention API (v1) REQUIRES payment_methods to be an array of integration IDs.
+        // If integrationIds are passed to this function, use them. Otherwise use the defaults from constructor.
         if (integrationIds && integrationIds.length > 0) {
             requestBody.payment_methods = integrationIds.map(Number);
-            console.log('💳 Payment methods (integration IDs passed manually):', requestBody.payment_methods);
-        } else {
-            console.log('💳 No explicit integration IDs specified — Paymob will show all active methods for your account');
+        } else if (this.cardIntegrationId || this.walletIntegrationId) {
+            requestBody.payment_methods = [];
+            if (this.cardIntegrationId) requestBody.payment_methods.push(Number(this.cardIntegrationId));
+            if (this.walletIntegrationId) requestBody.payment_methods.push(Number(this.walletIntegrationId));
+        }
+
+        if (!requestBody.payment_methods || requestBody.payment_methods.length === 0) {
+            console.error('❌ No payment methods found. Paymob requires at least one integration ID.');
+            throw new Error('Payment configuration error: No integration IDs');
         }
 
         try {
             console.log('📤 Sending Intention API request to Paymob...');
-            console.log('🔹 Environment:', process.env.NODE_ENV);
+            console.log('🔹 Environment:', process.env.NODE_ENV || 'development');
             console.log('🔹 Using Key:', this.secretKey ? this.secretKey.substring(0, 10) + '...' : 'MISSING');
             console.log('🔹 Integration IDs:', requestBody.payment_methods);
 

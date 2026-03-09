@@ -12,8 +12,8 @@ const crypto = require('crypto');
 class PaymobService {
 
     constructor() {
-        // Automatic mode: Live in production, Test otherwise (Ticket #1976916 resolved)
-        const isLive = process.env.NODE_ENV === 'production';
+        // Reverting to Test Mode for now (Ticket #1976916 needs further merchant verification)
+        const isLive = false;
         this.secretKey = isLive
             ? process.env.PAYMOB_SECRET_KEY_LIVE
             : (process.env.PAYMOB_SECRET_KEY_TEST || 'egy_sk_test_8b1bd62800c456156d4f199f8e5ef2ddb5eafa744d47c18a5f376b41871c4097');

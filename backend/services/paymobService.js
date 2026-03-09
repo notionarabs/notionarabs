@@ -118,8 +118,21 @@ class PaymobService {
         try {
             console.log('📤 Sending Intention API request to Paymob...');
             console.log('🔹 Environment:', process.env.NODE_ENV || 'development');
-            console.log('🔹 Using Key:', this.secretKey ? this.secretKey.substring(0, 10) + '...' : 'MISSING');
-            console.log('🔹 Integration IDs:', requestBody.payment_methods);
+
+            const logSafe = (val) => {
+                if (!val) return 'MISSING';
+                const s = String(val);
+                if (s.length <= 8) return s;
+                return `${s.substring(0, 4)}...${s.substring(s.length - 4)}`;
+            };
+
+            console.log('🔹 Config Debug:');
+            console.log('  - Secret Key:', logSafe(this.secretKey));
+            console.log('  - Public Key:', logSafe(this.publicKey));
+            console.log('  - Card ID:', this.cardIntegrationId);
+            console.log('  - Wallet ID:', this.walletIntegrationId);
+            console.log('  - HMAC Secret:', logSafe(this.hmacSecret));
+            console.log('  - Integration IDs sent:', requestBody.payment_methods);
 
             const response = await axios.post(this.intentionBaseUrl, requestBody, {
                 headers: {

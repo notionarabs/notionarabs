@@ -32,10 +32,10 @@ export default function FeaturedProjects() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                     {displayProjects.map((project) => (
-                        <div key={project.id} className="group flex flex-col h-full bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                        <Link href={`/projects/${project.slug}`} key={project.id} className="group cursor-pointer flex flex-col h-full bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                             {/* Project Cover Image */}
                             <div className="relative w-full overflow-hidden bg-gray-50 dark:bg-dark-secondary border-b border-gray-100 dark:border-dark-card-border">
-                                <Link href={`/projects/${project.slug}`} className="block w-full h-full relative cursor-pointer" aria-label={`تفاصيل ${project.name}`}>
+                                <div className="block w-full h-full relative" aria-label={`تفاصيل ${project.name}`}>
                                     <Image
                                         src={project.cover}
                                         alt={`صورة غلاف مشروع ${project.name}`}
@@ -53,7 +53,7 @@ export default function FeaturedProjects() {
                                             <MousePointerClick className="w-5 h-5 sm:w-6 sm:h-6" />
                                         </div>
                                     </div>
-                                </Link>
+                                </div>
 
                                 {/* Badges */}
                                 <div className="absolute top-3 sm:top-4 right-3 sm:right-4 flex flex-col gap-1.5 sm:gap-2">
@@ -91,17 +91,16 @@ export default function FeaturedProjects() {
 
                                 {/* CTA */}
                                 <div className="mt-auto flex gap-2">
-                                    <Link
-                                        href={`/projects/${project.slug}`}
+                                    <div
                                         className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gray-50 dark:bg-dark-tertiary hover:bg-primary-50 dark:hover:bg-orange-500/10 border border-gray-200 dark:border-dark-card-border hover:border-primary-200 dark:hover:border-orange-500/30 text-sm font-semibold text-accent-700 dark:text-dark-text-primary hover:text-primary-600 dark:hover:text-orange-400 transition-all group/btn"
                                         aria-label={`تفاصيل ${project.name}`}
                                     >
                                         دراسة الحالة
                                         <ArrowLeft className="w-4 h-4 transform group-hover/btn:-translate-x-1 transition-transform" />
-                                    </Link>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
             </div>

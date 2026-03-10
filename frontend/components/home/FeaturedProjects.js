@@ -6,8 +6,9 @@ import { ArrowLeft, PlayCircle, Layers, MousePointerClick } from 'lucide-react';
 import { projects } from '../../app/projects/projectsData';
 
 export default function FeaturedProjects() {
-    // Show only the first 3 projects
-    const displayProjects = projects.slice(0, 3);
+    // Show specific featured projects
+    const featuredSlugs = ['yuyan-academy', 'hazem-yasser', 'mostafa-yasser'];
+    const displayProjects = featuredSlugs.map(slug => projects.find(p => p.slug === slug)).filter(Boolean);
 
     return (
         <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" data-reveal-section>

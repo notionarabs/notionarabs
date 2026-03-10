@@ -37,6 +37,7 @@ export default function WeatherWidget({
     const [error, setError] = useState(null);
     const [locationName, setLocationName] = useState(city || 'Detecting...');
     const [coords, setCoords] = useState(null);
+    const [mounted, setMounted] = useState(false);
 
     const fetchWeather = async () => {
         try {
@@ -61,6 +62,7 @@ export default function WeatherWidget({
 
     // Re-fetch when city or unit changes
     useEffect(() => {
+        setMounted(true);
         fetchWeather();
     }, [city, unit]);
 
@@ -90,10 +92,12 @@ export default function WeatherWidget({
             <div className="w-full max-w-sm p-8 rounded-[2rem] bg-red-500/10 border border-red-500/20 text-center">
                 <p className="text-red-500 font-bold mb-2">عذراً، حدث خطأ</p>
                 <p className="text-xs text-red-400/80">{error}</p>
-                <button onClick={detectLocation} className="mt-4 text-[10px] font-bold uppercase tracking-widest text-primary-500 hover:text-primary-400 underline">إعادة المحاولة</button>
+                <button onClick={fetchWeather} className="mt-4 text-[10px] font-bold uppercase tracking-widest text-primary-500 hover:text-primary-400 underline">إعادة المحاولة</button>
             </div>
         );
     }
+
+    if (!mounted || !weatherData) return null;
 
     const current = weatherData?.current_weather;
     const weatherInfo = WEATHER_CODES[current?.weathercode] || DEFAULT_WEATHER;
@@ -120,7 +124,7 @@ export default function WeatherWidget({
                         </p>
                     </div>
                     <button
-                        onClick={detectLocation}
+                        onClick={fetchWeather}
                         className="p-2 rounded-xl bg-gray-500/5 hover:bg-primary-500/10 text-gray-400 hover:text-primary-500 transition-all border border-transparent hover:border-primary-500/20"
                     >
                         <RefreshCw className="w-4 h-4" />
@@ -163,7 +167,7 @@ export default function WeatherWidget({
                     <div className="flex flex-col items-center gap-1">
                         <Thermometer className="w-4 h-4 text-orange-400" />
                         <span className="text-[10px] font-black tabular-nums">
-                            {Math.round(weatherData?.daily?.temperature_2m_max[0])}° / {Math.round(weatherData?.daily?.temperature_2m_min[0])}°
+                            {Math.round(weatherData?.daily?.temperature_2m_max?.[0] || 0)}° / {Math.round(weatherData?.daily?.temperature_2m_min?.[0] || 0)}°
                         </span>
                         <span className="text-[8px] font-bold text-gray-500 uppercase tracking-tighter">العظمى/الصغرى</span>
                     </div>
@@ -175,7 +179,7 @@ export default function WeatherWidget({
                         <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">التوقعات القادمة</h4>
                         <div className="grid grid-cols-3 gap-3">
                             {[1, 2, 3].map((idx) => {
-                                const dayCode = weatherData.daily.weathercode[idx];
+                                const dayCode = weatherData?.daily?.weathercode?.[idx];
                                 const dayInfo = WEATHER_CODES[dayCode] || DEFAULT_WEATHER;
                                 const date = new Date();
                                 date.setDate(date.getDate() + idx);
@@ -189,7 +193,7 @@ export default function WeatherWidget({
                                             {dayInfo.icon}
                                         </div>
                                         <span className="text-[10px] font-black tabular-nums">
-                                            {Math.round(weatherData.daily.temperature_2m_max[idx])}°
+                                            {Math.round(weatherData?.daily?.temperature_2m_max?.[idx] || 0)}°
                                         </span>
                                     </div>
                                 );

@@ -6,10 +6,10 @@ import CompaniesTicker from '../components/CompaniesTicker';
 
 // Homepage Sub-components
 import Hero from '../components/home/Hero';
-import ProblemsWeSolve from '../components/home/ProblemsWeSolve';
+import FeaturedTemplates from '../components/home/FeaturedTemplates';
 import ServicesOverview from '../components/home/ServicesOverview';
+import FeaturedProjects from '../components/home/FeaturedProjects';
 import HowWeDoIt from '../components/home/HowWeDoIt';
-import WhatMakesUsDifferent from '../components/home/WhatMakesUsDifferent';
 import Testimonials from '../components/home/Testimonials';
 import FAQ from '../components/home/FAQ';
 import FinalCTA from '../components/home/FinalCTA';
@@ -166,19 +166,16 @@ export default function HomePage() {
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
       <Hero animationsPlayed={animationsPlayed} />
       <CompaniesTicker />
-      <ProblemsWeSolve />
+      <FeaturedTemplates />
       <ServicesOverview />
+      <FeaturedProjects />
       <HowWeDoIt
         timelineRef={timelineRef}
         stepRefs={stepRefs}
         inViewSteps={inViewSteps}
         lineHeight={lineHeight}
       />
-      <WhatMakesUsDifferent />
-
-      {/* Testimonials (Hidden per user request, but refactored and ready) */}
       {/* <Testimonials /> */}
-
       <FAQ />
       <FinalCTA />
       <Footer />

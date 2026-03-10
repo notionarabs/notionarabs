@@ -13,7 +13,7 @@ const router = express.Router();
 
 // Optimized pagination handler for templates without search
 async function handleOptimizedPagination(req, res, options) {
-  const { category, creator, sortBy, sortOrder, page, limit } = options;
+  const { category, creator, isPinned, sortBy, sortOrder, page, limit } = options;
 
   // Build filter object
   const filter = { status: 'approved' };
@@ -27,6 +27,12 @@ async function handleOptimizedPagination(req, res, options) {
 
   if (creator) {
     filter.creator = creator;
+  }
+
+  if (isPinned === 'true') {
+    filter.isPinned = true;
+  } else if (isPinned === 'false') {
+    filter.isPinned = false;
   }
 
   // Build sort object
@@ -345,6 +351,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
       category,
       search,
       creator,
+      isPinned,
       sortBy = 'createdAt',
       sortOrder = 'desc',
       page = 1,
@@ -356,6 +363,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
       return await handleOptimizedPagination(req, res, {
         category,
         creator,
+        isPinned,
         sortBy,
         sortOrder,
         page,

@@ -20,6 +20,7 @@ const projects = [
         color: 'from-primary-500/10 to-orange-500/5',
         accent: 'bg-primary-500',
         images: [
+            '/projects/YuYan Academy/HeroSection.png',
             '/projects/YuYan Academy/Contact Form.png',
             '/projects/YuYan Academy/Notion DB.png',
         ],

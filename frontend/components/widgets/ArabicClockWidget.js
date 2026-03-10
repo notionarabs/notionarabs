@@ -20,6 +20,7 @@ export default function ArabicClockWidget({
 
     useEffect(() => {
         setMounted(true);
+        setTime(new Date()); // Set initial time immediately
         const timer = setInterval(() => setTime(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
@@ -38,14 +39,29 @@ export default function ArabicClockWidget({
                 .then(data => {
                     if (data && data.timezone) {
                         setTimezone(data.timezone);
+                    } else {
+                        // If no timezone from API, fallback to system timezone
+                        try {
+                            setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+                        } catch (e) {
+                            setTimezone('UTC');
+                        }
                     }
                 })
                 .catch(err => {
                     console.error('Failed to detect timezone for city, falling back to local:', err);
-                    setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+                    try {
+                        setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+                    } catch (e) {
+                        setTimezone('UTC');
+                    }
                 });
         } else {
-            setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+            try {
+                setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+            } catch (e) {
+                setTimezone('UTC');
+            }
         }
     }, [city]);
 
@@ -85,11 +101,10 @@ export default function ArabicClockWidget({
     // Calculate time in the specific timezone
     const getZonedTime = () => {
         if (!time) return null;
-        if (!timezone) return time;
         try {
             // Use Intl to get parts in target timezone
             const parts = new Intl.DateTimeFormat('en-US', {
-                timeZone: timezone,
+                timeZone: timezone || undefined,
                 hour: 'numeric',
                 minute: 'numeric',
                 second: 'numeric',
@@ -119,10 +134,26 @@ export default function ArabicClockWidget({
     const period = hour12 ? (rawHours >= 12 ? 'م' : 'ص') : '';
 
     const dateOptions = { timeZone: timezone || undefined };
-    const dayName = time ? time.toLocaleDateString('ar-SA', { ...dateOptions, weekday: 'long' }) : '';
-    const day = time ? time.toLocaleDateString('ar-SA', { ...dateOptions, day: 'numeric' }) : '';
-    const monthName = time ? time.toLocaleDateString('ar-SA', { ...dateOptions, month: 'long' }) : '';
-    const year = time ? time.toLocaleDateString('ar-SA', { ...dateOptions, year: 'numeric' }) : '';
+
+    // Helper for safe Arabic date formatting
+    const formatArabicDate = (options) => {
+        if (!time) return '';
+        try {
+            return time.toLocaleDateString('ar-SA', { ...dateOptions, ...options });
+        } catch (e) {
+            try {
+                // Fallback to simpler locale if ar-SA fails
+                return time.toLocaleDateString('ar', { ...options });
+            } catch (e2) {
+                return '';
+            }
+        }
+    };
+
+    const dayName = formatArabicDate({ weekday: 'long' });
+    const day = formatArabicDate({ day: 'numeric' });
+    const monthName = formatArabicDate({ month: 'long' });
+    const year = formatArabicDate({ year: 'numeric' });
 
     // Hijri Date calculation
     const getHijriDate = () => {

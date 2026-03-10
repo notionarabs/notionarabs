@@ -38,18 +38,20 @@ export default function WeatherWidget({
     const [locationName, setLocationName] = useState(city || 'Detecting...');
     const [coords, setCoords] = useState(null);
 
-    const fetchWeather = async (lat, lon, name) => {
+    const fetchWeather = async () => {
         try {
             setLoading(true);
-            const unitParam = unit === 'fahrenheit' ? '&temperature_unit=fahrenheit' : '';
-            const response = await fetch(
-                `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto${unitParam}`
-            );
-            const data = await response.json();
-            setWeatherData(data);
-            if (name) setLocationName(name);
-            setCoords({ lat, lon });
-            setError(null);
+            const res = await fetch(`/api/weather?city=${encodeURIComponent(city)}&unit=${unit}`);
+            const data = await res.json();
+
+            if (data.error) {
+                setError(data.error);
+            } else {
+                setWeatherData(data);
+                setLocationName(data.resolvedAddress || city || 'Detecting...');
+                setCoords({ lat: data.lat, lon: data.lon });
+                setError(null);
+            }
         } catch (err) {
             setError(err.message);
         } finally {
@@ -57,54 +59,12 @@ export default function WeatherWidget({
         }
     };
 
-    const detectLocation = () => {
-        if (city) {
-            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${city}&limit=1`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data && data.length > 0) {
-                        fetchWeather(data[0].lat, data[0].lon, data[0].display_name.split(',')[0]);
-                    } else {
-                        setError('City not found');
-                        setLoading(false);
-                    }
-                })
-                .catch(() => setError('Geocoding failed'));
-            return;
-        }
-
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}`)
-                        .then(res => res.json())
-                        .then(data => {
-                            fetchWeather(position.coords.latitude, position.coords.longitude, data.address.city || data.address.town || data.address.village || 'Current Location');
-                        })
-                        .catch(() => {
-                            fetchWeather(position.coords.latitude, position.coords.longitude, 'Current Location');
-                        });
-                },
-                () => {
-                    fetchWeather(24.7136, 46.6753, 'Riyadh');
-                }
-            );
-        } else {
-            fetchWeather(24.7136, 46.6753, 'Riyadh');
-        }
-    };
-
-    // Re-fetch when city changes
+    // Re-fetch when city or unit changes
     useEffect(() => {
-        detectLocation();
-    }, [city]);
+        fetchWeather();
+    }, [city, unit]);
 
-    // Re-fetch when unit changes, using existing coordinates if available
-    useEffect(() => {
-        if (coords) {
-            fetchWeather(coords.lat, coords.lon, locationName);
-        }
-    }, [unit]);
+    // Unit handling is now combined in the primary effect above
 
     const fontClasses = {
         tajawal: 'font-tajawal',

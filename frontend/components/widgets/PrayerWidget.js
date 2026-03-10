@@ -5,7 +5,7 @@ import { Clock, MapPin, CalendarDays, Moon, Settings } from 'lucide-react';
 
 export default function PrayerWidget({
     theme = 'dark',
-    city = 'Riyadh',
+    city = '',
     method = 4,
     font = 'tajawal',
     id = 'prayer'

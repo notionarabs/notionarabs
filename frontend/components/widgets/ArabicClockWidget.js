@@ -27,15 +27,9 @@ export default function ArabicClockWidget({
 
     useEffect(() => {
         if (city) {
-            // Fetch timezone for city
-            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city)}&limit=1`)
+            // Fetch timezone for city via server-side proxy
+            fetch(`/api/timezone?city=${encodeURIComponent(city)}`)
                 .then(res => res.json())
-                .then(data => {
-                    if (data && data.length > 0) {
-                        return fetch(`https://api.open-meteo.com/v1/forecast?latitude=${data[0].lat}&longitude=${data[0].lon}&current_weather=true&timezone=auto`);
-                    }
-                })
-                .then(res => res && res.json())
                 .then(data => {
                     if (data && data.timezone) {
                         setTimezone(data.timezone);
@@ -49,7 +43,7 @@ export default function ArabicClockWidget({
                     }
                 })
                 .catch(err => {
-                    console.error('Failed to detect timezone for city, falling back to local:', err);
+                    console.error('Failed to fetch timezone via proxy, falling back to local:', err);
                     try {
                         setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
                     } catch (e) {

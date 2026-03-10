@@ -52,125 +52,6 @@ export const projects = [
 يعد هذا المشروع نموذجاً حياً لكيفية تطويع الـ **Full-Stack Development** لخدمة أهداف الأعمال وتسهيل العمليات التشغيلية.`
     },
     {
-        id: 'personal-portfolio',
-        slug: 'personal-portfolio',
-        name: 'موقع Hazem Yasser',
-        logo: '/projects/Personal Portfolio/Logo.png',
-        invertLogoInLight: true,
-        cover: '/projects/Personal Portfolio/HeroSection.png',
-        title: 'بناء الهوية الرقمية لـ Hazem Yasser',
-        description:
-            'تطوير موقع شخصي يدمج بين قوة الـ Full-Stack وإبداع الـ 3D Web، لخلق تجربة مستخدم تتخطى الحدود التقليدية للمتصفح.',
-        tags: ['تطوير ويب', 'رسومات ثلاثية الأبعاد', 'تطوير متكامل'],
-        color: 'from-accent-500/10 to-primary-500/5',
-        accent: 'bg-primary-500',
-        accentText: 'text-primary-600 dark:text-orange-400',
-        accentBorder: 'border-primary-200 dark:border-orange-500/20',
-        images: [
-            '/projects/Personal Portfolio/HeroSection.png',
-            '/projects/Personal Portfolio/Contact Form.png',
-            '/projects/Personal Portfolio/Notion DB.png',
-        ],
-        videoUrl: 'https://www.youtube.com/embed/9Oiwr-9P608',
-        meta: [
-            { label: 'المطور', value: 'Hazem Yasser' },
-            { label: 'التخصص', value: 'Full-Stack & 3D Web Creative' },
-            { label: 'التقنيات', value: 'Next.js · Three.js · Framer Motion' },
-        ],
-        content: `مشروع **Hazem Yasser Portfolio** ليس مجرد معرض أعمال تقليدي، بل هو تجسيد لفلسفة **"Building Digital Worlds from Database to Pixels"**. تم تصميم الموقع ليكون منصة تفاعلية تستعرض القدرات التقنية في بناء تطبيقات الويب عالية الأداء مع لمسة إبداعية غامرة.
-
-الهدف الأساسي كان خلق واجهة رقمية تعكس هوية Hazem كمطور **Full-Stack** متخصص في دمج العمليات البرمجية المعقدة بجماليات بصرية فائقة الدقة، مع التركيز على تجربة المستخدم (UX) والرسوميات ثلاثية الأبعاد.
-
----
-
-## الابتكار البصري (The Creative Vision)
-
-تم اعتماد توجه فني يعتمد على "الغمور الرقمي" (Digital Immersion) من خلال:
-
-- **Interactive Galaxy:** دمج مشهد ثلاثي الأبعاد تفاعلي في الخلفية (Scene) باستخدام **Three.js** و **GLSL Shaders**، مما يمنح الزائر شعوراً بالفخامة والتميز التقني.
-- **Fluid UI:** استخدام **Framer Motion** لبرمجة حركات سلسة تتبع حركة المستخدم وتفاعله مع العناصر، مثل الـ Magnetic Buttons والتنقل الناعم (Smooth Scroll).
-- **Database to Pixels:** تجسيد رحلة البيانات من قواعد البيانات الخلفية وصولاً إلى كل بكسل على الشاشة، مع الحفاظ على أعلى معايير الأداء (Performance).
-
----
-
-## البنية التحتية والتقنيات (The Engine)
-
-خلف هذا التصميم المبهر تقبع بنية برمجية صلبة تعتمد على أحدث تقنيات الويب:
-
-### الواجهة الأمامية (Frontend)
-- **Next.js (App Router):** لضمان سرعة التحميل (Performance) وتحسين محركات البحث (SEO) باستخدام تقنيات Server-Side Rendering.
-- **TypeScript:** لضمان كود نظيف، آمن، وقابل للتوسع (Type-safety).
-- **Tailwind CSS:** لبناء نظام تصميم (Design System) مرن وسريع الاستجابة على كافة الأجهزة.
-
-### الإبداع والـ 3D (Creative Engine)
-- **Three.js & WebGL:** المحرك الأساسي للعناصر التفاعلية ثلاثية الأبعاد، مما يخرج الموقع عن النمط الثنائي الأبعاد التقليدي.
-- **Hero Scenes:** دمج عناصر 3D تتفاعل مع مؤشر الفأرة وحركة الزائر.
-
-### الأنظمة المرتبطة (Ecosystem)
-- **Notion API:** ربط نماذج التواصل واستقبال الطلبات مباشرة في مساحة عمل Notion لتحويل الموقع إلى أداة إنتاجية (Productivity Tool).
-- **Vercel Infrastructure:** استخدام بيئة Vercel لضمان استقرار الموقع وسرعة استجابة الخادم عالمياً.
-
-يعد هذا المشروع الواجهة الرسمية لشركة **Notion Arabs** في استعراض قوة الدمج بين الأدوات الإنتاجية وأحدث تقنيات تطوير الويب.`
-    },
-    {
-        id: 'personal-portfolio-2',
-        slug: 'personal-portfolio-2',
-        name: 'منصة Mostafa Yasser',
-        logo: '/projects/Personal Portfolio - 2/Logo.webp',
-        invertLogoInLight: false,
-        cover: '/projects/Personal Portfolio - 2/HeroSection.png',
-        title: 'بناء منصة Mostafa Yasser الرقمية: لإدارة الأنظمة والإنتاجية',
-        description:
-            'تطوير نظام تشغيل رقمي متكامل يجمع بين بيع القوالب، إدارة المحتوى التعليمي، والربط البرمجي المتقدم مع Notion لمتابعة العمليات لحظياً.',
-        tags: ['تجارة إلكترونية', 'إدارة محتوى', 'متعدد اللغات'],
-        color: 'from-primary-500/10 to-accent-500/5',
-        accent: 'bg-primary-500',
-        accentText: 'text-primary-600 dark:text-orange-400',
-        accentBorder: 'border-primary-200 dark:border-orange-500/20',
-        images: [
-            '/projects/Personal Portfolio - 2/HeroSection.png',
-            '/projects/Personal Portfolio - 2/Contact Form.png',
-            '/projects/Personal Portfolio - 2/Sign In Form.png',
-            '/projects/Personal Portfolio - 2/Notion DB (Contact Form).png',
-            '/projects/Personal Portfolio - 2/Notion DB (SignIn Form).png',
-        ],
-        meta: [
-            { label: 'العميل', value: 'مصطفى ياسر' },
-            { label: 'نوع المشروع', value: 'Platform & CMS' },
-            { label: 'اللغات', value: 'عربي / English' },
-        ],
-        content: `تُعد منصة **mostafayasser.com** واحدة من أكثر المشاريع تعقيداً هندسياً، حيث تم تصميمها لتكون "محوراً رقمياً" (Digital Hub) يخدم آلاف المستخدمين الباحثين عن وضوح العمل والإنتاجية باستخدام Notion.
-
-الهدف كان تحويل الموقع من مجرد صفحة تعريفية إلى نظام تشغيل متكامل يدير (المدونات، القوالب، دراسات الحالة، وحجز الاستشارات) بمزامنة كاملة مع قاعدة بيانات Notion المركزية.
-
----
-
-## العمارة التقنية (The Architecture)
-
-تم بناء المنصة باستخدام أحدث المعايير البرمجية لضمان السرعة والأمان والتوسع العالمي:
-
-- **Next.js 15 (App Router):** الاستفادة من ميزات التوجيه المتقدمة وتقنيات الـ Streaming لتقديم تجربة تصفح فورية.
-- **Multilingual Support (next-intl):** دعم حقيقي ومتكامل للغتين العربية والإنجليزية، مع تحسين محركات البحث (SEO) لكل لغة على حدة لضمان الوصول العالمي.
-- **Tailwind CSS 4:** استخدام أحدث إصدار من Tailwind لبناء واجهات عصرية بأقل حجم ممكن للكود البرمجي وبأعلى دقة تصميمة.
-- **Auth.js (NextAuth):** نظام تسجيل دخول آمن وموثوق يسمح للمستخدمين بالوصول إلى ملفاتهم وقوالبهم المشتراة بسلاسة.
-
----
-
-## قوة الربط مع Notion (Notion as a CMS)
-
-التحدي الأكبر كان جعل Notion هو العقل المدبر لكل شيء في الموقع:
-
-1.  **Dynamic Blog System:** يتم كتابة المقالات وتنسيقها داخل Notion، لتظهر تلقائياً على الموقع مع الحفاظ على التنسيق والسرعة.
-2.  **Template Marketplace:** إدارة متجر القوالب بالكامل من داخل Notion، بما في ذلك التصنيفات، الأسعار، وروابط التحميل.
-3.  **Lead Management:** جميع طلبات الاستشارات ونماذج التواصل يتم معالجتها وتحويلها إلى بطاقات عمل (Tasks) داخل نظام CRM مخصص في Notion.
-
----
-
-## فلسفة التصميم (Design Philosophy)
-
-يعتمد التصميم على مبدأ "Minimalism with Purpose". تم استخدام **Framer Motion** و **GSAP** لإضافة حركات دقيقة تعزز من تركيز المستخدم وتوجهه نحو المحتوى الهام، مما يجعل رحلة المستخدم من التعرف على الخدمة إلى حجز الاستشارة رحلة بديهية وممتعة.`
-    },
-    {
         id: 'resaltk',
         slug: 'resaltk',
         name: 'منصة رسالتك',
@@ -310,74 +191,123 @@ export const projects = [
 - تحولت عملية إدارة التطبيق إلى نظام واضح ومنظم`,
     },
     {
-        id: 'gold-investment',
-        slug: 'gold-investment',
-        name: 'نظام متتبع الذهب',
-        logo: '/projects/Gold Tracker/Logo.webp',
-        cover: '/projects/Gold Tracker/Dashboard.webp',
-        title: 'متتبع الذهب – نظام تتبع استثمار الذهب في الوقت الفعلي',
+        id: 'hazem-yasser',
+        slug: 'hazem-yasser',
+        name: 'موقع Hazem Yasser',
+        logo: '/projects/Personal Portfolio/Logo.png',
+        invertLogoInLight: true,
+        cover: '/projects/Personal Portfolio/HeroSection.png',
+        title: 'بناء الهوية الرقمية لـ Hazem Yasser',
         description:
-            'لوحة تحكم مخصصة تعتمد على ربط مباشر بأسعار الذهب وحساب الأرباح ونسبة العائد تلقائيًا.',
-        tags: ['مالية', 'تتبع الاستثمارات', 'تقارير'],
-        color: 'from-orange-500/10 to-amber-500/5',
+            'تطوير موقع شخصي يدمج بين قوة الـ Full-Stack وإبداع الـ 3D Web، لخلق تجربة مستخدم تتخطى الحدود التقليدية للمتصفح.',
+        tags: ['تطوير ويب', 'رسومات ثلاثية الأبعاد', 'تطوير متكامل'],
+        color: 'from-accent-500/10 to-primary-500/5',
         accent: 'bg-primary-500',
         accentText: 'text-primary-600 dark:text-orange-400',
         accentBorder: 'border-primary-200 dark:border-orange-500/20',
         images: [
-            '/projects/Gold Tracker/Dashboard.webp',
+            '/projects/Personal Portfolio/HeroSection.png',
+            '/projects/Personal Portfolio/Contact Form.png',
+            '/projects/Personal Portfolio/Notion DB.png',
+        ],
+        videoUrl: 'https://www.youtube.com/embed/9Oiwr-9P608',
+        meta: [
+            { label: 'المطور', value: 'Hazem Yasser' },
+            { label: 'التخصص', value: 'Full-Stack & 3D Web Creative' },
+            { label: 'التقنيات', value: 'Next.js · Three.js · Framer Motion' },
+        ],
+        content: `مشروع **Hazem Yasser Portfolio** ليس مجرد معرض أعمال تقليدي، بل هو تجسيد لفلسفة **"Building Digital Worlds from Database to Pixels"**. تم تصميم الموقع ليكون منصة تفاعلية تستعرض القدرات التقنية في بناء تطبيقات الويب عالية الأداء مع لمسة إبداعية غامرة.
+
+الهدف الأساسي كان خلق واجهة رقمية تعكس هوية Hazem كمطور **Full-Stack** متخصص في دمج العمليات البرمجية المعقدة بجماليات بصرية فائقة الدقة، مع التركيز على تجربة المستخدم (UX) والرسوميات ثلاثية الأبعاد.
+
+---
+
+## الابتكار البصري (The Creative Vision)
+
+تم اعتماد توجه فني يعتمد على "الغمور الرقمي" (Digital Immersion) من خلال:
+
+- **Interactive Galaxy:** دمج مشهد ثلاثي الأبعاد تفاعلي في الخلفية (Scene) باستخدام **Three.js** و **GLSL Shaders**، مما يمنح الزائر شعوراً بالفخامة والتميز التقني.
+- **Fluid UI:** استخدام **Framer Motion** لبرمجة حركات سلسة تتبع حركة المستخدم وتفاعله مع العناصر، مثل الـ Magnetic Buttons والتنقل الناعم (Smooth Scroll).
+- **Database to Pixels:** تجسيد رحلة البيانات من قواعد البيانات الخلفية وصولاً إلى كل بكسل على الشاشة، مع الحفاظ على أعلى معايير الأداء (Performance).
+
+---
+
+## البنية التحتية والتقنيات (The Engine)
+
+خلف هذا التصميم المبهر تقبع بنية برمجية صلبة تعتمد على أحدث تقنيات الويب:
+
+### الواجهة الأمامية (Frontend)
+- **Next.js (App Router):** لضمان سرعة التحميل (Performance) وتحسين محركات البحث (SEO) باستخدام تقنيات Server-Side Rendering.
+- **TypeScript:** لضمان كود نظيف، آمن، وقابل للتوسع (Type-safety).
+- **Tailwind CSS:** لبناء نظام تصميم (Design System) مرن وسريع الاستجابة على كافة الأجهزة.
+
+### الإبداع والـ 3D (Creative Engine)
+- **Three.js & WebGL:** المحرك الأساسي للعناصر التفاعلية ثلاثية الأبعاد، مما يخرج الموقع عن النمط الثنائي الأبعاد التقليدي.
+- **Hero Scenes:** دمج عناصر 3D تتفاعل مع مؤشر الفأرة وحركة الزائر.
+
+### الأنظمة المرتبطة (Ecosystem)
+- **Notion API:** ربط نماذج التواصل واستقبال الطلبات مباشرة في مساحة عمل Notion لتحويل الموقع إلى أداة إنتاجية (Productivity Tool).
+- **Vercel Infrastructure:** استخدام بيئة Vercel لضمان استقرار الموقع وسرعة استجابة الخادم عالمياً.
+
+يعد هذا المشروع الواجهة الرسمية لشركة **Notion Arabs** في استعراض قوة الدمج بين الأدوات الإنتاجية وأحدث تقنيات تطوير الويب.`
+    },
+    {
+        id: 'mostafa-yasser',
+        slug: 'mostafa-yasser',
+        name: 'منصة Mostafa Yasser',
+        logo: '/projects/Personal Portfolio - 2/Logo.webp',
+        invertLogoInLight: false,
+        cover: '/projects/Personal Portfolio - 2/HeroSection.png',
+        title: 'بناء منصة Mostafa Yasser الرقمية: لإدارة الأنظمة والإنتاجية',
+        description:
+            'تطوير نظام تشغيل رقمي متكامل يجمع بين بيع القوالب، إدارة المحتوى التعليمي، والربط البرمجي المتقدم مع Notion لمتابعة العمليات لحظياً.',
+        tags: ['تجارة إلكترونية', 'إدارة محتوى', 'متعدد اللغات'],
+        color: 'from-primary-500/10 to-accent-500/5',
+        accent: 'bg-primary-500',
+        accentText: 'text-primary-600 dark:text-orange-400',
+        accentBorder: 'border-primary-200 dark:border-orange-500/20',
+        images: [
+            '/projects/Personal Portfolio - 2/HeroSection.png',
+            '/projects/Personal Portfolio - 2/Contact Form.png',
+            '/projects/Personal Portfolio - 2/Sign In Form.png',
+            '/projects/Personal Portfolio - 2/Notion DB (Contact Form).png',
+            '/projects/Personal Portfolio - 2/Notion DB (SignIn Form).png',
         ],
         meta: [
-            { label: 'نوع العميل', value: 'مستثمر فردي' },
-            { label: 'نطاق العمل', value: 'نظام مخصص لتتبع استثمارات الذهب لحظيًا' },
-            { label: 'الأدوات المستخدمة', value: 'Notion · Gold Price API · Google Apps Script' },
+            { label: 'العميل', value: 'مصطفى ياسر' },
+            { label: 'نوع المشروع', value: 'Platform & CMS' },
+            { label: 'اللغات', value: 'عربي / English' },
         ],
-        content: `إذا كنت تتابع استثماراتك في الذهب يدويًا وتحسب الأرباح بنفسك، فهذا المشروع يوضح كيف يمكن لنظام مخصص داخل Notion أن يمنحك رؤية لحظية ودقيقة لاستثماراتك المالية.
+        content: `تُعد منصة **mostafayasser.com** واحدة من أكثر المشاريع تعقيداً هندسياً، حيث تم تصميمها لتكون "محوراً رقمياً" (Digital Hub) يخدم آلاف المستخدمين الباحثين عن وضوح العمل والإنتاجية باستخدام Notion.
+
+الهدف كان تحويل الموقع من مجرد صفحة تعريفية إلى نظام تشغيل متكامل يدير (المدونات، القوالب، دراسات الحالة، وحجز الاستشارات) بمزامنة كاملة مع قاعدة بيانات Notion المركزية.
 
 ---
 
-## التحدي
+## العمارة التقنية (The Architecture)
 
-كان العميل يحتاج إلى متابعة:
+تم بناء المنصة باستخدام أحدث المعايير البرمجية لضمان السرعة والأمان والتوسع العالمي:
 
-- سعر الذهب اللحظي
-- قيمة الأوزان التي يمتلكها
-- الفرق بين سعر الشراء والسعر الحالي
-- صافي الربح أو الخسارة
-- نسبة العائد
-- متابعة الأسعار بعدة عملات
-
-وكان يعتمد على الحسابات اليدوية بشكل يومي.
+- **Next.js 15 (App Router):** الاستفادة من ميزات التوجيه المتقدمة وتقنيات الـ Streaming لتقديم تجربة تصفح فورية.
+- **Multilingual Support (next-intl):** دعم حقيقي ومتكامل للغتين العربية والإنجليزية، مع تحسين محركات البحث (SEO) لكل لغة على حدة لضمان الوصول العالمي.
+- **Tailwind CSS 4:** استخدام أحدث إصدار من Tailwind لبناء واجهات عصرية بأقل حجم ممكن للكود البرمجي وبأعلى دقة تصميمة.
+- **Auth.js (NextAuth):** نظام تسجيل دخول آمن وموثوق يسمح للمستخدمين بالوصول إلى ملفاتهم وقوالبهم المشتراة بسلاسة.
 
 ---
 
-## الحل
+## قوة الربط مع Notion (Notion as a CMS)
 
-تم بناء نظام متكامل داخل Notion يعتمد على:
+التحدي الأكبر كان جعل Notion هو العقل المدبر لكل شيء في الموقع:
 
-- ربط مباشر بواجهة برمجة أسعار الذهب
-- تحديث تلقائي للأسعار
-- تحويل العملات تلقائيًا
-- ربط قاعدة بيانات الاستثمارات بالسعر اللحظي
-
-يقوم النظام بحساب:
-
-- القيمة الحالية
-- إجمالي الاستثمار
-- صافي الربح
-- نسبة العائد
-
-بشكل تلقائي بالكامل.
+1.  **Dynamic Blog System:** يتم كتابة المقالات وتنسيقها داخل Notion، لتظهر تلقائياً على الموقع مع الحفاظ على التنسيق والسرعة.
+2.  **Template Marketplace:** إدارة متجر القوالب بالكامل من داخل Notion، بما في ذلك التصنيفات، الأسعار، وروابط التحميل.
+3.  **Lead Management:** جميع طلبات الاستشارات ونماذج التواصل يتم معالجتها وتحويلها إلى بطاقات عمل (Tasks) داخل نظام CRM مخصص في Notion.
 
 ---
 
-## النتيجة
+## فلسفة التصميم (Design Philosophy)
 
-أصبح لدى العميل:
-
-- رؤية لحظية لاستثماراته
-- حساب أرباح وخسائر تلقائي
-- قرارات استثمارية أسرع
-- نظام واحد منظم بدل الحسابات اليدوية`,
+يعتمد التصميم على مبدأ "Minimalism with Purpose". تم استخدام **Framer Motion** و **GSAP** لإضافة حركات دقيقة تعزز من تركيز المستخدم وتوجهه نحو المحتوى الهام، مما يجعل رحلة المستخدم من التعرف على الخدمة إلى حجز الاستشارة رحلة بديهية وممتعة.`
     },
     {
         id: 'trend-design',
@@ -515,6 +445,76 @@ Trend Design شركة تصميم داخلي تدير:
 - نظام قابل للتوسع مع نمو الشركة
 
 تحولت Trend Design من إدارة متفرقة إلى نظام تشغيل متكامل داخل Notion.`,
+    },
+    {
+        id: 'gold-investment',
+        slug: 'gold-investment',
+        name: 'نظام متتبع الذهب',
+        logo: '/projects/Gold Tracker/Logo.webp',
+        cover: '/projects/Gold Tracker/Dashboard.webp',
+        title: 'متتبع الذهب – نظام تتبع استثمار الذهب في الوقت الفعلي',
+        description:
+            'لوحة تحكم مخصصة تعتمد على ربط مباشر بأسعار الذهب وحساب الأرباح ونسبة العائد تلقائيًا.',
+        tags: ['مالية', 'تتبع الاستثمارات', 'تقارير'],
+        color: 'from-orange-500/10 to-amber-500/5',
+        accent: 'bg-primary-500',
+        accentText: 'text-primary-600 dark:text-orange-400',
+        accentBorder: 'border-primary-200 dark:border-orange-500/20',
+        images: [
+            '/projects/Gold Tracker/Dashboard.webp',
+        ],
+        meta: [
+            { label: 'نوع العميل', value: 'مستثمر فردي' },
+            { label: 'نطاق العمل', value: 'نظام مخصص لتتبع استثمارات الذهب لحظيًا' },
+            { label: 'الأدوات المستخدمة', value: 'Notion · Gold Price API · Google Apps Script' },
+        ],
+        content: `إذا كنت تتابع استثماراتك في الذهب يدويًا وتحسب الأرباح بنفسك، فهذا المشروع يوضح كيف يمكن لنظام مخصص داخل Notion أن يمنحك رؤية لحظية ودقيقة لاستثماراتك المالية.
+
+---
+
+## التحدي
+
+كان العميل يحتاج إلى متابعة:
+
+- سعر الذهب اللحظي
+- قيمة الأوزان التي يمتلكها
+- الفرق بين سعر الشراء والسعر الحالي
+- صافي الربح أو الخسارة
+- نسبة العائد
+- متابعة الأسعار بعدة عملات
+
+وكان يعتمد على الحسابات اليدوية بشكل يومي.
+
+---
+
+## الحل
+
+تم بناء نظام متكامل داخل Notion يعتمد على:
+
+- ربط مباشر بواجهة برمجة أسعار الذهب
+- تحديث تلقائي للأسعار
+- تحويل العملات تلقائيًا
+- ربط قاعدة بيانات الاستثمارات بالسعر اللحظي
+
+يقوم النظام بحساب:
+
+- القيمة الحالية
+- إجمالي الاستثمار
+- صافي الربح
+- نسبة العائد
+
+بشكل تلقائي بالكامل.
+
+---
+
+## النتيجة
+
+أصبح لدى العميل:
+
+- رؤية لحظية لاستثماراته
+- حساب أرباح وخسائر تلقائي
+- قرارات استثمارية أسرع
+- نظام واحد منظم بدل الحسابات اليدوية`,
     },
 ];
 

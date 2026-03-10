@@ -1,117 +1,46 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { X, ExternalLink, ChevronLeft, ChevronRight, Briefcase } from 'lucide-react';
 import Footer from '../../components/Footer';
+import { projects } from './projectsData';
 
-const projects = [
-    {
-        id: 'yuyan-academy',
-        slug: 'yuyan-academy',
-        name: 'أكاديمية YuYan',
-        logo: '/projects/YuYan Academy/logo.svg',
-        invertLogoInLight: false,
-        cover: '/projects/YuYan Academy/Contact Form.png',
-        description: 'تطوير نظام تسجيل واستقطاب لطلاب أكاديمية لغات، يعتمد على معمارية Full-Stack لضمان أرشفة البيانات ومزامنتها لحظياً بين MongoDB و Notion.',
-        tags: ['تطوير ويب', 'ربط برمجيات نوشن', 'تطوير متكامل'],
-        color: 'from-primary-500/10 to-orange-500/5',
-        accent: 'bg-primary-500',
-        images: [
-            '/projects/YuYan Academy/HeroSection.png',
-            '/projects/YuYan Academy/Contact Form.png',
-            '/projects/YuYan Academy/Notion DB.png',
-        ],
-    },
-    {
-        id: 'resaltk',
-        slug: 'resaltk',
-        name: 'منصة رسالتك',
-        logo: '/projects/Resaltk/Logo.webp',
-        invertLogoInLight: true,
-        cover: '/projects/Resaltk/Dashboard.webp',
-        description:
-            'نظام مركزي لإدارة مهام وأفكار واجتماعات ومستندات تطوير تطبيق موجه لطلاب الماجستير والدكتوراه والباحثين.',
-        tags: ['إدارة مشاريع', 'لوحة تحكم', 'أتمتة'],
-        color: 'from-violet-500/10 to-purple-500/5',
-        accent: 'bg-violet-500',
-        images: [
-            '/projects/Resaltk/Dashboard.webp',
-            '/projects/Resaltk/9.webp',
-            '/projects/Resaltk/10.webp',
-        ],
-    },
-    {
-        id: 'hazem-yasser',
-        slug: 'hazem-yasser',
-        name: 'موقع Hazem Yasser',
-        logo: '/projects/Personal Portfolio/Logo.png',
-        invertLogoInLight: true,
-        cover: '/projects/Personal Portfolio/HeroSection.png',
-        description: 'تطوير موقع شخصي يدمج بين قوة الـ Full-Stack وإبداع الـ 3D Web، لخلق تجربة مستخدم تتخطى الحدود التقليدية للمتصفح.',
-        tags: ['تطوير ويب', 'رسومات ثلاثية الأبعاد', 'تطوير متكامل'],
-        color: 'from-blue-500/10 to-sky-500/5',
-        accent: 'bg-blue-500',
-        images: [
-            '/projects/Personal Portfolio/HeroSection.png',
-            '/projects/Personal Portfolio/Contact Form.png',
-            '/projects/Personal Portfolio/Notion DB.png',
-        ],
-    },
-    {
-        id: 'mostafa-yasser',
-        slug: 'mostafa-yasser',
-        name: 'منصة Mostafa Yasser',
-        logo: '/projects/Personal Portfolio - 2/Logo.webp',
-        invertLogoInLight: false,
-        cover: '/projects/Personal Portfolio - 2/HeroSection.png',
-        description: 'تطوير نظام تشغيل رقمي متكامل يجمع بين بيع القوالب، إدارة المحتوى التعليمي، والربط البرمجي المتقدم مع Notion لمتابعة العمليات لحظياً.',
-        tags: ['تجارة إلكترونية', 'إدارة محتوى', 'متعدد اللغات'],
-        color: 'from-blue-500/10 to-indigo-500/5',
-        accent: 'bg-indigo-500',
-        images: [
-            '/projects/Personal Portfolio - 2/HeroSection.png',
-            '/projects/Personal Portfolio - 2/Contact Form.png',
-            '/projects/Personal Portfolio - 2/Sign In Form.png',
-            '/projects/Personal Portfolio - 2/Notion DB (Contact Form).png',
-            '/projects/Personal Portfolio - 2/Notion DB (SignIn Form).png',
-        ],
-    },
-    {
-        id: 'trend-design',
-        slug: 'trend-design',
-        name: 'شركة Trend Design',
-        logo: '/projects/Trend Design/Logo.webp',
-        cover: '/projects/Trend Design/11.webp',
-        description:
-            'نظام متكامل يربط المشاريع، العملاء، التصميم، المالية، المبيعات، الموارد البشرية، والتسويق في لوحة تحكم مركزية واحدة.',
-        tags: ['تصميم', 'إدارة العملاء', 'إبداع'],
-        color: 'from-rose-500/10 to-pink-500/5',
-        accent: 'bg-rose-500',
-        images: [
-            '/projects/Trend Design/11.webp',
-            '/projects/Trend Design/12.webp',
-            '/projects/Trend Design/13.webp',
-        ],
-    },
-    {
-        id: 'gold-investment',
-        slug: 'gold-investment',
-        name: 'نظام متتبع الذهب',
-        logo: '/projects/Gold Tracker/Logo.webp',
-        cover: '/projects/Gold Tracker/Dashboard.webp',
-        description:
-            'لوحة تحكم مخصصة تعتمد على ربط مباشر بأسعار الذهب وحساب الأرباح ونسبة العائد تلقائيًا.',
-        tags: ['مالية', 'تتبع الاستثمارات', 'تقارير'],
-        color: 'from-amber-500/10 to-yellow-500/5',
-        accent: 'bg-amber-500',
-        images: [
-            '/projects/Gold Tracker/Dashboard.webp',
-        ],
-    },
-];
+function ProjectCardSkeleton() {
+    return (
+        <div className="h-full flex flex-col rounded-3xl border border-gray-200 dark:border-dark-card-border bg-white dark:bg-dark-secondary/60 backdrop-blur-sm overflow-hidden shadow-sm animate-pulse">
+            {/* Cover Image Skeleton */}
+            <div className="flex-shrink-0 w-full aspect-video bg-gray-200 dark:bg-dark-tertiary" />
+
+            {/* Content Skeleton */}
+            <div className="p-6 sm:p-7 flex flex-col flex-grow">
+                <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gray-200 dark:bg-dark-tertiary" />
+                    <div className="flex-1">
+                        <div className="h-5 bg-gray-200 dark:bg-dark-tertiary rounded w-1/2 mb-2" />
+                        <div className="flex gap-1.5">
+                            <div className="h-4 bg-gray-200 dark:bg-dark-tertiary rounded w-12" />
+                            <div className="h-4 bg-gray-200 dark:bg-dark-tertiary rounded w-12" />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="space-y-2 mb-8">
+                    <div className="h-4 bg-gray-200 dark:bg-dark-tertiary rounded w-full" />
+                    <div className="h-4 bg-gray-200 dark:bg-dark-tertiary rounded w-full" />
+                    <div className="h-4 bg-gray-200 dark:bg-dark-tertiary rounded w-2/3" />
+                </div>
+
+                <div className="mt-auto">
+                    <div className="h-11 bg-gray-200 dark:bg-dark-tertiary rounded-xl w-full" />
+                </div>
+            </div>
+        </div>
+    );
+}
+
 
 function LightboxModal({ project, initialIndex, onClose }) {
     const [current, setCurrent] = useState(initialIndex);
@@ -310,6 +239,16 @@ function ProjectCard({ project }) {
 }
 
 export default function ProjectsClient() {
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Simulate loading from an API
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 1200);
+        return () => clearTimeout(timer);
+    }, []);
+
     return (
         <main
             className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300"
@@ -341,9 +280,14 @@ export default function ProjectsClient() {
             <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8">
                 <div className="container-custom">
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8">
-                        {projects.map((project) => (
-                            <ProjectCard key={project.id} project={project} />
-                        ))}
+                        {isLoading
+                            ? Array.from({ length: 6 }).map((_, idx) => (
+                                <ProjectCardSkeleton key={idx} />
+                            ))
+                            : projects.map((project) => (
+                                <ProjectCard key={project.id} project={project} />
+                            ))
+                        }
                     </div>
                 </div>
             </section>

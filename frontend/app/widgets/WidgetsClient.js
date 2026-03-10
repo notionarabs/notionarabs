@@ -22,6 +22,28 @@ const iconMap = {
     landmark: <Landmark className="w-6 h-6 text-emerald-600" />
 };
 
+function CategorySkeleton() {
+    return (
+        <div className="flex items-center gap-2 overflow-x-auto pb-4 md:pb-0 w-full md:w-auto no-scrollbar scroll-smooth">
+            {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-11 w-24 bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border rounded-2xl animate-pulse" />
+            ))}
+        </div>
+    );
+}
+
+function SortSkeleton() {
+    return (
+        <div className="h-12 w-full sm:w-48 bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border rounded-2xl animate-pulse" />
+    );
+}
+
+function SearchSkeleton() {
+    return (
+        <div className="h-12 w-full md:w-80 bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border rounded-2xl animate-pulse" />
+    );
+}
+
 export default function WidgetsClient() {
     const { isAuthenticated } = useAuth();
     const router = useRouter();
@@ -142,95 +164,107 @@ export default function WidgetsClient() {
                     {/* Filter & Search Bar */}
                     <div className="mb-12 flex flex-col md:flex-row gap-6 items-center justify-between">
                         {/* Categories */}
-                        <div className="flex items-center gap-2 overflow-x-auto pb-4 md:pb-0 w-full md:w-auto no-scrollbar scroll-smooth">
-                            {categories.map((cat) => (
-                                <button
-                                    key={cat}
-                                    onClick={() => setActiveCategory(cat)}
-                                    className={`px-6 py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 whitespace-nowrap border ${activeCategory === cat
-                                        ? 'bg-primary-500 text-white border-primary-500 shadow-lg shadow-primary-500/20'
-                                        : 'bg-white dark:bg-dark-secondary text-gray-500 dark:text-gray-400 border-gray-100 dark:border-dark-card-border hover:border-primary-500/50'
-                                        }`}
-                                >
-                                    {cat}
-                                </button>
-                            ))}
-                        </div>
+                        {loading ? (
+                            <CategorySkeleton />
+                        ) : (
+                            <div className="flex items-center gap-2 overflow-x-auto pb-4 md:pb-0 w-full md:w-auto no-scrollbar scroll-smooth">
+                                {categories.map((cat) => (
+                                    <button
+                                        key={cat}
+                                        onClick={() => setActiveCategory(cat)}
+                                        className={`px-6 py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 whitespace-nowrap border ${activeCategory === cat
+                                            ? 'bg-primary-500 text-white border-primary-500 shadow-lg shadow-primary-500/20'
+                                            : 'bg-white dark:bg-dark-secondary text-gray-500 dark:text-gray-400 border-gray-100 dark:border-dark-card-border hover:border-primary-500/50'
+                                            }`}
+                                    >
+                                        {cat}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
 
                         {/* Actions (Search + Sort) */}
                         <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
                             {/* Sort Dropdown */}
-                            <div className="relative w-full sm:w-48">
-                                <button
-                                    onClick={() => setIsSortOpen(!isSortOpen)}
-                                    className="w-full flex items-center justify-between bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border px-4 py-3.5 rounded-2xl text-sm font-bold text-gray-500 dark:text-gray-400 hover:border-primary-500/50 transition-all shadow-soft overflow-hidden group"
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <ArrowUpDown className="w-4 h-4 text-primary-500" />
-                                        <span>
-                                            {sortBy === 'popular' && 'الأكثر استخداماً'}
-                                            {sortBy === 'newest' && 'الأحدث أولاً'}
-                                        </span>
-                                    </div>
-                                    <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isSortOpen ? 'rotate-180' : ''}`} />
-                                </button>
+                            {loading ? (
+                                <SortSkeleton />
+                            ) : (
+                                <div className="relative w-full sm:w-48">
+                                    <button
+                                        onClick={() => setIsSortOpen(!isSortOpen)}
+                                        className="w-full flex items-center justify-between bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border px-4 py-3.5 rounded-2xl text-sm font-bold text-gray-500 dark:text-gray-400 hover:border-primary-500/50 transition-all shadow-soft overflow-hidden group"
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <ArrowUpDown className="w-4 h-4 text-primary-500" />
+                                            <span>
+                                                {sortBy === 'popular' && 'الأكثر استخداماً'}
+                                                {sortBy === 'newest' && 'الأحدث أولاً'}
+                                            </span>
+                                        </div>
+                                        <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isSortOpen ? 'rotate-180' : ''}`} />
+                                    </button>
 
-                                <AnimatePresence>
-                                    {isSortOpen && (
-                                        <>
-                                            <div className="fixed inset-0 z-40" onClick={() => setIsSortOpen(false)}></div>
-                                            <motion.div
-                                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                                exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                                className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border rounded-2xl shadow-2xl z-50 overflow-hidden"
-                                            >
-                                                <div className="p-1.5 space-y-1">
-                                                    {[
-                                                        { id: 'popular', label: 'الأكثر استخداماً' },
-                                                        { id: 'newest', label: 'الأحدث' }
-                                                    ].map((option) => (
-                                                        <button
-                                                            key={option.id}
-                                                            onClick={() => {
-                                                                setSortBy(option.id);
-                                                                setIsSortOpen(false);
-                                                            }}
-                                                            className={`w-full text-right px-4 py-3 text-sm font-bold transition-all rounded-xl flex items-center justify-between ${sortBy === option.id
-                                                                ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20'
-                                                                : 'hover:bg-secondary-100 dark:hover:bg-dark-tertiary text-gray-500 dark:text-dark-text-secondary'
-                                                                }`}
-                                                        >
-                                                            <span>{option.label}</span>
-                                                            {sortBy === option.id && <Check className="w-4 h-4" />}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </motion.div>
-                                        </>
-                                    )}
-                                </AnimatePresence>
-                            </div>
+                                    <AnimatePresence>
+                                        {isSortOpen && (
+                                            <>
+                                                <div className="fixed inset-0 z-40" onClick={() => setIsSortOpen(false)}></div>
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                    className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border rounded-2xl shadow-2xl z-50 overflow-hidden"
+                                                >
+                                                    <div className="p-1.5 space-y-1">
+                                                        {[
+                                                            { id: 'popular', label: 'الأكثر استخداماً' },
+                                                            { id: 'newest', label: 'الأحدث' }
+                                                        ].map((option) => (
+                                                            <button
+                                                                key={option.id}
+                                                                onClick={() => {
+                                                                    setSortBy(option.id);
+                                                                    setIsSortOpen(false);
+                                                                }}
+                                                                className={`w-full text-right px-4 py-3 text-sm font-bold transition-all rounded-xl flex items-center justify-between ${sortBy === option.id
+                                                                    ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20'
+                                                                    : 'hover:bg-secondary-100 dark:hover:bg-dark-tertiary text-gray-500 dark:text-dark-text-secondary'
+                                                                    }`}
+                                                            >
+                                                                <span>{option.label}</span>
+                                                                {sortBy === option.id && <Check className="w-4 h-4" />}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </motion.div>
+                                            </>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            )}
 
                             {/* Search Input */}
-                            <div className="relative w-full md:w-80 group">
-                                <Search className={`absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-300 ${searchQuery ? 'text-primary-500' : 'text-gray-400 group-focus-within:text-primary-500'}`} />
-                                <input
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="ابحث عن أداة..."
-                                    className="w-full bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border rounded-2xl py-3.5 pr-11 pl-4 text-sm focus:outline-none focus:border-primary-500 transition-all duration-300 shadow-soft font-tajawal"
-                                />
-                                {searchQuery && (
-                                    <button
-                                        onClick={() => setSearchQuery('')}
-                                        className="absolute left-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-dark-tertiary rounded-full transition-colors"
-                                    >
-                                        <X className="w-3.5 h-3.5 text-gray-400" />
-                                    </button>
-                                )}
-                            </div>
+                            {loading ? (
+                                <SearchSkeleton />
+                            ) : (
+                                <div className="relative w-full md:w-80 group">
+                                    <Search className={`absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-300 ${searchQuery ? 'text-primary-500' : 'text-gray-400 group-focus-within:text-primary-500'}`} />
+                                    <input
+                                        type="text"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        placeholder="ابحث عن أداة..."
+                                        className="w-full bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border rounded-2xl py-3.5 pr-11 pl-4 text-sm focus:outline-none focus:border-primary-500 transition-all duration-300 shadow-soft font-tajawal"
+                                    />
+                                    {searchQuery && (
+                                        <button
+                                            onClick={() => setSearchQuery('')}
+                                            className="absolute left-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-dark-tertiary rounded-full transition-colors"
+                                        >
+                                            <X className="w-3.5 h-3.5 text-gray-400" />
+                                        </button>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
 

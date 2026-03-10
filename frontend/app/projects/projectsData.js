@@ -5,7 +5,7 @@ export const projects = [
         name: 'أكاديمية YuYan',
         logo: '/projects/YuYan Academy/logo.svg',
         invertLogoInLight: false,
-        cover: '/projects/YuYan Academy/HeroSection.png',
+        cover: '/projects/YuYan Academy/Contact Form.png',
         title: 'بناء منصة Waitlist متكاملة لأكاديمية YuYan ودمج Notion API',
         description:
             'تطوير نظام تسجيل واستقطاب لطلاب أكاديمية لغات، يعتمد على معمارية Full-Stack لضمان أرشفة البيانات ومزامنتها لحظياً بين MongoDB و Notion.',

@@ -28,8 +28,8 @@ export default function FinalCTA() {
                                 <Link href="/consultation" className="btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto text-center">
                                     احجز استشارتك
                                 </Link>
-                                <Link href="/store" className="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 bg-white/90 dark:bg-dark-tertiary/90 border-white/30 w-full sm:w-auto text-center">
-                                    استكشف المتجر
+                                <Link href="/projects" className="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 bg-white/90 dark:bg-dark-tertiary/90 border-white/30 w-full sm:w-auto text-center">
+                                    تصفح المشاريع
                                 </Link>
                             </div>
                         </div>

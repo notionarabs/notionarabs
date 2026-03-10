@@ -25,52 +25,7 @@ export default function Hero({ animationsPlayed }) {
                 }}></div>
             </div>
 
-            {/* Well-Separated Animated Template Squares */}
-            <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
-                {/* Large Blue Template - Top Left */}
-                <div className="hidden lg:block absolute top-16 left-16 w-32 h-32 bg-white/80 dark:bg-dark-tertiary/80 backdrop-blur-sm rounded-2xl shadow-xl dark:shadow-dark-large floating-block notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
-                    <div className="p-6">
-                        <div className="w-12 h-12 bg-blue-500 rounded-xl mb-3 shadow-lg"></div>
-                        <div className="w-16 h-2 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-2"></div>
-                        <div className="w-12 h-1.5 bg-gray-300 dark:bg-dark-text-quaternary rounded"></div>
-                    </div>
-                </div>
 
-                {/* Medium Green Template - Top Right */}
-                <div className="hidden lg:block absolute top-24 right-24 w-20 h-20 bg-white/70 dark:bg-dark-tertiary/70 backdrop-blur-sm rounded-xl shadow-lg dark:shadow-dark-medium floating-block-delayed notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
-                    <div className="p-4">
-                        <div className="w-8 h-8 bg-green-500 rounded-lg mb-2 shadow-md"></div>
-                        <div className="w-12 h-1.5 bg-gray-300 dark:bg-dark-text-quaternary rounded"></div>
-                    </div>
-                </div>
-
-                {/* Small Purple Template - Middle Left */}
-                <div className="hidden md:block absolute top-1/2 left-8 w-16 h-16 bg-white/60 dark:bg-dark-tertiary/60 backdrop-blur-sm rounded-lg shadow-md dark:shadow-dark-soft floating-block notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
-                    <div className="p-3">
-                        <div className="w-6 h-6 bg-purple-500 rounded-md mb-1"></div>
-                        <div className="w-8 h-1 bg-gray-300 dark:bg-dark-text-quaternary rounded"></div>
-                    </div>
-                </div>
-
-                {/* Extra Large Orange Template - Bottom Right */}
-                <div className="hidden xl:block absolute bottom-16 right-16 w-36 h-36 bg-white/50 dark:bg-dark-tertiary/50 backdrop-blur-sm rounded-3xl shadow-2xl dark:shadow-dark-large floating-block notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
-                    <div className="p-6">
-                        <div className="w-16 h-16 bg-orange-500 rounded-2xl mb-4 shadow-xl"></div>
-                        <div className="w-20 h-2 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-2"></div>
-                        <div className="w-16 h-1.5 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
-                        <div className="w-12 h-1 bg-gray-300 dark:bg-dark-text-quaternary rounded"></div>
-                    </div>
-                </div>
-
-                {/* Medium Red Template - Bottom Left */}
-                <div className="hidden lg:block absolute bottom-24 left-12 w-24 h-24 bg-white/65 dark:bg-dark-tertiary/65 backdrop-blur-sm rounded-xl shadow-lg dark:shadow-dark-medium floating-block-delayed notion-block-hover border border-white/50 dark:border-dark-card-border/50 z-0 pointer-events-none">
-                    <div className="p-4">
-                        <div className="w-10 h-10 bg-red-500 rounded-lg mb-2 shadow-md"></div>
-                        <div className="w-14 h-1.5 bg-gray-300 dark:bg-dark-text-quaternary rounded mb-1"></div>
-                        <div className="w-10 h-1 bg-gray-300 dark:bg-dark-text-quaternary rounded"></div>
-                    </div>
-                </div>
-            </div>
 
             <div className="container-custom relative z-10">
                 {/* Hero Content */}

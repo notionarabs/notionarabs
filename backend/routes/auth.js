@@ -14,6 +14,7 @@ const {
   sendResetPasswordEmail,
   sendWelcomeEmail
 } = require('../services/emailService');
+const { isDisposableEmail, hasValidMXRecord } = require('../utils/disposableEmailChecker');
 
 const router = express.Router();
 
@@ -222,24 +223,22 @@ router.post('/signup', [
       });
     }
 
-    // Validate email domain - block common fake email domains
-    const blockedDomains = [
-      '10minutemail.com', 'tempmail.org', 'guerrillamail.com', 'mailinator.com',
-      'throwaway.email', 'temp-mail.org', 'sharklasers.com', 'guerrillamailblock.com',
-      'pokemail.net', 'spam4.me', 'bccto.me', 'chacuo.net', 'dispostable.com',
-      'mailnesia.com', 'meltmail.com', 'trashmail.com', 'yopmail.com',
-      'example.com', 'test.com', 'fake.com', 'invalid.com'
-    ];
-
-    const emailDomain = email.split('@')[1]?.toLowerCase();
-    if (blockedDomains.includes(emailDomain)) {
+    // Use enhanced disposable email check to block temporary/fake emails
+    if (isDisposableEmail(email)) {
       return res.status(400).json({
         success: false,
-        message: 'يرجى استخدام بريد إلكتروني صحيح ومؤكد'
+        message: 'يرجى استخدام بريد إلكتروني حقيقي. لا نقبل البريد الإلكتروني المؤقت.'
       });
     }
 
-    // Skip DNS validation for faster signup - email verification will catch invalid emails
+    // Advanced DNS check to ensure the domain can actually receive emails
+    const isValidDomain = await hasValidMXRecord(email);
+    if (!isValidDomain) {
+      return res.status(400).json({
+        success: false,
+        message: 'يبدو أن هذا البريد الإلكتروني غير صحيح أو لا يمكنه استقبال الرسائل. يرجى التأكد من البريد والمحاولة مرة أخرى.'
+      });
+    }
 
     // Check username if provided
     let finalUsername = null;

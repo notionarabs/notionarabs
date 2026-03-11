@@ -164,7 +164,7 @@ router.post('/creator', [
                       <!-- Header -->
                       <tr>
                       <td style="padding: 40px; text-align: center; background-color: #f5631e; border-radius: 12px 12px 0 0;">
-                        <img src="https://www.notionarabs.com/favicon.png" alt="عرب نوشن" style="height: 60px; width: auto;" />
+                        <img src="https://www.notionarabs.com/icons/favicon.png" alt="عرب نوشن" style="height: 60px; width: auto;" />
                         <h1 style="color: #ffffff; margin: 20px 0 10px; font-size: 24px; font-weight: 700;">رسالة جديدة</h1>
                         <p style="color: #ffffff; margin: 0; font-size: 16px;">من موقع عرب نوشن</p>
                       </td>
@@ -569,7 +569,7 @@ router.post('/consultation', [
                       <!-- Header -->
                       <tr>
                       <td style="padding: 40px; text-align: center; background-color: #f5631e; border-radius: 12px 12px 0 0;">
-                        <img src="https://www.notionarabs.com/favicon.png" alt="عرب نوشن" style="height: 60px; width: auto;" />
+                        <img src="https://www.notionarabs.com/icons/favicon.png" alt="عرب نوشن" style="height: 60px; width: auto;" />
                         <h1 style="color: #ffffff; margin: 20px 0 10px; font-size: 24px; font-weight: 700;">حجز موعد استشارة</h1>
                       </td>
                       </tr>

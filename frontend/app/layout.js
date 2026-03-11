@@ -7,7 +7,9 @@ import { ToastProvider } from '../contexts/ToastContext'
 import { MaintenanceProvider } from '../contexts/MaintenanceContext'
 import NavigationWrapper from '../components/NavigationWrapper'
 import NavigationHandler from '../components/NavigationHandler'
+import ReferralHandler from '../components/ReferralHandler'
 import LoadingIndicator from '../components/LoadingIndicator'
+import { Suspense } from 'react'
 import { OrganizationSchema, WebsiteSchema } from '../components/StructuredData'
 import { GoogleAnalytics } from '../components/SEOOptimizations'
 import { QueryProvider } from '../components/QueryProvider'
@@ -154,6 +156,9 @@ export default function RootLayout({ children }) {
                     <MaintenanceMode />
                     <NavigationWrapper />
                     <NavigationHandler />
+                    <Suspense fallback={null}>
+                      <ReferralHandler />
+                    </Suspense>
                     <LoadingIndicator />
                     <TelegramPopupWrapper />
                     {children}

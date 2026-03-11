@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from 'react';
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { getApiBaseUrl } from '../lib/apiConfig';
+import { getTrackingData } from './ReferralHandler';
 import { ArrowLeft, ArrowRight, Check, CheckCircle2 } from 'lucide-react';
 import PhoneInput from './ui/PhoneInput';
 
@@ -245,8 +246,11 @@ export default function ConsultationForm() {
     setStatus({ type: '', message: '' });
 
     try {
+      // Get tracking data (ref, utm_source) from localStorage
+      const trackingData = getTrackingData();
+
       // Use override value for the current field if provided (fixes stale state on last step auto-advance)
-      const submissionData = { ...formData };
+      const submissionData = { ...formData, ...trackingData };
 
       // CRITICAL FIX: If finalValue is provided, FORCE update the current field in submission data
       // This handles cases where state hasn't updated yet (common with auto-advance or quick clicks)

@@ -440,6 +440,8 @@ router.post('/consultation', [
     .optional({ checkFalsy: true })
     .isURL({ require_protocol: false, require_valid_protocol: false, require_tld: true })
     .withMessage('رابط الموقع غير صحيح'),
+  body('ref').optional({ checkFalsy: true }).trim(),
+  body('utm_source').optional({ checkFalsy: true }).trim(),
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -523,7 +525,9 @@ router.post('/consultation', [
       companyWebsite: normalizeWebsite(req.body.companyWebsite),
       serviceType: Array.isArray(req.body.serviceType) ? req.body.serviceType : (req.body.serviceType ? [req.body.serviceType] : []),
       details: req.body.details,
-      source: req.body.source || 'website-contact'
+      source: req.body.source || 'website-contact',
+      ref: req.body.ref || '',
+      utm_source: req.body.utm_source || ''
     };
 
     const result = await addConsultationToNotion(payload);

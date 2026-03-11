@@ -643,6 +643,17 @@ async function addConsultationToNotion(payload) {
       properties[statusProp.name] = { select: { name: preferred ? preferred.name : statusProp.options[0].name } };
     }
 
+    // Referral Tracking
+    const refProp = findProperty(schema, ['Referrer', 'Referral', 'المصدر'], ['rich_text', 'select']);
+    if (refProp && payload.ref) {
+      setSelectOrText(refProp, payload.ref);
+    }
+
+    const utmSourceProp = findProperty(schema, ['UTM Source', 'Source', 'مصدر الحملة'], ['rich_text', 'select']);
+    if (utmSourceProp && payload.utm_source) {
+      setSelectOrText(utmSourceProp, payload.utm_source);
+    }
+
     const createdAtProp = findProperty(schema, ['Created At', 'تاريخ', 'التاريخ', 'تاريخ الإرسال', 'تاريخ الطلب'], ['date']);
     if (createdAtProp) {
       properties[createdAtProp.name] = { date: { start: new Date().toISOString() } };

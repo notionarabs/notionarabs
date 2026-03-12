@@ -25,6 +25,7 @@ const teamMembers = [
         },
         className: ""
     },
+    /*
     {
         name: "مصطفى إسماعيل",
         role: "Automation Expert | Notion Consultant",
@@ -43,6 +44,7 @@ const teamMembers = [
         },
         className: ""
     }
+    */
 ];
 
 const TeamCard = ({ member, index }) => (

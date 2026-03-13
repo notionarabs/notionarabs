@@ -5,7 +5,7 @@ import { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getApiBaseUrl } from '../lib/apiConfig';
 import { getTrackingData } from './ReferralHandler';
-import { ArrowLeft, ArrowRight, Check, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, CheckCircle2, X, Calendar } from 'lucide-react';
 import PhoneInput from './ui/PhoneInput';
 
 // --- Constants & Config ---
@@ -117,6 +117,7 @@ export default function ConsultationForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [status, setStatus] = useState({ type: '', message: '' });
+  const [showCalendar, setShowCalendar] = useState(false);
 
 
   // --- Steps Definition ---
@@ -378,10 +379,13 @@ export default function ConsultationForm() {
   // const [showCalendar, setShowCalendar] = useState(false);  <-- Was here
 
 
+
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const consultationUrl = "https://calendar.notion.so/meet/notionarabs/discovery-call";
 
   if (status.type === 'success') {
     return (
@@ -394,13 +398,65 @@ export default function ConsultationForm() {
           شكراً لتواصلك معنا. لقد قمنا بإرسال رابط حجز الموعد إلى بريدك الإلكتروني. يرجى التحقق من صندوق الوارد (أو مجلد الرسائل غير المرغوب فيها) لاختيار الوقت المناسب للاجتماع.
         </p>
 
-        <button
-          onClick={() => window.location.reload()}
-          type="button"
-          className="mt-8 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-sm"
-        >
-          العودة للرئيسية
-        </button>
+        <div className="flex flex-col sm:flex-row items-center gap-4 mt-8">
+          <button
+            onClick={() => setShowCalendar(true)}
+            type="button"
+            className="btn-primary py-4 px-8 rounded-2xl flex items-center gap-2 text-lg shadow-xl hover:shadow-primary-500/20 transition-all font-bold"
+          >
+            <Calendar size={22} />
+            احجز موعدك الآن
+          </button>
+
+          <button
+            onClick={() => window.location.reload()}
+            type="button"
+            className="px-6 py-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-sm font-medium"
+          >
+            العودة للرئيسية
+          </button>
+        </div>
+
+        {/* Calendar Modal */}
+        <AnimatePresence>
+          {showCalendar && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4" dir="ltr">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowCalendar(false)}
+                className="absolute inset-0 bg-black/80 backdrop-blur-md"
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 40 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 40 }}
+                className="relative bg-white dark:bg-dark-secondary w-full max-w-5xl h-[90vh] sm:h-[85vh] rounded-3xl overflow-hidden shadow-2xl border border-white/10"
+              >
+                {/* Close Button */}
+                <button
+                  onClick={() => setShowCalendar(false)}
+                  className="absolute top-4 right-4 z-[110] p-2.5 bg-gray-100/80 dark:bg-white/10 backdrop-blur-md rounded-full hover:bg-white dark:hover:bg-white/20 transition-all shadow-lg active:scale-90"
+                  aria-label="إغلاق"
+                >
+                  <X size={20} className="text-gray-800 dark:text-white" />
+                </button>
+
+                {/* Loading Indicator */}
+                <div className="absolute inset-0 flex items-center justify-center -z-10">
+                  <div className="w-10 h-10 border-4 border-primary-500/20 border-t-primary-500 rounded-full animate-spin" />
+                </div>
+
+                <iframe
+                  src={consultationUrl}
+                  className="w-full h-full border-none relative z-[105]"
+                  title="Book Consultation"
+                />
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }

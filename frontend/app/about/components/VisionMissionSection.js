@@ -114,7 +114,7 @@ export default function VisionMissionSection() {
                             <TrendingUp className="w-7 h-7 sm:w-8 sm:h-8" />
                         </div>
                         <h4 className="text-3xl sm:text-4xl font-bold text-accent-800 dark:text-white mb-2">
-                            <Counter end={stats.downloads || 1000} suffix="+" />
+                            <Counter end={Math.floor((stats.downloads || 1000) / 1000) * 1000} suffix="+" />
                         </h4>
                         <p className="text-accent-500 dark:text-gray-400">قالب تم تحميله</p>
                     </BentoCard>

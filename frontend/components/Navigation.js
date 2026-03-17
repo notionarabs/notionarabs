@@ -9,7 +9,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useLoading } from '../contexts/LoadingContext';
 import ThemeToggle from './ThemeToggle';
 import UserDropdown from './UserDropdown';
-import { Layout, Zap, BookOpen, Users, Compass, Home, Calendar, Search, User as UserIcon, Command, Briefcase } from 'lucide-react';
+import { Layout, Zap, BookOpen, Users, Compass, Home, Calendar, Search, User as UserIcon, Command, Briefcase, ShoppingBag } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { AnimatePresence } from 'framer-motion';
 import SearchPalette from './SearchPalette';
@@ -82,6 +82,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
   // Memoize navigation items to prevent unnecessary re-renders
   const navItems = useMemo(() => [
     { href: '/projects', label: 'مشاريعنا', key: 'projects', icon: <Briefcase className="w-4 h-4" />, color: 'hover:text-rose-400' },
+    { href: '/store', label: 'المتجر', key: 'store', icon: <ShoppingBag className="w-4 h-4" />, color: 'hover:text-amber-400' },
     {
       label: 'المصادر',
       key: 'resources',

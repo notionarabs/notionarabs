@@ -8,6 +8,7 @@ import api from '../../lib/api';
 import LoadingIndicator from '../../components/LoadingIndicator';
 import StarRating from '../../components/StarRating';
 import Counter from '../../components/Counter';
+import FeaturedProjects from '../../components/home/FeaturedProjects';
 import Footer from '../../components/Footer';
 
 // Map badge types to Lucide icons
@@ -583,7 +584,7 @@ function StorePageContent() {
           </div>
         </div>
       </section>
-
+      <FeaturedProjects />
       {/* Creator CTA */}
       <section className="py-10 sm:py-14 md:py-18 lg:py-22 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300">
         <div className="container-custom max-w-5xl">

@@ -36,7 +36,7 @@ export default function FinalCTA() {
                         <div className="grid grid-cols-2 gap-3 sm:gap-4">
                             {[
                                 { label: 'مدة البداية', value: 'أربعة أسابيع' },
-                                { label: 'جلسة اكتشاف', value: '15 دقيقة' },
+                                { label: 'جلسة اكتشاف', value: '30 دقيقة' },
                                 { label: 'خطة تنفيذ', value: 'واضحة' },
                                 { label: 'دعم مستمر', value: 'مباشر' }
                             ].map((item, idx) => (

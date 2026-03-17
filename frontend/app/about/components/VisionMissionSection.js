@@ -1,7 +1,10 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Target, Lightbulb, TrendingUp, Users } from 'lucide-react';
+import api from '../../../lib/api';
+import Counter from '../../../components/Counter';
 
 const BentoCard = ({ children, className, delay = 0 }) => (
     <motion.div
@@ -16,6 +19,26 @@ const BentoCard = ({ children, className, delay = 0 }) => (
 );
 
 export default function VisionMissionSection() {
+    const [stats, setStats] = useState({ downloads: 0 });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const response = await api.get('/stats/homepage');
+                if (response.data.success) {
+                    setStats(response.data.stats);
+                }
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchStats();
+    }, []);
+
     return (
         <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-dark-secondary transition-colors duration-300">
             <div className="container-custom">
@@ -90,7 +113,9 @@ export default function VisionMissionSection() {
                         <div className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-4 text-blue-600 dark:text-blue-400">
                             <TrendingUp className="w-7 h-7 sm:w-8 sm:h-8" />
                         </div>
-                        <h4 className="text-3xl sm:text-4xl font-bold text-accent-800 dark:text-white mb-2">+1000</h4>
+                        <h4 className="text-3xl sm:text-4xl font-bold text-accent-800 dark:text-white mb-2">
+                            <Counter end={stats.downloads || 1000} suffix="+" />
+                        </h4>
                         <p className="text-accent-500 dark:text-gray-400">قالب تم تحميله</p>
                     </BentoCard>
 
@@ -108,3 +133,4 @@ export default function VisionMissionSection() {
         </section>
     );
 }
+

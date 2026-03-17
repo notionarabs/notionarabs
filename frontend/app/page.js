@@ -9,6 +9,7 @@ import Hero from '../components/home/Hero';
 import ProblemsWeSolve from '../components/home/ProblemsWeSolve';
 import ServicesOverview from '../components/home/ServicesOverview';
 import WhatMakesUsDifferent from '../components/home/WhatMakesUsDifferent';
+import FeaturedProjects from '../components/home/FeaturedProjects';
 import HowWeDoIt from '../components/home/HowWeDoIt';
 import Testimonials from '../components/home/Testimonials';
 import FAQ from '../components/home/FAQ';
@@ -168,6 +169,7 @@ export default function HomePage() {
       <CompaniesTicker />
       <ProblemsWeSolve />
       <ServicesOverview />
+      <FeaturedProjects />
       <WhatMakesUsDifferent />
       <HowWeDoIt
         timelineRef={timelineRef}

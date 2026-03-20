@@ -37,7 +37,7 @@ function AuthCallbackForm() {
           try {
             const authPromise = checkAuthStatus();
             const timeoutPromise = new Promise((_, reject) =>
-              setTimeout(() => reject(new Error('Auth check timeout')), 5000)
+              setTimeout(() => reject(new Error('Auth check timeout')), 45000)
             );
 
             await Promise.race([authPromise, timeoutPromise]);

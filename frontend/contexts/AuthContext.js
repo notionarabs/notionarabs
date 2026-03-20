@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }) => {
           const response = await Promise.race([
             api.get('/auth/me'),
             new Promise((_, reject) =>
-              setTimeout(() => reject(new Error('Request timeout')), 5000)
+              setTimeout(() => reject(new Error('Request timeout')), 45000)
             )
           ]);
 

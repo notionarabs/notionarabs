@@ -1,5 +1,10 @@
 const mongoose = require('mongoose');
 
+// In-memory cache for settings to improve performance and avoid DB timeouts
+let cachedSettings = null;
+let lastCacheUpdate = 0;
+const CACHE_TTL = 60 * 1000; // 60 seconds
+
 const settingsSchema = new mongoose.Schema({
   platformName: { type: String, default: 'عرب نوشن' },
   platformDescription: { type: String, default: 'منصة قوالب Notion العربية' },
@@ -17,11 +22,46 @@ const settingsSchema = new mongoose.Schema({
 
 // Ensure only one settings document exists
 settingsSchema.statics.getSettings = async function () {
-  let settings = await this.findOne();
-  if (!settings) {
-    settings = await this.create({});
+  const now = Date.now();
+  
+  // Return cached settings if they are fresh
+  if (cachedSettings && (now - lastCacheUpdate < CACHE_TTL)) {
+    return cachedSettings;
   }
-  return settings;
+
+  try {
+    let settings = await this.findOne();
+    if (!settings) {
+      settings = await this.create({});
+    }
+    
+    // Update cache
+    cachedSettings = settings;
+    lastCacheUpdate = now;
+    
+    return settings;
+  } catch (error) {
+    console.error('Error fetching settings from DB:', error);
+    
+    // Hardcoded fallback for public settings (avoids total site paralysis if DB is down)
+    const fallbackSettings = {
+      platformName: 'عرب نوشن',
+      platformDescription: 'منصة قوالب Notion العربية',
+      maintenanceMode: false,
+      registrationEnabled: true,
+      creatorApplicationsEnabled: true,
+      autoApproveTemplates: false,
+      autoApproveBlogs: false,
+      contactInfo: {
+        email: 'support@notionarabs.com',
+        phone: '+201050505673',
+        address: 'القاهرة، جمهورية مصر العربية'
+      }
+    };
+
+    // If we have a cache (even if old), return it as fallback. Otherwise, return the hardcoded fallback.
+    return cachedSettings || fallbackSettings;
+  }
 };
 
 settingsSchema.statics.updateSettings = async function (updateData) {
@@ -35,6 +75,11 @@ settingsSchema.statics.updateSettings = async function (updateData) {
       { new: true, upsert: true }
     );
   }
+  
+  // Update cache immediately after update
+  cachedSettings = settings;
+  lastCacheUpdate = Date.now();
+  
   return settings;
 };
 

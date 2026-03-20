@@ -125,8 +125,8 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/notion-ar
   connectTimeoutMS: 10000, // Connection timeout
   // Read preferences for better performance
   readPreference: 'primaryPreferred', // Changed to primary for consistency
-  // Additional optimizations - set to true to allow middleware to run
-  bufferCommands: true // Enable buffering to allow settings middleware to work
+  // Additional optimizations - set to false to prevent hangs during DB downtime
+  bufferCommands: false // Disable buffering so we fail fast and use fallbacks
 })
   .then(() => {
     console.log('✅ Database connected successfully');

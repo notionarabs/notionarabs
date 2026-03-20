@@ -9,15 +9,20 @@ const checkMaintenanceMode = async (req, res, next) => {
       return;
     }
 
-    const settings = await Settings.getSettings();
-
-    // Allow admin routes, auth routes, and public settings even during maintenance
+    // Identfiy routes that should never be blocked by maintenance mode 
     const isAdminRoute = req.path.startsWith('/api/admin') || req.path.startsWith('/admin');
     const isAuthRoute = req.path.startsWith('/api/auth/');
     const isPublicSettings = req.path === '/api/settings/public' || req.path === '/settings/public' || req.path.includes('/settings/');
     const isHealthCheck = req.path === '/api/health';
 
-    if (settings.maintenanceMode && !isAdminRoute && !isAuthRoute && !isPublicSettings && !isHealthCheck) {
+    // OPTIMIZATION: If it's an excluded route, don't even fetch settings
+    if (isAdminRoute || isAuthRoute || isPublicSettings || isHealthCheck) {
+      return next();
+    }
+
+    const settings = await Settings.getSettings();
+
+    if (settings && settings.maintenanceMode) {
       return res.status(503).json({
         success: false,
         message: 'الموقع في وضع الصيانة حالياً',
@@ -28,7 +33,7 @@ const checkMaintenanceMode = async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Check maintenance mode error:', error);
-    next(); // Continue if settings check fails
+    next(); // Continue if settings check fails to prevent site paralysis
   }
 };
 

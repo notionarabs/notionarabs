@@ -4,10 +4,12 @@ import { getApiBaseUrl } from './apiConfig';
 
 const API_BASE_URL = getApiBaseUrl();
 
+const TIMEOUT = process.env.NODE_ENV === 'production' ? 45000 : 15000;
+
 // Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 15000, // Reduced to 15 seconds for better UX
+  timeout: TIMEOUT, // Increased to 45 seconds to handle cold-starts and slow DB connections
   headers: {
     'Content-Type': 'application/json',
   },
@@ -16,7 +18,7 @@ const api = axios.create({
 // Create specialized instance for email operations with extended timeout
 const emailApi = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000, // Reduced to 30 seconds for bulk email operations
+  timeout: TIMEOUT * 2, // 90 seconds for bulk email operations in production
   headers: {
     'Content-Type': 'application/json',
   },

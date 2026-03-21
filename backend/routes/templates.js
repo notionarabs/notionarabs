@@ -935,6 +935,22 @@ router.put('/:id', auth, [
 
     // If template is approved or rejected, changing it will set it back to pending
     if (template.status === 'approved' || template.status === 'rejected') {
+      // Save specific fields to previousData for later revert if needed
+      const updateableFields = [
+        'title', 'description', 'notionLink', 'isPaid', 'price', 'purchaseLink',
+        'features', 'tags', 'previewImage', 'previewImages', 'explanationVideo',
+        'categories', 'language'
+      ];
+
+      const prevData = {};
+      updateableFields.forEach(field => {
+        if (template[field] !== undefined) {
+          prevData[field] = template[field];
+        }
+      });
+
+      template.previousData = prevData;
+      template.updatePending = true;
       template.status = 'pending';
       template.approvedAt = null;
       template.approvedBy = null;

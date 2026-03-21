@@ -143,6 +143,14 @@ const templateSchema = new mongoose.Schema({
     type: Date,
     default: null
   },
+  previousData: {
+    type: Object,
+    default: null
+  },
+  updatePending: {
+    type: Boolean,
+    default: false
+  },
   approvedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

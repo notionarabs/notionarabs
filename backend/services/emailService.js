@@ -469,14 +469,15 @@ const sendOrderConfirmationEmail = async (user, order) => {
  * @param {Object} user - The user object (creator)
  * @param {Object} template - The template object
  * @param {string} reason - The rejection reason
+ * @param {boolean} isUpdate - Whether this is an update rejection
  */
-const sendTemplateRejectedEmail = async (user, template, reason) => {
+const sendTemplateRejectedEmail = async (user, template, reason, isUpdate = false) => {
   if (!user || !user.email) {
     console.warn('⚠️ Cannot send template rejected email: User or email not found', user);
     return;
   }
 
-  const subject = `تحديث بخصوص قالبك: ${template.title}`;
+  const subject = isUpdate ? `تحديث بخصوص تحديث قالبك: ${template.title}` : `تحديث بخصوص قالبك: ${template.title}`;
   const dashboardLink = `https://www.notionarabs.com/dashboard/creator`;
 
   const html = `
@@ -502,12 +503,14 @@ const sendTemplateRejectedEmail = async (user, template, reason) => {
           </div>
           <div class="content">
             <h2>مرحباً ${user.name || 'مبدعنا'}،</h2>
-            <p>شكراً لإرسال قالبك <strong>"${template.title}"</strong> للمراجعة.</p>
-            <p>نأسف لإخبارك بأنه لم يتم قبول القالب في الوقت الحالي.</p>
+            <p>شكراً لإرسال ${isUpdate ? 'تحديثات' : ''} قالبك <strong>"${template.title}"</strong> للمراجعة.</p>
+            <p>نأسف لإخبارك بأنه لم يتم قبول ${isUpdate ? 'تحديثات القالب' : 'القالب'} في الوقت الحالي.</p>
             
+            ${isUpdate ? '<p><strong>ملاحظة:</strong> يظل قالبك بنسخته السابقة متاحاً على المنصة.</p>' : ''}
+
             ${reason ? `
             <div class="reason">
-              <strong>سبب الرفض:</strong><br>
+              <strong>${isUpdate ? 'سبب رفض التحديث:' : 'سبب الرفض:'}</strong><br>
               ${reason}
             </div>
             ` : ''}
@@ -527,7 +530,7 @@ const sendTemplateRejectedEmail = async (user, template, reason) => {
     </html>
   `;
 
-  const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nنأسف لإخبارك بأنه لم يتم قبول قالبك "${template.title}".\n\n${reason ? `سبب الرفض: ${reason}\n\n` : ''}يمكنك تعديل القالب وإعادة إرساله من خلال لوحة التحكم: ${dashboardLink}\n\nعرب نوشن`;
+  const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nنأسف لإخبارك بأنه لم يتم قبول ${isUpdate ? 'تحديثات' : ''} قالبك "${template.title}".\n\n${isUpdate ? 'يظل القالب بنسخته السابقة متاحاً على المنصة.\n\n' : ''}${reason ? `سبب الرفض: ${reason}\n\n` : ''}يمكنك تعديل القالب وإعادة إرساله من خلال لوحة التحكم: ${dashboardLink}\n\nعرب نوشن`;
 
   await sendEmail({
     to: user.email,

@@ -548,13 +548,35 @@ router.get('/templates', auth, async (req, res) => {
     }
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
+    const limitNum = parseInt(limit);
 
-    const templates = await Template.find(filter)
-      .populate('creator', 'name username displayName email profilePicture')
-      .populate('approvedBy', 'name')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit));
+    // Use aggregation to sort by status priority (pending first) then by date
+    const templates = await Template.aggregate([
+      { $match: filter },
+      {
+        $addFields: {
+          statusPriority: {
+            $switch: {
+              branches: [
+                { case: { $eq: ['$status', 'pending'] }, then: 0 },
+                { case: { $eq: ['$status', 'approved'] }, then: 1 },
+                { case: { $eq: ['$status', 'rejected'] }, then: 2 }
+              ],
+              default: 3
+            }
+          }
+        }
+      },
+      { $sort: { statusPriority: 1, createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limitNum }
+    ]);
+
+    // Populate the results (aggregation returns plain objects)
+    await Template.populate(templates, [
+      { path: 'creator', select: 'name username displayName email profilePicture' },
+      { path: 'approvedBy', select: 'name' }
+    ]);
 
     const total = await Template.countDocuments(filter);
 
@@ -622,9 +644,14 @@ router.put('/templates/:id/status', auth, [
 
     if (status === 'approved') {
       // Check if this is a template update (was previously approved) or a new template
-      const isTemplateUpdate = template.approvedAt !== null;
+      const isTemplateUpdate = template.approvedAt !== null || template.updatePending;
 
       await template.approve(req.user._id, adminNotes);
+
+      // Clear update flags if any
+      template.updatePending = false;
+      template.previousData = null;
+      await template.save();
 
       // Sync to Notion database (only for new approvals, not updates)
       if (!isTemplateUpdate) {
@@ -735,21 +762,40 @@ router.put('/templates/:id/status', auth, [
         }
       }
     } else {
-      await template.reject(req.user._id, adminNotes);
+      let isUpdateRejection = false;
+
+      if (template.updatePending && template.previousData) {
+        // Revert to previous approved state
+        Object.assign(template, template.previousData);
+        template.status = 'approved';
+        // We keep the original approvedAt
+        template.previousData = null;
+        template.updatePending = false;
+        await template.save();
+        isUpdateRejection = true;
+      } else {
+        await template.reject(req.user._id, adminNotes);
+      }
 
       // Notify the creator that their template was rejected
       try {
         if (template.creator) {
+          const notificationTitle = isUpdateRejection ? 'تم رفض تحديث قالبك' : 'تم رفض قالبك';
+          const notificationMessage = isUpdateRejection
+            ? `تم رفض التحديثات التي أجريتها على قالب: ${template.title}. يظل القالب بنسخته السابقة متاحاً على المنصة.${adminNotes ? `\n\nملاحظات الإدارة: ${adminNotes}` : ''}`
+            : `تم رفض قالبك: ${template.title}${adminNotes ? `\n\nملاحظات الإدارة: ${adminNotes}` : ''}`;
+
           await Notification.create({
             user: template.creator,
             type: 'template_rejected',
-            title: 'تم رفض قالبك',
-            message: `تم رفض قالبك: ${template.title}${adminNotes ? `\n\nملاحظات الإدارة: ${adminNotes}` : ''}`,
-            link: '/profile/templates',
+            title: notificationTitle,
+            message: notificationMessage,
+            link: isUpdateRejection ? `/templates/${template.slug || template._id}` : '/profile/templates',
             metadata: {
               templateId: template._id,
               adminNotes: adminNotes || '',
-              rejectedBy: req.user._id
+              rejectedBy: req.user._id,
+              isUpdateRejection
             }
           });
 
@@ -757,7 +803,7 @@ router.put('/templates/:id/status', auth, [
           const creatorUser = await User.findById(template.creator).select('email name');
           if (creatorUser) {
             console.log('📧 Sending rejection email to creator:', creatorUser.email);
-            await sendTemplateRejectedEmail(creatorUser, template, adminNotes);
+            await sendTemplateRejectedEmail(creatorUser, template, adminNotes, isUpdateRejection);
           }
         }
       } catch (creatorNotifyErr) {

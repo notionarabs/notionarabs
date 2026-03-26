@@ -17,7 +17,7 @@ const teamMembers = [
     },
     {
         name: "حازم ياسر",
-        role: "Software Engineer",
+        role: "Co-Founder | Software Engineer",
         image: "/team/hazem_orange_ai.png",
         social: {
             linkedin: "https://www.linkedin.com/in/hazem-dev/",
@@ -119,7 +119,7 @@ export default function TeamSection() {
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-primary-600 dark:text-primary-400 font-medium text-sm mb-6 shadow-sm backdrop-blur-sm"
                     >
                         <Users size={16} />
-                        <span>فريقنا</span>
+                        <span>المؤسسون</span>
                     </motion.div>
 
                     <motion.h2
@@ -128,7 +128,7 @@ export default function TeamSection() {
                         viewport={{ once: true }}
                         className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white mb-6 tracking-tight"
                     >
-                        العقول خلف <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-purple-600 dark:from-primary-400 dark:to-purple-400">الإبداع</span>
+                        مؤسسو <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-purple-600 dark:from-primary-400 dark:to-purple-400">نوشن عرب</span>
                     </motion.h2>
 
                     <motion.p
@@ -138,7 +138,7 @@ export default function TeamSection() {
                         transition={{ delay: 0.1 }}
                         className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed"
                     >
-                        نؤمن بأن العمل العظيم يبدأ بفريق عظيم. تعرف على الشغوفين الذين يبنون مستقبل الإنتاجية.
+                        تعرّف على الأشخاص الذين أسسوا نوشن عرب وأشعلوا شرارة هذه الرحلة. رؤيتهم هي التي تحرّك كل ما نبنيه.
                     </motion.p>
                 </div>
 

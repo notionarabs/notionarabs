@@ -3,6 +3,14 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import api from '../lib/api';
 
+// ============================================================
+// 🔧 MAINTENANCE MODE OVERRIDE
+// Set this to `true` to force maintenance mode ON without
+// needing a database connection (e.g. during a DB outage).
+// Set back to `false` when the issue is resolved.
+// ============================================================
+const FORCE_MAINTENANCE_MODE = true;
+
 const MaintenanceContext = createContext();
 
 export const useMaintenance = () => {
@@ -14,11 +22,22 @@ export const useMaintenance = () => {
 };
 
 export const MaintenanceProvider = ({ children }) => {
-  const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
+  const [isMaintenanceMode, setIsMaintenanceMode] = useState(FORCE_MAINTENANCE_MODE);
   const [loading, setLoading] = useState(false); // Start as false to prevent initial loading state
   const [hasCheckedMaintenance, setHasCheckedMaintenance] = useState(false);
 
   const checkMaintenanceMode = async () => {
+    // If forced maintenance mode is on, skip the API check entirely
+    if (FORCE_MAINTENANCE_MODE) {
+      if (typeof window !== 'undefined') {
+        window.isMaintenanceMode = true;
+      }
+      setIsMaintenanceMode(true);
+      setLoading(false);
+      setHasCheckedMaintenance(true);
+      return;
+    }
+
     try {
       // Skip maintenance mode check in development
       if (process.env.NODE_ENV === 'development') {

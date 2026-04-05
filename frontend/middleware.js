@@ -57,7 +57,7 @@ export function middleware(request) {
     '/forgot-password', '/reset-password', '/about', '/contact',
     '/consultation', '/careers', '/testimonials', '/success-stories',
     '/store', '/privacy', '/terms', '/cookies', '/templates',
-    '/categories', '/creators', '/blog', '/widgets'
+    '/categories', '/creators', '/blog', '/widgets', '/projects'
   ];
 
   const isPublicRoute = publicRoutes.some(route => pathname === route);
@@ -67,7 +67,8 @@ export function middleware(request) {
     (pathname.match(/^\/blog\/[^\/]+$/) && !pathname.startsWith('/blog/create') && !pathname.startsWith('/blog/edit/')) ||
     pathname.match(/^\/creators\/[^\/]+$/) ||
     pathname.match(/^\/categories\/[^\/]+$/) ||
-    pathname.startsWith('/widgets/');
+    pathname.startsWith('/widgets/') ||
+    pathname.startsWith('/projects/');
 
   const isStaticAsset =
     pathname.startsWith('/_next') ||

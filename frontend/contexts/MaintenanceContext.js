@@ -9,7 +9,7 @@ import api from '../lib/api';
 // needing a database connection (e.g. during a DB outage).
 // Set back to `false` when the issue is resolved.
 // ============================================================
-const FORCE_MAINTENANCE_MODE = false;
+const FORCE_MAINTENANCE_MODE = true;
 
 const MaintenanceContext = createContext();
 

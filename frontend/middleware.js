@@ -57,7 +57,8 @@ export function middleware(request) {
     '/forgot-password', '/reset-password', '/about', '/contact',
     '/consultation', '/careers', '/testimonials', '/success-stories',
     '/store', '/privacy', '/terms', '/cookies', '/templates',
-    '/categories', '/creators', '/blog', '/widgets', '/projects'
+    '/categories', '/creators', '/blog', '/widgets', '/projects',
+    '/refund-policy'
   ];
 
   const isPublicRoute = publicRoutes.some(route => pathname === route);

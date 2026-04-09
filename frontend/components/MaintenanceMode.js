@@ -22,8 +22,8 @@ export default function MaintenanceMode() {
   }
 
   return (
-    <div className="fixed inset-0 bg-white dark:bg-dark-primary z-[9999] flex items-center justify-center" dir="rtl">
-      <div className="max-w-md mx-auto text-center p-8">
+    <div className="fixed inset-0 bg-white dark:bg-dark-primary z-[9999] overflow-y-auto p-4 flex flex-col" dir="rtl">
+      <div className="max-w-md mx-auto text-center w-full my-auto py-8">
         {/* Logo */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-primary-600 dark:text-orange-400 mb-2">
@@ -63,10 +63,26 @@ export default function MaintenanceMode() {
           </div>
         </div>
 
+        {/* Arab OS Link */}
+        <div className="bg-primary-50 dark:bg-primary-900/10 border border-primary-100 dark:border-primary-900/30 rounded-lg p-6 mb-8">
+          <h3 className="font-bold text-primary-900 dark:text-primary-400 mb-3 text-lg">
+            اكتشف خدماتنا الأخرى
+          </h3>
+          <p className="text-sm text-primary-700 dark:text-primary-300 mb-5 leading-relaxed">
+            للاستشارات، الخدمات المتقدمة، والمشاريع، تفضل بزيارة موقعنا الآخر الشامل:
+          </p>
+          <a
+            href="https://www.arab-os.com/"
+            className="inline-flex items-center justify-center w-full px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm"
+          >
+            زيارة موقع Arab OS
+          </a>
+        </div>
+
         {/* Refresh Button */}
         <button
           onClick={() => window.location.reload()}
-          className="btn-primary"
+          className="w-full px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-dark-tertiary dark:hover:bg-gray-800 text-accent-900 dark:text-dark-text-primary rounded-lg text-sm font-medium transition-colors"
         >
           إعادة تحميل الصفحة
         </button>

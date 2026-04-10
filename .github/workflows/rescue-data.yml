@@ -1,0 +1,28 @@
+name: Global Data Rescue (MongoDB Atlas)
+
+on:
+  workflow_dispatch: # This allows you to run it manually from the "Actions" tab
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install MongoDB Tools
+        run: |
+          wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2204-x86_64-100.9.4.deb
+          sudo apt install ./mongodb-database-tools-ubuntu2204-x86_64-100.9.4.deb
+
+      - name: Dump Data from Atlas
+        run: |
+          # The secret MONGODB_URI should be set in GitHub Repository Secrets
+          mongodump --uri="${{ secrets.MONGODB_URI }}" --out=./dump_data
+        
+      - name: Create Zip Archive
+        run: zip -r mongodb_backup.zip ./dump_data
+
+      - name: Upload Backup as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: atlas-data-backup
+          path: mongodb_backup.zip
+          retention-days: 1

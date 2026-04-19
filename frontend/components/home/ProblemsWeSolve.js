@@ -3,29 +3,29 @@
 export default function ProblemsWeSolve() {
     const problems = [
         {
-            title: 'أدوات كثيرة بلا رؤية موحدة',
-            description: 'المهام والملفات موزعة بين تطبيقات متعددة بدون لوحة تحكم واحدة.',
+            title: 'صعوبة العثور على قوالب عربية',
+            description: 'أغلب القوالب الاحترافية متوفرة باللغة الإنجليزية فقط، مما يجعلها صعبة الاستخدام للمستخدم العربي.',
             size: 'lg',
             tone: 'from-blue-50/80 to-blue-100/40 dark:from-blue-500/10 dark:to-blue-500/5',
             badge: 'bg-blue-500/10 text-blue-700 dark:text-blue-200'
         },
         {
-            title: 'غياب أولوية واضحة للعمل',
-            description: 'الفرق تعمل بلا مسارات أو أولويات واضحة مما يبطّئ الإنجاز.',
+            title: 'ندرة المحتوى التعليمي المتقدم',
+            description: 'يصعب العثور على شروحات متعمقة ومتقدمة لنوشن باللغة العربية بجودة عالية.',
             size: 'sm',
             tone: 'from-amber-50/80 to-orange-100/40 dark:from-orange-500/10 dark:to-orange-500/5',
             badge: 'bg-amber-500/10 text-amber-700 dark:text-amber-200'
         },
         {
-            title: 'عمليات يدوية متكررة',
-            description: 'وقت ضائع في تحديثات وأعمال روتينية يمكن أتمتتها بسهولة.',
+            title: 'تشتت المبدعين والصناع',
+            description: 'لا توجد منصة موحدة تجمع المبدعين العرب لعرض أعمالهم وتبادل الخبرات.',
             size: 'md',
             tone: 'from-emerald-50/80 to-emerald-100/40 dark:from-emerald-500/10 dark:to-emerald-500/5',
             badge: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-200'
         },
         {
-            title: 'معرفة مؤسسية مشتتة',
-            description: 'المعلومات المهمة غير منظمة ولا يمكن الوصول لها بسرعة.',
+            title: 'غياب الدعم الفني المتخصص',
+            description: 'المستخدم العربي يحتاج لدعم يفهم احتياجاته الثقافية واللغوية في استخدام أدوات الإنتاجية.',
             size: 'lg',
             tone: 'from-purple-50/80 to-purple-100/40 dark:from-purple-500/10 dark:to-purple-500/5',
             badge: 'bg-purple-500/10 text-purple-700 dark:text-purple-200'
@@ -38,10 +38,10 @@ export default function ProblemsWeSolve() {
                 <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] items-start">
                     <div className="text-center lg:text-right">
                         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
-                            المشكلات التي نحلها
+                            لماذا نحتاج لمجتمع نوشن عربي؟
                         </h2>
                         <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary max-w-xl mx-auto lg:mx-0">
-                            نحول الفوضى إلى نظام واضح يساعد فريقك على التنفيذ بثقة وسرعة.
+                            جئنا لنحل فجوة المحتوى والأدوات في العالم العربي، ونوفر لك كل ما تحتاجه للتميز في استخدام نوشن.
                         </p>
                     </div>
                     <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 sm:gap-6">
@@ -56,7 +56,7 @@ export default function ProblemsWeSolve() {
                                 >
                                     <div className="flex items-center justify-between mb-4">
                                         <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] sm:text-xs font-semibold ${item.badge}`}>
-                                            المشكلة {String(idx + 1).padStart(2, '0')}
+                                            التحدي {String(idx + 1).padStart(2, '0')}
                                         </div>
                                     </div>
                                     <h3 className={`${isLarge ? 'text-lg sm:text-xl' : 'text-base sm:text-lg'} font-semibold text-accent-900 dark:text-dark-text-primary mb-2`}>

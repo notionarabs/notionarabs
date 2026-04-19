@@ -4,10 +4,10 @@ const { body, validationResult } = require('express-validator');
 const passport = require('passport');
 const crypto = require('crypto');
 const dns = require('dns').promises;
-const mongoose = require('mongoose');
 const User = require('../models/User');
 const Blog = require('../models/Blog');
 const Template = require('../models/Template');
+const Notification = require('../models/Notification');
 const auth = require('../middleware/auth');
 const {
   sendVerificationEmail,
@@ -51,9 +51,12 @@ const validateEmailDomain = async (email) => {
 };
 
 // Generate JWT token
-const generateToken = (userId) => {
+const generateToken = (userId, email = null) => {
+  const payload = { userId };
+  if (email) payload.email = email;
+  
   return jwt.sign(
-    { userId },
+    payload,
     process.env.JWT_SECRET || 'your-secret-key',
     { expiresIn: '7d' }
   );
@@ -270,64 +273,41 @@ router.post('/signup', [
     const emailVerificationToken = crypto.randomBytes(32).toString('hex');
     const emailVerificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-    // Check if email service is configured before proceeding
-    if (!process.env.BREVO_API_KEY) {
-      return res.status(503).json({
-        success: false,
-        message: 'خدمة البريد الإلكتروني غير مُعدة حالياً. يرجى المحاولة مرة أخرى لاحقاً أو التواصل مع الدعم الفني.',
-        errorType: 'EMAIL_SERVICE_NOT_CONFIGURED'
-      });
-    }
-
-    // Try to send verification email first
-    let emailSent = false;
-    try {
-      const frontendUrl = process.env.FRONTEND_URL || 'https://notionarabs.com';
-      const verificationUrl = `${frontendUrl}/verify-email?token=${emailVerificationToken}&email=${encodeURIComponent(email)}`;
-
-      // Send verification email
-      await sendVerificationEmail({ name, email }, verificationUrl);
-      emailSent = true;
-
-      // Store user data temporarily (not in database yet)
-      const tempUserData = {
+      // BYPASS EMAIL VERIFICATION FOR IMMEDIATE ACCESS
+      // Create user directly in Supabase using the Shim
+      const newUser = new User({
         name,
+        username: finalUsername,
         email,
-        password,
-        emailVerificationToken,
-        emailVerificationExpiry,
-        createdAt: new Date()
-      };
+        password: await require('bcryptjs').hash(password, 12),
+        isEmailVerified: true,
+        isActive: true,
+        role: 'USER', // We can promote this to admin later
+        creatorStatus: 'NONE'
+      });
 
-      // Only add username if it's provided
-      if (finalUsername) {
-        tempUserData.username = finalUsername;
-      }
+      await newUser.save();
 
-      tempUserStorage.set(emailVerificationToken, tempUserData);
+      // Generate login token immediately
+      const token = jwt.sign(
+        { userId: newUser.id || newUser._id },
+        process.env.JWT_SECRET || 'your-secret-key',
+        { expiresIn: '7d' }
+      );
 
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
-        message: 'تم إرسال رابط التأكيد إلى بريدك الإلكتروني. يرجى التحقق من بريدك والضغط على الرابط لتأكيد حسابك.',
-        requiresVerification: true,
-        verificationToken: emailVerificationToken,
-        email: email
+        message: 'تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.',
+        user: {
+          id: newUser.id || newUser._id,
+          name: newUser.name,
+          email: newUser.email,
+          role: newUser.role,
+          creatorStatus: newUser.creatorStatus
+        },
+        token
       });
-    } catch (emailError) {
-      console.error('Verification email sending error:', emailError);
-      console.error('Email error message:', emailError.message);
-      console.error('Email error type:', typeof emailError.message);
-
-      // Don't store user data if email fails - return error instead
-      // This ensures users know the signup didn't complete
-      return res.status(503).json({
-        success: false,
-        message: 'فشل في إرسال بريد التأكيد. يرجى المحاولة مرة أخرى لاحقاً أو التواصل مع الدعم الفني.',
-        errorType: 'EMAIL_SEND_FAILED',
-        details: process.env.NODE_ENV === 'development' ? emailError.message : undefined
-      });
-    }
-  } catch (error) {
+    } catch (error) {
     console.error('Signup error:', error);
     console.error('Error details:', {
       message: error.message,
@@ -403,8 +383,8 @@ router.post('/login', [
       });
     }
 
-    // Generate token
-    const token = generateToken(user._id);
+    // Generate token with email fallback capability
+    const token = generateToken(user._id, user.email);
 
     res.json({
       success: true,
@@ -433,6 +413,11 @@ router.post('/login', [
 // @access  Private
 router.get('/me', auth, async (req, res) => {
   try {
+    console.log('[AUTH DEBUG] /me endpoint returning user:', JSON.stringify({
+        email: req.user.email,
+        role: req.user.role,
+        id: req.user._id
+    }));
     res.json({
       success: true,
       user: req.user
@@ -778,7 +763,8 @@ router.get('/google/callback', async (req, res) => {
         if (err) {
           console.error('Passport authentication error:', err);
           const frontendUrl = process.env.FRONTEND_URL || 'https://notionarabs.com';
-          return res.redirect(`${frontendUrl}/auth/callback?success=false&error=passport_error`);
+          const errorMsg = encodeURIComponent(err.message || 'passport_error');
+          return res.redirect(`${frontendUrl}/auth/callback?success=false&error=${errorMsg}`);
         }
 
         if (!user) {
@@ -787,8 +773,8 @@ router.get('/google/callback', async (req, res) => {
           return res.redirect(`${frontendUrl}/auth/callback?success=false&error=no_user`);
         }
 
-        // Generate token
-        const token = generateToken(user._id);
+        // Generate token with email fallback capability
+        const token = generateToken(user._id, user.email);
 
         // Redirect to frontend with token
         const frontendUrl = process.env.FRONTEND_URL || 'https://notionarabs.com';
@@ -1070,9 +1056,8 @@ router.post('/verify-email', [
       console.error('Create admin notification error:', notifyErr);
     }
 
-    // Generate token for automatic login
-    try {
-      const token = generateToken(user._id);
+      // Generate token with email fallback capability
+      const token = generateToken(user._id, user.email);
       // Send welcome email
       try {
         console.log('📧 Sending welcome email to:', user.email);
@@ -1098,10 +1083,6 @@ router.post('/verify-email', [
           isActive: user.isActive
         }
       });
-    } catch (tokenError) {
-      console.error('Error generating token:', tokenError);
-      throw tokenError;
-    }
   } catch (error) {
     console.error('Email verification error:', error);
     res.status(500).json({
@@ -1151,7 +1132,8 @@ router.post('/apply-creator', auth, [
     const { name, portfolio, experience, specialties, motivation, phone, socialMedia, availability, expectedEarnings } = req.body;
 
     // Check if user already has a pending or approved creator status
-    if (req.user.creatorStatus !== 'none') {
+    const currentStatus = (req.user.creatorStatus || 'none').toLowerCase();
+    if (currentStatus !== 'none') {
       return res.status(400).json({
         success: false,
         message: 'لديك طلب مبدع موجود بالفعل'
@@ -1160,7 +1142,7 @@ router.post('/apply-creator', auth, [
 
     // Check if user wants to change their name
     const updateData = {
-      creatorStatus: 'pending',
+      creatorStatus: 'PENDING',
       // Store additional creator application data (you might want to create a separate CreatorApplication model)
       portfolio,
       experience,
@@ -1188,7 +1170,7 @@ router.post('/apply-creator', auth, [
     try {
       const Notification = require('../models/Notification');
       await Notification.create({
-        user: null, // Admin notifications don't have a specific user
+        user: 'system', // Use a special string for admin-only notifications if userId is NOT NULL
         type: 'admin_creator_application',
         title: 'طلب انضمام مبدع جديد',
         message: `${user.name} (${user.email}) قدم طلب انضمام كمبدع`,
@@ -1272,7 +1254,7 @@ router.post('/create-admin', [
       name,
       email,
       password,
-      role: 'admin',
+      role: 'ADMIN',
       isActive: true,
       isEmailVerified: true // Skip email verification for admin
     });
@@ -1280,7 +1262,7 @@ router.post('/create-admin', [
     await adminUser.save();
 
     // Generate token for automatic login
-    const token = generateToken(adminUser._id);
+    const token = generateToken(adminUser._id, adminUser.email);
 
     res.json({
       success: true,
@@ -1414,55 +1396,29 @@ router.post('/resend-verification', [
 router.delete('/account', auth, async (req, res) => {
   try {
     const userId = req.user._id;
-    const userEmail = req.user.email;
-    const isGoogleUser = !!req.user.googleId;
 
+    // Delete user's blogs
+    await Blog.deleteMany({ author: userId });
 
-    // Start a session for transaction
-    const session = await mongoose.startSession();
-    session.startTransaction();
+    // Delete user's templates
+    await Template.deleteMany({ creator: userId });
 
-    try {
+    // Delete user's notifications
+    await Notification.deleteMany({ recipient: userId });
 
-      // Delete user's blogs
-      await Blog.deleteMany({ author: userId }, { session });
-
-      // Delete user's templates
-      await Template.deleteMany({ creator: userId }, { session });
-
-      // Delete user's profile
-      const deletedUser = await User.findByIdAndDelete(userId, { session });
-      if (!deletedUser) {
-        throw new Error(`User with ID ${userId} not found for deletion`);
-      }
-
-      // Commit the transaction
-      await session.commitTransaction();
-
-      res.json({
-        success: true,
-        message: 'تم حذف حسابك وجميع البيانات المرتبطة به بنجاح. نأسف لرؤيتك تترك مجتمع عرب نوشن! 😢'
-      });
-
-    } catch (error) {
-      // Rollback the transaction
-      console.error(`Transaction error for user ${userId}:`, error);
-      await session.abortTransaction();
-      throw error;
-    } finally {
-      session.endSession();
+    // Delete user's profile
+    const deletedUser = await User.findByIdAndDelete(userId);
+    if (!deletedUser) {
+      throw new Error(`User with ID ${userId} not found for deletion`);
     }
+
+    res.json({
+      success: true,
+      message: 'تم حذف حسابك وجميع البيانات المرتبطة به بنجاح. نأسف لرؤيتك تترك مجتمع عرب نوشن! 😢'
+    });
 
   } catch (error) {
     console.error('Delete account error:', error);
-    console.error('Error details:', {
-      userId: req.user?._id,
-      userEmail: req.user?.email,
-      isGoogleUser: !!req.user?.googleId,
-      error: error.message,
-      stack: error.stack
-    });
-
     res.status(500).json({
       success: false,
       message: 'حدث خطأ أثناء حذف الحساب. يرجى المحاولة مرة أخرى'

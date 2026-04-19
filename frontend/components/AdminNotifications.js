@@ -13,14 +13,14 @@ export default function AdminNotifications() {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (user?.role === 'admin') {
+    if (user?.role?.toLowerCase() === 'admin') {
       fetchNotifications();
     }
   }, [user]);
 
   // Real-time updates
   useEffect(() => {
-    if (user?.role !== 'admin') return;
+    if (user?.role?.toLowerCase() !== 'admin') return;
 
     let intervalId;
     const onFocus = () => fetchNotifications();
@@ -199,7 +199,7 @@ export default function AdminNotifications() {
     }
   };
 
-  if (user?.role !== 'admin') {
+  if (user?.role?.toLowerCase() !== 'admin') {
     return null;
   }
 

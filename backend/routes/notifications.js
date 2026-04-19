@@ -14,7 +14,7 @@ router.get('/', auth, cacheMiddleware(60), async (req, res) => {
     const unreadCount = await Notification.countDocuments({ user: req.user._id, isRead: false });
     res.json({ success: true, notifications, unreadCount });
   } catch (error) {
-    console.error('Get notifications error:', error);
+    console.error('Get notifications error details:', JSON.stringify(error, null, 2) || error);
     res.status(500).json({ success: false, message: 'خطأ في الخادم' });
   }
 });

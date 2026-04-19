@@ -17,12 +17,8 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
 
       const email = profile.emails[0].value;
 
-      // Check database connection
-      const mongoose = require('mongoose');
-      if (mongoose.connection.readyState !== 1) {
-        console.error('Database not connected. State:', mongoose.connection.readyState);
-        return done(new Error('Database not connected'), null);
-      }
+      // Database check removed as we use Supabase now
+
 
       // Check if user already exists
       let user = await User.findOne({ email: email });

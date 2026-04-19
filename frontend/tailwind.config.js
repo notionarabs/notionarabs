@@ -37,6 +37,7 @@ module.exports = {
       },
       colors: {
         primary: {
+          DEFAULT: 'var(--primary)',
           50: '#fef7f0',
           100: '#fdeee0',
           200: '#fbd9c1',
@@ -61,6 +62,7 @@ module.exports = {
           900: '#202124',
         },
         accent: {
+          DEFAULT: 'var(--accent)',
           50: '#e8eaf0',
           100: '#d1d5e1',
           200: '#a3abc3',
@@ -142,7 +144,15 @@ module.exports = {
             border: '#333333',
             focus: '#475787',
           },
+          nav: 'var(--nav-bg)',
         },
+        background: 'var(--background)',
+        foreground: 'var(--foreground)',
+        card: 'var(--card-bg)',
+        input: 'var(--input-bg)',
+        'card-border': 'var(--card-border)',
+        'input-border': 'var(--input-border)',
+        nav: 'var(--nav-bg)',
       },
       spacing: {
         '18': '4.5rem',
@@ -153,6 +163,8 @@ module.exports = {
         'xl': '0.75rem',
         '2xl': '1rem',
         '3xl': '1.5rem',
+        '4xl': '2rem',
+        '5xl': '2.5rem',
       },
       boxShadow: {
         'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',

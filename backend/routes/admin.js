@@ -79,7 +79,7 @@ router.get('/public', cacheMiddleware(300), async (req, res) => {
 router.get('/users', auth, async (req, res) => {
   try {
     // Check if user is admin
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -152,7 +152,7 @@ router.get('/users', auth, async (req, res) => {
 router.get('/users/:id', auth, async (req, res) => {
   try {
     // Check if user is admin
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -187,7 +187,7 @@ router.get('/users/:id', auth, async (req, res) => {
 router.get('/stats', auth, cacheMiddleware(60), async (req, res) => {
   try {
     // Check if user is admin
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -207,13 +207,13 @@ router.get('/stats', auth, cacheMiddleware(60), async (req, res) => {
             pendingApplications: { $sum: { $cond: [{ $eq: ['$creatorStatus', 'pending'] }, 1, 0] } },
             approvedCreators: { $sum: { $cond: [{ $eq: ['$creatorStatus', 'approved'] }, 1, 0] } },
             rejectedApplications: { $sum: { $cond: [{ $eq: ['$creatorStatus', 'rejected'] }, 1, 0] } },
-            adminUsers: { $sum: { $cond: [{ $eq: ['$role', 'admin'] }, 1, 0] } },
+            adminUsers: { $sum: { $cond: [{ $in: [{ $toLower: '$role' }, ['admin']] }, 1, 0] } },
             regularUsers: {
               $sum: {
                 $cond: [
                   {
                     $and: [
-                      { $ne: ['$role', 'admin'] },
+                      { $ne: [{ $toLower: '$role' }, 'admin'] },
                       { $ne: ['$creatorStatus', 'approved'] }
                     ]
                   },
@@ -328,13 +328,49 @@ router.get('/stats', auth, cacheMiddleware(60), async (req, res) => {
   }
 });
 
+// @route   GET /api/admin/template-stats
+// @desc    Get template statistics
+// @access  Private (Admin only)
+router.get('/template-stats', auth, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (req.user.role?.toLowerCase() !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    const totalTemplates = await Template.countDocuments();
+    const pendingTemplates = await Template.countDocuments({ status: 'pending' });
+    const approvedTemplates = await Template.countDocuments({ status: 'approved' });
+    const rejectedTemplates = await Template.countDocuments({ status: 'rejected' });
+
+    res.json({
+      success: true,
+      stats: {
+        totalTemplates,
+        pendingTemplates,
+        approvedTemplates,
+        rejectedTemplates
+      }
+    });
+  } catch (error) {
+    console.error('Get template stats error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
 // @route   GET /api/admin/creator-applications
 // @desc    Get all creator applications
 // @access  Private (Admin only)
 router.get('/creator-applications', auth, async (req, res) => {
   try {
     // Check if user is admin
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -397,7 +433,7 @@ router.put('/creator-applications/:userId/status', auth, [
 ], async (req, res) => {
   try {
     // Check if user is admin
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -490,6 +526,13 @@ router.put('/creator-applications/:userId/status', auth, [
     }
 
 
+    // Invalidate caches
+    await invalidateCache('stats');
+    await invalidateCache('user', userId);
+    if (status === 'approved') {
+      await invalidateCache('creators');
+    }
+
     res.json({
       success: true,
       message: `تم تحديث حالة الطلب إلى ${status}`,
@@ -510,7 +553,7 @@ router.put('/creator-applications/:userId/status', auth, [
 router.get('/templates', auth, async (req, res) => {
   try {
     // Check if user is admin
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -615,7 +658,7 @@ router.put('/templates/:id/status', auth, [
 ], async (req, res) => {
   try {
     // Check if user is admin
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -813,6 +856,14 @@ router.put('/templates/:id/status', auth, [
 
     await template.populate('creator', 'name username displayName email profilePicture');
 
+    // Invalidate caches
+    await invalidateCache('stats');
+    await invalidateCache('template', id);
+    if (status === 'approved') {
+      await invalidateCache('creators'); // Might have updated creator stats
+      await invalidateCache('templates');
+    }
+
     res.json({
       success: true,
       message: `تم ${status === 'approved' ? 'الموافقة على' : 'رفض'} القالب بنجاح`,
@@ -827,13 +878,107 @@ router.put('/templates/:id/status', auth, [
   }
 });
 
+// @route   PUT /api/admin/templates/bulk-action
+// @desc    Perform bulk actions on templates (approve/reject)
+// @access  Private (Admin only)
+router.put('/templates/bulk-action', auth, [
+  body('templateIds')
+    .isArray({ min: 1 })
+    .withMessage('يجب تقديم قائمة من معرفات القوالب'),
+  body('action')
+    .isIn(['approve', 'reject'])
+    .withMessage('الإجراء يجب أن يكون approve أو reject'),
+  body('adminNotes')
+    .optional()
+    .isLength({ max: 500 })
+    .withMessage('ملاحظات الإدارة لا يجب أن تتجاوز 500 حرف')
+], async (req, res) => {
+  try {
+    // Check if user is admin
+    if (req.user.role?.toLowerCase() !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'بيانات غير صحيحة',
+        errors: errors.array()
+      });
+    }
+
+    const { templateIds, action, adminNotes = '' } = req.body;
+    let successfulCount = 0;
+    
+    // Process templates one by one to ensure hooks and Notion sync work
+    for (const id of templateIds) {
+      try {
+        const template = await Template.findById(id);
+        if (!template) continue;
+
+        if (action === 'approve') {
+          // Check if this is a template update
+          const isTemplateUpdate = template.approvedAt !== null || template.updatePending;
+          
+          await template.approve(req.user._id, adminNotes);
+          
+          // Clear update flags
+          template.updatePending = false;
+          template.previousData = null;
+          await template.save();
+
+          // Sync to Notion for new approvals
+          if (!isTemplateUpdate) {
+            try {
+              const { addTemplateToNotion } = require('../services/notionService');
+              await template.populate('creator', 'name username email displayName');
+              await addTemplateToNotion(template);
+            } catch (notionError) {
+              console.error(`Notion sync failed for template ${id}:`, notionError.message);
+            }
+          }
+        } else {
+          if (template.updatePending && template.previousData) {
+            Object.assign(template, template.previousData);
+            template.status = 'approved';
+            template.previousData = null;
+            template.updatePending = false;
+            await template.save();
+          } else {
+            await template.reject(req.user._id, adminNotes);
+          }
+        }
+        successfulCount++;
+      } catch (err) {
+        console.error(`Error processing bulk action for template ${id}:`, err.message);
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `تم تنفيذ ${action === 'approve' ? 'الموافقة' : 'الرفض'} على ${successfulCount} قالب بنجاح`,
+      successfulCount
+    });
+  } catch (error) {
+    console.error('Bulk template action error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
 // @route   GET /api/admin/template-stats
 // @desc    Get template statistics
 // @access  Private (Admin only)
 router.get('/template-stats', auth, async (req, res) => {
   try {
     // Check if user is admin
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -884,7 +1029,7 @@ router.get('/template-stats', auth, async (req, res) => {
 router.get('/blogs', auth, async (req, res) => {
   try {
     // Check if user is admin
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -941,7 +1086,7 @@ router.put('/blogs/:id/status', auth, [
 ], async (req, res) => {
   try {
     // Check if user is admin
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -971,13 +1116,12 @@ router.put('/blogs/:id/status', auth, [
     // Update blog status
     blog.status = status;
     if (status === 'published') {
-      blog.publishedAt = Date.now();
+      blog.publishedAt = new Date().toISOString();
     }
     if (adminNotes) {
       blog.adminNotes = adminNotes;
     }
 
-    await blog.save();
     await blog.save();
 
     // We already populated author in a previous query or we need to ensure it's populated now
@@ -1008,6 +1152,13 @@ router.put('/blogs/:id/status', auth, [
       }
     }
 
+    // Invalidate caches
+    await invalidateCache('stats');
+    await invalidateCache('blog', id);
+    if (status === 'published') {
+      await invalidateCache('blogs');
+    }
+
     res.json({
       success: true,
       message: `تم ${status === 'published' ? 'نشر' : 'رفض'} المقال بنجاح`,
@@ -1028,7 +1179,7 @@ router.put('/blogs/:id/status', auth, [
 router.get('/blog-stats', auth, async (req, res) => {
   try {
     // Check if user is admin
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -1076,7 +1227,7 @@ router.get('/blog-stats', auth, async (req, res) => {
 router.get('/export/users', auth, async (req, res) => {
   try {
     // Check if user is admin
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'غير مصرح لك بتصدير بيانات المستخدمين'
@@ -1133,7 +1284,7 @@ module.exports = router;
 // @access  Private (Admin)
 router.get('/notifications', auth, async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -1179,7 +1330,7 @@ router.get('/notifications', auth, async (req, res) => {
 // @access  Private (Admin)
 router.put('/notifications/:id/read', auth, async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -1211,7 +1362,7 @@ router.put('/notifications/:id/read', auth, async (req, res) => {
 // @access  Private (Admin)
 router.put('/notifications/read-all', auth, async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -1238,7 +1389,7 @@ router.put('/notifications/read-all', auth, async (req, res) => {
 // @access  Private (Admin)
 router.get('/settings', auth, async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -1307,7 +1458,7 @@ router.put('/settings', auth, [
     .withMessage('العنوان يجب أن يكون بين 1 و 200 حرف')
 ], async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -1345,7 +1496,7 @@ router.put('/settings', auth, [
 // @access  Private (Admin)
 router.post('/toggle-maintenance', auth, async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -1381,7 +1532,7 @@ router.post('/toggle-maintenance', auth, async (req, res) => {
 // @access  Private (Admin)
 router.post('/fix-duplicate-usernames', auth, async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -1450,7 +1601,7 @@ router.post('/fix-duplicate-usernames', auth, async (req, res) => {
 router.post('/send-bulk-emails', auth, async (req, res) => {
   try {
     // Check if user is admin
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'غير مصرح لك بالوصول لهذه الميزة'
@@ -1612,7 +1763,7 @@ router.post('/send-bulk-emails', auth, async (req, res) => {
 // @access  Private (Admin only)
 router.put('/templates/:id/pin', auth, async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -1679,7 +1830,7 @@ router.put('/templates/:id/pin', auth, async (req, res) => {
 // @access  Private (Admin only)
 router.put('/users/:id/pin', auth, async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -1757,7 +1908,7 @@ router.post('/users/:id/badges', auth, [
     .withMessage('الأيقونة لا يجب أن تتجاوز 10 أحرف')
 ], async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -1843,7 +1994,7 @@ router.post('/users/:id/badges', auth, [
 // @access  Private (Admin only)
 router.delete('/users/:id/badges/:badgeId', auth, async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -1884,7 +2035,7 @@ router.delete('/users/:id/badges/:badgeId', auth, async (req, res) => {
 // @access  Private (Admin only)
 router.get('/badge-presets', auth, async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -1918,7 +2069,7 @@ router.get('/badge-presets', auth, async (req, res) => {
 // @access  Private (Admin only)
 router.get('/notion-schema', auth, async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'
@@ -1972,7 +2123,7 @@ router.get('/notion-schema', auth, async (req, res) => {
 // @access  Private (Admin only)
 router.post('/test-notion', auth, async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Access denied. Admin role required.'

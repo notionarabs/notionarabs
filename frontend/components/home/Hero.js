@@ -63,32 +63,32 @@ export default function Hero({ animationsPlayed }) {
                         {/* Main Heading */}
                         <h1 className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold text-accent-900 dark:text-white mb-4 sm:mb-6 ${!animationsPlayed ? 'text-reveal-delayed' : ''} leading-tight tracking-tighter`}>
                             <div className="block">
-                                <div className="block">خدمات نوشن</div>
-                                <div className="block mt-2 md:mt-3 lg:mt-4"><span>وأنظمة مخصصة لأعمالك</span></div>
+                                <div className="block">مجتمع نوشن العربي</div>
+                                <div className="block mt-2 md:mt-3 lg:mt-4"><span>المجتمع الأول للمبدعين والخبراء</span></div>
                             </div>
                         </h1>
 
                         {/* Enhanced Description with Better Typography */}
                         <p className={`text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary mb-6 sm:mb-8 max-w-xs sm:max-w-2xl md:max-w-3xl mx-auto ${!animationsPlayed ? 'text-reveal-delayed-2' : ''} leading-relaxed px-2 sm:px-0 font-medium`}>
-                            نبني لك أنظمة نوشن ذكية لإدارة العمل والمشاريع والمعرفة — من التخطيط إلى التنفيذ والأتمتة، بتصميم عربي واضح وتجربة سهلة.
+                            اكتشف أقوى القوالب، تعلم من الخبراء، وشارك أعمالك مع آلاف المستخدمين العرب في مكان واحد. نحن هنا لتمكينك من استغلال نوشن بأفضل شكل.
                         </p>
 
                         {/* Enhanced CTA Buttons with Better Animations */}
                         <div className={`flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-8 sm:mb-10 ${!animationsPlayed ? 'text-reveal-delayed-3' : ''}`}>
                             <Link
-                                href="/consultation"
+                                href="/store"
                                 className="inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-primary-500 dark:bg-orange-500 text-white rounded-xl hover:bg-primary-600 dark:hover:bg-orange-600 transition-all duration-300 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
                             >
-                                اطلب خدمتك الآن
+                                تصفح المتجر
                                 <svg className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                 </svg>
                             </Link>
                             <Link
-                                href="/projects"
+                                href="/creators"
                                 className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-white/95 dark:bg-dark-tertiary/95 backdrop-blur-sm text-accent-700 dark:text-dark-text-primary rounded-xl border-2 border-primary-300 dark:border-orange-400/50 hover:bg-primary-50 dark:hover:bg-orange-900/20 transition-all duration-300 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
                             >
-                                تصفح أعمالنا
+                                منصة المبدعين
                             </Link>
                         </div>
                     </div>

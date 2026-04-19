@@ -2,16 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Footer from '../components/Footer';
-import CompaniesTicker from '../components/CompaniesTicker';
 
 // Homepage Sub-components
 import Hero from '../components/home/Hero';
 import ProblemsWeSolve from '../components/home/ProblemsWeSolve';
 import ServicesOverview from '../components/home/ServicesOverview';
 import WhatMakesUsDifferent from '../components/home/WhatMakesUsDifferent';
-import FeaturedProjects from '../components/home/FeaturedProjects';
 import HowWeDoIt from '../components/home/HowWeDoIt';
-import Testimonials from '../components/home/Testimonials';
 import FAQ from '../components/home/FAQ';
 import FinalCTA from '../components/home/FinalCTA';
 
@@ -166,18 +163,13 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
       <Hero animationsPlayed={animationsPlayed} />
-      <CompaniesTicker />
-      <ProblemsWeSolve />
       <ServicesOverview />
-      <FeaturedProjects />
-      <WhatMakesUsDifferent />
       <HowWeDoIt
         timelineRef={timelineRef}
         stepRefs={stepRefs}
         inViewSteps={inViewSteps}
         lineHeight={lineHeight}
       />
-      {/* <Testimonials /> */}
       <FAQ />
       <FinalCTA />
       <Footer />

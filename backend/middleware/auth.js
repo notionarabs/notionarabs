@@ -15,31 +15,46 @@ const auth = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+    console.log('[AUTH DEBUG] Decoded token:', JSON.stringify(decoded));
 
-    if (!decoded.userId) {
+    const userId = decoded.userId || decoded.id;
+    if (!userId) {
+        console.log('[AUTH DEBUG] No userId/id in token');
       return res.status(401).json({
         success: false,
         message: 'رمز المصادقة غير صحيح'
       });
     }
 
-    const user = await User.findById(decoded.userId).select('-password');
+    const user = await User.findById(userId).select('-password');
+    
+    // Fallback: If not found by ID, try finding by email if available in token
+    let authenticatedUser = user;
+    if (!authenticatedUser && decoded.email) {
+        console.log('[AUTH DEBUG] User not found by ID, trying fallback for email:', decoded.email);
+        authenticatedUser = await User.findOne({ email: decoded.email }).select('-password');
+    }
 
-    if (!user) {
+    console.log('[AUTH DEBUG] User found:', authenticatedUser ? authenticatedUser.email : 'STILL NOT FOUND');
+    if (authenticatedUser) {
+        console.log('[AUTH DEBUG] User role:', authenticatedUser.role);
+    }
+    
+    if (!authenticatedUser) {
       return res.status(401).json({
         success: false,
         message: 'رمز المصادقة غير صحيح'
       });
     }
 
-    if (!user.isActive) {
+    if (!authenticatedUser.isActive) {
       return res.status(401).json({
         success: false,
         message: 'تم تعطيل الحساب'
       });
     }
 
-    req.user = user;
+    req.user = authenticatedUser;
     next();
   } catch (error) {
     console.error('Auth middleware error:', error);

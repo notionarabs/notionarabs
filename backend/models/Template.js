@@ -1,344 +1,506 @@
-const mongoose = require('mongoose');
+const supabase = require('../utils/supabase');
+const crypto = require('crypto');
 
-const templateSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: [true, 'عنوان القالب مطلوب'],
-    trim: true,
-    maxlength: [100, 'عنوان القالب لا يجب أن يتجاوز 100 حرف']
-  },
-  slug: {
-    type: String,
-    unique: true,
-    sparse: true, // Allows multiple null values
-    trim: true,
-    lowercase: true,
-    required: false // Make optional for existing templates
-  },
-  description: {
-    type: String,
-    required: [true, 'وصف القالب مطلوب'],
-    trim: true,
-    maxlength: [1000, 'وصف القالب لا يجب أن يتجاوز 1000 حرف']
-  },
-
-  categories: [{
-    type: String,
-    trim: true,
-    enum: [
-      'الإنتاجية', 'الدراسة', 'الأعمال', 'الحياة الشخصية', 'الإبداع', 'التقنية', 'الصحة', 'المالية', 'التنظيم', 'التخطيط', 'ديني',
-      'التسويق', 'التصميم', 'التطوير', 'التعليم', 'السفر', 'الطعام', 'الرياضة', 'الترفيه', 'الموضة', 'الجمال', 'المنزل',
-      'الحديقة', 'الحيوانات الأليفة', 'السيارات', 'التكنولوجيا', 'البرمجة', 'قواعد البيانات', 'الأمان السيبراني', 'الذكاء الاصطناعي',
-      'البلوك تشين', 'التجارة الإلكترونية', 'المبيعات', 'خدمة العملاء', 'الموارد البشرية', 'المحاسبة', 'الاستثمار', 'العقارات',
-      'التأمين', 'القانون', 'الطب', 'التمريض', 'العلاج الطبيعي', 'التغذية', 'الطبخ', 'الحلويات', 'المشروبات', 'المطاعم',
-      'الفنون', 'الموسيقى', 'الرسم', 'النحت', 'التصوير', 'الفيديو', 'الكتابة', 'الترجمة', 'اللغات', 'التاريخ', 'الجغرافيا',
-      'العلوم', 'الرياضيات', 'الفيزياء', 'الكيمياء', 'الأحياء', 'علم النفس', 'علم الاجتماع', 'الفلسفة', 'الأدب', 'الشعر',
-      'المسرح', 'السينما', 'الألعاب', 'الرياضة الإلكترونية', 'السياحة', 'الفندقة', 'النقل', 'الطيران', 'البحرية', 'الزراعة',
-      'البيئة', 'الطاقة', 'البناء', 'الهندسة', 'العمارة', 'الديكور', 'الأثاث', 'الأدوات', 'الأجهزة', 'البرامج', 'التطبيقات',
-      'المواقع', 'التطوير الويب', 'تطوير التطبيقات', 'التعليم الإلكتروني', 'الاجتماعات', 'التواصل', 'الشبكات الاجتماعية', 'المحتوى',
-      'الإعلان', 'العلاقات العامة', 'العلامة التجارية', 'الاستراتيجية', 'القيادة', 'الإدارة', 'المشاريع', 'العمليات', 'الجودة',
-      'الابتكار', 'البحث والتطوير', 'التحليل', 'الإحصاء', 'البيانات', 'التقارير', 'العروض التقديمية', 'التدريب', 'التطوير المهني',
-      'الاستشارات', 'الخدمات', 'المنتجات', 'التصنيع', 'التوزيع', 'المخازن', 'اللوجستيات'
-    ],
-    maxlength: [50, 'كل فئة لا يجب أن تتجاوز 50 حرف']
-  }],
-  language: {
-    type: String,
-    enum: ['ar', 'en', 'fr', 'ar-en', 'ar-fr'],
-    default: 'ar'
-  },
-  notionLink: {
-    type: String,
-    required: [true, 'رابط نوشن مطلوب'],
-    trim: true,
-    validate: {
-      validator: function (v) {
-        return /^https?:\/\/.+/.test(v);
-      },
-      message: 'رابط نوشن غير صحيح'
+class Template {
+  constructor(data) {
+    if (!data) return;
+    Object.assign(this, data);
+    this._id = data.id || data._id;
+    // Map database creatorId to application creator
+    if (data.creatorId && !this.creator) {
+        this.creator = data.creatorId;
     }
-  },
-  isPaid: {
-    type: Boolean,
-    default: false
-  },
-  price: {
-    type: Number,
-    min: [0, 'السعر يجب أن يكون أكبر من أو يساوي 0'],
-    default: 0
-  },
-  purchaseLink: {
-    type: String,
-    trim: true,
-    validate: {
-      validator: function (v) {
-        if (!v) return true; // Optional field
-        return /^https?:\/\/.+/.test(v);
-      },
-      message: 'رابط الشراء غير صحيح'
-    }
-  },
-  features: {
-    type: String,
-    trim: true,
-    maxlength: [2000, 'المميزات لا يجب أن تتجاوز 2000 حرف']
-  },
-  tags: [{
-    type: String,
-    trim: true,
-    maxlength: [50, 'الكلمة المفتاحية لا يجب أن تتجاوز 50 حرف']
-  }],
-  previewImage: {
-    type: String,
-    trim: true,
-    validate: {
-      validator: function (v) {
-        if (!v) return true; // Optional field
-        return /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(v);
-      },
-      message: 'رابط الصورة غير صحيح'
-    }
-  },
-  previewImages: [{
-    type: String,
-    trim: true,
-    validate: {
-      validator: function (v) {
-        return /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(v);
-      },
-      message: 'رابط الصورة غير صحيح'
-    }
-  }],
-  explanationVideo: {
-    type: String,
-    trim: true,
-    validate: {
-      validator: function (v) {
-        if (!v) return true; // Optional field
-        return /^https?:\/\/.+/.test(v);
-      },
-      message: 'رابط الفيديو غير صحيح'
-    }
-  },
-  status: {
-    type: String,
-    enum: ['pending', 'approved', 'rejected'],
-    default: 'pending'
-  },
-  creator: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  adminNotes: {
-    type: String,
-    trim: true,
-    maxlength: [500, 'ملاحظات الإدارة لا يجب أن تتجاوز 500 حرف']
-  },
-  approvedAt: {
-    type: Date,
-    default: null
-  },
-  rejectedAt: {
-    type: Date,
-    default: null
-  },
-  previousData: {
-    type: Object,
-    default: null
-  },
-  updatePending: {
-    type: Boolean,
-    default: false
-  },
-  approvedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    default: null
-  },
-  rejectedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    default: null
-  },
-  // Template performance metrics
-  views: {
-    type: Number,
-    default: 0
-  },
-  downloads: {
-    type: Number,
-    default: 0
-  },
-
-  rating: {
-    type: Number,
-    default: 0,
-    min: 0,
-    max: 5
-  },
-  reviewsCount: {
-    type: Number,
-    default: 0
-  },
-  // Admin pin feature for home page
-  isPinned: {
-    type: Boolean,
-    default: false
-  },
-  pinnedAt: {
-    type: Date,
-    default: null
-  },
-  pinnedBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    default: null
-  }
-}, {
-  timestamps: true
-});
-
-// Pre-save hook to generate slug if not provided
-templateSchema.pre('save', async function (next) {
-  if (!this.slug && this.title) {
-    try {
-      const { generateTemplateSlug } = require('../utils/slugGenerator');
-
-      const slugExists = async (slug, excludeId = null) => {
-        const query = { slug };
-        if (excludeId) {
-          query._id = { $ne: excludeId };
-        }
-        const existingTemplate = await Template.findOne(query);
-        return !!existingTemplate;
-      };
-
-      this.slug = await generateTemplateSlug(this.title, slugExists, this._id);
-    } catch (error) {
-      console.error('Error generating slug:', error);
-      // Fallback to ID-based slug if generation fails
-      this.slug = `template-${this._id}`;
-    }
+    // Normalize status for application usage
+    if (this.status) this.status = this.status.toLowerCase();
   }
 
-  // Validate pricing fields
-  if (this.isPaid) {
-    if (!this.price || this.price <= 0) {
-      return next(new Error('السعر مطلوب للقوالب المدفوعة ويجب أن يكون أكبر من 0'));
+  async save() {
+    const now = new Date().toISOString();
+    
+    // Process features: convert string with newlines to array if necessary
+    let featuresArray = this.features;
+    if (typeof featuresArray === 'string') {
+        featuresArray = featuresArray.split('\n').map(f => f.trim()).filter(f => f !== '');
+    } else if (!Array.isArray(featuresArray)) {
+        featuresArray = [];
     }
-    if (!this.purchaseLink || this.purchaseLink.trim() === '') {
-      return next(new Error('رابط الشراء مطلوب للقوالب المدفوعة'));
+
+    const payload = {
+      id: this.id || this._id || crypto.randomBytes(12).toString('hex'), // Explicitly generate ID to avoid DB null violations
+      title: this.title,
+      slug: this.slug,
+      description: this.description,
+      features: featuresArray, 
+      categories: this.categories || [],
+      tags: this.tags || [],
+      creatorId: typeof this.creator === 'object' ? this.creator._id : this.creator, 
+      previewImage: this.previewImage,
+      previewImages: this.previewImages || [],
+      explanationVideo: this.explanationVideo,
+      notionLink: this.notionLink,
+      purchaseLink: this.purchaseLink,
+      isPaid: this.isPaid || false,
+      price: this.price || 0,
+      status: (this.status || 'PENDING').toUpperCase(),
+      rating: this.rating || 0,
+      reviewsCount: this.reviewsCount || 0,
+      downloads: this.downloads || 0,
+      views: this.views || 0,
+      isPinned: this.isPinned || false,
+      pinnedAt: this.pinnedAt,
+      pinnedBy: this.pinnedBy,
+      createdAt: this.createdAt || now,
+      updatedAt: now,
+    };
+
+    const { data, error } = await supabase.from('Template').upsert(payload).select();
+    if (error) {
+        console.error('Template save error detailed:', error);
+        throw error;
     }
+    
+    let result = data && data[0];
+    if (!result) {
+        result = payload;
+    }
+    
+    Object.assign(this, result);
+    this._id = result.id;
+    this.creator = result.creatorId; 
+    return this;
   }
 
-  next();
-});
-
-// Enhanced indexes for better query performance
-// Note: slug index is automatically created by unique: true property
-templateSchema.index({ slug: 1, status: 1 }); // Optimize slug lookups with status
-templateSchema.index({ status: 1, createdAt: -1 });
-templateSchema.index({ creator: 1, status: 1 });
-templateSchema.index({ creator: 1, title: 1 }); // For duplicate title checking
-templateSchema.index({ creator: 1, notionLink: 1 });
-templateSchema.index({ category: 1, status: 1, createdAt: -1 }); // Compound index for category pages
-templateSchema.index({ categories: 1, status: 1, createdAt: -1 }); // For multi-category queries
-templateSchema.index({ tags: 1, status: 1 }); // For tag-based searches
-
-templateSchema.index({ views: -1 }); // For popular templates
-templateSchema.index({ downloads: -1 }); // For most downloaded
-templateSchema.index({ rating: -1, reviewsCount: -1 }); // For best rated
-
-templateSchema.index({ status: 1, isPaid: 1, category: 1 }); // Multi-field filtering
-// Optimized compound indexes for common query patterns
-templateSchema.index({ status: 1, rating: -1, reviewsCount: -1 }); // For fetching top-rated approved templates
-templateSchema.index({ status: 1, downloads: -1 }); // For fetching popular approved templates
-templateSchema.index({ status: 1, views: -1 }); // For fetching most viewed approved templates
-templateSchema.index({ creator: 1, status: 1, downloads: -1 }); // For creator analytics
-// Text index for search functionality with explicit language override field
-// This prevents MongoDB from using the 'language' field as a text search language override
-templateSchema.index(
-  { title: 'text', description: 'text', tags: 'text' },
-  {
-    default_language: 'none',
-    language_override: 'textSearchLanguage' // Use a different field name for language override
+  async approve(adminId, adminNotes = '') {
+    this.status = 'approved';
+    this.approvedBy = adminId;
+    this.approvedAt = new Date().toISOString();
+    this.adminNotes = adminNotes;
+    return this.save();
   }
-);
 
+  async reject(adminId, adminNotes = '') {
+    this.status = 'rejected';
+    this.rejectedBy = adminId;
+    this.rejectedAt = new Date().toISOString();
+    this.adminNotes = adminNotes;
+    return this.save();
+  }
 
-// Virtual for status label in Arabic
-templateSchema.virtual('statusLabel').get(function () {
-  const labels = {
-    'pending': 'قيد المراجعة',
-    'approved': 'موافق عليه',
-    'rejected': 'مرفوض'
-  };
-  return labels[this.status] || 'غير محدد';
-});
-
-// Method to approve template
-templateSchema.methods.approve = function (adminId, notes = '') {
-  this.status = 'approved';
-  this.approvedAt = new Date();
-  this.approvedBy = adminId;
-  this.adminNotes = notes;
-  return this.save();
-};
-
-// Method to reject template
-templateSchema.methods.reject = function (adminId, notes = '') {
-  this.status = 'rejected';
-  this.rejectedAt = new Date();
-  this.rejectedBy = adminId;
-  this.adminNotes = notes;
-  return this.save();
-};
-
-// Method to increment views
-templateSchema.methods.incrementViews = async function () {
-  // Use atomic update to avoid triggering validation
-  await mongoose.model('Template').updateOne(
-    { _id: this._id },
-    { $inc: { views: 1 } }
-  );
-  this.views += 1;
-  return this;
-};
-
-// Method to increment downloads
-templateSchema.methods.incrementDownloads = async function () {
-  // Use atomic update to avoid triggering validation
-  await mongoose.model('Template').updateOne(
-    { _id: this._id },
-    { $inc: { downloads: 1 } }
-  );
-  this.downloads += 1;
-  return this;
-};
-
-
-
-// Method to update rating
-templateSchema.methods.updateRating = async function (newRating) {
-  const totalRating = (this.rating * this.reviewsCount) + newRating;
-  const newReviewsCount = this.reviewsCount + 1;
-  const newRatingValue = totalRating / newReviewsCount;
-
-  // Use atomic update to avoid triggering validation
-  await mongoose.model('Template').updateOne(
-    { _id: this._id },
-    {
-      $set: {
-        rating: newRatingValue,
-        reviewsCount: newReviewsCount
+  async populate(path, fields) {
+      if (path === 'creator') {
+          const User = require('./User');
+          const creatorData = await User.findById(this.creator);
+          if (creatorData) {
+              this.creator = creatorData;
+          }
       }
+      return this;
+  }
+
+  static _applyQuery(chain, query) {
+    if (query.$or && Array.isArray(query.$or)) {
+      const orStrings = query.$or.map(q => {
+          const key = Object.keys(q)[0];
+          let dbKey = key === '_id' ? 'id' : key;
+          if (dbKey === 'creator') dbKey = 'creatorId';
+          
+          let val = q[key];
+          const isArrayCol = ['categories', 'tags', 'features'].includes(dbKey);
+
+          if (val && typeof val === 'object') {
+              if (val.$regex) {
+                  let pattern = val.$regex;
+                  if (pattern.startsWith('^')) {
+                      pattern = pattern.substring(1) + '%';
+                  } else {
+                      pattern = '%' + pattern + '%';
+                  }
+                  return `${dbKey}.ilike.${pattern}`;
+              }
+              if (val.$in && Array.isArray(val.$in)) {
+                  if (isArrayCol) {
+                      return `${dbKey}.cs.{${val.$in.join(',')}}`;
+                  }
+                  const arrayVal = `(${val.$in.map(v => typeof v === 'string' ? `"${v}"` : v).join(',')})`;
+                  return `${dbKey}.in.${arrayVal}`;
+              }
+          }
+
+          if (isArrayCol) return `${dbKey}.cs.{${val}}`;
+          const finalVal = typeof val === 'string' ? `"${val}"` : val;
+          return `${dbKey}.eq.${finalVal}`;
+      });
+      chain = chain.or(orStrings.join(','));
     }
-  );
 
-  this.rating = newRatingValue;
-  this.reviewsCount = newReviewsCount;
-  return this;
-};
+    // Apply other filters
+    Object.keys(query).forEach(key => {
+        if (key.startsWith('$')) return;
+        let dbKey = key === '_id' ? 'id' : key;
+        if (dbKey === 'creator') dbKey = 'creatorId';
+        
+        let val = query[key];
+        const isArrayCol = ['categories', 'tags', 'features'].includes(dbKey);
 
-module.exports = mongoose.model('Template', templateSchema);
+        if (dbKey === 'status' && typeof val === 'string') {
+            val = val.toUpperCase();
+        }
+        
+        if (val && typeof val === 'object') {
+            if (val.$ne) chain = chain.neq(dbKey, val.$ne);
+            else if (val.$in) {
+                if (isArrayCol) chain = chain.contains(dbKey, val.$in);
+                else chain = chain.in(dbKey, val.$in);
+            }
+            else if (val.$regex) {
+                let pattern = val.$regex;
+                if (pattern.startsWith('^')) {
+                    pattern = pattern.substring(1) + '%';
+                } else {
+                    pattern = '%' + pattern + '%';
+                }
+                chain = chain.ilike(dbKey, pattern);
+            }
+        } else {
+            if (isArrayCol) {
+                chain = chain.contains(dbKey, [val]);
+            } else {
+                chain = chain.eq(dbKey, val);
+            }
+        }
+    });
+
+    return chain;
+  }
+
+  static find(query = {}) {
+    let chain = supabase.from('Template').select('*');
+    chain = this._applyQuery(chain, query);
+
+    let populatePath = null;
+    const execute = async () => {
+        const { data, error } = await chain;
+        if (error) throw error;
+        let results = (data || []).map(item => new Template(item));
+        
+        if (populatePath === 'creator' && results.length > 0) {
+            const User = require('./User');
+            const creatorIds = [...new Set(results.map(r => r.creatorId || r.creator).filter(id => id && typeof id === 'string'))];
+            
+            if (creatorIds.length > 0) {
+                const creators = await User.find({ id: { $in: creatorIds } });
+                const creatorMap = creators.reduce((map, c) => {
+                    map[c.id] = c;
+                    return map;
+                }, {});
+                results.forEach(r => {
+                    const cid = r.creatorId || r.creator;
+                    if (cid && creatorMap[cid]) {
+                        r.creator = creatorMap[cid];
+                    }
+                });
+            }
+        }
+        return results;
+    };
+
+    const promise = execute();
+    const wrap = (p) => {
+        p.sort = (s) => {
+             if (s && typeof s === 'object') {
+                 const key = Object.keys(s)[0];
+                 const ascending = s[key] === 1;
+                 chain = chain.order(key === '_id' ? 'id' : key, { ascending });
+             }
+             return wrap(execute());
+        };
+        p.skip = (n) => { 
+            const limit = 50;
+            chain = chain.range(n, (n + limit - 1)); 
+            return wrap(execute()); 
+        };
+        p.limit = (n) => { 
+            chain = chain.limit(n); 
+            return wrap(execute()); 
+        };
+        p.select = (f) => wrap(p);
+        p.populate = (path) => { populatePath = path; return wrap(p); };
+        p.lean = () => wrap(p);
+        return p;
+    };
+    return wrap(promise);
+  }
+
+  static findOne(query = {}) {
+    let chain = supabase.from('Template').select('*');
+    chain = this._applyQuery(chain, query);
+    
+    let populatePath = null;
+    const execute = async () => {
+        const { data, error } = await chain.maybeSingle();
+        if (error && error.code !== 'PGRST116') throw error;
+        if (!data) return null;
+        const doc = new Template(data);
+        if (populatePath === 'creator' && doc.creator) {
+            const User = require('./User');
+            const creator = await User.findById(doc.creator);
+            if (creator) doc.creator = creator;
+        }
+        return doc;
+    };
+
+    const promise = execute();
+    const wrap = (p) => {
+        p.select = (f) => wrap(p);
+        p.populate = (path) => { populatePath = path; return wrap(p); };
+        p.lean = () => wrap(p);
+        return p;
+    };
+    return wrap(promise);
+  }
+
+  static findById(id) {
+      return this.findOne({ _id: id });
+  }
+
+  static async exists(query) {
+    let q = supabase.from('Template').select('id', { count: 'exact', head: true });
+    q = this._applyQuery(q, query);
+    const { count, error } = await q;
+    if (error) {
+        console.error('Template.exists error:', error);
+        return false;
+    }
+    return (count || 0) > 0;
+  }
+
+  static findByIdAndUpdate(id, update, options = {}) {
+    const execute = async () => {
+        let dbUpdate = { ...update };
+        
+        // Handle $inc for views/downloads
+        if (dbUpdate.$inc) {
+            const { data: current } = await supabase.from('Template').select('views, downloads').eq('id', id).maybeSingle();
+            if (current) {
+                Object.keys(dbUpdate.$inc).forEach(key => {
+                    dbUpdate[key] = (current[key] || 0) + dbUpdate.$inc[key];
+                });
+            }
+            delete dbUpdate.$inc;
+        }
+
+        if (dbUpdate.creator) {
+            dbUpdate.creatorId = dbUpdate.creator;
+            delete dbUpdate.creator;
+        }
+
+        const { data, error } = await supabase.from('Template').update(dbUpdate).eq('id', id).select().maybeSingle();
+        if (error) throw error;
+        return data ? new Template(data) : null;
+    };
+    
+    const promise = execute();
+    promise.exec = () => promise;
+    promise.select = () => promise;
+    return promise;
+  }
+
+  static async distinct(field, query = {}) {
+    let dbField = field === 'creator' ? 'creatorId' : field;
+    let q = supabase.from('Template').select(dbField);
+    q = this._applyQuery(q, query);
+    
+    const { data, error } = await q;
+    if (error) throw error;
+    
+    // Return unique values
+    return [...new Set((data || []).map(item => item[dbField]).filter(val => val))];
+  }
+
+  static async countDocuments(query = {}) {
+    let q = supabase.from('Template').select('*', { count: 'exact', head: true });
+    q = this._applyQuery(q, query);
+    const { count, error } = await q;
+    if (error) throw error;
+    return count || 0;
+  }
+
+  static async populate(docs, paths) {
+      if (!docs || docs.length === 0) return docs;
+      const isArray = Array.isArray(docs);
+      const items = isArray ? docs : [docs];
+      
+      for (const pathObj of paths) {
+          const path = typeof pathObj === 'string' ? pathObj : pathObj.path;
+          if (path === 'creator') {
+            const User = require('./User');
+            const creatorIds = [...new Set(items.map(r => r.creatorId || r.creator).filter(id => id && typeof id === 'string'))];
+            if (creatorIds.length > 0) {
+              const creators = await User.find({ id: { $in: creatorIds } });
+              const creatorMap = creators.reduce((map, c) => {
+                map[c.id] = c;
+                return map;
+              }, {});
+              items.forEach(r => {
+                const cid = r.creatorId || r.creator;
+                if (cid && creatorMap[cid]) r.creator = creatorMap[cid];
+              });
+            }
+          }
+      }
+      return docs;
+  }
+
+  static async aggregate(pipeline) {
+      const matchStage = pipeline.find(p => p.$match);
+      const groupStage = pipeline.find(p => p.$group);
+      const unwindStage = pipeline.find(p => p.$unwind);
+      const projectStage = pipeline.find(p => p.$project);
+
+      // Special Case 1: Total Downloads Sum ($group: { _id: null, totalDownloads: { $sum: '$downloads' } })
+      if (groupStage && groupStage.$group?.totalDownloads?.$sum === '$downloads') {
+          const { data, error } = await supabase.from('Template').select('downloads').eq('status', 'APPROVED');
+          if (error) throw error;
+          const totalDownloads = (data || []).reduce((sum, item) => sum + (item.downloads || 0), 0);
+          return [{ _id: null, totalDownloads }];
+      }
+
+      // Special Case 2: Category Counts ($unwind: '$allCategories', $group: { _id: '$allCategories', count: { $sum: 1 } })
+      if (unwindStage && unwindStage.$unwind === '$allCategories' && groupStage && groupStage.$group?._id === '$allCategories') {
+          const { data, error } = await supabase.from('Template').select('categories').eq('status', 'APPROVED');
+          if (error) throw error;
+          
+          const counts = {};
+          (data || []).forEach(item => {
+              const all = new Set([...(item.categories || [])].filter(c => c));
+              all.forEach(cat => {
+                  counts[cat] = (counts[cat] || 0) + 1;
+              });
+          });
+          
+          return Object.keys(counts).map(cat => ({
+              category: cat,
+              count: counts[cat],
+              _id: cat
+          }));
+      }
+
+      // Special Case 3: Creator-wise Template Stats ($group: { _id: '$creator', ... })
+      if (groupStage && groupStage.$group?._id === '$creator' && groupStage.$group?.totalTemplates) {
+          const { data, error } = await supabase.from('Template').select('creatorId, downloads, rating').eq('status', 'APPROVED');
+          if (error) throw error;
+          
+          const creatorStats = {};
+          (data || []).forEach(item => {
+              const cid = item.creatorId;
+              if (!cid) return;
+              if (!creatorStats[cid]) {
+                  creatorStats[cid] = { _id: cid, totalTemplates: 0, totalDownloads: 0, templateRatings: [] };
+              }
+              creatorStats[cid].totalTemplates += 1;
+              creatorStats[cid].totalDownloads += (item.downloads || 0);
+              creatorStats[cid].templateRatings.push(item.rating || 0);
+          });
+          
+          return Object.values(creatorStats);
+      }
+
+      // Special Case 4: Individual Creator Ratings ($push: { $ifNull: ['$rating', 0] })
+      if (groupStage && groupStage.$group?._id === null && groupStage.$group?.ratings?.$push) {
+          const cid = matchStage?.$match?.creator;
+          if (cid) {
+              const { data, error } = await supabase.from('Template').select('rating').eq('creatorId', cid).eq('status', 'APPROVED');
+              if (error) throw error;
+              return [{ _id: null, ratings: (data || []).map(item => item.rating || 0) }];
+          }
+      }
+
+      if (groupStage) {
+          // Handle specific sum stages from admin stats
+          if (groupStage.$group.total?.$sum) {
+              const field = groupStage.$group.total.$sum.replace('$', '');
+              const { data, error } = await supabase.from('Template').select(field);
+              if (error) throw error;
+              const total = (data || []).reduce((sum, item) => sum + (item[field] || 0), 0);
+              return [{ _id: null, total }];
+          }
+
+          const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+          
+          // Optimization: Fetch only 'status' and 'createdAt' for all templates
+          // For marketplaces, template count is usually small enough (~few thousands) 
+          // that fetching the status column is 10x faster than 5 separate count network requests.
+          const { data, error } = await supabase.from('Template').select('status, createdAt');
+          if (error) throw error;
+
+          const stats = {
+              totalTemplates: data.length,
+              pendingTemplates: 0,
+              approvedTemplates: 0,
+              rejectedTemplates: 0,
+              recentTemplates: 0,
+              total: data.length,
+              pending: 0,
+              approved: 0,
+              rejected: 0
+          };
+
+          data.forEach(item => {
+              const status = (item.status || '').toUpperCase();
+              if (status === 'PENDING') { stats.pendingTemplates++; stats.pending++; }
+              else if (status === 'APPROVED') { stats.approvedTemplates++; stats.approved++; }
+              else if (status === 'REJECTED') { stats.rejectedTemplates++; stats.rejected++; }
+              
+              if (item.createdAt >= sevenDaysAgo) {
+                  stats.recentTemplates++;
+              }
+          });
+
+          return [stats];
+      }
+
+      // Fallback for admin templates query
+      const skipStage = pipeline.find(p => p.$skip);
+      const limitStage = pipeline.find(p => p.$limit);
+
+      let q = supabase.from('Template').select('*');
+      if (matchStage) q = this._applyQuery(q, matchStage.$match);
+      
+      q = q.order('status', { ascending: false }); 
+      
+      if (skipStage) q = q.range(skipStage.$skip, skipStage.$skip + (limitStage?.$limit || 50) - 1);
+      else if (limitStage) q = q.limit(limitStage.$limit);
+      
+      const { data, error } = await q;
+      if (error) throw error;
+      
+      let items = (data || []).map(item => new Template(item));
+      
+      items.sort((a, b) => {
+          const priority = { 'PENDING': 0, 'APPROVED': 1, 'REJECTED': 2 };
+          const pA = priority[a.status] !== undefined ? priority[a.status] : 3;
+          const pB = priority[b.status] !== undefined ? priority[b.status] : 3;
+          if (pA !== pB) return pA - pB;
+          return new Date(b.createdAt) - new Date(a.createdAt);
+      });
+
+      return items;
+  }
+
+  static async deleteMany(query = {}) {
+    let q = supabase.from('Template').delete();
+    q = this._applyQuery(q, query);
+    const { error } = await q;
+    if (error) throw error;
+    return true;
+  }
+
+  static async findByIdAndDelete(id) {
+    if (!id) return null;
+    const { data, error } = await supabase.from('Template').delete().eq('id', id).select().maybeSingle();
+    if (error) throw error;
+    return data ? new Template(data) : null;
+  }
+}
+
+module.exports = Template;

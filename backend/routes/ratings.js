@@ -18,7 +18,8 @@ router.post('/', auth, [
     .isIn(['template', 'creator', 'blog'])
     .withMessage('نوع الهدف يجب أن يكون template أو creator أو blog'),
   body('targetId')
-    .isMongoId()
+    .isString()
+    .notEmpty()
     .withMessage('معرف الهدف غير صحيح'),
   body('rating')
     .isInt({ min: 1, max: 5 })
@@ -168,7 +169,11 @@ router.post('/', auth, [
       message: existingRating ? 'تم تحديث التقييم بنجاح' : 'تم إضافة التقييم بنجاح',
       rating: savedRating,
       averageRating,
-      totalRatings
+      totalRatings,
+      summary: {
+        averageRating,
+        totalRatings
+      }
     });
 
   } catch (error) {
@@ -231,8 +236,12 @@ router.get('/:targetType/:targetId', cacheMiddleware(300), async (req, res) => {
 
     res.json({
       success: true,
-      averageRating,
-      totalRatings,
+      averageRating, // Keep for backward compatibility
+      totalRatings,  // Keep for backward compatibility
+      summary: {
+        averageRating,
+        totalRatings
+      },
       ratings,
       pagination: {
         current: page,

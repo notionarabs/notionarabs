@@ -1,6 +1,5 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const mongoose = require('mongoose');
 const Template = require('../models/Template');
 const DownloadLog = require('../models/DownloadLog');
 const User = require('../models/User');
@@ -229,6 +228,8 @@ router.post('/', auth, [
       }
     })
 ], async (req, res) => {
+  console.log('>>> POST /api/templates entry');
+  console.log('User:', req.user?._id);
   try {
     // Check if user is an approved creator
     if (req.user.creatorStatus !== 'approved' || req.user.role !== 'creator') {
@@ -538,7 +539,7 @@ router.get('/creator/:creatorId', cacheMiddleware(600), async (req, res) => {
 // @access  Private (Admin or Creator)
 router.get('/export', auth, async (req, res) => {
   try {
-    const isAdmin = req.user.role === 'admin';
+    const isAdmin = req.user.role?.toLowerCase() === 'admin';
     const creatorId = req.query.creatorId;
 
     if (!isAdmin && creatorId && creatorId !== req.user._id) {
@@ -790,7 +791,8 @@ router.get('/:identifier', cacheMiddleware(600), async (req, res) => {
       .lean();
 
     // If not found by slug, try by ID (only if it's a valid ObjectId)
-    if (!template && mongoose.Types.ObjectId.isValid(identifier)) {
+    const isValidOldId = /^[0-9a-fA-F]{24}$/.test(identifier);
+    if (!template && isValidOldId) {
       template = await Template.findOne({
         _id: identifier,
         status: 'approved'
@@ -808,7 +810,9 @@ router.get('/:identifier', cacheMiddleware(600), async (req, res) => {
     }
 
     // Increment views (non-blocking with lean document)
-    Template.findByIdAndUpdate(template._id, { $inc: { views: 1 } }).exec();
+    Template.findByIdAndUpdate(template._id, { $inc: { views: 1 } })
+      .exec()
+      .catch(err => console.error('Failed to increment views:', err.message));
 
     res.json({
       success: true,

@@ -17,7 +17,7 @@ export default function MaintenanceMode() {
   }
 
   // Don't show maintenance page to admins - ConditionalLayout handles this
-  if (isAuthenticated && user?.role === 'admin') {
+  if (isAuthenticated && user?.role?.toLowerCase() === 'admin') {
     return null;
   }
 
@@ -63,21 +63,7 @@ export default function MaintenanceMode() {
           </div>
         </div>
 
-        {/* Arab OS Link */}
-        <div className="bg-primary-50 dark:bg-primary-900/10 border border-primary-100 dark:border-primary-900/30 rounded-lg p-6 mb-8">
-          <h3 className="font-bold text-primary-900 dark:text-primary-400 mb-3 text-lg">
-            اكتشف خدماتنا الأخرى
-          </h3>
-          <p className="text-sm text-primary-700 dark:text-primary-300 mb-5 leading-relaxed">
-            للاستشارات، الخدمات المتقدمة، والمشاريع، تفضل بزيارة موقعنا الآخر الشامل:
-          </p>
-          <a
-            href="https://www.arab-os.com/"
-            className="inline-flex items-center justify-center w-full px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm"
-          >
-            زيارة موقع Arab OS
-          </a>
-        </div>
+
 
         {/* Refresh Button */}
         <button

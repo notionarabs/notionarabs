@@ -55,9 +55,42 @@ api.interceptors.request.use(
   }
 );
 
-// Add response interceptor to handle auth errors
+// Recursive function to normalize IDs (_id <-> id) across the entire response tree
+const normalizeData = (obj) => {
+  if (!obj || typeof obj !== 'object' || obj instanceof Date) return obj;
+  
+  if (Array.isArray(obj)) {
+    return obj.map(normalizeData);
+  }
+  
+  const newObj = { ...obj };
+  
+  // Ensure both id and _id exist if either one exists
+  if (newObj._id && !newObj.id) {
+    newObj.id = newObj._id;
+  } else if (newObj.id && !newObj._id) {
+    newObj._id = newObj.id;
+  }
+  
+  // Recursively normalize nested objects/arrays (but skip circular references and special types)
+  Object.keys(newObj).forEach(key => {
+    const val = newObj[key];
+    if (val && typeof val === 'object' && !(val instanceof Date)) {
+      newObj[key] = normalizeData(val);
+    }
+  });
+  
+  return newObj;
+};
+
+// Add response interceptor to handle auth errors and data normalization
 api.interceptors.response.use(
   (response) => {
+    // Automatically normalize _id and id fields in the response data
+    if (response.data) {
+      response.data = normalizeData(response.data);
+    }
+
     // Log slow API responses for performance monitoring
     if (response.config.metadata?.startTime) {
       const duration = Date.now() - response.config.metadata.startTime;

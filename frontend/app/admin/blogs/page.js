@@ -212,7 +212,7 @@ const BlogDetailsModal = memo(({
                 {/* Header Image or Placeholder */}
                 <div className="rounded-3xl overflow-hidden aspect-video relative border border-gray-100 dark:border-dark-card-border shadow-medium">
                   {(() => {
-                    const effectiveImage = selectedBlogDetails.featuredImage || extractFirstImage(selectedBlogDetails.content) || '/blog-fallback.png';
+                    const effectiveImage = selectedBlogDetails.featuredImage || extractFirstImage(selectedBlogDetails.content) || '/images/blog-fallback.png';
                     return (
                       <Image
                         src={normalizeImageUrl(effectiveImage)}
@@ -406,7 +406,7 @@ const BlogTableRow = memo(({ blog, idx, handleViewDetails, handleStatusChange, f
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-gray-100 dark:bg-dark-tertiary rounded-xl overflow-hidden relative border border-gray-100 dark:border-dark-card-border">
             {(() => {
-              const effectiveImage = blog.featuredImage || extractFirstImage(blog.content) || '/blog-fallback.png';
+              const effectiveImage = blog.featuredImage || extractFirstImage(blog.content) || '/images/blog-fallback.png';
               return (
                 <Image
                   src={normalizeImageUrl(effectiveImage)}
@@ -552,14 +552,14 @@ export default function AdminBlogsPage() {
   const [selectedBlogDetails, setSelectedBlogDetails] = useState(null);
 
   useEffect(() => {
-    if (!authLoading && (!user || user.role !== 'admin')) {
+    if (!authLoading && (!user || user.role?.toLowerCase() !== 'admin')) {
       showError('غير مصرح لك بالوصول لهذه الصفحة.');
       router.push('/');
     }
   }, [user, authLoading, router, showError]);
 
   useEffect(() => {
-    if (user?.role === 'admin') {
+    if (user?.role?.toLowerCase() === 'admin') {
       fetchBlogs();
       fetchStats();
     }

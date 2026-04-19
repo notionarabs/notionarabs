@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const mongoose = require('mongoose');
 const passport = require('passport');
 require('dotenv').config();
 
@@ -19,6 +18,10 @@ const {
 } = require('./middleware/performance');
 
 const app = express();
+app.use((req, res, next) => {
+    console.log(`[GLOBAL LOG] ${req.method} ${req.url}`);
+    next();
+});
 const PORT = process.env.PORT || 5000;
 
 // Middleware
@@ -112,26 +115,8 @@ app.use('/uploads', express.static('uploads'));
 app.use(passport.initialize());
 require('./config/passport');
 
-// Database connection
-// Optimized MongoDB connection with connection pooling
-// Note: Using bufferCommands: true to allow middleware to work before connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/notion-arabs', {
-  // Connection pooling optimizations for Render free tier
-  maxPoolSize: 5, // Reduced for free tier
-  minPoolSize: 2,  // Reduced for free tier
-  maxIdleTimeMS: 10000, // Close connections after 10 seconds of inactivity
-  serverSelectionTimeoutMS: 3000, // Faster connection timeout
-  socketTimeoutMS: 20000, // Reduced socket timeout
-  connectTimeoutMS: 10000, // Connection timeout
-  // Read preferences for better performance
-  readPreference: 'primaryPreferred', // Changed to primary for consistency
-  // Additional optimizations - set to false to prevent hangs during DB downtime
-  bufferCommands: false // Disable buffering so we fail fast and use fallbacks
-})
-  .then(() => {
-    console.log('✅ Database connected successfully');
-  })
-  .catch(err => console.error('Database connection error:', err));
+// Database connection - Switched from MongoDB to Supabase
+console.log('📡 Switched to Supabase as primary database');
 
 // Apply rate limiting to routes
 // Import settings middleware
@@ -306,3 +291,8 @@ app.listen(PORT, () => {
 
 });
 
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  // In production, we might want to log this to a service and restart
+});

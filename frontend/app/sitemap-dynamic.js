@@ -102,10 +102,10 @@ export default async function sitemapDynamic() {
     const apiUrl = getApiBaseUrl()
 
     const [templatesRes, blogsRes, creatorsRes] = await Promise.allSettled([
-      fetch(`${apiUrl}/templates?limit=500`, {
+      fetch(`${apiUrl}/templates?limit=500&status=approved`, {
         next: { revalidate: 3600 } // Cache for 1 hour
       }),
-      fetch(`${apiUrl}/blogs?limit=500`, {
+      fetch(`${apiUrl}/blogs?limit=500&status=published`, {
         next: { revalidate: 3600 }
       }),
       fetch(`${apiUrl}/creators?limit=500`, {

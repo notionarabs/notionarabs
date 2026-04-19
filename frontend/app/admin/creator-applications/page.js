@@ -112,10 +112,10 @@ export default function CreatorApplicationsPage() {
     }
 
     // Check if user is authenticated and has admin role
-    if (isAuthenticated && user?.role === 'admin') {
+    if (isAuthenticated && user?.role?.toLowerCase() === 'admin') {
       fetchApplications();
       fetchBadgePresets(); // Load badge presets for filters
-    } else if (isAuthenticated && user?.role !== 'admin') {
+    } else if (isAuthenticated && user?.role?.toLowerCase() !== 'admin') {
       // User is authenticated but not admin
       setError('ليس لديك صلاحية للوصول إلى لوحة تحكم المدير');
       setLoading(false);

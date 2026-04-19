@@ -33,8 +33,6 @@ export const AuthProvider = ({ children }) => {
       }
 
       const token = Cookies.get('authToken');
-
-      // Check if we have cached user data
       const cachedUser = localStorage.getItem('user');
       const cacheTimestamp = localStorage.getItem('userCacheTimestamp');
       const cacheExpiry = 10 * 60 * 1000; // 10 minutes
@@ -44,7 +42,6 @@ export const AuthProvider = ({ children }) => {
         const timeSinceCache = now - parseInt(cacheTimestamp);
 
         if (timeSinceCache < cacheExpiry) {
-          // Use cached data if it's fresh
           const userData = JSON.parse(cachedUser);
           setUser(userData);
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -68,6 +65,10 @@ export const AuthProvider = ({ children }) => {
           ]);
 
           const userData = response.data.user;
+          if (userData && userData.role) {
+            userData.role = userData.role.toString().trim();
+          }
+          console.log('[AUTH DEBUG] User data from API (normalized):', userData);
           setUser(userData);
 
           // Cache the user data
@@ -388,6 +389,9 @@ export const AuthProvider = ({ children }) => {
       // Fetch fresh user data
       const response = await api.get('/auth/me');
       const userData = response.data.user;
+      if (userData && userData.role) {
+        userData.role = userData.role.toString().trim();
+      }
 
       setUser(userData);
 

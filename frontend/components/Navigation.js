@@ -81,20 +81,10 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
 
   // Memoize navigation items to prevent unnecessary re-renders
   const navItems = useMemo(() => [
-    { href: '/projects', label: 'مشاريعنا', key: 'projects', icon: <Briefcase className="w-4 h-4" />, color: 'hover:text-rose-400' },
-    { href: '/store', label: 'المتجر', key: 'store', icon: <ShoppingBag className="w-4 h-4" />, color: 'hover:text-amber-400' },
-    {
-      label: 'المصادر',
-      key: 'resources',
-      icon: <Compass className="w-4 h-4" />,
-      color: 'hover:text-orange-400',
-      children: [
-        { href: '/templates', label: 'القوالب', key: 'templates', icon: <Layout className="w-4 h-4" />, color: 'hover:text-emerald-400' },
-        { href: '/blog', label: 'المدونة', key: 'blog', icon: <BookOpen className="w-4 h-4" />, color: 'hover:text-blue-400' },
-        { href: '/widgets', label: 'الأدوات', key: 'widgets', icon: <Zap className="w-4 h-4" />, color: 'hover:text-orange-400' }
-      ]
-    },
-    { href: '/about', label: 'عنا', key: 'about', icon: <Users className="w-4 h-4" />, color: 'hover:text-purple-400' }
+    { href: '/templates', label: 'القوالب', key: 'templates', icon: <Layout className="w-4 h-4" />, color: 'hover:text-emerald-400' },
+    { href: '/blog', label: 'المدونة', key: 'blog', icon: <BookOpen className="w-4 h-4" />, color: 'hover:text-blue-400' },
+    { href: '/widgets', label: 'الأدوات', key: 'widgets', icon: <Zap className="w-4 h-4" />, color: 'hover:text-orange-400' },
+    { href: '/store', label: 'المتجر', key: 'store', icon: <ShoppingBag className="w-4 h-4" />, color: 'hover:text-amber-400' }
   ], []);
 
   return (
@@ -134,42 +124,17 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
               </Link>
             </div>
             {navItems.map((item) => (
-              item.children ? (
-                <div key={item.key} className="relative group/dropdown">
-                  <button className={`nav-link flex items-center gap-1.5 group/nav ${item.color} ${activePage === 'blog' || activePage === 'widgets' ? 'nav-link-active' : ''}`}>
-                    <span className="transition-transform duration-300 group-hover/nav:scale-110 group-hover/nav:rotate-3">
-                      {item.icon}
-                    </span>
-                    <span>{item.label}</span>
-                    <svg className="w-3.5 h-3.5 opacity-60 transition-transform duration-300 group-hover/dropdown:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" /></svg>
-                  </button>
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-48 bg-white dark:bg-dark-secondary rounded-2xl shadow-xl border border-gray-100 dark:border-dark-card-border p-2 opacity-0 invisible group-hover/dropdown:opacity-100 group-hover/dropdown:visible transition-all duration-300 transform translate-y-2 group-hover/dropdown:translate-y-0 z-50">
-                    {item.children.map(child => (
-                      <Link
-                        key={child.key}
-                        href={child.href}
-                        className={`flex items-center gap-3 p-3 rounded-xl transition-all ${activePage === child.key ? 'bg-primary-50 dark:bg-primary-900/10 text-primary-600 dark:text-primary-400' : 'hover:bg-gray-50 dark:hover:bg-dark-tertiary text-accent-700 dark:text-dark-text-primary'}`}
-                        onClick={() => handleNavigation(child.href)}
-                      >
-                        <span className={`${child.color.replace('hover:', '')} opacity-80`}>{child.icon}</span>
-                        <span className="font-bold text-sm">{child.label}</span>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <Link
-                  key={item.key}
-                  href={item.href}
-                  className={`nav-link flex items-center gap-2 group/nav ${item.color} ${activePage === item.key ? 'nav-link-active' : ''}`}
-                  onClick={() => handleNavigation(item.href)}
-                >
-                  <span className="transition-transform duration-300 group-hover/nav:scale-110 group-hover/nav:rotate-3">
-                    {item.icon}
-                  </span>
-                  <span>{item.label}</span>
-                </Link>
-              )
+              <Link
+                key={item.key}
+                href={item.href}
+                className={`nav-link flex items-center gap-2 group/nav ${activePage === item.key ? 'nav-link-active' : ''}`}
+                onClick={() => handleNavigation(item.href)}
+              >
+                <span className="transition-all duration-300 group-hover:scale-110 group-hover:text-primary">
+                  {item.icon}
+                </span>
+                <span>{item.label}</span>
+              </Link>
             ))}
             <button
               onClick={() => setIsSearchOpen(true)}
@@ -183,17 +148,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
 
           {/* Auth Buttons / User Menu */}
           <div className="hidden md:flex items-center gap-2 lg:gap-3 xl:gap-4">
-            <div className="hidden lg:flex items-center gap-2 xl:gap-3">
-              <Link
-                href="/consultation"
-                className="group relative overflow-hidden btn-primary py-3 px-6 flex items-center gap-2 shadow-[0_0_20px_rgba(249,115,22,0.15)] hover:shadow-[0_0_25px_rgba(249,115,22,0.3)] transition-all"
-                onClick={() => handleNavigation('/consultation')}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
-                <Calendar className="w-4 h-4" />
-                <span>احجز استشارة</span>
-              </Link>
-            </div>
+
             {/* Auth section */}
             <div className="flex items-center gap-3 justify-end">
               {loading ? (
@@ -263,71 +218,31 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
                 </Link>
               </div>
               {navItems.map((item) => (
-                item.children ? (
-                  <div key={item.key} className="space-y-1 mb-2">
-                    <div className="flex items-center justify-between py-3 px-4 rounded-2xl text-gray-400 dark:text-dark-text-tertiary">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-white/5 dark:bg-dark-tertiary/50">
-                          {item.icon}
-                        </div>
-                        <span className="font-bold">{item.label}</span>
-                      </div>
+                <Link
+                  key={item.key}
+                  href={item.href}
+                  onClick={() => handleNavigation(item.href)}
+                  className={`flex items-center justify-between py-4 px-4 rounded-2xl transition-all active:scale-[0.98] mb-1 ${activePage === item.key
+                    ? 'bg-primary-500/10 text-primary-400 font-bold border border-primary-500/20'
+                    : 'text-gray-100 dark:text-dark-text-primary hover:bg-white/5 dark:hover:bg-dark-tertiary/50'
+                    }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${activePage === item.key ? 'bg-primary-500 text-white' : 'bg-white/10 dark:bg-dark-tertiary text-gray-400'}`}>
+                      {item.icon}
                     </div>
-                    <div className="pr-4 space-y-1 border-r-2 border-white/10 dark:border-dark-card-border/50 mr-6">
-                      {item.children.map(child => (
-                        <Link
-                          key={child.key}
-                          href={child.href}
-                          onClick={() => handleNavigation(child.href)}
-                          className={`flex items-center justify-between py-3 px-4 rounded-xl transition-all active:scale-95 ${activePage === child.key
-                            ? 'bg-primary-500/10 text-primary-400 font-bold border border-primary-500/20'
-                            : 'text-gray-100 dark:text-dark-text-primary hover:bg-white/5 dark:hover:bg-dark-tertiary/50'
-                            }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="opacity-70">{child.icon}</span>
-                            <span className="font-bold">{child.label}</span>
-                          </div>
-                          {activePage === child.key && (
-                            <div className="w-1 h-5 rounded-full bg-primary-500 shadow-[0_0_12px_rgba(251,146,60,0.4)]"></div>
-                          )}
-                        </Link>
-                      ))}
-                    </div>
+                    <span className="font-bold">{item.label}</span>
                   </div>
-                ) : (
-                  <Link
-                    key={item.key}
-                    href={item.href}
-                    onClick={() => handleNavigation(item.href)}
-                    className={`flex items-center justify-between py-4 px-4 rounded-2xl transition-all active:scale-95 mb-1 ${activePage === item.key
-                      ? 'bg-primary-500/10 text-primary-400 font-bold border border-primary-500/20'
-                      : 'text-gray-100 dark:text-dark-text-primary hover:bg-white/5 dark:hover:bg-dark-tertiary/50'
-                      }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg ${activePage === item.key ? 'bg-primary-500 text-white' : 'bg-white/10 dark:bg-dark-tertiary text-gray-400'}`}>
-                        {item.icon}
-                      </div>
-                      <span className="font-bold">{item.label}</span>
-                    </div>
-                    {activePage === item.key ? (
-                      <div className="w-1.5 h-6 rounded-full bg-primary-500 shadow-[0_0_12px_rgba(251,146,60,0.4)]"></div>
-                    ) : (
-                      <svg className="w-5 h-5 opacity-30 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                    )}
-                  </Link>
-                )
+                  {activePage === item.key ? (
+                    <div className="w-1.5 h-6 rounded-full bg-primary-500 shadow-[0_0_12px_rgba(251,146,60,0.4)]"></div>
+                  ) : (
+                    <svg className="w-5 h-5 opacity-30 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                  )}
+                </Link>
               ))}
             </nav>
 
-            <Link
-              href="/consultation"
-              onClick={() => handleNavigation('/consultation')}
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 text-white font-bold text-center shadow-lg shadow-primary-500/20 mb-8 active:scale-[0.98] transition-transform"
-            >
-              احجز استشارة مجانية
-            </Link>
+
 
             {/* User Section or Auth Buttons */}
             <div className="mt-auto bg-black/10 dark:bg-black/20 rounded-2xl p-4 border border-white/5">
@@ -370,13 +285,13 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
                   {/* Mobile User Menu Links */}
                   <div className="grid grid-cols-2 gap-2">
                     <Link
-                      href={user?.role === 'admin' ? "/admin" : (user?.creatorStatus === 'approved' ? "/profile" : "/purchases")}
-                      onClick={() => handleNavigation(user?.role === 'admin' ? "/admin" : (user?.creatorStatus === 'approved' ? "/profile" : "/purchases"))}
+                      href={user?.role?.toLowerCase() === 'admin' ? "/admin" : (user?.creatorStatus === 'approved' ? "/profile" : "/purchases")}
+                      onClick={() => handleNavigation(user?.role?.toLowerCase() === 'admin' ? "/admin" : (user?.creatorStatus === 'approved' ? "/profile" : "/purchases"))}
                       className="flex flex-col items-center justify-center gap-2 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-colors"
                     >
                       <svg className="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                       <span className="text-xs font-medium text-gray-200">
-                        {user?.role === 'admin' ? 'لوحة الإدارة' : (user?.creatorStatus === 'approved' ? 'الملف الشخصي' : 'مشترياتي')}
+                        {user?.role?.toLowerCase() === 'admin' ? 'لوحة الإدارة' : (user?.creatorStatus === 'approved' ? 'الملف الشخصي' : 'مشترياتي')}
                       </span>
                     </Link>
 
@@ -391,7 +306,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
                   </div>
 
                   {/* Creator Status Section for Mobile */}
-                  {user?.role !== 'admin' && user?.creatorStatus !== 'approved' && (
+                  {user?.role?.toLowerCase() !== 'admin' && user?.creatorStatus !== 'approved' && (
                     <div className="pt-2">
                       {user?.creatorStatus === 'pending' ? (
                         <div className="w-full px-4 py-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-3">

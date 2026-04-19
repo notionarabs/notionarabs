@@ -1,5 +1,4 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
 const Template = require('../models/Template');
@@ -268,7 +267,7 @@ router.get('/:id', cacheMiddleware(600), async (req, res) => {
     const { id } = req.params;
 
     // Check if id is a valid ObjectId
-    const isValidObjectId = mongoose.Types.ObjectId.isValid(id);
+    const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(id) || /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
     let creator = null;
 

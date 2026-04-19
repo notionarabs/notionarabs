@@ -505,7 +505,7 @@ export default function BlogPostClient({ initialBlog, initialRelatedBlogs }) {
                         <div className="lg:col-span-2">
                             <article className="bg-white dark:bg-dark-secondary rounded-2xl shadow-medium dark:shadow-dark-medium overflow-hidden border border-gray-200/70 dark:border-dark-card-border">
                                 {(() => {
-                                    const effectiveImage = blog.featuredImage || extractFirstImage(blog.content) || '/blog-fallback.png';
+                                    const effectiveImage = blog.featuredImage || extractFirstImage(blog.content) || '/images/blog-fallback.png';
                                     return (
                                         <div className="relative h-48 sm:h-64 md:h-80 overflow-hidden">
                                             <Image

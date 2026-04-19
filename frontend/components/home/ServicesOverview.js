@@ -10,10 +10,10 @@ export default function ServicesOverview() {
                     <div className="order-1 lg:order-1 lg:sticky lg:top-24 self-start">
                         <div className="flex items-center gap-3 mb-4 justify-center lg:justify-start"></div>
                         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-4 lg:mb-6 text-center lg:text-right">
-                            خدمات نوشن المصممة لعملك
+                            مميزات مجتمع عرب نوشن
                         </h2>
                         <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary max-w-xl mx-auto lg:mx-0 text-center lg:text-right">
-                            نبني لك نظامًا متكاملاً يغطي التخطيط، التنفيذ، المتابعة، والتحسين المستمر.
+                            نوفر لك البيئة المتكاملة لتطوير مهاراتك في نوشن، والوصول لأفضل القوالب والأدوات التي تساعدك في الإنتاجية.
                         </p>
                         <div className="mt-6 flex flex-wrap items-center gap-3 justify-center lg:justify-start"></div>
                     </div>

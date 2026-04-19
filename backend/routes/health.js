@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
+const supabase = require('../utils/supabase');
 const { getHealthData } = require('../utils/performance');
 
 // Basic health check
@@ -17,24 +17,19 @@ router.get('/detailed', async (req, res) => {
   try {
     const healthData = getHealthData();
     
-    // Check database connection
-    const dbState = mongoose.connection.readyState;
-    const dbStates = {
-      0: 'disconnected',
-      1: 'connected',
-      2: 'connecting',
-      3: 'disconnecting'
-    };
+    // Check database connection (simple health query to Supabase)
+    const { data, error } = await supabase.from('User').select('id').limit(1).maybeSingle();
+    const isDbConnected = !error;
     
     healthData.database = {
-      status: dbStates[dbState] || 'unknown',
-      readyState: dbState
+      status: isDbConnected ? 'connected' : 'disconnected',
+      error: error ? error.message : null
     };
     
     // Determine overall health
     const isHealthy = (
-      dbState === 1 && // Database connected
-      healthData.memory.heapUsed < 1000 && // Less than 1GB heap usage
+      isDbConnected && 
+      healthData.memory.heapUsed < 1024 && // Less than 1GB heap usage
       healthData.uptime > 0
     );
     

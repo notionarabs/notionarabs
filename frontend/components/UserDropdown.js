@@ -189,7 +189,7 @@ export default function UserDropdown() {
 
               <div className="p-2 space-y-1">
                 {/* Admin Access inside Dropdown */}
-                {user?.role === 'admin' && (
+                {user?.role?.toLowerCase() === 'admin' && (
                   <div className="mb-2 p-1 bg-gray-50 dark:bg-dark-tertiary/30 rounded-xl border border-gray-100 dark:border-dark-card-border/50">
                     <MenuItem
                       href="/admin"

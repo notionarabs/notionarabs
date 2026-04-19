@@ -8,10 +8,10 @@ export default function HowWeDoIt({ timelineRef, stepRefs, inViewSteps, lineHeig
             <div className="container-custom">
                 <div className="text-center mb-8 sm:mb-10 md:mb-12">
                     <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
-                        كيف ننفّذ العمل؟
+                        رحلتك في المجتمع
                     </h2>
                     <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary max-w-3xl mx-auto">
-                        خطوات واضحة من التشخيص وحتى التسليم لضمان نظام فعّال وقابل للتطوير.
+                        خطوات بسيطة لتبدأ رحلتك معنا، من الانضمام وحتى تصبح مبدعاً ومؤثراً في مجتمع نوشن العربي.
                     </p>
                 </div>
                 <div className="relative" ref={timelineRef}>

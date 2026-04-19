@@ -74,7 +74,8 @@ router.post('/creator', [
     .isLength({ min: 1, max: 1000 })
     .withMessage('الرسالة يجب أن تكون بين 1 و 1000 حرف'),
   body('creatorId')
-    .isMongoId()
+    .isString()
+    .notEmpty()
     .withMessage('معرف المبدع غير صحيح')
 ], async (req, res) => {
   try {

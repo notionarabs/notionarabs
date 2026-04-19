@@ -65,11 +65,8 @@ router.get('/homepage', cacheMiddleware(600), async (req, res) => {
         {
           $project: {
             allCategories: {
-              // Use $setUnion to combine and remove duplicates
+              // Use $setUnion to combine and remove duplicates from the categories array
               $setUnion: [
-                // Include primary category if it exists
-                { $cond: [{ $ifNull: ['$category', false] }, ['$category'], []] },
-                // Include all categories from the categories array if it exists
                 { $ifNull: ['$categories', []] }
               ]
             }

@@ -37,7 +37,7 @@ router.get('/me', auth, async (req, res) => {
 router.post('/', [
   auth,
   body('items').isArray().withMessage('العناصر مطلوبة'),
-  body('items.*.templateId').isMongoId().withMessage('معرف القالب غير صحيح'),
+  body('items.*.templateId').isString().notEmpty().withMessage('معرف القالب غير صحيح'),
   body('items.*.name').notEmpty().withMessage('اسم العنصر مطلوب'),
   body('items.*.price').isNumeric().withMessage('السعر يجب أن يكون رقم'),
   body('total').isNumeric().withMessage('المجموع يجب أن يكون رقم'),

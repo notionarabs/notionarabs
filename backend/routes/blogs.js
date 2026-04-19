@@ -586,7 +586,7 @@ router.get('/featured', async (req, res) => {
 router.get('/export', auth, async (req, res) => {
   try {
     // Check if user is admin or requesting their own data
-    const isAdmin = req.user.role === 'admin';
+    const isAdmin = req.user.role?.toLowerCase() === 'admin';
     const authorId = req.query.authorId;
 
     if (!isAdmin && authorId && authorId !== req.user._id) {
@@ -975,7 +975,7 @@ router.get('/by-id/:id', auth, async (req, res) => {
     }
 
     // Check if user is the author or admin
-    if (blog.author._id.toString() !== req.user.id && req.user.role !== 'admin') {
+    if (blog.author._id.toString() !== req.user.id && req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({ success: false, message: 'غير مصرح لك بالوصول لهذا المقال' });
     }
 
@@ -1056,7 +1056,7 @@ router.put('/:id', auth, [
     }
 
     // Check if user is the author or admin
-    if (blog.author.toString() !== req.user.id && req.user.role !== 'admin') {
+    if (blog.author.toString() !== req.user.id && req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'غير مصرح لك بتعديل هذا المقال'
@@ -1109,7 +1109,7 @@ router.delete('/:id', auth, async (req, res) => {
     }
 
     // Check if user is the author or admin
-    if (blog.author.toString() !== req.user.id && req.user.role !== 'admin') {
+    if (blog.author.toString() !== req.user.id && req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'غير مصرح لك بحذف هذا المقال'

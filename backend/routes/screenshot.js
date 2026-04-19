@@ -147,7 +147,7 @@ router.get('/health', async (req, res) => {
 router.get('/cleanup', auth, async (req, res) => {
   try {
     // Check if user is admin
-    if (req.user.role !== 'admin') {
+    if (req.user.role?.toLowerCase() !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'غير مصرح لك بالوصول إلى هذه الميزة'

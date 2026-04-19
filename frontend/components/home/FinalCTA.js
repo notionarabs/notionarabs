@@ -19,26 +19,26 @@ export default function FinalCTA() {
                                 الخطوة التالية
                             </p>
                             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white dark:text-dark-text-primary mb-4">
-                                جاهز لبناء نظام نوشن يواكب نموك؟
+                                جاهز لتطوير مهاراتك في نوشن؟
                             </h2>
                             <p className="text-base sm:text-lg md:text-xl text-white/80 dark:text-dark-text-secondary mb-6 sm:mb-8 max-w-2xl mx-auto lg:mx-0">
-                                احجز استشارة أولية ودعنا نصمم لك نظامًا يسهّل العمل ويزيد الإنتاجية.
+                                انضم لآلاف المستخدمين العرب وابدأ اليوم في تنظيم حياتك وأعمالك بأفضل الأدوات.
                             </p>
                             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
-                                <Link href="/consultation" className="btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto text-center">
-                                    احجز استشارتك
+                                <Link href="/store" className="btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto text-center">
+                                    تصفح المتجر
                                 </Link>
-                                <Link href="/projects" className="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 bg-white/90 dark:bg-dark-tertiary/90 border-white/30 w-full sm:w-auto text-center">
-                                    تصفح المشاريع
+                                <Link href="/creators" className="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 bg-white/90 dark:bg-dark-tertiary/90 border-white/30 w-full sm:w-auto text-center">
+                                    منصة المبدعين
                                 </Link>
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-3 sm:gap-4">
                             {[
-                                { label: 'مدة البداية', value: 'أربعة أسابيع' },
-                                { label: 'جلسة اكتشاف', value: '30 دقيقة' },
-                                { label: 'خطة تنفيذ', value: 'واضحة' },
-                                { label: 'دعم مستمر', value: 'مباشر' }
+                                { label: 'قالب عربي', value: '100+' },
+                                { label: 'مبدع نشط', value: '50+' },
+                                { label: 'عضو مجتمع', value: '5000+' },
+                                { label: 'جودة محتوى', value: 'احترافية' }
                             ].map((item, idx) => (
                                 <div key={idx} className="rounded-2xl border border-white/25 dark:border-dark-card-border/30 bg-white/10 dark:bg-white/5 p-4 text-center">
                                     <div className="text-base sm:text-lg font-semibold text-white dark:text-dark-text-primary">{item.value}</div>

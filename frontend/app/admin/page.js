@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -30,6 +30,8 @@ import {
 import { BreadcrumbWrapper } from '../../components/Breadcrumb.js';
 
 export default function AdminPage() {
+  const { user, isAuthenticated, loading: authLoading, refreshUserData } = useAuth();
+  
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -40,37 +42,58 @@ export default function AdminPage() {
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState('desc');
   const [filteredUserCount, setFilteredUserCount] = useState(null);
-  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const router = useRouter();
   const { theme } = useTheme();
+  const isRefreshing = useRef(false);
 
   useEffect(() => {
-    // If auth is finished and user is not admin, stop the secondary loading state
-    if (!authLoading && (!isAuthenticated || user?.role !== 'admin')) {
-      setLoading(false);
-    }
+    const checkAdminAccess = async () => {
+      if (authLoading) return;
 
-    // Handle redirections
-    if (!authLoading) {
       if (!isAuthenticated) {
         router.push('/login');
         return;
       }
 
-      if (user?.role !== 'admin') {
-        router.push('/');
+      const currentRole = user?.role?.toString().toLowerCase().trim();
+
+      if (currentRole !== 'admin') {
+        if (isRefreshing.current) {
+          setLoading(false);
+          router.push('/');
+          return;
+        }
+
+        isRefreshing.current = true;
+        
+        try {
+          const result = await refreshUserData();
+          const freshRole = result.user?.role?.toString().toLowerCase().trim();
+          
+          if (result.success && freshRole === 'admin') {
+            return;
+          } else {
+            setLoading(false);
+            router.push('/');
+          }
+        } catch (error) {
+          setLoading(false);
+          router.push('/');
+        }
         return;
       }
 
-      // If authorized, fetch the data
+      setLoading(false);
       fetchUsers();
       fetchStats();
-    }
-  }, [isAuthenticated, user?.role, router, authLoading]);
+    };
+
+    checkAdminAccess();
+  }, [isAuthenticated, user?.role, router, authLoading, refreshUserData]);
 
   // Real-time updates for admin dashboard
   useEffect(() => {
-    if (!isAuthenticated || user?.role !== 'admin') return;
+    if (!isAuthenticated || user?.role?.toLowerCase() !== 'admin') return;
 
     let intervalId;
     const onFocus = () => {
@@ -105,14 +128,14 @@ export default function AdminPage() {
 
   // Auto-apply filters when filter values change (except search term)
   useEffect(() => {
-    if (isAuthenticated && user?.role === 'admin') {
+    if (isAuthenticated && user?.role?.toLowerCase() === 'admin') {
       fetchUsers();
     }
   }, [filterRole, sortBy, sortOrder]);
 
   // Debounced search effect
   useEffect(() => {
-    if (isAuthenticated && user?.role === 'admin') {
+    if (isAuthenticated && user?.role?.toLowerCase() === 'admin') {
       const timeoutId = setTimeout(() => {
         fetchUsers();
       }, 300); // reduced to 300ms for better responsiveness
@@ -210,7 +233,7 @@ export default function AdminPage() {
         name: user.name || '',
         username: user.username || '---',
         email: user.email || '',
-        role: user.role === 'admin' ? 'مدير' : user.role === 'creator' ? 'مبدع' : 'مستخدم',
+        role: user.role?.toLowerCase() === 'admin' ? 'مدير' : user.role?.toLowerCase() === 'creator' ? 'مبدع' : 'مستخدم',
         creatorStatus: {
           'approved': 'مبدع معتمد',
           'pending': 'قيد المراجعة',
@@ -264,39 +287,34 @@ export default function AdminPage() {
     }
   };
 
-  if (authLoading || (isAuthenticated && user?.role === 'admin' && loading)) {
-    return (
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
-        <div className="container-custom pt-12">
-          <div className="flex flex-col gap-8">
-            <div className="h-8 bg-gray-200 dark:bg-dark-tertiary rounded-lg w-1/4 animate-pulse"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-32 bg-gray-200 dark:bg-dark-tertiary rounded-2xl animate-pulse"></div>
-              ))}
-            </div>
-            <div className="h-64 bg-gray-200 dark:bg-dark-tertiary rounded-2xl animate-pulse"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const isAdmin = user?.role?.toString().toLowerCase().trim() === 'admin';
 
-  if (!isAuthenticated || user?.role !== 'admin') {
+  if (!isAuthenticated || !isAdmin) {
+    if (isAuthenticated && loading) {
+      return (
+        <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center" dir="rtl">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center">
+            <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-gray-400">جاري التحقق من الصلاحيات...</p>
+          </motion.div>
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center transition-colors duration-300" dir="rtl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center p-8 bg-white dark:bg-dark-secondary rounded-2xl shadow-large"
+          className="max-w-md w-full mx-4 p-8 bg-white dark:bg-dark-secondary rounded-2xl shadow-xl text-center border border-gray-100 dark:border-dark-card-border"
         >
-          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
             <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <h1 className="heading-2 mb-4">غير مصرح لك بالوصول</h1>
-          <p className="body-large mb-6">هذه الصفحة مخصصة للمديرين فقط</p>
+          <h1 className="heading-2 mb-4 text-gray-900 dark:text-white">غير مصرح لك بالوصول</h1>
+          <p className="body-large mb-6 text-gray-600 dark:text-gray-400">هذه الصفحة مخصصة للمديرين فقط</p>
           <Link href="/" className="btn-primary inline-flex">
             العودة للرئيسية
           </Link>
@@ -686,14 +704,14 @@ export default function AdminPage() {
                             {formatDate(user.createdAt)}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${user.role === 'admin'
+                         <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${user.role?.toLowerCase() === 'admin'
                             ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
-                            : user.role === 'creator'
+                            : user.role?.toLowerCase() === 'creator'
                               ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400'
                               : 'bg-gray-100 dark:bg-dark-tertiary text-gray-700 dark:text-dark-text-tertiary'
                             }`}>
-                            {user.role === 'admin' ? 'مدير' : user.role === 'creator' ? 'مبدع' : 'مستخدم'}
+                            {user.role?.toLowerCase() === 'admin' ? 'مدير' : user.role?.toLowerCase() === 'creator' ? 'مبدع' : 'مستخدم'}
                           </span>
                         </td>
                       </motion.tr>

@@ -7,6 +7,7 @@ const Blog = require('../models/Blog');
 const auth = require('../middleware/auth');
 const Notification = require('../models/Notification');
 const { cacheMiddleware, invalidateCache } = require('../utils/redis-cache');
+const supabase = require('../utils/supabase');
 
 const router = express.Router();
 
@@ -18,7 +19,8 @@ router.post('/', auth, [
     .isIn(['template', 'creator', 'blog'])
     .withMessage('نوع الهدف يجب أن يكون template أو creator أو blog'),
   body('targetId')
-    .isMongoId()
+    .isString()
+    .notEmpty()
     .withMessage('معرف الهدف غير صحيح'),
   body('content')
     .isLength({ min: 1, max: 1000 })
@@ -285,24 +287,49 @@ router.post('/:commentId/like', auth, async (req, res) => {
       });
     }
 
-    const existingLikeIndex = comment.likes.findIndex(
-      like => like.user.toString() === userId.toString()
-    );
+    const { data: existingLike, error: fetchErr } = await supabase
+      .from('CommentLike')
+      .select('*')
+      .eq('commentId', commentId)
+      .eq('userId', userId)
+      .maybeSingle();
+    
+    if (fetchErr) throw fetchErr;
 
-    if (existingLikeIndex > -1) {
+    let totalLikes = 0;
+    if (existingLike) {
       // Remove like
-      comment.likes.splice(existingLikeIndex, 1);
+      const { error: delErr } = await supabase
+        .from('CommentLike')
+        .delete()
+        .eq('id', existingLike.id);
+      if (delErr) throw delErr;
     } else {
       // Add like
-      comment.likes.push({ user: userId });
+      const crypto = require('crypto');
+      const { error: insErr } = await supabase
+        .from('CommentLike')
+        .insert([{ 
+          id: crypto.randomBytes(12).toString('hex'),
+          commentId, 
+          userId 
+        }]);
+      if (insErr) throw insErr;
     }
 
-    await comment.save();
+    // Get updated total count
+    const { count, error: countErr } = await supabase
+      .from('CommentLike')
+      .select('*', { count: 'exact', head: true })
+      .eq('commentId', commentId);
+    
+    if (countErr) throw countErr;
+    totalLikes = count || 0;
 
     res.json({
       success: true,
-      message: existingLikeIndex > -1 ? 'تم إلغاء الإعجاب' : 'تم الإعجاب بالتعليق',
-      likesCount: comment.likes.length
+      message: existingLike ? 'تم إلغاء الإعجاب' : 'تم الإعجاب بالتعليق',
+      likesCount: totalLikes
     });
 
   } catch (error) {

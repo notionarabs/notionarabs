@@ -80,10 +80,13 @@ class Order {
     const { id, _id, user, userId, items, ...otherData } = data;
     
     const dbId = id || _id || crypto.randomBytes(12).toString('hex');
+    const now = new Date().toISOString();
     const payload = {
         ...otherData,
         id: dbId,
-        userId: user || userId
+        userId: user || userId,
+        createdAt: now,
+        updatedAt: now
     };
 
     // 1. Create the Order

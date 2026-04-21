@@ -89,6 +89,9 @@ class Order {
         updatedAt: now
     };
 
+    if (payload.status) payload.status = payload.status.toUpperCase();
+    if (payload.paymentMethod) payload.paymentMethod = payload.paymentMethod.toUpperCase();
+
     // 1. Create the Order
     const { data: created, error } = await supabase
       .from('Order')

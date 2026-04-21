@@ -51,9 +51,9 @@ router.post('/create-checkout-session', auth, async (req, res) => {
                 price: template.price
             }],
             total: template.price,
-            status: 'pending',
+            status: 'PENDING',
             source: 'purchase',
-            paymentMethod: 'card'
+            paymentMethod: 'CARD'
         });
 
         await order.save();

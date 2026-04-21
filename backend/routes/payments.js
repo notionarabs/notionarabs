@@ -75,12 +75,13 @@ router.post('/create-checkout-session', auth, async (req, res) => {
         // 5. Build the Unified Checkout URL
         const checkoutUrl = `https://accept.paymob.com/unifiedcheckout/?publicKey=${publicKey}&clientSecret=${clientSecret}`;
 
-        console.log('🔗 Unified Checkout URL generated successfully');
+        const orderId = (order.id || order._id).toString();
+        console.log('✅ Checkout session prep finished for Order:', orderId);
 
         res.json({
             success: true,
             checkoutUrl,
-            orderId: (order.id || order._id).toString()
+            orderId: orderId
         });
 
     } catch (error) {

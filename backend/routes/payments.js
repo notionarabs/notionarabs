@@ -12,7 +12,10 @@ const Template = require('../models/Template');
  */
 router.post('/create-checkout-session', auth, async (req, res) => {
     try {
+        console.log('🔔 [ROUTE START] /create-checkout-session');
         const { templateId } = req.body;
+        console.log('📦 Incoming Template ID:', templateId);
+        console.log('👤 Authenticated User:', req.user?.email || 'NOT AUTHENTICATED');
 
         // 1. Validate template
         const template = await Template.findById(templateId);
@@ -57,7 +60,8 @@ router.post('/create-checkout-session', auth, async (req, res) => {
         });
 
         await order.save();
-        console.log('📝 Pending order saved in database:', order.id || order._id);
+        const finalOrderId = (order.id || order._id).toString();
+        console.log('📝 Pending order saved in database:', finalOrderId);
 
         // 4. Use Paymob Intention API (new unified checkout)
         // Automatically picks TEST or LIVE integration based on NODE_ENV
@@ -75,13 +79,10 @@ router.post('/create-checkout-session', auth, async (req, res) => {
         // 5. Build the Unified Checkout URL
         const checkoutUrl = `https://accept.paymob.com/unifiedcheckout/?publicKey=${publicKey}&clientSecret=${clientSecret}`;
 
-        const orderId = (order.id || order._id).toString();
-        console.log('✅ Checkout session prep finished for Order:', orderId);
-
         res.json({
             success: true,
             checkoutUrl,
-            orderId: orderId
+            orderId: finalOrderId
         });
 
     } catch (error) {

@@ -27,7 +27,7 @@ router.post('/create-checkout-session', auth, async (req, res) => {
         const amountCents = Math.round(template.price * 100); // Paymob works in cents
 
         // Clean title for Paymob (ASCII only)
-        const cleanTitle = template.title.replace(/[^\w\s-]/gi, '') || 'Template';
+        const cleanTitle = template.title.replace(/[^\w\s-]/gi, '').trim() || template.slug || 'Template';
 
         // 2. Prepare billing data
         const billingData = {
@@ -38,10 +38,15 @@ router.post('/create-checkout-session', auth, async (req, res) => {
         };
 
         // 3. Create order in our DB (pending) before redirecting to payment
+        const userId = req.user.id || req.user._id;
+        const templateDbId = template.id || template._id;
+        
+        console.log('[PAYMENTS DEBUG] Creating order for user:', userId, 'template:', templateDbId);
+
         const order = new Order({
-            user: req.user._id,
+            user: userId,
             items: [{
-                templateId: template._id,
+                templateId: templateDbId,
                 name: template.title,
                 price: template.price
             }],
@@ -52,7 +57,7 @@ router.post('/create-checkout-session', auth, async (req, res) => {
         });
 
         await order.save();
-        console.log('📝 Pending order saved in database:', order._id);
+        console.log('📝 Pending order saved in database:', order.id || order._id);
 
         // 4. Use Paymob Intention API (new unified checkout)
         // Automatically picks TEST or LIVE integration based on NODE_ENV
@@ -75,7 +80,7 @@ router.post('/create-checkout-session', auth, async (req, res) => {
         res.json({
             success: true,
             checkoutUrl,
-            orderId: order._id.toString()
+            orderId: (order.id || order._id).toString()
         });
 
     } catch (error) {

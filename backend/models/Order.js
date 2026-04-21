@@ -67,15 +67,13 @@ class Order {
   }
 
   static async create(data) {
+    const { id, _id, user, userId, ...otherData } = data;
+    
     const payload = {
-        ...data,
-        id: data.id || data._id || crypto.randomBytes(12).toString('hex')
+        ...otherData,
+        id: id || _id || crypto.randomBytes(12).toString('hex'),
+        userId: user || userId
     };
-    // Normalize user to userId if present
-    if (payload.user) {
-        payload.userId = payload.user;
-        delete payload.user;
-    }
 
     const { data: created, error } = await supabase
       .from('Order')

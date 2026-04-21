@@ -20,7 +20,8 @@ async function getTemplate(id) {
 }
 
 export async function generateMetadata({ params }) {
-  const template = await getTemplate(params.id);
+  const { id } = await params;
+  const template = await getTemplate(id);
   
   if (!template) {
     return {
@@ -33,7 +34,8 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function TemplatePage({ params }) {
-  const template = await getTemplate(params.id);
+  const { id } = await params;
+  const template = await getTemplate(id);
   
   return <TemplateClient initialTemplate={template} />;
 }

@@ -42,7 +42,7 @@ export default function Breadcrumb({ items = [], className = '' }) {
               </span>
             ) : (
               <Link
-                href={item.url}
+                href={item.url || item.href}
                 className="hover:text-primary dark:hover:text-primary transition-all whitespace-nowrap font-black uppercase tracking-widest text-[10px]"
               >
                 {item.name}

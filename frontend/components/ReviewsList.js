@@ -8,7 +8,8 @@ export default function ReviewsList({
     reviews,
     currentUser,
     onLike,
-    isLikeLoading
+    isLikeLoading,
+    simple = false
 }) {
     const [showAll, setShowAll] = useState(false);
     const displayedReviews = showAll ? reviews : reviews.slice(0, 3);
@@ -37,51 +38,51 @@ export default function ReviewsList({
     const averageRating = reviews.reduce((acc, review) => acc + (review.rating || 0), 0) / (reviews.filter(r => r.rating).length || 1);
     const hasRatings = reviews.some(r => r.rating);
 
-    return (
-        <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
-            <div className="container-custom">
-                <div className="flex flex-col md:flex-row gap-8 md:gap-12">
+    const content = (
+        <div className={`flex flex-col ${simple ? '' : 'md:flex-row gap-8 md:gap-12'}`}>
 
-                    {/* Header & Stats - Left Side */}
-                    <div className="md:w-1/3 space-y-6">
-                        <div>
-                            <h2 className="text-2xl font-bold text-accent-900 dark:text-dark-text-primary mb-2">
-                                تقييمات المستخدمين
-                            </h2>
-                            <p className="text-accent-600 dark:text-dark-text-secondary text-sm">
-                                آراء حقيقية من مجتمع عرب نوشن
-                            </p>
-                        </div>
-
-                        {hasRatings && (
-                            <div className="bg-gray-50 dark:bg-dark-primary p-6 rounded-2xl border border-gray-100 dark:border-dark-card-border backdrop-blur-sm">
-                                <div className="flex items-baseline gap-2 mb-2">
-                                    <span className="text-5xl font-bold text-accent-900 dark:text-dark-text-primary">
-                                        {averageRating.toFixed(1)}
-                                    </span>
-                                    <span className="text-accent-500 dark:text-dark-text-quaternary text-lg">/ 5</span>
-                                </div>
-
-                                <div className="flex items-center gap-2 mb-4">
-                                    <StarRating rating={averageRating} size="large" />
-                                    <span className="text-sm text-accent-600 dark:text-dark-text-secondary">
-                                        ({totalReviews} تقييم)
-                                    </span>
-                                </div>
-
-                                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-full text-xs font-medium">
-                                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
-                                    كل التقييمات من مستخدمين موثوقين
-                                </div>
-                            </div>
-                        )}
+            {/* Header & Stats - Left Side (Only if not simple) */}
+            {!simple && (
+                <div className="md:w-1/3 space-y-6">
+                    <div>
+                        <h2 className="text-2xl font-bold text-accent-900 dark:text-dark-text-primary mb-2">
+                            تقييمات المستخدمين
+                        </h2>
+                        <p className="text-accent-600 dark:text-dark-text-secondary text-sm">
+                            آراء حقيقية من مجتمع عرب نوشن
+                        </p>
                     </div>
 
-                    {/* Reviews Grid - Right Side */}
-                    <div className="md:w-2/3">
-                        <div className="grid gap-4">
+                    {hasRatings && (
+                        <div className="bg-gray-50 dark:bg-dark-primary p-6 rounded-2xl border border-gray-100 dark:border-dark-card-border backdrop-blur-sm">
+                            <div className="flex items-baseline gap-2 mb-2">
+                                <span className="text-5xl font-bold text-accent-900 dark:text-dark-text-primary">
+                                    {averageRating.toFixed(1)}
+                                </span>
+                                <span className="text-accent-500 dark:text-dark-text-quaternary text-lg">/ 5</span>
+                            </div>
+
+                            <div className="flex items-center gap-2 mb-4">
+                                <StarRating rating={averageRating} size="large" />
+                                <span className="text-sm text-accent-600 dark:text-dark-text-secondary">
+                                    ({totalReviews} تقييم)
+                                </span>
+                            </div>
+
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-full text-xs font-medium">
+                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                                كل التقييمات من مستخدمين موثوقين
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Reviews Grid */}
+            <div className={simple ? 'w-full' : 'md:w-2/3'}>
+                <div className="grid gap-4">
                             {displayedReviews.map((review) => {
                                 const isRatingOnly = review.rating && !review.review && !review.comment;
                                 const displayDate = formatDate(new Date(review.latestDate));
@@ -185,7 +186,7 @@ export default function ReviewsList({
                             })}
                         </div>
 
-                        {reviews.length > 3 && (
+            {reviews.length > 3 && (
                             <div className="mt-8 text-center">
                                 <button
                                     onClick={() => setShowAll(!showAll)}
@@ -197,6 +198,14 @@ export default function ReviewsList({
                         )}
                     </div>
                 </div>
+    );
+
+    if (simple) return content;
+
+    return (
+        <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
+            <div className="container-custom">
+                {content}
             </div>
         </section>
     );

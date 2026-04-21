@@ -37,7 +37,8 @@ export default function PopularCreators() {
             bio: cr.bio,
             templatesCount: cr.templateCount || 0,
             followersCount: cr.followersCount || 0,
-            averageRating: cr.averageRating || 0
+            averageRating: cr.averageRating || 0,
+            badges: cr.badges || []
           })));
         }
       } catch (error) {
@@ -72,7 +73,7 @@ export default function PopularCreators() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {loadingCreators ? (
               [...Array(4)].map((_, idx) => (
-                <div key={idx} className="bg-white/80 dark:bg-dark-tertiary/80 backdrop-blur-xl rounded-[2rem] p-6 shadow-sm border border-black/5 dark:border-white/5 h-full flex flex-col overflow-hidden animate-pulse">
+                <div key={idx} className="bg-white/80 dark:bg-dark-tertiary/80 backdrop-blur-xl rounded-[2rem] p-6 shadow-sm border-none h-full flex flex-col overflow-hidden animate-pulse">
                   <div className="text-center mb-4 flex-shrink-0">
                     <div className="w-16 h-16 mx-auto rounded-full bg-black/5 dark:bg-white/5 mb-3" />
                     <div className="h-4 bg-black/5 dark:bg-white/5 rounded-lg w-3/4 mx-auto" />
@@ -88,23 +89,28 @@ export default function PopularCreators() {
             ) : (topCreators && topCreators.length > 0) ? (
               topCreators.slice(0, 4).map((cr, idx) => (
                 <Link key={cr.id || idx} href={`/creators/${cr.username || cr.email?.split('@')[0] || cr.displayName || cr.name || cr.id || cr._id || idx}`}>
-                  <div
-                    className="group bg-white/80 dark:bg-dark-tertiary/80 backdrop-blur-2xl rounded-[2rem] p-6 shadow-soft hover:shadow-2xl border border-black/5 dark:border-white/5 hover:border-[#f5631e]/30 transition-all duration-300 h-full flex flex-col opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards] hover:-translate-y-2"
-                    style={{ animationDelay: `${idx * 100}ms` }}
-                  >
+                    <div className="group bg-white/80 dark:bg-dark-tertiary/80 backdrop-blur-2xl rounded-[2rem] p-6 shadow-soft hover:shadow-2xl border-none transition-all duration-300 h-full flex flex-col opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards] hover:-translate-y-2">
                     <div className="text-center mb-4 flex-shrink-0">
                       <div className="relative w-16 h-16 mx-auto mb-3">
                         {cr.profilePicture ? (
-                          <Image
-                            src={cr.profilePicture}
-                            alt={cr.name || 'مبدع'}
-                            width={64}
-                            height={64}
-                            className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md relative z-10"
-                            loading="lazy"
-                            quality={80}
-                            sizes="64px"
-                          />
+                          <div className="relative">
+                            <Image
+                              src={cr.profilePicture}
+                              alt={cr.name || 'مبدع'}
+                              width={64}
+                              height={64}
+                              className="w-16 h-16 rounded-full object-cover border-2 border-white dark:border-dark-card-border shadow-md relative z-10"
+                              loading="lazy"
+                              quality={80}
+                              sizes="64px"
+                            />
+                            {/* Verified Badge on top of picture if present */}
+                            {cr.badges?.some(b => b.type === 'verified') && (
+                              <div className="absolute -bottom-1 -right-1 bg-white dark:bg-dark-secondary rounded-full p-0.5 shadow-sm z-20">
+                                <CheckCircle className="w-4 h-4 text-emerald-500 fill-emerald-500/10" />
+                              </div>
+                            )}
+                          </div>
                         ) : (
                           <div className="w-16 h-16 rounded-full bg-[#132859]/5 dark:bg-white/5 flex items-center justify-center border-2 border-white shadow-md relative z-10">
                             <span className="text-lg font-bold text-[#f5631e]">
@@ -114,10 +120,21 @@ export default function PopularCreators() {
                         )}
                         <div className="absolute inset-0 bg-[#f5631e]/20 blur-xl rounded-full scale-0 group-hover:scale-150 transition-transform duration-500"></div>
                       </div>
-                      <div className="flex items-center gap-2 justify-center">
+                      <div className="flex items-center gap-1.5 justify-center">
                         <h3 className="font-bold text-[#132859] dark:text-white group-hover:text-[#f5631e] transition-colors relative z-10">
                           {cr.name}
                         </h3>
+                        {/* Render other badges next to name */}
+                        <div className="flex gap-0.5 relative z-10">
+                          {cr.badges?.filter(b => b.type !== 'verified').slice(0, 2).map((badge, bIdx) => {
+                            const BadgeIcon = getBadgeIcon(badge.type);
+                            return (
+                              <div key={bIdx} title={badge.label} className="cursor-help">
+                                <BadgeIcon className="w-3.5 h-3.5 text-orange-500" />
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
                     <div className="flex-1 flex flex-col justify-between relative z-10">

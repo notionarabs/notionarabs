@@ -61,11 +61,11 @@ function ProfileOverview({ user }) {
               alt={`صورة ${user.name}`}
               width={120}
               height={120}
-              className="w-28 h-28 rounded-2xl border-4 border-white dark:border-dark-primary shadow-lg object-cover"
+              className="w-28 h-28 rounded-2xl border-none shadow-lg object-cover"
               quality={100}
             />
           ) : (
-            <div className="w-28 h-28 bg-gradient-to-br from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 rounded-2xl flex items-center justify-center border-4 border-white dark:border-dark-primary shadow-lg">
+            <div className="w-28 h-28 bg-gradient-to-br from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 rounded-2xl flex items-center justify-center border-none shadow-lg">
               <span className="text-4xl font-black text-white">
                 {user?.name?.charAt(0)?.toUpperCase()}
               </span>
@@ -76,7 +76,7 @@ function ProfileOverview({ user }) {
       </div>
 
       {/* Account Information */}
-      <div className="bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-xl p-6 mb-6">
+      <div className="bg-white dark:bg-dark-secondary border-none rounded-xl p-6 mb-6 shadow-sm">
         <h2 className="text-lg font-bold text-gray-900 dark:text-dark-text-primary mb-6 flex items-center gap-2">
           <UserIcon className="w-5 h-5 text-primary-600" />
           معلومات الحساب
@@ -87,7 +87,7 @@ function ProfileOverview({ user }) {
             <label className="block text-sm font-bold text-gray-700 dark:text-dark-text-secondary mb-2">
               الاسم
             </label>
-            <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/50 dark:bg-dark-tertiary rounded-xl border border-gray-100 dark:border-dark-card-border font-bold">
+            <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/50 dark:bg-dark-tertiary rounded-xl border-none font-bold shadow-sm">
               <span className="text-gray-900 dark:text-dark-text-primary">{user?.name}</span>
             </div>
           </div>
@@ -96,7 +96,7 @@ function ProfileOverview({ user }) {
             <label className="block text-sm font-bold text-gray-700 dark:text-dark-text-secondary mb-2">
               البريد الإلكتروني
             </label>
-            <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/50 dark:bg-dark-tertiary rounded-xl border border-gray-100 dark:border-dark-card-border font-bold">
+            <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/50 dark:bg-dark-tertiary rounded-xl border-none font-bold shadow-sm">
               <span className="text-gray-900 dark:text-dark-text-primary">{user?.email}</span>
             </div>
           </div>
@@ -106,7 +106,7 @@ function ProfileOverview({ user }) {
               <label className="block text-sm font-bold text-gray-700 dark:text-dark-text-secondary mb-2">
                 اسم المستخدم
               </label>
-              <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/50 dark:bg-dark-tertiary rounded-xl border border-gray-100 dark:border-dark-card-border font-bold">
+              <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/50 dark:bg-dark-tertiary rounded-xl border-none font-bold shadow-sm">
                 <AtSign className="w-5 h-5 text-gray-400" />
                 <span className="text-gray-900 dark:text-dark-text-primary text-ltr">@{user.username}</span>
               </div>
@@ -116,8 +116,8 @@ function ProfileOverview({ user }) {
       </div>
 
       {/* Quick Actions */}
-      {user?.creatorStatus === 'approved' && (
-        <div className="bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-xl p-6 shadow-sm">
+      {user?.creatorStatus?.toLowerCase() === 'approved' && (
+        <div className="bg-white dark:bg-dark-secondary border-none rounded-xl p-6 shadow-sm">
           <h2 className="text-lg font-bold text-gray-900 dark:text-dark-text-primary mb-6 flex items-center gap-2">
             <LayoutDashboard className="w-5 h-5 text-primary-600" />
             إجراءات سريعة
@@ -126,7 +126,7 @@ function ProfileOverview({ user }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Link
               href="/templates/create"
-              className="flex items-center justify-between px-5 py-4 bg-gray-50/50 dark:bg-dark-tertiary hover:bg-primary-50 dark:hover:bg-orange-900/10 rounded-xl border border-gray-100 dark:border-dark-card-border transition-all duration-300 group"
+              className="flex items-center justify-between px-5 py-4 bg-gray-50/50 dark:bg-dark-tertiary hover:bg-primary-50 dark:hover:bg-orange-900/10 rounded-xl border-none transition-all duration-300 group shadow-sm"
             >
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-primary-100 dark:bg-orange-900/20 flex items-center justify-center text-primary-600 group-hover:scale-110 transition-transform">
@@ -141,7 +141,7 @@ function ProfileOverview({ user }) {
 
             <Link
               href="/blog/create"
-              className="flex items-center justify-between px-5 py-4 bg-gray-50/50 dark:bg-dark-tertiary hover:bg-primary-50 dark:hover:bg-orange-900/10 rounded-xl border border-gray-100 dark:border-dark-card-border transition-all duration-300 group"
+              className="flex items-center justify-between px-5 py-4 bg-gray-50/50 dark:bg-dark-tertiary hover:bg-primary-50 dark:hover:bg-orange-900/10 rounded-xl border-none transition-all duration-300 group shadow-sm"
             >
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-primary-100 dark:bg-orange-900/20 flex items-center justify-center text-primary-600 group-hover:scale-110 transition-transform">
@@ -196,7 +196,7 @@ function ProfilePageContent() {
 
         <div className="flex">
           {/* Sidebar Skeleton */}
-          <aside className="hidden lg:block fixed top-0 right-0 h-screen w-64 bg-white dark:bg-dark-secondary border-l border-gray-200 dark:border-dark-card-border p-6 z-40">
+          <aside className="hidden lg:block fixed top-0 right-0 h-screen w-64 bg-white dark:bg-dark-secondary border-none p-6 z-40">
             <div className="space-y-8 animate-pulse">
               {/* Section 1 */}
               <div>
@@ -234,7 +234,7 @@ function ProfilePageContent() {
 
               {/* Profile Info */}
               <div className="mb-8 -mt-20 relative z-10 flex items-end gap-4 px-4">
-                <div className="h-32 w-32 bg-gray-300 dark:bg-gray-600 rounded-full border-4 border-white dark:border-dark-primary"></div>
+                <div className="h-32 w-32 bg-gray-300 dark:bg-gray-600 rounded-full border-none shadow-lg"></div>
                 <div className="mb-4 space-y-2">
                   <div className="h-6 w-40 bg-gray-200 dark:bg-gray-700 rounded"></div>
                   <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
@@ -262,7 +262,7 @@ function ProfilePageContent() {
     return null;
   }
 
-  if (!loading && isAuthenticated && user && user.creatorStatus === 'pending') {
+  if (!loading && isAuthenticated && user && user.creatorStatus?.toLowerCase() === 'pending') {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
 

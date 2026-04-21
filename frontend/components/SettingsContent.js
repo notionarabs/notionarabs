@@ -251,9 +251,15 @@ export default function SettingsContent() {
             if (!profileSettings.allowMessages || !(profileSettings.contactEmail || '').trim()) {
                 delete cleanedSettings.contactEmail;
             }
-            await api.put('/auth/profile/settings', cleanedSettings);
-            showSuccess('تم حفظ إعدادات الملف الشخصي بنجاح!');
-            try { await refreshUserData(); } catch { }
+            const res = await api.put('/auth/profile/settings', cleanedSettings);
+            
+            if (res.data?.success) {
+                // Instantly update AuthContext by forcing a refresh
+                // This ensures that the global user state matches the newly saved data
+                await refreshUserData();
+            }
+
+            showSuccess('تم حفظ إعدادات الملف الشخصي بنجاح! 🎉');
             setTimeout(() => router.push('/profile'), 300);
         } catch (error) {
             showError(error.response?.data?.message || 'حدث خطأ في حفظ الإعدادات');
@@ -316,10 +322,10 @@ export default function SettingsContent() {
 
     return (
         <>
-            <div className="mb-8 border-b border-gray-100 dark:border-dark-card-border pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="mb-8 border-none pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-black text-gray-900 dark:text-dark-text-primary mb-2 tracking-tight">إعدادات الحساب</h1>
-                    <p className="text-base text-gray-600 dark:text-dark-text-secondary font-medium">إدارة بياناتك الشخصية وتفضيلات حسابك في مكان واحد</p>
+                    <p className="text-base text-gray-600 dark:text-dark-text-secondary font-medium outline-none">إدارة بياناتك الشخصية وتفضيلات حسابك في مكان واحد</p>
                 </div>
                 <button
                     onClick={handleSave}
@@ -337,8 +343,8 @@ export default function SettingsContent() {
 
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
                 <div className="xl:col-span-2 space-y-6 lg:space-y-8">
-                    <div className="bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl shadow-sm overflow-hidden">
-                        <div className="p-6 lg:p-8 bg-gray-50/50 dark:bg-dark-tertiary/20 border-b border-gray-100 dark:border-dark-card-border">
+                    <div className="bg-white dark:bg-dark-secondary border-none rounded-2xl shadow-sm overflow-hidden">
+                        <div className="p-6 lg:p-8 bg-gray-50/50 dark:bg-dark-tertiary/20 border-none">
                             <h2 className="text-xl font-bold text-gray-900 dark:text-dark-text-primary">المعلومات الشخصية</h2>
                         </div>
                         <div className="p-6 lg:p-8 space-y-8">

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { LayoutDashboard, ArrowLeft } from 'lucide-react';
+import { LayoutDashboard, ArrowLeft, CheckCircle } from 'lucide-react';
 import api from '../../lib/api';
 import StarRating from '../StarRating';
 
@@ -112,7 +112,7 @@ export default function FeaturedTemplates() {
                     {templates.map((template, index) => (
                         <Link key={template._id} href={`/templates/${template.slug || template._id}`} className="block h-full">
                             <div
-                                className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer h-full flex flex-col border border-gray-200 dark:border-dark-card-border"
+                                className="group card-interactive overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer h-full flex flex-col border-none"
                             >
                                 {/* Template Image */}
                                 <div className="relative overflow-hidden rounded-lg h-48">
@@ -168,24 +168,32 @@ export default function FeaturedTemplates() {
 
                                     <div className="flex items-center justify-between mt-auto">
                                         <div className="flex items-center gap-2">
-                                            {template.creator?.profilePicture ? (
-                                                <Image
-                                                    src={template.creator.profilePicture}
-                                                    alt={template.creator?.name || 'مبدع'}
-                                                    width={24}
-                                                    height={24}
-                                                    className="w-6 h-6 rounded-full object-cover"
-                                                />
-                                            ) : (
-                                                <div className="w-6 h-6 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
-                                                    <span className="text-xs font-medium text-primary-600 dark:text-primary-400">
-                                                        {template.creator?.name?.charAt(0)?.toUpperCase() || 'م'}
-                                                    </span>
-                                                </div>
-                                            )}
-                                            <span className="text-xs font-medium text-accent-600 dark:text-dark-text-tertiary">
-                                                {template.creator?.name || 'مبدع غير معروف'}
-                                            </span>
+                                            <div className="relative">
+                                                {template.creator?.profilePicture ? (
+                                                    <Image
+                                                        src={template.creator.profilePicture}
+                                                        alt={template.creator?.name || 'مبدع'}
+                                                        width={24}
+                                                        height={24}
+                                                        className="w-6 h-6 rounded-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-6 h-6 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
+                                                        <span className="text-xs font-medium text-primary-600 dark:text-primary-400">
+                                                            {template.creator?.name?.charAt(0)?.toUpperCase() || 'م'}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                {/* Tooltip-like verification icon */}
+                                                {template.creator?.badges?.some(b => b.type === 'verified') && (
+                                                    <CheckCircle className="absolute -top-1 -right-1 w-2.5 h-2.5 text-blue-500 fill-blue-500/10" />
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <span className="text-xs font-medium text-accent-600 dark:text-dark-text-tertiary">
+                                                    {template.creator?.name || 'مبدع غير معروف'}
+                                                </span>
+                                            </div>
                                         </div>
                                         {template.isPaid ? (
                                             <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-lg font-bold text-sm">

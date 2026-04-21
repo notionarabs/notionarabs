@@ -199,6 +199,7 @@ class Blog {
         p.sort = (s) => {
             if (s && typeof s === 'object') {
                 const key = Object.keys(s)[0];
+                if (key === 'score') return wrap(promise); // Ignore MongoDB textScore sorting
                 const ascending = s[key] === 1;
                 chain = chain.order(key === '_id' ? 'id' : key, { ascending });
             }
@@ -266,6 +267,7 @@ class Blog {
   }
 
   static findByIdAndUpdate(id, update, options = {}) {
+    let populatePath = null;
     const execute = async () => {
         let dbUpdate = { ...update };
         
@@ -280,15 +282,34 @@ class Blog {
             delete dbUpdate.$inc;
         }
 
+        // Ensure status is UPPERCASE if present
+        if (dbUpdate.status) dbUpdate.status = dbUpdate.status.toString().toUpperCase();
+
+        // Ensure updatedAt is refreshed
+        dbUpdate.updatedAt = new Date().toISOString();
+
         const { data, error } = await supabase.from('Blog').update(dbUpdate).eq('id', id).select().maybeSingle();
         if (error) throw error;
-        return data ? new Blog(data) : null;
+        if (!data) return null;
+        
+        const doc = new Blog(data);
+        if (populatePath) {
+            await doc.populate(populatePath);
+        }
+        return doc;
     };
     
     const promise = execute();
-    promise.exec = () => promise;
-    promise.select = () => promise;
-    return promise;
+    const wrap = (p) => {
+        p.exec = () => p;
+        p.select = () => wrap(p);
+        p.populate = (path) => { 
+            populatePath = typeof path === 'string' ? path : path.path;
+            return wrap(execute()); 
+        };
+        return p;
+    };
+    return wrap(promise);
   }
 
   static async countDocuments(query = {}) {
@@ -339,35 +360,28 @@ class Blog {
 
           const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
           
-          // Optimization: Fetch only 'status' and 'createdAt' for all blogs
-          const { data, error } = await supabase.from('Blog').select('status, createdAt');
-          if (error) throw error;
+          const [totalRes, pendingRes, publishedRes, rejectedRes, draftRes, recentRes] = await Promise.all([
+              supabase.from('Blog').select('id', { count: 'exact', head: true }),
+              supabase.from('Blog').select('id', { count: 'exact', head: true }).or('status.ilike.PENDING,status.eq.pending'),
+              supabase.from('Blog').select('id', { count: 'exact', head: true }).or('status.ilike.PUBLISHED,status.eq.published'),
+              supabase.from('Blog').select('id', { count: 'exact', head: true }).or('status.ilike.REJECTED,status.eq.rejected'),
+              supabase.from('Blog').select('id', { count: 'exact', head: true }).or('status.ilike.DRAFT,status.eq.draft'),
+              supabase.from('Blog').select('id', { count: 'exact', head: true }).gte('createdAt', sevenDaysAgo)
+          ]);
 
           const stats = {
-              totalBlogs: data.length,
-              pendingBlogs: 0,
-              publishedBlogs: 0,
-              rejectedBlogs: 0,
-              draftBlogs: 0,
-              recentBlogs: 0,
-              total: data.length,
-              pending: 0,
-              published: 0,
-              rejected: 0,
-              draft: 0
+              totalBlogs: totalRes.count || 0,
+              pendingBlogs: pendingRes.count || 0,
+              publishedBlogs: publishedRes.count || 0,
+              rejectedBlogs: rejectedRes.count || 0,
+              draftBlogs: draftRes.count || 0,
+              recentBlogs: recentRes.count || 0,
+              total: totalRes.count || 0,
+              pending: pendingRes.count || 0,
+              published: publishedRes.count || 0,
+              rejected: rejectedRes.count || 0,
+              draft: draftRes.count || 0
           };
-
-          data.forEach(item => {
-              const status = (item.status || '').toUpperCase();
-              if (status === 'PENDING') { stats.pendingBlogs++; stats.pending++; }
-              else if (status === 'PUBLISHED') { stats.publishedBlogs++; stats.published++; }
-              else if (status === 'REJECTED') { stats.rejectedBlogs++; stats.rejected++; }
-              else if (status === 'DRAFT') { stats.draftBlogs++; stats.draft++; }
-              
-              if (item.createdAt >= sevenDaysAgo) {
-                  stats.recentBlogs++;
-              }
-          });
 
           return [stats];
       }

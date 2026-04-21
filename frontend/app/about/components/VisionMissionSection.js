@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Target, Lightbulb, TrendingUp, Users } from 'lucide-react';
+import { Target, Lightbulb, TrendingUp, Users, Zap, Settings } from 'lucide-react';
 import api from '../../../lib/api';
 import Counter from '../../../components/Counter';
 
@@ -12,7 +12,7 @@ const BentoCard = ({ children, className, delay = 0 }) => (
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5, delay }}
-        className={`bg-white dark:bg-dark-card-bg rounded-3xl p-6 sm:p-8 shadow-soft border border-gray-100 dark:border-dark-card-border overflow-hidden relative ${className}`}
+        className={`bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-[2.5rem] p-8 sm:p-10 shadow-soft hover:shadow-large border-none overflow-hidden relative transition-all duration-500 ${className}`}
     >
         {children}
     </motion.div>
@@ -40,14 +40,14 @@ export default function VisionMissionSection() {
     }, []);
 
     return (
-        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-dark-secondary transition-colors duration-300">
+        <section className="py-32 px-4 sm:px-6 lg:px-8 bg-transparent transition-colors duration-300 relative z-10 overflow-visible">
             <div className="container-custom">
                 <div className="text-center mb-12 sm:mb-16">
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-3xl sm:text-4xl md:text-5xl font-bold text-accent-800 dark:text-white mb-4"
+                        className="text-5xl sm:text-7xl font-black text-accent-500 dark:text-white mb-6 tracking-tighter leading-tight"
                     >
                         رؤيتنا ورسالتنا
                     </motion.h2>
@@ -56,76 +56,96 @@ export default function VisionMissionSection() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.1 }}
-                        className="text-lg text-accent-600 dark:text-gray-400 max-w-2xl mx-auto"
+                        className="text-xl text-accent-600 dark:text-gray-400 max-w-2xl mx-auto font-medium"
                     >
                         بوصلتنا التي توجهنا نحو بناء مستقبل أكثر إنتاجية وتنظيمًا للمحتوى العربي
                     </motion.p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
 
                     {/* Unified Vision & Mission Card - Large */}
-                    {/* Spans 2 cols and 2 rows to establish dominance */}
-                    <BentoCard className="md:col-span-2 md:row-span-2 bg-gradient-to-br from-primary-500 to-orange-600 text-white border-none flex flex-col justify-center">
-                        <div className="relative z-10 flex flex-col gap-10">
-
+                    <BentoCard className="md:col-span-2 md:row-span-2 bg-gradient-to-br from-primary-600 to-purple-700 text-white border-none flex flex-col justify-center shadow-glow">
+                        <div className="relative z-10 flex flex-col gap-12">
                             {/* Vision Part */}
                             <div>
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                                        <Target className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-md shadow-inner">
+                                        <Target className="w-8 h-8 text-white" />
                                     </div>
-                                    <h3 className="text-2xl sm:text-3xl font-bold">الرؤية</h3>
+                                    <h3 className="text-3xl sm:text-4xl font-black tracking-tight">الرؤية</h3>
                                 </div>
-                                <p className="text-lg sm:text-lg text-white/90 leading-relaxed font-medium">
+                                <p className="text-xl sm:text-2xl text-white/90 leading-relaxed font-bold">
                                     أن نصبح الوجهة العربية الأولى لكل ما يتعلق بنوشن —
-                                    خدمات مخصصة، قوالب عالية الجودة، ومجتمع يتبادل الخبرات.
-                                    نريد أن نكون الجسر بين الفكرة والتطبيق في بيئة منظمة.
+                                    قوالب استثنائية، أدوات ذكية، ومجتمع حيوي يتبادل الإبداع.
                                 </p>
                             </div>
 
                             {/* Divider */}
-                            <div className="w-full h-px bg-white/20"></div>
+                            <div className="w-full h-px bg-white/10"></div>
 
                             {/* Mission Part */}
                             <div>
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                                        <Lightbulb className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="p-4 bg-white/20 rounded-2xl backdrop-blur-md shadow-inner">
+                                        <Lightbulb className="w-8 h-8 text-white" />
                                     </div>
-                                    <h3 className="text-2xl sm:text-3xl font-bold">الرسالة</h3>
+                                    <h3 className="text-3xl sm:text-4xl font-black tracking-tight">الرسالة</h3>
                                 </div>
-                                <p className="text-lg sm:text-lg text-white/90 leading-relaxed font-medium">
-                                    نحوّل احتياجك إلى نظام عمل عملي ومفهوم باللغة العربية.
-                                    نساعد الأفراد والفرق على بناء أنظمة نوشن فعّالة.
+                                <p className="text-xl sm:text-2xl text-white/90 leading-relaxed font-bold">
+                                    نسهّل على المستخدم العربي الوصول إلى قوالب نوشن احترافية تساعده على بناء أنظمة إنتاجية مخصصة وفهم أعمق للابتكار الرقمي.
                                 </p>
                             </div>
-
                         </div>
 
                         {/* Decoration */}
-                        <Target className="absolute -top-10 -right-10 w-64 h-64 text-white/5 rotate-[-15deg]" />
-                        <Lightbulb className="absolute -bottom-10 -left-10 w-64 h-64 text-white/5 rotate-12" />
+                        <Target className="absolute -top-10 -right-10 w-96 h-96 text-white/5 rotate-[-15deg]" />
+                        <Lightbulb className="absolute -bottom-10 -left-10 w-96 h-96 text-white/5 rotate-12" />
                     </BentoCard>
 
-                    {/* Stat Card 1 */}
-                    <BentoCard delay={0.2} className="flex flex-col items-center justify-center text-center bg-white dark:bg-dark-card-bg md:h-auto min-h-[200px]">
+                    {/* Stat Card 1 - Templates */}
+                    <BentoCard delay={0.2} className="flex flex-col items-center justify-center text-center bg-white/50 dark:bg-white/5 backdrop-blur-2xl md:h-auto min-h-[200px]">
                         <div className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-4 text-blue-600 dark:text-blue-400">
                             <TrendingUp className="w-7 h-7 sm:w-8 sm:h-8" />
                         </div>
                         <h4 className="text-3xl sm:text-4xl font-bold text-accent-800 dark:text-white mb-2">
-                            <Counter end={Math.floor((stats.downloads || 1000) / 1000) * 1000} suffix="+" />
+                            <Counter end={stats.templates || 0} />
                         </h4>
-                        <p className="text-accent-500 dark:text-gray-400">قالب تم تحميله</p>
+                        <p className="text-accent-500 dark:text-gray-400 font-medium">قالب إبداعي</p>
                     </BentoCard>
 
-                    {/* Stat Card 2 */}
-                    <BentoCard delay={0.3} className="flex flex-col items-center justify-center text-center bg-secondary-50 dark:bg-dark-tertiary md:h-auto min-h-[200px]">
+                    {/* Stat Card 2 - Creators */}
+                    <BentoCard delay={0.3} className="flex flex-col items-center justify-center text-center bg-white/50 dark:bg-white/5 backdrop-blur-2xl md:h-auto min-h-[200px]">
                         <div className="w-14 h-14 sm:w-16 sm:h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mb-4 text-purple-600 dark:text-purple-400">
                             <Users className="w-7 h-7 sm:w-8 sm:h-8" />
                         </div>
-                        <h4 className="text-3xl sm:text-4xl font-bold text-accent-800 dark:text-white mb-2">مجتمع</h4>
-                        <p className="text-accent-500 dark:text-gray-400">ينمو يومياً</p>
+                        <h4 className="text-3xl sm:text-4xl font-bold text-accent-800 dark:text-white mb-2">
+                            <Counter end={stats.creators || 0} />
+                        </h4>
+                        <p className="text-accent-500 dark:text-gray-400 font-medium">مبدع معتمد</p>
+                    </BentoCard>
+
+                    {/* Stat Card 3 - Downloads */}
+                    <BentoCard delay={0.4} className="flex flex-col items-center justify-center text-center bg-white/50 dark:bg-white/5 backdrop-blur-2xl md:h-auto min-h-[200px]">
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mb-4 text-orange-600 dark:text-orange-400">
+                            <Zap className="w-7 h-7 sm:w-8 sm:h-8" />
+                        </div>
+                        <h4 className="text-3xl sm:text-4xl font-bold text-accent-800 dark:text-white mb-2 tracking-tighter">
+                            <Counter end={stats.downloads || 1350} suffix="+" />
+                        </h4>
+                        <p className="text-accent-500 dark:text-gray-400 font-medium">تحميل ناجح</p>
+                    </BentoCard>
+
+                    {/* Stat Card 4 - Status */}
+                    <BentoCard delay={0.5} className="flex flex-col items-center justify-center text-center bg-white/50 dark:bg-white/5 backdrop-blur-2xl md:h-auto min-h-[200px]">
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-4 text-green-600 dark:text-green-400">
+                            <div className="relative">
+                                <div className="absolute inset-0 bg-current rounded-full animate-ping opacity-25" />
+                                <Settings className="w-7 h-7 sm:w-8 sm:h-8 relative z-10" />
+                            </div>
+                        </div>
+                        <h4 className="text-3xl sm:text-4xl font-bold text-accent-800 dark:text-white mb-2">مستقر</h4>
+                        <p className="text-accent-500 dark:text-gray-400 font-medium whitespace-nowrap">حالة النظام: مباشر</p>
                     </BentoCard>
 
                 </div>
@@ -133,4 +153,3 @@ export default function VisionMissionSection() {
         </section>
     );
 }
-

@@ -120,16 +120,25 @@ class Notification {
     return { nModified: data?.length || 0 };
   }
 
-  static async findByIdAndUpdate(id, update) {
-    const { data, error } = await supabase
-      .from('Notification')
-      .update(update)
-      .eq('id', id)
-      .select()
-      .maybeSingle();
+  static findByIdAndUpdate(id, update) {
+    const execute = async () => {
+        const dbUpdate = { ...update, updatedAt: new Date().toISOString() };
+        const { data, error } = await supabase
+          .from('Notification')
+          .update(dbUpdate)
+          .eq('id', id)
+          .select()
+          .maybeSingle();
 
-    if (error) throw error;
-    return data ? new Notification(data) : null;
+        if (error) throw error;
+        return data ? new Notification(data) : null;
+    };
+
+    const promise = execute();
+    promise.exec = () => promise;
+    promise.select = () => promise;
+    promise.populate = () => promise;
+    return promise;
   }
 
   static async updateMany(query, update) {

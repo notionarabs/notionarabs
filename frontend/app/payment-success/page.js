@@ -55,7 +55,7 @@ function SuccessContent() {
                         تحميل القالب
                     </Link>
                     <Link
-                        href="/store"
+                        href="/#marketplace"
                         className="flex items-center justify-center gap-2 py-4 px-6 bg-gray-100 dark:bg-dark-tertiary hover:bg-gray-200 dark:hover:bg-dark-card-border text-gray-700 dark:text-gray-200 font-bold rounded-2xl transition-all border border-gray-200 dark:border-dark-card-border hover:-translate-y-1"
                     >
                         <ShoppingBag size={20} />

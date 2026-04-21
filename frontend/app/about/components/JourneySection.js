@@ -7,17 +7,17 @@ import { Rocket, Users, Globe, CheckCircle2 } from 'lucide-react';
 const milestones = [
     {
         title: "البداية: مجتمع صغير",
-        description: "بدأت عرب نوشن كمبادرة بسيطة ومجتمع صغير يؤمن بأن نوشن يحتاج مساحة عربية واضحة، تشرح أدواته وتسهل استخدامه.",
+        description: "بدأت عرب نوشن كمبادرة بسيطة ومجتمع صغير يؤمن بأن نوشن يحتاج مساحة عربية واضحة، تشرح أدواته وتسهل استخدامه للأفراد.",
         Icon: Users
     },
     {
-        title: "التطور: منصة متكاملة",
-        description: "مع تزايد الحاجة، تحولنا من مجرد مجتمع إلى منصة توفر خدمات استشارية، وقوالب احترافية، تدعم الأفراد والشركات.",
+        title: "التطور: منصة ابتكار",
+        description: "مع تزايد الحاجة، تحولنا إلى منصة رقمية توفر أرقى القوالب الاحترافية، وتدعم صناع المحتوى العربي لتمكين الأفراد والشركات من التنظيم الذكي.",
         Icon: Globe
     },
     {
         title: "اليوم: نظام بيئي شامل",
-        description: "نبني الآن نظامًا متكاملًا يجمع الخدمات، متجر القوالب، ودعم المبدعين في مكان واحد، لنكون المرجع الأول لنوشن عربيًا.",
+        description: "نبني الآن نظامًا متكاملًا يجمع بين متجر القوالب العالمي، ودعم المبدعين العرب، ومصادر التعلم في مكان واحد، لنكون المرجع الأول لنوشن في المنطقة.",
         Icon: Rocket
     }
 ];
@@ -27,8 +27,8 @@ const TimelineStep = ({ step, index, isLast }) => {
         <div className="relative flex gap-6 sm:gap-10">
             {/* Timeline Line & Dot */}
             <div className="flex flex-col items-center shrink-0">
-                <div className="w-12 h-12 rounded-full bg-white dark:bg-dark-card-bg border-2 border-primary-500 z-10 flex items-center justify-center shadow-lg">
-                    <step.Icon className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+                <div className="w-14 h-14 rounded-[1.25rem] bg-white/50 dark:bg-white/10 backdrop-blur-xl border-none z-10 flex items-center justify-center shadow-large">
+                    <step.Icon className="w-7 h-7 text-primary" />
                 </div>
                 {!isLast && (
                     <div className="w-0.5 h-full bg-gray-200 dark:bg-gray-800 my-2 relative">
@@ -37,7 +37,7 @@ const TimelineStep = ({ step, index, isLast }) => {
                             whileInView={{ height: '100%' }}
                             viewport={{ once: true, margin: "-50px" }}
                             transition={{ duration: 0.8, ease: "easeOut" }}
-                            className="absolute top-0 left-0 w-full bg-primary-500 origin-top"
+                            className="absolute top-0 left-0 w-full bg-gradient-to-b from-primary to-transparent origin-top opacity-50"
                         />
                     </div>
                 )}
@@ -49,12 +49,12 @@ const TimelineStep = ({ step, index, isLast }) => {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ duration: 0.5, delay: index * 0.2 }}
-                className="pb-12 pt-2"
+                className="pb-16 pt-2"
             >
-                <h3 className="text-2xl font-bold text-accent-800 dark:text-white mb-3">
+                <h3 className="text-3xl font-black text-accent-900 dark:text-white mb-4 tracking-tight">
                     {step.title}
                 </h3>
-                <p className="text-lg text-accent-600 dark:text-gray-400 leading-relaxed max-w-2xl">
+                <p className="text-xl text-accent-600 dark:text-gray-400 leading-relaxed max-w-2xl font-medium">
                     {step.description}
                 </p>
             </motion.div>
@@ -66,7 +66,7 @@ export default function JourneySection() {
     const containerRef = useRef(null);
 
     return (
-        <section ref={containerRef} className="py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-dark-secondary overflow-hidden">
+        <section ref={containerRef} className="py-32 px-4 sm:px-6 lg:px-8 bg-transparent overflow-visible relative z-10">
             <div className="container-custom max-w-5xl mx-auto">
 
                 {/* Header */}
@@ -75,9 +75,9 @@ export default function JourneySection() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50/50 dark:bg-primary-900/10 text-primary-600 dark:text-primary-400 font-medium text-sm mb-4"
+                        className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/50 dark:bg-white/5 backdrop-blur-xl text-primary font-black text-xs mb-8 border-none shadow-soft uppercase tracking-widest"
                     >
-                        <Rocket size={16} />
+                        <Rocket size={14} />
                         <span>رحلتنا</span>
                     </motion.div>
 
@@ -85,7 +85,7 @@ export default function JourneySection() {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-3xl sm:text-4xl md:text-5xl font-bold text-accent-800 dark:text-white mb-6"
+                        className="text-5xl sm:text-7xl font-black text-foreground dark:text-white mb-6 tracking-tighter leading-tight"
                     >
                         من فكرة إلى كيان
                     </motion.h2>
@@ -96,7 +96,7 @@ export default function JourneySection() {
                         transition={{ delay: 0.1 }}
                         className="text-lg text-accent-600 dark:text-gray-400 max-w-3xl mx-auto"
                     >
-                        قصة نمو دافعها الشغف بنشر ثقافة التنظيم والإنتاجية في العالم العربي.
+                        قصة نمو دافعها الشغف بنشر ثقافة التنظيم والإنتاجية الرقمية في العالم العربي عبر نوشن.
                     </motion.p>
                 </div>
 

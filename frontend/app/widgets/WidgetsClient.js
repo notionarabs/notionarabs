@@ -26,7 +26,7 @@ function CategorySkeleton() {
     return (
         <div className="flex items-center gap-2 overflow-x-auto pb-4 md:pb-0 w-full md:w-auto no-scrollbar scroll-smooth">
             {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-11 w-24 bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border rounded-2xl animate-pulse" />
+                <div key={i} className="h-11 w-24 bg-white dark:bg-dark-secondary border-none rounded-2xl animate-pulse" />
             ))}
         </div>
     );
@@ -34,13 +34,13 @@ function CategorySkeleton() {
 
 function SortSkeleton() {
     return (
-        <div className="h-12 w-full sm:w-48 bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border rounded-2xl animate-pulse" />
+        <div className="h-12 w-full sm:w-48 bg-white dark:bg-dark-secondary border-none rounded-2xl animate-pulse" />
     );
 }
 
 function SearchSkeleton() {
     return (
-        <div className="h-12 w-full md:w-80 bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border rounded-2xl animate-pulse" />
+        <div className="h-12 w-full md:w-80 bg-white dark:bg-dark-secondary border-none rounded-2xl animate-pulse" />
     );
 }
 
@@ -146,35 +146,60 @@ export default function WidgetsClient() {
     });
 
     return (
-        <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+        <main className="min-h-screen bg-secondary-50 dark:bg-[#0a0a0a] text-foreground dark:text-white transition-colors duration-300" dir="rtl">
 
-            <section className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300 py-12 sm:py-16 md:py-20 lg:py-24">
-                <div className="container-custom text-center relative z-10 px-4 sm:px-6">
-                    <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-accent-900 dark:text-white mb-4 sm:mb-6">
-                        أدوات عرب نوشن
-                    </h1>
-                    <p className="text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary max-w-2xl mx-auto mb-6 sm:mb-8 px-4">
-                        مجموعة من الأدوات المصممة خصيصاً للمستخدم العربي لتعزيز الإنتاجية والجمالية في نوشن.
-                    </p>
+            {/* Premium Atmospheric Foundry Hero */}
+            <section className="relative overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-24">
+                {/* Arab-OS Style Mesh Background */}
+                <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute top-[-10%] right-[-5%] w-[45%] h-[45%] bg-primary/20 rounded-full blur-[120px] animate-pulse" />
+                    <div className="absolute bottom-[-10%] left-[-5%] w-[35%] h-[35%] bg-blue-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '3s' }} />
+                </div>
+
+                <div className="container-custom relative z-10 text-center">
+                    <div className="max-w-4xl mx-auto">
+
+                        <h1 className="text-5xl sm:text-7xl font-black text-foreground dark:text-white mb-6 tracking-tight">
+                            أدوات <span className="text-primary drop-shadow-[0_0_20px_rgba(249,115,22,0.3)]">عرب نوشن</span>
+                        </h1>
+                        <p className="text-lg sm:text-xl text-foreground/60 dark:text-white/50 mb-12 max-w-2xl mx-auto leading-relaxed">
+                            عزز صفحاتك في نوشن بأدوات ذكية مصممة خصيصاً للمستخدم العربي. جمالية متكاملة بضغطة زر.
+                        </p>
+
+                        {/* Integrated Command Search */}
+                        <div className="max-w-2xl mx-auto">
+                            <div className="relative group p-1 rounded-[2rem] bg-white/50 dark:bg-white/5 backdrop-blur-xl border-none shadow-2xl transition-all">
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    placeholder="ابحث عن أداة... (آية اليوم، ساعة، منظم مهام)"
+                                    className="w-full bg-transparent border-none focus:ring-0 px-8 py-5 text-lg text-foreground dark:text-white placeholder:text-foreground/40 dark:placeholder:text-white/30"
+                                />
+                                <div className="absolute left-3 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20">
+                                    <Search className="w-5 h-5" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
-            <section className="py-12 pb-24 px-4 bg-secondary-50 dark:bg-dark-primary min-h-[600px]">
+            <section className="py-12 pb-24 px-4 bg-secondary-50 dark:bg-[#0a0a0a] min-h-[600px]">
                 <div className="container-custom">
-                    {/* Filter & Search Bar */}
-                    <div className="mb-12 flex flex-col md:flex-row gap-6 items-center justify-between">
-                        {/* Categories */}
+                    {/* Silk Pill Filters & Sort */}
+                    <div className="mb-16 flex flex-col lg:flex-row gap-8 items-center justify-between">
                         {loading ? (
                             <CategorySkeleton />
                         ) : (
-                            <div className="flex items-center gap-2 overflow-x-auto pb-4 md:pb-0 w-full md:w-auto no-scrollbar scroll-smooth">
+                            <div className="flex items-center gap-3 overflow-x-auto overflow-y-hidden pb-4 lg:pb-0 w-full lg:w-auto no-scrollbar scroll-smooth">
                                 {categories.map((cat) => (
                                     <button
                                         key={cat}
                                         onClick={() => setActiveCategory(cat)}
-                                        className={`px-6 py-2.5 rounded-2xl text-sm font-bold transition-all duration-300 whitespace-nowrap border ${activeCategory === cat
-                                            ? 'bg-primary-500 text-white border-primary-500 shadow-lg shadow-primary-500/20'
-                                            : 'bg-white dark:bg-dark-secondary text-gray-500 dark:text-gray-400 border-gray-100 dark:border-dark-card-border hover:border-primary-500/50'
+                                        className={`px-8 py-3 rounded-2xl text-sm font-black tracking-widest transition-all duration-300 whitespace-nowrap uppercase border-none ${activeCategory === cat
+                                            ? 'bg-primary text-white shadow-xl shadow-primary/20 scale-105'
+                                            : 'bg-card/50 dark:bg-white/5 text-foreground/60 dark:text-white/40 hover:bg-white/10'
                                             }`}
                                     >
                                         {cat}
@@ -183,25 +208,20 @@ export default function WidgetsClient() {
                             </div>
                         )}
 
-                        {/* Actions (Search + Sort) */}
-                        <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
-                            {/* Sort Dropdown */}
+                        <div className="flex items-center gap-4 w-full lg:w-auto">
                             {loading ? (
                                 <SortSkeleton />
                             ) : (
-                                <div className="relative w-full sm:w-48">
+                                <div className="relative w-full lg:w-56">
                                     <button
                                         onClick={() => setIsSortOpen(!isSortOpen)}
-                                        className="w-full flex items-center justify-between bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border px-4 py-3.5 rounded-2xl text-sm font-bold text-gray-500 dark:text-gray-400 hover:border-primary-500/50 transition-all shadow-soft overflow-hidden group"
+                                        className="w-full flex items-center justify-between bg-card/50 dark:bg-white/5 border-none px-6 py-3.5 rounded-2xl text-sm font-black text-foreground dark:text-white transition-all focus:outline-none shadow-sm"
                                     >
-                                        <div className="flex items-center gap-2">
-                                            <ArrowUpDown className="w-4 h-4 text-primary-500" />
-                                            <span>
-                                                {sortBy === 'popular' && 'الأكثر استخداماً'}
-                                                {sortBy === 'newest' && 'الأحدث أولاً'}
-                                            </span>
+                                        <div className="flex items-center gap-3">
+                                            <ArrowUpDown className="w-4 h-4 text-primary" />
+                                            <span className="opacity-60">الترتيب</span>
                                         </div>
-                                        <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isSortOpen ? 'rotate-180' : ''}`} />
+                                        <ChevronDown className={`w-4 h-4 text-primary transition-transform duration-300 ${isSortOpen ? 'rotate-180' : ''}`} />
                                     </button>
 
                                     <AnimatePresence>
@@ -212,12 +232,12 @@ export default function WidgetsClient() {
                                                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                                    className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border rounded-2xl shadow-2xl z-50 overflow-hidden"
+                                                    className="absolute top-full left-0 right-0 mt-3 bg-card dark:bg-[#1a1a1a] border-none rounded-2xl shadow-2xl z-50 overflow-hidden backdrop-blur-xl"
                                                 >
-                                                    <div className="p-1.5 space-y-1">
+                                                    <div className="p-2 space-y-1">
                                                         {[
                                                             { id: 'popular', label: 'الأكثر استخداماً' },
-                                                            { id: 'newest', label: 'الأحدث' }
+                                                            { id: 'newest', label: 'الأحدث أولاً' }
                                                         ].map((option) => (
                                                             <button
                                                                 key={option.id}
@@ -225,9 +245,9 @@ export default function WidgetsClient() {
                                                                     setSortBy(option.id);
                                                                     setIsSortOpen(false);
                                                                 }}
-                                                                className={`w-full text-right px-4 py-3 text-sm font-bold transition-all rounded-xl flex items-center justify-between ${sortBy === option.id
-                                                                    ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20'
-                                                                    : 'hover:bg-secondary-100 dark:hover:bg-dark-tertiary text-gray-500 dark:text-dark-text-secondary'
+                                                                className={`w-full text-right px-6 py-4 text-sm font-black transition-all rounded-xl flex items-center justify-between ${sortBy === option.id
+                                                                    ? 'bg-primary/20 text-primary'
+                                                                    : 'hover:bg-white/5 text-foreground/60 dark:text-white/40'
                                                                     }`}
                                                             >
                                                                 <span>{option.label}</span>
@@ -241,152 +261,118 @@ export default function WidgetsClient() {
                                     </AnimatePresence>
                                 </div>
                             )}
-
-                            {/* Search Input */}
-                            {loading ? (
-                                <SearchSkeleton />
-                            ) : (
-                                <div className="relative w-full md:w-80 group">
-                                    <Search className={`absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors duration-300 ${searchQuery ? 'text-primary-500' : 'text-gray-400 group-focus-within:text-primary-500'}`} />
-                                    <input
-                                        type="text"
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        placeholder="ابحث عن أداة..."
-                                        className="w-full bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border rounded-2xl py-3.5 pr-11 pl-4 text-sm focus:outline-none focus:border-primary-500 transition-all duration-300 shadow-soft font-tajawal"
-                                    />
-                                    {searchQuery && (
-                                        <button
-                                            onClick={() => setSearchQuery('')}
-                                            className="absolute left-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-dark-tertiary rounded-full transition-colors"
-                                        >
-                                            <X className="w-3.5 h-3.5 text-gray-400" />
-                                        </button>
-                                    )}
-                                </div>
-                            )}
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                         {loading ? (
                             [1, 2, 3, 4, 5, 6].map((item) => (
-                                <div key={item} className="bg-white dark:bg-dark-secondary rounded-3xl overflow-hidden border border-gray-200 dark:border-dark-card-border shadow-soft flex flex-col h-[420px] animate-pulse">
-                                    <div className="h-48 bg-gray-200 dark:bg-dark-tertiary"></div>
-                                    <div className="p-6 flex-1 flex flex-col">
-                                        <div className="flex justify-between items-center mb-4">
-                                            <div className="h-6 bg-gray-200 dark:bg-dark-text-quaternary rounded-full w-20"></div>
-                                            <div className="h-4 bg-gray-200 dark:bg-dark-text-quaternary rounded w-12"></div>
-                                        </div>
-                                        <div className="h-7 bg-gray-200 dark:bg-dark-text-quaternary rounded-lg w-3/4 mb-4"></div>
-                                        <div className="space-y-2 mb-6 text-right">
-                                            <div className="h-4 bg-gray-200 dark:bg-dark-text-quaternary rounded w-full ml-auto"></div>
-                                            <div className="h-4 bg-gray-200 dark:bg-dark-text-quaternary rounded w-5/6 ml-auto"></div>
-                                        </div>
-                                        <div className="mt-auto flex gap-3">
-                                            <div className="flex-1 h-11 bg-gray-200 dark:bg-dark-text-quaternary rounded-xl"></div>
-                                            <div className="flex-1 h-11 bg-gray-200 dark:bg-dark-text-quaternary rounded-xl"></div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <div key={item} className="h-[450px] rounded-[2.5rem] bg-card border-none animate-pulse" />
                             ))
                         ) : displayWidgets.length > 0 ? (
-                            displayWidgets.map((widget) => (
+                            displayWidgets.map((widget, index) => (
                                 <div
                                     key={widget.id}
                                     onClick={() => router.push(`/widgets/${widget.id}`)}
-                                    className="group card-interactive bg-white dark:bg-dark-secondary rounded-3xl overflow-hidden border border-gray-200 dark:border-dark-card-border shadow-soft cursor-pointer flex flex-col"
+                                    className="group relative overflow-hidden rounded-[2.5rem] bg-card border-none transition-all duration-500 shadow-2xl shadow-primary/5 cursor-pointer flex flex-col"
+                                    style={{ animationDelay: `${index * 50}ms` }}
                                 >
-                                    <div className={`h-48 bg-gradient-to-br ${widget.gradient} flex items-center justify-center relative overflow-hidden`}>
-                                        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #f5631e 1px, transparent 0)', backgroundSize: '20px 20px' }}></div>
+                                    {/* Visual Foundry Segment */}
+                                    <div className={`h-52 bg-gradient-to-br ${widget.gradient} flex items-center justify-center relative overflow-hidden`}>
+                                        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+                                        
+                                        {/* Precision Glow */}
+                                        <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-[80px]" />
 
-                                        {/* Status Badges */}
-                                        <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
+                                        {/* Tech Badges */}
+                                        <div className="absolute top-6 left-6 z-20 flex flex-col gap-2">
                                             {widget.isPopular && (
-                                                <div className="flex items-center gap-1.5 px-3 py-1 bg-red-500 text-white text-[10px] font-black uppercase tracking-tighter rounded-lg shadow-lg">
-                                                    <Zap className="w-3 h-3 fill-current" />
+                                                <div className="px-3 py-1 bg-black/40 backdrop-blur-md border border-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-full">
                                                     الأكثر استخداماً
-                                                </div>
-                                            )}
-                                            {widget.isNew && (
-                                                <div className="flex items-center gap-1.5 px-3 py-1 bg-primary-500 text-white text-[10px] font-black uppercase tracking-tighter rounded-lg shadow-lg">
-                                                    <Sparkles className="w-3 h-3 fill-current" />
-                                                    جديد
                                                 </div>
                                             )}
                                         </div>
 
-                                        <div className="relative z-10 p-8 bg-white/80 dark:bg-dark-secondary/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 dark:border-dark-card-border transform group-hover:scale-105 transition-transform duration-500">
-                                            <div className="flex items-center gap-3">
+                                        <div className="relative z-10 p-8 bg-white/10 backdrop-blur-xl rounded-[2rem] border-none shadow-2xl group-hover:scale-110 transition-transform duration-700">
+                                            <div className="w-16 h-16 flex items-center justify-center text-white drop-shadow-glow">
                                                 {widget.icon}
-                                                <div className="h-2 w-24 bg-gray-200 dark:bg-dark-text-quaternary rounded"></div>
-                                            </div>
-
-                                            {/* Micro-Interaction Skeletons */}
-                                            <div className="mt-4 space-y-2">
-                                                <div className="h-1.5 w-full bg-gray-100 dark:bg-dark-text-quaternary rounded"></div>
-                                                <div className="h-1.5 w-3/4 bg-gray-100 dark:bg-dark-text-quaternary rounded"></div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="p-6 flex-1 flex flex-col">
-                                        <div className="flex items-center justify-between mb-3">
-                                            <span className="px-3 py-1 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 text-xs font-bold rounded-full">
+                                    {/* Intelligence Segment */}
+                                    <div className="p-8 flex-1 flex flex-col">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <span className="px-4 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-full">
                                                 {widget.category}
                                             </span>
                                             {stats[widget.id] > 0 && (
-                                                <div className="flex items-center gap-1.5 text-gray-400 dark:text-gray-500">
+                                                <div className="flex items-center gap-2 text-foreground/40 dark:text-white/30 text-[10px] font-black uppercase tracking-widest">
                                                     <Users className="w-3.5 h-3.5" />
-                                                    <span className="text-xs font-bold">{widget.users}</span>
+                                                    {widget.users}
                                                 </div>
                                             )}
                                         </div>
-                                        <h2 className="text-2xl font-bold tracking-normal text-accent-900 dark:text-white mb-2">
+
+                                        <h2 className="text-2xl font-black text-foreground dark:text-white mb-3 group-hover:text-primary transition-colors">
                                             {widget.title}
                                         </h2>
-                                        <p className="text-accent-600 dark:text-dark-text-secondary text-sm mb-6 line-clamp-2">
+                                        <p className="text-sm text-foreground/60 dark:text-white/40 mb-8 line-clamp-2 leading-relaxed flex-1">
                                             {widget.description}
                                         </p>
-                                        <div className="mt-auto flex gap-3">
+
+                                        <div className="pt-6 border-none mt-auto flex gap-4">
                                             {isAuthenticated ? (
                                                 <button
                                                     onClick={(e) => copyEmbed(e, widget.id)}
-                                                    className="flex-1 btn-primary py-2.5 px-4 text-sm flex items-center justify-center gap-2 relative z-10"
+                                                    className="flex-1 bg-primary text-white py-4 px-6 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20"
                                                 >
-                                                    {copiedId === widget.id ? 'تم النسخ!' : <><Copy className="w-4 h-4" /> انسخ الرابط</>}
+                                                    {copiedId === widget.id ? 'تم النسخ!' : <><Copy className="w-4 h-4" /> نسخ الكود</>}
                                                 </button>
                                             ) : (
                                                 <Link
                                                     href={`/widgets/${widget.id}`}
-                                                    className="flex-1 btn-primary py-2.5 px-4 text-sm flex items-center justify-center gap-2 relative z-10"
+                                                    className="flex-1 bg-primary text-white py-4 px-6 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20"
                                                     onClick={(e) => e.stopPropagation()}
                                                 >
-                                                    <Lock className="w-4 h-4" /> سجّل للتضمين
+                                                    <Lock className="w-4 h-4" /> سجل للتثبيت
                                                 </Link>
                                             )}
-                                            <div className="flex-1 btn-secondary py-2.5 px-4 text-sm flex items-center justify-center gap-2">
-                                                <ExternalLink className="w-4 h-4" /> التفاصيل
+                                            <div className="w-14 h-14 bg-card-border/5 rounded-2xl flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                                                <ExternalLink className="w-5 h-5 text-foreground/40 dark:text-white/40 group-hover:text-primary transition-colors" />
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             ))
                         ) : (
-                            <div className="col-span-full flex flex-col items-center justify-center py-20 text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <div className="w-20 h-20 bg-gray-100 dark:bg-dark-secondary rounded-full flex items-center justify-center mb-6">
-                                    <Search className="w-8 h-8 text-gray-400" />
+                            <div className="col-span-full py-24 text-center opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards]">
+                                <div className="relative inline-block mb-10">
+                                    <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full animate-pulse"></div>
+                                    <div className="relative w-28 h-28 bg-white/50 dark:bg-white/5 backdrop-blur-xl rounded-[2.5rem] flex items-center justify-center shadow-2xl">
+                                        <Zap className="w-12 h-12 text-primary/40 rotate-12" />
+                                    </div>
                                 </div>
-                                <h3 className="text-xl font-bold text-accent-900 dark:text-white mb-2 leading-relaxed">لم يتم العثور على نتائج</h3>
-                                <p className="text-gray-500 dark:text-dark-text-secondary max-w-xs mx-auto font-tajawal">
-                                    جرب البحث بكلمات أخرى أو اختر تصنيفاً مختلفاً
+                                <h3 className="text-3xl font-black text-foreground dark:text-white mb-4">
+                                    المختبر لا يجد طلباً مطابقاً
+                                </h3>
+                                <p className="text-foreground/60 dark:text-white/40 max-w-md mx-auto mb-10 leading-relaxed font-medium">
+                                    جرب استخدام كلمات بحث أبسط، أو تصفح الأدوات المتاحة حسب القسم. نحن نعمل باستمرار على تطوير أدوات جديدة.
                                 </p>
-                                <button
-                                    onClick={() => { setSearchQuery(''); setActiveCategory('الكل') }}
-                                    className="mt-6 text-primary-500 font-bold hover:underline flex items-center gap-2"
-                                >
-                                    <X className="w-4 h-4" /> إيقاف التصفية
-                                </button>
+                                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                                    <button
+                                        onClick={() => { setSearchQuery(''); setActiveCategory('الكل') }}
+                                        className="px-8 py-3.5 bg-primary text-white font-black rounded-2xl shadow-lg shadow-primary/20 hover:scale-105 transition-all text-xs uppercase tracking-widest"
+                                    >
+                                        إعادة الضبط
+                                    </button>
+                                    <Link
+                                        href="/contact"
+                                        className="px-8 py-3.5 bg-white/50 dark:bg-white/5 backdrop-blur-sm text-foreground dark:text-white font-black rounded-2xl shadow-sm hover:bg-white/80 dark:hover:bg-white/10 transition-all text-xs uppercase tracking-widest"
+                                    >
+                                        طلب أداة مخصصة
+                                    </Link>
+                                </div>
                             </div>
                         )}
                     </div>

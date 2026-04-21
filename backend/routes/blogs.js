@@ -438,7 +438,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
         [blogs, totalCount] = await Promise.all([
           Blog.find(searchQuery)
             .populate('author', 'name profilePicture')
-            .sort({ score: { $meta: 'textScore' }, publishedAt: -1 })
+            .sort({ [sortBy]: sortOrder === 'desc' ? -1 : 1 })
             .skip((page - 1) * limit)
             .limit(limit)
             .lean(),

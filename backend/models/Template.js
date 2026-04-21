@@ -99,10 +99,11 @@ class Template {
 
   static _applyQuery(chain, query) {
     if (query.$or && Array.isArray(query.$or)) {
-      const orStrings = query.$or.map(q => {
+          const orStrings = query.$or.map(q => {
           const key = Object.keys(q)[0];
           let dbKey = key === '_id' ? 'id' : key;
           if (dbKey === 'creator') dbKey = 'creatorId';
+          if (dbKey === 'category') dbKey = 'categories';
           
           let val = q[key];
           const isArrayCol = ['categories', 'tags', 'features'].includes(dbKey);
@@ -138,6 +139,7 @@ class Template {
         if (key.startsWith('$')) return;
         let dbKey = key === '_id' ? 'id' : key;
         if (dbKey === 'creator') dbKey = 'creatorId';
+        if (dbKey === 'category') dbKey = 'categories';
         
         let val = query[key];
         const isArrayCol = ['categories', 'tags', 'features'].includes(dbKey);
@@ -209,6 +211,7 @@ class Template {
         p.sort = (s) => {
              if (s && typeof s === 'object') {
                  const key = Object.keys(s)[0];
+                 if (key === 'score') return wrap(promise); // Ignore MongoDB textScore sorting
                  const ascending = s[key] === 1;
                  chain = chain.order(key === '_id' ? 'id' : key, { ascending });
              }
@@ -275,6 +278,7 @@ class Template {
   }
 
   static findByIdAndUpdate(id, update, options = {}) {
+    let populatePath = null;
     const execute = async () => {
         let dbUpdate = { ...update };
         
@@ -293,16 +297,35 @@ class Template {
             dbUpdate.creatorId = dbUpdate.creator;
             delete dbUpdate.creator;
         }
+        
+        // Ensure status is UPPERCASE if present
+        if (dbUpdate.status) dbUpdate.status = dbUpdate.status.toString().toUpperCase();
+
+        // Ensure updatedAt is refreshed
+        dbUpdate.updatedAt = new Date().toISOString();
 
         const { data, error } = await supabase.from('Template').update(dbUpdate).eq('id', id).select().maybeSingle();
         if (error) throw error;
-        return data ? new Template(data) : null;
+        if (!data) return null;
+
+        const doc = new Template(data);
+        if (populatePath) {
+            await doc.populate(populatePath);
+        }
+        return doc;
     };
     
     const promise = execute();
-    promise.exec = () => promise;
-    promise.select = () => promise;
-    return promise;
+    const wrap = (p) => {
+        p.exec = () => p;
+        p.select = () => wrap(p);
+        p.populate = (path) => {
+            populatePath = typeof path === 'string' ? path : path.path;
+            return wrap(execute());
+        };
+        return p;
+    };
+    return wrap(promise);
   }
 
   static async distinct(field, query = {}) {
@@ -427,34 +450,25 @@ class Template {
 
           const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
           
-          // Optimization: Fetch only 'status' and 'createdAt' for all templates
-          // For marketplaces, template count is usually small enough (~few thousands) 
-          // that fetching the status column is 10x faster than 5 separate count network requests.
-          const { data, error } = await supabase.from('Template').select('status, createdAt');
-          if (error) throw error;
+          const [totalRes, pendingRes, approvedRes, rejectedRes, recentRes] = await Promise.all([
+              supabase.from('Template').select('id', { count: 'exact', head: true }),
+              supabase.from('Template').select('id', { count: 'exact', head: true }).or('status.ilike.PENDING,status.eq.pending'),
+              supabase.from('Template').select('id', { count: 'exact', head: true }).or('status.ilike.APPROVED,status.eq.approved'),
+              supabase.from('Template').select('id', { count: 'exact', head: true }).or('status.ilike.REJECTED,status.eq.rejected'),
+              supabase.from('Template').select('id', { count: 'exact', head: true }).gte('createdAt', sevenDaysAgo)
+          ]);
 
           const stats = {
-              totalTemplates: data.length,
-              pendingTemplates: 0,
-              approvedTemplates: 0,
-              rejectedTemplates: 0,
-              recentTemplates: 0,
-              total: data.length,
-              pending: 0,
-              approved: 0,
-              rejected: 0
+              totalTemplates: totalRes.count || 0,
+              pendingTemplates: pendingRes.count || 0,
+              approvedTemplates: approvedRes.count || 0,
+              rejectedTemplates: rejectedRes.count || 0,
+              recentTemplates: recentRes.count || 0,
+              total: totalRes.count || 0,
+              pending: pendingRes.count || 0,
+              approved: approvedRes.count || 0,
+              rejected: rejectedRes.count || 0
           };
-
-          data.forEach(item => {
-              const status = (item.status || '').toUpperCase();
-              if (status === 'PENDING') { stats.pendingTemplates++; stats.pending++; }
-              else if (status === 'APPROVED') { stats.approvedTemplates++; stats.approved++; }
-              else if (status === 'REJECTED') { stats.rejectedTemplates++; stats.rejected++; }
-              
-              if (item.createdAt >= sevenDaysAgo) {
-                  stats.recentTemplates++;
-              }
-          });
 
           return [stats];
       }

@@ -10,39 +10,32 @@ export const metadata = generateMetadata({
 
 export default function CareersPage() {
   return (
-    <main className="min-h-screen bg-[#FAFAFA] dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300 relative overflow-hidden" dir="rtl">
-
-      {/* Background Decor */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05]"
-        style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
+    <main className="min-h-screen bg-transparent relative overflow-x-hidden transition-colors duration-300" dir="rtl">
+      {/* Ambient Mesh Background */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
 
+
+
       {/* Hero Section */}
-      <section className="relative z-10 pt-16 pb-8 px-4 sm:px-6 lg:px-8">
-        <div className="container-custom max-w-3xl mx-auto text-center">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-4 text-accent-900 dark:text-white">
-            انضم لفريقنا
+      <section className="relative z-10 pt-32 pb-16 px-4 sm:px-6 lg:px-8">
+        <div className="container-custom max-w-4xl mx-auto text-center">
+          <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black text-accent-900 dark:text-white mb-8 tracking-tighter leading-tight">
+            انضم <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600">لفريقنا</span>
           </h1>
-          <p className="text-base text-gray-500 dark:text-gray-400">
-            نبحث دائماً عن المتميزين لمشاركتنا الرحلة.
+          <p className="text-xl sm:text-2xl text-accent-600 dark:text-gray-400 font-medium max-w-2xl mx-auto">
+            نبحث دائماً عن المتميزين لمشاركتنا الرحلة في بناء مستقبل الإنتاجية العربية.
           </p>
         </div>
       </section>
 
       {/* Form Section */}
-      <section className="relative z-10 pb-20 sm:pb-28 px-4 sm:px-6 lg:px-8">
+      <section className="relative z-10 pb-32 px-4 sm:px-6 lg:px-8">
         <div className="container-custom">
-          {/* Dossier Container - adding visual depth */}
           <div className="max-w-4xl mx-auto relative">
-            {/* Pseudo-border/gradient glow effect */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-primary-500/20 to-purple-500/20 rounded-[2.5rem] blur-xl opacity-70"></div>
-
-            <div className="relative">
-              <JoinTeamForm />
-            </div>
-
-            {/* Trust Badges / Footer Note */}
-            {/* Removed as per request */}
+            <JoinTeamForm />
           </div>
         </div>
       </section>

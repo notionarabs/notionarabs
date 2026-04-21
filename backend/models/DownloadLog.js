@@ -41,10 +41,37 @@ class DownloadLog {
     if (query.template) q = q.eq('templateId', query.template);
     if (query.user) q = q.eq('userId', query.user);
 
+    let populatePaths = [];
+
     const execute = async () => {
         const { data, error } = await q;
         if (error) throw error;
-        return (data || []).map(item => new DownloadLog(item));
+        
+        let results = (data || []).map(item => new DownloadLog(item));
+
+        // Basic populate implementation
+        if (populatePaths.length > 0 && results.length > 0) {
+            for (const path of populatePaths) {
+                if (path === 'user') {
+                    const User = require('./User');
+                    const userIds = [...new Set(results.map(r => r.userId).filter(id => id))];
+                    if (userIds.length > 0) {
+                        const users = await User.find({ id: { $in: userIds } });
+                        const userMap = users.reduce((map, u) => { map[u.id] = u; return map; }, {});
+                        results.forEach(r => { if (r.userId && userMap[r.userId]) r.user = userMap[r.userId]; });
+                    }
+                } else if (path === 'template') {
+                    const Template = require('./Template');
+                    const templateIds = [...new Set(results.map(r => r.templateId).filter(id => id))];
+                    if (templateIds.length > 0) {
+                        const templates = await Template.find({ id: { $in: templateIds } });
+                        const templateMap = templates.reduce((map, t) => { map[t.id] = t; return map; }, {});
+                        results.forEach(r => { if (r.templateId && templateMap[r.templateId]) r.template = templateMap[r.templateId]; });
+                    }
+                }
+            }
+        }
+        return results;
     };
 
     const promise = execute();
@@ -58,9 +85,19 @@ class DownloadLog {
             }
             return wrap(p);
         };
+        p.skip = (n) => {
+            const limitValue = 50; 
+            q = q.range(n, n + limitValue - 1);
+            return wrap(execute());
+        };
         p.limit = (num) => {
             q = q.limit(num);
             return wrap(execute());
+        };
+        p.populate = (path) => {
+            const pName = typeof path === 'string' ? path : path.path;
+            populatePaths.push(pName);
+            return wrap(p);
         };
         p.lean = () => wrap(p);
         return p;

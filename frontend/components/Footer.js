@@ -1,17 +1,24 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Youtube, Facebook, Send, Users } from 'lucide-react';
+import { Youtube, Facebook, Send, Users, Twitter, Mail, ExternalLink, ArrowUpRight } from 'lucide-react';
 import { useLoading } from '../contexts/LoadingContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function Footer() {
   const { setLoading } = useLoading();
+  const { theme } = useTheme();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleNavigation = (href) => {
-    // Check if relative path navigation
     if (href.startsWith('/')) {
       const targetPath = href.split('?')[0];
       const currentPath = pathname.split('?')[0];
@@ -22,83 +29,161 @@ export default function Footer() {
     }
   };
 
+  const footerLinks = {
+    community: [
+      { href: '/templates', label: 'قوالب نوشن' },
+      { href: '/blog', label: 'المدونة' },
+      { href: '/widgets', label: 'الأدوات' },
+      { href: '/#marketplace', label: 'المتجر' },
+    ],
+    support: [
+      { href: '/contact', label: 'اتصل بنا' },
+      { href: '/creators/apply', label: 'انضم كمبدع' },
+      { href: '/faq', label: 'الأسئلة الشائعة' },
+    ],
+    legal: [
+      { href: '/privacy', label: 'الخصوصية' },
+      { href: '/terms', label: 'الشروط' },
+      { href: '/refund-policy', label: 'سياسة الاسترجاع' },
+    ]
+  };
+
   return (
-    <footer className="bg-accent-500 dark:bg-dark-secondary text-white dark:text-dark-text-primary transition-colors duration-300">
-      <div className="container-custom py-12 sm:py-16 md:py-20 lg:py-24">
-        <div className="grid grid-cols-1 md:grid-cols-[1.5fr_1fr_1fr_1fr] gap-8 sm:gap-10 lg:gap-12 mb-8 sm:mb-10 md:mb-12">
-          {/* Brand Section */}
-          <div>
-            <div className="flex items-center mb-4 sm:mb-6">
-              <Image
-                src="/brand/NavLogoLight.svg"
-                alt="عرب نوشن"
-                width={60}
-                height={40}
-                className="h-10 sm:h-12 w-auto"
-                quality={100}
-                unoptimized
-              />
+    <footer className="relative mt-20 md:mt-32">
+      {/* Signature Hardware Silhouette */}
+      <div className="absolute inset-x-0 -top-12 h-12 bg-card rounded-t-[3rem]" />
+      
+      <div className="bg-card relative overflow-hidden">
+        {/* Atmospheric Glow */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/5 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/2" />
+
+        <div className="container-custom relative z-10 pt-20 pb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 mb-20">
+            {/* Brand Identity Section */}
+            <div className="lg:col-span-5 space-y-8">
+              <Link href="/" className="inline-block" onClick={() => handleNavigation('/')}>
+                <Image
+                  src={mounted && theme === 'light' ? '/brand/NavLogoDark.svg' : '/brand/NavLogoLight.svg'}
+                  alt="عرب نوشن"
+                  width={220}
+                  height={66}
+                  className="h-12 w-auto drop-shadow-sm"
+                  quality={100}
+                  unoptimized
+                />
+              </Link>
+              
+              <p className="text-foreground/70 dark:text-white/60 text-lg leading-relaxed max-w-md font-medium">
+                مجتمعك العربي الأول لاحتراف نوشن، نوفر لك أرقى القوالب الرقمية والأدوات المبتكرة لتمكينك من تنظيم حياتك وإدارة مشاريعك بإبداع.
+              </p>
+
+              <div className="space-y-4">
+                <p className="text-xs uppercase tracking-widest font-black text-foreground/40 dark:text-white/30">إحدى مبادرات</p>
+                <Link 
+                  href="https://arab-os.com" 
+                  target="_blank" 
+                  className="group relative inline-flex items-center gap-6 p-6 rounded-[2.5rem] bg-card border-none transition-all duration-500 overflow-hidden shadow-2xl shadow-primary/5"
+                >
+                  
+                  <div className="relative z-10 text-right">
+                    <div className="text-lg font-black text-foreground dark:text-white mb-1 group-hover:text-primary transition-colors">Arab-OS Network</div>
+                    <div className="text-xs text-foreground/50 dark:text-white/40 font-medium">نحو بناء بيئة رقمية عربية ذكية</div>
+                  </div>
+
+                  <div className="relative z-10 w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/30 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
+                    <ArrowUpRight className="w-6 h-6" />
+                  </div>
+                </Link>
+              </div>
             </div>
-            <p className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary mb-2 leading-relaxed">
-              نُصمم لك أنظمة نوشن عربية مخصصة لتنظيم العمل والمشاريع والمعرفة، مع استشارة ودعم مستمر لفرقك.
-            </p>
-            <p className="text-xs text-gray-500 dark:text-dark-text-tertiary mb-6 sm:mb-8 font-medium">
-              عرب نوشن هي منصة تابعة لشبكة <Link href="https://arab-os.com" target="_blank" className="text-primary-400 hover:text-primary-300 underline underline-offset-4">Arab-OS</Link>.
-            </p>
-            <div className="flex gap-3 sm:gap-4">
-              <Link href="https://youtube.com/@notionarabs" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft" aria-label="قناة يوتيوب عرب نوشن">
-                <Youtube className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
-              </Link>
-              <Link href="https://facebook.com/notionarabs" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft" aria-label="صفحة فيسبوك عرب نوشن">
-                <Facebook className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
-              </Link>
-              <Link href="https://www.facebook.com/groups/notionarabs/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft" aria-label="مجموعة فيسبوك عرب نوشن">
-                <Users className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
-              </Link>
-              <Link href="https://t.me/Notion_Arabs" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft" aria-label="قناة تيليجرام عرب نوشن">
-                <Send className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
-              </Link>
-              <Link href="https://twitter.com/notionarabs" target="_blank" rel="noopener noreferrer" className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-700 dark:bg-dark-tertiary rounded-lg sm:rounded-xl flex items-center justify-center hover:bg-primary-500 dark:hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 shadow-soft dark:shadow-dark-soft" aria-label="حساب تويتر عرب نوشن">
-                <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                </svg>
-              </Link>
+
+            {/* Links Grid */}
+            <div className="lg:col-span-7 grid grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="space-y-6">
+                <h4 className="font-black text-foreground dark:text-white uppercase tracking-wider text-sm">المحتوى</h4>
+                <ul className="space-y-4">
+                  {footerLinks.community.map((link) => (
+                    <li key={link.href}>
+                      <Link 
+                        href={link.href} 
+                        onClick={() => handleNavigation(link.href)}
+                        className="text-foreground/60 dark:text-white/50 hover:text-primary transition-all flex items-center group gap-2"
+                      >
+                        <span className="w-0 group-hover:w-2 h-0.5 bg-primary transition-all" />
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="space-y-6">
+                <h4 className="font-black text-foreground dark:text-white uppercase tracking-wider text-sm">الدعم</h4>
+                <ul className="space-y-4">
+                  {footerLinks.support.map((link) => (
+                    <li key={link.href}>
+                      <Link 
+                        href={link.href} 
+                        onClick={() => handleNavigation(link.href)}
+                        className="text-foreground/60 dark:text-white/50 hover:text-primary transition-all flex items-center group gap-2"
+                      >
+                        <span className="w-0 group-hover:w-2 h-0.5 bg-primary transition-all" />
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="space-y-6 col-span-2 md:col-span-1">
+                <h4 className="font-black text-foreground dark:text-white uppercase tracking-wider text-sm">تواصل معنا</h4>
+                <div className="flex items-center gap-3">
+                  {[
+                    { Icon: Youtube, href: 'https://youtube.com/@notionarabs', css: 'social-youtube' },
+                    { Icon: Twitter, href: 'https://twitter.com/notionarabs', css: 'social-twitter' },
+                    { Icon: Send, href: 'https://t.me/Notion_Arabs', css: 'social-telegram' },
+                    { Icon: Facebook, href: 'https://facebook.com/notionarabs', css: 'social-facebook' },
+                  ].map((social, idx) => (
+                    <Link
+                      key={idx}
+                      href={social.href}
+                      target="_blank"
+                      className={`w-12 h-12 rounded-2xl bg-foreground/5 dark:bg-white/5 border-none flex items-center justify-center hover:text-white hover:shadow-xl transition-all duration-300 group ${social.css}`}
+                    >
+                      <social.Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    </Link>
+                  ))}
+                </div>
+                <Link 
+                  href="mailto:support@notionarabs.com" 
+                  className="inline-flex items-center gap-4 p-4 rounded-2xl bg-foreground/5 dark:bg-white/5 border-none group transition-all w-full md:w-auto shadow-sm"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <span className="text-sm font-bold text-foreground/70 dark:text-white/70">support@notionarabs.com</span>
+                </Link>
+              </div>
             </div>
           </div>
 
-
-          {/* Community Section */}
-          <div>
-            <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">المجتمع</h4>
-            <ul className="space-y-2 sm:space-y-3">
-              <li><Link href="/templates" onClick={() => handleNavigation('/templates')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">قوالب نوشن</Link></li>
-              <li><Link href="/blog" onClick={() => handleNavigation('/blog')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المدونة</Link></li>
-              <li><Link href="/widgets" onClick={() => handleNavigation('/widgets')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الأدوات</Link></li>
-              <li><Link href="/store" onClick={() => handleNavigation('/store')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">المتجر</Link></li>
-            </ul>
-          </div>
-
-          {/* Support Section */}
-          <div>
-            <h4 className="font-bold mb-4 sm:mb-6 text-base sm:text-lg text-white dark:text-dark-text-primary">الدعم</h4>
-            <ul className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
-              <li><Link href="/contact" onClick={() => handleNavigation('/contact')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">اتصل بنا</Link></li>
-              <li><Link href="/privacy" onClick={() => handleNavigation('/privacy')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الخصوصية</Link></li>
-              <li><Link href="/terms" onClick={() => handleNavigation('/terms')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">الشروط</Link></li>
-              <li><Link href="/refund-policy" onClick={() => handleNavigation('/refund-policy')} className="text-sm sm:text-base text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary transition-colors">سياسة الاسترجاع</Link></li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="border-t border-gray-700 dark:border-dark-card-border pt-6 sm:pt-8">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-gray-400 dark:text-dark-text-tertiary text-xs sm:text-sm text-center sm:text-right">
+          {/* Bottom Bar */}
+          <div className="pt-8 border-none flex flex-col md:flex-row justify-between items-center gap-6">
+            <p className="text-foreground/40 dark:text-white/30 text-sm font-medium">
               © {new Date().getFullYear()} عرب نوشن. جميع الحقوق محفوظة.
             </p>
-            <div className="flex flex-wrap gap-3 sm:gap-6 justify-center sm:justify-end">
-              <Link href="/privacy" onClick={() => handleNavigation('/privacy')} className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-xs sm:text-sm transition-colors">سياسة الخصوصية</Link>
-              <Link href="/terms" onClick={() => handleNavigation('/terms')} className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-xs sm:text-sm transition-colors">شروط الاستخدام</Link>
-              <Link href="/refund-policy" onClick={() => handleNavigation('/refund-policy')} className="text-gray-400 dark:text-dark-text-tertiary hover:text-white dark:hover:text-dark-text-primary text-xs sm:text-sm transition-colors">سياسة الاسترجاع</Link>
+            <div className="flex flex-wrap justify-center gap-8">
+              {footerLinks.legal.map((link) => (
+                <Link 
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => handleNavigation(link.href)}
+                  className="text-foreground/30 dark:text-white/20 hover:text-foreground dark:hover:text-white text-xs font-bold transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
             </div>
           </div>
         </div>

@@ -103,6 +103,9 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
+    if (axios.isCancel(error)) {
+      return Promise.reject(error);
+    }
     const { response } = error;
 
     // Log API error response times — skip 401s and network errors (backend cold-starting)
@@ -178,6 +181,9 @@ emailApi.interceptors.request.use(
 emailApi.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (axios.isCancel(error)) {
+      return Promise.reject(error);
+    }
     const { response } = error;
 
     // Handle different error types

@@ -52,26 +52,27 @@ const AccordionItem = ({ value, isOpen, onClick }) => {
         <motion.div
             layout
             onClick={onClick}
-            className={`relative rounded-3xl overflow-hidden cursor-pointer transition-all duration-500 ease-out 
-                ${isOpen ? 'h-[450px] sm:h-[400px] flex-[3]' : 'h-24 sm:h-[400px] flex-[1] hover:flex-[1.2]'}
+            className={`relative rounded-[2.5rem] overflow-hidden cursor-pointer transition-all duration-500 ease-out border-none shadow-soft hover:shadow-large
+                ${isOpen ? 'h-[450px] sm:h-[400px] flex-[4]' : 'h-24 sm:h-[400px] flex-[0.8] hover:flex-[1]'}
             `}
         >
-            {/* Background with Gradient */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${value.imageGradient} transition-opacity duration-300`}>
+            {/* High-Fidelity Glass Background */}
+            <div className={`absolute inset-0 bg-white/40 dark:bg-white/5 backdrop-blur-2xl transition-all duration-700 ${isOpen ? 'opacity-100' : 'opacity-80'}`}>
+                <div className={`absolute inset-0 bg-gradient-to-br ${value.imageGradient} opacity-20`}></div>
                 {/* Pattern overlay */}
-                <div className="absolute inset-0 opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay"></div>
+                <div className="absolute inset-0 opacity-5 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay"></div>
             </div>
 
             <div className={`absolute inset-0 p-6 flex flex-col ${isOpen ? 'justify-end' : 'justify-center sm:justify-end'}`}>
                 <motion.div layout className="relative z-10 w-full">
                     <div className="flex items-center gap-3 mb-2">
-                        <div className={`p-2 rounded-xl bg-white/20 backdrop-blur-md text-white shrink-0 ${isOpen ? 'w-12 h-12' : 'hidden sm:block w-10 h-10'}`}>
+                        <div className={`p-4 rounded-2xl bg-white/50 dark:bg-white/10 backdrop-blur-xl text-primary shrink-0 shadow-soft transition-all duration-500 ${isOpen ? 'w-16 h-16 mb-4' : 'hidden sm:block w-12 h-12'}`}>
                             <value.Icon className="w-full h-full" />
                         </div>
                         {/* Show title always on mobile if isOpen, or if closed on desktop */}
                         <motion.h3
                             layout="position"
-                            className={`text-white font-bold ${isOpen ? 'text-2xl sm:text-3xl' : 'text-lg sm:text-xl opacity-0 sm:opacity-100 sm:rotate-0 hidden sm:block'}`}
+                            className={`text-accent-900 dark:text-white font-black leading-tight tracking-tight underline decoration-primary/30 ${isOpen ? 'text-3xl sm:text-4xl' : 'text-lg sm:text-xl opacity-0 sm:opacity-100 sm:rotate-0 hidden sm:block'}`}
                         >
                             {value.title}
                         </motion.h3>
@@ -85,7 +86,7 @@ const AccordionItem = ({ value, isOpen, onClick }) => {
                                 exit={{ opacity: 0, height: 0 }}
                                 className="overflow-hidden"
                             >
-                                <p className="text-white/90 text-sm sm:text-lg leading-relaxed max-w-xl">
+                                <p className="text-accent-600 dark:text-gray-400 text-lg sm:text-xl leading-relaxed max-w-xl font-medium">
                                     {value.description}
                                 </p>
                             </motion.div>
@@ -97,11 +98,11 @@ const AccordionItem = ({ value, isOpen, onClick }) => {
             {/* Icon for mobile closed state */}
             {!isOpen && (
                 <div className="absolute inset-0 flex items-center justify-between px-6 sm:hidden">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-xl bg-white/20 backdrop-blur-md text-white w-10 h-10">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-2xl bg-primary/10 text-primary w-12 h-12">
                             <value.Icon className="w-full h-full" />
                         </div>
-                        <span className="text-white font-bold text-xl">{value.title}</span>
+                        <span className="text-accent-900 dark:text-white font-black text-xl">{value.title}</span>
                     </div>
                 </div>
             )}
@@ -113,23 +114,23 @@ export default function ValuesSection() {
     const [openId, setOpenId] = useState(1);
 
     return (
-        <section className="py-24 px-4 sm:px-6 lg:px-8 bg-white dark:bg-dark-primary transition-colors duration-300">
+        <section className="py-32 px-4 sm:px-6 lg:px-8 bg-transparent transition-colors duration-300 relative z-10">
             <div className="container-custom">
                 <div className="text-center mb-16">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-50 dark:bg-purple-900/10 text-purple-600 dark:text-purple-400 font-medium text-sm mb-4"
+                        className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/50 dark:bg-white/5 backdrop-blur-xl text-primary font-black text-xs mb-8 border-none shadow-soft uppercase tracking-widest"
                     >
-                        <Heart size={16} />
+                        <Heart size={14} />
                         <span>قيمنا</span>
                     </motion.div>
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-3xl sm:text-4xl md:text-5xl font-bold text-accent-800 dark:text-white mb-4"
+                        className="text-5xl sm:text-7xl font-black text-foreground dark:text-white mb-6 tracking-tighter leading-tight"
                     >
                         ما الذي نؤمن به؟
                     </motion.h2>
@@ -138,7 +139,7 @@ export default function ValuesSection() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.1 }}
-                        className="text-lg text-accent-600 dark:text-gray-400 max-w-2xl mx-auto"
+                        className="text-xl text-accent-600 dark:text-gray-400 max-w-2xl mx-auto font-medium"
                     >
                         مبادئ راسخة تقود قراراتنا وتحدد طريقة عملنا معكم.
                     </motion.p>

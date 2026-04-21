@@ -167,16 +167,21 @@ export default function CategoriesPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-primary">
-      {/* Header */}
-      <div className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-accent-900 dark:text-white mb-4 sm:mb-6">
-              جميع التصنيفات
+    <div className="min-h-screen bg-gray-50 dark:bg-black relative overflow-x-hidden transition-colors duration-300">
+      {/* Ambient Mesh Background */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
+      {/* Header - Glass Style */}
+      <div className="relative z-10 bg-white/70 dark:bg-black/60 backdrop-blur-xl border-none shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20">
+          <div className="text-center group">
+            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter text-accent-900 dark:text-white mb-6 animate-fade-in group-hover:scale-105 transition-transform duration-700">
+              جميع <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600">التصنيفات</span>
             </h1>
-            <p className="text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary max-w-xs sm:max-w-2xl md:max-w-3xl mx-auto px-4 sm:px-0">
-              اكتشف جميع التصنيفات المتاحة لإنشاء قوالب نوشن مخصصة. اختر التصنيف المناسب لاحتياجاتك
+            <p className="text-base sm:text-xl text-accent-700 dark:text-gray-400 max-w-2xl mx-auto font-medium opacity-80">
+              اكتشف مئات القوالب المصنفة بدقة لتناسب كل احتياجاتك، من الإنتاجية إلى التعليم وكل ما بينهما.
             </p>
           </div>
         </div>
@@ -184,18 +189,18 @@ export default function CategoriesPage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search Bar */}
-        <div className="mb-8 sm:mb-10 md:mb-12">
-          <div className="relative max-w-2xl mx-auto">
-            <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-accent-400 dark:text-dark-text-tertiary" />
+        <div className="mb-12 sm:mb-16 relative z-10">
+          <div className="relative max-w-2xl mx-auto group">
+            <div className="absolute inset-x-0 -bottom-2 h-10 bg-primary/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none z-10">
+              <Search className="h-5 w-5 text-primary" />
             </div>
             <input
               type="text"
               placeholder="ابحث عن التصنيف..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pr-12 pl-4 py-3 sm:py-4 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-xl shadow-sm hover:shadow-md focus:shadow-lg focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 focus:border-primary-500 dark:focus:border-primary-400 transition-all duration-200 text-sm sm:text-base text-accent-900 dark:text-dark-text-primary placeholder-accent-400 dark:placeholder-dark-text-tertiary"
+              className="w-full pr-14 pl-6 py-4 sm:py-5 bg-white/70 dark:bg-white/5 backdrop-blur-xl border-none rounded-2xl shadow-large hover:shadow-glow focus:shadow-glow focus:ring-1 focus:ring-primary/20 transition-all duration-300 text-base sm:text-lg text-accent-900 dark:text-white placeholder-accent-400 dark:placeholder-gray-500 font-medium"
             />
           </div>
         </div>
@@ -237,29 +242,32 @@ export default function CategoriesPage() {
                 href={`/categories/${getCategorySlug(category.name)}`}
                 className="group"
               >
-                <div className="bg-white dark:bg-dark-secondary rounded-xl p-5 sm:p-6 shadow-sm border border-gray-200 dark:border-dark-card-border hover:shadow-xl hover:border-primary-300 dark:hover:border-primary-500/50 hover:-translate-y-1 transition-all duration-300 h-full flex flex-col">
-                  {/* Icon */}
-                  <div className="flex justify-center mb-4">
-                    <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br ${category.bg} backdrop-blur-sm border border-white/20 shadow-lg group-hover:shadow-2xl group-hover:scale-110 transition-all duration-300`}>
-                      <category.icon className="w-7 h-7 sm:w-8 sm:h-8 text-white drop-shadow-md group-hover:scale-110 transition-transform duration-300" />
+                <div className="relative z-10 bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-[2rem] p-6 sm:p-8 shadow-soft hover:shadow-xl hover:-translate-y-2 hover:bg-white/70 dark:hover:bg-white/10 transition-all duration-500 h-full flex flex-col group/card items-center border-none overflow-hidden">
+                  {/* Glass Card Background Decoration */}
+                  <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${category.bg} opacity-0 group-hover:opacity-10 dark:group-hover:opacity-20 blur-2xl transition-opacity duration-500`}></div>
+                  
+                  {/* Icon Container */}
+                  <div className="mb-6 relative">
+                    <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center bg-gradient-to-br ${category.bg} backdrop-blur-md border-none shadow-medium group-hover:shadow-glow group-hover:scale-110 transition-all duration-500 rotate-3 group-hover:rotate-0`}>
+                      <category.icon className="w-8 h-8 sm:w-10 sm:h-10 text-white drop-shadow-xl transition-transform duration-500 group-hover:scale-110" />
                     </div>
                   </div>
 
                   {/* Category Name */}
-                  <h3 className="font-bold text-base sm:text-lg text-accent-900 dark:text-dark-text-primary text-center mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                  <h3 className="font-black text-lg sm:text-xl text-accent-900 dark:text-white text-center mb-3 transition-colors tracking-tight group-hover:text-primary">
                     {category.name}
                   </h3>
 
                   {/* Description */}
-                  <p className="text-xs sm:text-sm text-accent-600 dark:text-dark-text-secondary text-center leading-relaxed flex-1 mb-3">
+                  <p className="text-xs sm:text-sm text-accent-600 dark:text-gray-400 text-center leading-relaxed flex-1 mb-6 px-1">
                     {category.description}
                   </p>
 
-                  {/* View Templates Button */}
-                  <div className="mt-auto pt-3 border-t border-gray-100 dark:border-dark-card-border">
-                    <div className="flex items-center justify-center text-primary-600 dark:text-primary-400 text-xs sm:text-sm font-semibold group-hover:text-primary-700 dark:group-hover:text-primary-300 transition-colors">
-                      <span>عرض القوالب</span>
-                      <ChevronLeft className="w-4 h-4 mr-1 group-hover:-translate-x-1 transition-transform duration-200" />
+                  {/* Glass Button Style */}
+                  <div className="w-full mt-auto">
+                    <div className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-primary/10 dark:bg-primary/20 text-primary font-bold text-sm group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-sm group-hover:shadow-glow">
+                      <span>تصفح</span>
+                      <ChevronLeft className="w-4 h-4 mr-1 group-hover:-translate-x-1 transition-transform duration-300" />
                     </div>
                   </div>
                 </div>

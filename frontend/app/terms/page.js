@@ -10,44 +10,61 @@ export const metadata = generateMetadata({
 
 export default function TermsPage() {
   return (
-    <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+    <main className="min-h-screen bg-gray-50 dark:bg-black relative overflow-x-hidden transition-colors duration-300" dir="rtl">
+      {/* Ambient Mesh Background */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
 
       {/* Content */}
-      <section className="section-padding bg-white dark:bg-dark-secondary transition-colors duration-300">
-        <div className="container-custom max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="mb-8 sm:mb-10 md:mb-12">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 text-accent-500 dark:text-dark-text-primary">شروط الاستخدام</h1>
+      <section className="py-24 px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="container-custom max-w-5xl">
+          {/* Main Card */}
+          <div className="bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-[3rem] p-10 sm:p-20 shadow-large border-none">
+            <div className="mb-16">
+              <h1 className="text-4xl sm:text-6xl font-black text-accent-900 dark:text-white mb-6 tracking-tighter">شروط الاستخدام</h1>
             <p className="text-base sm:text-lg text-accent-700 dark:text-gray-200">
               آخر تحديث: {formatCurrentDate()}
             </p>
           </div>
 
           <div className="prose prose-sm sm:prose-base md:prose-lg max-w-none">
-            <div className="space-y-6 sm:space-y-8">
-              <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">1. قبول الشروط</h2>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  مرحباً بك في عرب نوشن. هذه الشروط والأحكام تحكم استخدامك لخدماتنا الاستشارية، أنظمة نوشن المخصصة، خدمات الأتمتة والتكاملات، التدريب، الخدمات البرمجية، ومتجر القوالب.
-                  باستخدامك لخدماتنا، فإنك توافق على الالتزام بهذه الشروط.
-                </p>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 leading-relaxed">
-                  إذا كنت لا توافق على أي جزء من هذه الشروط، فيرجى عدم استخدام خدماتنا.
-                </p>
+            <div className="space-y-16">
+              <section className="relative">
+                <div className="absolute -right-8 top-0 text-[120px] font-black text-primary/5 select-none leading-none">01</div>
+                <h2 className="text-3xl font-black mb-6 text-accent-900 dark:text-white relative z-10">1. قبول الشروط</h2>
+                <div className="space-y-4">
+                  <p className="text-xl text-accent-600 dark:text-gray-300 leading-relaxed font-medium">
+                    مرحباً بك في عرب نوشن. هذه الشروط والأحكام تحكم استخدامك لخدماتنا الاستشارية، أنظمة نوشن المخصصة، خدمات الأتمتة والتكاملات، التدريب، الخدمات البرمجية، ومتجر القوالب.
+                    باستخدامك لخدماتنا، فإنك توافق على الالتزام بهذه الشروط.
+                  </p>
+                  <p className="text-lg text-accent-600/70 dark:text-gray-400 leading-relaxed font-medium">
+                    إذا كنت لا توافق على أي جزء من هذه الشروط، فيرجى عدم استخدام خدماتنا.
+                  </p>
+                </div>
               </section>
 
-              <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">2. وصف الخدمات</h2>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
+              <section className="relative">
+                <div className="absolute -right-8 top-0 text-[120px] font-black text-primary/5 select-none leading-none">02</div>
+                <h2 className="text-3xl font-black mb-6 text-accent-900 dark:text-white relative z-10">2. وصف الخدمات</h2>
+                <p className="text-xl text-accent-600 dark:text-gray-300 leading-relaxed mb-8 font-medium">
                   عرب نوشن تقدم مجموعة متكاملة من الخدمات الاحترافية:
                 </p>
-                <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100">
-                  <li><span className="font-semibold">الاستشارات:</span> استشارات متخصصة في تصميم وتطوير أنظمة نوشن</li>
-                  <li><span className="font-semibold">بناء أنظمة نوشن مخصصة (Workspaces):</span> تصميم وتطوير مساحات عمل متكاملة حسب احتياجاتك</li>
-                  <li><span className="font-semibold">الأتمتة والتكاملات:</span> ربط نوشن مع الأدوات الأخرى وأتمتة العمليات</li>
-                  <li><span className="font-semibold">التدريب والدعم الفني:</span> تدريب فريقك على استخدام نوشن بكفاءة</li>
-                  <li><span className="font-semibold">الخدمات البرمجية:</span> تطوير حلول برمجية مخصصة ومتكاملة</li>
-                  <li><span className="font-semibold">متجر القوالب:</span> تصفح وتحميل قوالب نوشن من مبدعين معتمدين</li>
-                  <li><span className="font-semibold">المحتوى التعليمي:</span> الوصول إلى المدونة والموارد التعليمية</li>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[
+                    { label: 'الاستشارات', desc: 'استشارات متخصصة في تصميم وتطوير أنظمة نوشن' },
+                    { label: 'بناء أنظمة مخصصة', desc: 'تصميم وتطوير مساحات عمل متكاملة حسب احتياجاتك' },
+                    { label: 'الأتمتة والتكاملات', desc: 'ربط نوشن مع الأدوات الأخرى وأتمتة العمليات' },
+                    { label: 'التدريب والدعم الفني', desc: 'تدريب فريقك على استخدام نوشن بكفاءة' },
+                    { label: 'الخدمات البرمجية', desc: 'تطوير حلول برمجية مخصصة ومتكاملة' },
+                    { label: 'متجر القوالب', desc: 'تصفح وتحميل قوالب نوشن من مبدعين معتمدين' }
+                  ].map((item, i) => (
+                    <li key={i} className="p-6 bg-white/50 dark:bg-white/5 backdrop-blur-md rounded-2xl shadow-soft">
+                      <span className="block font-black text-primary mb-2 text-lg">{item.label}</span>
+                      <span className="text-accent-600 dark:text-gray-400 font-medium">{item.desc}</span>
+                    </li>
+                  ))}
                 </ul>
               </section>
 
@@ -279,6 +296,7 @@ export default function TermsPage() {
                 </div>
               </section>
             </div>
+          </div>
           </div>
         </div>
       </section>

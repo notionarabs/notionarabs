@@ -18,10 +18,7 @@ async function handleOptimizedPagination(req, res, options) {
   const filter = { status: 'approved' };
 
   if (category && category !== 'all') {
-    filter.$and = filter.$and || [];
-    filter.$and.push({
-      $or: [{ category }, { categories: category }]
-    });
+    filter.categories = category;
   }
 
   if (creator) {
@@ -44,7 +41,7 @@ async function handleOptimizedPagination(req, res, options) {
   const [templates, totalCount] = await Promise.all([
     Template.find(filter)
       .select('title description features category categories tags creator previewImage slug rating reviewsCount downloads views isPaid price purchaseLink isPinned pinnedAt pinnedBy ')
-      .populate('creator', 'name username displayName profilePicture')
+      .populate('creator', 'name username displayName profilePicture badges')
       .sort(sort)
       .skip(skip)
       .limit(parseInt(limit))
@@ -376,10 +373,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
     const filter = { status: 'approved' };
 
     if (category && category !== 'all') {
-      filter.$and = filter.$and || [];
-      filter.$and.push({
-        $or: [{ category }, { categories: category }]
-      });
+      filter.categories = category;
     }
 
     if (creator) {
@@ -396,7 +390,6 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
         };
 
         const sort = {
-          score: { $meta: 'textScore' },
           [sortBy]: sortOrder === 'desc' ? -1 : 1
         };
 
@@ -405,7 +398,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
         const [templates, totalCount] = await Promise.all([
           Template.find(searchQuery)
             .select('title description features category categories tags creator previewImage slug rating reviewsCount downloads views isPaid price purchaseLink isPinned pinnedAt pinnedBy ')
-            .populate('creator', 'name username displayName profilePicture')
+            .populate('creator', 'name username displayName profilePicture badges')
             .sort(sort)
             .skip(skip)
             .limit(parseInt(limit))
@@ -433,7 +426,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
             { title: { $regex: search.trim(), $options: 'i' } },
             { description: { $regex: search.trim(), $options: 'i' } },
             { tags: { $in: [new RegExp(search.trim(), 'i')] } },
-            { category: { $regex: search.trim(), $options: 'i' } }
+            { categories: { $in: [search.trim()] } }
           ]
         };
 
@@ -444,7 +437,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
         const [templates, totalCount] = await Promise.all([
           Template.find(regexQuery)
             .select('title description features category categories tags creator previewImage slug rating reviewsCount downloads views isPaid price purchaseLink isPinned pinnedAt pinnedBy ')
-            .populate('creator', 'name username displayName profilePicture')
+            .populate('creator', 'name username displayName profilePicture badges')
             .sort(sort)
             .skip(skip)
             .limit(parseInt(limit))
@@ -517,7 +510,7 @@ router.get('/creator/:creatorId', cacheMiddleware(600), async (req, res) => {
     }
 
     const templates = await Template.find(filter)
-      .populate('creator', 'name username displayName profilePicture')
+      .populate('creator', 'name username displayName profilePicture badges')
       .sort({ createdAt: -1 });
 
     res.json({
@@ -554,7 +547,7 @@ router.get('/export', auth, async (req, res) => {
     }
 
     const templates = await Template.find(query)
-      .populate('creator', 'name username displayName email')
+      .populate('creator', 'name username displayName email badges')
       .sort({ createdAt: -1 })
       .lean();
 
@@ -619,7 +612,7 @@ router.get('/export-public', async (req, res) => {
     }
 
     const templates = await Template.find(query)
-      .populate('creator', 'name username displayName email')
+      .populate('creator', 'name username displayName email badges')
       .sort({ createdAt: -1 })
       .lean();
 
@@ -698,7 +691,7 @@ router.get('/similar/:id', cacheMiddleware(600), async (req, res) => {
       _id: { $ne: currentTemplate._id }
     })
       .select(selectFields)
-      .populate('creator', 'name username displayName profilePicture')
+      .populate('creator', 'name username displayName profilePicture badges')
       .lean()
       .limit(100); // Limit to prevent performance issues
 
@@ -787,7 +780,7 @@ router.get('/:identifier', cacheMiddleware(600), async (req, res) => {
       status: 'approved'
     })
       .select(selectFields)
-      .populate('creator', 'name username displayName profilePicture bio')
+      .populate('creator', 'name username displayName profilePicture bio badges')
       .lean();
 
     // If not found by slug, try by ID (only if it's a valid ObjectId)
@@ -798,7 +791,7 @@ router.get('/:identifier', cacheMiddleware(600), async (req, res) => {
         status: 'approved'
       })
         .select(selectFields)
-        .populate('creator', 'name username displayName profilePicture bio')
+        .populate('creator', 'name username displayName profilePicture bio badges')
         .lean();
     }
 

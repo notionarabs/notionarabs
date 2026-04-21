@@ -155,14 +155,19 @@ export default function AdminPage() {
       params.append('limit', '50');
 
       const response = await api.get(`/admin/users?${params.toString()}`);
-      setUsers(response.data.users);
+      const normalizedUsers = (response.data.users || []).map(u => ({
+        ...u,
+        role: u.role?.toLowerCase(),
+        creatorStatus: u.creatorStatus?.toLowerCase()
+      }));
+      setUsers(normalizedUsers);
 
       // Update filtered user count based on API response for accuracy
       const { count } = response.data;
       if (typeof count === 'number') {
         setFilteredUserCount(count);
       } else {
-        setFilteredUserCount(response.data.users?.length || 0);
+        setFilteredUserCount(normalizedUsers.length);
       }
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -306,7 +311,7 @@ export default function AdminPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="max-w-md w-full mx-4 p-8 bg-white dark:bg-dark-secondary rounded-2xl shadow-xl text-center border border-gray-100 dark:border-dark-card-border"
+          className="max-w-md w-full mx-4 p-8 bg-white dark:bg-dark-secondary rounded-2xl shadow-xl text-center border-none"
         >
           <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
             <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -424,9 +429,9 @@ export default function AdminPage() {
               transition={{ delay: index * 0.1 }}
             >
               <Link href={card.href} className="group block h-full">
-                <div className="h-full bg-white dark:bg-dark-secondary rounded-2xl p-6 border border-gray-200 dark:border-dark-card-border shadow-soft hover:shadow-large transition-all duration-300 relative overflow-hidden">
+                <div className="h-full bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-[2rem] p-8 border-none shadow-soft hover:shadow-glow transition-all duration-500 relative overflow-hidden">
                   {/* Card Background Gradient Pattern */}
-                  <div className={`absolute -right-4 -bottom-4 w-24 h-24 bg-gradient-to-br ${card.gradient} opacity-[0.03] group-hover:opacity-[0.08] transition-opacity rounded-full`} />
+                  <div className={`absolute -right-4 -bottom-4 w-32 h-32 bg-gradient-to-br ${card.gradient} opacity-[0.05] group-hover:opacity-[0.15] transition-opacity duration-500 rounded-full blur-2xl`} />
 
                   <div className="flex justify-between items-start mb-4">
                     <div className={`p-3 rounded-xl bg-${card.color}-50 dark:bg-${card.color}-900/20 group-hover:scale-110 transition-transform duration-300`}>
@@ -475,7 +480,7 @@ export default function AdminPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white/70 dark:bg-dark-secondary/70 backdrop-blur-md rounded-2xl p-6 mb-8 border border-gray-200 dark:border-dark-card-border shadow-medium"
+            className="bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-[2.5rem] p-8 mb-12 border-none shadow-large"
           >
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
               <div className="md:col-span-5 relative">
@@ -554,9 +559,9 @@ export default function AdminPage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="bg-white dark:bg-dark-secondary rounded-2xl border border-gray-200 dark:border-dark-card-border shadow-medium overflow-hidden"
+            className="bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-[2.5rem] border-none shadow-large overflow-hidden"
           >
-            <div className="px-6 py-5 border-b border-gray-200 dark:border-dark-card-border flex flex-col sm:flex-row justify-between items-center gap-4 bg-gray-50/50 dark:bg-dark-tertiary/20">
+            <div className="px-6 py-5 border-none flex flex-col sm:flex-row justify-between items-center gap-4 bg-gray-50/50 dark:bg-dark-tertiary/20">
               <div className="flex items-center gap-3">
                 <div className="flex -space-x-2 space-x-reverse">
                   {users.slice(0, 3).map((u, i) => (
@@ -687,12 +692,12 @@ export default function AdminPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
                           {user.googleId ? (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/30">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-none">
                               <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
                               Google
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-none">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                               البريد
                             </span>

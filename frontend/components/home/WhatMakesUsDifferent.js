@@ -44,7 +44,7 @@ export default function WhatMakesUsDifferent() {
                         <div key={idx} className="group">
                             <div className={`flex flex-row items-stretch gap-3 sm:gap-6 ${idx % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}>
                                 <div className="flex-1 lg:w-auto w-full">
-                                    <div className="card-interactive h-full cursor-default p-4 sm:p-6 rounded-2xl border border-gray-200 dark:border-dark-card-border bg-white dark:bg-dark-secondary">
+                                    <div className="card-interactive h-full cursor-default p-4 sm:p-6 rounded-2xl border-none bg-white dark:bg-dark-secondary">
                                         <h3 className="text-base sm:text-lg font-semibold text-accent-900 dark:text-dark-text-primary mb-2">
                                             {item.title}
                                         </h3>
@@ -54,7 +54,7 @@ export default function WhatMakesUsDifferent() {
                                     </div>
                                 </div>
                                 <div className="w-fit">
-                                    <div className="inline-flex w-fit h-full rounded-3xl border border-dashed border-primary-200/70 dark:border-orange-500/30 bg-gradient-to-br from-primary-50/70 via-white to-secondary-50/80 dark:from-dark-primary dark:via-dark-secondary dark:to-dark-primary p-3 sm:p-8 flex items-center justify-center">
+                                    <div className="inline-flex w-fit h-full rounded-3xl border-none bg-gradient-to-br from-primary-50/70 via-white to-secondary-50/80 dark:from-dark-primary dark:via-dark-secondary dark:to-dark-primary p-3 sm:p-8 flex items-center justify-center shadow-sm">
                                         <div className="w-fit text-3xl sm:text-5xl font-bold text-accent-500/60 dark:text-dark-text-tertiary">
                                             {String(idx + 1).padStart(2, '0')}
                                         </div>

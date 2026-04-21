@@ -235,11 +235,11 @@ export default function PurchasesPage() {
               لم تقم بشراء أي قوالب بعد. استكشف متجرنا للعثور على قوالب نوشن احترافية تساعدك في تنظيم حياتك وعملك.
             </p>
             <Link
-              href="/store"
+              href="/#marketplace"
               className="px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-2xl transition-all shadow-xl hover:shadow-primary-500/30 hover:-translate-y-1 flex items-center gap-2 group"
             >
               <Search size={20} className="group-hover:scale-110 transition-transform" />
-              تصفح المتجر
+              استكشف القوالب
             </Link>
           </div>
         ) : (

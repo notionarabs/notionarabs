@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Search, X, Zap, Layout, BookOpen, Clock, Command, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../contexts/ThemeContext';
+import axios from 'axios';
 import api from '../lib/api';
 
 // Icon mapping to handle strings from cache
@@ -120,7 +121,7 @@ export default function SearchPalette({ isOpen, onClose }) {
                 setResults(allFiltered);
                 sessionStorage.setItem(`search_${currentQuery}`, JSON.stringify(allFiltered));
             } catch (err) {
-                if (err.name !== 'AbortError') {
+                if (!axios.isCancel(err)) {
                     console.error('Search fetch error:', err);
                 }
             } finally {

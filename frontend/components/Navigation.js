@@ -22,11 +22,24 @@ const UserNotifications = dynamic(() => import('./UserNotifications'), {
 const Navigation = memo(function Navigation({ activePage = '' }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { user, isAuthenticated, loading, logout } = useAuth();
   const { setLoading } = useLoading();
   const { theme } = useTheme();
   const pathname = usePathname();
   const menuRef = useRef(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -81,16 +94,15 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
 
   // Memoize navigation items to prevent unnecessary re-renders
   const navItems = useMemo(() => [
-    { href: '/templates', label: 'القوالب', key: 'templates', icon: <Layout className="w-4 h-4" />, color: 'hover:text-emerald-400' },
-    { href: '/blog', label: 'المدونة', key: 'blog', icon: <BookOpen className="w-4 h-4" />, color: 'hover:text-blue-400' },
-    { href: '/widgets', label: 'الأدوات', key: 'widgets', icon: <Zap className="w-4 h-4" />, color: 'hover:text-orange-400' },
-    { href: '/store', label: 'المتجر', key: 'store', icon: <ShoppingBag className="w-4 h-4" />, color: 'hover:text-amber-400' }
+    { href: '/templates', label: 'القوالب', key: 'templates', icon: <Layout className="w-5 h-5" />, color: 'hover:text-emerald-400' },
+    { href: '/blog', label: 'المدونة', key: 'blog', icon: <BookOpen className="w-5 h-5" />, color: 'hover:text-blue-400' },
+    { href: '/widgets', label: 'الأدوات', key: 'widgets', icon: <Zap className="w-5 h-5" />, color: 'hover:text-orange-400' }
   ], []);
 
   return (
     <>
-      <header ref={menuRef} className="w-full bg-accent-500/90 dark:bg-dark-secondary/90 sticky top-0 z-50 shadow-sm border-b border-white/10 dark:border-dark-card-border/30 backdrop-blur-2xl transition-all duration-300">
-        <div className="container-custom flex justify-between items-center py-4">
+      <header ref={menuRef} className={`w-full bg-nav sticky top-0 z-50 backdrop-blur-2xl transition-all duration-300 ${isSearchOpen ? 'translate-y-[-100%]' : 'translate-y-0'} ${scrolled ? 'py-2 shadow-lg' : 'py-4'}`}>
+        <div className="container-custom flex justify-between items-center px-6">
           <Link
             href="/"
             className="flex items-center"
@@ -98,11 +110,11 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
             onClick={() => handleNavigation('/')}
           >
             <Image
-              src="/brand/NavLogoLight.svg"
+              src={mounted && theme === 'light' ? '/brand/NavLogoDark.svg' : '/brand/NavLogoLight.svg'}
               alt="عرب نوشن"
-              width={180}
+              width={200}
               height={60}
-              className="h-8 sm:h-10 md:h-12 w-auto"
+              className="h-10 md:h-12 lg:h-14 w-auto drop-shadow-sm transition-all duration-300"
               quality={100}
               priority
               unoptimized
@@ -114,20 +126,20 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
             <div className={`transition-all duration-300 ease-in-out overflow-hidden flex items-center ${activePage !== 'home' ? 'max-w-24 opacity-100' : 'max-w-0 opacity-0'}`}>
               <Link
                 href="/"
-                className="nav-link whitespace-nowrap"
+                className={`nav-link flex items-center gap-2 group/nav text-sm font-bold ${activePage === 'home' ? 'text-primary' : 'text-accent-500/80'}`}
                 onClick={() => handleNavigation('/')}
               >
-                <div className="flex items-center gap-2 group/nav hover:text-primary-300">
-                  <Home className="w-4 h-4 transition-transform duration-300 group-hover/nav:scale-110 group-hover/nav:rotate-3" />
-                  <span>الرئيسية</span>
-                </div>
+                <span className="transition-all duration-300 group-hover:scale-110 group-hover:text-primary">
+                  <Home className="w-4 h-4" />
+                </span>
+                <span>الرئيسية</span>
               </Link>
             </div>
             {navItems.map((item) => (
               <Link
                 key={item.key}
                 href={item.href}
-                className={`nav-link flex items-center gap-2 group/nav ${activePage === item.key ? 'nav-link-active' : ''}`}
+                className={`nav-link flex items-center gap-2 group/nav text-sm font-bold ${activePage === item.key ? 'text-primary' : 'text-accent-500/80'}`}
                 onClick={() => handleNavigation(item.href)}
               >
                 <span className="transition-all duration-300 group-hover:scale-110 group-hover:text-primary">
@@ -138,7 +150,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
             ))}
             <button
               onClick={() => setIsSearchOpen(true)}
-              className="p-2 text-gray-300 hover:text-white dark:text-dark-text-tertiary dark:hover:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary rounded-xl transition-all ml-2 group/search relative"
+              className="p-2 text-accent-500/70 dark:text-white/50 hover:text-primary hover:bg-accent-500/5 rounded-xl transition-all ml-2 group/search relative"
               aria-label="بحث"
             >
               <Search className="w-5 h-5 group-hover/search:scale-110 transition-transform" />
@@ -176,7 +188,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
                     onClick={() => handleNavigation('/login')}
                   >
                     <div className="absolute inset-0 rounded-full bg-orange-500/5 opacity-0 group-hover:opacity-100 blur-md transition-opacity"></div>
-                    <UserIcon className="w-6 h-6 text-gray-300 dark:text-dark-text-secondary group-hover:text-orange-500 transition-colors" />
+                    <UserIcon className="w-6 h-6 text-accent-500/60 dark:text-dark-text-secondary group-hover:text-orange-500 transition-colors" />
                   </Link>
                 </>
               )}
@@ -190,7 +202,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
               className="p-3 transition-all duration-300 border border-gray-600 dark:border-dark-card-border rounded-xl hover:bg-white/10 dark:hover:bg-dark-tertiary hover:border-gray-500 dark:hover:border-dark-text-tertiary flex-shrink-0"
               aria-label="فتح القائمة"
             >
-              <svg className="w-5 h-5 text-gray-300 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-accent-500/70 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
               </svg>
             </button>
@@ -269,7 +281,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
                           {user?.name?.charAt(0)?.toUpperCase()}
                         </div>
                       )}
-                      {user?.creatorStatus === 'approved' && (
+                      {user?.creatorStatus?.toLowerCase() === 'approved' && (
                         <span className="absolute -bottom-1 -right-1 bg-blue-500 text-[10px] text-white p-0.5 rounded-full border-2 border-accent-600">
                           <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         </span>
@@ -291,7 +303,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
                     >
                       <svg className="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                       <span className="text-xs font-medium text-gray-200">
-                        {user?.role?.toLowerCase() === 'admin' ? 'لوحة الإدارة' : (user?.creatorStatus === 'approved' ? 'الملف الشخصي' : 'مشترياتي')}
+                        {user?.role?.toLowerCase() === 'admin' ? 'لوحة الإدارة' : (user?.creatorStatus?.toLowerCase() === 'approved' ? 'الملف الشخصي' : 'مشترياتي')}
                       </span>
                     </Link>
 
@@ -306,7 +318,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
                   </div>
 
                   {/* Creator Status Section for Mobile */}
-                  {user?.role?.toLowerCase() !== 'admin' && user?.creatorStatus !== 'approved' && (
+                  {user?.role?.toLowerCase() !== 'admin' && user?.creatorStatus?.toLowerCase() !== 'approved' && (
                     <div className="pt-2">
                       {user?.creatorStatus === 'pending' ? (
                         <div className="w-full px-4 py-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-3">

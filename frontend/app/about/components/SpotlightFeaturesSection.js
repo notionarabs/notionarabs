@@ -1,46 +1,46 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useMotionTemplate, useMotionValue } from 'framer-motion';
 import { Settings, Puzzle, Users, GraduationCap, Zap, Trophy } from 'lucide-react';
 
 const features = [
     {
-        title: "حلول نوشن مخصصة",
-        description: "نبني أنظمة عمل ولوحات تحكم تناسب الأفراد والفرق، مصممة خصيصاً لاحتياجاتك.",
+        title: "أنظمة نوشن متكاملة",
+        description: "قوالب مصممة كأنظمة حياة وأعمال متكاملة، تمنحك لوحات تحكم ذكية للسيطرة على مشاريعك وإنجازاتك.",
         Icon: Settings
     },
     {
-        title: "متجر قوالب عربي",
-        description: "قوالب جاهزة وعملية تساعدك تبدأ بسرعة وتحقق نتائج واضحة دون تعقيد.",
+        title: "أكبر متجر قوالب عربي",
+        description: "مجموعة ضخمة من القوالب الجاهزة والعملية التي تساعدك على البدء فوراً بضغطة زر واحدة.",
         Icon: Puzzle
     },
     {
-        title: "مجتمع المبدعين",
-        description: "نُمكّن صُنّاع القوالب من البيع والانتشار والتعاون في بيئة داعمة.",
+        title: "مجتمع صُنّاع القوالب",
+        description: "نُمكّن المبدعين من مشاركة وبيع قوالبهم المبتكرة والوصول إلى قاعدة جمهور عربية واسعة.",
         Icon: Users
     },
     {
-        title: "تعليم وتدريب عملي",
-        description: "محتوى تطبيقي يقرّب نوشن لكل مستخدم بطريقة بسيطة ومباشرة.",
+        title: "مصادر تعليمية متخصصة",
+        description: "دروس ومحتوى تطبيقي يجعل احتراف نوشن أمراً بسيطاً، مع شروحات عربية واضحة لكل ميزة.",
         Icon: GraduationCap
     },
     {
-        title: "أتمتة وتكاملات",
-        description: "نربط نوشن بالأدوات التي تعتمد عليها لتقليل التشتت وزيادة الإنتاجية.",
+        title: "هيكلة فائقة الذكاء",
+        description: "قوالبنا مبنية بأحدث تقنيات نوشن البرمجية (Databases, Formulas 2.0) لضمان أقصى كفاءة ممكنة.",
         Icon: Zap
     },
     {
-        title: "جودة احترافية",
-        description: "نلتزم بأعلى معايير التصميم والأداء في كل ما نقدمه.",
+        title: "معايير جودة عالمية",
+        description: "نلتزم بأعلى معايير التصميم والأداء لضمان تجربة مستخدم سلسة واحترافية في كل قالب.",
         Icon: Trophy
     }
 ];
 
 const FeatureCard = ({ feature, mouseX, mouseY }) => {
     return (
-        <div className="group relative border border-gray-200 dark:border-white/10 bg-white dark:bg-dark-card-bg rounded-2xl p-6 h-full overflow-hidden">
-            {/* Spotlight Effect Layer */}
+        <div className="group relative bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-[1.5rem] p-10 h-full overflow-hidden border-none shadow-soft hover:shadow-large transition-all duration-500">
+            {/* Spotlight Effect Layer - Soft Glass Glow */}
             <motion.div
                 className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition duration-300 group-hover:opacity-100"
                 style={{
@@ -53,44 +53,36 @@ const FeatureCard = ({ feature, mouseX, mouseY }) => {
           `
                 }}
             />
-            {/* Border Highlight Layer */}
+            {/* Subtler Border Glow */}
             <motion.div
-                className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition duration-300 group-hover:opacity-100"
+                className="pointer-events-none absolute -inset-px rounded-[1.5rem] opacity-0 transition duration-300 group-hover:opacity-50"
                 style={{
                     background: useMotionTemplate`
             radial-gradient(
               600px circle at ${mouseX}px ${mouseY}px,
-              rgba(249, 115, 22, 0.4),
+              rgba(249, 115, 22, 0.2),
               transparent 40%
             )
-          `,
-                    zIndex: -1
+          `
                 }}
             />
 
             <div className="relative h-full flex flex-col z-10">
-                <div className="w-12 h-12 bg-primary-50 dark:bg-dark-tertiary rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary-100 dark:group-hover:bg-dark-card-hover transition-colors duration-300">
-                    <feature.Icon className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+                <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-500 shadow-soft">
+                    <feature.Icon className="w-8 h-8 text-primary" />
                 </div>
 
-                <h3 className="text-xl font-bold text-accent-800 dark:text-white mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-300">
+                <h3 className="text-2xl font-black text-accent-900 dark:text-white mb-4 group-hover:text-primary transition-colors duration-300 tracking-tight">
                     {feature.title}
                 </h3>
 
-                <p className="text-accent-600 dark:text-gray-400 leading-relaxed group-hover:text-accent-700 dark:group-hover:text-gray-300 transition-colors duration-300">
+                <p className="text-lg text-accent-600 dark:text-gray-400 leading-relaxed group-hover:text-accent-800 dark:group-hover:text-gray-300 transition-colors duration-300 font-medium">
                     {feature.description}
                 </p>
             </div>
         </div>
     );
 };
-
-// Import needs to be inside or passed down because useMotionTemplate is a named import from framer-motion
-// But I need to define local imports. 
-// Wait, I used `useMotionTemplate` in the component but didn't import it.
-// I must update the imports.
-
-import { useMotionTemplate, useMotionValue } from 'framer-motion';
 
 export default function SpotlightFeaturesSection() {
     let mouseX = useMotionValue(0);
@@ -103,24 +95,24 @@ export default function SpotlightFeaturesSection() {
     }
 
     return (
-        <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-dark-secondary overflow-hidden">
+        <section className="py-32 px-4 sm:px-6 lg:px-8 bg-transparent overflow-visible relative z-10">
             <div className="container-custom">
                 <div className="text-center mb-16">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100/50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 font-medium text-sm mb-4"
+                        className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/50 dark:bg-white/5 backdrop-blur-xl text-primary font-black text-xs mb-8 border-none shadow-soft uppercase tracking-widest"
                     >
-                        <Trophy size={16} />
-                        <span>لماذا نحن؟</span>
+                        <Trophy size={14} />
+                        <span>من نحن؟</span>
                     </motion.div>
 
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-3xl sm:text-4xl md:text-5xl font-bold text-accent-800 dark:text-white mb-4"
+                        className="text-5xl sm:text-7xl font-black text-foreground dark:text-white mb-6 tracking-tighter leading-tight"
                     >
                         ما الذي يميز عرب نوشن؟
                     </motion.h2>
@@ -129,9 +121,9 @@ export default function SpotlightFeaturesSection() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.1 }}
-                        className="text-lg text-accent-600 dark:text-gray-400 max-w-2xl mx-auto"
+                        className="text-xl text-accent-600 dark:text-gray-400 max-w-2xl mx-auto font-medium"
                     >
-                        نجمع بين الجودة العالية، الفهم العميق للمستخدم العربي، والتكنولوجيا المتقدمة.
+                        نحن لا نبيع مجرد صفحات، بل نقدم أنظمة إنتاجية متكاملة مصممة بعناية لتناسب الروح والاحتياجات العربية.
                     </motion.p>
                 </div>
 

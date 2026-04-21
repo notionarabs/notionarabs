@@ -1,18 +1,41 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { LayoutDashboard, Crown, Zap, Award } from 'lucide-react';
+import api from '../../lib/api';
+import Counter from '../Counter';
 
 export default function Hero({ animationsPlayed }) {
+    const [stats, setStats] = useState({ templates: 0, creators: 0, specialties: 0, downloads: 0 });
+    const [loadingStats, setLoadingStats] = useState(true);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                setLoadingStats(true);
+                const response = await api.get('/stats/homepage');
+                if (response.data.success) {
+                    setStats(response.data.stats);
+                }
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            } finally {
+                setLoadingStats(false);
+            }
+        };
+        fetchStats();
+    }, []);
     return (
         <section className="relative overflow-hidden bg-white dark:bg-dark-primary px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-6 sm:py-8 md:py-12 lg:py-14 xl:py-16 transition-colors duration-300 min-h-[calc(100vh-64px)] sm:min-h-[calc(100vh-72px)] flex items-center">
             {/* Animated Background Elements */}
             <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
                 {/* Floating Notion-style Blocks */}
-                <div className="hidden sm:block absolute top-20 left-10 w-16 h-16 bg-white/60 dark:bg-dark-tertiary/60 rounded-lg shadow-lg dark:shadow-dark-medium floating-block notion-block-hover"></div>
-                <div className="hidden sm:block absolute top-40 right-20 w-12 h-12 bg-gray-100/70 dark:bg-dark-quaternary/70 rounded-md shadow-md dark:shadow-dark-soft floating-block-delayed notion-block-hover"></div>
-                <div className="hidden md:block absolute bottom-32 left-1/4 w-20 h-20 bg-white/50 dark:bg-dark-tertiary/50 rounded-xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover"></div>
-                <div className="hidden lg:block absolute top-1/3 right-1/3 w-14 h-14 bg-gray-50/80 dark:bg-dark-quaternary/80 rounded-lg shadow-md dark:shadow-dark-soft floating-block-delayed notion-block-hover"></div>
-                <div className="hidden md:block absolute bottom-20 right-10 w-18 h-18 bg-white/40 dark:bg-dark-tertiary/40 rounded-2xl shadow-lg dark:shadow-dark-medium floating-block notion-block-hover"></div>
+                <div className="hidden sm:block absolute top-10 left-[5%] w-16 h-16 bg-accent-500/5 dark:bg-white/5 rounded-2xl border-none floating-block notion-block-hover shadow-2xl opacity-40"></div>
+                <div className="hidden sm:block absolute top-60 right-[8%] w-12 h-12 bg-accent-500/5 dark:bg-white/5 rounded-xl border-none floating-block-delayed notion-block-hover shadow-xl opacity-30"></div>
+                <div className="hidden md:block absolute bottom-20 left-[15%] w-20 h-20 bg-accent-500/5 dark:bg-white/5 rounded-[2rem] border-none floating-block notion-block-hover shadow-2xl opacity-40"></div>
+                <div className="hidden lg:block absolute top-1/2 right-[5%] w-14 h-14 bg-accent-500/5 dark:bg-white/5 rounded-2xl border-none floating-block-delayed notion-block-hover shadow-xl opacity-30"></div>
+                <div className="hidden md:block absolute bottom-10 right-[20%] w-18 h-18 bg-accent-500/5 dark:bg-white/5 rounded-[2.5rem] border-none floating-block notion-block-hover shadow-2xl opacity-40"></div>
 
                 {/* Gradient Orbs */}
                 <div className="hidden sm:block absolute top-0 left-0 w-96 h-96 bg-gradient-to-r from-orange-100/30 to-amber-100/30 dark:from-orange-500/5 dark:to-orange-600/5 rounded-full blur-3xl motion-safe:animate-pulse"></div>
@@ -38,7 +61,7 @@ export default function Hero({ animationsPlayed }) {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 title="Verify Notion Service Specialist Certification on Credly"
-                                className="group inline-flex items-center gap-3 bg-white/95 dark:bg-dark-tertiary/95 backdrop-blur-sm rounded-2xl border border-white/60 dark:border-dark-card-border/60 shadow-xl dark:shadow-dark-large px-4 py-3 transition-all duration-300 hover:shadow-2xl hover:-translate-y-0.5 cursor-pointer"
+                                className="group inline-flex items-center gap-3 bg-white/95 dark:bg-dark-tertiary/95 backdrop-blur-sm rounded-2xl border-none shadow-xl dark:shadow-dark-large px-4 py-3 transition-all duration-300 hover:shadow-2xl hover:-translate-y-0.5 cursor-pointer"
                             >
                                 <img
                                     src="/brand/NotionLogo.png"
@@ -61,10 +84,10 @@ export default function Hero({ animationsPlayed }) {
                         </div>
 
                         {/* Main Heading */}
-                        <h1 className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold text-accent-900 dark:text-white mb-4 sm:mb-6 ${!animationsPlayed ? 'text-reveal-delayed' : ''} leading-tight tracking-tighter`}>
-                            <div className="block">
+                        <h1 className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-foreground dark:text-white mb-4 sm:mb-6 ${!animationsPlayed ? 'text-reveal-delayed' : ''} leading-tight tracking-tighter overflow-visible`}>
+                            <div className="block pt-[0.2em] pb-[0.2rem]">
                                 <div className="block">مجتمع نوشن العربي</div>
-                                <div className="block mt-2 md:mt-3 lg:mt-4"><span>المجتمع الأول للمبدعين والخبراء</span></div>
+                                <div className="block mt-2 md:mt-3 lg:mt-4"><span className="text-gradient">المجتمع الأول للمبدعين والخبراء</span></div>
                             </div>
                         </h1>
 
@@ -74,22 +97,50 @@ export default function Hero({ animationsPlayed }) {
                         </p>
 
                         {/* Enhanced CTA Buttons with Better Animations */}
-                        <div className={`flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-8 sm:mb-10 ${!animationsPlayed ? 'text-reveal-delayed-3' : ''}`}>
-                            <Link
-                                href="/store"
-                                className="inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-primary-500 dark:bg-orange-500 text-white rounded-xl hover:bg-primary-600 dark:hover:bg-orange-600 transition-all duration-300 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
+                        <div className={`flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 mb-8 sm:mb-10 ${!animationsPlayed ? 'text-reveal-delayed-3' : ''}`}>
+                            <button
+                                onClick={() => document.getElementById('marketplace')?.scrollIntoView({ behavior: 'smooth' })}
+                                className="btn-primary min-w-[200px] text-lg py-4 shadow-[0_0_20px_rgba(245,99,30,0.15)] hover:shadow-[0_0_30px_rgba(245,99,30,0.3)]"
                             >
-                                تصفح المتجر
-                                <svg className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                استكشف القوالب
+                                <svg className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                 </svg>
-                            </Link>
+                            </button>
                             <Link
                                 href="/creators"
-                                className="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-white/95 dark:bg-dark-tertiary/95 backdrop-blur-sm text-accent-700 dark:text-dark-text-primary rounded-xl border-2 border-primary-300 dark:border-orange-400/50 hover:bg-primary-50 dark:hover:bg-orange-900/20 transition-all duration-300 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
+                                className="btn-secondary min-w-[200px] text-lg py-4"
                             >
                                 منصة المبدعين
                             </Link>
+                        </div>
+
+                        {/* Integrated Horizontal Statistics */}
+                        <div className={`mt-12 sm:mt-16 flex flex-wrap justify-center items-center gap-6 sm:gap-12 md:gap-16 lg:gap-20 ${!animationsPlayed ? 'text-reveal-delayed-4' : ''}`}>
+                            {[
+                                { label: 'قالب إبداعي', val: stats.templates, icon: LayoutDashboard },
+                                { label: 'مبدع خبير', val: stats.creators, icon: Crown },
+                                { label: 'تحميل ناجح', val: stats.downloads, icon: Zap },
+                                { label: 'تخصص إبداعي', val: stats.specialties, icon: Award }
+                            ].map((stat, i) => (
+                                <div key={i} className="flex flex-col items-center sm:items-start group">
+                                    <div className="flex items-center gap-3 mb-1">
+                                        <div className="text-primary/60 group-hover:text-primary transition-colors">
+                                            <stat.icon size={20} strokeWidth={2.5} />
+                                        </div>
+                                        <div className="text-2xl sm:text-3xl font-black text-foreground dark:text-white flex items-center tabular-nums">
+                                            {loadingStats ? (
+                                                <div className="h-8 w-12 bg-gray-200 dark:bg-white/10 rounded animate-pulse" />
+                                            ) : (
+                                                <><Counter end={stat.val} duration={1500} />+</>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <span className="text-[10px] sm:text-xs font-black text-foreground/40 dark:text-white/30 uppercase tracking-[0.2em] group-hover:text-foreground/60 dark:group-hover:text-white/50 transition-colors">
+                                        {stat.label}
+                                    </span>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>

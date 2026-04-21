@@ -59,9 +59,9 @@ export default function UserDropdown() {
     }
   };
 
-  const isCreator = user?.creatorStatus === 'approved';
-  const isPending = user?.creatorStatus === 'pending';
-  const isRejected = user?.creatorStatus === 'rejected';
+  const isCreator = user?.creatorStatus?.toLowerCase() === 'approved';
+  const isPending = user?.creatorStatus?.toLowerCase() === 'pending';
+  const isRejected = user?.creatorStatus?.toLowerCase() === 'rejected';
 
   // Helper component for menu items
   const MenuItem = ({ href, onClick, icon: Icon, label, colorClass = "text-gray-700 dark:text-gray-200", badge }) => {
@@ -214,7 +214,7 @@ export default function UserDropdown() {
                     icon={Settings}
                     label="الإعدادات"
                   />
-                  {user?.role !== 'admin' && (
+                  {user?.role?.toLowerCase() !== 'admin' && (
                     <MenuItem
                       href="/purchases"
                       icon={ShoppingBag}
@@ -224,7 +224,7 @@ export default function UserDropdown() {
                 </div>
 
                 {/* Creator Status Section */}
-                {user?.role !== 'admin' && !isCreator && (
+                {user?.role?.toLowerCase() !== 'admin' && !isCreator && (
                   <div className="my-2">
                     {isPending ? (
                       <div className="mx-2 px-3 py-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 rounded-lg flex items-center justify-between group">

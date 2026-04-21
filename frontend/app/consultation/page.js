@@ -11,28 +11,22 @@ export const metadata = generateMetadata({
 
 export default function ConsultationPage() {
   return (
-    <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+    <main className="min-h-screen bg-transparent relative overflow-x-hidden transition-colors duration-300" dir="rtl">
+      {/* Ambient Mesh Background */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
 
       {/* Immersive Layout for Focus Flow */}
-      <section className="relative min-h-[90vh] flex flex-col items-center justify-center py-10 px-4 sm:px-6 overflow-hidden">
+      <section className="relative min-h-screen flex flex-col items-center justify-center py-24 px-4 sm:px-6 overflow-hidden z-10">
 
-        {/* Background ambient light */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary-500/10 rounded-full blur-[100px] pointer-events-none" />
+
 
         <div className="container-custom relative z-10 w-full max-w-5xl">
 
           {/* Subtle Header */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 px-4 py-1.5 rounded-full text-xs font-medium text-gray-500 dark:text-gray-400 mb-6 shadow-sm backdrop-blur-sm">
-              <Sparkles size={12} className="text-primary-500" />
-              <span>استشارة مخصصة</span>
-            </div>
-            {/* Note: The form has its own "Intro" step, so we keep this minimal or remove it. 
-                Use this space just for branding/context if needed, otherwise let the form drive.
-            */}
-          </div>
-
-          <div className="bg-white/50 dark:bg-dark-secondary/50 backdrop-blur-xl border border-white/60 dark:border-white/5 rounded-3xl shadow-2xl overflow-hidden">
+          <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[3rem] shadow-large border-none overflow-hidden relative">
             <ConsultationForm />
           </div>
 

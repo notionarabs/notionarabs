@@ -37,58 +37,55 @@ export default function FAQ() {
     ];
 
     return (
-        <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-dark-secondary transition-colors duration-300" data-reveal-section>
+        <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 transition-colors duration-300" data-reveal-section>
             <div className="container-custom">
-                <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] items-start">
+                <div className="grid gap-12 lg:grid-cols-[1fr_1.2fr] items-start">
                     <div className="text-center lg:text-right lg:sticky lg:top-24 self-start">
-                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
-                            الأسئلة الشائعة
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-foreground dark:text-white mb-6">
+                            الأسئلة <span className="text-gradient">الشائعة</span>
                         </h2>
-                        <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary max-w-xl mx-auto lg:mx-0">
+                        <p className="text-lg sm:text-xl text-foreground/70 dark:text-white/70 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
                             إجابات سريعة على تساؤلات المبدعين والمستخدمين في المجتمع.
                         </p>
                     </div>
-                    <div className="space-y-4 sm:space-y-5">
+                    <div className="space-y-4">
                         {faqItems.map((item, idx) => {
                             const isOpen = openFaqIndex === idx;
                             return (
                                 <div
                                     key={idx}
-                                    className="card-interactive cursor-pointer p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-dark-card-border bg-white dark:bg-dark-secondary"
+                                    className={`p-6 sm:p-8 card transition-all duration-500 cursor-pointer ${isOpen ? 'shadow-large ring-2 ring-primary/5' : ''}`}
                                     onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
                                 >
                                     <div
-                                        className="w-full flex items-center justify-between gap-4 text-right"
+                                        className="w-full flex items-center justify-between gap-6 text-right"
                                         aria-expanded={isOpen}
                                         aria-controls={`faq-answer-${idx}`}
                                         role="button"
                                         tabIndex={0}
                                     >
-                                        <div className="flex items-center gap-3">
-                                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-secondary-50 dark:bg-dark-tertiary text-xs font-semibold text-accent-500 dark:text-dark-text-tertiary">
+                                        <div className="flex items-center gap-4">
+                                            <span className={`inline-flex items-center justify-center w-10 h-10 rounded-2xl transition-colors duration-500 font-black text-sm ${isOpen ? 'bg-primary text-white' : 'bg-foreground/5 dark:bg-white/5 text-foreground/40 dark:text-white/40'}`}>
                                                 {String(idx + 1).padStart(2, '0')}
                                             </span>
-                                            <span className="text-sm sm:text-base font-semibold text-accent-500 dark:text-dark-text-primary">
+                                            <span className={`text-base sm:text-lg font-bold transition-colors duration-500 ${isOpen ? 'text-primary' : 'text-foreground dark:text-white'}`}>
                                                 {item.question}
                                             </span>
                                         </div>
-                                        <svg
-                                            className={`w-5 h-5 text-accent-500 dark:text-dark-text-tertiary transition-transform ${isOpen ? 'rotate-180' : ''}`}
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                        >
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 9l6 6 6-6" />
-                                        </svg>
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 ${isOpen ? 'bg-primary text-white rotate-180' : 'bg-foreground/5 dark:bg-white/5 text-foreground/40 dark:text-white/40'}`}>
+                                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
                                     </div>
-                                    {isOpen && (
+                                    <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'}`}>
                                         <div
                                             id={`faq-answer-${idx}`}
-                                            className="pt-4 pr-11 text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed"
+                                            className="pt-6 pr-14 text-base sm:text-lg text-foreground/60 dark:text-white/60 leading-relaxed font-medium"
                                         >
                                             {item.answer}
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
                             );
                         })}

@@ -10,28 +10,38 @@ export const metadata = generateMetadata({
 
 export default function PrivacyPage() {
   return (
-    <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+    <main className="min-h-screen bg-gray-50 dark:bg-black relative overflow-x-hidden transition-colors duration-300" dir="rtl">
+      {/* Ambient Mesh Background */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-5%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
 
       {/* Content */}
-      <section className="py-8 sm:py-12 md:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-dark-secondary transition-colors duration-300">
-        <div className="container-custom max-w-4xl mx-auto">
-          <div className="mb-8 sm:mb-10 md:mb-12">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 text-accent-500 dark:text-dark-text-primary">سياسة الخصوصية</h1>
+      <section className="py-24 px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="container-custom max-w-5xl">
+          {/* Main Card */}
+          <div className="bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-[3rem] p-10 sm:p-20 shadow-large border-none text-right">
+            <div className="mb-16">
+              <h1 className="text-4xl sm:text-6xl font-black text-accent-900 dark:text-white mb-6 tracking-tighter">سياسة الخصوصية</h1>
             <p className="text-base sm:text-lg md:text-xl text-accent-700 dark:text-gray-200">
               آخر تحديث: {formatCurrentDate()}
             </p>
           </div>
 
           <div className="prose prose-lg max-w-none">
-            <div className="space-y-6 sm:space-y-8 md:space-y-10">
-              <section>
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">مقدمة</h2>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  نحن في عرب نوشن نلتزم بحماية خصوصيتك وبياناتك الشخصية. هذه السياسة توضح كيفية جمعنا واستخدامنا وحمايتنا لمعلوماتك الشخصية عند استخدامك لخدماتنا الاستشارية، أنظمة نوشن المخصصة، التدريب، الخدمات البرمجية، ومتجر القوالب.
-                </p>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 leading-relaxed">
-                  باستخدامك لخدماتنا، فإنك توافق على جمع واستخدام معلوماتك وفقاً لهذه السياسة.
-                </p>
+            <div className="space-y-16">
+              <section className="relative">
+                <div className="absolute -right-8 top-0 text-[120px] font-black text-primary/5 select-none leading-none">00</div>
+                <h2 className="text-3xl font-black mb-6 text-accent-900 dark:text-white relative z-10">مقدمة</h2>
+                <div className="space-y-4">
+                  <p className="text-xl text-accent-600 dark:text-gray-300 leading-relaxed font-medium">
+                    نحن في عرب نوشن نلتزم بحماية خصوصيتك وبياناتك الشخصية. هذه السياسة توضح كيفية جمعنا واستخدامنا وحمايتنا لمعلوماتك الشخصية عند استخدامك لخدماتنا الاستشارية، أنظمة نوشن المخصصة، التدريب، الخدمات البرمجية، ومتجر القوالب.
+                  </p>
+                  <p className="text-lg text-accent-600/70 dark:text-gray-400 leading-relaxed font-medium">
+                    باستخدامك لخدماتنا، فإنك توافق على جمع واستخدام معلوماتك وفقاً لهذه السياسة.
+                  </p>
+                </div>
               </section>
 
               <section>
@@ -225,6 +235,7 @@ export default function PrivacyPage() {
                 </div>
               </section>
             </div>
+          </div>
           </div>
         </div>
       </section>

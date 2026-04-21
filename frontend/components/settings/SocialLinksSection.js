@@ -8,8 +8,8 @@ export default function SocialLinksSection({
     addSocialLink
 }) {
     return (
-        <div className="bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl shadow-sm overflow-hidden">
-            <div className="p-6 lg:p-8 bg-gray-50/50 dark:bg-dark-tertiary/20 border-b border-gray-100 dark:border-dark-card-border">
+        <div className="bg-white dark:bg-dark-secondary border-none rounded-2xl shadow-sm overflow-hidden">
+            <div className="p-6 lg:p-8 bg-gray-50/50 dark:bg-dark-tertiary/20 border-none">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-primary-100 dark:bg-orange-900/20 rounded-xl flex items-center justify-center">
                         <svg className="w-6 h-6 text-primary-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,9 +47,9 @@ export default function SocialLinksSection({
                                     type="url"
                                     value={link.url || ''}
                                     onChange={(e) => updateSocialLink(index, e.target.value)}
-                                    className={`w-full pl-4 pr-12 py-3.5 bg-white dark:bg-dark-tertiary border-2 rounded-2xl text-gray-900 dark:text-dark-text-primary font-medium placeholder-gray-400 focus:ring-0 transition-all duration-300 ${hasError
-                                        ? 'border-red-200 dark:border-red-900/50 focus:border-red-500'
-                                        : 'border-gray-200 dark:border-dark-card-border focus:border-primary-500 dark:focus:border-orange-500'
+                                    className={`w-full pl-4 pr-12 py-3.5 bg-white dark:bg-dark-tertiary border-none rounded-2xl text-gray-900 dark:text-dark-text-primary font-medium placeholder-gray-400 focus:ring-2 transition-all duration-300 shadow-sm ${hasError
+                                        ? 'focus:ring-red-500'
+                                        : 'focus:ring-primary-500 dark:focus:ring-orange-500'
                                         }`}
                                     placeholder="https://example.com"
                                 />

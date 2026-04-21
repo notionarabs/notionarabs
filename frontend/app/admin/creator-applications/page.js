@@ -130,7 +130,11 @@ export default function CreatorApplicationsPage() {
     try {
       setLoading(true);
       const response = await api.get('/admin/creator-applications');
-      setApplications(response.data.applications);
+      const normalizedApps = (response.data.applications || []).map(app => ({
+        ...app,
+        creatorStatus: app.creatorStatus?.toLowerCase()
+      }));
+      setApplications(normalizedApps);
       setStats(response.data.stats);
     } catch (err) {
       // Set empty state if API fails
@@ -151,7 +155,7 @@ export default function CreatorApplicationsPage() {
       setApplications(prev =>
         prev.map(app =>
           app.id === userId
-            ? { ...app, creatorStatus: newStatus }
+            ? { ...app, creatorStatus: newStatus?.toLowerCase() }
             : app
         )
       );

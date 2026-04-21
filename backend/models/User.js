@@ -6,14 +6,19 @@ class UserDoc {
     Object.assign(this, data);
     this._id = data.id || data._id;
     
-    // Normalize case and trim for database consistency (Supabase Enums are usually UPPERCASE)
-    if (this.role) this.role = this.role.toString().trim().toUpperCase();
-    if (this.creatorStatus) this.creatorStatus = this.creatorStatus.toString().trim().toUpperCase();
+    // Normalize case for application consistency (lowercase in memory)
+    // Database storage handles UPPERCASE conversion in _applyQuery and save
+    if (this.role) this.role = this.role.toString().trim().toLowerCase();
+    if (this.creatorStatus) this.creatorStatus = this.creatorStatus.toString().trim().toLowerCase();
   }
 
   async save() {
     const { id, _id, ...updateData } = this;
     let dbId = id || _id;
+
+    // Convert back to UPPERCASE for database storage compatibility (Supabase Enums)
+    if (updateData.role) updateData.role = updateData.role.toString().toUpperCase();
+    if (updateData.creatorStatus) updateData.creatorStatus = updateData.creatorStatus.toString().toUpperCase();
 
     // Generate a new ID for new users if not present
     if (!dbId) {
@@ -105,27 +110,33 @@ class UserDoc {
           // Use counts directly from Supabase for large scale performance
           // We can't easily do 'filter in count' in Supabase JS without RPC, 
           // but we can parallelize them effectively.
-          const [totalRes, adminRes, approvedRes, recentRes, googleRes] = await Promise.all([
+          const [totalRes, adminRes, approvedRes, pendingRes, rejectedRes, recentRes, googleRes, activeRes, verifiedRes] = await Promise.all([
               supabase.from('User').select('id', { count: 'exact', head: true }),
               supabase.from('User').select('id', { count: 'exact', head: true }).or('role.ilike.ADMIN,role.eq.admin'),
               supabase.from('User').select('id', { count: 'exact', head: true }).or('creatorStatus.ilike.APPROVED,creatorStatus.eq.approved'),
+              supabase.from('User').select('id', { count: 'exact', head: true }).or('creatorStatus.ilike.PENDING,creatorStatus.eq.pending'),
+              supabase.from('User').select('id', { count: 'exact', head: true }).or('creatorStatus.ilike.REJECTED,creatorStatus.eq.rejected'),
               supabase.from('User').select('id', { count: 'exact', head: true }).gte('createdAt', sevenDaysAgo.toISOString()),
-              supabase.from('User').select('id', { count: 'exact', head: true }).not('googleId', 'is', null)
+              supabase.from('User').select('id', { count: 'exact', head: true }).not('googleId', 'is', null),
+              supabase.from('User').select('id', { count: 'exact', head: true }).eq('isActive', true),
+              supabase.from('User').select('id', { count: 'exact', head: true }).eq('isEmailVerified', true)
           ]);
 
           const totalCount = totalRes.count || 0;
           const adminCount = adminRes.count || 0;
           const approvedCount = approvedRes.count || 0;
           const googleCount = googleRes.count || 0;
+          const pendingCount = pendingRes.count || 0;
+          const rejectedCount = rejectedRes.count || 0;
 
           return [{
               totalUsers: totalCount,
               googleUsers: googleCount,
-              activeUsers: totalCount,
-              verifiedUsers: totalCount,
-              pendingApplications: 0,
+              activeUsers: activeRes.count || 0,
+              verifiedUsers: verifiedRes.count || 0,
+              pendingApplications: pendingCount,
               approvedCreators: approvedCount,
-              rejectedApplications: 0,
+              rejectedApplications: rejectedCount,
               adminUsers: adminCount,
               regularUsers: totalCount - adminCount - approvedCount,
               recentUsers: recentRes.count || 0
@@ -262,6 +273,7 @@ class UserDoc {
         p.sort = (s) => {
             if (s && typeof s === 'object') {
                 const key = Object.keys(s)[0];
+                if (key === 'score') return wrap(promise); // Ignore MongoDB textScore sorting
                 const ascending = s[key] === 1;
                 chain = chain.order(key === '_id' ? 'id' : key, { ascending });
             }
@@ -312,6 +324,10 @@ class UserDoc {
       const execute = async () => {
           let dbUpdate = { ...update };
           
+          // Ensure role and creatorStatus are UPPERCASE for database Enum compatibility
+          if (dbUpdate.role) dbUpdate.role = dbUpdate.role.toString().toUpperCase();
+          if (dbUpdate.creatorStatus) dbUpdate.creatorStatus = dbUpdate.creatorStatus.toString().toUpperCase();
+
           // Handle MongoDB-style operators if present
           const hasOperators = Object.keys(dbUpdate).some(k => k.startsWith('$'));
           
@@ -361,8 +377,17 @@ class UserDoc {
               dbUpdate = updateFields;
           }
 
-          const { data } = await supabase.from('User').update(dbUpdate).eq('id', id).select();
+          // Ensure updatedAt is always refreshed
+          dbUpdate.updatedAt = new Date().toISOString();
+
+          console.log('[USER MODEL DEBUG] Updating user:', id, 'with:', JSON.stringify(dbUpdate));
+          const { data, error } = await supabase.from('User').update(dbUpdate).eq('id', id).select();
+          if (error) {
+              console.error('[USER MODEL DEBUG] Supabase Update Error:', error);
+              throw error;
+          }
           const updated = data && data[0];
+          console.log('[USER MODEL DEBUG] Updated user resulting data:', updated ? 'FOUND' : 'NOT FOUND');
           return updated ? new UserDoc(updated) : null;
       };
       

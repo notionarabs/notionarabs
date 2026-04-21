@@ -40,6 +40,12 @@ export function middleware(request) {
     return NextResponse.redirect(redirectUrl, 301);
   }
 
+  // Redirect old store page to homepage marketplace section
+  if (pathname === '/store') {
+    const redirectUrl = new URL('/#marketplace', request.url);
+    return NextResponse.redirect(redirectUrl, 301);
+  }
+
   const categoryMatch = pathname.match(/^\/categories\/(.+)$/);
   if (categoryMatch) {
     const categorySlug = decodeURIComponent(categoryMatch[1]);
@@ -56,7 +62,7 @@ export function middleware(request) {
     '/', '/login', '/signup', '/auth/callback', '/verify-email',
     '/forgot-password', '/reset-password', '/about', '/contact',
     '/consultation', '/careers', '/testimonials', '/success-stories',
-    '/store', '/privacy', '/terms', '/cookies', '/templates',
+    '/privacy', '/terms', '/cookies', '/templates',
     '/categories', '/creators', '/blog', '/widgets', '/projects',
     '/refund-policy'
   ];

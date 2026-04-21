@@ -269,6 +269,7 @@ router.post('/profile-picture', auth, upload.single('profilePicture'), async (re
     });
 
     // Return success response
+    console.log('[UPLOAD DEBUG] Profile picture uploaded:', result.secure_url);
     res.json({
       success: true,
       message: 'تم رفع صورة الملف الشخصي بنجاح',
@@ -342,6 +343,7 @@ router.post('/backgroundImage', auth, upload.single('backgroundImage'), async (r
     });
 
     // Return success response
+    console.log('[UPLOAD DEBUG] Background image uploaded:', result.secure_url);
     res.json({
       success: true,
       message: 'تم رفع صورة الخلفية بنجاح',

@@ -212,7 +212,7 @@ export default function ContactForm() {
             {typeof document !== 'undefined' && createPortal(
                 status.type === 'success' && status.message ? (
                     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
-                        <div className="w-full max-w-sm rounded-xl border border-gray-100 dark:border-dark-card-border bg-white dark:bg-dark-secondary px-5 py-4 text-center shadow-xl">
+                        <div className="w-full max-w-sm rounded-[2rem] border-none bg-white dark:bg-dark-secondary px-6 py-8 text-center shadow-2xl backdrop-blur-xl">
                             <p className="text-sm sm:text-base font-medium text-accent-600 dark:text-dark-text-primary">
                                 {status.message}
                             </p>
@@ -248,7 +248,7 @@ export default function ContactForm() {
                             onChange={handleChange}
                             aria-invalid={Boolean(errors.name)}
                             aria-describedby={errors.name ? 'name-error' : undefined}
-                            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-right border border-gray-200 dark:border-dark-input-border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200"
+                            className="w-full px-4 py-4 text-sm sm:text-base text-right border-none bg-white/50 dark:bg-white/5 backdrop-blur-xl rounded-2xl shadow-soft focus:shadow-glow focus:ring-0 transition-all duration-300 font-medium placeholder:text-accent-400"
                             placeholder="اكتب اسمك الكامل"
                         />
                         {renderError('name')}
@@ -270,7 +270,7 @@ export default function ContactForm() {
                             onChange={handleChange}
                             aria-invalid={Boolean(errors.email)}
                             aria-describedby={errors.email ? 'email-error' : undefined}
-                            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-right border border-gray-200 dark:border-dark-input-border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200"
+                            className="w-full px-4 py-4 text-sm sm:text-base text-right border-none bg-white/50 dark:bg-white/5 backdrop-blur-xl rounded-2xl shadow-soft focus:shadow-glow focus:ring-0 transition-all duration-300 font-medium placeholder:text-accent-400"
                             placeholder="example@email.com"
                         />
                         {renderError('email')}
@@ -296,7 +296,7 @@ export default function ContactForm() {
                                     onChange={handleChange}
                                     aria-invalid={Boolean(errors.whatsapp)}
                                     aria-describedby={errors.whatsapp ? 'whatsapp-error' : undefined}
-                                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-left border border-gray-200 dark:border-dark-input-border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200"
+                                    className="w-full px-4 py-4 text-sm sm:text-base text-left border-none bg-white/50 dark:bg-white/5 backdrop-blur-xl rounded-2xl shadow-soft focus:shadow-glow focus:ring-0 transition-all duration-300 font-medium placeholder:text-accent-400"
                                     placeholder="مثال: 01034256344"
                                     style={{ direction: 'ltr', textAlign: 'right' }}
                                 />
@@ -305,10 +305,10 @@ export default function ContactForm() {
                                 <button
                                     type="button"
                                     onClick={() => setIsCountryDropdownOpen((prev) => !prev)}
-                                    className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm border rounded-lg sm:rounded-xl text-right flex items-center justify-between gap-2 transition-colors duration-200 ${isCountryDropdownOpen
-                                        ? 'border-primary-500 ring-2 ring-primary-500'
-                                        : 'border-gray-200 dark:border-dark-input-border'
-                                        } bg-white dark:bg-dark-secondary`}
+                                    className={`w-full px-4 py-4 text-xs sm:text-sm border-none rounded-2xl text-right flex items-center justify-between gap-2 transition-all duration-300 shadow-soft backdrop-blur-xl ${isCountryDropdownOpen
+                                        ? 'bg-primary/10 shadow-glow'
+                                        : 'bg-white/50 dark:bg-white/5'
+                                        }`}
                                     aria-haspopup="listbox"
                                     aria-expanded={isCountryDropdownOpen}
                                 >
@@ -328,7 +328,7 @@ export default function ContactForm() {
                                 {isCountryDropdownOpen && (
                                     <div
                                         role="listbox"
-                                        className="absolute z-50 w-full mt-2 max-h-56 overflow-auto rounded-xl border border-gray-200 dark:border-dark-card-border bg-white dark:bg-dark-secondary shadow-lg"
+                                        className="absolute z-50 w-full mt-3 max-h-56 overflow-auto rounded-2xl border-none bg-white dark:bg-dark-secondary shadow-2xl backdrop-blur-xl"
                                     >
                                         {countryOptions.map((country, index) => (
                                             <button
@@ -375,7 +375,7 @@ export default function ContactForm() {
                             onChange={handleChange}
                             aria-invalid={Boolean(errors.details)}
                             aria-describedby={errors.details ? 'details-error' : undefined}
-                            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-right border border-gray-200 dark:border-dark-input-border rounded-lg sm:rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200 resize-none"
+                            className="w-full px-4 py-4 text-sm sm:text-base text-right border-none bg-white/50 dark:bg-white/5 backdrop-blur-xl rounded-2xl shadow-soft focus:shadow-glow focus:ring-0 transition-all duration-300 resize-none font-medium placeholder:text-accent-400"
                             placeholder="اكتب تفاصيل استفسارك أو رسالتك هنا..."
                         />
                         {renderError('details')}
@@ -385,7 +385,7 @@ export default function ContactForm() {
                 <div className="flex justify-center">
                     <button
                         type="submit"
-                        className="btn-primary text-sm sm:text-base px-8 py-3 w-full sm:w-auto disabled:opacity-70 disabled:cursor-not-allowed"
+                        className="w-full sm:w-auto px-12 py-5 rounded-2xl bg-primary text-white font-black text-lg shadow-glow hover:shadow-large hover:scale-105 transition-all duration-500 disabled:opacity-70 disabled:cursor-not-allowed uppercase tracking-widest"
                         disabled={loading}
                     >
                         {loading ? 'جارٍ الإرسال...' : 'إرسال الرسالة'}

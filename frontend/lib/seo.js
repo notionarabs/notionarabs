@@ -3,20 +3,21 @@ import { getCategorySlug } from './categoryMapping';
 
 export const siteConfig = {
   name: 'عرب نوشن',
-  title: 'عرب نوشن | Notion Arabs - خدمات نوشن وأنظمة عمل مخصصة',
-  description: 'عرب نوشن (Notion Arabs) هي المنصة الرائدة والأولى في العالم العربي لمتجر قوالب نوشن وتقديم استشارات بناء أنظمة عمل مخصصة للشركات والأفراد.',
+  title: 'عرب نوشن | Notion Arabs - متجر ومجتمع قوالب نوشن العربي',
+  description: 'عرب نوشن (Notion Arabs) هي المنصة والمجتمع الأول في العالم العربي لمتجر قوالب نوشن الرقمية، والأدوات الاحترافية، ومصادر تعلم الإنتاجية الشخصية والمؤسسية.',
   url: 'https://www.notionarabs.com',
   ogImage: '/images/og-image.png',
   creator: '@notionarabs',
   keywords: [
-    'خدمات نوشن',
-    'أنظمة نوشن',
-    'استشارات نوشن',
-    'تصميم قواعد بيانات نوشن',
-    'أتمتة نوشن',
-    'إدارة العمليات',
-    'إنتاجية',
+    'مجتمع نوشن العربي',
     'قوالب نوشن',
+    'متجر نوشن',
+    'أدوات إنتاجية',
+    'نظام نوشن المتكامل',
+    'تعلم نوشن',
+    'صناع القوالب العرب',
+    'إدارة المهام',
+    'إنتاجية',
     'notion templates',
     'قوالب عربية',
     'notion arabic',
@@ -147,19 +148,23 @@ export function generateMetadata({
 // Template-specific SEO metadata
 export function generateTemplateMetadata(template) {
   const isPaid = template.isPaid || false;
-  const title = `${template.title} - قالب نوشن عربي ${isPaid ? 'مدفوع' : 'مجاني'}`;
-  const description = template.description || `تحميل قالب ${template.title} باللغة العربية لـ Notion. ${template.category} ${isPaid ? 'مدفوع' : 'مجاني'} من ${template.creator?.name || 'مبدع'}.`;
+  const isVerified = template.creator?.badges?.some(b => b.type === 'verified');
+  const creatorName = template.creator?.name || 'مبدع';
+  const title = `${template.title} - قالب نوشن عربي ${isPaid ? 'مدفوع' : 'مجاني'}${isVerified ? ' (من مبدع معتمد)' : ''}`;
+  const description = template.description || `تحميل قالب ${template.title} باللغة العربية لـ Notion. ${template.category} ${isPaid ? 'مدفوع' : 'مجاني'} من ${creatorName}${isVerified ? ' المعتمد' : ''}.`;
 
   const keywords = [
     template.title,
     template.category,
     'قالب نوشن',
     'notion template',
-    template.creator?.name,
+    creatorName,
     ...(template.tags || []),
     isPaid ? 'مدفوع' : 'مجاني',
     'عربي'
   ];
+
+  if (isVerified) keywords.push('مبدع معتمد');
 
   // Enhanced metadata with additional SEO fields
   const metadata = generateMetadata({
@@ -171,7 +176,7 @@ export function generateTemplateMetadata(template) {
     type: 'article',
     publishedTime: template.createdAt,
     modifiedTime: template.updatedAt,
-    authors: template.creator?.name ? [template.creator.name] : undefined,
+    authors: creatorName ? [creatorName] : undefined,
   });
 
   // Add additional structured metadata for better SEO
@@ -227,9 +232,10 @@ export function generateBlogMetadata(blog) {
 
 // Creator-specific SEO metadata
 export function generateCreatorMetadata(creator) {
+  const isVerified = creator.badges?.some(b => b.type === 'verified');
   const displayName = creator.displayName || creator.name;
-  const title = `${displayName} - مبدع قوالب نوشن`;
-  const description = creator.bio || creator.experience || `تعرف على ${displayName}، مبدع قوالب Notion باللغة العربية. ${creator.templateCount || creator.templates || 0} قالب متاح.`;
+  const title = `${displayName}${isVerified ? ' ✔️' : ''} - مبدع قوالب نوشن${isVerified ? ' معتمد' : ''}`;
+  const description = creator.bio || creator.experience || `تعرف على ${displayName}، مبدع قوالب Notion باللغة العربية${isVerified ? ' المعتمد' : ''}. ${creator.templateCount || creator.templates || 0} قالب متاح.`;
 
   const keywords = [
     displayName,
@@ -238,6 +244,7 @@ export function generateCreatorMetadata(creator) {
     'قوالب نوشن',
     'notion templates',
     'عربي',
+    isVerified && 'مبدع معتمد',
     ...(creator.specialties || []),
     creator.specialty || creator.bio?.split(' ').slice(0, 3).join(' ')
   ].filter(Boolean);

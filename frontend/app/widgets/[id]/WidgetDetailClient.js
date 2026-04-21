@@ -340,7 +340,7 @@ const CustomSelect = ({ value, options, onChange }) => {
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between bg-secondary-50 dark:bg-dark-tertiary border border-gray-100 dark:border-dark-card-border p-3.5 rounded-xl outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10 transition-all font-bold text-sm text-right group"
+                className="w-full flex items-center justify-between bg-secondary-50 dark:bg-dark-tertiary border-none p-3.5 rounded-xl outline-none focus:ring-2 focus:ring-primary-500/10 transition-all font-bold text-sm text-right group shadow-sm"
             >
                 <span className="group-hover:text-primary-500 transition-colors">{selectedOption?.label}</span>
                 <ChevronLeft className={`w-4 h-4 transition-transform duration-300 text-gray-400 group-hover:text-primary-500 ${isOpen ? '-rotate-90' : 'rotate-0'}`} />
@@ -349,7 +349,7 @@ const CustomSelect = ({ value, options, onChange }) => {
             {isOpen && (
                 <>
                     <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)}></div>
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white/95 dark:bg-dark-secondary/95 backdrop-blur-md border border-gray-100 dark:border-dark-card-border rounded-2xl shadow-2xl z-50 overflow-hidden animate-scale-in origin-top">
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white/95 dark:bg-dark-secondary/95 backdrop-blur-md border-none rounded-2xl shadow-2xl z-50 overflow-hidden animate-scale-in origin-top">
                         <div className="p-1.5 space-y-1">
                             {options.map(opt => (
                                 <button
@@ -519,7 +519,7 @@ export default function WidgetDetailClient() {
                         {/* Customization Sidebar */}
                         <div className="lg:col-span-4 space-y-8">
 
-                            <div className="bg-white dark:bg-dark-secondary rounded-3xl p-8 border border-gray-200 dark:border-dark-card-border shadow-soft">
+                            <div className="bg-white dark:bg-dark-secondary rounded-3xl p-8 border-none shadow-soft">
                                 <h2 className="text-xl font-black mb-6 flex items-center gap-2">
                                     <Monitor className="w-5 h-5 text-primary-500" />
                                     تخصيص الأداة
@@ -545,7 +545,7 @@ export default function WidgetDetailClient() {
                                                         value={config[setting.id] || ''}
                                                         placeholder={setting.placeholder}
                                                         onChange={(e) => handleConfigChange(setting.id, e.target.value)}
-                                                        className="w-full bg-secondary-50 dark:bg-dark-tertiary border border-gray-100 dark:border-dark-card-border p-3.5 rounded-xl outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10 transition-all font-bold text-sm"
+                                                        className="w-full bg-secondary-50 dark:bg-dark-tertiary border-none p-3.5 rounded-xl outline-none focus:ring-2 focus:ring-primary-500/10 transition-all font-bold text-sm shadow-sm"
                                                     />
                                                 </div>
                                             )}
@@ -556,7 +556,7 @@ export default function WidgetDetailClient() {
                                                         type="datetime-local"
                                                         value={config[setting.id] || ''}
                                                         onChange={(e) => handleConfigChange(setting.id, e.target.value)}
-                                                        className="w-full bg-secondary-50 dark:bg-dark-tertiary border border-gray-100 dark:border-dark-card-border p-3.5 rounded-xl outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/10 transition-all font-bold text-sm"
+                                                        className="w-full bg-secondary-50 dark:bg-dark-tertiary border-none p-3.5 rounded-xl outline-none focus:ring-2 focus:ring-primary-500/10 transition-all font-bold text-sm shadow-sm"
                                                     />
                                                 </div>
                                             )}
@@ -576,7 +576,7 @@ export default function WidgetDetailClient() {
                                             {setting.type === 'toggle' && (
                                                 <button
                                                     onClick={() => handleConfigChange(setting.id, !config[setting.id])}
-                                                    className={`w-full p-3 rounded-xl border font-bold transition-all flex items-center justify-between ${config[setting.id] ? 'bg-primary-500 text-white border-primary-600' : 'bg-gray-100 dark:bg-dark-tertiary border-gray-200 dark:border-dark-card-border'
+                                                    className={`w-full p-3 rounded-xl border-none font-bold transition-all flex items-center justify-between shadow-sm ${config[setting.id] ? 'bg-primary-500 text-white shadow-primary-500/20' : 'bg-gray-100 dark:bg-dark-tertiary'
                                                         }`}
                                                 >
                                                     <span>{config[setting.id] ? 'مفعّل' : 'ملغى'}</span>
@@ -629,7 +629,7 @@ export default function WidgetDetailClient() {
                         <div className="lg:col-span-8 space-y-8">
                             <div className="relative">
                                 <div className="absolute -inset-4 bg-primary-500/10 blur-3xl rounded-[3rem]"></div>
-                                <div className={`relative rounded-[3rem] p-12 border transition-all ${previewTheme === 'dark' ? 'bg-[#0f0f0f] border-dark-card-border' : 'bg-white border-gray-100 shadow-2xl'
+                                <div className={`relative rounded-[3rem] p-12 border-none transition-all ${previewTheme === 'dark' ? 'bg-[#0f0f0f]' : 'bg-white shadow-2xl'
                                     }`}>
                                     <div className="mb-8 flex items-center justify-between">
                                         <div className="flex gap-2">
@@ -675,7 +675,7 @@ export default function WidgetDetailClient() {
                                     )}
                                     <p className="text-gray-500 dark:text-dark-text-secondary leading-relaxed">{widget.description}</p>
                                 </div>
-                                <div className="bg-white dark:bg-dark-secondary p-8 rounded-3xl border border-gray-100 dark:border-dark-card-border shadow-soft">
+                                <div className="bg-white dark:bg-dark-secondary p-8 rounded-3xl border-none shadow-soft">
                                     <h2 className="font-bold text-lg text-accent-900 dark:text-white mb-4">المميزات الرئيسية</h2>
                                     <ul className="space-y-3">
                                         {widget.features.map(f => (
@@ -700,7 +700,7 @@ export default function WidgetDetailClient() {
                         className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
                         onClick={() => setShowGuide(false)}
                     ></div>
-                    <div className="relative bg-white dark:bg-dark-secondary w-full max-w-lg rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-dark-card-border overflow-hidden animate-scale-in">
+                    <div className="relative bg-white dark:bg-dark-secondary w-full max-w-lg rounded-[2.5rem] shadow-2xl border-none overflow-hidden animate-scale-in">
                         <div className="p-8 sm:p-10">
                             <div className="flex items-center justify-between mb-8">
                                 <h3 className="text-2xl font-black text-accent-900 dark:text-white flex items-center gap-3">

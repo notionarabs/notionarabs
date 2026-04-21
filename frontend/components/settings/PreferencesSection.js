@@ -9,12 +9,12 @@ export default function PreferencesSection({
     return (
         <div className="space-y-6 lg:space-y-8">
             {/* Privacy Settings */}
-            <div className="bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl shadow-sm overflow-hidden">
-                <div className="p-6 lg:p-8 bg-gray-50/50 dark:bg-dark-tertiary/20 border-b border-gray-100 dark:border-dark-card-border">
+            <div className="bg-white dark:bg-dark-secondary border-none rounded-2xl shadow-sm overflow-hidden">
+                <div className="p-6 lg:p-8 bg-gray-50/50 dark:bg-dark-tertiary/20 border-none">
                     <h2 className="text-xl font-bold text-gray-900 dark:text-dark-text-primary">الخصوصية</h2>
                 </div>
                 <div className="p-6 lg:p-8 space-y-6">
-                    <div className="flex items-center justify-between p-4 bg-gray-50/50 dark:bg-dark-tertiary/20 rounded-2xl border border-gray-100 dark:border-dark-card-border">
+                    <div className="flex items-center justify-between p-4 bg-gray-50/50 dark:bg-dark-tertiary/20 rounded-2xl border-none shadow-sm">
                         <div>
                             <label className="text-sm font-black text-gray-900 dark:text-dark-text-primary leading-none">
                                 السماح بالرسائل
@@ -39,13 +39,13 @@ export default function PreferencesSection({
                                 type="email"
                                 value={profileSettings.contactEmail || ''}
                                 onChange={(e) => handleInputChange('contactEmail', e.target.value)}
-                                className="w-full px-4 py-3 bg-white dark:bg-dark-tertiary border-2 border-gray-200 dark:border-dark-card-border rounded-xl text-sm font-bold placeholder-gray-400 focus:border-primary-500 dark:focus:border-orange-500 transition-all duration-300"
+                                className="w-full px-4 py-3 bg-white dark:bg-dark-tertiary border-none rounded-xl text-sm font-bold placeholder-gray-400 focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 transition-all duration-300 shadow-sm"
                                 placeholder="example@email.com"
                             />
                         </div>
                     )}
 
-                    <div className="flex items-center justify-between p-4 bg-gray-50/50 dark:bg-dark-tertiary/20 rounded-2xl border border-gray-100 dark:border-dark-card-border">
+                    <div className="flex items-center justify-between p-4 bg-gray-50/50 dark:bg-dark-tertiary/20 rounded-2xl border-none shadow-sm">
                         <div>
                             <label className="text-sm font-black text-gray-900 dark:text-dark-text-primary leading-none">
                                 عدد القوالب
@@ -66,20 +66,20 @@ export default function PreferencesSection({
             </div>
 
             {/* Account Actions */}
-            <div className="bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl shadow-sm overflow-hidden">
-                <div className="p-6 lg:p-8 bg-gray-50/50 dark:bg-dark-tertiary/20 border-b border-gray-100 dark:border-dark-card-border">
+            <div className="bg-white dark:bg-dark-secondary border-none rounded-2xl shadow-sm overflow-hidden">
+                <div className="p-6 lg:p-8 bg-gray-50/50 dark:bg-dark-tertiary/20 border-none">
                     <h2 className="text-xl font-bold text-gray-900 dark:text-dark-text-primary">خيارات أخرى</h2>
                 </div>
                 <div className="p-6 lg:p-8 space-y-3">
                     <button
                         onClick={() => setShowPasswordModal(true)}
-                        className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-white dark:bg-dark-tertiary border-2 border-gray-100 dark:border-dark-card-border text-gray-700 dark:text-dark-text-primary font-bold rounded-2xl hover:border-primary-500 dark:hover:border-orange-500 hover:text-primary-600 dark:hover:text-orange-400 transition-all duration-300"
+                        className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-white dark:bg-dark-tertiary border-none text-gray-700 dark:text-dark-text-primary font-bold rounded-2xl hover:text-primary-600 dark:hover:text-orange-400 transition-all duration-300 shadow-sm"
                     >
                         تغيير كلمة المرور
                     </button>
                     <button
                         onClick={() => setShowDeleteModal(true)}
-                        className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-white dark:bg-dark-tertiary border-2 border-red-50 dark:border-red-900/10 text-red-500 font-bold rounded-2xl hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300"
+                        className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-white dark:bg-dark-tertiary border-none text-red-500 font-bold rounded-2xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300 shadow-sm"
                     >
                         حذف الحساب نهائياً
                     </button>
@@ -87,8 +87,8 @@ export default function PreferencesSection({
             </div>
 
             {/* Notifications & Settings */}
-            <div className="bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl shadow-sm overflow-hidden">
-                <div className="p-6 lg:p-8 bg-gray-50/50 dark:bg-dark-tertiary/20 border-b border-gray-100 dark:border-dark-card-border">
+            <div className="bg-white dark:bg-dark-secondary border-none rounded-2xl shadow-sm overflow-hidden">
+                <div className="p-6 lg:p-8 bg-gray-50/50 dark:bg-dark-tertiary/20 border-none">
                     <h2 className="text-xl font-bold text-gray-900 dark:text-dark-text-primary">التفضيلات</h2>
                 </div>
                 <div className="p-6 lg:p-8 space-y-6">

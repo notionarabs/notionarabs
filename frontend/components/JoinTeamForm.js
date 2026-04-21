@@ -54,16 +54,16 @@ const TABS = [
 
 // --- Components ---
 const InputGroup = ({ label, error, children, required }) => (
-  <div className="mb-5">
-    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-      {label} {required && <span className="text-red-500">*</span>}
+  <div className="mb-8">
+    <label className="block text-sm font-black text-accent-700 dark:text-white mb-3 uppercase tracking-wider">
+      {label} {required && <span className="text-primary">*</span>}
     </label>
-    <div className={`transition-all duration-200 ${error ? 'ring-2 ring-red-100 rounded-xl' : ''}`}>
+    <div className={`transition-all duration-300 ${error ? 'p-1 bg-red-500/10 rounded-2xl shadow-glow' : ''}`}>
       {children}
     </div>
     {error && (
-      <div className="flex items-center gap-1 mt-1.5 text-red-500 text-xs font-medium px-1">
-        <AlertCircle size={12} />
+      <div className="flex items-center gap-1 mt-2 text-red-500 text-xs font-black px-1">
+        <AlertCircle size={14} />
         <span>{error}</span>
       </div>
     )}
@@ -73,16 +73,17 @@ const InputGroup = ({ label, error, children, required }) => (
 const TabButton = ({ tab, isActive, onClick, hasError }) => (
   <button
     onClick={onClick}
-    className={`relative flex items-center gap-2 px-5 py-3 text-sm font-medium rounded-t-lg transition-all
+    className={`relative flex items-center gap-2 px-8 py-5 text-sm font-black transition-all duration-500
       ${isActive
-        ? 'text-primary-600 dark:text-primary-400 bg-white dark:bg-dark-card-bg border-t-2 border-primary-500 z-10'
-        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 bg-gray-50 dark:bg-dark-tertiary border-b border-gray-200 dark:border-dark-card-border'
+        ? 'text-primary bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-t-[1.5rem] shadow-soft z-10'
+        : 'text-accent-500 dark:text-gray-400 hover:text-primary'
       }
     `}
   >
-    <tab.icon size={16} />
+    <tab.icon size={18} />
     <span>{tab.label}</span>
-    {hasError && <span className="w-2 h-2 bg-red-500 rounded-full" />}
+    {hasError && <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />}
+    {isActive && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-8 right-8 h-1 bg-primary rounded-full shadow-glow" />}
   </button>
 );
 
@@ -262,23 +263,18 @@ export default function JoinTeamForm() {
       )}
 
       {/* Tabs Navigation */}
-      <div className="flex border-b border-gray-200 dark:border-dark-card-border overflow-x-auto scrolbar-hide">
+      <div className="flex items-end justify-start px-2 overflow-x-auto scrollbar-hide">
         {TABS.map(tab => (
           <TabButton
             key={tab.id}
             tab={tab}
             isActive={activeTab === tab.id}
             onClick={() => attemptTabSwitch(tab.id)}
-            // Simple heuristic for checking errors in other tabs could go here
-            hasError={false} // Implemet logic if desired
+            hasError={false}
           />
         ))}
-        {/* Spacer to fill line */}
-        <div className="flex-1 border-b border-gray-200 dark:border-dark-card-border bg-gray-50 dark:bg-dark-tertiary" />
       </div>
-
-      {/* Main Card Content */}
-      <div className="bg-white dark:bg-dark-card-bg shadow-xl rounded-b-3xl rounded-tr-3xl min-h-[500px] flex flex-col">
+      <div className="bg-white/50 dark:bg-white/5 backdrop-blur-2xl shadow-large rounded-[2.5rem] rounded-tr-none min-h-[500px] flex flex-col border-none relative z-10">
         <div className="p-6 md:p-8 flex-1">
           <AnimatePresence mode='wait'>
             <motion.div
@@ -291,12 +287,12 @@ export default function JoinTeamForm() {
             >
               {activeTab === 'basics' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <InputGroup label="الاسم الكامل" required error={errors.name}>
+                    <InputGroup label="الاسم الكامل" required error={errors.name}>
                     <input
                       type="text"
                       value={formData.name}
                       onChange={(e) => handleChange('name', e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-dark-input-bg border border-gray-200 dark:border-dark-input-border focus:bg-white dark:focus:bg-dark-secondary focus:ring-2 focus:ring-primary-500 outline-none transition-all"
+                      className="w-full px-6 py-4 rounded-2xl bg-white/50 dark:bg-white/5 backdrop-blur-xl border-none shadow-soft focus:shadow-glow focus:ring-0 outline-none transition-all font-medium placeholder:text-accent-400"
                       placeholder="الاسم الثلاثي"
                     />
                   </InputGroup>
@@ -306,7 +302,7 @@ export default function JoinTeamForm() {
                       type="email"
                       value={formData.email}
                       onChange={(e) => handleChange('email', e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-dark-input-bg border border-gray-200 dark:border-dark-input-border focus:bg-white dark:focus:bg-dark-secondary focus:ring-2 focus:ring-primary-500 outline-none transition-all"
+                      className="w-full px-6 py-4 rounded-2xl bg-white/50 dark:bg-white/5 backdrop-blur-xl border-none shadow-soft focus:shadow-glow focus:ring-0 outline-none transition-all font-medium placeholder:text-accent-400"
                       placeholder="name@example.com"
                     />
                   </InputGroup>
@@ -326,7 +322,7 @@ export default function JoinTeamForm() {
                       type="text"
                       value={formData.basedIn}
                       onChange={(e) => handleChange('basedIn', e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-dark-input-bg border border-gray-200 dark:border-dark-input-border focus:bg-white dark:focus:bg-dark-secondary focus:ring-2 focus:ring-primary-500 outline-none transition-all"
+                      className="w-full px-6 py-4 rounded-2xl bg-white/50 dark:bg-white/5 backdrop-blur-xl border-none shadow-soft focus:shadow-glow focus:ring-0 outline-none transition-all font-medium placeholder:text-accent-400"
                       placeholder="مثال: الرياض، السعودية"
                     />
                   </InputGroup>
@@ -337,7 +333,7 @@ export default function JoinTeamForm() {
                         type="url"
                         value={formData.linkedin}
                         onChange={(e) => handleChange('linkedin', e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-dark-input-bg border border-gray-200 dark:border-dark-input-border focus:bg-white dark:focus:bg-dark-secondary focus:ring-2 focus:ring-primary-500 outline-none transition-all text-left dir-ltr"
+                        className="w-full px-6 py-4 rounded-2xl bg-white/50 dark:bg-white/5 backdrop-blur-xl border-none shadow-soft focus:shadow-glow focus:ring-0 outline-none transition-all font-medium placeholder:text-accent-400 text-left dir-ltr"
                         placeholder="https://linkedin.com/in/..."
                       />
                     </InputGroup>
@@ -357,10 +353,10 @@ export default function JoinTeamForm() {
                       {experienceOptions.map(opt => (
                         <label
                           key={opt}
-                          className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all
+                          className={`flex items-center gap-4 p-6 rounded-2xl border-none cursor-pointer transition-all duration-500 shadow-soft
                                                 ${formData.experience.includes(opt)
-                              ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/10'
-                              : 'border-gray-200 dark:border-dark-input-border bg-gray-50 dark:bg-dark-input-bg hover:bg-gray-100 dark:hover:bg-dark-secondary'
+                              ? 'bg-primary/20 shadow-glow'
+                              : 'bg-white/50 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10'
                             }
                                             `}
                         >
@@ -387,7 +383,7 @@ export default function JoinTeamForm() {
                       type="text"
                       value={formData.startTime}
                       onChange={(e) => handleChange('startTime', e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-dark-input-bg border border-gray-200 dark:border-dark-input-border focus:bg-white dark:focus:bg-dark-secondary focus:ring-2 focus:ring-primary-500 outline-none transition-all"
+                      className="w-full px-6 py-4 rounded-2xl bg-white/50 dark:bg-white/5 backdrop-blur-xl border-none shadow-soft focus:shadow-glow focus:ring-0 outline-none transition-all font-medium placeholder:text-accent-400"
                       placeholder="مثال: فوراً، أو بعد شهر"
                     />
                   </InputGroup>
@@ -429,7 +425,7 @@ export default function JoinTeamForm() {
                       rows={5}
                       value={formData.coverLetter}
                       onChange={(e) => handleChange('coverLetter', e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-dark-input-bg border border-gray-200 dark:border-dark-input-border focus:bg-white dark:focus:bg-dark-secondary focus:ring-2 focus:ring-primary-500 outline-none transition-all resize-none"
+                      className="w-full px-6 py-4 rounded-2xl bg-white/50 dark:bg-white/5 backdrop-blur-xl border-none shadow-soft focus:shadow-glow focus:ring-0 outline-none transition-all resize-none font-medium placeholder:text-accent-400"
                       placeholder="أخبرنا عن شغفك ولماذا تعتقد أنك الإضافة المناسبة للفريق..."
                     />
                   </InputGroup>
@@ -440,19 +436,19 @@ export default function JoinTeamForm() {
         </div>
 
         {/* Action Bar */}
-        <div className="p-6 border-t border-gray-100 dark:border-dark-card-border bg-gray-50 dark:bg-dark-tertiary rounded-b-3xl flex justify-between items-center">
-          <div className="text-sm text-gray-500 hidden sm:block">
+        <div className="p-8 border-t border-white/10 bg-white/30 dark:bg-white/5 backdrop-blur-xl rounded-b-[2.5rem] flex justify-between items-center">
+          <div className="text-sm font-black text-accent-500 dark:text-gray-400 hidden sm:block uppercase tracking-widest">
             الخطوة {TABS.findIndex(t => t.id === activeTab) + 1} من {TABS.length}
           </div>
 
-          <div className="flex gap-3 w-full sm:w-auto">
+          <div className="flex gap-4 w-full sm:w-auto">
             {activeTab !== 'basics' && (
               <button
                 onClick={() => {
                   const curr = TABS.findIndex(t => t.id === activeTab);
                   setActiveTab(TABS[curr - 1].id);
                 }}
-                className="px-6 py-3 rounded-xl font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-secondary transition-colors"
+                className="px-8 py-4 rounded-2xl font-black text-accent-700 dark:text-white bg-white/50 dark:bg-white/5 shadow-soft hover:shadow-large transition-all"
               >
                 رجوع
               </button>
@@ -461,17 +457,17 @@ export default function JoinTeamForm() {
             {activeTab !== 'portfolio' ? (
               <button
                 onClick={handleNext}
-                className="flex-1 sm:flex-none px-8 py-3 rounded-xl font-bold bg-accent-800 dark:bg-white text-white dark:text-accent-900 hover:opacity-90 transition-all flex items-center justify-center gap-2"
+                className="flex-1 sm:flex-none px-12 py-4 rounded-2xl font-black bg-accent-900 dark:bg-white text-white dark:text-accent-900 shadow-large hover:scale-105 transition-all flex items-center justify-center gap-2"
               >
-                التالي <ChevronLeft size={18} />
+                التالي <ChevronLeft size={20} />
               </button>
             ) : (
               <button
                 onClick={handleSubmit}
                 disabled={loading || resumeUploading}
-                className="flex-1 sm:flex-none px-8 py-3 rounded-xl font-bold bg-primary-600 text-white hover:bg-primary-700 shadow-lg hover:shadow-primary-500/30 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                className="flex-1 sm:flex-none px-12 py-4 rounded-2xl font-black bg-primary text-white shadow-glow hover:shadow-large transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                {loading || resumeUploading ? 'جارٍ الإرسال...' : 'إرسال الملف'} <Send size={18} />
+                {loading || resumeUploading ? 'جارٍ الإرسال...' : 'إرسال الملف'} <Send size={20} />
               </button>
             )}
           </div>

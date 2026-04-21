@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import Hero from '../components/home/Hero';
 import ProblemsWeSolve from '../components/home/ProblemsWeSolve';
 import ServicesOverview from '../components/home/ServicesOverview';
+import HomeMarketplace from '../components/home/HomeMarketplace';
 import WhatMakesUsDifferent from '../components/home/WhatMakesUsDifferent';
 import HowWeDoIt from '../components/home/HowWeDoIt';
 import FAQ from '../components/home/FAQ';
@@ -161,9 +162,10 @@ export default function HomePage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+    <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300 bg-mesh" dir="rtl">
       <Hero animationsPlayed={animationsPlayed} />
       <ServicesOverview />
+      <HomeMarketplace />
       <HowWeDoIt
         timelineRef={timelineRef}
         stepRefs={stepRefs}

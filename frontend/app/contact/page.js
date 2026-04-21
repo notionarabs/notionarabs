@@ -57,7 +57,12 @@ export default function ContactPage() {
   };
 
   return (
-    <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+    <main className="min-h-screen bg-gray-50 dark:bg-black relative overflow-x-hidden transition-colors duration-300" dir="rtl">
+      {/* Ambient Mesh Background */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
       {/* Structured Data */}
       <script
         type="application/ld+json"
@@ -65,7 +70,7 @@ export default function ContactPage() {
       />
 
       {/* Main Content Section */}
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <section className="py-24 sm:py-32 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         {/* Background Elements (Optional, matching homepage vibe) */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
           <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-br from-primary-100/20 to-transparent dark:from-primary-900/10 blur-3xl opacity-50"></div>
@@ -76,46 +81,44 @@ export default function ContactPage() {
           <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-20 items-center">
 
             {/* Text Content Column */}
-            <div className="text-center lg:text-right order-1">
-              <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-accent-900 dark:text-white mb-4 sm:mb-6 leading-tight">
-                تواصل معنا
+            <div className="text-center lg:text-right order-1 relative z-10">
+              <h1 className="text-4xl sm:text-6xl lg:text-8xl font-black text-accent-500 dark:text-white mb-6 leading-[1.1] tracking-tight">
+                تواصل <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600">معنا</span>
               </h1>
-              <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary leading-relaxed mb-6 sm:mb-8 max-w-xl mx-auto lg:mx-0">
+              <p className="text-lg sm:text-xl text-accent-600 dark:text-gray-400 leading-relaxed mb-10 max-w-xl mx-auto lg:mx-0 font-medium opacity-80">
                 اشرح لنا احتياجك وسنقترح عليك أفضل حل لبناء نظام نوشن يناسب فريقك. نحن هنا لمساعدتك في كل خطوة.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 w-full lg:max-w-2xl mx-auto lg:mx-0">
                 <a
                   href="mailto:support@notionarabs.com"
-                  className="w-full inline-flex items-center justify-center gap-2 sm:gap-3 bg-white dark:bg-dark-secondary text-accent-700 dark:text-dark-text-primary px-3 sm:px-4 py-3 sm:py-4 rounded-xl shadow-sm hover:shadow-md border border-gray-200 dark:border-dark-card-border transition-all duration-300 group"
+                  className="w-full inline-flex items-center justify-center gap-4 bg-white/50 dark:bg-white/5 backdrop-blur-xl text-accent-700 dark:text-white px-6 py-5 rounded-2xl shadow-soft hover:shadow-large border-none transition-all duration-500 group"
                 >
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary-50 dark:bg-dark-tertiary flex items-center justify-center group-hover:bg-primary-100 dark:group-hover:bg-dark-card-hover transition-colors shrink-0">
-                    <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600 dark:text-primary-400" />
+                  <div className="w-12 h-12 rounded-2xl bg-primary/10 group-hover:bg-primary group-hover:scale-110 flex items-center justify-center transition-all duration-500 shrink-0 shadow-sm group-hover:shadow-glow">
+                    <Mail className="w-6 h-6 text-primary group-hover:text-white transition-colors" />
                   </div>
                   <div className="text-right min-w-0">
-                    <span className="block text-[11px] sm:text-xs text-accent-500 dark:text-dark-text-tertiary font-medium">البريد الإلكتروني</span>
-                    <span className="block font-semibold text-xs sm:text-sm truncate">support@notionarabs.com</span>
+                    <span className="block text-xs text-accent-500 dark:text-gray-400 font-bold uppercase tracking-wider mb-0.5">البريد الإلكتروني</span>
+                    <span className="block font-black text-sm sm:text-base truncate">support@notionarabs.com</span>
                   </div>
                 </a>
                 <a
-                  href="tel:+201145096563"
-                  className="w-full inline-flex items-center justify-center gap-2 sm:gap-3 bg-white dark:bg-dark-secondary text-accent-700 dark:text-dark-text-primary px-3 sm:px-4 py-3 sm:py-4 rounded-xl shadow-sm hover:shadow-md border border-gray-200 dark:border-dark-card-border transition-all duration-300 group"
+                  href="tel:+201050505673"
+                  className="w-full inline-flex items-center justify-center gap-4 bg-white/50 dark:bg-white/5 backdrop-blur-xl text-accent-700 dark:text-white px-6 py-5 rounded-2xl shadow-soft hover:shadow-large border-none transition-all duration-500 group"
                 >
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary-50 dark:bg-dark-tertiary flex items-center justify-center group-hover:bg-primary-100 dark:group-hover:bg-dark-card-hover transition-colors shrink-0">
-                    <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600 dark:text-primary-400" />
+                  <div className="w-12 h-12 rounded-2xl bg-blue-500/10 group-hover:bg-blue-500 group-hover:scale-110 flex items-center justify-center transition-all duration-500 shrink-0 shadow-sm group-hover:shadow-glow">
+                    <Phone className="w-6 h-6 text-blue-500 group-hover:text-white transition-colors" />
                   </div>
                   <div className="text-right min-w-0">
-                    <span className="block text-[11px] sm:text-xs text-accent-500 dark:text-dark-text-tertiary font-medium">رقم الموبايل</span>
-                    <span className="block font-semibold text-xs sm:text-sm truncate" dir="ltr">+20 114 509 6563</span>
+                    <span className="block text-xs text-accent-500 dark:text-gray-400 font-bold uppercase tracking-wider mb-0.5">رقم الموبايل</span>
+                    <span className="block font-black text-sm sm:text-base truncate" dir="ltr">+20 105 050 5673</span>
                   </div>
                 </a>
               </div>
             </div>
 
-            {/* Contact Form Column */}
-            <div className="relative order-2">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-accent-500/5 rounded-3xl blur-2xl -z-10"></div>
-              <div className="bg-white/80 dark:bg-dark-secondary/80 backdrop-blur-xl rounded-2xl border border-white/60 dark:border-dark-card-border/60 shadow-xl p-2 sm:p-4">
+            <div className="relative order-2 z-10">
+              <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[2.5rem] border-none shadow-large p-4 sm:p-8">
                 <ContactForm />
               </div>
             </div>

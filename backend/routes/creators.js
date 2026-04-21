@@ -99,7 +99,6 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
         };
 
         const sort = {
-          score: { $meta: 'textScore' },
           ...sortObject
         };
 

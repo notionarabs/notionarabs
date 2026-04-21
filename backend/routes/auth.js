@@ -667,6 +667,14 @@ router.put('/profile/settings', auth, [
       specialties
     } = req.body;
 
+    console.log('[AUTH DEBUG] PUT /profile/settings request body:', JSON.stringify({
+        userId: req.user._id,
+        username, displayName, bio, 
+        hasProfilePicture: !!profilePicture,
+        profilePictureLength: profilePicture?.length,
+        hasBackgroundImage: !!backgroundImage
+    }));
+
     const updateData = {};
 
     if (username !== undefined) {
@@ -691,14 +699,9 @@ router.put('/profile/settings', auth, [
     if (profilePicture !== undefined) updateData.profilePicture = profilePicture;
     if (backgroundImage !== undefined) updateData.backgroundImage = backgroundImage;
     if (socialLinks !== undefined) updateData.socialLinks = socialLinks;
-    if (profileVisibility !== undefined) updateData.profileVisibility = profileVisibility;
-    if (showEmail !== undefined) updateData.showEmail = showEmail;
-    if (showPhone !== undefined) updateData.showPhone = showPhone;
-    if (allowMessages !== undefined) updateData.allowMessages = allowMessages;
     if (contactEmail !== undefined) updateData.contactEmail = contactEmail;
-    if (showTemplateCount !== undefined) updateData.showTemplateCount = showTemplateCount;
-    if (showJoinDate !== undefined) updateData.showJoinDate = showJoinDate;
-    if (customMessage !== undefined) updateData.customMessage = customMessage;
+    if (allowMessages !== undefined) updateData.allowMessages = allowMessages;
+    
     // Specialties field
     if (specialties !== undefined) updateData.specialties = specialties;
 

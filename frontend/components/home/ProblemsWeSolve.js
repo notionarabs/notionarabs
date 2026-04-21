@@ -51,7 +51,7 @@ export default function ProblemsWeSolve() {
                             return (
                                 <div
                                     key={idx}
-                                    className={`group card-interactive cursor-default mb-4 sm:mb-6 break-inside-avoid rounded-2xl border border-white/60 dark:border-dark-card-border/60 bg-gradient-to-br ${item.tone} ${isLarge ? 'p-6 sm:p-7' : isSmall ? 'p-5' : 'p-5 sm:p-6'
+                                    className={`group card-interactive cursor-default mb-4 sm:mb-6 break-inside-avoid rounded-2xl border-none bg-gradient-to-br ${item.tone} ${isLarge ? 'p-6 sm:p-7' : isSmall ? 'p-5' : 'p-5 sm:p-6'
                                         }`}
                                 >
                                     <div className="flex items-center justify-between mb-4">

@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Linkedin, Twitter, Globe, Users } from 'lucide-react';
 
 const teamMembers = [
@@ -53,10 +54,10 @@ const TeamCard = ({ member, index }) => (
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5, delay: index * 0.1 }}
-        className="group relative flex flex-col bg-white dark:bg-dark-card-bg rounded-3xl overflow-hidden border border-gray-100 dark:border-dark-card-border shadow-soft hover:shadow-2xl transition-all duration-500"
+        className="group relative flex flex-col bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-[2.5rem] overflow-hidden border-none shadow-soft hover:shadow-large transition-all duration-500"
     >
-        {/* Image Container - Large & Immersive */}
-        <div className="relative w-full aspect-[4/5] overflow-hidden bg-gray-100 dark:bg-gray-800">
+        {/* Image Container - Immersive */}
+        <div className="relative w-full aspect-[4/5] overflow-hidden bg-white/20 dark:bg-white/5">
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10 opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
             <Image
                 src={member.image}
@@ -66,20 +67,15 @@ const TeamCard = ({ member, index }) => (
             />
 
             {/* Social Icons - Floating on Image */}
-            <div className="absolute top-4 right-4 z-20 flex flex-col gap-2 translate-x-0 lg:translate-x-12 lg:group-hover:translate-x-0 transition-transform duration-500 delay-100">
-                {member.social.twitter && (
-                    <a href={member.social.twitter} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-white/20 backdrop-blur-md border border-white/30 text-white rounded-xl hover:bg-white hover:text-blue-500 transition-all duration-300">
-                        <Twitter size={18} />
+            <div className="absolute top-6 right-6 z-20 flex flex-col gap-3 translate-x-0 lg:translate-x-16 lg:group-hover:translate-x-0 transition-transform duration-500 delay-100">
+                {member.social.website && (
+                    <a href={member.social.website} target="_blank" rel="noopener noreferrer" className="p-3 bg-white/50 dark:bg-black/50 backdrop-blur-xl text-primary rounded-2xl hover:bg-primary hover:text-white transition-all duration-300 shadow-large">
+                        <Globe size={20} />
                     </a>
                 )}
                 {member.social.linkedin && (
-                    <a href={member.social.linkedin} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-white/20 backdrop-blur-md border border-white/30 text-white rounded-xl hover:bg-white hover:text-blue-700 transition-all duration-300">
-                        <Linkedin size={18} />
-                    </a>
-                )}
-                {member.social.website && (
-                    <a href={member.social.website} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-white/20 backdrop-blur-md border border-white/30 text-white rounded-xl hover:bg-white hover:text-purple-600 transition-all duration-300">
-                        <Globe size={18} />
+                    <a href={member.social.linkedin} target="_blank" rel="noopener noreferrer" className="p-3 bg-white/50 dark:bg-black/50 backdrop-blur-xl text-blue-600 rounded-2xl hover:bg-blue-600 hover:text-white transition-all duration-300 shadow-large">
+                        <Linkedin size={20} />
                     </a>
                 )}
             </div>
@@ -104,11 +100,8 @@ const TeamCard = ({ member, index }) => (
 
 export default function TeamSection() {
     return (
-        <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gray-50/50 dark:bg-dark-tertiary relative overflow-hidden">
-            {/* Background Texture */}
-            <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
-                style={{ backgroundImage: 'radial-gradient(#6366f1 1px, transparent 1px)', backgroundSize: '32px 32px' }}>
-            </div>
+        <section className="py-32 px-4 sm:px-6 lg:px-8 bg-transparent relative overflow-visible z-10">
+            {/* Removed Background Texture for cleaner mesh look */}
 
             <div className="container-custom relative z-10">
                 <div className="text-center mb-20">
@@ -116,9 +109,9 @@ export default function TeamSection() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-primary-600 dark:text-primary-400 font-medium text-sm mb-6 shadow-sm backdrop-blur-sm"
+                        className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/50 dark:bg-white/5 backdrop-blur-xl text-primary font-black text-xs mb-8 border-none shadow-soft uppercase tracking-widest"
                     >
-                        <Users size={16} />
+                        <Users size={14} />
                         <span>المؤسسون</span>
                     </motion.div>
 
@@ -126,9 +119,9 @@ export default function TeamSection() {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white mb-6 tracking-tight"
+                        className="text-5xl sm:text-7xl font-black text-foreground dark:text-white mb-6 tracking-tighter leading-tight"
                     >
-                        مؤسسو <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-purple-600 dark:from-primary-400 dark:to-purple-400">نوشن عرب</span>
+                        مؤسسو <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600 drop-shadow-[0_0_20px_rgba(249,115,22,0.2)]">نوشن عرب</span>
                     </motion.h2>
 
                     <motion.p
@@ -136,7 +129,7 @@ export default function TeamSection() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.1 }}
-                        className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed"
+                        className="text-xl text-accent-600 dark:text-gray-400 max-w-2xl mx-auto font-medium"
                     >
                         تعرّف على الأشخاص الذين أسسوا نوشن عرب وأشعلوا شرارة هذه الرحلة. رؤيتهم هي التي تحرّك كل ما نبنيه.
                     </motion.p>
@@ -154,21 +147,21 @@ export default function TeamSection() {
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.4 }}
-                        className="w-full h-full aspect-[4/5] group relative flex flex-col items-center justify-center p-8 bg-gradient-to-br from-gray-50 to-white dark:from-dark-card-bg dark:to-dark-elem-bg rounded-3xl border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-primary-400 dark:hover:border-primary-500/50 transition-all duration-300"
+                        className="w-full h-full aspect-[4/5] group relative flex flex-col items-center justify-center p-12 bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-[2.5rem] border-2 border-dashed border-primary/20 hover:border-primary/50 transition-all duration-500 shadow-soft hover:shadow-large"
                     >
-                        <div className="flex flex-col items-center justify-center flex-grow">
-                            <div className="w-20 h-20 rounded-2xl bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-sm">
-                                <Users className="w-10 h-10 text-primary-500 dark:text-primary-400" />
+                        <div className="flex flex-col items-center justify-center flex-grow text-center">
+                            <div className="w-24 h-24 rounded-[2rem] bg-primary/10 flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-glow">
+                                <Users className="w-12 h-12 text-primary" />
                             </div>
-                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 text-center">
+                            <h3 className="text-3xl font-black text-accent-900 dark:text-white mb-4">
                                 مكانك شاغر!
                             </h3>
-                            <p className="text-center text-gray-500 dark:text-gray-400 mb-8 max-w-[200px]">
-                                نبحث دائماً عن مواهب استثنائية لتنضم إلينا.
+                            <p className="text-lg text-accent-600 dark:text-gray-400 mb-10 font-medium">
+                                نبحث دائماً عن مواهب استثنائية لتنضم إلينا في رحلتنا.
                             </p>
-                            <a href="/careers" className="px-6 py-3 rounded-xl bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 font-bold text-gray-900 dark:text-white hover:bg-primary-600 hover:text-white dark:hover:bg-primary-600 hover:border-transparent transition-all duration-300 shadow-sm hover:shadow-lg hover:-translate-y-1">
+                            <Link href="/careers" className="px-8 py-4 rounded-2xl bg-primary text-white font-black text-lg shadow-large hover:scale-105 transition-all">
                                 انضم للفريق
-                            </a>
+                            </Link>
                         </div>
                     </motion.div>
                 </div>

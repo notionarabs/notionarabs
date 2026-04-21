@@ -41,7 +41,12 @@ export default function AboutClient() {
 
 
     return (
-        <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
+        <main className="min-h-screen bg-gray-50 dark:bg-black relative overflow-x-hidden transition-colors duration-300" dir="rtl">
+            {/* Ambient Mesh Background */}
+            <div className="fixed inset-0 pointer-events-none z-10">
+                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
+                <div className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
+            </div>
 
             {/* Hero Section */}
             <HeroSection />
@@ -75,31 +80,36 @@ export default function AboutClient() {
 
 
 
-            {/* CTA Section */}
-            <section className="py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-primary-500 to-accent-500 dark:from-orange-600 dark:to-orange-700 transition-colors duration-300">
-                <div className="container-custom text-center">
-                    <div className="flex items-center gap-3 justify-center mb-6">
-                        <MessageSquare className="w-8 h-8 sm:w-10 sm:h-10 text-white flex-shrink-0" />
-                        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
-                            انضم إلينا
-                        </h2>
-                    </div>
-                    <p className="text-base sm:text-lg md:text-xl text-white/90 mb-6 sm:mb-8 max-w-3xl mx-auto px-4 leading-relaxed">
-                        نبحث عن مواهب شغوفة بالنظم، الأتمتة، وبناء تجارب عربية احترافية في نوشن.
-                    </p>
-                    <p className="text-base sm:text-lg text-white/80 mb-6 sm:mb-8 max-w-2xl mx-auto px-4 leading-relaxed">
-                        لو تحب تشتغل على مشاريع حقيقية وتأثير ملموس — انضم لفريقنا وشاركنا رحلتنا.
-                    </p>
-                    <p className="text-lg sm:text-xl md:text-2xl font-semibold text-white mb-6 sm:mb-8">
-                        شاركنا التأثير. ابنِ معنا.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4">
-                        <Link href="/careers" className="btn-secondary px-8 sm:px-10 py-3 sm:py-4 bg-white text-primary-500 hover:bg-gray-100 w-full sm:w-auto text-center text-base sm:text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
-                            انضم للفريق
-                        </Link>
-                        <Link href="/contact" className="px-8 sm:px-10 py-3 sm:py-4 bg-white/10 text-white hover:bg-white/20 w-full sm:w-auto text-center text-base sm:text-lg font-semibold rounded-xl border-2 border-white/30 transition-all duration-300">
-                            تواصل معنا
-                        </Link>
+            {/* CTA Section - Showroom Style */}
+            <section className="py-32 sm:py-48 relative z-10 overflow-visible">
+                <div className="container-custom">
+                    <div className="bg-gradient-to-br from-primary-600 to-purple-700 rounded-[3rem] p-10 sm:p-20 text-center shadow-glow relative overflow-hidden group">
+                        {/* Interactive background shapes */}
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2 group-hover:scale-150 transition-transform duration-700"></div>
+                        <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2 group-hover:scale-150 transition-transform duration-700" style={{ animationDelay: '1s' }}></div>
+
+                        <div className="relative z-10">
+                            <div className="inline-flex items-center justify-center w-20 h-20 rounded-[2rem] bg-white/20 backdrop-blur-xl mb-8 shadow-large">
+                                <Rocket className="w-10 h-10 text-white animate-bounce" />
+                            </div>
+
+                            <h2 className="text-5xl sm:text-7xl font-black text-white mb-6 tracking-tight leading-tight">
+                                شاركنا التأثير. <span className="text-white/70">ابنِ معنا.</span>
+                            </h2>
+
+                            <p className="text-lg sm:text-xl text-white/80 mb-12 max-w-2xl mx-auto leading-relaxed font-bold">
+                                نبحث عن مواهب شغوفة بالنظم، الأتمتة، وبناء تجارب عربية احترافية في نوشن.
+                            </p>
+
+                            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                                <Link href="/careers" className="px-10 py-5 bg-white text-primary font-black rounded-2xl shadow-large hover:scale-105 transition-all text-xl">
+                                    انضم للفريق
+                                </Link>
+                                <Link href="/contact" className="px-10 py-5 bg-white/10 backdrop-blur-md text-white font-black rounded-2xl border-none shadow-soft hover:bg-white/20 transition-all text-xl">
+                                    تواصل معنا
+                                </Link>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

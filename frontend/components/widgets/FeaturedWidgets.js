@@ -125,105 +125,82 @@ export default function FeaturedWidgets() {
                     </Link>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                     {loading ? (
                         [1, 2, 3].map((item) => (
-                            <div key={item} className="bg-white dark:bg-dark-secondary rounded-3xl overflow-hidden border border-gray-200 dark:border-dark-card-border shadow-soft flex flex-col h-[420px] animate-pulse">
-                                <div className="h-48 bg-gray-200 dark:bg-dark-tertiary"></div>
-                                <div className="p-6 flex-1 flex flex-col">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <div className="h-6 bg-gray-200 dark:bg-dark-text-quaternary rounded-full w-20"></div>
-                                        <div className="h-4 bg-gray-200 dark:bg-dark-text-quaternary rounded w-12"></div>
-                                    </div>
-                                    <div className="h-7 bg-gray-200 dark:bg-dark-text-quaternary rounded-lg w-3/4 mb-4"></div>
-                                    <div className="space-y-2 mb-6 text-right">
-                                        <div className="h-4 bg-gray-200 dark:bg-dark-text-quaternary rounded w-full ml-auto"></div>
-                                        <div className="h-4 bg-gray-200 dark:bg-dark-text-quaternary rounded w-5/6 ml-auto"></div>
-                                    </div>
-                                    <div className="mt-auto flex gap-3">
-                                        <div className="flex-1 h-11 bg-gray-200 dark:bg-dark-text-quaternary rounded-xl"></div>
-                                        <div className="flex-1 h-11 bg-gray-200 dark:bg-dark-text-quaternary rounded-xl"></div>
-                                    </div>
-                                </div>
-                            </div>
+                            <div key={item} className="h-[450px] rounded-[2.5rem] bg-card border-none animate-pulse" />
                         ))
                     ) : (
-                        displayWidgets.map((widget) => (
+                        displayWidgets.map((widget, index) => (
                             <div
                                 key={widget.id}
                                 onClick={() => router.push(`/widgets/${widget.id}`)}
-                                className="group card-interactive bg-white dark:bg-dark-secondary rounded-3xl overflow-hidden border border-gray-200 dark:border-dark-card-border shadow-soft cursor-pointer flex flex-col h-[420px]"
+                                className="group relative overflow-hidden rounded-[2.5rem] bg-card border-none hover:shadow-xl transition-all duration-500 shadow-2xl shadow-primary/5 cursor-pointer flex flex-col"
+                                style={{ animationDelay: `${index * 50}ms` }}
                             >
-                                <div className={`h-48 bg-gradient-to-br ${widget.gradient} flex items-center justify-center relative overflow-hidden shrink-0`}>
-                                    <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #f5631e 1px, transparent 0)', backgroundSize: '20px 20px' }}></div>
+                                {/* Visual Foundry Segment */}
+                                <div className={`h-52 bg-gradient-to-br ${widget.gradient} flex items-center justify-center relative overflow-hidden shrink-0`}>
+                                    <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+                                    
+                                    {/* Precision Glow */}
+                                    <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-[80px]" />
 
-                                    {/* Status Badges */}
-                                    <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
+                                    {/* Tech Badges */}
+                                    <div className="absolute top-6 left-6 z-20 flex flex-col gap-2">
                                         {widget.isPopular && (
-                                            <div className="flex items-center gap-1.5 px-3 py-1 bg-red-500 text-white text-[10px] font-black uppercase tracking-tighter rounded-lg shadow-lg">
-                                                <Zap className="w-3 h-3 fill-current" />
+                                            <div className="px-3 py-1 bg-black/40 backdrop-blur-md border-none text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
                                                 الأكثر استخداماً
-                                            </div>
-                                        )}
-                                        {widget.isNew && (
-                                            <div className="flex items-center gap-1.5 px-3 py-1 bg-primary-500 text-white text-[10px] font-black uppercase tracking-tighter rounded-lg shadow-lg">
-                                                <Sparkles className="w-3 h-3 fill-current" />
-                                                جديد
                                             </div>
                                         )}
                                     </div>
 
-                                    <div className="relative z-10 p-8 bg-white/80 dark:bg-dark-secondary/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 dark:border-dark-card-border transform group-hover:scale-105 transition-transform duration-500">
-                                        <div className="flex items-center gap-3">
+                                    <div className="relative z-10 p-8 bg-white/10 backdrop-blur-xl rounded-[2rem] border-none shadow-2xl group-hover:scale-110 transition-transform duration-700">
+                                        <div className="w-16 h-16 flex items-center justify-center text-white drop-shadow-glow">
                                             {widget.icon}
-                                            <div className="h-2 w-24 bg-gray-200 dark:bg-dark-text-quaternary rounded"></div>
-                                        </div>
-
-                                        {/* Micro-Interaction Skeletons */}
-                                        <div className="mt-4 space-y-2">
-                                            <div className="h-1.5 w-full bg-gray-100 dark:bg-dark-text-quaternary rounded"></div>
-                                            <div className="h-1.5 w-3/4 bg-gray-100 dark:bg-dark-text-quaternary rounded"></div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="p-6 flex-1 flex flex-col">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <span className="px-3 py-1 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 text-xs font-bold rounded-full">
+                                {/* Intelligence Segment */}
+                                <div className="p-8 flex-1 flex flex-col">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <span className="px-4 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-full">
                                             {widget.category}
                                         </span>
                                         {stats[widget.id] > 0 && (
-                                            <div className="flex items-center gap-1.5 text-gray-400 dark:text-gray-500">
+                                            <div className="flex items-center gap-2 text-foreground/40 dark:text-white/30 text-[10px] font-black uppercase tracking-widest">
                                                 <Users className="w-3.5 h-3.5" />
-                                                <span className="text-xs font-bold">{widget.users}</span>
+                                                {widget.users}
                                             </div>
                                         )}
                                     </div>
-                                    <h2 className="text-2xl font-bold tracking-normal text-accent-900 dark:text-white mb-2 line-clamp-1">
+
+                                    <h2 className="text-2xl font-black text-foreground dark:text-white mb-3 group-hover:text-primary transition-colors line-clamp-1">
                                         {widget.title}
                                     </h2>
-                                    <p className="text-accent-600 dark:text-dark-text-secondary text-sm mb-6 line-clamp-2">
+                                    <p className="text-sm text-foreground/60 dark:text-white/40 mb-8 line-clamp-2 leading-relaxed flex-1">
                                         {widget.description}
                                     </p>
-                                    <div className="mt-auto flex gap-3">
+
+                                    <div className="pt-6 border-t border-card-border/50 dark:border-white/5 mt-auto flex gap-4">
                                         {isAuthenticated ? (
                                             <button
                                                 onClick={(e) => copyEmbed(e, widget.id)}
-                                                className="flex-1 btn-primary py-2.5 px-4 text-sm flex items-center justify-center gap-2 relative z-10"
+                                                className="flex-1 bg-primary text-white py-4 px-6 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20"
                                             >
-                                                {copiedId === widget.id ? 'تم النسخ!' : <><Copy className="w-4 h-4" /> انسخ الرابط</>}
+                                                {copiedId === widget.id ? 'تم النسخ!' : <><Copy className="w-4 h-4" /> نسخ الكود</>}
                                             </button>
                                         ) : (
                                             <Link
                                                 href={`/widgets/${widget.id}`}
-                                                className="flex-1 btn-primary py-2.5 px-4 text-sm flex items-center justify-center gap-2 relative z-10"
+                                                className="flex-1 bg-primary text-white py-4 px-6 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20"
                                                 onClick={(e) => e.stopPropagation()}
                                             >
-                                                <Lock className="w-4 h-4" /> سجّل للتضمين
+                                                <Lock className="w-4 h-4" /> سجل للتثبيت
                                             </Link>
                                         )}
-                                        <div className="flex-1 btn-secondary py-2.5 px-4 text-sm flex items-center justify-center gap-2">
-                                            <ExternalLink className="w-4 h-4" /> التفاصيل
+                                        <div className="w-14 h-14 bg-card-border/5 rounded-2xl flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                                            <ExternalLink className="w-5 h-5 text-foreground/40 dark:text-white/40 group-hover:text-primary transition-colors" />
                                         </div>
                                     </div>
                                 </div>

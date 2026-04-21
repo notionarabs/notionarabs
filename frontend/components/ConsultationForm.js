@@ -13,17 +13,17 @@ export default function ConsultationForm() {
         animate={{ opacity: 1, y: 0 }}
         className="text-center"
       >
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 mb-8 font-semibold text-sm">
-          <Zap size={16} />
+        <div className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/50 dark:bg-white/5 backdrop-blur-xl text-primary font-black text-xs mb-10 border-none shadow-soft uppercase tracking-widest">
+          <Zap size={14} />
           <span>خدماتنا الاحترافية انتقلت</span>
         </div>
 
-        <h2 className="text-3xl md:text-5xl font-bold mb-6 text-accent-800 dark:text-white leading-tight">
-          هل تبحث عن بناء نظام <span className="text-primary-500">نوشن</span> متكامل؟
+        <h2 className="text-4xl md:text-7xl font-black mb-8 text-accent-900 dark:text-white leading-tight tracking-tighter">
+          هل تبحث عن بناء <br /> نظام <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600">نوشن</span> متكامل؟
         </h2>
         
-        <p className="text-lg md:text-xl text-accent-600 dark:text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed">
-          نحن نوفر الآن جميع خدمات بناء مساحات العمل والأتمتة والتدريب المؤسسي عبر منصتنا المتخصصة بالخدمات الاحترافية <span className="font-bold text-accent-800 dark:text-white">Arab-OS</span>.
+        <p className="text-xl md:text-2xl text-accent-600 dark:text-gray-400 mb-16 max-w-3xl mx-auto leading-relaxed font-medium">
+          نحن نوفر الآن جميع خدمات بناء مساحات العمل والأتمتة والتدريب المؤسسي عبر منصتنا المتخصصة بالخدمات الاحترافية <span className="font-black text-accent-900 dark:text-white underline decoration-primary/30">Arab-OS</span>.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12 text-right" dir="rtl">
@@ -32,11 +32,11 @@ export default function ConsultationForm() {
             { title: "الأتمتة والربط", icon: <Zap className="w-5 h-5" /> },
             { title: "التدريب المؤسسي", icon: <Users className="w-5 h-5" /> }
           ].map((item, i) => (
-            <div key={i} className="p-4 rounded-2xl bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-dark-tertiary flex items-center justify-center text-primary-500">
+            <div key={i} className="p-8 rounded-[2rem] bg-white/50 dark:bg-white/5 backdrop-blur-xl border-none shadow-soft flex items-center gap-6 transition-all duration-500 hover:shadow-large hover:scale-105">
+              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-soft">
                 {item.icon}
               </div>
-              <span className="font-bold text-accent-800 dark:text-white text-sm">
+              <span className="font-black text-accent-900 dark:text-white text-lg">
                 {item.title}
               </span>
             </div>
@@ -48,16 +48,16 @@ export default function ConsultationForm() {
             href={arabOsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-primary py-4 px-10 rounded-2xl flex items-center gap-3 text-lg font-bold shadow-xl hover:shadow-primary-500/20 transition-all hover:-translate-y-1 w-full sm:w-auto"
+            className="w-full sm:w-auto px-12 py-5 rounded-2xl bg-primary text-white font-black text-xl shadow-glow hover:shadow-large hover:scale-105 transition-all duration-500 flex items-center justify-center gap-4 uppercase tracking-widest"
           >
-            <Calendar size={22} />
+            <Calendar size={24} />
             احجز استشارتك في Arab-OS
-            <ExternalLink size={18} className="opacity-70" />
+            <ExternalLink size={20} className="opacity-70" />
           </a>
           
           <button
             onClick={() => window.history.back()}
-            className="px-8 py-4 text-accent-500 hover:text-accent-800 dark:text-gray-400 dark:hover:text-white transition-colors font-medium border border-transparent hover:border-gray-200 dark:hover:border-dark-card-border rounded-2xl"
+            className="px-10 py-5 text-accent-700 dark:text-white font-black text-lg bg-white/50 dark:bg-white/5 backdrop-blur-xl rounded-2xl shadow-soft hover:shadow-large transition-all duration-500"
           >
             العودة للمجتمع
           </button>

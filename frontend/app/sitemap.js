@@ -15,12 +15,6 @@ export default async function sitemap() {
       priority: 1,
     },
     {
-      url: `${baseUrl}/store`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
-    {
       url: `${baseUrl}/templates`,
       lastModified: new Date(),
       changeFrequency: 'daily',
@@ -64,12 +58,6 @@ export default async function sitemap() {
     },
     {
       url: `${baseUrl}/careers`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/consultation`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.5,

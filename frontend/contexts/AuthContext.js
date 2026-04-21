@@ -43,6 +43,10 @@ export const AuthProvider = ({ children }) => {
 
         if (timeSinceCache < cacheExpiry) {
           const userData = JSON.parse(cachedUser);
+          if (userData) {
+            if (userData.role) userData.role = userData.role.toString().trim().toLowerCase();
+            if (userData.creatorStatus) userData.creatorStatus = userData.creatorStatus.toString().trim().toLowerCase();
+          }
           setUser(userData);
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
           emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -65,8 +69,9 @@ export const AuthProvider = ({ children }) => {
           ]);
 
           const userData = response.data.user;
-          if (userData && userData.role) {
-            userData.role = userData.role.toString().trim();
+          if (userData) {
+            if (userData.role) userData.role = userData.role.toString().trim().toLowerCase();
+            if (userData.creatorStatus) userData.creatorStatus = userData.creatorStatus.toString().trim().toLowerCase();
           }
           console.log('[AUTH DEBUG] User data from API (normalized):', userData);
           setUser(userData);
@@ -164,6 +169,10 @@ export const AuthProvider = ({ children }) => {
       if (existingToken && cachedUser) {
         try {
           const userData = JSON.parse(cachedUser);
+          if (userData) {
+            if (userData.role) userData.role = userData.role.toString().trim().toLowerCase();
+            if (userData.creatorStatus) userData.creatorStatus = userData.creatorStatus.toString().trim().toLowerCase();
+          }
           setUser(userData);
           // Set loading to false early if we have valid-looking cache
           if (userData && (Date.now() - parseInt(cacheTimestamp || '0') < cacheExpiry)) {
@@ -190,8 +199,12 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await api.post('/auth/login', { email, password });
-      const { token, user } = response.data;
-
+      const { token, user: userData } = response.data;
+      if (userData) {
+        if (userData.role) userData.role = userData.role.toString().trim().toLowerCase();
+        if (userData.creatorStatus) userData.creatorStatus = userData.creatorStatus.toString().trim().toLowerCase();
+      }
+      
       // Store token in cookie
       Cookies.set('authToken', token, { expires: 7 }); // 7 days
 
@@ -199,10 +212,10 @@ export const AuthProvider = ({ children }) => {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-      setUser(user);
+      setUser(userData);
 
       // Cache the user data
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('user', JSON.stringify(userData));
       localStorage.setItem('userCacheTimestamp', Date.now().toString());
 
       // Set loading to false after successful login
@@ -241,12 +254,16 @@ export const AuthProvider = ({ children }) => {
         // Set token in axios headers
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        emailApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-        setUser(user);
+        const { role, creatorStatus, ...rest } = user;
+        const userData = {
+          ...rest,
+          role: role ? role.toString().trim().toLowerCase() : undefined,
+          creatorStatus: creatorStatus ? creatorStatus.toString().trim().toLowerCase() : undefined
+        };
+        setUser(userData);
 
         // Cache the user data
-        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('user', JSON.stringify(userData));
         localStorage.setItem('userCacheTimestamp', Date.now().toString());
 
         // Set loading to false after successful signup
@@ -313,6 +330,9 @@ export const AuthProvider = ({ children }) => {
 
       // If verification successful and we got a token, log the user in
       if (authToken && user) {
+        if (user.role) user.role = user.role.toString().trim().toLowerCase();
+        if (user.creatorStatus) user.creatorStatus = user.creatorStatus.toString().trim().toLowerCase();
+
         // Store token in cookie
         Cookies.set('authToken', authToken, { expires: 7 }); // 7 days
 
@@ -321,9 +341,10 @@ export const AuthProvider = ({ children }) => {
         emailApi.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
 
         setUser(user);
+        const userDataForCache = user; // user is already normalized at this point
 
         // Cache the user data
-        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('user', JSON.stringify(userDataForCache));
         localStorage.setItem('userCacheTimestamp', Date.now().toString());
 
         // Set loading to false after successful verification
@@ -389,8 +410,9 @@ export const AuthProvider = ({ children }) => {
       // Fetch fresh user data
       const response = await api.get('/auth/me');
       const userData = response.data.user;
-      if (userData && userData.role) {
-        userData.role = userData.role.toString().trim();
+      if (userData) {
+        if (userData.role) userData.role = userData.role.toString().trim().toLowerCase();
+        if (userData.creatorStatus) userData.creatorStatus = userData.creatorStatus.toString().trim().toLowerCase();
       }
 
       setUser(userData);

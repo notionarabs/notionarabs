@@ -28,6 +28,7 @@ function CreateTemplatePageContent() {
   const [lastSaved, setLastSaved] = useState(null);
   const [draftRestored, setDraftRestored] = useState(false);
   const hasRestoredDraftRef = useRef(false);
+  const [isGeneratingScreenshot, setIsGeneratingScreenshot] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -398,7 +399,37 @@ function CreateTemplatePageContent() {
     }
   };
 
-  // تم إزالة إنشاء لقطة الشاشة تلقائياً. الرجاء رفع صورة يدوياً.
+  const generateScreenshot = async () => {
+    if (!formData.notionLink.trim()) {
+      showError('يرجى إدخال رابط القالب أولاً');
+      return;
+    }
+
+    if (!formData.notionLink.includes('notion.')) {
+      showError('يجب أن يكون الرابط من موقع نوشن (notion.so أو notion.site)');
+      return;
+    }
+
+    setIsGeneratingScreenshot(true);
+    try {
+      const response = await api.post('/screenshot', { url: formData.notionLink });
+      if (response.data.success && response.data.data.screenshotUrl) {
+        const imageUrl = response.data.data.screenshotUrl;
+        setUploadedImage(imageUrl);
+        setFormData(prev => ({
+          ...prev,
+          previewImage: imageUrl
+        }));
+        showSuccess('تم توليد صورة المعاينة بنجاح');
+      }
+    } catch (error) {
+      console.error('Error generating screenshot:', error);
+      const userMessage = error.response?.data?.userMessage || 'فشل في توليد الصورة تلقائياً. يرجى المحاولة مرة أخرى أو رفع صورة يدوياً.';
+      showError(userMessage);
+    } finally {
+      setIsGeneratingScreenshot(false);
+    }
+  };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -895,19 +926,40 @@ function CreateTemplatePageContent() {
                     رابط قالب نوشن *
                   </label>
                   <div className="relative">
-                    <input
-                      type="url"
-                      name="notionLink"
-                      value={formData.notionLink}
-                      onChange={handleInputChange}
-                      required
-                      className="form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-green-500 dark:focus:border-green-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-green-300 dark:hover:border-green-400"
-                      placeholder="https://username.notion.site/template-id"
-                    />
-                    <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                      </svg>
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <input
+                          type="url"
+                          name="notionLink"
+                          value={formData.notionLink}
+                          onChange={handleInputChange}
+                          required
+                          className="form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-green-500 dark:focus:border-green-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-green-300 dark:hover:border-green-400"
+                          placeholder="https://username.notion.site/template-id"
+                        />
+                        <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                          </svg>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={generateScreenshot}
+                        disabled={isGeneratingScreenshot || !formData.notionLink.trim()}
+                        className="btn-primary px-6 flex items-center justify-center gap-2 whitespace-nowrap disabled:opacity-50"
+                        title="توليد صورة معاينة تلقائية من الرابط"
+                      >
+                        {isGeneratingScreenshot ? (
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        ) : (
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        )}
+                        <span className="hidden sm:inline">صورة تلقائية</span>
+                      </button>
                     </div>
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">

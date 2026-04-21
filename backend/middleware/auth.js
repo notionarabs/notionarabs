@@ -54,6 +54,10 @@ const auth = async (req, res, next) => {
       });
     }
 
+    // Normalize case for status and role consistency across the application
+    if (authenticatedUser.role) authenticatedUser.role = authenticatedUser.role.toString().toLowerCase();
+    if (authenticatedUser.creatorStatus) authenticatedUser.creatorStatus = authenticatedUser.creatorStatus.toString().toLowerCase();
+
     req.user = authenticatedUser;
     next();
   } catch (error) {

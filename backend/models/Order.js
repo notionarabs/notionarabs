@@ -80,7 +80,10 @@ class Order {
       .insert([payload])
       .select()
       .single();
-    if (error) throw error;
+    if (error) {
+        console.error('[ORDER MODEL ERROR] Insert failed:', JSON.stringify(error, null, 2));
+        throw error;
+    }
     return new Order(created);
   }
 }

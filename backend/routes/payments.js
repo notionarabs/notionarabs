@@ -84,10 +84,10 @@ router.post('/create-checkout-session', auth, async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Checkout Session Error:', error);
+        console.error('Checkout Session Error:', JSON.stringify(error, null, 2) || error.message);
 
         let reason = 'Unknown error';
-        const detailedError = error.response?.data;
+        const detailedError = error.response?.data || error.details;
         if (detailedError) {
             if (Array.isArray(detailedError)) reason = detailedError.join(', ');
             else if (typeof detailedError === 'object') reason = JSON.stringify(detailedError);

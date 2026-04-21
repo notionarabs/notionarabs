@@ -756,7 +756,7 @@ router.get('/google/callback', async (req, res) => {
   try {
     // Check if we have the required parameters
     if (!req.query.code) {
-      const frontendUrl = process.env.FRONTEND_URL || 'https://notionarabs.com';
+      const frontendUrl = process.env.FRONTEND_URL || 'https://www.notionarabs.com';
       return res.redirect(`${frontendUrl}/auth/callback?success=false&error=no_code`);
     }
 
@@ -765,7 +765,7 @@ router.get('/google/callback', async (req, res) => {
       try {
         if (err) {
           console.error('Passport authentication error:', err);
-          const frontendUrl = process.env.FRONTEND_URL || 'https://notionarabs.com';
+          const frontendUrl = process.env.FRONTEND_URL || 'https://www.notionarabs.com';
           const errorMsg = encodeURIComponent(err.message || 'passport_error');
           return res.redirect(`${frontendUrl}/auth/callback?success=false&error=${errorMsg}`);
         }

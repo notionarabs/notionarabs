@@ -213,13 +213,21 @@ class UserDoc {
   static _applyQuery(q, query) {
     if (!query) return q;
 
+    const ENUM_FIELDS = ['role', 'creatorStatus'];
+
     Object.keys(query).forEach(key => {
         if (key.startsWith('$')) {
             if (key === '$or' && Array.isArray(query.$or)) {
                 const filters = query.$or.map(cond => {
                     const k = Object.keys(cond)[0];
-                    const v = cond[k];
+                    let v = cond[k];
                     const dbK = k === '_id' ? 'id' : k;
+
+                    // Normalize enums for $or
+                    if (ENUM_FIELDS.includes(dbK) && typeof v === 'string') {
+                        v = v.toUpperCase();
+                    }
+
                     if (typeof v === 'object' && v.$regex) {
                         let pattern = v.$regex;
                         if (pattern.startsWith('^')) {
@@ -237,17 +245,27 @@ class UserDoc {
         }
 
         let dbKey = key === '_id' ? 'id' : key;
-        const val = query[key];
+        let val = query[key];
 
         if (val && typeof val === 'object') {
-            if (val.$in) q = q.in(dbKey, val.$in);
-            else if (val.$ne !== undefined) q = q.neq(dbKey, val.$ne);
+            if (val.$in) {
+                // Normalize enums for $in
+                if (ENUM_FIELDS.includes(dbKey) && Array.isArray(val.$in)) {
+                    val.$in = val.$in.map(v => typeof v === 'string' ? v.toUpperCase() : v);
+                }
+                q = q.in(dbKey, val.$in);
+            }
+            else if (val.$ne !== undefined) {
+                // Normalize enums for $ne
+                if (ENUM_FIELDS.includes(dbKey) && typeof val.$ne === 'string') {
+                    val.$ne = val.$ne.toUpperCase();
+                }
+                q = q.neq(dbKey, val.$ne);
+            }
             else if (val.$regex) q = q.ilike(dbKey, `%${val.$regex}%`);
         } else {
             // Special mappings for User model
-            if (dbKey === 'role' && typeof val === 'string') {
-                q = q.eq(dbKey, val.toUpperCase());
-            } else if (dbKey === 'creatorStatus' && typeof val === 'string') {
+            if (ENUM_FIELDS.includes(dbKey) && typeof val === 'string') {
                 q = q.eq(dbKey, val.toUpperCase());
             } else {
                 q = q.eq(dbKey, val);

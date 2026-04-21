@@ -97,6 +97,11 @@ class Blog {
                     if (dbK === 'author') dbK = 'authorId';
                     
                     const isArrayCol = ['categories', 'tags'].includes(dbK);
+
+                    // Normalize status for $or
+                    if (dbK === 'status' && typeof v === 'string') {
+                        v = v.toUpperCase();
+                    }
                     
                     if (v && typeof v === 'object') {
                         if (v.$regex) {
@@ -109,12 +114,16 @@ class Blog {
                             return `${dbK}.ilike.${pattern}`;
                         }
                         if (v.$in && Array.isArray(v.$in)) {
+                            let normalizedIn = v.$in;
+                            if (dbK === 'status') {
+                                normalizedIn = normalizedIn.map(val => typeof val === 'string' ? val.toUpperCase() : val);
+                            }
                             if (isArrayCol) {
                                 // For array columns, $in means "contains any of these"
                                 // Supabase .or() with .cs. (contains)
-                                return `${dbK}.cs.{${v.$in.join(',')}}`;
+                                return `${dbK}.cs.{${normalizedIn.join(',')}}`;
                             }
-                            const arrayVal = `(${v.$in.map(val => typeof val === 'string' ? `"${val}"` : val).join(',')})`;
+                            const arrayVal = `(${normalizedIn.map(val => typeof val === 'string' ? `"${val}"` : val).join(',')})`;
                             return `${dbK}.in.${arrayVal}`;
                         }
                     }
@@ -134,13 +143,23 @@ class Blog {
 
         if (val && typeof val === 'object') {
             if (val.$in) {
+                let normalizedIn = val.$in;
+                if (dbKey === 'status' && Array.isArray(normalizedIn)) {
+                    normalizedIn = normalizedIn.map(v => typeof v === 'string' ? v.toUpperCase() : v);
+                }
                 if (['categories', 'tags'].includes(dbKey)) {
-                    q = q.contains(dbKey, val.$in);
+                    q = q.contains(dbKey, normalizedIn);
                 } else {
-                    q = q.in(dbKey, val.$in);
+                    q = q.in(dbKey, normalizedIn);
                 }
             }
-            else if (val.$ne !== undefined) q = q.neq(dbKey, val.$ne);
+            else if (val.$ne !== undefined) {
+                let normalizedNe = val.$ne;
+                if (dbKey === 'status' && typeof normalizedNe === 'string') {
+                    normalizedNe = normalizedNe.toUpperCase();
+                }
+                q = q.neq(dbKey, normalizedNe);
+            }
             else if (val.$regex) {
                 let pattern = val.$regex;
                 if (pattern.startsWith('^')) {

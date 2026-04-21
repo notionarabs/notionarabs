@@ -108,6 +108,11 @@ class Template {
           let val = q[key];
           const isArrayCol = ['categories', 'tags', 'features'].includes(dbKey);
 
+          // Normalize status for $or
+          if (dbKey === 'status' && typeof val === 'string') {
+              val = val.toUpperCase();
+          }
+
           if (val && typeof val === 'object') {
               if (val.$regex) {
                   let pattern = val.$regex;
@@ -119,10 +124,14 @@ class Template {
                   return `${dbKey}.ilike.${pattern}`;
               }
               if (val.$in && Array.isArray(val.$in)) {
-                  if (isArrayCol) {
-                      return `${dbKey}.cs.{${val.$in.join(',')}}`;
+                  let normalizedIn = val.$in;
+                  if (dbKey === 'status') {
+                      normalizedIn = normalizedIn.map(v => typeof v === 'string' ? v.toUpperCase() : v);
                   }
-                  const arrayVal = `(${val.$in.map(v => typeof v === 'string' ? `"${v}"` : v).join(',')})`;
+                  if (isArrayCol) {
+                      return `${dbKey}.cs.{${normalizedIn.join(',')}}`;
+                  }
+                  const arrayVal = `(${normalizedIn.map(v => typeof v === 'string' ? `"${v}"` : v).join(',')})`;
                   return `${dbKey}.in.${arrayVal}`;
               }
           }
@@ -149,10 +158,20 @@ class Template {
         }
         
         if (val && typeof val === 'object') {
-            if (val.$ne) chain = chain.neq(dbKey, val.$ne);
+            if (val.$ne) {
+                let normalizedNe = val.$ne;
+                if (dbKey === 'status' && typeof normalizedNe === 'string') {
+                    normalizedNe = normalizedNe.toUpperCase();
+                }
+                chain = chain.neq(dbKey, normalizedNe);
+            }
             else if (val.$in) {
-                if (isArrayCol) chain = chain.contains(dbKey, val.$in);
-                else chain = chain.in(dbKey, val.$in);
+                let normalizedIn = val.$in;
+                if (dbKey === 'status' && Array.isArray(normalizedIn)) {
+                    normalizedIn = normalizedIn.map(v => typeof v === 'string' ? v.toUpperCase() : v);
+                }
+                if (isArrayCol) chain = chain.contains(dbKey, normalizedIn);
+                else chain = chain.in(dbKey, normalizedIn);
             }
             else if (val.$regex) {
                 let pattern = val.$regex;

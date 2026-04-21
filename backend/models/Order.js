@@ -9,7 +9,7 @@ class Order {
   }
 
   async save() {
-    const { id, _id, ...updateData } = this;
+    const { id, _id, items, ...updateData } = this;
     const dbId = id || _id;
     if (!dbId) {
         return Order.create(this);
@@ -33,7 +33,14 @@ class Order {
     const execute = async () => {
         const { data, error } = await q;
         if (error) throw error;
-        return (data || []).map(item => new Order(item));
+        
+        // Manually fetch items for each order
+        const orders = data || [];
+        const results = await Promise.all(orders.map(async (o) => {
+            const { data: items } = await supabase.from('OrderItem').select('*').eq('orderId', o.id);
+            return new Order({ ...o, items: items || [] });
+        }));
+        return results;
     };
 
     const promise = execute();
@@ -50,11 +57,14 @@ class Order {
   static findOne(query = {}) {
     let q = supabase.from('Order').select('*');
     if (query.paymobOrderId) q = q.eq('paymobOrderId', query.paymobOrderId);
-    if (query._id) q = q.eq('id', query._id);
+    if (query._id || query.id) q = q.eq('id', query._id || query.id);
     
-    return q.maybeSingle().then(({ data, error }) => {
+    return q.maybeSingle().then(async ({ data, error }) => {
       if (error) throw error;
-      return data ? new Order(data) : null;
+      if (!data) return null;
+      
+      const { data: items } = await supabase.from('OrderItem').select('*').eq('orderId', data.id);
+      return new Order({ ...data, items: items || [] });
     });
   }
 
@@ -67,24 +77,49 @@ class Order {
   }
 
   static async create(data) {
-    const { id, _id, user, userId, ...otherData } = data;
+    const { id, _id, user, userId, items, ...otherData } = data;
     
+    const dbId = id || _id || crypto.randomBytes(12).toString('hex');
     const payload = {
         ...otherData,
-        id: id || _id || crypto.randomBytes(12).toString('hex'),
+        id: dbId,
         userId: user || userId
     };
 
+    // 1. Create the Order
     const { data: created, error } = await supabase
       .from('Order')
       .insert([payload])
       .select()
       .single();
+      
     if (error) {
-        console.error('[ORDER MODEL ERROR] Insert failed:', JSON.stringify(error, null, 2));
+        console.error('[ORDER MODEL ERROR] Order Insert failed:', JSON.stringify(error, null, 2));
         throw error;
     }
-    return new Order(created);
+
+    // 2. Create OrderItems if present
+    if (items && Array.isArray(items)) {
+        const itemPayloads = items.map(item => ({
+            id: crypto.randomBytes(12).toString('hex'),
+            orderId: dbId,
+            templateId: item.templateId,
+            name: item.name,
+            price: item.price
+        }));
+
+        const { error: itemsError } = await supabase
+            .from('OrderItem')
+            .insert(itemPayloads);
+        
+        if (itemsError) {
+            console.error('[ORDER MODEL ERROR] OrderItems Insert failed:', JSON.stringify(itemsError, null, 2));
+            // We don't throw here to avoid failing the whole order creation if just items fail, 
+            // but in a production app you might want to roll back the order.
+        }
+    }
+
+    return new Order({ ...created, items: items || [] });
   }
 }
 

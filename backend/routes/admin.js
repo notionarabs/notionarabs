@@ -204,9 +204,9 @@ router.get('/stats', auth, cacheMiddleware(60), async (req, res) => {
             googleUsers: { $sum: { $cond: [{ $ifNull: ['$googleId', false] }, 1, 0] } },
             activeUsers: { $sum: { $cond: ['$isActive', 1, 0] } },
             verifiedUsers: { $sum: { $cond: ['$isEmailVerified', 1, 0] } },
-            pendingApplications: { $sum: { $cond: [{ $eq: ['$creatorStatus', 'pending'] }, 1, 0] } },
-            approvedCreators: { $sum: { $cond: [{ $eq: ['$creatorStatus', 'approved'] }, 1, 0] } },
-            rejectedApplications: { $sum: { $cond: [{ $eq: ['$creatorStatus', 'rejected'] }, 1, 0] } },
+            pendingApplications: { $sum: { $cond: [{ $eq: ['$creatorStatus', 'PENDING'] }, 1, 0] } },
+            approvedCreators: { $sum: { $cond: [{ $eq: ['$creatorStatus', 'APPROVED'] }, 1, 0] } },
+            rejectedApplications: { $sum: { $cond: [{ $eq: ['$creatorStatus', 'REJECTED'] }, 1, 0] } },
             adminUsers: { $sum: { $cond: [{ $in: [{ $toLower: '$role' }, ['admin']] }, 1, 0] } },
             regularUsers: {
               $sum: {
@@ -239,9 +239,9 @@ router.get('/stats', auth, cacheMiddleware(60), async (req, res) => {
           $group: {
             _id: null,
             totalTemplates: { $sum: 1 },
-            pendingTemplates: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
-            approvedTemplates: { $sum: { $cond: [{ $eq: ['$status', 'approved'] }, 1, 0] } },
-            rejectedTemplates: { $sum: { $cond: [{ $eq: ['$status', 'rejected'] }, 1, 0] } },
+            pendingTemplates: { $sum: { $cond: [{ $eq: ['$status', 'PENDING'] }, 1, 0] } },
+            approvedTemplates: { $sum: { $cond: [{ $eq: ['$status', 'APPROVED'] }, 1, 0] } },
+            rejectedTemplates: { $sum: { $cond: [{ $eq: ['$status', 'REJECTED'] }, 1, 0] } },
             recentTemplates: {
               $sum: {
                 $cond: [
@@ -259,10 +259,10 @@ router.get('/stats', auth, cacheMiddleware(60), async (req, res) => {
           $group: {
             _id: null,
             totalBlogs: { $sum: 1 },
-            pendingBlogs: { $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] } },
-            publishedBlogs: { $sum: { $cond: [{ $eq: ['$status', 'published'] }, 1, 0] } },
-            rejectedBlogs: { $sum: { $cond: [{ $eq: ['$status', 'rejected'] }, 1, 0] } },
-            draftBlogs: { $sum: { $cond: [{ $eq: ['$status', 'draft'] }, 1, 0] } },
+            pendingBlogs: { $sum: { $cond: [{ $eq: ['$status', 'PENDING'] }, 1, 0] } },
+            publishedBlogs: { $sum: { $cond: [{ $eq: ['$status', 'PUBLISHED'] }, 1, 0] } },
+            rejectedBlogs: { $sum: { $cond: [{ $eq: ['$status', 'REJECTED'] }, 1, 0] } },
+            draftBlogs: { $sum: { $cond: [{ $eq: ['$status', 'DRAFT'] }, 1, 0] } },
             recentBlogs: {
               $sum: {
                 $cond: [
@@ -342,9 +342,9 @@ router.get('/template-stats', auth, async (req, res) => {
     }
 
     const totalTemplates = await Template.countDocuments();
-    const pendingTemplates = await Template.countDocuments({ status: 'pending' });
-    const approvedTemplates = await Template.countDocuments({ status: 'approved' });
-    const rejectedTemplates = await Template.countDocuments({ status: 'rejected' });
+    const pendingTemplates = await Template.countDocuments({ status: 'PENDING' });
+    const approvedTemplates = await Template.countDocuments({ status: 'APPROVED' });
+    const rejectedTemplates = await Template.countDocuments({ status: 'REJECTED' });
 
     res.json({
       success: true,
@@ -378,7 +378,7 @@ router.get('/creator-applications', auth, async (req, res) => {
     }
 
     const applications = await User.find({
-      creatorStatus: { $in: ['pending', 'approved', 'rejected'] }
+      creatorStatus: { $in: ['PENDING', 'APPROVED', 'REJECTED'] }
     }).select('-password').sort({ createdAt: -1 });
 
     // Format the data for better readability
@@ -408,9 +408,9 @@ router.get('/creator-applications', auth, async (req, res) => {
       applications: formattedApplications,
       stats: {
         total: applications.length,
-        pending: applications.filter(app => app.creatorStatus === 'pending').length,
-        approved: applications.filter(app => app.creatorStatus === 'approved').length,
-        rejected: applications.filter(app => app.creatorStatus === 'rejected').length
+        pending: applications.filter(app => app.creatorStatus === 'PENDING').length,
+        approved: applications.filter(app => app.creatorStatus === 'APPROVED').length,
+        rejected: applications.filter(app => app.creatorStatus === 'REJECTED').length
       }
     });
   } catch (error) {
@@ -564,7 +564,7 @@ router.get('/templates', auth, async (req, res) => {
 
     const filter = {};
     if (status && status !== 'all') {
-      filter.status = status;
+      filter.status = status.toUpperCase();
     }
 
     if (search) {

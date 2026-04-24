@@ -13,19 +13,25 @@ import {
     Download,
     Edit3,
     ChevronRight,
-    Home
+    Home,
+    DollarSign
 } from 'lucide-react';
 
-const ProfileSidebar = ({ userStatus, onNavigate, activeSection }) => {
+const ProfileSidebar = ({ userStatus, onNavigate, activeSection, role }) => {
     const pathname = usePathname();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const isCreator = userStatus?.toLowerCase() === 'approved';
+    const isAdmin = role?.toLowerCase() === 'admin';
 
     const generalLinks = [
         { section: 'profile', href: '/profile', label: 'الملف الشخصي', icon: User },
         { section: 'settings', href: isCreator ? '/profile?tab=settings' : '/user-settings', label: 'الإعدادات', icon: Settings },
     ];
+
+    const adminLinks = isAdmin ? [
+        { section: 'admin-payouts', href: '/profile?tab=admin-payouts', label: 'إدارة السحوبات', icon: DollarSign },
+    ] : [];
 
     const contentLinks = isCreator ? [
         { section: 'templates', href: '/profile?tab=templates', label: 'قوالبي', icon: LayoutDashboard },
@@ -33,6 +39,7 @@ const ProfileSidebar = ({ userStatus, onNavigate, activeSection }) => {
     ] : [];
 
     const analyticsLinks = isCreator ? [
+        { section: 'earnings', href: '/profile?tab=earnings', label: 'الأرباح', icon: DollarSign },
         { section: 'sales', href: '/profile?tab=sales', label: 'سجلات التحميل', icon: Download },
         { section: 'analytics', href: '/profile?tab=analytics', label: 'التحليلات', icon: TrendingUp },
     ] : [];
@@ -144,6 +151,10 @@ const ProfileSidebar = ({ userStatus, onNavigate, activeSection }) => {
                         <NavSection title="المحتوى" links={contentLinks} />
                         <NavSection title="التحليلات" links={analyticsLinks} />
                     </>
+                )}
+
+                {isAdmin && (
+                    <NavSection title="الإدارة" links={adminLinks} />
                 )}
 
                 <div className="h-px bg-gray-100 dark:bg-dark-card-border my-4 mx-3" />

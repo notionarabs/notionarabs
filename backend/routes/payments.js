@@ -28,9 +28,11 @@ router.post('/create-checkout-session', auth, async (req, res) => {
         }
 
         const amountCents = Math.round(template.price * 100); // Paymob works in cents
-
-        // Clean title for Paymob (ASCII only)
-        const cleanTitle = template.title.replace(/[^\w\s-]/gi, '').trim() || template.slug || 'Template';
+ 
+        // Clean title for Paymob (ASCII only or fallback to ID)
+        // Paymob Intention API can be picky about special chars
+        const cleanTitle = template.slug || 'Template-' + templateId.substring(0, 5);
+        console.log('🆔 Cleaned Item Name for Paymob:', cleanTitle);
 
         // 2. Prepare billing data
         const billingData = {
@@ -154,6 +156,23 @@ router.post('/callback', async (req, res) => {
                 order.paymobOrderId = paymobOrderId.toString();
                 order.paymentMethod = 'card';
                 await order.save();
+
+                // Update creator earnings
+                try {
+                    if (order.items && order.items.length > 0) {
+                        for (const item of order.items) {
+                            const template = await Template.findById(item.templateId);
+                            if (template && template.creator) {
+                                await User.findByIdAndUpdate(template.creator, {
+                                    $inc: { totalEarnings: item.price }
+                                });
+                                console.log(`💰 Updated earnings for creator ${template.creator}: +${item.price}`);
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.error('Error updating creator earnings:', err);
+                }
             } else {
                 console.log(`⚠️  Payment failed for Order: ${order._id}`);
                 order.status = 'cancelled';

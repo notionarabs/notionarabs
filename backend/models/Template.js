@@ -471,9 +471,9 @@ class Template {
           
           const [totalRes, pendingRes, approvedRes, rejectedRes, recentRes] = await Promise.all([
               supabase.from('Template').select('id', { count: 'exact', head: true }),
-              supabase.from('Template').select('id', { count: 'exact', head: true }).or('status.ilike.PENDING,status.eq.pending'),
-              supabase.from('Template').select('id', { count: 'exact', head: true }).or('status.ilike.APPROVED,status.eq.approved'),
-              supabase.from('Template').select('id', { count: 'exact', head: true }).or('status.ilike.REJECTED,status.eq.rejected'),
+              supabase.from('Template').select('id', { count: 'exact', head: true }).eq('status', 'PENDING'),
+              supabase.from('Template').select('id', { count: 'exact', head: true }).eq('status', 'APPROVED'),
+              supabase.from('Template').select('id', { count: 'exact', head: true }).eq('status', 'REJECTED'),
               supabase.from('Template').select('id', { count: 'exact', head: true }).gte('createdAt', sevenDaysAgo)
           ]);
 

@@ -655,6 +655,69 @@ router.get('/stats/downloads', async (req, res) => {
   }
 });
 
+// @route   GET /api/creators/me/stats
+// @desc    Get detailed stats for current creator
+// @access  Private (Creator)
+router.get('/me/stats', auth, async (req, res) => {
+  try {
+    if (req.user.creatorStatus !== 'approved' || req.user.role !== 'creator') {
+      return res.status(403).json({ success: false, message: 'يجب أن تكون مبدعاً معتمداً' });
+    }
+
+    const creatorId = req.user._id;
+
+    // Parallelize stat gathering
+    const [templates, downloadsCount] = await Promise.all([
+      Template.find({ creator: creatorId }),
+      DownloadLog.countDocuments({ creator: creatorId })
+    ]);
+
+    const totalTemplates = templates.length;
+    const totalViews = templates.reduce((sum, t) => sum + (t.views || 0), 0);
+    const totalDownloads = templates.reduce((sum, t) => sum + (t.downloads || 0), 0);
+    
+    // Calculate average rating
+    const ratings = templates.map(t => t.rating || 0).filter(r => r > 0);
+    const averageRating = ratings.length > 0 
+      ? (ratings.reduce((sum, r) => sum + r, 0) / ratings.length).toFixed(1)
+      : 0;
+
+    // Get current user data for live earnings/balance
+    const user = await User.findById(creatorId);
+
+    // Get recent templates (for performance tracking)
+    const recentTemplates = templates
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, 5)
+      .map(t => ({
+        id: t._id,
+        title: t.title,
+        views: t.views || 0,
+        downloads: t.downloads || 0,
+        rating: t.rating || 0,
+        isPaid: t.isPaid || false,
+        price: t.price || 0
+      }));
+
+    res.json({
+      success: true,
+      stats: {
+        totalTemplates,
+        totalDownloads,
+        totalViews,
+        averageRating: parseFloat(averageRating),
+        totalEarnings: user.totalEarnings || 0,
+        currentBalance: user.balance || 0,
+        recentTemplates
+      }
+    });
+
+  } catch (error) {
+    console.error('Creator stats error:', error);
+    res.status(500).json({ success: false, message: 'خطأ في الخادم' });
+  }
+});
+
 // @route   GET /api/creators/me/downloads
 // @desc    List downloads for current creator's templates
 // @access  Private (Creator)
@@ -709,6 +772,68 @@ router.get('/me/downloads', auth, async (req, res) => {
     });
   } catch (error) {
     console.error('Creator downloads list error:', error);
+    res.status(500).json({ success: false, message: 'خطأ في الخادم' });
+  }
+});
+
+// @route   GET /api/creators/me/sales
+// @desc    List paid sales for current creator's templates
+// @access  Private (Creator)
+router.get('/me/sales', auth, async (req, res) => {
+  try {
+    if (req.user.creatorStatus !== 'approved' || req.user.role !== 'creator') {
+      return res.status(403).json({ success: false, message: 'يجب أن تكون مبدعاً معتمداً' });
+    }
+
+    const creatorId = req.user._id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    // 1. Get creator's templates
+    const templates = await Template.find({ creator: creatorId }).select('_id title');
+    const templateIds = templates.map(t => t._id.toString());
+
+    if (templateIds.length === 0) {
+      return res.json({ success: true, sales: [], pagination: { current: page, pages: 0, total: 0, limit } });
+    }
+
+    // 2. Find OrderItems for these templates where parent order is COMPLETED
+    const { data: orderItems, error, count } = await require('../utils/supabase')
+      .from('OrderItem')
+      .select('*, Order!inner(userId, status, createdAt, User(name, email, username))', { count: 'exact' })
+      .in('templateId', templateIds)
+      .eq('Order.status', 'COMPLETED')
+      .order('Order(createdAt)', { ascending: false })
+      .range(skip, skip + limit - 1);
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      sales: (orderItems || []).map(item => ({
+        id: item.id,
+        orderId: item.orderId,
+        templateId: item.templateId,
+        templateTitle: item.name,
+        price: item.price,
+        buyer: {
+          name: item.Order?.User?.name || 'مستخدم',
+          username: item.Order?.User?.username,
+          email: item.Order?.User?.email
+        },
+        date: item.Order?.createdAt
+      })),
+      pagination: {
+        current: page,
+        pages: Math.ceil((count || 0) / limit),
+        total: count || 0,
+        limit
+      }
+    });
+
+  } catch (error) {
+    console.error('Creator sales list error:', error);
     res.status(500).json({ success: false, message: 'خطأ في الخادم' });
   }
 });

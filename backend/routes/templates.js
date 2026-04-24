@@ -340,6 +340,147 @@ router.post('/', auth, [
   }
 });
 
+// @route   POST /api/templates/bulk-import
+// @desc    Bulk import templates
+// @access  Private (Creator)
+router.post('/bulk-import', auth, async (req, res) => {
+  try {
+    // Check if user is an approved creator
+    if (req.user.creatorStatus !== 'approved' || req.user.role !== 'creator') {
+      return res.status(403).json({
+        success: false,
+        message: 'يجب أن تكون مبدعاً معتمداً لإنشاء قوالب'
+      });
+    }
+
+    const { templates } = req.body;
+
+    if (!templates || !Array.isArray(templates) || templates.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'يجب توفير مصفوفة من القوالب'
+      });
+    }
+
+    if (templates.length > 50) {
+      return res.status(400).json({
+        success: false,
+        message: 'لا يمكن استيراد أكثر من 50 قالب في المرة الواحدة'
+      });
+    }
+
+    const results = {
+      success: [],
+      errors: []
+    };
+
+    const { shouldAutoApproveTemplates } = require('../middleware/settings');
+    const autoApprove = await shouldAutoApproveTemplates();
+
+    for (const item of templates) {
+      try {
+        // Basic validation
+        if (!item.title || !item.notionLink) {
+          results.errors.push({ title: item.title || 'Unknown', error: 'العنوان ورابط نوشن مطلوبان' });
+          continue;
+        }
+
+        // Check for duplicate templates by the same creator
+        const existingTemplate = await Template.findOne({
+          creator: req.user._id,
+          $or: [
+            { title: item.title.trim() },
+            { notionLink: item.notionLink.trim() }
+          ]
+        });
+
+        if (existingTemplate) {
+          results.errors.push({ 
+            title: item.title, 
+            error: 'القالب موجود بالفعل (العنوان أو رابط نوشن مكرر)' 
+          });
+          continue;
+        }
+
+        // Generate unique slug
+        const slugExists = async (slug, excludeId = null) => {
+          const query = { slug };
+          if (excludeId) query._id = { $ne: excludeId };
+          const existing = await Template.findOne(query);
+          return !!existing;
+        };
+        const slug = await generateTemplateSlug(item.title, slugExists);
+
+        // Process categories
+        let categories = item.categories;
+        if (typeof categories === 'string') {
+          categories = categories.split(',').map(c => c.trim()).filter(c => c);
+        }
+        if (!Array.isArray(categories)) categories = [];
+        
+        // Limit to 3 categories as per validation rules in POST /
+        categories = categories.slice(0, 3);
+
+        const templateData = {
+          ...item,
+          categories,
+          creator: req.user._id,
+          status: autoApprove ? 'approved' : 'pending',
+          slug,
+          isPaid: item.isPaid === true || item.isPaid === 'true',
+          price: Number(item.price) || 0
+        };
+
+        const template = new Template(templateData);
+        await template.save();
+        results.success.push({ title: item.title, id: template._id });
+      } catch (err) {
+        console.error('Error importing item:', item.title, err);
+        results.errors.push({ title: item.title, error: err.message || 'خطأ أثناء الحفظ' });
+      }
+    }
+
+    // Invalidate templates cache if any were successful
+    if (results.success.length > 0) {
+      await invalidateCache('template');
+      
+      // Create admin notification if not auto-approved
+      if (!autoApprove) {
+        try {
+          await Notification.create({
+            user: null,
+            type: 'admin_template_pending',
+            title: 'قوالب مستوردة جديدة تحتاج مراجعة',
+            message: `${req.user.name} قام باستيراد ${results.success.length} قوالب جديدة`,
+            link: '/admin/templates',
+            metadata: {
+              creatorId: req.user._id,
+              creatorName: req.user.name,
+              count: results.success.length,
+              submissionDate: new Date()
+            }
+          });
+        } catch (notifyErr) {
+          console.error('Create admin notification error:', notifyErr);
+        }
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `تم استيراد ${results.success.length} قوالب بنجاح، وحدث خطأ في ${results.errors.length}`,
+      results
+    });
+
+  } catch (error) {
+    console.error('Bulk import error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
 // @route   GET /api/templates
 // @desc    Get all approved templates with optimized server-side pagination
 // @access  Public

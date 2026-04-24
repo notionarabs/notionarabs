@@ -65,15 +65,36 @@ class UserDoc {
     this.updatedAt = now;
     updateData.updatedAt = now;
 
+    // List of known valid columns in the Supabase User table
+    const VALID_COLUMNS = [
+        'id', 'name', 'username', 'email', 'googleId', 'password', 'role', 'creatorStatus', 
+        'isActive', 'emailNotifications', 'unsubscribeDate', 'profilePicture', 'backgroundImage', 
+        'bio', 'templatesCount', 'followers', 'rating', 'isEmailVerified', 'emailVerificationToken', 
+        'emailVerificationExpiry', 'resetToken', 'resetTokenExpiry', 'displayName', 'portfolio', 
+        'experience', 'specialties', 'motivation', 'phone', 'instagram', 'twitter', 'linkedin', 
+        'website', 'youtube', 'facebook', 'createdAt', 'updatedAt', 'socialLinks', 'allowMessages', 
+        'contactEmail', 'badges', 'following'
+    ];
+
+    const filteredUpdate = {};
+    Object.keys(updateData).forEach(key => {
+        if (VALID_COLUMNS.includes(key)) {
+            filteredUpdate[key] = updateData[key];
+        }
+    });
+
     let result;
     if (this._id && this.createdAt !== now) {
         // Update (It has an ID and existed before)
-        const { data, error } = await supabase.from('User').update(updateData).eq('id', dbId).select();
+        const { data, error } = await supabase.from('User').update(filteredUpdate).eq('id', dbId).select();
         if (error) throw error;
         result = data && data[0];
     } else {
         // Create
-        const { data, error } = await supabase.from('User').insert(updateData).select();
+        // For insert, we must include the ID if we generated one
+        if (dbId && !filteredUpdate.id) filteredUpdate.id = dbId;
+        
+        const { data, error } = await supabase.from('User').insert(filteredUpdate).select();
         if (error) throw error;
         result = data && data[0];
     }
@@ -112,10 +133,10 @@ class UserDoc {
           // but we can parallelize them effectively.
           const [totalRes, adminRes, approvedRes, pendingRes, rejectedRes, recentRes, googleRes, activeRes, verifiedRes] = await Promise.all([
               supabase.from('User').select('id', { count: 'exact', head: true }),
-              supabase.from('User').select('id', { count: 'exact', head: true }).or('role.ilike.ADMIN,role.eq.admin'),
-              supabase.from('User').select('id', { count: 'exact', head: true }).or('creatorStatus.ilike.APPROVED,creatorStatus.eq.approved'),
-              supabase.from('User').select('id', { count: 'exact', head: true }).or('creatorStatus.ilike.PENDING,creatorStatus.eq.pending'),
-              supabase.from('User').select('id', { count: 'exact', head: true }).or('creatorStatus.ilike.REJECTED,creatorStatus.eq.rejected'),
+              supabase.from('User').select('id', { count: 'exact', head: true }).eq('role', 'ADMIN'),
+              supabase.from('User').select('id', { count: 'exact', head: true }).eq('creatorStatus', 'APPROVED'),
+              supabase.from('User').select('id', { count: 'exact', head: true }).eq('creatorStatus', 'PENDING'),
+              supabase.from('User').select('id', { count: 'exact', head: true }).eq('creatorStatus', 'REJECTED'),
               supabase.from('User').select('id', { count: 'exact', head: true }).gte('createdAt', sevenDaysAgo.toISOString()),
               supabase.from('User').select('id', { count: 'exact', head: true }).not('googleId', 'is', null),
               supabase.from('User').select('id', { count: 'exact', head: true }).eq('isActive', true),
@@ -340,7 +361,25 @@ class UserDoc {
 
   static findByIdAndUpdate(id, update, options = {}) {
       const execute = async () => {
-          let dbUpdate = { ...update };
+          // List of known valid columns in the Supabase User table
+          const VALID_COLUMNS = [
+              'id', 'name', 'username', 'email', 'googleId', 'password', 'role', 'creatorStatus', 
+              'isActive', 'emailNotifications', 'unsubscribeDate', 'profilePicture', 'backgroundImage', 
+              'bio', 'templatesCount', 'followers', 'rating', 'isEmailVerified', 'emailVerificationToken', 
+              'emailVerificationExpiry', 'resetToken', 'resetTokenExpiry', 'displayName', 'portfolio', 
+              'experience', 'specialties', 'motivation', 'phone', 'instagram', 'twitter', 'linkedin', 
+              'website', 'youtube', 'facebook', 'createdAt', 'updatedAt', 'socialLinks', 'allowMessages', 
+              'contactEmail', 'badges', 'following'
+          ];
+
+          let dbUpdate = {};
+          
+          // Filter update object to only include valid columns
+          Object.keys(update).forEach(key => {
+              if (VALID_COLUMNS.includes(key) || key.startsWith('$')) {
+                  dbUpdate[key] = update[key];
+              }
+          });
           
           // Ensure role and creatorStatus are UPPERCASE for database Enum compatibility
           if (dbUpdate.role) dbUpdate.role = dbUpdate.role.toString().toUpperCase();

@@ -9,6 +9,8 @@ import api from '../lib/api';
 import { useToast } from '../contexts/ToastContext';
 import { formatDate } from '../lib/dateUtils';
 import ExportButton from './ExportButton';
+import ImportTemplatesModal from './ImportTemplatesModal';
+import ExportTemplatesModal from './ExportTemplatesModal';
 
 export default function TemplatesContent() {
     const [templates, setTemplates] = useState([]);
@@ -17,6 +19,8 @@ export default function TemplatesContent() {
     const { user } = useAuth();
     const { showSuccess, showError } = useToast();
     const [confirmingDeleteId, setConfirmingDeleteId] = useState(null);
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+    const [isExportModalOpen, setIsExportModalOpen] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -105,12 +109,34 @@ export default function TemplatesContent() {
                         </p>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                        <ExportButton
-                            endpoint={`/templates/export-public?token=${typeof window !== 'undefined' ? (require('js-cookie').get('authToken') || '') : ''}`}
-                            filename={`${(user?.username || (user?.email ? user.email.split('@')[0] : 'templates'))}-templates-${new Date().toISOString().split('T')[0]}.csv`}
-                            label="تصدير قوالبى"
-                            direct={true}
-                        />
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setIsExportModalOpen(true);
+                            }}
+                            className="btn-secondary text-sm sm:text-base px-4 py-2.5 sm:py-3 w-full sm:w-auto text-center font-bold flex items-center justify-center gap-2"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            تصدير قوالبى
+                        </button>
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setIsImportModalOpen(true);
+                            }}
+                            className="btn-outline text-sm sm:text-base px-4 py-2.5 sm:py-3 w-full sm:w-auto text-center font-bold flex items-center justify-center gap-2"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12" />
+                            </svg>
+                            استيراد (CSV)
+                        </button>
                         <button
                             onClick={() => router.push('/templates/create')}
                             className="btn-primary text-sm sm:text-base px-4 py-2.5 sm:py-3 w-full sm:w-auto text-center font-bold"
@@ -330,6 +356,18 @@ export default function TemplatesContent() {
                     </button>
                 </div>
             )}
+
+            <ImportTemplatesModal 
+                isOpen={isImportModalOpen}
+                onClose={() => setIsImportModalOpen(false)}
+                onSuccess={fetchTemplates}
+            />
+
+            <ExportTemplatesModal
+                isOpen={isExportModalOpen}
+                onClose={() => setIsExportModalOpen(false)}
+                user={user}
+            />
         </>
     );
 }

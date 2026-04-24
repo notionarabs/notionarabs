@@ -15,6 +15,7 @@ const PersonalInfoSection = dynamic(() => import('./settings/PersonalInfoSection
 const SocialLinksSection = dynamic(() => import('./settings/SocialLinksSection'));
 const PreferencesSection = dynamic(() => import('./settings/PreferencesSection'));
 const ModalsSection = dynamic(() => import('./settings/ModalsSection'));
+const PaymentSettingsSection = dynamic(() => import('./settings/PaymentSettingsSection'));
 
 export default function SettingsContent() {
     const router = useRouter();
@@ -57,7 +58,9 @@ export default function SettingsContent() {
         contactEmail: '',
         showTemplateCount: true,
         specialties: [],
-        newSpecialty: ''
+        newSpecialty: '',
+        payoutMethod: 'vodafone_cash',
+        payoutDetails: {}
     });
 
     useEffect(() => {
@@ -362,6 +365,9 @@ export default function SettingsContent() {
                                 setUsernameValidation={setUsernameValidation}
                             />
                             <PersonalInfoSection profileSettings={profileSettings} handleInputChange={handleInputChange} />
+                            {user?.role === 'creator' && user?.creatorStatus === 'approved' && (
+                                <PaymentSettingsSection profileSettings={profileSettings} handleInputChange={handleInputChange} />
+                            )}
                         </div>
                     </div>
                     <SocialLinksSection

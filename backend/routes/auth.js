@@ -523,7 +523,10 @@ router.get('/profile/settings', auth, async (req, res) => {
       showJoinDate: user.showJoinDate !== false, // default true
       customMessage: user.customMessage || '',
       // Specialties field
-      specialties: user.specialties || []
+      specialties: user.specialties || [],
+      // Payout settings
+      payoutMethod: user.payoutMethod || 'vodafone_cash',
+      payoutDetails: user.payoutDetails || {}
     };
 
     res.json({
@@ -664,7 +667,10 @@ router.put('/profile/settings', auth, [
       showJoinDate,
       customMessage,
       // Specialties field
-      specialties
+      specialties,
+      // Payout settings
+      payoutMethod,
+      payoutDetails
     } = req.body;
 
     console.log('[AUTH DEBUG] PUT /profile/settings request body:', JSON.stringify({
@@ -704,6 +710,10 @@ router.put('/profile/settings', auth, [
     
     // Specialties field
     if (specialties !== undefined) updateData.specialties = specialties;
+    
+    // Payout settings
+    if (payoutMethod !== undefined) updateData.payoutMethod = payoutMethod;
+    if (payoutDetails !== undefined) updateData.payoutDetails = payoutDetails;
 
     const user = await User.findByIdAndUpdate(
       req.user._id,

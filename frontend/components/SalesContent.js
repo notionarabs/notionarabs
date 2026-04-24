@@ -16,39 +16,43 @@ export default function SalesContent() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [rows, setRows] = useState([]);
+    const [viewMode, setViewMode] = useState('downloads'); // downloads | sales
     const [pagination, setPagination] = useState({ current: 1, pages: 1, total: 0, limit: 20 });
     const [templateFilter, setTemplateFilter] = useState('all');
 
-    const fetchDownloads = async (page = 1, templateId) => {
+    const fetchData = async (page = 1, templateId, mode = viewMode) => {
         setIsLoading(true);
         try {
             const params = new URLSearchParams({ page: String(page), limit: String(pagination.limit) });
             if (templateId && templateId !== 'all') params.set('templateId', templateId);
-            const res = await api.get(`/creators/me/downloads?${params.toString()}`);
+            
+            const endpoint = mode === 'sales' ? '/creators/me/sales' : '/creators/me/downloads';
+            const res = await api.get(`${endpoint}?${params.toString()}`);
+            
             if (res?.data?.success) {
-                setRows(res.data.downloads || []);
+                setRows(mode === 'sales' ? res.data.sales : res.data.downloads || []);
                 setPagination(res.data.pagination || { current: page, pages: 1, total: 0, limit: 20 });
             }
         } catch (error) {
-            console.error('Error fetching downloads:', error);
+            console.error(`Error fetching ${mode}:`, error);
         } finally {
             setIsLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchDownloads(1, templateFilter);
-    }, [templateFilter]);
+        fetchData(1, templateFilter, viewMode);
+    }, [templateFilter, viewMode]);
 
     const handlePageChange = (newPage) => {
-        fetchDownloads(newPage, templateFilter);
+        fetchData(newPage, templateFilter, viewMode);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     // Calculate dynamic stats
     const stats = useMemo(() => {
         const total = pagination.total || 0;
-        const uniqueUsers = new Set(rows.map(r => r.userId)).size;
+        const uniqueUsers = new Set(rows.map(r => r.userId || r.buyer?.email)).size;
         return { total, uniqueUsers };
     }, [rows, pagination.total]);
 
@@ -62,8 +66,29 @@ export default function SalesContent() {
                             سجل المبيعات والتحميلات
                         </h1>
                         <p className="text-gray-500 dark:text-dark-text-secondary font-medium">
-                            تتبع جميع عمليات تحميل القوالب الخاصة بك
+                            تتبع جميع عمليات {viewMode === 'sales' ? 'مبيعات' : 'تحميل'} القوالب الخاصة بك
                         </p>
+                    </div>
+
+                    <div className="flex p-1.5 bg-gray-100 dark:bg-dark-tertiary rounded-2xl border border-gray-200 dark:border-dark-card-border">
+                        <button
+                            onClick={() => setViewMode('downloads')}
+                            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black transition-all duration-300 ${viewMode === 'downloads' ? 'bg-white dark:bg-dark-secondary text-primary-600 shadow-medium dark:shadow-dark-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-dark-text-primary'}`}
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            التحميلات المجانية
+                        </button>
+                        <button
+                            onClick={() => setViewMode('sales')}
+                            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black transition-all duration-300 ${viewMode === 'sales' ? 'bg-white dark:bg-dark-secondary text-primary-600 shadow-medium dark:shadow-dark-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-dark-text-primary'}`}
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zM12 8V7m0 1v1m0 0v1m0 0v1m0-5V5m0 5h1m-1 0H11" />
+                            </svg>
+                            المبيعات المدفوعة
+                        </button>
                     </div>
                 </div>
 
@@ -128,6 +153,9 @@ export default function SalesContent() {
                                 <th className="px-6 py-4 text-sm font-black text-gray-600 dark:text-dark-text-primary uppercase tracking-wider">المستخدم</th>
                                 <th className="px-6 py-4 text-sm font-black text-gray-600 dark:text-dark-text-primary uppercase tracking-wider">البريد الإلكتروني</th>
                                 <th className="px-6 py-4 text-sm font-black text-gray-600 dark:text-dark-text-primary uppercase tracking-wider">القالب</th>
+                                {viewMode === 'sales' && (
+                                    <th className="px-6 py-4 text-sm font-black text-gray-600 dark:text-dark-text-primary uppercase tracking-wider">المبلغ</th>
+                                )}
                                 <th className="px-6 py-4 text-sm font-black text-gray-600 dark:text-dark-text-primary uppercase tracking-wider">التاريخ</th>
                             </tr>
                         </thead>
@@ -160,15 +188,15 @@ export default function SalesContent() {
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 flex items-center justify-center text-sm font-black uppercase">
-                                                    {(row.userName || row.userUsername || 'U')[0]}
+                                                    {(row.buyer?.name || row.userName || row.userUsername || 'U')[0]}
                                                 </div>
                                                 <span className="font-bold text-gray-900 dark:text-dark-text-primary text-sm">
-                                                    {row.userName || row.userUsername || 'مستخدم غير معروف'}
+                                                    {row.buyer?.name || row.userName || row.userUsername || 'مستخدم'}
                                                 </span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-600 dark:text-dark-text-secondary font-medium font-mono">
-                                            {row.userEmail}
+                                            {row.buyer?.email || row.userEmail}
                                         </td>
                                         <td className="px-6 py-4">
                                             <Link href={`/templates/${row.templateId}`} className="group flex items-center gap-3">
@@ -187,6 +215,11 @@ export default function SalesContent() {
                                                 </span>
                                             </Link>
                                         </td>
+                                        {viewMode === 'sales' && (
+                                            <td className="px-6 py-4 text-sm font-black text-emerald-600 dark:text-emerald-400">
+                                                {row.price} ج.م
+                                            </td>
+                                        )}
                                         <td className="px-6 py-4 text-sm text-gray-500 dark:text-dark-text-tertiary font-medium">
                                             {formatDate(row.date)}
                                         </td>

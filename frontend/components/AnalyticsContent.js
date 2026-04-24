@@ -11,6 +11,7 @@ export default function AnalyticsContent() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [templates, setTemplates] = useState([]);
+    const [stats, setStats] = useState(null);
     const [timeRange, setTimeRange] = useState('all'); // all | 7d | 30d | 90d | 1y
     const [error, setError] = useState('');
 
@@ -23,10 +24,16 @@ export default function AnalyticsContent() {
             setIsLoading(true);
             ensureTokenInHeaders();
 
-            // Fetch creator templates
-            const templatesRes = await api.get('/templates/my-templates');
-
+            // Fetch creator templates and consolidated stats
+            const [templatesRes, statsRes] = await Promise.all([
+                api.get('/templates/my-templates'),
+                api.get('/creators/me/stats')
+            ]);
+            
             setTemplates(Array.isArray(templatesRes.data.templates) ? templatesRes.data.templates : []);
+            if (statsRes.data.success) {
+                setStats(statsRes.data.stats);
+            }
         } catch (e) {
             setError('تعذر تحميل بيانات التحليلات');
         } finally {
@@ -137,17 +144,6 @@ export default function AnalyticsContent() {
                     bgColor="bg-blue-50 dark:bg-blue-900/20"
                 />
                 <KpiCard
-                    title="إجمالي المشاهدات"
-                    value={metrics.totalViews}
-                    icon={(
-                        <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                    )}
-                    bgColor="bg-purple-50 dark:bg-purple-900/20"
-                />
-                <KpiCard
                     title="إجمالي التحميلات"
                     value={metrics.totalDownloads}
                     icon={(
@@ -158,14 +154,24 @@ export default function AnalyticsContent() {
                     bgColor="bg-emerald-50 dark:bg-emerald-900/20"
                 />
                 <KpiCard
-                    title="التقييم الوسيط"
-                    value={Number(metrics.medianRating).toFixed(1)}
+                    title="إجمالي الأرباح"
+                    value={`${stats?.totalEarnings || 0} ج.م`}
                     icon={(
-                        <svg className="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                        <svg className="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zM12 8V7m0 1v1m0 0v1m0 0v1m0-5V5m0 5h1m-1 0H11" />
                         </svg>
                     )}
-                    bgColor="bg-orange-50 dark:bg-orange-900/20"
+                    bgColor="bg-amber-50 dark:bg-amber-900/20"
+                />
+                <KpiCard
+                    title="الرصيد الحالي"
+                    value={`${stats?.currentBalance || 0} ج.م`}
+                    icon={(
+                        <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    )}
+                    bgColor="bg-purple-50 dark:bg-purple-900/20"
                 />
             </div>
 

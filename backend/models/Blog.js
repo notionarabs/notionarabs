@@ -381,10 +381,10 @@ class Blog {
           
           const [totalRes, pendingRes, publishedRes, rejectedRes, draftRes, recentRes] = await Promise.all([
               supabase.from('Blog').select('id', { count: 'exact', head: true }),
-              supabase.from('Blog').select('id', { count: 'exact', head: true }).or('status.ilike.PENDING,status.eq.pending'),
-              supabase.from('Blog').select('id', { count: 'exact', head: true }).or('status.ilike.PUBLISHED,status.eq.published'),
-              supabase.from('Blog').select('id', { count: 'exact', head: true }).or('status.ilike.REJECTED,status.eq.rejected'),
-              supabase.from('Blog').select('id', { count: 'exact', head: true }).or('status.ilike.DRAFT,status.eq.draft'),
+              supabase.from('Blog').select('id', { count: 'exact', head: true }).eq('status', 'PENDING'),
+              supabase.from('Blog').select('id', { count: 'exact', head: true }).eq('status', 'PUBLISHED'),
+              supabase.from('Blog').select('id', { count: 'exact', head: true }).eq('status', 'REJECTED'),
+              supabase.from('Blog').select('id', { count: 'exact', head: true }).eq('status', 'DRAFT'),
               supabase.from('Blog').select('id', { count: 'exact', head: true }).gte('createdAt', sevenDaysAgo)
           ]);
 

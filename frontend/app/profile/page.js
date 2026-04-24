@@ -14,7 +14,9 @@ import BlogsContent from '../../components/BlogsContent';
 import SalesContent from '../../components/SalesContent';
 import SettingsContent from '../../components/SettingsContent';
 import AnalyticsContent from '../../components/AnalyticsContent';
-import { Camera, Mail, User as UserIcon, AtSign, Settings, LayoutDashboard, Edit3, Download, TrendingUp } from 'lucide-react';
+import CreatorEarnings from '../../components/CreatorEarnings';
+import AdminPayouts from '../../components/AdminPayouts';
+import { Camera, Mail, User as UserIcon, AtSign, Settings, LayoutDashboard, Edit3, Download, TrendingUp, DollarSign } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Profile Overview Component
@@ -310,6 +312,10 @@ function ProfilePageContent() {
         return <SalesContent />;
       case 'analytics':
         return <AnalyticsContent />;
+      case 'earnings':
+        return <CreatorEarnings />;
+      case 'admin-payouts':
+        return <AdminPayouts />;
       default:
         return <ProfileOverview user={user} />;
     }
@@ -323,6 +329,7 @@ function ProfilePageContent() {
         {/* Sidebar with custom navigation handler */}
         <ProfileSidebar
           userStatus={user?.creatorStatus}
+          role={user?.role}
           onNavigate={handleSectionChange}
           activeSection={activeSection}
         />

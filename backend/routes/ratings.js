@@ -234,6 +234,23 @@ router.get('/:targetType/:targetId', cacheMiddleware(300), async (req, res) => {
       .skip(skip)
       .limit(limit);
 
+    // Add verified purchase flag if target is a template
+    const ratingsWithVerification = await Promise.all(ratings.map(async (r) => {
+      let isVerified = false;
+      if (targetType === 'template') {
+        const { data: orderItem } = await supabase
+          .from('OrderItem')
+          .select('id, Order!inner(status, userId)')
+          .eq('templateId', targetId)
+          .eq('Order.userId', r.user?._id || r.userId)
+          .eq('Order.status', 'COMPLETED')
+          .maybeSingle();
+        
+        isVerified = !!orderItem;
+      }
+      return { ...r, isVerified };
+    }));
+
     res.json({
       success: true,
       averageRating, // Keep for backward compatibility
@@ -242,7 +259,7 @@ router.get('/:targetType/:targetId', cacheMiddleware(300), async (req, res) => {
         averageRating,
         totalRatings
       },
-      ratings,
+      ratings: ratingsWithVerification,
       pagination: {
         current: page,
         pages: Math.ceil(totalRatings / limit),

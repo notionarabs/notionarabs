@@ -10,10 +10,10 @@ import { Search, Star, LayoutDashboard, Download, Globe, Calendar, Zap, Filter }
 import Footer from '../../../components/Footer';
 
 const sortOptions = [
-  { name: "الأكثر شعبية", value: "popular" },
-  { name: "الأحدث", value: "newest" },
+  { name: "الأكثر شعبية", value: "downloads" },
+  { name: "الأحدث", value: "createdAt" },
   { name: "الأعلى تقييماً", value: "rating" },
-  { name: "الأكثر قوالب", value: "templates" }
+  { name: "الأكثر مشاهدة", value: "views" }
 ];
 
 function StarRating({ rating }) {
@@ -27,7 +27,7 @@ function StarRating({ rating }) {
 }
 
 export default function CategoryTemplatesClient({ categoryId, categoryName }) {
-  const [sortBy, setSortBy] = useState('popular');
+  const [sortBy, setSortBy] = useState('downloads');
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -91,86 +91,44 @@ const RatingCommentSystem = ({
 
     setIsLoading(true);
     try {
-      // Submit both rating and comment in parallel
-      const promises = [];
+      // Unified submission: Star Rating + Written Review in one request
+      const response = await api.post('/ratings', {
+        targetType,
+        targetId,
+        rating: userRating,
+        review: userComment.trim()
+      });
 
-      // Submit rating
-      promises.push(
-        api.post('/ratings', {
-          targetType,
-          targetId,
-          rating: userRating,
-          review: ''
-        })
-      );
+      if (response.data.success) {
+        if (onRatingChange) onRatingChange(response.data);
+        setHasSubmitted(true);
+        
+        // Success Notification
+        const successMessage = userComment.trim()
+          ? 'تم إرسال تقييمك ومراجعتك بنجاح! شكراً لك.'
+          : 'تم إرسال تقييمك بنجاح! شكراً لك.';
 
-      // Submit comment if there's content
-      if (userComment.trim()) {
-        promises.push(
-          api.post('/comments', {
-            targetType,
-            targetId,
-            content: userComment.trim()
-          })
-        );
-      }
-
-      const results = await Promise.all(promises);
-
-      // Handle rating result
-      if (results[0]?.data?.success && onRatingChange) {
-        onRatingChange(results[0].data);
-      }
-
-      // Handle comment result
-      if (results[1]?.data?.success && onCommentChange) {
-        onCommentChange(results[1].data);
-      }
-
-      // Set hasSubmitted to true after successful submission
-      setHasSubmitted(true);
-
-      // Trigger notifications refresh for the creator immediately (best effort)
-      try {
-        window.dispatchEvent(new Event('notifications:refresh'));
-      } catch {}
-
-      // Show success message with a friendly notification
-      const successMessage = userComment.trim()
-        ? 'تم إرسال التقييم والتعليق بنجاح! شكراً لك على مشاركة رأيك.'
-        : 'تم إرسال التقييم بنجاح! شكراً لك على تقييمك.';
-
-      // Create a friendly success notification
-      const notification = document.createElement('div');
-      notification.className = 'fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 animate-slide-in';
-      notification.innerHTML = `
-        <div class="flex items-center gap-2">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-          </svg>
-          <span class="font-medium">${successMessage}</span>
-        </div>
-      `;
-
-      // Add to page
-      document.body.appendChild(notification);
-
-      // Auto remove after 4 seconds
-      setTimeout(() => {
-        notification.classList.add('animate-slide-out');
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 animate-slide-in';
+        notification.innerHTML = `
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            <span class="font-medium">${successMessage}</span>
+          </div>
+        `;
+        document.body.appendChild(notification);
         setTimeout(() => {
-          if (notification.parentNode) {
-            notification.parentNode.removeChild(notification);
-          }
-        }, 300);
-      }, 4000);
-
+          notification.classList.add('animate-slide-out');
+          setTimeout(() => notification.remove(), 300);
+        }, 4000);
+      }
     } catch (error) {
-      console.error('Error submitting rating/comment:', error);
+      console.error('Error submitting review:', error);
       if (error.response?.status === 401) {
         window.location.href = '/login';
       } else {
-        // Create a friendly error notification
         const errorNotification = document.createElement('div');
         errorNotification.className = 'fixed top-4 right-4 z-50 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 animate-slide-in';
         errorNotification.innerHTML = `
@@ -181,18 +139,10 @@ const RatingCommentSystem = ({
             <span class="font-medium">حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.</span>
           </div>
         `;
-
-        // Add to page
         document.body.appendChild(errorNotification);
-
-        // Auto remove after 5 seconds
         setTimeout(() => {
           errorNotification.classList.add('animate-slide-out');
-          setTimeout(() => {
-            if (errorNotification.parentNode) {
-              errorNotification.parentNode.removeChild(errorNotification);
-            }
-          }, 300);
+          setTimeout(() => errorNotification.remove(), 300);
         }, 5000);
       }
     } finally {

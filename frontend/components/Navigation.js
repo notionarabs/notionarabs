@@ -126,7 +126,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
             <div className={`transition-all duration-300 ease-in-out overflow-hidden flex items-center ${activePage !== 'home' ? 'max-w-24 opacity-100' : 'max-w-0 opacity-0'}`}>
               <Link
                 href="/"
-                className={`nav-link flex items-center gap-2 group/nav text-sm font-bold ${activePage === 'home' ? 'text-primary' : 'text-accent-500/80'}`}
+                className={`nav-link flex-shrink-0 flex items-center gap-2 group/nav text-sm font-bold ${activePage === 'home' ? 'text-primary' : 'text-accent-500/80'}`}
                 onClick={() => handleNavigation('/')}
               >
                 <span className="transition-all duration-300 group-hover:scale-110 group-hover:text-primary">
@@ -139,7 +139,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
               <Link
                 key={item.key}
                 href={item.href}
-                className={`nav-link flex items-center gap-2 group/nav text-sm font-bold ${activePage === item.key ? 'text-primary' : 'text-accent-500/80'}`}
+                className={`nav-link flex-shrink-0 flex items-center gap-2 group/nav text-sm font-bold ${activePage === item.key ? 'text-primary' : 'text-accent-500/80'}`}
                 onClick={() => handleNavigation(item.href)}
               >
                 <span className="transition-all duration-300 group-hover:scale-110 group-hover:text-primary">

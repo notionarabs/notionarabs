@@ -25,6 +25,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
+        'sans': ['Almarai', 'sans-serif'],
         'tajawal': ['Tajawal', 'sans-serif'],
         'cairo': ['Cairo', 'sans-serif'],
         'amiri': ['Amiri', 'serif'],

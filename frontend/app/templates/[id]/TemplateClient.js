@@ -33,8 +33,36 @@ export default function TemplateClient({ initialTemplate }) {
   const templateIdentifier = params.id;
   const { isAuthenticated, user } = useAuth();
 
-  const [template, setTemplate] = useState(initialTemplate);
-  const [loading, setLoading] = useState(!initialTemplate);
+  const processedInitialTemplate = useMemo(() => {
+    if (!initialTemplate) return null;
+    const t = { ...initialTemplate };
+    
+    const cleanData = (val) => {
+      if (!val || typeof val !== 'string') return val;
+      if ((val.startsWith('[') && val.endsWith(']')) || (val.startsWith('"') && val.endsWith('"'))) {
+        try {
+          const parsed = JSON.parse(val);
+          return cleanData(parsed);
+        } catch (e) { return val; }
+      }
+      return val;
+    };
+
+    if (t.features) {
+      const raw = cleanData(t.features);
+      t.features = Array.isArray(raw) ? raw : (typeof raw === 'string' ? raw.split('\n') : []);
+      t.features = t.features.map(f => cleanData(f)).map(f => typeof f === 'string' ? f.trim() : f).filter(Boolean);
+    }
+    
+    // Also clean description if it's double encoded
+    if (t.description) t.description = cleanData(t.description);
+    if (t.title) t.title = cleanData(t.title);
+
+    return t;
+  }, [initialTemplate]);
+
+  const [template, setTemplate] = useState(processedInitialTemplate);
+  const [loading, setLoading] = useState(!processedInitialTemplate);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(template?.previewImage ? -2 : 0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -97,6 +125,25 @@ export default function TemplateClient({ initialTemplate }) {
       const response = await api.get(`/templates/${templateIdentifier}`);
       if (response.data.success) {
         const t = response.data.template;
+        
+        // Robust cleaning for double-encoded strings (e.g. ["[\"...\"]"])
+        const cleanData = (val) => {
+          if (!val || typeof val !== 'string') return val;
+          if ((val.startsWith('[') && val.endsWith(']')) || (val.startsWith('"') && val.endsWith('"'))) {
+            try {
+              const parsed = JSON.parse(val);
+              return cleanData(parsed); // Recursive cleaning
+            } catch (e) { return val; }
+          }
+          return val;
+        };
+
+        if (t.features) {
+          const raw = cleanData(t.features);
+          t.features = Array.isArray(raw) ? raw : (typeof raw === 'string' ? raw.split('\n') : []);
+          t.features = t.features.map(f => cleanData(f)).map(f => typeof f === 'string' ? f.trim() : f).filter(Boolean);
+        }
+        
         setTemplate(t);
         setSelectedImage(t.previewImage ? -2 : 0);
         setLoading(false);
@@ -196,16 +243,25 @@ export default function TemplateClient({ initialTemplate }) {
 
   if (loading && !template) {
     return (
-      <main className="min-h-screen bg-white dark:bg-dark-primary py-20" dir="rtl">
-        <div className="container-custom animate-pulse space-y-12">
-           <div className="h-8 w-64 bg-gray-100 dark:bg-gray-800 rounded-lg"></div>
-           <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
-             <div className="lg:col-span-3 aspect-video bg-gray-100 dark:bg-gray-800 rounded-2xl"></div>
-             <div className="lg:col-span-2 space-y-6">
+      <main className="min-h-screen bg-white dark:bg-dark-primary pt-12 pb-24" dir="rtl">
+        <div className="container-custom">
+          <Breadcrumb items={[
+            { name: 'الرئيسية', url: '/' },
+            { name: 'القوالب', url: '/templates' },
+            { name: 'جاري التحميل...' }
+          ]} className="mb-10" />
+
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12 animate-pulse">
+            <div className="h-10 bg-gray-100 dark:bg-gray-800 rounded-lg w-1/3"></div>
+            <div className="h-12 bg-gray-100 dark:bg-gray-800 rounded-lg w-1/4"></div>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 animate-pulse">
+            <div className="lg:col-span-3 aspect-video bg-gray-100 dark:bg-gray-800 rounded-[2.5rem]"></div>
+            <div className="lg:col-span-2 space-y-6">
                 <div className="h-12 bg-gray-100 dark:bg-gray-800 rounded-xl w-3/4"></div>
                 <div className="h-40 bg-gray-100 dark:bg-gray-800 rounded-2xl"></div>
-             </div>
-           </div>
+            </div>
+          </div>
         </div>
       </main>
     );
@@ -213,10 +269,13 @@ export default function TemplateClient({ initialTemplate }) {
 
   if (error || !template) {
     return (
-      <main className="min-h-screen flex items-center justify-center" dir="rtl">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">{error || 'القالب غير موجود'}</h2>
-          <Link href="/templates" className="btn-primary">العودة للمتجر</Link>
+      <main className="min-h-screen flex items-center justify-center bg-white dark:bg-dark-primary" dir="rtl">
+        <div className="text-center p-12 bg-gray-50 dark:bg-dark-secondary rounded-[2.5rem] border border-gray-100 dark:border-dark-card-border">
+          <div className="w-20 h-20 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+             <Rocket size={40} className="rotate-180" />
+          </div>
+          <h2 className="text-2xl font-black mb-4">{error || 'القالب غير موجود'}</h2>
+          <Link href="/templates" className="btn-primary inline-flex">العودة للمتجر</Link>
         </div>
       </main>
     );
@@ -227,23 +286,22 @@ export default function TemplateClient({ initialTemplate }) {
       <main className="min-h-screen bg-gray-50/50 dark:bg-dark-primary pt-12 pb-24" dir="rtl">
         <div className="container-custom">
           
-          {/* Breadcrumb */}
-          <div className="mb-8">
-            <Breadcrumb
-              items={[
-                { name: 'الرئيسية', url: '/' },
-                { name: 'المتجر', url: '/templates' },
-                { name: template.title }
-              ]}
-            />
-          </div>
+          <Breadcrumb 
+            items={[
+              { name: 'الرئيسية', url: '/' },
+              { name: 'القوالب', url: '/templates' },
+              { name: template.categories?.[0] || 'عام', url: `/categories/${getCategorySlug(template.categories?.[0] || 'عام')}` },
+              { name: template.title }
+            ]} 
+            className="mb-10" 
+          />
 
-          <div className="bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border rounded-3xl shadow-sm overflow-hidden mb-12">
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-0">
+          <div className="bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-[2.5rem] shadow-xl overflow-hidden mb-12">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-0 min-h-[500px]">
               
-              {/* Media Section */}
-              <div className="lg:col-span-3 p-6 sm:p-8 bg-gray-50/50 dark:bg-black/20 border-l border-gray-100 dark:border-dark-card-border">
-                <div className="relative aspect-video rounded-2xl overflow-hidden bg-gray-100 dark:bg-dark-tertiary shadow-inner">
+              {/* Media Section - Should be on one side */}
+              <div className="lg:col-span-3 p-4 sm:p-10 bg-gray-50/30 dark:bg-black/10 flex flex-col justify-center">
+                <div className="relative aspect-video w-full rounded-[2rem] overflow-hidden bg-white dark:bg-dark-tertiary shadow-2xl border border-gray-100 dark:border-dark-card-border group">
                   {showVideo ? (
                     <iframe
                       src={getVideoEmbedUrl(template.explanationVideo)}
@@ -256,84 +314,149 @@ export default function TemplateClient({ initialTemplate }) {
                       src={selectedImage === -2 ? template.previewImage : (template.previewImages?.[selectedImage] || template.previewImage)}
                       alt={template.title}
                       fill
-                      className="object-cover"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105 cursor-zoom-in"
                       onClick={() => setIsLightboxOpen(true)}
+                      priority
+                      unoptimized={template.previewImage?.includes('notion.so')} // Notion images often need this
                     />
                   )}
+                  
+                  <div className="absolute top-6 right-6 px-4 py-2 bg-white/90 dark:bg-black/60 backdrop-blur-md rounded-full text-[10px] font-black text-gray-900 dark:text-white border border-white/20 shadow-lg uppercase tracking-widest">
+                    {template.isPaid ? 'نظام متميز' : 'نظام مجاني'}
+                  </div>
                 </div>
 
-                {(template.previewImages?.length > 1 || template.explanationVideo) && (
-                  <div className="flex flex-wrap gap-3 mt-6 justify-center">
+                {(template.previewImages?.length > 0 || template.explanationVideo) && (
+                  <div className="flex flex-wrap gap-4 mt-8 justify-center px-4">
                     {template.explanationVideo && (
-                      <button onClick={() => setShowVideo(true)} className={`w-20 h-14 rounded-lg overflow-hidden border-2 transition-all ${showVideo ? 'border-primary' : 'border-transparent opacity-60'}`}>
-                        <div className="w-full h-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center"><Zap size={18} className="text-primary" /></div>
+                      <button 
+                        onClick={() => setShowVideo(true)} 
+                        className={`group relative w-24 h-16 rounded-2xl overflow-hidden border-2 transition-all duration-300 ${showVideo ? 'border-primary ring-4 ring-primary/10' : 'border-gray-200 dark:border-dark-card-border hover:border-primary/50'}`}
+                      >
+                        <div className="w-full h-full bg-gray-100 dark:bg-dark-tertiary flex flex-col items-center justify-center">
+                          <Zap size={18} className={`${showVideo ? 'text-primary' : 'text-gray-400'}`} />
+                          <span className="text-[8px] font-black mt-1">فيديو</span>
+                        </div>
                       </button>
                     )}
+                    
+                    <button 
+                      onClick={() => { setShowVideo(false); setSelectedImage(-2); }} 
+                      className={`group relative w-24 h-16 rounded-2xl overflow-hidden border-2 transition-all duration-300 ${!showVideo && selectedImage === -2 ? 'border-primary ring-4 ring-primary/10 scale-105' : 'border-gray-200 dark:border-dark-card-border hover:border-primary/50'}`}
+                    >
+                      <Image src={template.previewImage} alt="Cover" fill className="object-cover" />
+                    </button>
+
                     {(template.previewImages || []).map((img, i) => (
-                      <button key={i} onClick={() => { setShowVideo(false); setSelectedImage(i); }} className={`w-20 h-14 rounded-lg overflow-hidden border-2 transition-all ${!showVideo && selectedImage === i ? 'border-primary' : 'border-transparent opacity-60'}`}>
-                        <Image src={img} alt="Preview" fill className="object-cover" />
+                      <button 
+                        key={i} 
+                        onClick={() => { setShowVideo(false); setSelectedImage(i); }} 
+                        className={`group relative w-24 h-16 rounded-2xl overflow-hidden border-2 transition-all duration-300 ${!showVideo && selectedImage === i ? 'border-primary ring-4 ring-primary/10 scale-105' : 'border-gray-200 dark:border-dark-card-border hover:border-primary/50'}`}
+                      >
+                        <Image src={img} alt={`Preview ${i+1}`} fill className="object-cover" />
                       </button>
                     ))}
                   </div>
                 )}
               </div>
 
-              {/* Info Section */}
-              <div className="lg:col-span-2 p-8 sm:p-10 flex flex-col">
+              {/* Info Section - Border should be on the inside (left side in RTL) */}
+              <div className="lg:col-span-2 p-8 sm:p-12 flex flex-col bg-white dark:bg-dark-secondary border-r lg:border-r-0 lg:border-l border-gray-100 dark:border-dark-card-border">
                 <div className="mb-auto">
-                  <div className="flex items-center gap-3 mb-4">
+                  <div className="flex flex-wrap gap-2 mb-6">
                     {template.categories?.map((cat, i) => (
-                      <span key={i} className="text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2.5 py-1 rounded-md">{cat}</span>
+                      <span key={i} className="text-[10px] font-black uppercase tracking-[0.1em] text-primary-600 bg-primary-50 dark:bg-primary-900/20 px-3 py-1.5 rounded-lg border border-primary-100/50 dark:border-primary-800/30">
+                        {cat}
+                      </span>
                     ))}
                   </div>
                   
-                  <h1 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white mb-6 leading-tight">{template.title}</h1>
+                  <h1 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white mb-6 leading-[1.2] tracking-tight">
+                    {template.title}
+                  </h1>
 
-                  <Link href={`/creators/${template.creator?.username}`} className="flex items-center gap-3 mb-8 group">
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 relative border border-gray-100 dark:border-dark-card-border">
-                      <Image src={template.creator?.profilePicture || '/default-avatar.png'} alt="Creator" fill className="object-cover" />
+                  <div className="flex items-center gap-4 mb-10 group bg-gray-50/50 dark:bg-dark-tertiary/30 p-3 rounded-2xl border border-gray-100/50 dark:border-dark-card-border w-fit">
+                    <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-gray-200 shadow-sm">
+                      <Image 
+                        src={template.creator?.profilePicture || '/default-avatar.png'} 
+                        alt={template.creator?.name || 'Creator'} 
+                        fill 
+                        className="object-cover" 
+                      />
                     </div>
                     <div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">بواسطة المبدع</div>
-                      <div className="text-sm font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors">{template.creator?.name || 'مبدع مستقل'}</div>
+                      <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">صمم بواسطة</div>
+                      <Link 
+                        href={`/creators/${template.creator?.username}`} 
+                        className="text-sm font-black text-gray-900 dark:text-white hover:text-primary transition-colors block"
+                      >
+                        {template.creator?.name || 'مبدع مستقل'}
+                      </Link>
                     </div>
-                  </Link>
+                  </div>
                 </div>
 
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between p-6 bg-gray-50 dark:bg-dark-tertiary rounded-2xl border border-gray-100 dark:border-dark-card-border">
-                    <div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">السعر</div>
-                      <div className="text-2xl font-black text-primary">{template.price > 0 ? `${template.price} ج.م` : 'مجاني'}</div>
+                <div className="space-y-8 mt-4">
+                  <div className="flex items-center justify-between p-6 bg-gradient-to-br from-gray-50 to-white dark:from-dark-tertiary dark:to-dark-secondary rounded-3xl border border-gray-200 dark:border-dark-card-border shadow-inner">
+                    <div className="space-y-1">
+                      <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">السعر النهائي</div>
+                      <div className="text-3xl font-black text-primary flex items-baseline gap-1">
+                        {template.price > 0 ? (
+                          <>
+                            <span>{template.price}</span>
+                            <span className="text-sm font-bold opacity-80">ج.م</span>
+                          </>
+                        ) : 'مجاني'}
+                      </div>
                     </div>
-                    <div className="text-left">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">التقييم</div>
-                      <div className="flex items-center gap-2 font-bold text-gray-900 dark:text-white">
-                        <Star size={16} className="text-yellow-500 fill-yellow-500" />
-                        {ratingsSummary.averageRating?.toFixed(1) || '0.0'}
+                    <div className="text-left space-y-1">
+                      <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">متوسط التقييم</div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex text-yellow-500">
+                          {[...Array(5)].map((_, i) => (
+                             <Star 
+                               key={i} 
+                               size={16} 
+                               className={i < Math.floor(ratingsSummary.averageRating) ? 'fill-current' : 'opacity-20'} 
+                             />
+                          ))}
+                        </div>
+                        <span className="text-lg font-black text-gray-900 dark:text-white">
+                          {ratingsSummary.averageRating?.toFixed(1) || '0.0'}
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  <button
-                    onClick={template.isPaid ? handlePurchase : handleDownload}
-                    disabled={isPurchasing || isDownloading}
-                    className="w-full py-5 rounded-xl bg-primary text-white font-bold text-lg shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 active:translate-y-0 active:shadow-none transition-all flex items-center justify-center gap-3"
-                  >
-                    {isPurchasing || isDownloading ? (
-                      <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
-                    ) : (
-                      <>
-                        {userHasTemplate ? 'فتح النظام' : (template.isPaid ? 'اقتنِ النظام الآن' : 'بدء التحميل المجاني')}
-                        {template.isPaid ? <ShoppingCart size={20} /> : <Download size={20} />}
-                      </>
-                    )}
-                  </button>
-
-                  <div className="flex items-center gap-4 text-xs font-medium text-gray-500 dark:text-gray-400 justify-center">
-                    <div className="flex items-center gap-1.5"><Users size={14} /> {(template.downloads || 0).toLocaleString()} مستخدم</div>
-                    <div className="w-1 h-1 rounded-full bg-gray-300"></div>
-                    <div className="flex items-center gap-1.5"><ShieldCheck size={14} className="text-emerald-500" /> موثوق وآمن</div>
+                  <div className="space-y-4">
+                    <button
+                      onClick={template.isPaid ? handlePurchase : handleDownload}
+                      disabled={isPurchasing || isDownloading}
+                      className="group relative w-full overflow-hidden rounded-2xl bg-primary py-5 text-lg font-black text-white shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                      <div className="flex items-center justify-center gap-3 relative z-10">
+                        {isPurchasing || isDownloading ? (
+                          <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                          <>
+                            <span>{userHasTemplate ? 'فتح في نوشن' : (template.isPaid ? 'اقتنِ النظام الآن' : 'تحميل مجاني')}</span>
+                            {userHasTemplate ? <ExternalLink size={22} /> : (template.isPaid ? <ShoppingCart size={22} /> : <Download size={22} />)}
+                          </>
+                        )}
+                      </div>
+                    </button>
+                    
+                    <div className="flex items-center justify-between px-2">
+                       <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase">
+                          <Users size={14} className="text-primary-500" />
+                          <span>{(template.downloads || 0).toLocaleString()} مستخدم</span>
+                       </div>
+                       <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase">
+                          <ShieldCheck size={14} className="text-emerald-500" />
+                          <span>دفع آمن 100%</span>
+                       </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -343,52 +466,155 @@ export default function TemplateClient({ initialTemplate }) {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             <div className="lg:col-span-2 space-y-12">
               
-              {/* Description */}
-              <div className="bg-white dark:bg-dark-secondary p-8 sm:p-10 rounded-3xl border border-gray-100 dark:border-dark-card-border">
-                <h2 className="text-xl font-black text-gray-900 dark:text-white mb-6 border-r-4 border-primary pr-4">حول هذا النظام</h2>
-                <div className="text-gray-600 dark:text-gray-300 leading-relaxed font-medium whitespace-pre-line text-lg">{template.description}</div>
+              {/* Description & Features */}
+              <div className="bg-white dark:bg-dark-secondary p-10 rounded-[2.5rem] border border-gray-200 dark:border-dark-card-border shadow-sm">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+                    <Rocket size={24} />
+                  </div>
+                  <h2 className="text-2xl font-black text-gray-900 dark:text-white">حول هذا النظام</h2>
+                </div>
+                
+                <div className="prose prose-lg dark:prose-invert max-w-none mb-12">
+                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed font-medium whitespace-pre-line text-lg">
+                    {template.description}
+                  </p>
+                </div>
+
+                {template.features && Array.isArray(template.features) && template.features.length > 0 && (
+                  <div className="pt-10 border-t border-gray-100 dark:border-dark-card-border">
+                    <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-8">المميزات الرئيسية</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {template.features.map((feature, i) => (
+                        <div key={i} className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-dark-tertiary/50 rounded-2xl border border-gray-100/50 dark:border-dark-card-border hover:border-primary/30 transition-colors group">
+                           <div className="w-8 h-8 rounded-full bg-white dark:bg-dark-secondary shadow-sm flex items-center justify-center text-primary flex-shrink-0 group-hover:scale-110 transition-transform">
+                              <CheckCircle size={16} />
+                           </div>
+                           <span className="text-sm font-bold text-gray-700 dark:text-dark-text-primary">{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Reviews */}
-              <div className="bg-white dark:bg-dark-secondary p-8 sm:p-10 rounded-3xl border border-gray-100 dark:border-dark-card-border overflow-hidden">
-                <div className="flex items-center justify-between mb-10">
-                  <h2 className="text-xl font-black text-gray-900 dark:text-white border-r-4 border-primary pr-4">آراء المجتمع</h2>
-                  <div className="flex items-center gap-2 font-bold text-lg">
-                    <span className="text-primary text-2xl">{ratingsSummary.totalRatings || 0}</span>
-                    <span className="text-gray-400">مراجعة</span>
+              <div className="bg-white dark:bg-dark-secondary p-10 rounded-[2.5rem] border border-gray-200 dark:border-dark-card-border shadow-sm">
+                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-500">
+                      <Star size={24} className="fill-current" />
+                    </div>
+                    <h2 className="text-2xl font-black text-gray-900 dark:text-white">آراء المجتمع</h2>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="text-2xl font-black text-primary">{ratingsSummary.totalRatings || 0}</span>
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">مراجعة مكتوبة</span>
                   </div>
                 </div>
+
+                {/* Rating Breakdown */}
+                {ratingsSummary.totalRatings > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-12 p-8 bg-gray-50/50 dark:bg-dark-tertiary/20 rounded-3xl border border-gray-100 dark:border-dark-card-border">
+                    <div className="md:col-span-2 flex flex-col items-center justify-center border-l border-gray-100 dark:border-dark-card-border">
+                      <div className="text-6xl font-black text-gray-900 dark:text-white mb-2">
+                        {ratingsSummary.averageRating?.toFixed(1) || '0.0'}
+                      </div>
+                      <div className="flex text-yellow-500 mb-2">
+                         {[...Array(5)].map((_, i) => (
+                            <Star key={i} size={20} className={i < Math.floor(ratingsSummary.averageRating) ? 'fill-current' : 'opacity-20'} />
+                         ))}
+                      </div>
+                      <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">متوسط التقييم العام</div>
+                    </div>
+                    
+                    <div className="md:col-span-3 space-y-3">
+                      {[5, 4, 3, 2, 1].map((star) => {
+                        const count = templateRatings.filter(r => r.rating === star).length;
+                        const percentage = (count / ratingsSummary.totalRatings) * 100;
+                        return (
+                          <div key={star} className="flex items-center gap-4 group">
+                            <div className="flex items-center gap-1.5 w-12 shrink-0">
+                               <span className="text-xs font-black text-gray-600 dark:text-gray-400">{star}</span>
+                               <Star size={12} className="text-yellow-500 fill-current" />
+                            </div>
+                            <div className="flex-1 h-2 bg-gray-200 dark:bg-dark-card-border rounded-full overflow-hidden">
+                               <div 
+                                 className="h-full bg-yellow-500 rounded-full transition-all duration-1000" 
+                                 style={{ width: `${percentage}%` }}
+                               />
+                            </div>
+                            <div className="w-8 text-right">
+                               <span className="text-[10px] font-bold text-gray-400">{count}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 <ReviewsList reviews={reviewsToShow} currentUser={currentUser} onLike={handleLikeClick} simple={true} />
               </div>
 
               {/* Discussion */}
-              <div className="bg-white dark:bg-dark-secondary p-8 sm:p-10 rounded-3xl border border-gray-100 dark:border-dark-card-border">
-                <h2 className="text-xl font-black text-gray-900 dark:text-white mb-8 border-r-4 border-primary pr-4">ناقش المبدع</h2>
+              <div className="bg-white dark:bg-dark-secondary p-10 rounded-[2.5rem] border border-gray-200 dark:border-dark-card-border shadow-sm">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500">
+                    <Users size={24} />
+                  </div>
+                  <h2 className="text-2xl font-black text-gray-900 dark:text-white">أسئلة ونقاشات</h2>
+                </div>
                 <RatingCommentSystem templateId={template._id || template.id} />
               </div>
             </div>
 
             {/* Sidebar */}
-            <div className="lg:col-span-1 space-y-8">
-              <div className="bg-white dark:bg-dark-secondary p-8 rounded-3xl border border-gray-100 dark:border-dark-card-border sticky top-24">
-                <h3 className="text-lg font-black text-gray-900 dark:text-white mb-8 flex items-center gap-3"><Layers size={20} className="text-primary" /> المواصفات الفنية</h3>
-                <div className="space-y-6">
-                  {[
-                    { label: 'اللغة', value: template.language === 'ar' ? 'العربية' : 'عربي / إنجليزي', icon: Globe },
-                    { label: 'تاريخ النشر', value: formatDate(template.createdAt), icon: Calendar },
-                    { label: 'نوع المسار', value: template.categories?.[0] || 'عام', icon: Rocket },
-                  ].map((item, i) => (
-                    <div key={i} className="flex flex-col gap-1.5">
-                      <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{item.label}</div>
-                      <div className="text-sm font-bold text-gray-900 dark:text-white">{item.value}</div>
+            <div className="lg:col-span-1">
+              <div className="sticky top-24 space-y-8">
+                <div className="bg-white dark:bg-dark-secondary p-10 rounded-[2.5rem] border border-gray-200 dark:border-dark-card-border shadow-sm overflow-hidden relative">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+                  
+                  <h3 className="text-lg font-black text-gray-900 dark:text-white mb-10 flex items-center gap-3 relative z-10">
+                    <Layers size={22} className="text-primary" /> 
+                    المواصفات الفنية
+                  </h3>
+                  
+                  <div className="space-y-8 relative z-10">
+                    {[
+                      { label: 'اللغة المعتمدة', value: template.language === 'ar' ? 'اللغة العربية' : 'ثنائي (عربي / إنجليزي)', icon: Globe },
+                      { label: 'تاريخ التحديث', value: formatDate(template.updatedAt || template.createdAt), icon: Clock },
+                      { label: 'فئة النظام', value: template.categories?.[0] || 'عام', icon: Rocket },
+                    ].map((item, i) => (
+                      <div key={i} className="flex gap-4 group">
+                        <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-dark-tertiary flex items-center justify-center text-gray-400 group-hover:text-primary group-hover:bg-primary/10 transition-all">
+                           <item.icon size={18} />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <div className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">{item.label}</div>
+                          <div className="text-sm font-black text-gray-900 dark:text-white">{item.value}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="mt-12 p-6 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-2xl border border-emerald-100/50 dark:border-emerald-800/30">
+                    <div className="flex items-center gap-3 text-emerald-600 dark:text-emerald-400 mb-2">
+                       <CheckCircle size={18} />
+                       <span className="text-xs font-black uppercase tracking-widest">جودة مضمونة</span>
                     </div>
-                  ))}
+                    <p className="text-[11px] text-emerald-700/70 dark:text-emerald-400/70 leading-relaxed font-bold italic">
+                      "تم فحص هذا القالب تقنياً لضمان خلوه من الأخطاء وتوافقه التام مع نوشن."
+                    </p>
+                  </div>
                 </div>
-                
-                <div className="mt-10 pt-8 border-t border-gray-100 dark:border-dark-card-border">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed italic">
-                    "تمت مراجعة هذا القالب من قبل خبراء عرب نوشن لضمان جودة التصميم والوظائف."
-                  </p>
+
+                {/* Social Share (Placeholder) */}
+                <div className="p-4 text-center">
+                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-4">شارك مع المجتمع</p>
+                   <div className="flex items-center justify-center gap-4">
+                      {/* We could add social buttons here */}
+                   </div>
                 </div>
               </div>
             </div>
@@ -400,9 +626,20 @@ export default function TemplateClient({ initialTemplate }) {
 
       {/* Lightbox */}
       {isLightboxOpen && (
-        <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-6" onClick={() => setIsLightboxOpen(false)}>
-           <div className="max-w-6xl w-full aspect-video relative rounded-2xl overflow-hidden shadow-2xl">
-              <Image src={selectedImage === -2 ? template.previewImage : (template.previewImages?.[selectedImage] || template.previewImage)} alt="Preview" fill className="object-contain" />
+        <div 
+          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 sm:p-12 animate-fadeIn" 
+          onClick={() => setIsLightboxOpen(false)}
+        >
+           <button className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors">
+              <Zap size={32} />
+           </button>
+           <div className="relative w-full h-full" onClick={(e) => e.stopPropagation()}>
+              <Image 
+                src={selectedImage === -2 ? template.previewImage : (template.previewImages?.[selectedImage] || template.previewImage)} 
+                alt="Fullscreen Preview" 
+                fill 
+                className="object-contain" 
+              />
            </div>
         </div>
       )}

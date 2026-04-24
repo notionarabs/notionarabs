@@ -64,711 +64,513 @@ const sendEmail = async ({ to, subject, html, text }) => {
 };
 
 /**
- * Send an email notification when a template is approved
- * @param {Object} user - The user object (creator)
- * @param {Object} template - The template object
+ * Master HTML Template for all emails
+ * Ensures consistent branding and premium design
  */
-const sendTemplateApprovedEmail = async (user, template) => {
-  if (!user || !user.email) {
-    console.warn('⚠️ Cannot send template approved email: User or email not found', user);
-    return;
-  }
-
-  const subject = `مبروك! تم قبول قالبك: ${template.title}`;
-  const templateLink = `https://www.notionarabs.com/templates/${template.slug || template._id}`;
-
-  const html = `
-    <!DOCTYPE html>
-    <html lang="ar" dir="rtl">
-    <head>
-      <meta charset="UTF-8">
-      <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        .header { text-align: center; margin-bottom: 30px; }
-        .content { text-align: right; color: #333; line-height: 1.6; }
-        .button { display: inline-block; background-color: #f5631e; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; margin-top: 20px; }
-        .footer { margin-top: 30px; text-align: center; color: #888; font-size: 12px; }
-      </style>
-    </head>
-    <body>
-      <div style="padding: 40px;">
-        <div class="container">
-          <div class="header">
-            <h1 style="color: #f5631e;">تم قبول قالبك!</h1>
-          </div>
-          <div class="content">
-            <h2>مرحباً ${user.name || 'مبدعنا'}،</h2>
-            <p>يسعدنا إخبارك بأنه تمت مراجعة وقبول قالبك <strong>"${template.title}"</strong> بنجاح.</p>
-            <p>قالبك الآن منشور ومتاح للجميع على منصة عرب نوشن.</p>
-            <div style="text-align: center;">
-              <a href="${templateLink}" class="button" style="color: #ffffff;">مشاهدة القالب</a>
-            </div>
-            <p>شكراً لمساهمتك معنا، ونتطلع لرؤية المزيد من إبداعاتك!</p>
-          </div>
-          <div class="footer">
-            <p>عرب نوشن - منصة القوالب العربية</p>
+const getMasterTemplate = (content, title = 'عرب نوشن') => `
+  <!DOCTYPE html>
+  <html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+      body { 
+        font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+        background-color: #f0f2f5; 
+        margin: 0; 
+        padding: 0; 
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrapper { padding: 40px 20px; }
+      .container { 
+        max-width: 600px; 
+        margin: 0 auto; 
+        background-color: #ffffff; 
+        border-radius: 24px; 
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        border: 1px solid #eef0f2;
+      }
+      .header { 
+        background: linear-gradient(135deg, #f5631e 0%, #ff8c52 100%); 
+        padding: 40px 30px; 
+        text-align: center; 
+        color: #ffffff;
+      }
+      .header h1 { margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
+      .body { padding: 40px 30px; text-align: right; color: #1a1d21; line-height: 1.8; }
+      .footer { 
+        background-color: #f8f9fa; 
+        padding: 30px; 
+        text-align: center; 
+        color: #8b949e; 
+        font-size: 13px;
+        border-top: 1px solid #eef0f2;
+      }
+      .button { 
+        display: inline-block; 
+        background-color: #f5631e; 
+        color: #ffffff !important; 
+        text-decoration: none; 
+        padding: 16px 32px; 
+        border-radius: 14px; 
+        font-weight: 700; 
+        margin: 25px 0;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(245, 99, 30, 0.2);
+      }
+      .secondary-button {
+        display: inline-block;
+        background-color: #ffffff;
+        color: #f5631e !important;
+        text-decoration: none;
+        padding: 14px 28px;
+        border-radius: 14px;
+        font-weight: 700;
+        margin: 25px 10px;
+        border: 2px solid #f5631e;
+      }
+      .secondary-text { color: #6e7681; font-size: 14px; }
+      .divider { height: 1px; background-color: #eef0f2; margin: 30px 0; }
+      .social-links { margin-top: 20px; }
+      .social-links a { color: #f5631e; text-decoration: none; margin: 0 10px; font-weight: 600; }
+      .feature-box { background-color: #f8f9fa; padding: 25px; border-radius: 18px; margin: 25px 0; border: 1px solid #eef0f2; }
+      .feature-box strong { display: block; margin-bottom: 10px; color: #1a1d21; }
+      .price-tag { color: #f5631e; font-weight: 900; font-size: 20px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="container">
+        <div class="header">
+          <h1>${title}</h1>
+        </div>
+        <div class="body">
+          ${content}
+        </div>
+        <div class="footer">
+          <p>© ${new Date().getFullYear()} عرب نوشن (Notion Arabs). جميع الحقوق محفوظة.</p>
+          <p>أكبر مجتمع ومحيط لمستخدمي نوشن في الوطن العربي.</p>
+          <div class="social-links">
+            <a href="https://twitter.com/notionarabs">تويتر</a>
+            <a href="https://instagram.com/notionarabs">انستجرام</a>
+            <a href="https://www.notionarabs.com">الموقع الإلكتروني</a>
           </div>
         </div>
       </div>
-    </body>
-    </html>
-  `;
+    </div>
+  </body>
+  </html>
+`;
+
+/**
+ * Send an email notification when a template is approved
+ */
+const sendTemplateApprovedEmail = async (user, template) => {
+  if (!user || !user.email) return;
+
+  const subject = `🚀 مبروك! تم قبول قالبك: ${template.title}`;
+  const templateLink = `https://www.notionarabs.com/templates/${template.slug || template._id}`;
+
+  const html = getMasterTemplate(`
+    <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">مرحباً ${user.name || 'مبدعنا'}،</h2>
+    <p style="font-size: 16px;">يسعدنا إخبارك بأنه تمت مراجعة وقبول قالبك <strong>"${template.title}"</strong> بنجاح.</p>
+    <p style="font-size: 16px;">قالبك الآن منشور ومتاح للجميع على منصة عرب نوشن. نحن متحمسون لرؤية التفاعل معه!</p>
+    
+    <div style="text-align: center;">
+      <a href="${templateLink}" class="button">مشاهدة القالب المباشر</a>
+    </div>
+    
+    <div class="divider"></div>
+    <p class="secondary-text">نصيحة: شارك رابط القالب على حساباتك في التواصل الاجتماعي لزيادة عدد التحميلات والمبيعات.</p>
+  `, 'تم قبول قالبك!');
 
   const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nيسعدنا إخبارك بأنه تمت مراجعة وقبول قالبك "${template.title}" بنجاح.\n\nيمكنك مشاهدة القالب هنا: ${templateLink}\n\nشكراً لمساهمتك معنا!\n\nعرب نوشن`;
 
-  await sendEmail({
-    to: user.email,
-    subject,
-    html,
-    text
-  });
-};
-
-/**
- * Send an email notification when a creator application is approved
- * @param {Object} user - The user object (creator)
- */
-const sendCreatorApprovedEmail = async (user) => {
-  if (!user || !user.email) {
-    console.warn('⚠️ Cannot send creator approved email: User or email not found', user);
-    return;
-  }
-
-  const subject = `مبروك! تم قبول انضمامك كمبدع`;
-  const dashboardLink = `https://www.notionarabs.com/dashboard/creator`;
-
-  const html = `
-    <!DOCTYPE html>
-    <html lang="ar" dir="rtl">
-    <head>
-      <meta charset="UTF-8">
-      <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        .header { text-align: center; margin-bottom: 30px; }
-        .content { text-align: right; color: #333; line-height: 1.6; }
-        .button { display: inline-block; background-color: #f5631e; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; margin-top: 20px; }
-        .footer { margin-top: 30px; text-align: center; color: #888; font-size: 12px; }
-      </style>
-    </head>
-    <body>
-      <div style="padding: 40px;">
-        <div class="container">
-          <div class="header">
-            <h1 style="color: #f5631e;">أهلاً بك في فريق المبدعين!</h1>
-          </div>
-          <div class="content">
-            <h2>مرحباً ${user.name || 'مبدعنا'}،</h2>
-            <p>يسعدنا إخبارك بأنه تم قبول طلب انضمامك كمبدع في منصة عرب نوشن.</p>
-            <p>يمكنك الآن الدخول إلى لوحة التحكم الخاصة بالمبدعين والبدء في نشر قوالبك.</p>
-            <div style="text-align: center;">
-              <a href="${dashboardLink}" class="button" style="color: #ffffff;">الذهاب للوحة التحكم</a>
-            </div>
-            <p>نحن متحمسون لرؤية إبداعاتك!</p>
-          </div>
-          <div class="footer">
-            <p>عرب نوشن - منصة القوالب العربية</p>
-          </div>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
-
-  const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nيسعدنا إخبارك بأنه تم قبول طلب انضمامك كمبدع في منصة عرب نوشن.\n\nيمكنك الدخول إلى لوحة التحكم من هنا: ${dashboardLink}\n\nنحن متحمسون لرؤية إبداعاتك!\n\nعرب نوشن`;
-
-  await sendEmail({
-    to: user.email,
-    subject,
-    html,
-    text
-  });
-};
-
-/**
- * Send an email notification when a blog post is approved/published
- * @param {Object} user - The user object (author)
- * @param {Object} blog - The blog object
- */
-const sendBlogApprovedEmail = async (user, blog) => {
-  if (!user || !user.email) {
-    console.warn('⚠️ Cannot send blog approved email: User or email not found', user);
-    return;
-  }
-
-  const subject = `تم نشر مقالك: ${blog.title}`;
-  const blogLink = `https://www.notionarabs.com/blog/${blog.slug || blog._id}`;
-
-  const html = `
-    <!DOCTYPE html>
-    <html lang="ar" dir="rtl">
-    <head>
-      <meta charset="UTF-8">
-      <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        .header { text-align: center; margin-bottom: 30px; }
-        .content { text-align: right; color: #333; line-height: 1.6; }
-        .button { display: inline-block; background-color: #f5631e; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; margin-top: 20px; }
-        .footer { margin-top: 30px; text-align: center; color: #888; font-size: 12px; }
-      </style>
-    </head>
-    <body>
-      <div style="padding: 40px;">
-        <div class="container">
-          <div class="header">
-            <h1 style="color: #f5631e;">تم نشر مقالك!</h1>
-          </div>
-          <div class="content">
-            <h2>مرحباً ${user.name || 'مبدعنا'}،</h2>
-            <p>يسعدنا إخبارك بأنه تمت مراجعة ونشر مقالك <strong>"${blog.title}"</strong> بنجاح.</p>
-            <p>مقالك الآن متاح للقراءة للجميع على مدونة عرب نوشن.</p>
-            <div style="text-align: center;">
-              <a href="${blogLink}" class="button" style="color: #ffffff;">قراءة المقال</a>
-            </div>
-            <p>شكراً لمشاركتنا معرفتك!</p>
-          </div>
-          <div class="footer">
-            <p>عرب نوشن - منصة القوالب العربية</p>
-          </div>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
-
-  const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nيسعدنا إخبارك بأنه تمت مراجعة ونشر مقالك "${blog.title}" بنجاح.\n\nيمكنك قراءة المقال هنا: ${blogLink}\n\nشكراً لمشاركتنا معرفتك!\n\nعرب نوشن`;
-
-  await sendEmail({
-    to: user.email,
-    subject,
-    html,
-    text
-  });
-};
-
-/**
- * Send a password reset email
- * @param {Object} user - The user object
- * @param {string} resetUrl - The password reset URL
- */
-const sendResetPasswordEmail = async (user, resetUrl) => {
-  if (!user || !user.email) {
-    console.warn('⚠️ Cannot send reset password email: User or email not found', user);
-    return;
-  }
-
-  const subject = `إعادة تعيين كلمة المرور`;
-
-  const html = `
-    <!DOCTYPE html>
-    <html lang="ar" dir="rtl">
-    <head>
-      <meta charset="UTF-8">
-      <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        .header { text-align: center; margin-bottom: 30px; }
-        .content { text-align: right; color: #333; line-height: 1.6; }
-        .button { display: inline-block; background-color: #f5631e; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; margin-top: 20px; }
-        .footer { margin-top: 30px; text-align: center; color: #888; font-size: 12px; }
-        .warning { background-color: #fff8e1; border-right: 4px solid #ffc107; padding: 15px; border-radius: 4px; margin: 20px 0; font-size: 14px; }
-      </style>
-    </head>
-    <body>
-      <div style="padding: 40px;">
-        <div class="container">
-          <div class="header">
-            <h1 style="color: #f5631e;">إعادة تعيين كلمة المرور</h1>
-          </div>
-          <div class="content">
-            <h2>مرحباً ${user.name}،</h2>
-            <p>تلقينا طلباً لإعادة تعيين كلمة المرور لحسابك في عرب نوشن.</p>
-            <div style="text-align: center;">
-              <a href="${resetUrl}" class="button" style="color: #ffffff;">إعادة تعيين كلمة المرور</a>
-            </div>
-            <p style="margin-top: 20px;">أو انسخ هذا الرابط:</p>
-            <p style="font-family: monospace; background: #f1f1f1; padding: 10px; border-radius: 4px; word-break: break-all;">${resetUrl}</p>
-            
-            <div class="warning">
-              ملاحظة مهمة: هذا الرابط صالح لمدة ساعة واحدة فقط.
-            </div>
-            
-            <p style="color: #999; font-size: 14px;">إذا لم تطلب إعادة تعيين كلمة المرور، يمكنك تجاهل هذا البريد بأمان.</p>
-          </div>
-          <div class="footer">
-            <p>عرب نوشن - منصة القوالب العربية</p>
-          </div>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
-
-  const text = `مرحباً ${user.name}،\n\nتلقينا طلباً لإعادة تعيين كلمة المرور لحسابك في عرب نوشن.\n\nلإعادة تعيين كلمة المرور، زر الرابط التالي:\n${resetUrl}\n\nهذا الرابط صالح لمدة ساعة واحدة فقط.\n\nإذا لم تطلب هذا، تجاهل هذا البريد.\n\nعرب نوشن`;
-
-  await sendEmail({
-    to: user.email,
-    subject,
-    html,
-    text
-  });
-};
-
-/**
- * Send an email verification email
- * @param {Object} user - The user object (contains name and email)
- * @param {string} verificationUrl - The verification URL
- */
-const sendVerificationEmail = async (user, verificationUrl) => {
-  if (!user || !user.email) {
-    console.warn('⚠️ Cannot send verification email: User or email not found', user);
-    return;
-  }
-
-  const subject = `تأكيد البريد الإلكتروني`;
-
-  const html = `
-    <!DOCTYPE html>
-    <html lang="ar" dir="rtl">
-    <head>
-      <meta charset="UTF-8">
-      <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        .header { text-align: center; margin-bottom: 30px; }
-        .content { text-align: right; color: #333; line-height: 1.6; }
-        .button { display: inline-block; background-color: #f5631e; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; margin-top: 20px; }
-        .footer { margin-top: 30px; text-align: center; color: #888; font-size: 12px; }
-      </style>
-    </head>
-    <body>
-      <div style="padding: 40px;">
-        <div class="container">
-          <div class="header">
-            <h1 style="color: #f5631e;">تأكيد بريدك الإلكتروني</h1>
-          </div>
-          <div class="content">
-            <h2>مرحباً ${user.name}،</h2>
-            <p>شكراً لتسجيلك في عرب نوشن! يرجى تأكيد بريدك الإلكتروني لتفعيل حسابك.</p>
-            <div style="text-align: center;">
-              <a href="${verificationUrl}" class="button" style="color: #ffffff;">تأكيد البريد الإلكتروني</a>
-            </div>
-            <p style="margin-top: 20px;">أو انسخ هذا الرابط:</p>
-            <p style="font-family: monospace; background: #f1f1f1; padding: 10px; border-radius: 4px; word-break: break-all;">${verificationUrl}</p>
-            
-            <p style="color: #999; font-size: 14px;">هذا الرابط صالح لمدة 24 ساعة.</p>
-          </div>
-          <div class="footer">
-            <p>عرب نوشن - منصة القوالب العربية</p>
-          </div>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
-
-  const text = `مرحباً ${user.name}،\n\nشكراً لتسجيلك في عرب نوشن! يرجى تأكيد بريدك الإلكتروني لتفعيل حسابك عبر الرابط التالي:\n${verificationUrl}\n\nهذا الرابط صالح لمدة 24 ساعة.\n\nعرب نوشن`;
-
-  await sendEmail({
-    to: user.email,
-    subject,
-    html,
-    text
-  });
-};
-
-/**
- * Send an order confirmation email
- * @param {Object} user - The user object
- * @param {Object} order - The order object
- */
-const sendOrderConfirmationEmail = async (user, order) => {
-  if (!user || !user.email) {
-    console.warn('⚠️ Cannot send order confirmation email: User or email not found', user);
-    return;
-  }
-
-  const subject = `تأكيد طلبك #${order._id.toString().slice(-6).toUpperCase()}`;
-  const orderLink = `https://www.notionarabs.com/dashboard/orders/${order._id}`;
-  let itemsList = '';
-
-  if (order.items && order.items.length > 0) {
-    itemsList = order.items.map(item => `
-            <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
-                ${item.template ? item.template.title : 'قالب'} 
-                <span style="float: left;">${item.price} ج.م</span>
-            </li>
-        `).join('');
-  }
-
-  const html = `
-    <!DOCTYPE html>
-    <html lang="ar" dir="rtl">
-    <head>
-      <meta charset="UTF-8">
-      <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        .header { text-align: center; margin-bottom: 30px; }
-        .content { text-align: right; color: #333; line-height: 1.6; }
-        .button { display: inline-block; background-color: #f5631e; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; margin-top: 20px; }
-        .footer { margin-top: 30px; text-align: center; color: #888; font-size: 12px; }
-        .order-details { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: right; }
-        .total { font-weight: bold; font-size: 18px; margin-top: 15px; color: #f5631e; border-top: 2px solid #ddd; padding-top: 10px; }
-      </style>
-    </head>
-    <body>
-      <div style="padding: 40px;">
-        <div class="container">
-          <div class="header">
-            <h1 style="color: #f5631e;">شكراً لطلبك!</h1>
-          </div>
-          <div class="content">
-            <h2>مرحباً ${user.name}،</h2>
-            <p>تم استلام طلبك بنجاح. شكراً لثقتك بنا!</p>
-            
-            <div class="order-details">
-              <h3 style="margin-top: 0;">رقم الطلب: #${order._id.toString().slice(-6).toUpperCase()}</h3>
-              <ul style="list-style: none; padding: 0; margin: 0;">
-                ${itemsList}
-              </ul>
-              <div class="total">
-                المجموع: ${order.total} ج.م
-              </div>
-            </div>
-
-            <p>يمكنك الوصول إلى القوالب التي اشتريتها من خلال لوحة التحكم.</p>
-
-            <div style="text-align: center;">
-              <a href="${orderLink}" class="button" style="color: #ffffff;">عرض مشترياتي</a>
-            </div>
-          </div>
-          <div class="footer">
-            <p>عرب نوشن - منصة القوالب العربية</p>
-          </div>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
-
-  const text = `مرحباً ${user.name}،\n\nشكراً لطلبك! تم استلام طلبك رقم #${order._id.toString().slice(-6).toUpperCase()} بنجاح.\n\nالمجموع الكلي: ${order.total} ج.م\n\nيمكنك عرض مشترياتك هنا: ${orderLink}\n\nعرب نوشن`;
-
-  await sendEmail({
-    to: user.email,
-    subject,
-    html,
-    text
-  });
+  await sendEmail({ to: user.email, subject, html, text });
 };
 
 /**
  * Send an email notification when a template is rejected
- * @param {Object} user - The user object (creator)
- * @param {Object} template - The template object
- * @param {string} reason - The rejection reason
- * @param {boolean} isUpdate - Whether this is an update rejection
  */
 const sendTemplateRejectedEmail = async (user, template, reason, isUpdate = false) => {
-  if (!user || !user.email) {
-    console.warn('⚠️ Cannot send template rejected email: User or email not found', user);
-    return;
-  }
+  if (!user || !user.email) return;
 
-  const subject = isUpdate ? `تحديث بخصوص تحديث قالبك: ${template.title}` : `تحديث بخصوص قالبك: ${template.title}`;
+  const subject = `تحديث بخصوص قالبك: ${template.title}`;
   const dashboardLink = `https://www.notionarabs.com/dashboard/creator`;
 
-  const html = `
-    <!DOCTYPE html>
-    <html lang="ar" dir="rtl">
-    <head>
-      <meta charset="UTF-8">
-      <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        .header { text-align: center; margin-bottom: 30px; }
-        .content { text-align: right; color: #333; line-height: 1.6; }
-        .button { display: inline-block; background-color: #132859; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; margin-top: 20px; }
-        .footer { margin-top: 30px; text-align: center; color: #888; font-size: 12px; }
-        .reason { background-color: #fff8e1; border-right: 4px solid #ffc107; padding: 15px; border-radius: 4px; margin: 20px 0; }
-      </style>
-    </head>
-    <body>
-      <div style="padding: 40px;">
-        <div class="container">
-          <div class="header">
-            <h1 style="color: #5f6368;">تحديث بخصوص قالبك</h1>
-          </div>
-          <div class="content">
-            <h2>مرحباً ${user.name || 'مبدعنا'}،</h2>
-            <p>شكراً لإرسال ${isUpdate ? 'تحديثات' : ''} قالبك <strong>"${template.title}"</strong> للمراجعة.</p>
-            <p>نأسف لإخبارك بأنه لم يتم قبول ${isUpdate ? 'تحديثات القالب' : 'القالب'} في الوقت الحالي.</p>
-            
-            ${isUpdate ? '<p><strong>ملاحظة:</strong> يظل قالبك بنسخته السابقة متاحاً على المنصة.</p>' : ''}
+  const html = getMasterTemplate(`
+    <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">مرحباً ${user.name || 'مبدعنا'}،</h2>
+    <p style="font-size: 16px;">شكراً لإرسال ${isUpdate ? 'تحديثات' : ''} قالبك <strong>"${template.title}"</strong> للمراجعة.</p>
+    <p style="font-size: 16px;">نأسف لإخبارك بأنه لم يتم قبول ${isUpdate ? 'تحديثات القالب' : 'القالب'} في الوقت الحالي للملاحظات التالية:</p>
+    
+    ${reason ? `
+    <div style="background-color: #fff8e1; border-right: 4px solid #ffc107; padding: 20px; border-radius: 12px; margin: 25px 0;">
+      <strong style="color: #856404;">${isUpdate ? 'سبب رفض التحديث:' : 'سبب الرفض:'}</strong><br>
+      <div style="margin-top: 10px; color: #856404;">${reason}</div>
+    </div>
+    ` : ''}
 
-            ${reason ? `
-            <div class="reason">
-              <strong>${isUpdate ? 'سبب رفض التحديث:' : 'سبب الرفض:'}</strong><br>
-              ${reason}
-            </div>
-            ` : ''}
+    <p style="font-size: 16px;">يمكنك تعديل القالب بناءً على هذه الملاحظات وإعادة إرساله مرة أخرى للمراجعة. نحن هنا لمساعدتك!</p>
+    
+    <div style="text-align: center;">
+      <a href="${dashboardLink}" class="button">الذهاب للوحة التحكم</a>
+    </div>
+  `, 'تحديث بخصوص قالبك');
 
-            <p>يمكنك تعديل القالب بناءً على الملاحظات وإعادة إرساله مرة أخرى، أو التواصل معنا لمزيد من التوضيح.</p>
-            
-            <div style="text-align: center;">
-              <a href="${dashboardLink}" class="button" style="color: #ffffff;">الذهاب للوحة التحكم</a>
-            </div>
-          </div>
-          <div class="footer">
-            <p>عرب نوشن - منصة القوالب العربية</p>
-          </div>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
+  const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nشكراً لإرسال قالبك "${template.title}" للمراجعة.\n\nنأسف لإخبارك بأنه لم يتم قبول القالب في الوقت الحالي.\n\n${reason ? `السبب: ${reason}\n\n` : ''}يمكنك التعديل وإعادة الإرسال من لوحة التحكم.\n\nعرب نوشن`;
 
-  const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nنأسف لإخبارك بأنه لم يتم قبول ${isUpdate ? 'تحديثات' : ''} قالبك "${template.title}".\n\n${isUpdate ? 'يظل القالب بنسخته السابقة متاحاً على المنصة.\n\n' : ''}${reason ? `سبب الرفض: ${reason}\n\n` : ''}يمكنك تعديل القالب وإعادة إرساله من خلال لوحة التحكم: ${dashboardLink}\n\nعرب نوشن`;
+  await sendEmail({ to: user.email, subject, html, text });
+};
 
-  await sendEmail({
-    to: user.email,
-    subject,
-    html,
-    text
-  });
+/**
+ * Send an email notification when a creator application is approved
+ */
+const sendCreatorApprovedEmail = async (user) => {
+  if (!user || !user.email) return;
+
+  const subject = `مبروك! تم قبول انضمامك كمبدع`;
+  const dashboardLink = `https://www.notionarabs.com/dashboard/creator`;
+
+  const html = getMasterTemplate(`
+    <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">مرحباً ${user.name || 'مبدعنا'}،</h2>
+    <p style="font-size: 16px;">يسعدنا إخبارك بأنه تم قبول طلب انضمامك كمبدع في منصة عرب نوشن.</p>
+    <p style="font-size: 16px;">يمكنك الآن الدخول إلى لوحة التحكم الخاصة بالمبدعين والبدء في نشر قوالبك ومشاركة إبداعاتك مع المجتمع.</p>
+    
+    <div style="text-align: center;">
+      <a href="${dashboardLink}" class="button">الذهاب للوحة المبدعين</a>
+    </div>
+    
+    <div class="divider"></div>
+    <p class="secondary-text">نحن متحمسون جداً لرؤية ما ستقدمه لمجتمعنا العربي!</p>
+  `, 'أهلاً بك في فريق المبدعين!');
+
+  const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nيسعدنا إخبارك بأنه تم قبول طلب انضمامك كمبدع في منصة عرب نوشن.\n\nيمكنك الدخول إلى لوحة التحكم من هنا: ${dashboardLink}\n\nنحن متحمسون لرؤية إبداعاتك!\n\nعرب نوشن`;
+
+  await sendEmail({ to: user.email, subject, html, text });
 };
 
 /**
  * Send an email notification when a creator application is rejected
- * @param {Object} user - The user object
- * @param {string} reason - The rejection reason
  */
 const sendCreatorRejectedEmail = async (user, reason) => {
-  if (!user || !user.email) {
-    console.warn('⚠️ Cannot send creator rejected email: User or email not found', user);
-    return;
-  }
+  if (!user || !user.email) return;
 
   const subject = `تحديث بخصوص طلب انضمامك كمبدع`;
   const contactLink = `https://www.notionarabs.com/contact`;
 
-  const html = `
-    <!DOCTYPE html>
-    <html lang="ar" dir="rtl">
-    <head>
-      <meta charset="UTF-8">
-      <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        .header { text-align: center; margin-bottom: 30px; }
-        .content { text-align: right; color: #333; line-height: 1.6; }
-        .button { display: inline-block; background-color: #132859; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; margin-top: 20px; }
-        .footer { margin-top: 30px; text-align: center; color: #888; font-size: 12px; }
-        .reason { background-color: #fff8e1; border-right: 4px solid #ffc107; padding: 15px; border-radius: 4px; margin: 20px 0; }
-      </style>
-    </head>
-    <body>
-      <div style="padding: 40px;">
-        <div class="container">
-          <div class="header">
-            <h1 style="color: #5f6368;">تحديث طلب الانضمام</h1>
-          </div>
-          <div class="content">
-            <h2>مرحباً ${user.name || 'صديقنا'}،</h2>
-            <p>شكراً لاهتمامك بالانضمام إلى فريق مبدعي عرب نوشن.</p>
-            <p>بعد مراجعة طلبك، نأسف لإخبارك بأنه لم يتم قبوله في الوقت الحالي.</p>
-            
-            ${reason ? `
-            <div class="reason">
-              <strong>السبب:</strong><br>
-              ${reason}
-            </div>
-            ` : ''}
+  const html = getMasterTemplate(`
+    <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">مرحباً ${user.name || 'صديقنا'}،</h2>
+    <p style="font-size: 16px;">شكراً لاهتمامك بالانضمام إلى فريق مبدعي عرب نوشن.</p>
+    <p style="font-size: 16px;">بعد مراجعة طلبك ونماذج أعمالك، نأسف لإخبارك بأنه لم يتم قبول الطلب في الوقت الحالي للملاحظات التالية:</p>
+    
+    ${reason ? `
+    <div style="background-color: #fff8e1; border-right: 4px solid #ffc107; padding: 20px; border-radius: 12px; margin: 25px 0; color: #856404;">
+      <strong>السبب:</strong><br>
+      <div style="margin-top: 10px;">${reason}</div>
+    </div>
+    ` : ''}
 
-            <p>يمكنك العمل على تحسين ملفك الشخصي أو نماذج أعمالك وإعادة المحاولة في المستقبل.</p>
-            
-            <div style="text-align: center;">
-              <a href="${contactLink}" class="button" style="color: #ffffff;">تواصل معنا</a>
-            </div>
-          </div>
-          <div class="footer">
-            <p>عرب نوشن - منصة القوالب العربية</p>
-          </div>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
+    <p style="font-size: 16px;">لا تقلق! يمكنك دائماً العمل على تحسين ملفك الشخصي وإعادة المحاولة في المستقبل. نحن نقدر شغفك.</p>
+    
+    <div style="text-align: center;">
+      <a href="${contactLink}" class="button">تواصل مع الدعم</a>
+    </div>
+  `, 'تحديث بخصوص طلبك');
 
   const text = `مرحباً ${user.name || 'صديقنا'}،\n\nنأسف لإخبارك بأنه لم يتم قبول طلب انضمامك كمبدع في الوقت الحالي.\n\n${reason ? `السبب: ${reason}\n\n` : ''}يمكنك المحاولة مرة أخرى في المستقبل.\n\nعرب نوشن`;
 
-  await sendEmail({
-    to: user.email,
-    subject,
-    html,
-    text
-  });
+  await sendEmail({ to: user.email, subject, html, text });
+};
+
+/**
+ * Send an email notification when a blog post is approved/published
+ */
+const sendBlogApprovedEmail = async (user, blog) => {
+  if (!user || !user.email) return;
+
+  const subject = `تم نشر مقالك: ${blog.title}`;
+  const blogLink = `https://www.notionarabs.com/blog/${blog.slug || blog._id}`;
+
+  const html = getMasterTemplate(`
+    <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">مرحباً ${user.name || 'مبدعنا'}،</h2>
+    <p style="font-size: 16px;">يسعدنا إخبارك بأنه تمت مراجعة ونشر مقالك <strong>"${blog.title}"</strong> بنجاح.</p>
+    <p style="font-size: 16px;">مقالك متاح الآن للقراء على مدونة عرب نوشن. شكراً لمشاركتك معرفتك القيمة معنا.</p>
+    
+    <div style="text-align: center;">
+      <a href="${blogLink}" class="button">قراءة المقال الآن</a>
+    </div>
+  `, 'تم نشر مقالك!');
+
+  const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nيسعدنا إخبارك بأنه تمت مراجعة ونشر مقالك "${blog.title}" بنجاح.\n\nيمكنك قراءة المقال هنا: ${blogLink}\n\nشكراً لمشاركتنا معرفتك!\n\nعرب نوشن`;
+
+  await sendEmail({ to: user.email, subject, html, text });
 };
 
 /**
  * Send an email notification when a blog post is rejected
- * @param {Object} user - The user object (author)
- * @param {Object} blog - The blog object
- * @param {string} reason - The rejection reason
  */
 const sendBlogRejectedEmail = async (user, blog, reason) => {
-  if (!user || !user.email) {
-    console.warn('⚠️ Cannot send blog rejected email: User or email not found', user);
-    return;
-  }
+  if (!user || !user.email) return;
 
   const subject = `تحديث بخصوص مقالك: ${blog.title}`;
   const dashboardLink = `https://www.notionarabs.com/dashboard/creator`;
 
-  const html = `
-    <!DOCTYPE html>
-    <html lang="ar" dir="rtl">
-    <head>
-      <meta charset="UTF-8">
-      <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        .header { text-align: center; margin-bottom: 30px; }
-        .content { text-align: right; color: #333; line-height: 1.6; }
-        .button { display: inline-block; background-color: #132859; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; margin-top: 20px; }
-        .footer { margin-top: 30px; text-align: center; color: #888; font-size: 12px; }
-        .reason { background-color: #fff8e1; border-right: 4px solid #ffc107; padding: 15px; border-radius: 4px; margin: 20px 0; }
-      </style>
-    </head>
-    <body>
-      <div style="padding: 40px;">
-        <div class="container">
-          <div class="header">
-            <h1 style="color: #5f6368;">تحديث بخصوص مقالك</h1>
-          </div>
-          <div class="content">
-            <h2>مرحباً ${user.name || 'مبدعنا'}،</h2>
-            <p>شكراً لمشاركة مقالك <strong>"${blog.title}"</strong>.</p>
-            <p>بعد المراجعة، نأسف لإخبارك بأنه لم يتم قبول نشره في الوقت الحالي.</p>
-            
-            ${reason ? `
-            <div class="reason">
-              <strong>السبب:</strong><br>
-              ${reason}
-            </div>
-            ` : ''}
+  const html = getMasterTemplate(`
+    <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">مرحباً ${user.name || 'مبدعنا'}،</h2>
+    <p style="font-size: 16px;">شكراً لمشاركة مقالك القوي <strong>"${blog.title}"</strong> معنا.</p>
+    <p style="font-size: 16px;">بعد المراجعة، نعتذر عن عدم تمكننا من نشر المقال في الوقت الحالي للأسباب التالية:</p>
+    
+    ${reason ? `
+    <div style="background-color: #fff8e1; border-right: 4px solid #ffc107; padding: 20px; border-radius: 12px; margin: 25px 0; color: #856404;">
+      <strong>سبب الرفض:</strong><br>
+      <div style="margin-top: 10px;">${reason}</div>
+    </div>
+    ` : ''}
 
-            <p>يمكنك تعديل المقال وإعادة إرساله، أو التواصل معنا للاستفسار.</p>
-            
-            <div style="text-align: center;">
-              <a href="${dashboardLink}" class="button" style="color: #ffffff;">الذهاب للوحة التحكم</a>
-            </div>
-          </div>
-          <div class="footer">
-            <p>عرب نوشن - منصة القوالب العربية</p>
-          </div>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
+    <p style="font-size: 16px;">يمكنك تعديل محتوى المقال بناءً على هذه النقاط وإعادة إرساله مرة أخرى.</p>
+    
+    <div style="text-align: center;">
+      <a href="${dashboardLink}" class="button">تعديل المقال</a>
+    </div>
+  `, 'تحديث بخصوص مقالك');
 
-  const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nنأسف لإخبارك بأنه لم يتم قبول نشر مقالك "${blog.title}".\n\n${reason ? `السبب: ${reason}\n\n` : ''}يمكنك تعديل المقال وإعادة إرساله من لوحة التحكم.\n\nعرب نوشن`;
+  const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nنأسف لإخبارك بأنه لم يتم قبول مقالك "${blog.title}" في الوقت الحالي.\n\n${reason ? `السبب: ${reason}\n\n` : ''}يمكنك تعديل المقال وإعادة إرساله من لوحة التحكم.\n\nعرب نوشن`;
 
-  await sendEmail({
-    to: user.email,
-    subject,
-    html,
-    text
-  });
+  await sendEmail({ to: user.email, subject, html, text });
+};
+
+/**
+ * Send an email verification email
+ */
+const sendVerificationEmail = async (user, verificationUrl) => {
+  if (!user || !user.email) return;
+
+  const subject = `تأكيد البريد الإلكتروني`;
+
+  const html = getMasterTemplate(`
+    <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">مرحباً ${user.name}،</h2>
+    <p style="font-size: 16px;">شكراً لتسجيلك في عرب نوشن! يرجى تأكيد بريدك الإلكتروني لتفعيل حسابك والبدء في استكشاف عالم نوشن العربي.</p>
+    
+    <div style="text-align: center;">
+      <a href="${verificationUrl}" class="button">تأكيد البريد الإلكتروني</a>
+    </div>
+    
+    <div class="divider"></div>
+    <p class="secondary-text">إذا لم تقم بإنشاء حساب، يمكنك تجاهل هذا البريد بأمان.</p>
+    <p class="secondary-text" style="word-break: break-all;">أو انسخ هذا الرابط: ${verificationUrl}</p>
+  `, 'تأكيد حسابك');
+
+  const text = `مرحباً ${user.name}،\n\nشكراً لتسجيلك في عرب نوشن! يرجى تأكيد بريدك الإلكتروني من خلال الرابط التالي:\n${verificationUrl}\n\nعرب نوشن`;
+
+  await sendEmail({ to: user.email, subject, html, text });
 };
 
 /**
  * Send a welcome email after successful verification
- * @param {Object} user - The user object
  */
 const sendWelcomeEmail = async (user) => {
-  if (!user || !user.email) {
-    console.warn('⚠️ Cannot send welcome email: User or email not found', user);
-    return;
-  }
+  if (!user || !user.email) return;
 
   const subject = `مرحباً بك في مجتمع عرب نوشن!`;
   const dashboardLink = `https://www.notionarabs.com/dashboard`;
   const browseLink = `https://www.notionarabs.com/templates`;
 
-  const html = `
-    <!DOCTYPE html>
-    <html lang="ar" dir="rtl">
-    <head>
-      <meta charset="UTF-8">
-      <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        .header { text-align: center; margin-bottom: 30px; }
-        .content { text-align: right; color: #333; line-height: 1.6; }
-        .button { display: inline-block; background-color: #f5631e; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; margin-top: 20px; margin-left: 10px; }
-        .secondary-button { display: inline-block; background-color: #fff; color: #f5631e; border: 1px solid #f5631e; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; margin-top: 20px; }
-        .footer { margin-top: 30px; text-align: center; color: #888; font-size: 12px; }
-        .feature-box { background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-      </style>
-    </head>
-    <body>
-      <div style="padding: 40px;">
-        <div class="container">
-          <div class="header">
-            <h1 style="color: #f5631e;">أهلاً بك في عرب نوشن! 🚀</h1>
-          </div>
-          <div class="content">
-            <h2>مرحباً ${user.name}،</h2>
-            <p>سعداء جداً بانضمامك إلينا! تم تفعيل حسابك بنجاح.</p>
-            <p>أنت الآن جزء من أكبر مجتمع عربي لمستخدمي ومبدعي Notion.</p>
-            
-            <div class="feature-box">
-              <strong>ماذا يمكنك أن تفعل الآن؟</strong>
-              <ul style="padding-right: 20px;">
-                <li>تصفح مئات القوالب العربية المميزة.</li>
-                <li>تحميل القوالب المجانية والمدفوعة.</li>
-                <li>الانضمام كمبدع وبيع قوالبك الخاصة.</li>
-              </ul>
-            </div>
+  const html = getMasterTemplate(`
+    <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">مرحباً ${user.name}،</h2>
+    <p style="font-size: 16px;">سعداء جداً بانضمامك إلينا! تم تفعيل حسابك بنجاح وأصبحت الآن جزءاً من أكبر مجتمع عربي لمبدعي نوشن.</p>
+    
+    <div class="feature-box">
+      <strong style="font-size: 18px;">ماذا يمكنك أن تفعل الآن؟ 🚀</strong>
+      <ul style="padding-right: 20px; line-height: 2;">
+        <li>تصفح مئات القوالب العربية المميزة.</li>
+        <li>تحميل القوالب المجانية والمدفوعة.</li>
+        <li>الانضمام كمبدع وبيع قوالبك الخاصة.</li>
+      </ul>
+    </div>
 
-            <div style="text-align: center;">
-              <a href="${browseLink}" class="button" style="color: #ffffff;">تصفح القوالب</a>
-              <a href="${dashboardLink}" class="secondary-button">لوحة التحكم</a>
-            </div>
-          </div>
-          <div class="footer">
-            <p>عرب نوشن - منصة القوالب العربية</p>
-            <p>تابعنا على وسائل التواصل الاجتماعي للحصول على آخر التحديثات</p>
-          </div>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
+    <div style="text-align: center;">
+      <a href="${browseLink}" class="button">تصفح القوالب</a>
+      <a href="${dashboardLink}" class="secondary-button">لوحة التحكم</a>
+    </div>
+  `, 'أهلاً بك في عرب نوشن!');
 
   const text = `مرحباً ${user.name}،\n\nأهلاً بك في عرب نوشن! تم تفعيل حسابك بنجاح.\n\nيمكنك الآن تصفح القوالب: ${browseLink}\n\nأو الذهاب للوحة التحكم: ${dashboardLink}\n\nعرب نوشن`;
 
-  await sendEmail({
-    to: user.email,
-    subject,
-    html,
-    text
-  });
+  await sendEmail({ to: user.email, subject, html, text });
+};
+
+/**
+ * Send a password reset email
+ */
+const sendResetPasswordEmail = async (user, resetUrl) => {
+  if (!user || !user.email) return;
+
+  const subject = `إعادة تعيين كلمة المرور`;
+
+  const html = getMasterTemplate(`
+    <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">مرحباً ${user.name}،</h2>
+    <p style="font-size: 16px;">تلقينا طلباً لإعادة تعيين كلمة المرور لحسابك في عرب نوشن. إذا قمت بذلك، اضغط على الزر أدناه:</p>
+    
+    <div style="text-align: center;">
+      <a href="${resetUrl}" class="button">إعادة تعيين كلمة المرور</a>
+    </div>
+    
+    <div style="background-color: #fff8e1; border-right: 4px solid #ffc107; padding: 20px; border-radius: 12px; margin: 25px 0; font-size: 14px;">
+      <strong>ملاحظة مهمة:</strong> هذا الرابط صالح لمدة ساعة واحدة فقط. إذا لم تطلب هذا، يمكنك تجاهل البريد بأمان.
+    </div>
+    
+    <p class="secondary-text" style="word-break: break-all;">أو انسخ هذا الرابط: ${resetUrl}</p>
+  `, 'إعادة تعيين كلمة المرور');
+
+  const text = `مرحباً ${user.name}،\n\nتلقينا طلباً لإعادة تعيين كلمة المرور لحسابك في عرب نوشن.\n\nلإعادة تعيين كلمة المرور، زر الرابط التالي:\n${resetUrl}\n\nعرب نوشن`;
+
+  await sendEmail({ to: user.email, subject, html, text });
+};
+
+/**
+ * Send an order confirmation email
+ */
+const sendOrderConfirmationEmail = async (user, order) => {
+  if (!user || !user.email) return;
+
+  const subject = `شكراً لطلبك! تأكيد الطلب #${order._id.toString().slice(-6).toUpperCase()}`;
+  const orderLink = `https://www.notionarabs.com/dashboard/orders`;
+
+  const itemsList = order.items.map(item => `
+    <li style="padding: 12px 0; border-bottom: 1px solid #eef0f2; display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-weight: 500;">${item.name}</span>
+      <span style="font-weight: 700; color: #1a1d21;">${item.price} ج.م</span>
+    </li>
+  `).join('');
+
+  const html = getMasterTemplate(`
+    <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">مرحباً ${user.name}،</h2>
+    <p style="font-size: 16px;">تم استلام طلبك بنجاح. شكراً لثقتك بمتجر عرب نوشن!</p>
+    
+    <div class="feature-box">
+      <h3 style="margin-top: 0; font-size: 14px; color: #8b949e; text-transform: uppercase; letter-spacing: 1px;">تفاصيل الطلب</h3>
+      <ul style="list-style: none; padding: 0; margin: 15px 0;">
+        ${itemsList}
+      </ul>
+      <div style="font-weight: 900; font-size: 20px; color: #f5631e; border-top: 2px dashed #eef0f2; padding-top: 15px; margin-top: 15px; display: flex; justify-content: space-between;">
+        <span>المجموع الكلي:</span>
+        <span>${order.total} ج.م</span>
+      </div>
+    </div>
+
+    <p style="font-size: 16px;">يمكنك الوصول إلى القوالب الخاصة بك وتحميلها في أي وقت من خلال لوحة التحكم.</p>
+
+    <div style="text-align: center;">
+      <a href="${orderLink}" class="button">عرض وتحميل مشترياتي</a>
+    </div>
+  `, 'شكراً لطلبك!');
+
+  const text = `مرحباً ${user.name}،\n\nتم استلام طلبك بنجاح.\n\nالمجموع الكلي: ${order.total} ج.م\n\nيمكنك تحميل مشترياتك من هنا: ${orderLink}\n\nعرب نوشن`;
+
+  await sendEmail({ to: user.email, subject, html, text });
+};
+
+/**
+ * Send an email when a payout is requested
+ */
+const sendPayoutRequestedEmail = async (user, payout) => {
+  if (!user || !user.email) return;
+
+  const subject = `تم استلام طلب سحب الأرباح`;
+  const dashboardLink = `https://www.notionarabs.com/dashboard/creator/payouts`;
+
+  const html = getMasterTemplate(`
+    <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">مرحباً ${user.name}،</h2>
+    <p style="font-size: 16px;">لقد استلمنا طلبك لسحب الأرباح بقيمة <span class="price-tag">${payout.amount} ج.م</span>.</p>
+    
+    <div class="feature-box">
+      <strong>تفاصيل الطلب:</strong>
+      <p style="margin: 5px 0;">المبلغ: ${payout.amount} ج.م</p>
+      <p style="margin: 5px 0;">وسيلة السحب: ${payout.method}</p>
+      <p style="margin: 5px 0;">الحالة: قيد المراجعة</p>
+    </div>
+
+    <p style="font-size: 16px;">سيتم مراجعة طلبك ومعالجته خلال 3 أيام عمل. سنقوم بإرسال بريد إلكتروني فور إتمام العملية.</p>
+    
+    <div style="text-align: center;">
+      <a href="${dashboardLink}" class="button">متابعة حالة الطلب</a>
+    </div>
+  `, 'تم استلام طلب السحب');
+
+  const text = `مرحباً ${user.name}،\n\nلقد استلمنا طلبك لسحب الأرباح بقيمة ${payout.amount} ج.م.\n\nسيتم معالجة الطلب خلال 3 أيام عمل.\n\nعرب نوشن`;
+
+  await sendEmail({ to: user.email, subject, html, text });
+};
+
+/**
+ * Send an email when a payout is approved/processed
+ */
+const sendPayoutApprovedEmail = async (user, payout) => {
+  if (!user || !user.email) return;
+
+  const subject = `✅ تم تحويل أرباحك بنجاح!`;
+
+  const html = getMasterTemplate(`
+    <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">مبروك ${user.name}!</h2>
+    <p style="font-size: 16px;">يسعدنا إخبارك بأنه تم تحويل مبلغ <span class="price-tag">${payout.amount} ج.م</span> إلى حسابك بنجاح.</p>
+    
+    <div class="feature-box">
+      <strong>تفاصيل العملية:</strong>
+      <p style="margin: 5px 0;">المبلغ المحول: ${payout.amount} ج.م</p>
+      <p style="margin: 5px 0;">الوسيلة: ${payout.method}</p>
+      <p style="margin: 5px 0;">التاريخ: ${new Date().toLocaleDateString('ar-EG')}</p>
+    </div>
+
+    <p style="font-size: 16px;">شكراً لإبداعك المستمر ومساهمتك في إثراء المحتوى العربي على نوشن.</p>
+  `, 'تم تحويل الأرباح بنجاح');
+
+  const text = `مبروك ${user.name}!\n\nتم تحويل مبلغ ${payout.amount} ج.م إلى حسابك بنجاح عبر ${payout.method}.\n\nشكراً لإبداعك!\n\nعرب نوشن`;
+
+  await sendEmail({ to: user.email, subject, html, text });
+};
+
+/**
+ * Send an email when a payout is rejected
+ */
+const sendPayoutRejectedEmail = async (user, payout, reason) => {
+  if (!user || !user.email) return;
+
+  const subject = `تحديث بخصوص طلب سحب الأرباح`;
+
+  const html = getMasterTemplate(`
+    <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">مرحباً ${user.name}،</h2>
+    <p style="font-size: 16px;">نعتذر لإخبارك بأنه لم نتمكن من معالجة طلب سحب الأرباح الخاص بك بقيمة <strong>${payout.amount} ج.م</strong>.</p>
+    
+    ${reason ? `
+    <div style="background-color: #fff8e1; border-right: 4px solid #ffc107; padding: 20px; border-radius: 12px; margin: 25px 0; color: #856404;">
+      <strong>السبب:</strong><br>
+      <div style="margin-top: 10px;">${reason}</div>
+    </div>
+    ` : ''}
+
+    <p style="font-size: 16px;">لقد تمت إعادة المبلغ إلى رصيدك في لوحة التحكم. يمكنك مراجعة بيانات السحب الخاصة بك وإعادة الطلب مرة أخرى.</p>
+  `, 'تحديث بخصوص طلب السحب');
+
+  const text = `مرحباً ${user.name}،\n\nنأسف لإخبارك بأنه تم رفض طلب سحب الأرباح الخاص بك (${payout.amount} ج.م).\n\n${reason ? `السبب: ${reason}\n\n` : ''}تمت إعادة المبلغ لرصيدك.\n\nعرب نوشن`;
+
+  await sendEmail({ to: user.email, subject, html, text });
 };
 
 module.exports = {
   sendEmail,
   sendTemplateApprovedEmail,
-  sendCreatorApprovedEmail,
-  sendBlogApprovedEmail,
-  sendVerificationEmail,
-  sendOrderConfirmationEmail,
   sendTemplateRejectedEmail,
+  sendCreatorApprovedEmail,
   sendCreatorRejectedEmail,
+  sendBlogApprovedEmail,
   sendBlogRejectedEmail,
-  sendWelcomeEmail
+  sendVerificationEmail,
+  sendWelcomeEmail,
+  sendResetPasswordEmail,
+  sendOrderConfirmationEmail,
+  sendPayoutRequestedEmail,
+  sendPayoutApprovedEmail,
+  sendPayoutRejectedEmail
 };

@@ -190,11 +190,54 @@ export function generateTemplateMetadata(template) {
       { label: template.title },
     ],
     // Add rating information for rich results
-    rating: template.rating,
-    reviewsCount: template.reviewsCount,
-    // Add price information for e-commerce SEO
     price: isPaid && template.price ? `${template.price} ${siteConfig.currencySymbol}` : undefined,
   };
+}
+
+// Generate JSON-LD Structured Data for Template (Product)
+export function generateTemplateSchema(template) {
+  const isPaid = template.isPaid || false;
+  const creatorName = template.creator?.name || 'مبدع';
+  const fullImage = getAbsoluteImageUrl(template.previewImage);
+  const url = `${siteConfig.url}/templates/${template.slug || template._id}`;
+  
+  const schema = {
+    '@context': 'https://schema.org/',
+    '@type': 'Product',
+    'name': template.title,
+    'image': [fullImage],
+    'description': template.description || template.title,
+    'brand': {
+      '@type': 'Brand',
+      'name': 'عرب نوشن',
+    },
+    'offers': {
+      '@type': 'Offer',
+      'url': url,
+      'priceCurrency': siteConfig.currency,
+      'price': isPaid ? (template.price || 0) : 0,
+      'availability': 'https://schema.org/InStock',
+    },
+  };
+
+  // Add Aggregate Rating if available
+  if (template.rating && template.rating > 0) {
+    schema.aggregateRating = {
+      '@type': 'AggregateRating',
+      'ratingValue': template.rating,
+      'reviewCount': template.reviewsCount || 1,
+      'bestRating': '5',
+      'worstRating': '1',
+    };
+  }
+
+  // Add Creator as Performer/Author
+  schema.author = {
+    '@type': 'Person',
+    'name': creatorName,
+  };
+
+  return schema;
 }
 
 // Blog-specific SEO metadata

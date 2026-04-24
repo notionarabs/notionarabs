@@ -1,12 +1,11 @@
-import { generateTemplateMetadata } from '../../../lib/seo';
+import { generateTemplateMetadata, generateTemplateSchema } from '../../../lib/seo';
 import TemplateClient from './TemplateClient';
 import { getApiUrl } from '../../../lib/apiConfig';
 
 async function getTemplate(id) {
   try {
-    // We use a longer timeout for the server-side fetch to handle backend cold starts
     const res = await fetch(getApiUrl(`/templates/${id}`), {
-      next: { revalidate: 3600 }, // Cache for 1 hour
+      next: { revalidate: 3600 },
     });
     
     if (!res.ok) return null;
@@ -37,5 +36,19 @@ export default async function TemplatePage({ params }) {
   const { id } = await params;
   const template = await getTemplate(id);
   
-  return <TemplateClient initialTemplate={template} />;
+  if (!template) return <TemplateClient initialTemplate={null} />;
+
+  // Generate structured data for SEO
+  const jsonLd = generateTemplateSchema(template);
+
+  return (
+    <>
+      {/* Google Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <TemplateClient initialTemplate={template} />
+    </>
+  );
 }

@@ -99,8 +99,10 @@ export default function AdminPayouts() {
                                 return (
                                     <tr key={payout.id || payout._id} className="hover:bg-gray-50 dark:hover:bg-dark-tertiary/50">
                                         <td className="px-6 py-4">
-                                            <p className="font-bold text-gray-900 dark:text-dark-text-primary text-sm">{payout.creatorId}</p>
-                                            <p className="text-xs text-gray-500">{formatDate(payout.createdAt)}</p>
+                                            <p className="font-bold text-gray-900 dark:text-dark-text-primary text-sm">
+                                                {payout.creator?.displayName || payout.creator?.name || payout.creatorId}
+                                            </p>
+                                            <p className="text-[10px] text-gray-500">{payout.creator?.email || formatDate(payout.createdAt)}</p>
                                         </td>
                                         <td className="px-6 py-4 text-sm font-black text-gray-900 dark:text-dark-text-primary">
                                             {payout.amount} ج.م

@@ -3,6 +3,7 @@ const router = express.Router();
 const Payout = require('../models/Payout');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const emailService = require('../services/emailService');
 
 /**
  * @route   POST /api/payouts/request
@@ -46,6 +47,9 @@ router.post('/request', auth, async (req, res) => {
             $inc: { balance: -amount }
         });
 
+        // 5. Send email notification asynchronously
+        emailService.sendPayoutRequestedEmail(user, payout).catch(err => console.error('Failed to send payout request email:', err));
+
         res.json({
             success: true,
             message: 'تم استلام طلب السحب بنجاح، سيتم التحقق منه خلال 3 أيام عمل',
@@ -84,7 +88,7 @@ router.get('/admin/all', auth, async (req, res) => {
             return res.status(403).json({ success: false, message: 'غير مصرح لك' });
         }
 
-        const payouts = await Payout.find({});
+        const payouts = await Payout.find({}).populate('creatorId');
         res.json({ success: true, payouts });
     } catch (error) {
         console.error('Admin fetch payouts error:', error);
@@ -114,11 +118,20 @@ router.patch('/admin/:id', auth, async (req, res) => {
         payout.status = status.toUpperCase();
         if (rejectionReason) payout.rejectionReason = rejectionReason;
 
+        const creator = await User.findById(payout.creatorId);
+
         // If rejecting, return balance to user
         if (status.toUpperCase() === 'REJECTED' && oldStatus !== 'REJECTED') {
             await User.findByIdAndUpdate(payout.creatorId, {
                 $inc: { balance: payout.amount }
             });
+            if (creator) {
+                emailService.sendPayoutRejectedEmail(creator, payout, rejectionReason).catch(err => console.error('Email error:', err));
+            }
+        } else if (status.toUpperCase() === 'PAID' && oldStatus !== 'PAID') {
+            if (creator) {
+                emailService.sendPayoutApprovedEmail(creator, payout).catch(err => console.error('Email error:', err));
+            }
         }
 
         await payout.save();

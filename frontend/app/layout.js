@@ -146,7 +146,7 @@ export default function RootLayout({ children }) {
           }}
         />
       </head>
-      <body className="font-tajawal transition-colors duration-300 scrollbar-primary scrollbar-hover-effect" suppressHydrationWarning={true}>
+      <body className="font-almarai transition-colors duration-300 scrollbar-primary scrollbar-hover-effect" suppressHydrationWarning={true}>
         <QueryProvider>
           <ThemeProvider>
             <LoadingProvider>

@@ -157,16 +157,30 @@ router.post('/callback', async (req, res) => {
                 order.paymentMethod = 'card';
                 await order.save();
 
-                // Update creator earnings
+                // Update creator earnings and balance
                 try {
                     if (order.items && order.items.length > 0) {
+                        // Default platform fee is 10% unless specified in env
+                        const platformFeePercent = parseFloat(process.env.PLATFORM_FEE_PERCENTAGE || '10');
+                        
                         for (const item of order.items) {
                             const template = await Template.findById(item.templateId);
                             if (template && template.creator) {
-                                await User.findByIdAndUpdate(template.creator, {
-                                    $inc: { totalEarnings: item.price }
+                                const creatorId = template.creator;
+                                const salePrice = item.price;
+                                const platformFee = (salePrice * platformFeePercent) / 100;
+                                const creatorEarnings = salePrice - platformFee;
+
+                                await User.findByIdAndUpdate(creatorId, {
+                                    $inc: { 
+                                        totalEarnings: salePrice,
+                                        balance: creatorEarnings
+                                    }
                                 });
-                                console.log(`💰 Updated earnings for creator ${template.creator}: +${item.price}`);
+                                console.log(`💰 Sale processed for creator ${creatorId}:`);
+                                console.log(`   - Price: ${salePrice} ج.م`);
+                                console.log(`   - Fee (${platformFeePercent}%): ${platformFee} ج.م`);
+                                console.log(`   - Added to Balance: ${creatorEarnings} ج.م`);
                             }
                         }
                     }

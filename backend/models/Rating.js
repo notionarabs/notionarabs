@@ -15,6 +15,8 @@ class Rating {
       userId: this.user || this.userId,
       targetType: this.targetType,
       rating: this.rating,
+      review: this.review || '',
+      isPublic: this.isPublic !== undefined ? this.isPublic : true,
       createdAt: this.createdAt || now,
       updatedAt: now,
       // Map to specific database columns

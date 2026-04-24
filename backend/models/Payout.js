@@ -39,14 +39,31 @@ class Payout {
     const execute = async () => {
         const { data, error } = await q.order('createdAt', { ascending: false });
         if (error) throw error;
-        return (data || []).map(p => new Payout(p));
+        let payouts = (data || []).map(p => new Payout(p));
+        
+        // Handle population if requested
+        if (promise._populatePath === 'creatorId') {
+            const User = require('./User');
+            payouts = await Promise.all(payouts.map(async (p) => {
+                if (p.creatorId) {
+                    const creator = await User.findById(p.creatorId);
+                    if (creator) p.creator = creator;
+                }
+                return p;
+            }));
+        }
+        
+        return payouts;
     };
 
     const promise = execute();
     const wrap = (p) => {
         p.sort = (s) => wrap(p);
         p.limit = (n) => wrap(p);
-        p.populate = (path) => wrap(p);
+        p.populate = (path) => {
+            p._populatePath = path;
+            return wrap(p);
+        };
         p.lean = () => wrap(p);
         return p;
     };

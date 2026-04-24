@@ -263,7 +263,7 @@ export default function SearchPalette({ isOpen, onClose }) {
                                 }`}>↑↓</kbd> تنقل
                         </span>
                     </div>
-                    <span className="font-tajawal">عرب نوشن - محرك البحث الذكي</span>
+                    <span className="font-almarai">عرب نوشن - محرك البحث الذكي</span>
                 </div>
             </motion.div>
         </div>

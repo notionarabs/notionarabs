@@ -84,14 +84,14 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
                     const obj = {};
                     rawHeaders.forEach((header, index) => {
                         let key = null;
-                        if (header.includes('title') || header.includes('عنوان')) key = 'title';
+                        if (header.includes('image') || header.includes('صورة') || header.includes('preview')) key = 'previewImage';
+                        else if (header.includes('title') || header.includes('عنوان')) key = 'title';
                         else if (header.includes('description') || header.includes('وصف')) key = 'description';
-                        else if (header.includes('notion') || header.includes('رابط') || header.includes('نوشن')) key = 'notionLink';
+                        else if (header.includes('notion') || header.includes('نوشن') || header.includes('رابط')) key = 'notionLink';
                         else if (header.includes('category') || header.includes('categories') || header.includes('فئة') || header.includes('تصنيف')) key = 'categories';
                         else if (header.includes('paid') || header.includes('مدفوع')) key = 'isPaid';
                         else if (header.includes('price') || header.includes('سعر')) key = 'price';
                         else if (header.includes('purchase') || header.includes('شراء')) key = 'purchaseLink';
-                        else if (header.includes('image') || header.includes('صورة') || header.includes('preview')) key = 'previewImage';
                         else if (header.includes('tag') || header.includes('وسم')) key = 'tags';
                         else if (header.includes('feature') || header.includes('ميزة')) key = 'features';
 

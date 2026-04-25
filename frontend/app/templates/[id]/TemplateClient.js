@@ -314,7 +314,7 @@ export default function TemplateClient({ initialTemplate }) {
                       src={selectedImage === -2 ? template.previewImage : (template.previewImages?.[selectedImage] || template.previewImage)}
                       alt={template.title}
                       fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105 cursor-zoom-in"
+                      className="object-contain transition-transform duration-700 group-hover:scale-105 cursor-zoom-in"
                       onClick={() => setIsLightboxOpen(true)}
                       priority
                       unoptimized={template.previewImage?.includes('notion.so')} // Notion images often need this

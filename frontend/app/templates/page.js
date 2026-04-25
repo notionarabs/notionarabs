@@ -163,7 +163,7 @@ function TemplatesPageContent() {
 
                {/* Advanced Filters Pill */}
                <div className="flex flex-wrap items-center justify-center gap-6 mt-10">
-                <div className="flex bg-white/50 dark:bg-white/5 backdrop-blur-xl p-1.5 rounded-2xl border border-card-border/50">
+                <div className="flex bg-white/50 dark:bg-white/5 backdrop-blur-xl p-1.5 rounded-2xl border border-black/5 dark:border-white/5">
                   {[{ id: 'all', label: 'الكل' }, { id: 'free', label: 'مجاني' }, { id: 'paid', label: 'مدفوع' }].map((p) => (
                     <button 
                       key={p.id} 
@@ -175,7 +175,7 @@ function TemplatesPageContent() {
                   ))}
                 </div>
                 
-                <div className="flex bg-white/50 dark:bg-white/5 backdrop-blur-xl p-1.5 rounded-2xl border border-card-border/50">
+                <div className="flex bg-white/50 dark:bg-white/5 backdrop-blur-xl p-1.5 rounded-2xl border border-black/5 dark:border-white/5">
                   {[0, 4].map((r) => (
                     <button 
                       key={r} 
@@ -194,7 +194,7 @@ function TemplatesPageContent() {
 
         {/* Dynamic Catalog */}
         <div className="container-custom pb-32">
-          <div className="flex items-center justify-between py-12 border-none gap-8">
+          <div className="relative z-50 flex items-center justify-between py-12 border-none gap-8">
             <div className="px-8 py-4 rounded-full bg-white/50 dark:bg-white/5 backdrop-blur-2xl shadow-soft">
                <p className="text-xs font-black uppercase tracking-[0.2em] text-accent-900/40 dark:text-white/20">تم تحليل <span className="text-primary">{pagination.total}</span> مسار نجاح</p>
             </div>

@@ -87,9 +87,9 @@ export default function CategoryTemplatesClient({ categoryId, categoryName }) {
 
       <main className="relative z-10 px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
         {/* Premium Atmospheric Hero */}
-        <section className="relative overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-24">
+        <section className="relative z-50 pt-32 pb-20 sm:pt-40 sm:pb-24">
           {/* mesh background */}
-          <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
             <div className="absolute top-[-10%] right-[-5%] w-[45%] h-[45%] bg-primary/20 rounded-full blur-[120px] animate-pulse" />
             <div className="absolute bottom-[-10%] left-[-5%] w-[35%] h-[35%] bg-blue-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '3s' }} />
           </div>

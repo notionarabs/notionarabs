@@ -34,6 +34,7 @@ class Template {
       categories: this.categories || [],
       tags: this.tags || [],
       creatorId: typeof this.creator === 'object' ? this.creator._id : this.creator, 
+      language: this.language,
       previewImage: this.previewImage,
       previewImages: this.previewImages || [],
       explanationVideo: this.explanationVideo,

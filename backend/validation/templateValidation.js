@@ -55,19 +55,7 @@ const templateSchema = z.object({
       message: 'السعر مطلوب للقوالب المدفوعة ويجب أن يكون أكبر من 0'
     }),
 
-  purchaseLink: z.string()
-    .url('رابط الشراء غير صحيح')
-    .optional()
-    .refine((val, ctx) => {
-      // If isPaid is true, purchaseLink must be provided
-      const isPaid = ctx?.parent?.isPaid;
-      if (isPaid && (!val || val.trim() === '')) {
-        return false;
-      }
-      return true;
-    }, {
-      message: 'رابط الشراء مطلوب للقوالب المدفوعة'
-    }),
+
 });
 
 const updateTemplateSchema = templateSchema.partial();

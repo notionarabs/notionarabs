@@ -623,7 +623,7 @@ router.get('/my-templates', auth, async (req, res) => {
       .select('title description features category categories tags previewImage slug rating reviewsCount downloads views isPaid price purchaseLink status adminNotes approvedAt rejectedAt approvedBy rejectedBy createdAt updatedAt ')
       .sort({ createdAt: -1 });
 
-    const csvHeader = 'العنوان,الوصف,رابط نوشن,الفئات,مدفوع,السعر,رابط الصورة,المميزات,الوسوم,اللغة,فيديو توضيحي,المنشئ,البريد الإلكتروني,الحالة,المشاهدات,التحميلات,التقييم,تاريخ الموافقة,تاريخ الإنشاء\n';
+    const csvHeader = 'العنوان,الوصف,رابط نوشن,الفئات,مدفوع,السعر,رابط الصورة,صور إضافية,المميزات,الوسوم,اللغة,فيديو توضيحي,المنشئ,البريد الإلكتروني,الحالة,المشاهدات,التحميلات,التقييم,تاريخ الموافقة,تاريخ الإنشاء\n';
     const csvRows = templates.map(template => {
       const title = `"${(template.title || '').replace(/"/g, '""')}"`;
       const description = `"${(template.description || '').replace(/"/g, '""')}"`;
@@ -632,6 +632,7 @@ router.get('/my-templates', auth, async (req, res) => {
       const isPaid = template.isPaid ? 'نعم' : 'لا';
       const price = template.price || 0;
       const previewImage = `"${(template.previewImage || '').replace(/"/g, '""')}"`;
+      const previewImages = `"${(Array.isArray(template.previewImages) ? template.previewImages.join('|') : '').replace(/"/g, '""')}"`;
       const features = `"${(Array.isArray(template.features) ? template.features.join('\n') : (template.features || '')).replace(/"/g, '""')}"`;
       const tags = `"${(Array.isArray(template.tags) ? template.tags.join(',') : (template.tags || '')).replace(/"/g, '""')}"`;
       const language = `"${(template.language || '').replace(/"/g, '""')}"`;
@@ -646,7 +647,7 @@ router.get('/my-templates', auth, async (req, res) => {
       const approvedAt = template.approvedAt ? new Date(template.approvedAt).toLocaleDateString('en-US') : '';
       const createdAt = template.createdAt ? new Date(template.createdAt).toLocaleDateString('en-US') : '';
       
-      return `${title},${description},${notionLink},${categories},${isPaid},${price},${previewImage},${features},${tags},${language},${explanationVideo},${creator},${email},${status},${views},${downloads},${rating},${approvedAt},${createdAt}`;
+      return `${title},${description},${notionLink},${categories},${isPaid},${price},${previewImage},${previewImages},${features},${tags},${language},${explanationVideo},${creator},${email},${status},${views},${downloads},${rating},${approvedAt},${createdAt}`;
     }).join('\n');
 
     res.json({
@@ -722,7 +723,7 @@ router.get('/export', auth, async (req, res) => {
       const creator = `"${(template.creator?.name || '').replace(/\"/g, '\"\"')}"`;
       const email = `"${(template.creator?.email || '').replace(/\"/g, '\"\"')}"`;
       const category = `"${(template.category || '').replace(/\"/g, '\"\"')}"`;
-      const price = 'مجاني';
+      const price = template.isPaid ? (template.price || 0) : 'مجاني';
       const status = `"${(template.status || '').replace(/\"/g, '\"\"')}"`;
       const views = template.views || 0;
       const downloads = template.downloads || 0;
@@ -781,7 +782,7 @@ router.get('/export-public', async (req, res) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    const csvHeader = 'العنوان,الوصف,رابط نوشن,الفئات,مدفوع,السعر,رابط الصورة,المميزات,الوسوم,اللغة,فيديو توضيحي,المنشئ,البريد الإلكتروني,الحالة,المشاهدات,التحميلات,التقييم,تاريخ الموافقة,تاريخ الإنشاء\n';
+    const csvHeader = 'العنوان,الوصف,رابط نوشن,الفئات,مدفوع,السعر,رابط الصورة,صور إضافية,المميزات,الوسوم,اللغة,فيديو توضيحي,المنشئ,البريد الإلكتروني,الحالة,المشاهدات,التحميلات,التقييم,تاريخ الموافقة,تاريخ الإنشاء\n';
     const csvRows = templates.map(template => {
       const title = `"${(template.title || '').replace(/"/g, '""')}"`;
       const description = `"${(template.description || '').replace(/"/g, '""')}"`;
@@ -790,6 +791,7 @@ router.get('/export-public', async (req, res) => {
       const isPaid = template.isPaid ? 'نعم' : 'لا';
       const price = template.price || 0;
       const previewImage = `"${(template.previewImage || '').replace(/"/g, '""')}"`;
+      const previewImages = `"${(Array.isArray(template.previewImages) ? template.previewImages.join('|') : '').replace(/"/g, '""')}"`;
       const features = `"${(Array.isArray(template.features) ? template.features.join('\n') : (template.features || '')).replace(/"/g, '""')}"`;
       const tags = `"${(Array.isArray(template.tags) ? template.tags.join(',') : (template.tags || '')).replace(/"/g, '""')}"`;
       const language = `"${(template.language || '').replace(/"/g, '""')}"`;
@@ -804,7 +806,7 @@ router.get('/export-public', async (req, res) => {
       const approvedAt = template.approvedAt ? new Date(template.approvedAt).toLocaleDateString('en-US') : '';
       const createdAt = template.createdAt ? new Date(template.createdAt).toLocaleDateString('en-US') : '';
       
-      return `${title},${description},${notionLink},${categories},${isPaid},${price},${previewImage},${features},${tags},${language},${explanationVideo},${creator},${email},${status},${views},${downloads},${rating},${approvedAt},${createdAt}`;
+      return `${title},${description},${notionLink},${categories},${isPaid},${price},${previewImage},${previewImages},${features},${tags},${language},${explanationVideo},${creator},${email},${status},${views},${downloads},${rating},${approvedAt},${createdAt}`;
     }).join('\n');
 
     const csvContent = csvHeader + csvRows;

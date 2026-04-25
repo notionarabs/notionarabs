@@ -98,7 +98,7 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
             return;
         }
 
-        const headers = 'العنوان,الوصف,رابط نوشن,الفئات (حتى 3 مفصولة بـ |),مدفوع (نعم/لا),السعر بالجنيه (0 إذا مجاني),رابط الصورة,المميزات (كل ميزة في سطر),الوسوم (مفصولة بفاصلة),لغة القالب (ar/en/ar-en),رابط فيديو توضيحي للقالب (اختياري)\n';
+        const headers = 'العنوان,الوصف,رابط نوشن,الفئات (حتى 3 مفصولة بـ |),مدفوع (نعم/لا),السعر بالجنيه (0 إذا مجاني),رابط الصورة,صور إضافية (مفصولة بـ ,),المميزات (كل ميزة في سطر),الوسوم (مفصولة بفاصلة),لغة القالب (ar/en/ar-en),رابط فيديو توضيحي للقالب (اختياري)\n';
         const rows = uploadedImages.map(img => {
             const placeholderTitle = img.file.name.split('.')[0];
             return `"${placeholderTitle}","وصف القالب هنا...","https://username.notion.site/template-id","إنتاجية","نعم","50","${img.url}","ميزة 1\nميزة 2\nميزة 3","نوشن, تنظيم","ar",""`;
@@ -411,8 +411,8 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
                                         <button 
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                const headers = 'العنوان,الوصف,رابط نوشن,الفئات (حتى 3 مفصولة بـ |),مدفوع (نعم/لا),السعر بالجنيه (0 إذا مجاني),رابط الصورة,المميزات (كل ميزة في سطر),الوسوم (مفصولة بفاصلة),لغة القالب (ar/en/ar-en),رابط فيديو توضيحي للقالب (اختياري)\n';
-                                                const sample = '"قالب مجاني مثال","وصف القالب...","https://username.notion.site/template-id","إنتاجية|الدراسة","لا","0","TemplateA.png","ميزة 1\nميزة 2\nميزة 3","نوشن, تنظيم","ar",""';
+                                                const headers = 'العنوان,الوصف,رابط نوشن,الفئات (حتى 3 مفصولة بـ |),مدفوع (نعم/لا),السعر بالجنيه (0 إذا مجاني),رابط الصورة,صور إضافية (مفصولة بـ ,),المميزات (كل ميزة في سطر),الوسوم (مفصولة بفاصلة),لغة القالب (ar/en/ar-en),رابط فيديو توضيحي للقالب (اختياري)\n';
+                                                const sample = '"قالب مجاني مثال","وصف القالب...","https://username.notion.site/template-id","إنتاجية|الدراسة","لا","0","TemplateA.png","","ميزة 1\nميزة 2\nميزة 3","نوشن, تنظيم","ar",""';
                                                 const blob = new Blob(['\uFEFF' + headers + sample], { type: 'text/csv;charset=utf-8;' });
                                                 const link = document.createElement('a');
                                                 link.href = URL.createObjectURL(blob);

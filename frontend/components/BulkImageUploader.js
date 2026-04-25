@@ -228,25 +228,55 @@ export default function BulkImageUploader() {
             )}
 
             {/* Instructions */}
-            <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-[2rem] p-8">
-                <h4 className="text-lg font-bold text-blue-900 dark:text-blue-300 mb-4 flex items-center gap-2">
-                    <AlertCircle size={20} />
-                    كيف تستخدم هذه الأداة؟
-                </h4>
-                <ul className="space-y-3 text-sm text-blue-800 dark:text-blue-400 font-medium">
-                    <li className="flex items-start gap-2">
-                        <span className="w-5 h-5 rounded-full bg-blue-200 dark:bg-blue-900/50 flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">1</span>
-                        <span>قم برفع جميع صور القوالب التي تريد إضافتها.</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                        <span className="w-5 h-5 rounded-full bg-blue-200 dark:bg-blue-900/50 flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">2</span>
-                        <span>بعد انتهاء الرفع، انسخ الروابط وضعها في عمود "صورة القالب" في ملف الـ CSV الخاص بك.</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                        <span className="w-5 h-5 rounded-full bg-blue-200 dark:bg-blue-900/50 flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">3</span>
-                        <span>تأكد من أن اسم الصورة في الـ CSV يطابق الرابط الصحيح الذي نسخته.</span>
-                    </li>
-                </ul>
+            <div className="bg-gradient-to-br from-primary-50 to-accent-50 dark:from-primary-900/10 dark:to-accent-900/10 border border-primary-100 dark:border-primary-900/30 rounded-[2.5rem] p-8 sm:p-10 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-32 h-32 bg-primary-500/5 rounded-full -translate-x-16 -translate-y-16" />
+                <div className="relative z-10">
+                    <h4 className="text-xl font-black text-gray-900 dark:text-dark-text-primary mb-6 flex items-center gap-3">
+                        <div className="w-10 h-10 bg-primary-100 dark:bg-orange-500/20 rounded-xl flex items-center justify-center text-primary-600 dark:text-orange-400">
+                            <AlertCircle size={24} />
+                        </div>
+                        كيف تستخدم هذه الصور في ملف الـ CSV؟
+                    </h4>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div className="space-y-3">
+                            <div className="text-lg font-bold text-primary-600 dark:text-orange-400 flex items-center gap-2">
+                                <span className="w-8 h-8 rounded-lg bg-primary-100 dark:bg-orange-500/20 flex items-center justify-center text-sm">1</span>
+                                رفع الصور
+                            </div>
+                            <p className="text-sm text-gray-600 dark:text-dark-text-secondary leading-relaxed">
+                                قم بسحب وإفلات جميع صور القوالب التي تريد إضافتها في المربع أعلاه واضغط على <strong>"بدء الرفع"</strong>.
+                            </p>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div className="text-lg font-bold text-primary-600 dark:text-orange-400 flex items-center gap-2">
+                                <span className="w-8 h-8 rounded-lg bg-primary-100 dark:bg-orange-500/20 flex items-center justify-center text-sm">2</span>
+                                نسخ الروابط
+                            </div>
+                            <p className="text-sm text-gray-600 dark:text-dark-text-secondary leading-relaxed">
+                                بعد انتهاء الرفع، ستظهر لك الصور وبجانبها زر <strong>"نسخ الرابط"</strong>. قم بنسخ الرابط المباشر لكل صورة.
+                            </p>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div className="text-lg font-bold text-primary-600 dark:text-orange-400 flex items-center gap-2">
+                                <span className="w-8 h-8 rounded-lg bg-primary-100 dark:bg-orange-500/20 flex items-center justify-center text-sm">3</span>
+                                اللصق في CSV
+                            </div>
+                            <p className="text-sm text-gray-600 dark:text-dark-text-secondary leading-relaxed">
+                                افتح ملف الـ CSV الخاص بك، وابحث عن عمود <strong>"صورة القالب"</strong>، وقم بلصق الرابط الذي نسخته أمام اسم القالب الصحيح.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="mt-8 pt-6 border-t border-gray-100 dark:border-white/5">
+                        <p className="text-xs text-gray-500 dark:text-dark-text-tertiary flex items-center gap-2 italic">
+                            <Check className="text-green-500" size={14} />
+                            نصيحة: يمكنك استخدام زر "نسخ جميع الروابط" في الأعلى إذا كنت تريد نسخ كل الروابط دفعة واحدة!
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     );

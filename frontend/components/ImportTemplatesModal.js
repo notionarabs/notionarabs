@@ -193,8 +193,8 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        const headers = 'Title (العنوان),Description,Notion Link,Categories,Is Paid (مدفوع),Price (السعر),Preview Image (رابط الصورة)\n';
-                                        const sample = '"قالب إدارة المهام الاحترافي","وصف القالب هنا...","https://notion.so/my-template","إدارة مشاريع، إنتاجية","TRUE","50","https://image-link.com/preview.png"';
+                                        const headers = 'Title (العنوان),Description,Notion Link,Categories,Is Paid (مدفوع),Price (السعر),Preview Image (رابط الصورة),Features (المميزات),Tags (وسوم)\n';
+                                        const sample = '"قالب إدارة المهام الاحترافي","وصف القالب هنا...","https://notion.so/my-template","إدارة مشاريع، إنتاجية","TRUE","50","https://image-link.com/preview.png","الميزة الأولى\nالميزة الثانية\nالميزة الثالثة","نوشن، إنتاجية"';
                                         const blob = new Blob(['\uFEFF' + headers + sample], { type: 'text/csv;charset=utf-8;' });
                                         const link = document.createElement('a');
                                         link.href = URL.createObjectURL(blob);
@@ -226,7 +226,7 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
                                     </div>
                                     <h4 className="text-lg font-bold text-gray-900 dark:text-dark-text-primary mb-2">اختر ملف CSV</h4>
                                     <p className="text-sm text-gray-500 dark:text-dark-text-secondary max-w-sm mx-auto">
-                                        الأعمدة المطلوبة: Title (العنوان), Description, Notion Link, Categories, Is Paid (مدفوع), Price (السعر)
+                                        الأعمدة المطلوبة: Title, Description, Notion Link, Categories, Is Paid, Price, Preview Image, Features
                                     </p>
                                 </div>
                             ) : (
@@ -266,6 +266,7 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
                                                         <tr>
                                                             <th className="px-4 py-2 font-bold text-gray-700 dark:text-dark-text-secondary">العنوان</th>
                                                             <th className="px-4 py-2 font-bold text-gray-700 dark:text-dark-text-secondary">السعر</th>
+                                                            <th className="px-4 py-2 font-bold text-gray-700 dark:text-dark-text-secondary">الصورة</th>
                                                             <th className="px-4 py-2 font-bold text-gray-700 dark:text-dark-text-secondary">الفئة</th>
                                                         </tr>
                                                     </thead>
@@ -274,6 +275,15 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
                                                             <tr key={idx} className="dark:text-dark-text-primary">
                                                                 <td className="px-4 py-2 truncate max-w-[150px]">{item.title}</td>
                                                                 <td className="px-4 py-2">{item.price || '0'}</td>
+                                                                <td className="px-4 py-2">
+                                                                    {item.previewImage ? (
+                                                                        <div className="w-8 h-8 rounded bg-gray-100 dark:bg-dark-tertiary flex items-center justify-center overflow-hidden">
+                                                                            <img src={item.previewImage} alt="" className="w-full h-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+                                                                        </div>
+                                                                    ) : (
+                                                                        <span className="text-gray-400">---</span>
+                                                                    )}
+                                                                </td>
                                                                 <td className="px-4 py-2 truncate max-w-[100px]">{item.categories}</td>
                                                             </tr>
                                                         ))}

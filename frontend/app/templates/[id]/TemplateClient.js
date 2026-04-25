@@ -439,8 +439,8 @@ export default function TemplateClient({ initialTemplate }) {
 
                   <div className="space-y-4">
                     <button
-                      onClick={template.isPaid ? handlePurchase : handleDownload}
-                      disabled={isPurchasing || isDownloading}
+                      onClick={userHasTemplate ? () => window.open(template.notionLink, '_blank') : (template.isPaid ? null : handleDownload)}
+                      disabled={isPurchasing || isDownloading || (template.isPaid && !userHasTemplate)}
                       className="group relative w-full overflow-hidden rounded-2xl bg-primary py-5 text-lg font-black text-white shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
@@ -452,8 +452,8 @@ export default function TemplateClient({ initialTemplate }) {
                           </div>
                         ) : (
                           <>
-                            <span>{userHasTemplate ? 'فتح في نوشن' : (template.isPaid ? 'اقتنِ النظام الآن' : 'تحميل مجاني')}</span>
-                            {userHasTemplate ? <ExternalLink size={22} /> : (template.isPaid ? <ShoppingCart size={22} /> : <Download size={22} />)}
+                            <span>{userHasTemplate ? 'فتح في نوشن' : (template.isPaid ? 'قريباً - تفعيل الدفع' : 'تحميل مجاني')}</span>
+                            {userHasTemplate ? <ExternalLink size={22} /> : (template.isPaid ? <Clock size={22} /> : <Download size={22} />)}
                           </>
                         )}
                       </div>

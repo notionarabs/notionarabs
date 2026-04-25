@@ -42,6 +42,7 @@ const ProfileSidebar = ({ userStatus, onNavigate, activeSection, role }) => {
     const contentLinks = isCreator ? [
         { section: 'templates', href: '/profile?tab=templates', label: 'قوالبي', icon: LayoutDashboard },
         { section: 'blogs', href: '/profile?tab=blogs', label: 'مقالاتي', icon: Edit3 },
+        { section: 'bulk-image-upload', href: '/profile?tab=bulk-image-upload', label: 'رفع صور بالجملة', icon: Layout },
     ] : [];
 
     const analyticsLinks = isCreator ? [

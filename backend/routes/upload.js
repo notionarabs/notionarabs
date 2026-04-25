@@ -142,7 +142,8 @@ router.post('/image', auth, upload.single('image'), async (req, res) => {
           transformation: [
             { width: 1200, height: 800, crop: 'limit' },
             { quality: 'auto' },
-            { fetch_format: 'auto' }
+            { fetch_format: 'webp' },
+            { format: 'webp' }
           ]
         },
         (error, result) => {

@@ -395,24 +395,7 @@ router.post('/bulk-import', auth, async (req, res) => {
           continue;
         }
 
-        // Check for duplicate templates by the same creator
-        const existingTemplate = await Template.findOne({
-          creator: req.user._id,
-          $or: [
-            { title: item.title.trim() },
-            { notionLink: item.notionLink.trim() }
-          ]
-        });
-
-        if (existingTemplate) {
-          results.errors.push({ 
-            title: item.title, 
-            error: 'القالب موجود بالفعل (العنوان أو رابط نوشن مكرر)' 
-          });
-          continue;
-        }
-
-        // Generate unique slug
+        // Generate unique slug first to check for collisions
         const slugExists = async (slug, excludeId = null) => {
           const query = { slug };
           if (excludeId) query._id = { $ne: excludeId };
@@ -420,6 +403,28 @@ router.post('/bulk-import', auth, async (req, res) => {
           return !!existing;
         };
         const slug = await generateTemplateSlug(item.title, slugExists);
+
+        // Robust duplicate check (Case-insensitive title and notionLink)
+        const existingTemplate = await Template.findOne({
+          creator: req.user._id,
+          $or: [
+            { title: { $regex: `^${item.title.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' } },
+            { notionLink: item.notionLink.trim() },
+            { slug: slug }
+          ]
+        });
+
+        if (existingTemplate) {
+          let errorMsg = 'القالب موجود بالفعل';
+          if (existingTemplate.slug === slug) errorMsg = 'عنوان القالب مستخدم بالفعل (Slug collision)';
+          else if (existingTemplate.notionLink === item.notionLink.trim()) errorMsg = 'رابط نوشن هذا مستخدم في قالب آخر';
+          
+          results.errors.push({ 
+            title: item.title, 
+            error: errorMsg
+          });
+          continue;
+        }
 
         // Process categories
         let categories = item.categories;

@@ -7,11 +7,12 @@ import { useToast } from '../contexts/ToastContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
-    const [step, setStep] = useState(1); // 1: Upload (Images + CSV), 2: Preview
+    const [step, setStep] = useState(1); // 1: Images, 2: CSV, 3: Preview
     const [file, setFile] = useState(null);
     const [parsing, setParsing] = useState(false);
     const [importing, setImporting] = useState(false);
     const [previewData, setPreviewData] = useState([]);
+    const [importErrors, setImportErrors] = useState([]);
     const [error, setError] = useState(null);
     const imageInputRef = useRef(null);
     const csvInputRef = useRef(null);
@@ -45,7 +46,7 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
     };
 
     const uploadImages = async () => {
-        if (imageFiles.length === 0) return true; // Nothing to upload, move on
+        if (imageFiles.length === 0) return true;
         
         setUploadingImages(true);
         let allSuccess = true;
@@ -79,35 +80,53 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
         return allSuccess;
     };
 
+    const downloadTemplateWithImages = async () => {
+        if (imageFiles.length === 0) {
+            showError('يرجى اختيار صور أولاً');
+            return;
+        }
+
+        const imagesReady = await uploadImages();
+        if (!imagesReady) {
+            showError('حدث خطأ أثناء رفع بعض الصور');
+            return;
+        }
+
+        const uploadedImages = imageFiles.filter(f => f.status === 'success' && f.url);
+        if (uploadedImages.length === 0) {
+            showError('لم يتم رفع أي صور بنجاح');
+            return;
+        }
+
+        const headers = 'العنوان,الوصف,رابط نوشن,الفئات (مثال: إنتاجية),مدفوع (نعم/لا),السعر (بالجنيه المصري),رابط الصورة,المميزات,الوسوم\n';
+        const rows = uploadedImages.map(img => {
+            const placeholderTitle = img.file.name.split('.')[0];
+            return `"${placeholderTitle}","وصف القالب هنا...","https://notion.so/xxx","إنتاجية","نعم","50","${img.url}","ميزة 1","نوشن"`;
+        }).join('\n');
+
+        const blob = new Blob(['\uFEFF' + headers + rows], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'templates_with_images.csv';
+        link.click();
+        showSuccess('تم تحميل الملف. قم بتعبئة البيانات ثم انتقل للخطوة التالية.');
+    };
+
     // --- CSV Handlers ---
     const handleCSVChange = (e) => {
         const selectedFile = e.target.files[0];
         if (selectedFile && selectedFile.type === 'text/csv') {
             setFile(selectedFile);
             setError(null);
+            parseCSV(selectedFile);
         } else {
             setError('يرجى اختيار ملف CSV صالح');
             setFile(null);
         }
     };
 
-    const parseAndMatch = async () => {
-        if (!file) {
-            setError('يرجى اختيار ملف CSV أولاً');
-            return;
-        }
-
+    const parseCSV = (csvFile) => {
         setParsing(true);
-        
-        // Step 1: Upload images first if any are idle
-        const imagesReady = await uploadImages();
-        if (!imagesReady) {
-            setError('حدث خطأ أثناء رفع بعض الصور. يرجى المحاولة مرة أخرى.');
-            setParsing(false);
-            return;
-        }
-
-        // Step 2: Parse CSV
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
@@ -158,21 +177,21 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
                     const obj = {};
                     rawHeaders.forEach((header, index) => {
                         let key = null;
-                        if (header.includes('image') || header.includes('صورة') || header.includes('preview')) key = 'previewImage';
-                        else if (header.includes('title') || header.includes('عنوان')) key = 'title';
-                        else if (header.includes('description') || header.includes('وصف')) key = 'description';
-                        else if (header.includes('notion') || header.includes('نوشن') || header.includes('رابط')) key = 'notionLink';
-                        else if (header.includes('category') || header.includes('categories') || header.includes('فئة') || header.includes('تصنيف')) key = 'categories';
-                        else if (header.includes('paid') || header.includes('مدفوع')) key = 'isPaid';
-                        else if (header.includes('price') || header.includes('سعر')) key = 'price';
-                        else if (header.includes('purchase') || header.includes('شراء')) key = 'purchaseLink';
-                        else if (header.includes('tag') || header.includes('وسم')) key = 'tags';
-                        else if (header.includes('feature') || header.includes('ميزة')) key = 'features';
+                        if (header.includes('صورة') || header.includes('image') || header.includes('preview')) key = 'previewImage';
+                        else if (header.includes('عنوان') || header.includes('title')) key = 'title';
+                        else if (header.includes('وصف') || header.includes('description')) key = 'description';
+                        else if (header.includes('نوشن') || header.includes('رابط') || header.includes('notion')) key = 'notionLink';
+                        else if (header.includes('فئة') || header.includes('فئات') || header.includes('تصنيف') || header.includes('categories')) key = 'categories';
+                        else if (header.includes('مدفوع') || header.includes('paid')) key = 'isPaid';
+                        else if (header.includes('سعر') || header.includes('price')) key = 'price';
+                        else if (header.includes('شراء') || header.includes('purchase')) key = 'purchaseLink';
+                        else if (header.includes('وسم') || header.includes('وسوم') || header.includes('tag')) key = 'tags';
+                        else if (header.includes('ميزة') || header.includes('مميزات') || header.includes('feature')) key = 'features';
 
                         if (key) obj[key] = row[index];
                     });
 
-                    // Auto-match images
+                    // Auto-match images (fallback)
                     const currentImgValue = obj.previewImage || '';
                     if (!currentImgValue.startsWith('http')) {
                         const matchedImage = currentImages.find(img => 
@@ -187,7 +206,7 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
                 });
 
                 setPreviewData(data.filter(item => item.title));
-                setStep(2);
+                setStep(3); // Go to preview
             } catch (err) {
                 console.error('CSV Parsing error:', err);
                 setError('حدث خطأ أثناء تحليل ملف CSV. تأكد من التنسيق الصحيح.');
@@ -195,7 +214,7 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
                 setParsing(false);
             }
         };
-        reader.readAsText(file);
+        reader.readAsText(csvFile);
     };
 
     const handleImport = async () => {
@@ -215,9 +234,14 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
             const response = await api.post('/templates/bulk-import', { templates: formattedData });
 
             if (response.data.success) {
-                showSuccess(response.data.message);
-                onSuccess();
-                onClose();
+                if (response.data.results.errors.length > 0) {
+                    setImportErrors(response.data.results.errors);
+                    showError(`تم استيراد ${response.data.results.success.length} قوالب، وفشل ${response.data.results.errors.length}`);
+                } else {
+                    showSuccess(response.data.message);
+                    onSuccess();
+                    onClose();
+                }
             }
         } catch (err) {
             console.error('Import error:', err);
@@ -238,7 +262,7 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         transition={{ type: "spring", duration: 0.5, bounce: 0.3 }}
-                        className="relative bg-white dark:bg-dark-secondary rounded-3xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh]"
+                        className="relative bg-white dark:bg-dark-secondary rounded-3xl w-full max-w-3xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh]"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Header */}
@@ -249,7 +273,7 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
                                 </div>
                                 <div>
                                     <h3 className="text-xl font-black text-gray-900 dark:text-dark-text-primary">استيراد قوالب ذكي</h3>
-                                    <p className="text-xs font-bold text-gray-500 dark:text-dark-text-secondary">ارفع الصور وملف الـ CSV معاً ليتم الربط والرفع تلقائياً</p>
+                                    <p className="text-xs font-bold text-gray-500 dark:text-dark-text-secondary">ارفع الصور أولاً لتوليد ملف CSV جاهز</p>
                                 </div>
                             </div>
                             <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-dark-primary rounded-xl transition-colors">
@@ -257,157 +281,147 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
                             </button>
                         </div>
 
-                        {/* Steps */}
-                        <div className="px-6 py-4 bg-white dark:bg-dark-secondary border-b border-gray-50 dark:border-dark-card-border flex items-center justify-center gap-8">
+                        {/* Steps Indicator */}
+                        <div className="px-6 py-4 bg-white dark:bg-dark-secondary border-b border-gray-50 dark:border-dark-card-border flex items-center justify-center gap-4">
                             {[
-                                { id: 1, label: 'رفع البيانات', icon: Upload },
-                                { id: 2, label: 'مراجعة وتأكيد', icon: CheckCircle2 }
+                                { id: 1, label: 'رفع الصور', icon: ImageIcon },
+                                { id: 2, label: 'رفع CSV', icon: FileText },
+                                { id: 3, label: 'المراجعة', icon: CheckCircle2 }
                             ].map((s, idx) => (
-                                <div key={s.id} className="flex items-center gap-3">
-                                    <div className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${step === s.id ? 'bg-primary-50 dark:bg-orange-500/10 text-primary-600 dark:text-orange-500' : step > s.id ? 'text-green-500' : 'text-gray-400'}`}>
-                                        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black ${step === s.id ? 'bg-primary-600 text-white shadow-lg' : step > s.id ? 'bg-green-500 text-white' : 'bg-gray-100 dark:bg-dark-tertiary'}`}>
-                                            {step > s.id ? <Check className="w-4 h-4" /> : s.id}
+                                <div key={s.id} className="flex items-center gap-2">
+                                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all ${step === s.id ? 'bg-primary-50 dark:bg-orange-500/10 text-primary-600 dark:text-orange-500' : step > s.id ? 'text-green-500' : 'text-gray-400'}`}>
+                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black ${step === s.id ? 'bg-primary-600 text-white shadow-lg' : step > s.id ? 'bg-green-500 text-white' : 'bg-gray-100 dark:bg-dark-tertiary'}`}>
+                                            {step > s.id ? <Check className="w-3.5 h-3.5" /> : s.id}
                                         </div>
-                                        <span className="text-sm font-black">{s.label}</span>
+                                        <span className="text-xs font-black hidden sm:inline">{s.label}</span>
                                     </div>
-                                    {idx === 0 && <div className={`w-16 h-0.5 rounded-full ${step > s.id ? 'bg-green-500' : 'bg-gray-100 dark:bg-dark-tertiary'}`} />}
+                                    {idx < 2 && <div className={`w-8 h-0.5 rounded-full ${step > s.id ? 'bg-green-500' : 'bg-gray-100 dark:bg-dark-tertiary'}`} />}
                                 </div>
                             ))}
                         </div>
 
-                        <div className="p-6 overflow-y-auto flex-1">
+                        <div className="p-6 overflow-y-auto min-h-[400px]">
                             {step === 1 && (
-                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                    {/* CSV Upload Section */}
-                                    <div className="space-y-4">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <h4 className="text-sm font-black text-gray-900 dark:text-dark-text-primary flex items-center gap-2">
-                                                <FileText className="w-4 h-4 text-primary-600" />
-                                                1. ملف البيانات (CSV)
-                                            </h4>
-                                            <button
-                                                onClick={() => {
-                                                    const headers = 'Title,Description,Notion Link,Categories,Is Paid,Price,Preview Image,Features,Tags\n';
-                                                    const sample = '"قالب إدارة المهام","وصف القالب...","https://notion.so/xxx","إنتاجية","TRUE","50","TemplateA.png","ميزة 1\nميزة 2","نوشن"';
-                                                    const blob = new Blob(['\uFEFF' + headers + sample], { type: 'text/csv;charset=utf-8;' });
-                                                    const link = document.createElement('a');
-                                                    link.href = URL.createObjectURL(blob);
-                                                    link.download = 'template_sample.csv';
-                                                    link.click();
-                                                }}
-                                                className="text-[10px] font-black text-primary-600 hover:underline"
-                                            >
-                                                تحميل النموذج
-                                            </button>
+                                <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+                                    <div className="bg-primary-50/50 dark:bg-primary-900/10 border border-primary-100 dark:border-primary-900/20 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                        <div>
+                                            <h4 className="text-sm font-bold text-gray-900 dark:text-dark-text-primary mb-1">الخطوة 1: ارفع صور القوالب</h4>
+                                            <p className="text-xs text-gray-500 dark:text-dark-text-secondary">بعد الرفع، يمكنك تحميل ملف CSV يحتوي على روابط الصور جاهزة.</p>
                                         </div>
-
-                                        {!file ? (
-                                            <div 
-                                                onClick={() => csvInputRef.current?.click()}
-                                                className="border-2 border-dashed border-gray-200 dark:border-dark-card-border rounded-2xl p-10 text-center hover:border-primary-500 transition-all cursor-pointer bg-gray-50/30 dark:bg-dark-primary/30 group aspect-video flex flex-col items-center justify-center"
-                                            >
-                                                <input type="file" accept=".csv" className="hidden" ref={csvInputRef} onChange={handleCSVChange} />
-                                                <div className="w-16 h-16 bg-white dark:bg-dark-secondary rounded-2xl flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
-                                                    <FileText className="w-8 h-8 text-gray-400 group-hover:text-primary-500" />
-                                                </div>
-                                                <p className="text-sm font-bold text-gray-700 dark:text-dark-text-primary">اختر ملف CSV</p>
-                                                <p className="text-[10px] text-gray-400 mt-2">الملف الذي يحتوي على معلومات القوالب</p>
-                                            </div>
-                                        ) : (
-                                            <div className="p-6 bg-primary-50 dark:bg-orange-900/10 rounded-2xl border border-primary-100 dark:border-orange-500/20 flex items-center justify-between">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-12 h-12 bg-white dark:bg-dark-secondary rounded-xl flex items-center justify-center text-primary-600 shadow-sm">
-                                                        <FileText className="w-6 h-6" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-black text-gray-900 dark:text-dark-text-primary">{file.name}</p>
-                                                        <p className="text-[10px] text-gray-500">جاهز للتحليل</p>
-                                                    </div>
-                                                </div>
-                                                <button onClick={() => setFile(null)} className="text-[10px] font-bold text-red-600 hover:underline">تغيير</button>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Images Upload Section */}
-                                    <div className="space-y-4">
-                                        <h4 className="text-sm font-black text-gray-900 dark:text-dark-text-primary flex items-center gap-2 mb-2">
-                                            <ImageIcon className="w-4 h-4 text-primary-600" />
-                                            2. الصور الملحقة (اختياري)
-                                        </h4>
-                                        
-                                        <div 
-                                            onClick={() => imageInputRef.current?.click()}
-                                            className="border-2 border-dashed border-gray-200 dark:border-dark-card-border rounded-2xl p-6 text-center hover:border-primary-500 transition-all cursor-pointer bg-gray-50/30 dark:bg-dark-primary/30 group"
-                                        >
-                                            <input type="file" multiple accept="image/*" className="hidden" ref={imageInputRef} onChange={handleImageSelect} />
-                                            <div className="flex items-center justify-center gap-3">
-                                                <div className="w-10 h-10 bg-white dark:bg-dark-secondary rounded-lg flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                                                    <ImageIcon className="w-5 h-5 text-gray-400 group-hover:text-primary-500" />
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="text-xs font-bold text-gray-700 dark:text-dark-text-primary">ارفع الصور هنا</p>
-                                                    <p className="text-[10px] text-gray-400">سيتم ربطها تلقائياً بالاسم</p>
-                                                </div>
-                                            </div>
-                                        </div>
-
                                         {imageFiles.length > 0 && (
-                                            <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 max-h-[200px] overflow-y-auto p-2 border border-gray-100 dark:border-dark-card-border rounded-xl">
-                                                {imageFiles.map((f) => (
-                                                    <div key={f.id} className="relative aspect-square rounded-lg overflow-hidden border border-gray-50 dark:border-dark-card-border bg-white dark:bg-dark-tertiary group">
-                                                        <img src={f.preview} alt="" className="w-full h-full object-cover" />
-                                                        <button onClick={() => removeImage(f.id)} className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
-                                                            <Trash2 className="w-3 h-3" />
-                                                        </button>
-                                                        {f.status === 'success' && <div className="absolute inset-0 bg-green-500/40 flex items-center justify-center"><Check className="w-4 h-4 text-white" /></div>}
-                                                    </div>
-                                                ))}
-                                            </div>
+                                            <button 
+                                                onClick={downloadTemplateWithImages} 
+                                                disabled={uploadingImages}
+                                                className="px-4 py-2 bg-white dark:bg-dark-tertiary border border-primary-200 text-primary-600 rounded-xl text-xs font-black shadow-sm"
+                                            >
+                                                {uploadingImages ? 'جاري الرفع...' : 'تحميل CSV بالصور'}
+                                            </button>
                                         )}
                                     </div>
 
-                                    {error && (
-                                        <div className="lg:col-span-2 p-4 bg-red-50 dark:bg-red-900/10 rounded-xl flex items-start gap-3 border border-red-100 dark:border-red-500/20">
-                                            <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
-                                            <p className="text-sm text-red-600 font-bold">{error}</p>
+                                    <div 
+                                        onClick={() => imageInputRef.current?.click()}
+                                        className="border-2 border-dashed border-gray-200 dark:border-dark-card-border rounded-2xl p-12 text-center hover:border-primary-500 transition-all cursor-pointer bg-gray-50/30 dark:bg-dark-primary/30 group"
+                                    >
+                                        <input type="file" multiple accept="image/*" className="hidden" ref={imageInputRef} onChange={handleImageSelect} />
+                                        <div className="w-16 h-16 bg-white dark:bg-dark-secondary rounded-xl flex items-center justify-center mx-auto mb-4 shadow-sm group-hover:scale-110 transition-transform">
+                                            <ImageIcon className="w-8 h-8 text-gray-400 group-hover:text-primary-500" />
+                                        </div>
+                                        <p className="text-sm font-bold text-gray-700 dark:text-dark-text-primary">اضغط لاختيار الصور أو اسحبها هنا</p>
+                                    </div>
+
+                                    {imageFiles.length > 0 && (
+                                        <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
+                                            {imageFiles.map((f) => (
+                                                <div key={f.id} className="relative aspect-square rounded-xl overflow-hidden border border-gray-100 dark:border-dark-card-border bg-white dark:bg-dark-tertiary group">
+                                                    <img src={f.preview} alt="" className="w-full h-full object-cover" />
+                                                    <button onClick={() => removeImage(f.id)} className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <Trash2 className="w-3 h-3" />
+                                                    </button>
+                                                    {f.status === 'success' && (
+                                                        <div className="absolute inset-0 bg-green-500/80 flex items-center justify-center text-white">
+                                                            <Check className="w-5 h-5" />
+                                                        </div>
+                                                    )}
+                                                    {f.status === 'uploading' && (
+                                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                                            <Loader2 className="w-5 h-5 text-white animate-spin" />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
                                         </div>
                                     )}
                                 </motion.div>
                             )}
 
                             {step === 2 && (
+                                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
+                                    <div className="p-4 bg-primary-50/50 dark:bg-primary-900/10 border border-primary-100 dark:border-primary-900/20 rounded-2xl">
+                                        <h4 className="text-sm font-bold text-gray-900 dark:text-dark-text-primary mb-1">الخطوة 2: ارفع ملف الـ CSV المعبأ</h4>
+                                        <p className="text-xs text-gray-500 dark:text-dark-text-secondary">ارفع الملف الذي قمت بتعبئته بالبيانات (والذي يحتوي على روابط الصور).</p>
+                                    </div>
+
+                                    <div 
+                                        onClick={() => csvInputRef.current?.click()}
+                                        className="border-2 border-dashed border-gray-200 dark:border-dark-card-border rounded-2xl p-16 text-center hover:border-primary-500 transition-all cursor-pointer bg-gray-50/30 dark:bg-dark-primary/30 group"
+                                    >
+                                        <input type="file" accept=".csv" className="hidden" ref={csvInputRef} onChange={handleCSVChange} />
+                                        <div className="w-20 h-20 bg-white dark:bg-dark-secondary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm group-hover:scale-110 transition-transform">
+                                            <FileText className="w-10 h-10 text-gray-400 group-hover:text-primary-500" />
+                                        </div>
+                                        <h4 className="text-lg font-bold text-gray-900 dark:text-dark-text-primary mb-2">اختر ملف CSV</h4>
+                                        <p className="text-sm text-gray-500">سيتم تحليل الملف للمراجعة فوراً</p>
+                                    </div>
+
+                                    <div className="flex justify-center">
+                                        <button 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                const headers = 'العنوان,الوصف,رابط نوشن,الفئات (مثال: إنتاجية),مدفوع (نعم/لا),السعر (بالجنيه المصري),رابط الصورة,المميزات,الوسوم\n';
+                                                const sample = '"قالب إدارة المهام","وصف القالب...","https://notion.so/xxx","إنتاجية","نعم","50","TemplateA.png","ميزة 1\nميزة 2","نوشن"';
+                                                const blob = new Blob(['\uFEFF' + headers + sample], { type: 'text/csv;charset=utf-8;' });
+                                                const link = document.createElement('a');
+                                                link.href = URL.createObjectURL(blob);
+                                                link.download = 'templates_sample.csv';
+                                                link.click();
+                                            }}
+                                            className="text-xs font-bold text-primary-600 hover:underline flex items-center gap-2"
+                                        >
+                                            <FileText className="w-3.5 h-3.5" /> تحميل ملف تجريبي (Sample)
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            )}
+
+                            {step === 3 && (
                                 <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="space-y-4">
-                                    <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/20 rounded-xl">
-                                        <h5 className="text-sm font-bold text-green-700 dark:text-green-400 flex items-center gap-2">
-                                            <CheckCircle2 className="w-4 h-4" />
-                                            تم تحليل {previewData.length} قالب بنجاح مع ربط الصور
+                                    <div className="flex items-center justify-between">
+                                        <h5 className="text-sm font-bold text-gray-700 dark:text-dark-text-primary flex items-center gap-2">
+                                            <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                            تم تحليل {previewData.length} قالب بنجاح
                                         </h5>
-                                        <button onClick={() => setStep(1)} className="text-[10px] font-black text-primary-600 hover:underline">العودة لتعديل الملفات</button>
+                                        <button onClick={() => setStep(2)} className="text-xs font-bold text-primary-600 hover:underline">تغيير الملف</button>
                                     </div>
 
                                     <div className="rounded-2xl border border-gray-100 dark:border-dark-card-border overflow-hidden">
                                         <table className="w-full text-right text-xs">
                                             <thead className="bg-gray-50 dark:bg-dark-tertiary">
                                                 <tr>
-                                                    <th className="px-4 py-3 font-black text-gray-700 dark:text-dark-text-secondary">العنوان</th>
-                                                    <th className="px-4 py-3 font-black text-gray-700 dark:text-dark-text-secondary">السعر</th>
-                                                    <th className="px-4 py-3 font-black text-gray-700 dark:text-dark-text-secondary">الصورة</th>
-                                                    <th className="px-4 py-3 font-black text-gray-700 dark:text-dark-text-secondary">الفئة</th>
+                                                    <th className="px-4 py-3 font-bold text-gray-700 dark:text-dark-text-secondary">العنوان</th>
+                                                    <th className="px-4 py-3 font-bold text-gray-700 dark:text-dark-text-secondary">السعر</th>
+                                                    <th className="px-4 py-3 font-bold text-gray-700 dark:text-dark-text-secondary">الصورة</th>
+                                                    <th className="px-4 py-3 font-bold text-gray-700 dark:text-dark-text-secondary">الفئة</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-50 dark:divide-dark-card-border/50">
                                                 {previewData.slice(0, 10).map((item, idx) => (
                                                     <tr key={idx} className="dark:text-dark-text-primary hover:bg-gray-50/50 dark:hover:bg-dark-primary/30 transition-colors">
                                                         <td className="px-4 py-3 font-bold truncate max-w-[200px]">{item.title}</td>
-                                                        <td className="px-4 py-3 font-black text-primary-600">{item.price || '0'} $</td>
+                                                        <td className="px-4 py-3">{item.price || '0'} ج.م</td>
                                                         <td className="px-4 py-3">
                                                             <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-dark-tertiary overflow-hidden border border-gray-100 dark:border-dark-card-border">
-                                                                {item.previewImage ? (
-                                                                    <img src={item.previewImage} alt="" className="w-full h-full object-cover" />
-                                                                ) : (
-                                                                    <div className="w-full h-full flex items-center justify-center text-[8px] text-gray-400 italic">بدون</div>
-                                                                )}
+                                                                {item.previewImage ? <img src={item.previewImage} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-[8px] text-gray-300">بدون</div>}
                                                             </div>
                                                         </td>
                                                         <td className="px-4 py-3 truncate max-w-[150px]">{item.categories}</td>
@@ -415,39 +429,74 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
                                                 ))}
                                             </tbody>
                                         </table>
-                                        {previewData.length > 10 && (
-                                            <div className="p-3 bg-gray-50 dark:bg-dark-tertiary text-center text-[10px] text-gray-500 font-bold">
-                                                ... بالإضافة إلى {previewData.length - 10} قالب آخر
-                                            </div>
-                                        )}
                                     </div>
                                 </motion.div>
+                            )}
+
+                            {importErrors.length > 0 && (
+                                <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/10 rounded-2xl border border-red-100 dark:border-red-500/20">
+                                    <h4 className="text-sm font-black text-red-600 mb-2">أخطاء الاستيراد ({importErrors.length}):</h4>
+                                    <div className="space-y-1 max-h-[150px] overflow-y-auto pr-2">
+                                        {importErrors.map((err, idx) => (
+                                            <div key={idx} className="text-[10px] text-red-500 flex items-center justify-between border-b border-red-100 dark:border-red-900/30 py-1">
+                                                <span className="font-bold truncate max-w-[150px]">{err.title}</span>
+                                                <span className="opacity-80">{err.error}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button 
+                                        onClick={() => {
+                                            setImportErrors([]);
+                                            onSuccess(); // Refresh what WAS successful
+                                        }} 
+                                        className="mt-3 text-[10px] font-black text-red-600 hover:underline"
+                                    >
+                                        إخفاء الأخطاء والمتابعة
+                                    </button>
+                                </div>
+                            )}
+
+                            {error && (
+                                <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/10 rounded-xl flex items-start gap-3 border border-red-100 dark:border-red-500/20">
+                                    <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
+                                    <p className="text-sm text-red-600 font-bold">{error}</p>
+                                </div>
                             )}
                         </div>
 
                         {/* Footer */}
                         <div className="px-6 py-4 bg-gray-50/50 dark:bg-dark-tertiary border-t border-gray-100 dark:border-dark-card-border flex items-center justify-between">
                             <button
-                                onClick={step === 1 ? onClose : () => setStep(1)}
+                                onClick={step === 1 ? onClose : () => setStep(step - 1)}
                                 className="px-5 py-2.5 text-sm font-bold text-gray-600 dark:text-dark-text-secondary hover:bg-gray-100 dark:hover:bg-dark-primary rounded-xl transition-all"
                             >
                                 {step === 1 ? 'إلغاء' : 'السابق'}
                             </button>
 
-                            <button
-                                disabled={parsing || importing || (step === 1 && !file)}
-                                onClick={step === 1 ? parseAndMatch : handleImport}
-                                className={`flex items-center gap-2 px-8 py-2.5 text-sm font-black rounded-xl transition-all shadow-lg ${step === 2 ? 'bg-green-600 hover:bg-green-700 text-white shadow-green-200 dark:shadow-none' : 'bg-primary-600 hover:bg-primary-700 text-white shadow-primary-200 dark:shadow-none'} disabled:opacity-50`}
-                            >
-                                {parsing || importing ? (
-                                    <>
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                        {parsing ? 'جاري التحليل والربط...' : 'جاري الاستيراد...'}
-                                    </>
-                                ) : (
-                                    step === 1 ? <>{'تحليل ومراجعة البيانات'} <ChevronLeft className="w-4 h-4" /></> : 'تأكيد الاستيراد النهائي'
+                            <div className="flex gap-3">
+                                {step === 1 && (
+                                    <button
+                                        onClick={() => setStep(2)}
+                                        className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white text-sm font-black rounded-xl hover:bg-primary-700 shadow-lg shadow-primary-200 dark:shadow-none transition-all"
+                                    >
+                                        التالي: رفع CSV <ChevronLeft className="w-4 h-4" />
+                                    </button>
                                 )}
-                            </button>
+                                {step === 2 && parsing && (
+                                    <div className="flex items-center gap-2 px-6 py-2.5 text-primary-600 font-bold animate-pulse">
+                                        <Loader2 className="w-4 h-4 animate-spin" /> جاري التحليل...
+                                    </div>
+                                )}
+                                {step === 3 && (
+                                    <button
+                                        disabled={importing}
+                                        onClick={handleImport}
+                                        className="flex items-center gap-2 px-8 py-2.5 bg-green-600 text-white text-sm font-black rounded-xl hover:bg-green-700 shadow-lg shadow-green-200 dark:shadow-none transition-all"
+                                    >
+                                        {importing ? <><Loader2 className="w-4 h-4 animate-spin" /> جاري الاستيراد...</> : 'تأكيد الاستيراد النهائي'}
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </motion.div>
                 </div>

@@ -670,17 +670,14 @@ export default function AdminPage() {
                               )}
                             </div>
                             <div>
-                              <div className="text-sm font-bold text-accent-500 dark:text-dark-text-primary group-hover:text-primary-500 dark:group-hover:text-orange-500 transition-colors">
+                              <div className="text-sm font-black text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-orange-500 transition-colors">
                                 {user.name}
-                                {user.username && (
-                                  <span className="text-[10px] text-accent-400 dark:text-dark-text-quaternary mr-1">
-                                    @{user.username}
-                                  </span>
-                                )}
                               </div>
-                              <div className="text-[10px] text-accent-400 dark:text-dark-text-quaternary font-mono">
-                                {user._id.substring(0, 8)}...
-                              </div>
+                              {user.username && (
+                                <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 mt-0.5">
+                                  @{user.username}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </td>

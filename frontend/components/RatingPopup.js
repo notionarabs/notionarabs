@@ -112,7 +112,7 @@ export default function RatingPopup({
           {!isTemplateCreator && (
             <RatingCommentSystem
               targetType="template"
-              targetId={template?._id}
+              targetId={template?._id || template?.id}
               initialRating={template?.rating || 0}
               initialUserRating={userRating ? { rating: userRating.rating, review: userRating.review } : null}
               initialUserComment={userComment}

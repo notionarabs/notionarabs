@@ -113,8 +113,19 @@ export default function CreatorsClient() {
                     placeholder="ابحث عن المبدع القادم..."
                     className="w-full bg-transparent border-none focus:ring-0 px-8 py-5 text-lg text-foreground dark:text-white placeholder:text-foreground/40 dark:placeholder:text-white/30"
                   />
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20">
-                    <Search className="w-5 h-5" />
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                    {searchTerm && (
+                      <button 
+                        type="button"
+                        onClick={() => setSearchTerm('')}
+                        className="p-2 text-foreground/40 hover:text-primary transition-colors"
+                      >
+                        <XCircle className="w-5 h-5" />
+                      </button>
+                    )}
+                    <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20">
+                      <Search className="w-5 h-5" />
+                    </div>
                   </div>
                 </div>
 
@@ -136,6 +147,23 @@ export default function CreatorsClient() {
                   )}
                 </div>
               </div>
+
+              {/* Specialty Filter Pills */}
+              <div className="flex items-center justify-center gap-3 overflow-x-auto no-scrollbar pb-4">
+                {['all', 'productivity', 'business', 'students', 'lifestyle', 'design'].map((spec) => (
+                  <button
+                    key={spec}
+                    onClick={() => { setSelectedSpecialty(spec); setPagination(p => ({ ...p, current: 1 })); }}
+                    className={`px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${
+                      selectedSpecialty === spec 
+                        ? 'bg-primary text-white shadow-xl shadow-primary/20 scale-105' 
+                        : 'bg-white/50 dark:bg-white/5 text-foreground/40 hover:bg-white/10'
+                    }`}
+                  >
+                    {spec === 'all' ? 'الكل' : spec === 'productivity' ? 'إنتاجية' : spec === 'business' ? 'أعمال' : spec === 'students' ? 'طلاب' : spec === 'lifestyle' ? 'أسلوب حياة' : 'تصميم'}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -150,45 +178,61 @@ export default function CreatorsClient() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-              {allCreators.map((creator, i) => (
-                <Link key={creator.id} href={`/creators/${creator.username || creator.id}`} className="group">
-                  <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[4rem] p-12 shadow-large group-hover:shadow-glow group-hover:-translate-y-4 transition-all duration-700 h-full flex flex-col border-none relative overflow-hidden text-center items-center">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl" />
-                    <div className="relative w-32 h-32 mb-8">
-                       <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-                       {creator.profilePicture ? (
-                         <Image src={creator.profilePicture} alt="" fill className="rounded-full object-cover shadow-large border-none group-hover:scale-110 transition-transform duration-700" />
-                       ) : (
-                         <div className="w-full h-full rounded-full bg-primary/10 flex items-center justify-center text-4xl font-black text-primary shadow-soft">{creator.name?.charAt(0)}</div>
-                       )}
-                       {creator.badges?.length > 0 && (
-                         <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-white shadow-glow rotate-12">
-                           <Award size={24} />
+              {allCreators.length > 0 ? (
+                allCreators.map((creator, i) => (
+                  <Link key={creator.id} href={`/creators/${creator.username || creator.id}`} className="group">
+                    <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[4rem] p-12 shadow-large group-hover:shadow-glow group-hover:-translate-y-4 transition-all duration-700 h-full flex flex-col border-none relative overflow-hidden text-center items-center">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl" />
+                      <div className="relative w-32 h-32 mb-8">
+                         <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                         {creator.profilePicture ? (
+                           <Image src={creator.profilePicture} alt="" fill className="rounded-full object-cover shadow-large border-none group-hover:scale-110 transition-transform duration-700" />
+                         ) : (
+                           <div className="w-full h-full rounded-full bg-primary/10 flex items-center justify-center text-4xl font-black text-primary shadow-soft">{(creator.displayName || creator.name)?.charAt(0)}</div>
+                         )}
+                         {creator.badges?.length > 0 && (
+                           <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-white shadow-glow rotate-12">
+                             <Award size={24} />
+                           </div>
+                         )}
+                      </div>
+
+                      <h3 className="text-3xl font-black text-accent-500 dark:text-white mb-4 group-hover:text-primary transition-colors tracking-tighter">{creator.displayName || creator.name}</h3>
+                      <div className="flex items-center gap-2 mb-6"><StarRating rating={creator.rating || 5} /></div>
+                      <p className="text-base text-accent-700/60 dark:text-white/40 mb-10 line-clamp-2 leading-relaxed font-medium italic">{creator.bio || 'مبدع مستقل يساهم في إثراء المحتوى العربي على نوشن.'}</p>
+                      
+                      <div className="grid grid-cols-2 gap-8 w-full mb-12 border-y border-accent-900/5 dark:border-white/5 py-8">
+                         <div>
+                           <div className="text-2xl font-black text-accent-900 dark:text-white">{creator.templatesCount || creator.templates || 0}</div>
+                           <div className="text-[10px] font-black uppercase tracking-widest text-accent-900/30 dark:text-white/20">نظام</div>
                          </div>
-                       )}
-                    </div>
+                         <div>
+                           <div className="text-2xl font-black text-accent-900 dark:text-white">{creator.followersCount || creator.followers || 0}</div>
+                           <div className="text-[10px] font-black uppercase tracking-widest text-accent-900/30 dark:text-white/20">متابع</div>
+                         </div>
+                      </div>
 
-                    <h3 className="text-3xl font-black text-accent-500 dark:text-white mb-4 group-hover:text-primary transition-colors tracking-tighter">{creator.name}</h3>
-                    <div className="flex items-center gap-2 mb-6"><StarRating rating={creator.rating || 5} /></div>
-                    <p className="text-base text-accent-700/60 dark:text-white/40 mb-10 line-clamp-2 leading-relaxed font-medium italic">{creator.bio || 'مبدع مستقل يساهم في إثراء المحتوى العربي على نوشن.'}</p>
-                    
-                    <div className="grid grid-cols-2 gap-8 w-full mb-12 border-y border-accent-900/5 dark:border-white/5 py-8">
-                       <div>
-                         <div className="text-2xl font-black text-accent-900 dark:text-white">{creator.templates || 0}</div>
-                         <div className="text-[10px] font-black uppercase tracking-widest text-accent-900/30 dark:text-white/20">نظام</div>
-                       </div>
-                       <div>
-                         <div className="text-2xl font-black text-accent-900 dark:text-white">{creator.followers || 0}</div>
-                         <div className="text-[10px] font-black uppercase tracking-widest text-accent-900/30 dark:text-white/20">متابع</div>
-                       </div>
+                      <div className="w-full flex flex-col gap-4">
+                         <button className="w-full py-5 rounded-2xl bg-accent-900 dark:bg-white text-white dark:text-accent-900 font-black text-xs uppercase tracking-[0.2em] shadow-soft group-hover:shadow-large transition-all">الملف الشخصي</button>
+                      </div>
                     </div>
-
-                    <div className="w-full flex flex-col gap-4">
-                       <button className="w-full py-5 rounded-2xl bg-accent-900 dark:bg-white text-white dark:text-accent-900 font-black text-xs uppercase tracking-[0.2em] shadow-soft group-hover:shadow-large transition-all">الملف الشخصي</button>
-                    </div>
+                  </Link>
+                ))
+              ) : (
+                <div className="col-span-full py-48 bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-[4rem] text-center">
+                  <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-8">
+                    <Search className="w-10 h-10 text-primary" />
                   </div>
-                </Link>
-              ))}
+                  <h3 className="text-4xl font-black text-accent-500 dark:text-white mb-6 tracking-tighter">لم يتم العثور على مبدعين</h3>
+                  <p className="text-xl text-accent-700/40 dark:text-white/30 max-w-xl mx-auto mb-12 font-medium">نحن بصدد استقطاب المزيد من المبدعين. حاول تغيير فلاتر البحث.</p>
+                  <button 
+                    onClick={() => { setSearchTerm(''); setSelectedSpecialty('all'); }} 
+                    className="px-12 py-5 bg-accent-900 dark:bg-white text-white dark:text-accent-900 font-black rounded-2xl shadow-glow uppercase tracking-widest text-xs"
+                  >
+                    إعادة ضبط البحث
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>

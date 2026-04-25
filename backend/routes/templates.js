@@ -604,7 +604,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
 // @route   GET /api/templates/my-templates
 // @desc    Get current user's templates
 // @access  Private (Creator)
-router.get('/my-templates', auth, cacheMiddleware(120), async (req, res) => {
+router.get('/my-templates', auth, async (req, res) => {
   try {
     if (req.user.creatorStatus !== 'approved' || req.user.role !== 'creator') {
       return res.status(403).json({
@@ -900,7 +900,7 @@ router.get('/similar/:id', cacheMiddleware(600), async (req, res) => {
 // @route   GET /api/templates/:identifier
 // @desc    Get single template by ID or slug
 // @access  Public
-router.get('/:identifier', cacheMiddleware(600), async (req, res) => {
+router.get('/:identifier', async (req, res) => {
   try {
     const { identifier } = req.params;
 

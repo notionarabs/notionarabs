@@ -151,8 +151,8 @@ export default function CategoryTemplatesClient({ categoryId, categoryName }) {
                   <Link key={rel._id} href={`/templates/${rel.slug || rel._id}`} className="group">
                     <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[3.5rem] shadow-large group-hover:shadow-glow group-hover:-translate-y-4 transition-all duration-700 h-full flex flex-col border-none overflow-hidden isolate relative">
                        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-                       <div className="relative h-64 m-4 overflow-hidden rounded-[2.5rem] shadow-soft">
-                         <Image src={rel.previewImage || '/placeholder-template.jpg'} alt={rel.title} fill className="object-cover object-top group-hover:scale-110 transition-transform duration-1000" />
+                       <div className="relative aspect-[16/10] m-4 overflow-hidden rounded-[2.5rem] shadow-soft">
+                         <Image src={rel.previewImage || '/placeholder-template.jpg'} alt={rel.title} fill className="object-cover object-center group-hover:scale-105 transition-transform duration-1000" />
                          <div className="absolute top-6 left-6 z-20">
                             <div className="px-6 py-3 bg-black/40 backdrop-blur-xl rounded-[1.2rem] text-white font-black text-xs uppercase tracking-widest shadow-glow">
                               {rel.isPaid ? `${rel.price} ج.م` : 'مجاني'}

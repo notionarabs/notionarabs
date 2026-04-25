@@ -12,6 +12,8 @@ import {
     TrendingUp,
     Download,
     Edit3,
+    Layout,
+    Users,
     ChevronRight,
     Home,
     DollarSign
@@ -30,7 +32,11 @@ const ProfileSidebar = ({ userStatus, onNavigate, activeSection, role }) => {
     ];
 
     const adminLinks = isAdmin ? [
-        { section: 'admin-payouts', href: '/profile?tab=admin-payouts', label: 'إدارة السحوبات', icon: DollarSign },
+        { section: 'admin-dashboard', href: '/admin', label: 'لوحة التحكم العامة', icon: LayoutDashboard },
+        { section: 'admin-templates', href: '/admin/templates', label: 'إدارة القوالب', icon: Layout },
+        { section: 'admin-blogs', href: '/admin/blogs', label: 'إدارة المقالات', icon: FileText },
+        { section: 'admin-creators', href: '/admin/creator-applications', label: 'طلبات المبدعين', icon: Users },
+        { section: 'admin-payouts', href: '/admin/payouts', label: 'إدارة السحوبات', icon: DollarSign },
     ] : [];
 
     const contentLinks = isCreator ? [
@@ -58,10 +64,13 @@ const ProfileSidebar = ({ userStatus, onNavigate, activeSection, role }) => {
                         const isActive = activeSection === link.section;
 
                         return (
-                            <button
+                            <Link
                                 key={link.href}
-                                onClick={() => {
-                                    if (onNavigate) {
+                                href={link.href}
+                                onClick={(e) => {
+                                    // If it's a tab change on the same page, prevent default and use onNavigate
+                                    if ((link.href.startsWith('/profile?tab=') || link.href === '/profile') && onNavigate) {
+                                        e.preventDefault();
                                         onNavigate(link.section);
                                     }
                                     setIsMobileMenuOpen(false);
@@ -73,7 +82,7 @@ const ProfileSidebar = ({ userStatus, onNavigate, activeSection, role }) => {
                             >
                                 <Icon size={18} />
                                 <span>{link.label}</span>
-                            </button>
+                            </Link>
                         );
                     })}
                 </nav>

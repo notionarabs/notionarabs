@@ -9,6 +9,8 @@ import api from '../../../../lib/api';
 import LoadingIndicator from '../../../../components/LoadingIndicator';
 import StarRating from '../../../../components/StarRating';
 import { getCategoryName } from '../../../../lib/categoryMapping';
+import { BreadcrumbWrapper } from '../../../../components/Breadcrumb';
+import { ItemListSchema } from '../../../../components/StructuredData';
 
 const sortOptions = [
   { name: "الأحدث", value: "createdAt" },
@@ -103,6 +105,17 @@ function CategoryTemplatesContent() {
 
   return (
     <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
+      {templates.length > 0 && (
+        <ItemListSchema 
+          items={templates} 
+          listName={`قوالب نوشن - ${categoryName}`} 
+        />
+      )}
+      <BreadcrumbWrapper items={[
+        { name: 'المتجر', url: '/templates' },
+        { name: categoryName, url: `/templates/category/${categorySlug}` }
+      ]} />
+      
       {/* Header */}
       <div className="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-dark-card-border transition-colors duration-300">
         <div className="container-custom py-8 sm:py-10 md:py-12">

@@ -238,7 +238,11 @@ export default function TemplateClient({ initialTemplate }) {
   );
 
   const reviewsToShow = useMemo(() => {
-    return templateRatings.map(r => ({ ...r, date: r.createdAt }));
+    return templateRatings.map(r => ({ 
+      ...r, 
+      ratingId: r._id || r.id,
+      date: r.createdAt 
+    }));
   }, [templateRatings]);
 
   if (loading && !template) {
@@ -300,25 +304,30 @@ export default function TemplateClient({ initialTemplate }) {
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-0 min-h-[500px]">
               
               {/* Media Section - Should be on one side */}
-              <div className="lg:col-span-3 p-4 sm:p-10 bg-gray-50/30 dark:bg-black/10 flex flex-col justify-center">
-                <div className="relative aspect-video w-full rounded-[2rem] overflow-hidden bg-white dark:bg-dark-tertiary shadow-2xl border border-gray-100 dark:border-dark-card-border group">
+              <div className="lg:col-span-3 p-4 sm:p-6 bg-gray-50/30 dark:bg-black/10 flex flex-col justify-center">
+                <div className="relative w-full rounded-[2rem] overflow-hidden bg-white dark:bg-dark-tertiary shadow-2xl border border-gray-100 dark:border-dark-card-border group">
                   {showVideo ? (
-                    <iframe
-                      src={getVideoEmbedUrl(template.explanationVideo)}
-                      className="w-full h-full"
-                      frameBorder="0"
-                      allowFullScreen
-                    />
+                    <div className="aspect-video w-full">
+                      <iframe
+                        src={getVideoEmbedUrl(template.explanationVideo)}
+                        className="w-full h-full"
+                        frameBorder="0"
+                        allowFullScreen
+                      />
+                    </div>
                   ) : (
-                    <Image
-                      src={selectedImage === -2 ? template.previewImage : (template.previewImages?.[selectedImage] || template.previewImage)}
-                      alt={template.title}
-                      fill
-                      className="object-contain transition-transform duration-700 group-hover:scale-105 cursor-zoom-in"
-                      onClick={() => setIsLightboxOpen(true)}
-                      priority
-                      unoptimized={template.previewImage?.includes('notion.so')} // Notion images often need this
-                    />
+                    <div className="w-full h-auto relative">
+                      <Image
+                        src={selectedImage === -2 ? template.previewImage : (template.previewImages?.[selectedImage] || template.previewImage)}
+                        alt={template.title}
+                        width={1200}
+                        height={800}
+                        className="w-full h-auto transition-transform duration-700 group-hover:scale-105 cursor-zoom-in"
+                        onClick={() => setIsLightboxOpen(true)}
+                        priority
+                        unoptimized={template.previewImage?.includes('notion.so')}
+                      />
+                    </div>
                   )}
                   
                   <div className="absolute top-6 right-6 px-4 py-2 bg-white/90 dark:bg-black/60 backdrop-blur-md rounded-full text-[10px] font-black text-gray-900 dark:text-white border border-white/20 shadow-lg uppercase tracking-widest">
@@ -476,26 +485,65 @@ export default function TemplateClient({ initialTemplate }) {
                 </div>
                 
                 <div className="prose prose-lg dark:prose-invert max-w-none mb-12">
-                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed font-medium whitespace-pre-line text-lg">
+                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed font-medium whitespace-pre-wrap text-lg">
                     {template.description}
                   </p>
                 </div>
 
-                {template.features && Array.isArray(template.features) && template.features.length > 0 && (
-                  <div className="pt-10 border-t border-gray-100 dark:border-dark-card-border">
-                    <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-8">المميزات الرئيسية</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {template.features.map((feature, i) => (
-                        <div key={i} className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-dark-tertiary/50 rounded-2xl border border-gray-100/50 dark:border-dark-card-border hover:border-primary/30 transition-colors group">
-                           <div className="w-8 h-8 rounded-full bg-white dark:bg-dark-secondary shadow-sm flex items-center justify-center text-primary flex-shrink-0 group-hover:scale-110 transition-transform">
-                              <CheckCircle size={16} />
-                           </div>
-                           <span className="text-sm font-bold text-gray-700 dark:text-dark-text-primary">{feature}</span>
-                        </div>
-                      ))}
+                {(() => {
+                  if (!template.features) return null;
+                  
+                  let features = [];
+                  const raw = Array.isArray(template.features) ? template.features.join('\n') : String(template.features);
+                  
+                  const parseRecursive = (str) => {
+                    try {
+                      const trimmed = str.trim();
+                      if ((trimmed.startsWith('[') && trimmed.endsWith(']')) || (trimmed.startsWith('"['))) {
+                        const toParse = trimmed.startsWith('"') ? JSON.parse(trimmed) : trimmed;
+                        const parsed = typeof toParse === 'string' ? JSON.parse(toParse) : toParse;
+                        if (Array.isArray(parsed)) {
+                          if (parsed.length === 1 && typeof parsed[0] === 'string' && parsed[0].includes('["')) {
+                            return parseRecursive(parsed[0]);
+                          }
+                          return parsed.map(f => String(f).trim().replace(/^[\-\*\u2022]\s*/, ''));
+                        }
+                      }
+                    } catch (e) {}
+                    return null;
+                  };
+
+                  const parsedResult = parseRecursive(raw);
+                  if (parsedResult) {
+                    features = parsedResult.filter(Boolean);
+                  } else if (raw.includes('","') || raw.includes('", "')) {
+                    features = raw
+                      .replace(/[\[\]"']/g, '')
+                      .split(/[\n,]/)
+                      .map(f => f.trim().replace(/^[\-\*\u2022]\s*/, ''))
+                      .filter(Boolean);
+                  } else {
+                    features = raw.split('\n').map(f => f.trim().replace(/^[\-\*\u2022]\s*/, '')).filter(Boolean);
+                  }
+
+                  if (features.length === 0) return null;
+
+                  return (
+                    <div className="pt-10 border-t border-gray-100 dark:border-dark-card-border">
+                      <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-8">المميزات الرئيسية</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {features.map((feature, i) => (
+                          <div key={i} className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-dark-tertiary/50 rounded-2xl border border-gray-100/50 dark:border-dark-card-border hover:border-primary/30 transition-colors group">
+                             <div className="w-8 h-8 rounded-full bg-white dark:bg-dark-secondary shadow-sm flex items-center justify-center text-primary flex-shrink-0 group-hover:scale-110 transition-transform">
+                                <CheckCircle size={16} />
+                             </div>
+                             <span className="text-sm font-bold text-gray-700 dark:text-dark-text-primary">{feature}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
               </div>
 
               {/* Reviews */}
@@ -565,7 +613,11 @@ export default function TemplateClient({ initialTemplate }) {
                   </div>
                   <h2 className="text-2xl font-black text-gray-900 dark:text-white">أسئلة ونقاشات</h2>
                 </div>
-                <RatingCommentSystem templateId={template._id || template.id} />
+                <RatingCommentSystem 
+                  targetType="template" 
+                  targetId={template._id || template.id} 
+                  onRatingChange={() => loadRatings(template._id || template.id)}
+                />
               </div>
             </div>
 
@@ -649,7 +701,7 @@ export default function TemplateClient({ initialTemplate }) {
         <RatingPopup
           template={template}
           onClose={closePopup}
-          onSuccess={() => loadRatings(template._id || template.id)}
+          onRatingChange={() => loadRatings(template._id || template.id)}
         />
       )}
     </>

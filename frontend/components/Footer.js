@@ -8,6 +8,24 @@ import { Youtube, Facebook, Send, Users, Twitter, Mail, ExternalLink, ArrowUpRig
 import { useLoading } from '../contexts/LoadingContext';
 import { useTheme } from '../contexts/ThemeContext';
 
+const FOOTER_LINKS = {
+  community: [
+    { href: '/templates', label: 'قوالب نوشن' },
+    { href: '/blog', label: 'المدونة' },
+    { href: '/widgets', label: 'الأدوات' },
+  ],
+  support: [
+    { href: '/contact', label: 'اتصل بنا' },
+    { href: '/creators/apply', label: 'انضم كمبدع' },
+    { href: '/faq', label: 'الأسئلة الشائعة' },
+  ],
+  legal: [
+    { href: '/privacy', label: 'الخصوصية' },
+    { href: '/terms', label: 'الشروط' },
+    { href: '/refund-policy', label: 'سياسة الاسترجاع' },
+  ]
+};
+
 export default function Footer() {
   const { setLoading } = useLoading();
   const { theme } = useTheme();
@@ -27,24 +45,6 @@ export default function Footer() {
         setLoading(true, 'navigation');
       }
     }
-  };
-
-  const footerLinks = {
-    community: [
-      { href: '/templates', label: 'قوالب نوشن' },
-      { href: '/blog', label: 'المدونة' },
-      { href: '/widgets', label: 'الأدوات' },
-    ],
-    support: [
-      { href: '/contact', label: 'اتصل بنا' },
-      { href: '/creators/apply', label: 'انضم كمبدع' },
-      { href: '/faq', label: 'الأسئلة الشائعة' },
-    ],
-    legal: [
-      { href: '/privacy', label: 'الخصوصية' },
-      { href: '/terms', label: 'الشروط' },
-      { href: '/refund-policy', label: 'سياسة الاسترجاع' },
-    ]
   };
 
   return (
@@ -102,7 +102,7 @@ export default function Footer() {
               <div className="space-y-6">
                 <h4 className="font-black text-foreground dark:text-white uppercase tracking-wider text-sm">المحتوى</h4>
                 <ul className="space-y-4">
-                  {footerLinks.community.map((link) => (
+                  {FOOTER_LINKS.community.map((link) => (
                     <li key={link.href}>
                       <Link 
                         href={link.href} 
@@ -120,7 +120,7 @@ export default function Footer() {
               <div className="space-y-6">
                 <h4 className="font-black text-foreground dark:text-white uppercase tracking-wider text-sm">الدعم</h4>
                 <ul className="space-y-4">
-                  {footerLinks.support.map((link) => (
+                  {FOOTER_LINKS.support.map((link) => (
                     <li key={link.href}>
                       <Link 
                         href={link.href} 
@@ -170,10 +170,10 @@ export default function Footer() {
           {/* Bottom Bar */}
           <div className="pt-8 border-none flex flex-col md:flex-row justify-between items-center gap-6">
             <p className="text-foreground/40 dark:text-white/30 text-sm font-medium">
-              © {new Date().getFullYear()} عرب نوشن. جميع الحقوق محفوظة.
+              © {mounted ? new Date().getFullYear() : '2026'} عرب نوشن. جميع الحقوق محفوظة.
             </p>
             <div className="flex flex-wrap justify-center gap-8">
-              {footerLinks.legal.map((link) => (
+              {FOOTER_LINKS.legal.map((link) => (
                 <Link 
                   key={link.href}
                   href={link.href}

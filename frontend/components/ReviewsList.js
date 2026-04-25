@@ -97,7 +97,7 @@ export default function ReviewsList({
 
                                 return (
                                     <div
-                                        key={review.ratingId || review.commentId}
+                                        key={review.ratingId || review.commentId || review._id || review.id}
                                         className="group relative bg-white dark:bg-dark-primary/60 hover:bg-gray-50 dark:hover:bg-dark-primary transition-all duration-300 rounded-2xl p-5 border border-gray-100 dark:border-dark-card-border hover:shadow-lg dark:hover:shadow-dark-medium backdrop-blur-sm"
                                     >
                                         <div className="flex items-start gap-4">

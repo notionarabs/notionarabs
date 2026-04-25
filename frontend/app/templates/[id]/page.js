@@ -5,7 +5,7 @@ import { getApiUrl } from '../../../lib/apiConfig';
 async function getTemplate(id) {
   try {
     const res = await fetch(getApiUrl(`/templates/${id}`), {
-      next: { revalidate: 3600 },
+      next: { revalidate: 60 },
     });
     
     if (!res.ok) return null;

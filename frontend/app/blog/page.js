@@ -9,6 +9,7 @@ import LoadingIndicator from '../../components/LoadingIndicator';
 import { useToast } from '../../contexts/ToastContext';
 import StarRating from '../../components/StarRating';
 import Footer from '../../components/Footer';
+import { BreadcrumbWrapper } from '../../components/Breadcrumb';
 // Removed Fuse.js import - now using server-side search
 
 
@@ -351,6 +352,7 @@ export default function BlogPage() {
 
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-[#0a0a0a] text-foreground dark:text-white transition-colors duration-300" dir="rtl">
+      <BreadcrumbWrapper items={[{ name: 'المدونة', url: '/blog' }]} />
       
       <section className="relative overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-32">
         <div className="absolute inset-0 pointer-events-none">

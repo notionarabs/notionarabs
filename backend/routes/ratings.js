@@ -7,6 +7,7 @@ const Blog = require('../models/Blog');
 const Notification = require('../models/Notification');
 const auth = require('../middleware/auth');
 const { cacheMiddleware } = require('../utils/redis-cache');
+const supabase = require('../utils/supabase');
 
 const router = express.Router();
 
@@ -26,8 +27,8 @@ router.post('/', auth, [
     .withMessage('التقييم يجب أن يكون رقماً بين 1 و 5'),
   body('review')
     .optional()
-    .isLength({ max: 500 })
-    .withMessage('التعليق لا يجب أن يتجاوز 500 حرف')
+    .isLength({ max: 1000 })
+    .withMessage('التعليق لا يجب أن يتجاوز 1000 حرف')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);

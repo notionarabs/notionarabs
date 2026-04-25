@@ -132,7 +132,7 @@ router.get('/homepage', cacheMiddleware(600), async (req, res) => {
             pinnedAt: { $ifNull: ['$pinnedAt', new Date(0)] }
           }
         },
-        { $match: { templatesCount: { $gt: 0 } } },
+        // { $match: { templatesCount: { $gt: 0 } } },
         // Sort pinned first (by pinnedAt desc), then by fameScore
         { $sort: { isPinned: -1, pinnedAt: -1, fameScore: -1, followers: -1 } },
         { $limit: 4 },

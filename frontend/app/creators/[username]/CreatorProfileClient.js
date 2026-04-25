@@ -250,7 +250,7 @@ export default function CreatorProfileClient({ initialCreator }) {
                     </div>
                   </div>
                 </div>
-                <p className="text-lg text-accent-600 dark:text-gray-300 leading-relaxed text-center sm:text-right">
+                <p className="text-lg text-accent-600 dark:text-gray-300 leading-relaxed text-center sm:text-right whitespace-pre-wrap">
                     {creator.bio || creator.experience}
                 </p>
                 <div className="flex flex-wrap gap-4 justify-center sm:justify-start">
@@ -293,6 +293,11 @@ export default function CreatorProfileClient({ initialCreator }) {
                           </div>
                        </div>
                        <div className="p-6">
+                          <div className="flex items-center gap-2 mb-3">
+                             <span className="px-3 py-1 bg-primary/10 rounded-full text-[10px] font-black text-primary uppercase tracking-widest">
+                                {template.categories?.[0] || template.category || 'عام'}
+                             </span>
+                          </div>
                           <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors line-clamp-1">{template.title}</h3>
                           <div className="flex items-center justify-between mt-4">
                              <div className="flex items-center gap-2 text-gray-500 text-sm">

@@ -104,6 +104,32 @@ function CreateTemplatePageContent() {
 
 
 
+  // Helper to format features for the textarea robustly
+  const formatFeaturesForInput = (data) => {
+    if (!data) return '';
+    
+    // Recursive cleaning function
+    const cleanDeep = (val) => {
+      if (Array.isArray(val)) {
+        return val.flatMap(item => cleanDeep(item));
+      }
+      if (typeof val === 'string' && (val.trim().startsWith('[') || val.trim().startsWith('"['))) {
+        try {
+          const toParse = val.trim().startsWith('"') ? JSON.parse(val) : val;
+          const parsed = typeof toParse === 'string' ? JSON.parse(toParse) : toParse;
+          return Array.isArray(parsed) ? cleanDeep(parsed) : [val];
+        } catch (e) { return [val]; }
+      }
+      return [val];
+    };
+
+    const cleanedArray = cleanDeep(data);
+    return cleanedArray
+      .map(f => String(f).trim().replace(/^[\-\*\u2022]\s*/, ''))
+      .filter(Boolean)
+      .join('\n');
+  };
+
   // Load draft on component mount
   useEffect(() => {
     // Prevent double execution in Strict Mode or re-renders
@@ -119,6 +145,11 @@ function CreateTemplatePageContent() {
         hasRestoredDraftRef.current = true;
 
         if (hasMeaningfulContent(draftData)) {
+          // Clean features in draft if they look like JSON
+          if (draftData.features) {
+            draftData.features = formatFeaturesForInput(draftData.features);
+          }
+
           setFormData(prev => ({
             ...prev,
             ...draftData
@@ -169,6 +200,7 @@ function CreateTemplatePageContent() {
         if (toEdit) {
           setIsEditMode(true);
           setEditingTemplateId(toEdit._id);
+
           setFormData({
             title: toEdit.title || '',
             description: toEdit.description || '',
@@ -178,7 +210,7 @@ function CreateTemplatePageContent() {
             language: toEdit.language || 'ar',
             isPaid: toEdit.isPaid || false,
             price: toEdit.price || '',
-            features: toEdit.features || '',
+            features: formatFeaturesForInput(toEdit.features),
             tags: Array.isArray(toEdit.tags) ? toEdit.tags : (toEdit.tags ? [toEdit.tags] : []),
             previewImage: toEdit.previewImage || '',
             previewImages: Array.isArray(toEdit.previewImages) ? toEdit.previewImages : [],
@@ -815,10 +847,10 @@ function CreateTemplatePageContent() {
                       <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500 ml-1.5 sm:ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      الوصف التفصيلي للقالب *
+                      الوصف التفصيلي للقالب (المميزات) *
                     </label>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 sm:mb-3">
-                      شرح كامل ومفصل لكيفية استخدام القالب وماذا يتضمن (حد أقصى 2000 حرف)
+                      اكتب مميزات القالب هنا. تذكر: كل سطر جديد سيظهر كميزة منفصلة مع أيقونة صح.
                     </p>
                     <div className="relative">
                       <textarea
@@ -829,7 +861,13 @@ function CreateTemplatePageContent() {
                         maxLength={2000}
                         rows={8}
                         className={`form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-blue-500 dark:focus:border-blue-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-400 resize-none ${formData.features.length > 2000 ? 'border-red-500' : ''}`}
-                        placeholder="اكتب وصفاً تفصيلياً وشاملاً عن القالب..."
+                        placeholder={`اكتب كل ميزة في سطر منفصل...
+مثال:
+الميزة الأولى
+الميزة الثانية
+الميزة الثالثة
+
+(سيتم تحويل كل سطر تلقائياً إلى بطاقة ميزة بجانبها علامة صح)`}
                       />
                       <div className="absolute right-3 sm:right-4 top-3 sm:top-4">
                         <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

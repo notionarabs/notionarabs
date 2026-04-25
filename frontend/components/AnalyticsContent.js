@@ -117,7 +117,7 @@ export default function AnalyticsContent() {
         <>
             {/* Header */}
             <div className="mb-8 border-b border-gray-100 dark:border-dark-card-border pb-6">
-                <h1 className="text-3xl font-black text-gray-900 dark:text-dark-text-primary mb-2 tracking-tight">
+                <h1 className="text-4xl font-black text-gray-900 dark:text-dark-text-primary mb-2 tracking-tight">
                     لوحة التحكم
                 </h1>
                 <p className="text-base text-gray-600 dark:text-dark-text-secondary font-medium">
@@ -185,7 +185,7 @@ export default function AnalyticsContent() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                                 </svg>
                             </div>
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-dark-text-primary">أداء القوالب المعتمدة</h2>
+                            <h2 className="text-2xl font-black text-gray-900 dark:text-dark-text-primary">أداء القوالب المعتمدة</h2>
                         </div>
 
                         <div className="flex items-center gap-2">
@@ -222,7 +222,7 @@ export default function AnalyticsContent() {
                                 <table className="w-full">
                                     <thead>
                                         <tr className="border-b border-gray-100 dark:border-dark-card-border">
-                                            <th className="pb-4 text-right text-sm font-black text-gray-900 dark:text-dark-text-primary">القالب</th>
+                                            <th className="pb-6 text-right text-sm font-black text-gray-900 dark:text-dark-text-primary uppercase tracking-widest">القالب</th>
                                             <th className="pb-4 text-center text-sm font-black text-gray-900 dark:text-dark-text-primary">المشاهدات</th>
                                             <th className="pb-4 text-center text-sm font-black text-gray-900 dark:text-dark-text-primary">التحميلات</th>
                                             <th className="pb-4 text-center text-sm font-black text-gray-900 dark:text-dark-text-primary">التقييم</th>

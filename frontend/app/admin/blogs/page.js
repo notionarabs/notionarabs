@@ -290,12 +290,13 @@ const BlogDetailsModal = memo(({
                       )}
                     </div>
                     <div>
-                      <p className="font-bold text-accent-500 dark:text-dark-text-primary">
+                      <p className="font-black text-accent-500 dark:text-dark-text-primary">
                         {selectedBlogDetails.author?.name}
                       </p>
-                      <p className="text-xs text-accent-400 truncate max-w-[150px]">
+                      <span className="flex items-center gap-2 text-[11px] font-bold text-gray-400 dark:text-gray-500 mt-1">
+                        <Mail className="w-3.5 h-3.5 text-primary-500" />
                         {selectedBlogDetails.author?.email}
-                      </p>
+                      </span>
                     </div>
                   </div>
                   {selectedBlogDetails.author?.bio && (
@@ -442,8 +443,14 @@ const BlogTableRow = memo(({ blog, idx, handleViewDetails, handleStatusChange, f
               <UserIcon className="w-4 h-4 text-primary-600" />
             )}
           </div>
-          <div className="text-xs font-medium text-accent-500 dark:text-dark-text-primary">
-            {blog.author?.name || 'مبدع غير معروف'}
+          <div>
+            <div className="text-xs font-black text-gray-900 dark:text-white">
+              {blog.author?.name || 'مبدع غير معروف'}
+            </div>
+            <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 flex items-center gap-1 mt-0.5">
+               <Mail className="w-3 h-3 text-primary-500" />
+               {blog.author?.email}
+            </div>
           </div>
         </div>
       </td>

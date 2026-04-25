@@ -5,7 +5,7 @@ import { getApiUrl } from '../../../lib/apiConfig';
 async function getCreator(username) {
   try {
     const res = await fetch(getApiUrl(`/creators/${username}`), {
-      next: { revalidate: 3600 }
+      next: { revalidate: 60 }
     });
     
     if (!res.ok) return null;

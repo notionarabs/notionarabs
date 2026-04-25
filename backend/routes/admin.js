@@ -644,6 +644,43 @@ router.get('/templates', auth, async (req, res) => {
   }
 });
 
+// @route   GET /api/admin/templates/:id
+// @desc    Get template details for admin review
+// @access  Private (Admin only)
+router.get('/templates/:id', auth, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (req.user.role?.toLowerCase() !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    const template = await Template.findById(req.params.id)
+      .populate('creator', 'name username displayName email profilePicture bio')
+      .populate('approvedBy', 'name');
+
+    if (!template) {
+      return res.status(404).json({
+        success: false,
+        message: 'القالب غير موجود'
+      });
+    }
+
+    res.json({
+      success: true,
+      template
+    });
+  } catch (error) {
+    console.error('Get admin template details error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
 // @route   PUT /api/admin/templates/:id/status
 // @desc    Approve or reject template
 // @access  Private (Admin only)

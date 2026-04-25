@@ -572,7 +572,7 @@ export default function CreatorApplicationsPage() {
                         </div>
                         <div className="flex flex-col min-w-0">
                           <div className="flex items-center gap-3">
-                            <h3 className="text-lg font-black text-accent-500 dark:text-dark-text-primary truncate">
+                            <h3 className="text-lg font-black text-gray-900 dark:text-white truncate">
                               {app.name}
                             </h3>
                             {app.isPinned && (

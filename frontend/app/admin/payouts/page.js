@@ -9,6 +9,7 @@ import LoadingIndicator from '../../../components/LoadingIndicator';
 import { DollarSign, CheckCircle, XCircle, Clock, Search, ExternalLink, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { BreadcrumbWrapper } from '../../../components/Breadcrumb.js';
 
 export default function AdminPayouts() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
@@ -67,6 +68,10 @@ export default function AdminPayouts() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-primary py-12" dir="rtl">
+      <BreadcrumbWrapper items={[
+        { name: 'لوحة الإدارة', url: '/admin' },
+        { name: 'إدارة المدفوعات', url: '/admin/payouts' }
+      ]} />
       <div className="container-custom max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -131,8 +136,8 @@ export default function AdminPayouts() {
                             />
                           </div>
                           <div>
-                            <div className="font-bold text-gray-900 dark:text-white text-sm">{payout.creatorId?.name || 'مجهول'}</div>
-                            <div className="text-xs text-gray-500">{payout.creatorId?.email}</div>
+                            <div className="font-black text-gray-900 dark:text-white text-sm">{payout.creatorId?.name || 'مجهول'}</div>
+                            <div className="text-xs font-bold text-gray-400 dark:text-gray-500">{payout.creatorId?.email}</div>
                           </div>
                         </div>
                       </td>

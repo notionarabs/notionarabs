@@ -2,12 +2,14 @@
 
 import { useState, useEffect, Suspense, useRef } from 'react';
 import Image from 'next/image';
-import { LayoutDashboard, Star, Filter, Download, Globe, Calendar, ShoppingCart } from 'lucide-react';
+import { LayoutDashboard, Star, Filter, Download, Globe, Calendar, ShoppingCart, XCircle, Search } from 'lucide-react';
 import Link from 'next/link';
 import api from '../../lib/api';
 import LoadingIndicator from '../../components/LoadingIndicator';
 import { getCategorySlug } from '../../lib/categoryMapping';
 import Footer from '../../components/Footer';
+import { ItemListSchema } from '../../components/StructuredData';
+import { BreadcrumbWrapper } from '../../components/Breadcrumb';
 
 const sortOptions = [
   { name: "الأحدث", value: "createdAt" },
@@ -100,6 +102,14 @@ function TemplatesPageContent() {
 
   return (
     <div className="min-h-screen bg-transparent relative overflow-x-hidden transition-colors duration-300" dir="rtl">
+      {/* SEO Structured Data */}
+      {allTemplates.length > 0 && (
+        <ItemListSchema 
+          items={allTemplates} 
+          listName={selectedCategory !== 'الكل' ? `قوالب نوشن - ${selectedCategory}` : 'متجر قوالب نوشن العربية'} 
+        />
+      )}
+
       {/* Ambient Mesh Background */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-[-10%] left-[-5%] w-[800px] h-[800px] bg-primary/10 rounded-full blur-[160px] animate-pulse" />
@@ -107,6 +117,8 @@ function TemplatesPageContent() {
       </div>
 
       <main className="relative z-10">
+        <BreadcrumbWrapper items={[{ name: 'المتجر', url: '/templates' }]} />
+        
         {/* Premium Atmospheric Hero */}
         <section className="relative overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-24">
           {/* mesh background */}
@@ -134,14 +146,23 @@ function TemplatesPageContent() {
                     placeholder="ابحث عن هندسة النجاح... (إدارة مشاريع، تنظيم علمي)"
                     className="w-full bg-transparent border-none focus:ring-0 px-8 py-5 text-lg text-foreground dark:text-white placeholder:text-foreground/40 dark:placeholder:text-white/30"
                   />
-                  <button 
-                    type="submit"
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                  </button>
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                    {searchTerm && (
+                      <button 
+                        type="button"
+                        onClick={() => setSearchTerm('')}
+                        className="p-2 text-foreground/40 hover:text-primary transition-colors"
+                      >
+                        <XCircle className="w-5 h-5" />
+                      </button>
+                    )}
+                    <button 
+                      type="submit"
+                      className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
+                    >
+                      <Search className="w-5 h-5" />
+                    </button>
+                  </div>
                 </form>
               </div>
 
@@ -224,13 +245,13 @@ function TemplatesPageContent() {
                 <Link key={rel._id} href={`/templates/${rel.slug || rel._id}`} className="group relative">
                   <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[3.5rem] shadow-large group-hover:shadow-glow group-hover:-translate-y-4 transition-all duration-700 h-full flex flex-col border-none overflow-hidden isolate">
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 z-0" />
-                    <div className="relative h-72 m-4 overflow-hidden rounded-[2.5rem] shadow-soft z-10">
-                      <Image src={rel.previewImage || '/placeholder-template.jpg'} alt={rel.title} fill className="object-cover object-top group-hover:scale-110 transition-transform duration-1000" />
+                    <div className="relative aspect-[16/10] m-4 overflow-hidden rounded-[2.5rem] shadow-soft">
+                      <Image src={rel.previewImage || '/placeholder-template.jpg'} alt={rel.title} fill className="object-cover object-center group-hover:scale-105 transition-transform duration-1000" />
                       <div className="absolute top-6 left-6 z-20"><div className="px-6 py-3 bg-black/40 backdrop-blur-xl rounded-2xl text-white font-black text-sm uppercase tracking-widest">{rel.isPaid ? `${rel.price} ج.م` : 'مجاني'}</div></div>
                     </div>
                     <div className="p-10 flex-1 flex flex-col relative z-20">
                       <div className="flex items-center justify-between mb-6">
-                        <div className="px-4 py-1.5 bg-primary/10 rounded-full text-[10px] font-black text-primary uppercase tracking-[0.2em]">{rel.categories?.[0] || 'عام'}</div>
+                        <div className="px-4 py-1.5 bg-primary/10 rounded-full text-[10px] font-black text-primary uppercase tracking-[0.2em]">{rel.categories?.[0] || rel.category || 'عام'}</div>
                         <div className="flex items-center gap-2"><Star size={14} className="text-yellow-500 fill-yellow-500" /><span className="text-sm font-black text-accent-900 dark:text-white">{(rel.rating || 0).toFixed(1)}</span></div>
                       </div>
                       <h3 className="text-3xl font-black text-accent-900 dark:text-white mb-4 group-hover:text-primary transition-colors tracking-tighter leading-tight">{rel.title}</h3>
@@ -251,9 +272,17 @@ function TemplatesPageContent() {
             </div>
           ) : (
             <div className="text-center py-48 bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-[4rem] shadow-large border-none">
-              <h3 className="text-4xl font-black text-accent-900 dark:text-white mb-6">لم يتم رصد الهدف</h3>
-              <p className="text-xl text-accent-700/40 dark:text-white/30 max-w-xl mx-auto mb-12">نحن بصدد إطلاق المزيد من الأنظمة. حاول توسيع نطاق البحث.</p>
-              <button onClick={() => { setSearchTerm(''); setSelectedCategory('الكل'); }} className="px-12 py-5 bg-primary text-white font-black rounded-2xl shadow-glow">إعادة ضبط النطاق</button>
+              <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-8">
+                <Search className="w-10 h-10 text-primary" />
+              </div>
+              <h3 className="text-4xl font-black text-accent-900 dark:text-white mb-6 tracking-tighter">لم يتم رصد الهدف</h3>
+              <p className="text-xl text-accent-700/40 dark:text-white/30 max-w-xl mx-auto mb-12 font-medium">نحن بصدد إطلاق المزيد من الأنظمة. حاول توسيع نطاق البحث.</p>
+              <button 
+                onClick={() => { setSearchTerm(''); setSelectedCategory('الكل'); setPriceFilter('all'); setMinRating(0); }} 
+                className="px-12 py-5 bg-primary text-white font-black rounded-2xl shadow-glow uppercase tracking-widest text-xs"
+              >
+                إعادة ضبط النطاق
+              </button>
             </div>
           )}
 

@@ -59,26 +59,11 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
     const sortOrder = req.query.sortOrder === 'asc' ? 'asc' : 'desc';
     const sortObject = getSortObject(sortBy, sortOrder);
 
-    const approvedCreatorIds = await Template.distinct('creator', { status: 'approved' });
-    if (!approvedCreatorIds.length) {
-      return res.json({
-        success: true,
-        creators: [],
-        pagination: {
-          current: page,
-          pages: 0,
-          total: 0,
-          limit
-        }
-      });
-    }
-
     // Build query for approved creators only
     const query = {
       creatorStatus: 'approved',
       isActive: true,
-      isEmailVerified: true,
-      _id: { $in: approvedCreatorIds }
+      isEmailVerified: true
     };
 
     // Add specialty filter
@@ -303,17 +288,7 @@ router.get('/:id', cacheMiddleware(600), async (req, res) => {
       });
     }
 
-    const hasApprovedTemplates = await Template.exists({
-      creator: creator._id,
-      status: 'approved'
-    });
 
-    if (!hasApprovedTemplates) {
-      return res.status(404).json({
-        success: false,
-        message: 'المبدع غير موجود'
-      });
-    }
 
     // Check profile visibility
     if (creator.profileVisibility === 'private') {

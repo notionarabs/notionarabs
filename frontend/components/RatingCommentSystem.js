@@ -129,6 +129,7 @@ const RatingCommentSystem = ({
       if (error.response?.status === 401) {
         window.location.href = '/login';
       } else {
+        const errorMessage = error.response?.data?.message || 'حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.';
         const errorNotification = document.createElement('div');
         errorNotification.className = 'fixed top-4 right-4 z-50 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 animate-slide-in';
         errorNotification.innerHTML = `
@@ -136,7 +137,7 @@ const RatingCommentSystem = ({
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
             </svg>
-            <span class="font-medium">حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.</span>
+            <span class="font-medium">${errorMessage}</span>
           </div>
         `;
         document.body.appendChild(errorNotification);

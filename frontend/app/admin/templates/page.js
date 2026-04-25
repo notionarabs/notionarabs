@@ -158,8 +158,20 @@ export default function AdminTemplatesPage() {
     setShowModal(true);
   };
 
-  const handleViewDetails = (template) => {
-    setSelectedTemplateDetails(template);
+  const handleViewDetails = async (template) => {
+    try {
+      // Fetch fresh data for this specific template to ensure accuracy
+      const response = await api.get(`/admin/templates/${template._id}`);
+      if (response.data.success) {
+        setSelectedTemplateDetails(response.data.template);
+      } else {
+        // Fallback to local data if API fails
+        setSelectedTemplateDetails(template);
+      }
+    } catch (error) {
+      console.error('Error fetching template details:', error);
+      setSelectedTemplateDetails(template);
+    }
     setShowDetailsModal(true);
   };
 
@@ -578,15 +590,15 @@ export default function AdminTemplatesPage() {
                           )}
                         </div>
                         <div className="flex flex-col text-right">
-                          <span className="text-xs font-bold text-accent-500 dark:text-dark-text-primary">{template.creator?.name}</span>
-                          <span className="text-[10px] font-medium text-accent-300 dark:text-dark-text-tertiary">{template.creator?.email}</span>
+                          <span className="text-xs font-black text-gray-900 dark:text-white">{template.creator?.name}</span>
+                          <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 mt-0.5">{template.creator?.email}</span>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-5 text-right">
                       <div className="flex flex-col gap-1.5 items-end">
                         <span className="inline-flex items-center gap-1 text-[10px] font-black tracking-wider uppercase text-accent-400 dark:text-dark-text-tertiary">
-                          {getCategoryName(template.category)}
+                          {getCategoryName(template.category || template.categories?.[0]) || 'عام'}
                           <Tag className="w-3 h-3" />
                         </span>
                         <div className="flex items-center gap-1.5">
@@ -838,7 +850,7 @@ export default function AdminTemplatesPage() {
                           <div>
                             <label className="text-xs font-black text-accent-300 uppercase tracking-widest block mb-1">التصنيف</label>
                             <span className="inline-block px-4 py-2 bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 rounded-xl font-black text-xs">
-                              {getCategoryName(selectedTemplateDetails.category)}
+                              {getCategoryName(selectedTemplateDetails.category || selectedTemplateDetails.categories?.[0]) || 'عام'}
                             </span>
                           </div>
                           <div>
@@ -858,15 +870,90 @@ export default function AdminTemplatesPage() {
                         المميزات & العلامات
                       </h4>
                       <div className="space-y-6">
-                        <p className="text-sm font-medium text-accent-400 leading-relaxed whitespace-pre-line">
-                          {selectedTemplateDetails.features}
-                        </p>
-                        <div className="flex flex-wrap gap-2 pt-4">
-                          {selectedTemplateDetails.tags?.map((tag, i) => (
-                            <span key={i} className="px-4 py-1.5 bg-white dark:bg-dark-secondary rounded-xl font-bold text-xs text-accent-400 border border-gray-100 dark:border-dark-card-border shadow-soft capitalize">
-                              #{tag}
-                            </span>
-                          ))}
+                        {(() => {
+                          const featuresData = selectedTemplateDetails.features;
+                          if (!featuresData) return <p className="text-sm italic text-accent-300">لا يوجد مميزات مسجلة.</p>;
+                          
+                          let features = [];
+                          const raw = Array.isArray(featuresData) ? featuresData.join('\n') : String(featuresData);
+                          
+                          const parseRecursive = (str) => {
+                            try {
+                              const trimmed = str.trim();
+                              if ((trimmed.startsWith('[') && trimmed.endsWith(']')) || (trimmed.startsWith('"['))) {
+                                // Clean possible double escaping
+                                const toParse = trimmed.startsWith('"') ? JSON.parse(trimmed) : trimmed;
+                                const parsed = typeof toParse === 'string' ? JSON.parse(toParse) : toParse;
+                                
+                                if (Array.isArray(parsed)) {
+                                  // If the array contains another stringified array, go deeper
+                                  if (parsed.length === 1 && typeof parsed[0] === 'string' && parsed[0].includes('["')) {
+                                    return parseRecursive(parsed[0]);
+                                  }
+                                  return parsed.map(f => String(f).trim().replace(/^[\-\*\u2022]\s*/, ''));
+                                }
+                              }
+                            } catch (e) {}
+                            return null;
+                          };
+
+                          const parsedResult = parseRecursive(raw);
+                          
+                          if (parsedResult) {
+                            features = parsedResult.filter(Boolean);
+                          } else if (raw.includes('","') || raw.includes('", "')) {
+                            // Manual split fallback
+                            features = raw
+                              .replace(/[\[\]"']/g, '')
+                              .split(/[\n,]/)
+                              .map(f => f.trim().replace(/^[\-\*\u2022]\s*/, ''))
+                              .filter(Boolean);
+                          } else {
+                            features = raw.split('\n').map(f => f.trim().replace(/^[\-\*\u2022]\s*/, '')).filter(Boolean);
+                          }
+
+                          if (features.length === 0) return <p className="text-sm italic text-accent-300">لا يوجد مميزات مسجلة.</p>;
+
+                          return (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              {features.map((feature, i) => (
+                                <div key={i} className="flex items-center gap-2 p-3 bg-white dark:bg-dark-secondary rounded-xl border border-gray-100 dark:border-dark-card-border shadow-sm">
+                                  <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                                  <span className="text-xs font-bold text-accent-500 dark:text-dark-text-primary line-clamp-2">{feature}</span>
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        })()}
+                        
+                        <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-100 dark:border-dark-card-border">
+                          {(() => {
+                            const tagsData = selectedTemplateDetails.tags;
+                            if (!tagsData) return null;
+                            
+                            let tags = [];
+                            if (Array.isArray(tagsData)) {
+                              // If it's an array of strings, it might still contain stringified arrays
+                              tags = tagsData.flatMap(tag => {
+                                if (typeof tag === 'string' && tag.startsWith('[')) {
+                                  try { return JSON.parse(tag); } catch (e) { return tag; }
+                                }
+                                return tag;
+                              });
+                            } else if (typeof tagsData === 'string') {
+                              if (tagsData.startsWith('[')) {
+                                try { tags = JSON.parse(tagsData); } catch (e) { tags = [tagsData]; }
+                              } else {
+                                tags = tagsData.split(',').map(t => t.trim());
+                              }
+                            }
+                            
+                            return tags.filter(Boolean).map((tag, i) => (
+                              <span key={i} className="px-4 py-1.5 bg-white dark:bg-dark-secondary rounded-xl font-bold text-xs text-accent-400 border border-gray-100 dark:border-dark-card-border shadow-sm capitalize">
+                                #{tag}
+                              </span>
+                            ));
+                          })()}
                         </div>
                       </div>
                     </div>

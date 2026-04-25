@@ -81,12 +81,12 @@ export default function HomeMarketplace() {
                 <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[3.5rem] shadow-large group-hover:shadow-glow group-hover:-translate-y-4 transition-all duration-700 h-full flex flex-col border-none overflow-hidden relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
                   
-                  <div className="relative h-64 m-4 overflow-hidden rounded-[2.5rem] shadow-soft">
+                  <div className="relative aspect-[16/10] m-4 overflow-hidden rounded-[2.5rem] shadow-soft">
                     <Image
                       src={template.previewImage || '/placeholder-template.jpg'}
                       alt={template.title}
                       fill
-                      className="object-cover object-top group-hover:scale-110 transition-transform duration-1000"
+                      className="object-cover object-center group-hover:scale-105 transition-transform duration-1000"
                     />
                     <div className="absolute top-6 left-6 z-20">
                       <div className="px-5 py-2.5 bg-black/40 backdrop-blur-xl rounded-2xl text-white font-black text-xs uppercase tracking-widest">
@@ -97,9 +97,9 @@ export default function HomeMarketplace() {
 
                   <div className="p-10 flex-1 flex flex-col relative z-10">
                     <div className="flex items-center justify-between mb-6">
-                       <span className="px-4 py-1.5 bg-primary/10 rounded-full text-[10px] font-black text-primary uppercase tracking-widest">
-                         {template.categories?.[0] || 'عام'}
-                       </span>
+                        <span className="px-4 py-1.5 bg-primary/10 rounded-full text-[10px] font-black text-primary uppercase tracking-widest">
+                          {template.categories?.[0] || template.category || 'عام'}
+                        </span>
                        <div className="flex items-center gap-2">
                          <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                          <span className="text-sm font-black text-accent-900 dark:text-white">{(template.rating || 5).toFixed(1)}</span>

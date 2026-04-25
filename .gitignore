@@ -144,3 +144,20 @@ test-results.xml
 
 # Local development
 .local
+scratch/
+
+# AI System Files (Antigravity/Gemini)
+.gemini/
+.skill-lock.json
+SKILL.md
+argv.json
+.obsolete
+extensions.json
+.vsixmanifest
+CHANGELOG.md
+LICENSE.txt
+artifact/
+brain/
+logs/
+overview.txt
+media__*

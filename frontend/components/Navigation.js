@@ -101,7 +101,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
 
   return (
     <>
-      <header ref={menuRef} className={`w-full bg-nav sticky top-0 z-50 backdrop-blur-2xl transition-all duration-300 ${isSearchOpen ? 'translate-y-[-100%]' : 'translate-y-0'} ${scrolled ? 'py-2 shadow-lg' : 'py-4'}`}>
+      <header ref={menuRef} className={`w-full sticky top-0 z-50 backdrop-blur-2xl transition-all duration-300 ${isSearchOpen ? 'translate-y-[-100%]' : 'translate-y-0'} ${scrolled ? 'py-2 shadow-lg' : 'py-4'} ${isMenuOpen ? 'bg-accent-600 dark:bg-dark-secondary' : 'bg-nav'}`}>
         <div className="container-custom flex justify-between items-center px-6">
           <Link
             href="/"
@@ -110,7 +110,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
             onClick={() => handleNavigation('/')}
           >
             <Image
-              src={mounted && theme === 'light' ? '/brand/NavLogoDark.svg' : '/brand/NavLogoLight.svg'}
+              src={(isMenuOpen || (mounted && theme === 'dark')) ? '/brand/NavLogoLight.svg' : '/brand/NavLogoDark.svg'}
               alt="عرب نوشن"
               width={200}
               height={60}
@@ -199,10 +199,10 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
           <div className="md:hidden flex items-center gap-2">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-3 transition-all duration-300 border border-gray-600 dark:border-dark-card-border rounded-xl hover:bg-white/10 dark:hover:bg-dark-tertiary hover:border-gray-500 dark:hover:border-dark-text-tertiary flex-shrink-0"
+              className={`p-3 transition-all duration-300 border rounded-xl flex-shrink-0 ${isMenuOpen ? 'bg-white/10 border-white/20' : 'border-gray-600 dark:border-dark-card-border hover:bg-white/10 dark:hover:bg-dark-tertiary hover:border-gray-500 dark:hover:border-dark-text-tertiary'}`}
               aria-label="فتح القائمة"
             >
-              <svg className="w-5 h-5 text-accent-500/70 dark:text-dark-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={`w-5 h-5 ${isMenuOpen ? 'text-white' : 'text-accent-500/70 dark:text-dark-text-tertiary'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
               </svg>
             </button>

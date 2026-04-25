@@ -16,7 +16,8 @@ import SettingsContent from '../../components/SettingsContent';
 import AnalyticsContent from '../../components/AnalyticsContent';
 import CreatorEarnings from '../../components/CreatorEarnings';
 import AdminPayouts from '../../components/AdminPayouts';
-import { Camera, Mail, User as UserIcon, AtSign, Settings, LayoutDashboard, Edit3, Download, TrendingUp, DollarSign } from 'lucide-react';
+import NotificationsContent from '../../components/NotificationsContent';
+import { Camera, Mail, User as UserIcon, AtSign, Settings, LayoutDashboard, Edit3, Download, TrendingUp, DollarSign, Bell } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Profile Overview Component
@@ -314,6 +315,8 @@ function ProfilePageContent() {
         return <AnalyticsContent />;
       case 'earnings':
         return <CreatorEarnings />;
+      case 'notifications':
+        return <NotificationsContent />;
       case 'admin-payouts':
         return <AdminPayouts />;
       default:

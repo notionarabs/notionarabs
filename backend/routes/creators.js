@@ -674,6 +674,52 @@ router.get('/me/stats', auth, async (req, res) => {
         price: t.price || 0
       }));
 
+    // 30-day historical data for charts
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const templateIds = templates.map(t => (t._id || t.id).toString());
+    const creatorIdStr = creatorId.toString();
+    
+    // Parallelize historical data gathering
+    const [historicalDownloadsRes, historicalSalesRes] = await Promise.all([
+      require('../utils/supabase')
+        .from('DownloadLog')
+        .select('downloadedAt')
+        .eq('creatorId', creatorIdStr)
+        .gte('downloadedAt', thirtyDaysAgo),
+      templateIds.length > 0 ? require('../utils/supabase')
+        .from('OrderItem')
+        .select('price, Order!inner(createdAt)')
+        .in('templateId', templateIds)
+        .eq('Order.status', 'COMPLETED')
+        .gte('Order.createdAt', thirtyDaysAgo) : Promise.resolve({ data: [] })
+    ]);
+
+    const historicalDownloads = historicalDownloadsRes.data || [];
+    const historicalSales = historicalSalesRes.data || [];
+
+    // Group by day
+    const dailyStatsMap = {};
+    // Pre-fill last 30 days
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      dailyStatsMap[d] = { date: d, downloads: 0, sales: 0, revenue: 0 };
+    }
+
+    historicalDownloads.forEach(dl => {
+      const d = dl.downloadedAt.split('T')[0];
+      if (dailyStatsMap[d]) dailyStatsMap[d].downloads++;
+    });
+
+    historicalSales.forEach(sale => {
+      const d = sale.Order.createdAt.split('T')[0];
+      if (dailyStatsMap[d]) {
+        dailyStatsMap[d].sales++;
+        dailyStatsMap[d].revenue += (sale.price || 0);
+      }
+    });
+
+    const dailyStats = Object.values(dailyStatsMap).sort((a, b) => a.date.localeCompare(b.date));
+
     res.json({
       success: true,
       stats: {
@@ -683,7 +729,8 @@ router.get('/me/stats', auth, async (req, res) => {
         averageRating: parseFloat(averageRating),
         totalEarnings: user.totalEarnings || 0,
         currentBalance: user.balance || 0,
-        recentTemplates
+        recentTemplates,
+        dailyStats
       }
     });
 

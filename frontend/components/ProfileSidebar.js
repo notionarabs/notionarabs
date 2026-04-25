@@ -16,7 +16,8 @@ import {
     Users,
     ChevronRight,
     Home,
-    DollarSign
+    DollarSign,
+    Bell
 } from 'lucide-react';
 
 const ProfileSidebar = ({ userStatus, onNavigate, activeSection, role }) => {
@@ -47,6 +48,7 @@ const ProfileSidebar = ({ userStatus, onNavigate, activeSection, role }) => {
     const analyticsLinks = isCreator ? [
         { section: 'earnings', href: '/profile?tab=earnings', label: 'الأرباح', icon: DollarSign },
         { section: 'sales', href: '/profile?tab=sales', label: 'سجلات التحميل', icon: Download },
+        { section: 'notifications', href: '/profile?tab=notifications', label: 'التنبيهات', icon: Bell },
         { section: 'analytics', href: '/profile?tab=analytics', label: 'التحليلات', icon: TrendingUp },
     ] : [];
 

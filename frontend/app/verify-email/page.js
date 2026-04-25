@@ -478,6 +478,7 @@ function VerifyEmailForm() {
 }
 
 export default function VerifyEmailPage() {
+  const { theme } = useTheme();
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center px-4 sm:px-6 lg:px-8 py-6 sm:py-8" dir="rtl">

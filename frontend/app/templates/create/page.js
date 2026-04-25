@@ -817,7 +817,7 @@ function CreateTemplatePageContent() {
                       الوصف التفصيلي للقالب (المميزات) *
                     </label>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 sm:mb-3">
-                      اكتب مميزات القالب هنا. تذكر: كل سطر جديد سيظهر كميزة منفصلة مع أيقونة صح.
+                      اكتب مميزات وتفاصيل القالب هنا. سيتم عرض النص تماماً كما تكتبه (سواء كان فقرة واحدة أو سطوراً منفصلة).
                     </p>
                     <div className="relative">
                       <textarea
@@ -828,13 +828,15 @@ function CreateTemplatePageContent() {
                         maxLength={2000}
                         rows={8}
                         className={`form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-blue-500 dark:focus:border-blue-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-400 resize-none ${formData.features.length > 2000 ? 'border-red-500' : ''}`}
-                        placeholder={`اكتب كل ميزة في سطر منفصل...
-مثال:
-الميزة الأولى
-الميزة الثانية
-الميزة الثالثة
+                        placeholder={`اكتب تفاصيل ومميزات القالب هنا...
+يمكنك كتابتها في سطور منفصلة أو كفقرة واحدة.
 
-(سيتم تحويل كل سطر تلقائياً إلى بطاقة ميزة بجانبها علامة صح)`}
+مثال:
+- تنظيم المهام اليومية بشكل ذكي
+- لوحة بيانات شاملة لمتابعة الأهداف
+- متوافق مع جميع الأجهزة
+
+سيظهر النص للمستخدمين بنفس التنسيق الذي تكتبه هنا.`}
                       />
                       <div className="absolute right-3 sm:right-4 top-3 sm:top-4">
                         <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

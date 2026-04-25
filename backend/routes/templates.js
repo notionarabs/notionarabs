@@ -419,9 +419,9 @@ router.post('/bulk-import', auth, async (req, res) => {
           let errorMsg = 'القالب موجود بالفعل';
           if (existingTemplate.slug === slug) errorMsg = 'عنوان القالب مستخدم بالفعل (Slug collision)';
           else if (existingTemplate.notionLink === item.notionLink.trim()) errorMsg = 'رابط نوشن هذا مستخدم في قالب آخر';
-          
-          results.errors.push({ 
-            title: item.title, 
+
+          results.errors.push({
+            title: item.title,
             error: errorMsg
           });
           continue;
@@ -433,7 +433,7 @@ router.post('/bulk-import', auth, async (req, res) => {
           categories = categories.split(',').map(c => c.trim()).filter(c => c);
         }
         if (!Array.isArray(categories)) categories = [];
-        
+
         // Limit to 3 categories as per validation rules in POST /
         categories = categories.slice(0, 3);
 
@@ -459,7 +459,7 @@ router.post('/bulk-import', auth, async (req, res) => {
     // Invalidate templates cache if any were successful
     if (results.success.length > 0) {
       await invalidateCache('template');
-      
+
       // Create admin notification if not auto-approved
       if (!autoApprove) {
         try {
@@ -623,6 +623,32 @@ router.get('/my-templates', auth, async (req, res) => {
       .select('title description features category categories tags previewImage slug rating reviewsCount downloads views isPaid price purchaseLink status adminNotes approvedAt rejectedAt approvedBy rejectedBy createdAt updatedAt ')
       .sort({ createdAt: -1 });
 
+    const csvHeader = 'العنوان,الوصف,رابط نوشن,الفئات,مدفوع,السعر,رابط الصورة,المميزات,الوسوم,اللغة,فيديو توضيحي,المنشئ,البريد الإلكتروني,الحالة,المشاهدات,التحميلات,التقييم,تاريخ الموافقة,تاريخ الإنشاء\n';
+    const csvRows = templates.map(template => {
+      const title = `"${(template.title || '').replace(/"/g, '""')}"`;
+      const description = `"${(template.description || '').replace(/"/g, '""')}"`;
+      const notionLink = `"${(template.notionLink || '').replace(/"/g, '""')}"`;
+      const categories = `"${(Array.isArray(template.categories) ? template.categories.join('|') : (template.category || '')).replace(/"/g, '""')}"`;
+      const isPaid = template.isPaid ? 'نعم' : 'لا';
+      const price = template.price || 0;
+      const previewImage = `"${(template.previewImage || '').replace(/"/g, '""')}"`;
+      const features = `"${(Array.isArray(template.features) ? template.features.join('\n') : (template.features || '')).replace(/"/g, '""')}"`;
+      const tags = `"${(Array.isArray(template.tags) ? template.tags.join(',') : (template.tags || '')).replace(/"/g, '""')}"`;
+      const language = `"${(template.language || '').replace(/"/g, '""')}"`;
+      const explanationVideo = `"${(template.explanationVideo || '').replace(/"/g, '""')}"`;
+      
+      const creator = `"${(template.creator?.name || '').replace(/"/g, '""')}"`;
+      const email = `"${(template.creator?.email || '').replace(/"/g, '""')}"`;
+      const status = `"${(template.status || '').replace(/"/g, '""')}"`;
+      const views = template.views || 0;
+      const downloads = template.downloads || 0;
+      const rating = template.rating || 0;
+      const approvedAt = template.approvedAt ? new Date(template.approvedAt).toLocaleDateString('en-US') : '';
+      const createdAt = template.createdAt ? new Date(template.createdAt).toLocaleDateString('en-US') : '';
+      
+      return `${title},${description},${notionLink},${categories},${isPaid},${price},${previewImage},${features},${tags},${language},${explanationVideo},${creator},${email},${status},${views},${downloads},${rating},${approvedAt},${createdAt}`;
+    }).join('\n');
+
     res.json({
       success: true,
       templates
@@ -755,20 +781,30 @@ router.get('/export-public', async (req, res) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    const csvHeader = 'العنوان,المنشئ,البريد الإلكتروني,الفئة,السعر,الحالة,المشاهدات,التحميلات,التقييم,تاريخ الموافقة,تاريخ الإنشاء\n';
+    const csvHeader = 'العنوان,الوصف,رابط نوشن,الفئات,مدفوع,السعر,رابط الصورة,المميزات,الوسوم,اللغة,فيديو توضيحي,المنشئ,البريد الإلكتروني,الحالة,المشاهدات,التحميلات,التقييم,تاريخ الموافقة,تاريخ الإنشاء\n';
     const csvRows = templates.map(template => {
-      const title = `"${(template.title || '').replace(/\"/g, '\"\"')}"`;
-      const creator = `"${(template.creator?.name || '').replace(/\"/g, '\"\"')}"`;
-      const email = `"${(template.creator?.email || '').replace(/\"/g, '\"\"')}"`;
-      const category = `"${(template.category || '').replace(/\"/g, '\"\"')}"`;
-      const price = 'مجاني';
-      const status = `"${(template.status || '').replace(/\"/g, '\"\"')}"`;
+      const title = `"${(template.title || '').replace(/"/g, '""')}"`;
+      const description = `"${(template.description || '').replace(/"/g, '""')}"`;
+      const notionLink = `"${(template.notionLink || '').replace(/"/g, '""')}"`;
+      const categories = `"${(Array.isArray(template.categories) ? template.categories.join('|') : (template.category || '')).replace(/"/g, '""')}"`;
+      const isPaid = template.isPaid ? 'نعم' : 'لا';
+      const price = template.price || 0;
+      const previewImage = `"${(template.previewImage || '').replace(/"/g, '""')}"`;
+      const features = `"${(Array.isArray(template.features) ? template.features.join('\n') : (template.features || '')).replace(/"/g, '""')}"`;
+      const tags = `"${(Array.isArray(template.tags) ? template.tags.join(',') : (template.tags || '')).replace(/"/g, '""')}"`;
+      const language = `"${(template.language || '').replace(/"/g, '""')}"`;
+      const explanationVideo = `"${(template.explanationVideo || '').replace(/"/g, '""')}"`;
+      
+      const creator = `"${(template.creator?.name || '').replace(/"/g, '""')}"`;
+      const email = `"${(template.creator?.email || '').replace(/"/g, '""')}"`;
+      const status = `"${(template.status || '').replace(/"/g, '""')}"`;
       const views = template.views || 0;
       const downloads = template.downloads || 0;
       const rating = template.rating || 0;
       const approvedAt = template.approvedAt ? new Date(template.approvedAt).toLocaleDateString('en-US') : '';
       const createdAt = template.createdAt ? new Date(template.createdAt).toLocaleDateString('en-US') : '';
-      return `${title},${creator},${email},${category},${price},${status},${views},${downloads},${rating},${approvedAt},${createdAt}`;
+      
+      return `${title},${description},${notionLink},${categories},${isPaid},${price},${previewImage},${features},${tags},${language},${explanationVideo},${creator},${email},${status},${views},${downloads},${rating},${approvedAt},${createdAt}`;
     }).join('\n');
 
     const csvContent = csvHeader + csvRows;
@@ -1244,20 +1280,20 @@ router.post('/:id/download', auth, async (req, res) => {
           .from('OrderItem')
           .select('orderId')
           .eq('templateId', template._id);
-          
+
         let alreadyOwned = false;
         if (existingItems && existingItems.length > 0) {
-           const orderIds = existingItems.map(i => i.orderId);
-           const { data: userOrders } = await supabase
-             .from('Order')
-             .select('id')
-             .in('id', orderIds)
-             .eq('userId', req.user._id || req.user.id);
-           
-           if (userOrders && userOrders.length > 0) {
-             console.log(`[DEBUG] User already owns template: ${template.title}`);
-             alreadyOwned = true;
-           }
+          const orderIds = existingItems.map(i => i.orderId);
+          const { data: userOrders } = await supabase
+            .from('Order')
+            .select('id')
+            .in('id', orderIds)
+            .eq('userId', req.user._id || req.user.id);
+
+          if (userOrders && userOrders.length > 0) {
+            console.log(`[DEBUG] User already owns template: ${template.title}`);
+            alreadyOwned = true;
+          }
         }
 
         if (!alreadyOwned) {

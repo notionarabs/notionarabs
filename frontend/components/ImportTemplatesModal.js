@@ -98,10 +98,10 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
             return;
         }
 
-        const headers = 'العنوان,الوصف,رابط نوشن,الفئات (مثال: إنتاجية),مدفوع (نعم/لا),السعر (بالجنيه المصري),رابط الصورة,المميزات,الوسوم\n';
+        const headers = 'العنوان,الوصف,رابط نوشن,الفئات (مثال: إنتاجية),مدفوع (نعم/لا),السعر بالجنيه (0 إذا مجاني),رابط الصورة,المميزات (كل ميزة في سطر),الوسوم (مفصولة بفاصلة)\n';
         const rows = uploadedImages.map(img => {
             const placeholderTitle = img.file.name.split('.')[0];
-            return `"${placeholderTitle}","وصف القالب هنا...","https://notion.so/xxx","إنتاجية","نعم","50","${img.url}","ميزة 1","نوشن"`;
+            return `"${placeholderTitle}","وصف القالب هنا...","https://notion.so/xxx","إنتاجية","نعم","50","${img.url}","ميزة 1\nميزة 2\nميزة 3","نوشن, تنظيم"`;
         }).join('\n');
 
         const blob = new Blob(['\uFEFF' + headers + rows], { type: 'text/csv;charset=utf-8;' });
@@ -378,8 +378,8 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
                                         <button 
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                const headers = 'العنوان,الوصف,رابط نوشن,الفئات (مثال: إنتاجية),مدفوع (نعم/لا),السعر (بالجنيه المصري),رابط الصورة,المميزات,الوسوم\n';
-                                                const sample = '"قالب إدارة المهام","وصف القالب...","https://notion.so/xxx","إنتاجية","نعم","50","TemplateA.png","ميزة 1\nميزة 2","نوشن"';
+                                                const headers = 'العنوان,الوصف,رابط نوشن,الفئات (مثال: إنتاجية),مدفوع (نعم/لا),السعر بالجنيه (0 إذا مجاني),رابط الصورة,المميزات (كل ميزة في سطر),الوسوم (مفصولة بفاصلة)\n';
+                                                const sample = '"قالب مجاني مثال","وصف القالب...","https://notion.so/xxx","إنتاجية","لا","0","TemplateA.png","ميزة 1\nميزة 2\nميزة 3","نوشن, تنظيم"';
                                                 const blob = new Blob(['\uFEFF' + headers + sample], { type: 'text/csv;charset=utf-8;' });
                                                 const link = document.createElement('a');
                                                 link.href = URL.createObjectURL(blob);

@@ -138,7 +138,8 @@ class Order {
             orderId: dbId,
             templateId: item.templateId,
             name: item.name,
-            price: item.price
+            price: item.price,
+            downloaded: item.downloaded || false
         }));
 
         const { error: itemsError } = await supabase

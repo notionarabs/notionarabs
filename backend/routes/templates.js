@@ -1272,14 +1272,16 @@ router.post('/:id/download', auth, async (req, res) => {
 
     // Create a free order record for the user so it appears in /purchases
     if (!template.isPaid || template.price === 0) {
-      console.log(`[DEBUG] Attempting to create free order for template: ${template.title} (${template._id}) for user: ${req.user._id || req.user.id}`);
+      const uid = (req.user._id || req.user.id).toString();
+      const tid = (template._id || template.id).toString();
+      console.log(`[DEBUG] Attempting to create free order for template: ${template.title} (${tid}) for user: ${uid}`);
       try {
         // Robust check for existing order for this template by this user
         const supabase = require('../utils/supabase');
         const { data: existingItems } = await supabase
           .from('OrderItem')
           .select('orderId')
-          .eq('templateId', template._id);
+          .eq('templateId', tid);
 
         let alreadyOwned = false;
         if (existingItems && existingItems.length > 0) {
@@ -1288,7 +1290,7 @@ router.post('/:id/download', auth, async (req, res) => {
             .from('Order')
             .select('id')
             .in('id', orderIds)
-            .eq('userId', req.user._id || req.user.id);
+            .eq('userId', uid);
 
           if (userOrders && userOrders.length > 0) {
             console.log(`[DEBUG] User already owns template: ${template.title}`);
@@ -1298,9 +1300,9 @@ router.post('/:id/download', auth, async (req, res) => {
 
         if (!alreadyOwned) {
           const newOrder = await Order.create({
-            user: req.user._id || req.user.id,
+            user: uid,
             items: [{
-              templateId: template._id,
+              templateId: tid,
               name: template.title,
               price: 0
             }],
@@ -1309,7 +1311,7 @@ router.post('/:id/download', auth, async (req, res) => {
             paymentMethod: 'free',
             notes: 'تحميل مجاني'
           });
-          console.log(`[DEBUG] Free order created successfully: ${newOrder._id || newOrder.id}`);
+          console.log(`[DEBUG] Free order created successfully: ${newOrder.id}`);
         }
       } catch (orderErr) {
         console.error('[DEBUG] Failed to create free order record:', orderErr);

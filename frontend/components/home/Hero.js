@@ -86,8 +86,8 @@ export default function Hero({ animationsPlayed }) {
                         {/* Main Heading */}
                         <h1 className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-foreground dark:text-white mb-4 sm:mb-6 ${!animationsPlayed ? 'text-reveal-delayed' : ''} leading-tight tracking-tighter overflow-visible`}>
                             <div className="block pt-[0.2em] pb-[0.2rem]">
-                                <div className="block">مجتمع نوشن العربي</div>
-                                <div className="block mt-2 md:mt-3 lg:mt-4"><span className="text-gradient">المجتمع الأول للمبدعين والخبراء</span></div>
+                                <div className="block"><span className="inline-block pt-2 pb-2 -mt-2 -mb-2">مجتمع نوشن العربي</span></div>
+                                <div className="block mt-2 md:mt-3 lg:mt-4"><span className="inline-block text-gradient pt-2 pb-2 -mt-2 -mb-2">المجتمع الأول للمبدعين والخبراء</span></div>
                             </div>
                         </h1>
 

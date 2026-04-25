@@ -71,7 +71,7 @@ export default function HeroSection() {
                             transition={{ delay: 0.3, duration: 0.6 }}
                         >
                             مجتمعك لتصميم <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-l from-primary to-orange-600 drop-shadow-[0_0_20px_rgba(249,115,22,0.3)]">
+                            <span className="inline-block text-transparent bg-clip-text bg-gradient-to-l from-primary to-orange-600 drop-shadow-[0_0_20px_rgba(249,115,22,0.3)] pt-2 pb-2 -mt-2 -mb-2">
                                 يومك الأمثل
                             </span>
                         </motion.h1>

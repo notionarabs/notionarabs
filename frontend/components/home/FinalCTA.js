@@ -21,7 +21,7 @@ export default function FinalCTA() {
                                 الخطوة التالية
                             </p>
                             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white mb-8 leading-tight">
-                                جاهز لتطوير مهاراتك <br /><span className="text-gradient">في عالم نوشن؟</span>
+                                جاهز لتطوير مهاراتك <br /><span className="inline-block text-gradient pt-2 pb-2 -mt-2 -mb-2">في عالم نوشن؟</span>
                             </h2>
                             <p className="text-lg sm:text-xl text-white/70 mb-10 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-medium">
                                 انضم لآلاف المستخدمين العرب وابدأ اليوم في تنظيم حياتك وأعمالك بأفضل الأدوات والقوالب الاحترافية.

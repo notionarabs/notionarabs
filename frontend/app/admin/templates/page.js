@@ -338,7 +338,7 @@ export default function AdminTemplatesPage() {
               <span className="text-sm font-bold text-orange-500 uppercase tracking-wider">لوحة التحكم</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-black text-accent-500 dark:text-dark-text-primary tracking-tight">
-              إدارة <span className="text-gradient-orange">القوالب</span>
+              إدارة <span className="inline-block text-gradient-orange pt-2 pb-2 -mt-2 -mb-2">القوالب</span>
             </h1>
             <p className="text-accent-400 dark:text-dark-text-tertiary max-w-lg leading-relaxed font-medium">
               مراجعة وتحرير القوالب المقدمة من المبدعين. يمكنك الموافقة، الرفض، أو تثبيت القوالب المميزة.

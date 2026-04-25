@@ -8,7 +8,7 @@ export default function HowWeDoIt({ timelineRef, stepRefs, inViewSteps, lineHeig
             <div className="container-custom">
                 <div className="text-center mb-12 sm:mb-16 md:mb-20">
                     <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-foreground dark:text-white mb-6">
-                        رحلتك في <span className="text-gradient">مجتمع عرب نوشن</span>
+                        رحلتك في <span className="inline-block text-gradient pt-2 pb-2 -mt-2 -mb-2">مجتمع عرب نوشن</span>
                     </h2>
                     <p className="text-lg sm:text-xl text-foreground/70 dark:text-white/70 max-w-3xl mx-auto leading-relaxed font-medium">
                         خطوات بسيطة لتبدأ رحلتك معنا، من الانضمام وحتى تصبح مبدعاً ومؤثراً في مجتمع نوشن العربي.

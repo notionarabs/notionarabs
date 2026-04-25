@@ -159,7 +159,7 @@ export default function AdminSettingsPage() {
                 <span className="text-xs font-black text-orange-500 uppercase tracking-widest">إدارة المنصة</span>
               </div>
               <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-2">
-                الإعدادات <span className="text-gradient-orange">الجوهريّة</span>
+                الإعدادات <span className="inline-block text-gradient-orange pt-2 pb-2 -mt-2 -mb-2">الجوهريّة</span>
               </h1>
               <p className="text-accent-400 dark:text-dark-text-tertiary font-bold max-w-lg leading-relaxed">
                 هنا يمكنك التحكم في العناصر الأكثر أهمية للمنصة، مثل الهوية، حالة الوصول، والأتمتة.

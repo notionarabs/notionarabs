@@ -9,7 +9,7 @@ export default function ServicesOverview() {
                 <div className="grid gap-12 lg:grid-cols-[1fr_1fr] items-start">
                     <div className="order-1 lg:order-1 lg:sticky lg:top-24 self-start">
                         <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-foreground dark:text-white mb-6 text-center lg:text-right leading-tight">
-                            مميزات <span className="text-gradient">مجتمع عرب نوشن</span>
+                            مميزات <span className="inline-block text-gradient pt-2 pb-2 -mt-2 -mb-2">مجتمع عرب نوشن</span>
                         </h2>
                         <p className="text-lg sm:text-xl text-foreground/70 dark:text-white/70 max-w-xl mx-auto lg:mx-0 text-center lg:text-right leading-relaxed font-medium">
                             نوفر لك البيئة المتكاملة لتطوير مهاراتك في نوشن، والوصول لأفضل القوالب والأدوات التي تساعدك في الإنتاجية.

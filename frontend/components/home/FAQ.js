@@ -42,7 +42,7 @@ export default function FAQ() {
                 <div className="grid gap-12 lg:grid-cols-[1fr_1.2fr] items-start">
                     <div className="text-center lg:text-right lg:sticky lg:top-24 self-start">
                         <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-foreground dark:text-white mb-6">
-                            الأسئلة <span className="text-gradient">الشائعة</span>
+                            الأسئلة <span className="inline-block text-gradient pt-2 pb-2 -mt-2 -mb-2">الشائعة</span>
                         </h2>
                         <p className="text-lg sm:text-xl text-foreground/70 dark:text-white/70 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
                             إجابات سريعة على تساؤلات المبدعين والمستخدمين في المجتمع.

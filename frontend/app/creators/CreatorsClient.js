@@ -199,7 +199,7 @@ export default function CreatorsClient() {
            <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[60px] rounded-[5rem] p-20 sm:p-32 shadow-large text-center relative overflow-hidden">
              <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-primary/10 blur-[160px] rounded-full" />
              <div className="relative z-10">
-               <h2 className="text-5xl sm:text-7xl lg:text-8xl font-black text-accent-500 dark:text-white mb-10 tracking-tighter leading-none">كُن أنت <br /><span className="text-primary text-gradient">المِعمار الحالي</span></h2>
+               <h2 className="text-5xl sm:text-7xl lg:text-8xl font-black text-accent-500 dark:text-white mb-10 tracking-tighter leading-none">كُن أنت <br /><span className="inline-block text-primary text-gradient pt-2 pb-2 -mt-2 -mb-2">المِعمار الحالي</span></h2>
                <p className="text-xl sm:text-2xl text-accent-700/60 dark:text-white/40 mb-16 max-w-3xl mx-auto font-black uppercase tracking-widest">انضم إلى مجتمع صفوة المبدعين العرب وابدأ في بناء إرثك الرقمي.</p>
                <Link href="/signup" className="px-16 py-6 bg-primary text-white rounded-2xl font-black text-xl shadow-glow hover:scale-110 transition-all uppercase tracking-widest inline-block">انضم للمبدعين</Link>
              </div>

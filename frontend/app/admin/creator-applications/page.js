@@ -333,7 +333,7 @@ export default function CreatorApplicationsPage() {
                 <span className="text-sm font-bold text-orange-500 uppercase tracking-wider">لوحة الإدارة</span>
               </div>
               <h1 className="text-4xl md:text-5xl font-black text-accent-500 dark:text-dark-text-primary tracking-tight">
-                إدارة <span className="text-gradient-orange">المبدعين</span>
+                إدارة <span className="inline-block text-gradient-orange pt-2 pb-2 -mt-2 -mb-2">المبدعين</span>
               </h1>
               <p className="text-accent-400 dark:text-dark-text-tertiary max-w-lg leading-relaxed font-medium">
                 مراجعة وإدارة طلبات الانضمام لمجتمع المبدعين العرب. يمكنك الموافقة، الرفض، وتثبيت المبدعين المميزين.

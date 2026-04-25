@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Layout, Copy, ExternalLink, Zap, Sparkles, Users, Clock, Sun, Timer, BookOpen, CheckSquare, Search, Filter, X, Cloud, Star, Calculator, Landmark, Lock, ArrowUpDown, ChevronDown, Check } from 'lucide-react';
+import { Layout, Copy, ExternalLink, Zap, Sparkles, Users, Clock, Sun, Timer, BookOpen, CheckSquare, Search, Filter, X, Cloud, Star, Calculator, Landmark, Lock, ArrowUpDown, ChevronDown, Check, XCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import Footer from '../../components/Footer';
@@ -176,8 +176,19 @@ export default function WidgetsClient() {
                                     placeholder="ابحث عن أداة... (آية اليوم، ساعة، منظم مهام)"
                                     className="w-full bg-transparent border-none focus:ring-0 px-8 py-5 text-lg text-foreground dark:text-white placeholder:text-foreground/40 dark:placeholder:text-white/30"
                                 />
-                                <div className="absolute left-3 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20">
-                                    <Search className="w-5 h-5" />
+                                <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                                    {searchQuery && (
+                                        <button 
+                                            type="button"
+                                            onClick={() => setSearchQuery('')}
+                                            className="p-2 text-foreground/40 hover:text-primary transition-colors"
+                                        >
+                                            <XCircle className="w-5 h-5" />
+                                        </button>
+                                    )}
+                                    <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20">
+                                        <Search className="w-5 h-5" />
+                                    </div>
                                 </div>
                             </div>
                         </div>

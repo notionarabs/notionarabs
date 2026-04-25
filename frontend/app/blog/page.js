@@ -10,6 +10,7 @@ import { useToast } from '../../contexts/ToastContext';
 import StarRating from '../../components/StarRating';
 import Footer from '../../components/Footer';
 import { BreadcrumbWrapper } from '../../components/Breadcrumb';
+import { Search, XCircle, Megaphone, Newspaper } from 'lucide-react';
 // Removed Fuse.js import - now using server-side search
 
 
@@ -379,14 +380,23 @@ export default function BlogPage() {
                   onKeyDown={(e) => e.key === 'Enter' && fetchBlogPosts()}
                   className="w-full bg-transparent border-none focus:ring-0 px-8 py-5 text-lg text-foreground dark:text-white placeholder:text-foreground/40 dark:placeholder:text-white/30"
                 />
-                <button
-                  onClick={() => fetchBlogPosts()}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </button>
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                  {searchTerm && (
+                    <button 
+                      type="button"
+                      onClick={() => { setSearchTerm(''); fetchBlogPosts(); }}
+                      className="p-2 text-foreground/40 hover:text-primary transition-colors"
+                    >
+                      <XCircle className="w-5 h-5" />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => fetchBlogPosts()}
+                    className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
+                  >
+                    <Search className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -573,8 +583,18 @@ export default function BlogPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-20">
-               <h3 className="text-xl font-black text-foreground/40 dark:text-white/20 uppercase tracking-widest">لم يتم العثور على مقالات</h3>
+            <div className="text-center py-48 bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-[4rem] shadow-large border-none">
+              <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-8">
+                <Newspaper className="w-10 h-10 text-primary" />
+              </div>
+              <h3 className="text-4xl font-black text-accent-900 dark:text-white mb-6 tracking-tighter">لا توجد مقالات حالياً</h3>
+              <p className="text-xl text-accent-700/40 dark:text-white/30 max-w-xl mx-auto mb-12 font-medium">نحن نعمل على كتابة محتوى جديد ومفيد. حاول تغيير كلمات البحث أو تصفح الأقسام الأخرى.</p>
+              <button 
+                onClick={() => { setSearchTerm(''); setSelectedCategory('all'); setSortBy('newest'); }} 
+                className="px-12 py-5 bg-primary text-white font-black rounded-2xl shadow-glow uppercase tracking-widest text-xs"
+              >
+                عرض كل المقالات
+              </button>
             </div>
           )}
 

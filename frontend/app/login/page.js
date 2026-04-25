@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 function LoginForm() {
   const [formData, setFormData] = useState({
@@ -18,6 +19,7 @@ function LoginForm() {
   const [redirectPath, setRedirectPath] = useState('/');
 
   const { login, resendVerification } = useAuth();
+  const { theme } = useTheme();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -73,7 +75,7 @@ function LoginForm() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-block mb-6 transform hover:scale-105 transition-transform duration-200">
             <Image
-              src="/brand/NavLogoLight.svg"
+              src={theme === 'dark' ? '/brand/NavLogoLight.svg' : '/brand/NavLogoDark.svg'}
               alt="عرب نوشن"
               width={140}
               height={45}

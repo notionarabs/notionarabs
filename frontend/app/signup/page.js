@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -23,6 +24,7 @@ export default function SignupPage() {
   const [resendingEmail, setResendingEmail] = useState(false);
 
   const { signup, resendVerification } = useAuth();
+  const { theme } = useTheme();
   const router = useRouter();
 
   const handleChange = (e) => {
@@ -138,7 +140,7 @@ export default function SignupPage() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-block mb-6 transform hover:scale-105 transition-transform duration-200">
             <Image
-              src="/brand/NavLogoLight.svg"
+              src={theme === 'dark' ? '/brand/NavLogoLight.svg' : '/brand/NavLogoDark.svg'}
               alt="عرب نوشن"
               width={140}
               height={45}

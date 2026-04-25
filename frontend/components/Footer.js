@@ -34,7 +34,6 @@ export default function Footer() {
       { href: '/templates', label: 'قوالب نوشن' },
       { href: '/blog', label: 'المدونة' },
       { href: '/widgets', label: 'الأدوات' },
-      { href: '/#marketplace', label: 'المتجر' },
     ],
     support: [
       { href: '/contact', label: 'اتصل بنا' },

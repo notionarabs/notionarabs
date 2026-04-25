@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 // Security configuration and utilities
 const securityConfig = {
@@ -34,6 +35,7 @@ const securityConfig = {
 };
 
 function VerifyEmailForm() {
+  const { theme } = useTheme();
   const [loading, setLoading] = useState(true); // Start with loading true
   const [error, setError] = useState('');
   const [errorType, setErrorType] = useState('');
@@ -178,7 +180,7 @@ function VerifyEmailForm() {
                 decoding="async"
                 data-nimg="1"
                 className="h-8 sm:h-10 lg:h-12 w-auto"
-                src="/brand/NavLogoLight.svg"
+                src={theme === 'dark' ? '/brand/NavLogoLight.svg' : '/brand/NavLogoDark.svg'}
                 style={{ color: 'transparent' }}
               />
             </Link>
@@ -246,7 +248,7 @@ function VerifyEmailForm() {
                 decoding="async"
                 data-nimg="1"
                 className="h-8 sm:h-10 lg:h-12 w-auto"
-                src="/brand/NavLogoLight.svg"
+                src={theme === 'dark' ? '/brand/NavLogoLight.svg' : '/brand/NavLogoDark.svg'}
                 style={{ color: 'transparent' }}
               />
             </Link>
@@ -287,7 +289,7 @@ function VerifyEmailForm() {
                 decoding="async"
                 data-nimg="1"
                 className="h-8 sm:h-10 lg:h-12 w-auto"
-                src="/brand/NavLogoLight.svg"
+                src={theme === 'dark' ? '/brand/NavLogoLight.svg' : '/brand/NavLogoDark.svg'}
                 style={{ color: 'transparent' }}
               />
             </Link>
@@ -353,7 +355,7 @@ function VerifyEmailForm() {
               decoding="async"
               data-nimg="1"
               className="h-8 sm:h-10 lg:h-12 w-auto"
-              src="/brand/NavLogoLight.svg"
+              src={theme === 'dark' ? '/brand/NavLogoLight.svg' : '/brand/NavLogoDark.svg'}
               style={{ color: 'transparent' }}
             />
           </Link>
@@ -489,7 +491,7 @@ export default function VerifyEmailPage() {
                 decoding="async"
                 data-nimg="1"
                 className="h-8 sm:h-10 lg:h-12 w-auto"
-                src="/brand/NavLogoLight.svg"
+                src={theme === 'dark' ? '/brand/NavLogoLight.svg' : '/brand/NavLogoDark.svg'}
                 style={{ color: 'transparent' }}
               />
             </div>

@@ -32,7 +32,6 @@ export default function TermsPage() {
           <div className="prose prose-sm sm:prose-base md:prose-lg max-w-none">
             <div className="space-y-16">
               <section className="relative">
-                <div className="absolute -right-8 top-0 text-[120px] font-black text-primary/5 select-none leading-none">01</div>
                 <h2 className="text-3xl font-black mb-6 text-accent-900 dark:text-white relative z-10">1. قبول الشروط</h2>
                 <div className="space-y-4">
                   <p className="text-xl text-accent-600 dark:text-gray-300 leading-relaxed font-medium">
@@ -46,7 +45,6 @@ export default function TermsPage() {
               </section>
 
               <section className="relative">
-                <div className="absolute -right-8 top-0 text-[120px] font-black text-primary/5 select-none leading-none">02</div>
                 <h2 className="text-3xl font-black mb-6 text-accent-900 dark:text-white relative z-10">2. وصف الخدمات</h2>
                 <p className="text-xl text-accent-600 dark:text-gray-300 leading-relaxed mb-8 font-medium">
                   عرب نوشن تقدم مجموعة متكاملة من الخدمات الاحترافية:
@@ -192,14 +190,43 @@ export default function TermsPage() {
                   <li>تكون مسؤولاً عن جميع الأنشطة في حسابك</li>
                 </ul>
 
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">8.2 حساب المبدع</h3>
+                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">8.2 حساب المبدع والبيع في المتجر</h3>
                 <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  لرفع ومشاركة القوالب في المتجر، تحتاج إلى التقدم بطلب انضمام كمبدع والحصول على موافقة إدارية.
+                  لرفع ومشاركة القوالب المدفوعة أو المجانية في المتجر، يجب التقدم بطلب انضمام كمبدع والحصول على موافقة. بصفتك مبدعاً، أنت توافق على:
+                </p>
+                <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100">
+                  <li>امتلاك جميع حقوق الملكية الفكرية للقوالب التي ترفعها</li>
+                  <li>تقديم قوالب تعمل بكفاءة وخالية من المحتوى الخبيث</li>
+                  <li>توفير دعم فني أساسي للمشترين في حالة وجود مشاكل تقنية</li>
+                  <li>قبول نسبة العمولة التي تقتطعها المنصة مقابل معالجة المدفوعات والاستضافة</li>
+                </ul>
+              </section>
+
+              <section>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">9. متجر القوالب والمدفوعات والأرباح</h2>
+                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">9.1 عمليات الشراء والعمولات</h3>
+                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
+                  عند قيام مستخدم بشراء قالب مدفوع عبر المتجر، تتم معالجة الدفع عبر بوابات دفع آمنة (مثل Paymob). تقتطع المنصة عمولة تشغيلية (يتم توضيحها في لوحة تحكم المبدع) وتُضاف الأرباح الصافية إلى رصيد المبدع.
+                </p>
+
+                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">9.2 سحب الأرباح للمبدعين</h3>
+                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
+                  يمكن للمبدعين طلب سحب الأرباح المتاحة وفق الشروط التالية:
+                </p>
+                <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100">
+                  <li>الوصول إلى الحد الأدنى للسحب المحدد في لوحة التحكم</li>
+                  <li>توفير بيانات دفع صحيحة (مثل رقم فودافون كاش، عنوان إنستاباي، أو بيانات الحساب البنكي)</li>
+                  <li>تتم معالجة الطلبات خلال مدة زمنية محددة (عادة 3 إلى 7 أيام عمل)</li>
+                </ul>
+
+                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">9.3 استرداد المشتريات (للمشترين)</h3>
+                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
+                  بما أن القوالب هي منتجات رقمية قابلة للنسخ فوراً، فإن المشتريات غير قابلة للاسترداد بشكل عام، إلا في حالات الخلل التقني الجسيم أو الاحتيال. في حال الموافقة على الاسترداد، سيتم خصم المبلغ من رصيد المبدع.
                 </p>
               </section>
 
               <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">9. الاستخدام المقبول</h2>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">10. الاستخدام المقبول</h2>
                 <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">9.1 الاستخدام المحظور</h3>
                 <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
                   يحظر عليك:
@@ -216,8 +243,8 @@ export default function TermsPage() {
               </section>
 
               <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">10. المسؤولية والضمانات</h2>
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">10.1 إخلاء المسؤولية</h3>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">11. المسؤولية والضمانات</h2>
+                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">11.1 إخلاء المسؤولية</h3>
                 <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
                   بينما نبذل قصارى جهدنا لتقديم خدمات عالية الجودة، لا نضمن:
                 </p>
@@ -227,12 +254,12 @@ export default function TermsPage() {
                   <li>استمرار عمل التكاملات مع خدمات الطرف الثالث</li>
                 </ul>
 
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">10.2 حدود المسؤولية</h3>
+                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">11.2 حدود المسؤولية</h3>
                 <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
                   مسؤوليتنا محدودة بقيمة المشروع المدفوع. لن نكون مسؤولين عن أي أضرار غير مباشرة، تبعية، أو خسائر في الأرباح.
                 </p>
 
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">10.3 مسؤولية العميل</h3>
+                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">11.3 مسؤولية العميل والمبدع</h3>
                 <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
                   العميل مسؤول عن:
                 </p>
@@ -245,14 +272,14 @@ export default function TermsPage() {
               </section>
 
               <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">11. السرية</h2>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">12. السرية</h2>
                 <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
                   نلتزم بالحفاظ على سرية جميع المعلومات التي تشاركها معنا أثناء المشروع. لن نكشف عن معلومات مشروعك لأي طرف ثالث دون موافقتك الكتابية.
                 </p>
               </section>
 
               <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">12. إنهاء الخدمة</h2>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">13. إنهاء الخدمة</h2>
                 <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
                   يمكن لأي طرف إنهاء المشروع بإشعار كتابي. في حالة الإنهاء:
                 </p>
@@ -265,7 +292,7 @@ export default function TermsPage() {
               </section>
 
               <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">13. تعديل الشروط</h2>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">14. تعديل الشروط</h2>
                 <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
                   نحتفظ بالحق في تعديل هذه الشروط في أي وقت. التعديلات ستصبح سارية فور نشرها على المنصة.
                 </p>
@@ -275,14 +302,14 @@ export default function TermsPage() {
               </section>
 
               <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">14. القانون المطبق</h2>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">15. القانون المطبق</h2>
                 <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
                   هذه الشروط تحكمها قوانين جمهورية مصر العربية. أي نزاعات تخضع لاختصاص محاكم القاهرة.
                 </p>
               </section>
 
               <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">15. التواصل معنا</h2>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">16. التواصل معنا</h2>
                 <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
                   إذا كان لديك أي أسئلة حول هذه الشروط، يرجى التواصل معنا:
                 </p>

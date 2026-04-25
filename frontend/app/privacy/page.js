@@ -32,7 +32,6 @@ export default function PrivacyPage() {
           <div className="prose prose-lg max-w-none">
             <div className="space-y-16">
               <section className="relative">
-                <div className="absolute -right-8 top-0 text-[120px] font-black text-primary/5 select-none leading-none">00</div>
                 <h2 className="text-3xl font-black mb-6 text-accent-900 dark:text-white relative z-10">مقدمة</h2>
                 <div className="space-y-4">
                   <p className="text-xl text-accent-600 dark:text-gray-300 leading-relaxed font-medium">
@@ -86,8 +85,13 @@ export default function PrivacyPage() {
                   <li className="leading-relaxed">روابط وسائل التواصل الاجتماعي</li>
                   <li className="leading-relaxed">رقم الهاتف للتواصل</li>
                   <li className="leading-relaxed">الدوافع والاهتمامات</li>
-                  <li className="leading-relaxed">معلومات الدفع (للمبيعات)</li>
+                  <li className="leading-relaxed">معلومات الدفع وسحب الأرباح (مثل رقم فودافون كاش، عنوان إنستاباي، أو بيانات الحساب البنكي)</li>
                 </ul>
+
+                <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-2 sm:mb-3 text-accent-500 dark:text-dark-text-primary">معلومات الشراء والدفع</h3>
+                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
+                  عند قيامك بشراء قالب أو خدمة مدفوعة، تتم معالجة بيانات الدفع الخاصة بك (مثل بطاقة الائتمان) مباشرة وبشكل آمن عبر مزودي خدمة الدفع المعتمدين لدينا (مثل Paymob). نحن <strong>لا نقوم</strong> بتخزين أو معالجة معلومات بطاقتك الائتمانية على خوادمنا نهائياً. نجمع فقط معلومات عن حالة المعاملة الشرائية لضمان تسليم المنتج.
+                </p>
 
                 <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-2 sm:mb-3 text-accent-500 dark:text-dark-text-primary">معلومات طلبات التوظيف</h3>
                 <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
@@ -164,6 +168,7 @@ export default function PrivacyPage() {
                   <li className="leading-relaxed">الوصول المحدود للمعلومات الحساسة</li>
                   <li className="leading-relaxed">مراقبة مستمرة للأنشطة المشبوهة</li>
                   <li className="leading-relaxed">نسخ احتياطي منتظم للبيانات</li>
+                  <li className="leading-relaxed">تشفير وحماية إضافية لبيانات الدفع الحساسة (مثل أرقام محافظ المبدعين)</li>
                   <li className="leading-relaxed">التزام فريق العمل بسرية المعلومات</li>
                 </ul>
               </section>

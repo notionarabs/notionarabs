@@ -31,13 +31,27 @@ export default function RefundPolicyPage() {
                         
                         <div className="space-y-16">
                             <section>
-                                <h2 className="text-xl sm:text-2xl md:text-3xl font-black mb-6 text-accent-900 dark:text-white tracking-widest uppercase">1. المنتجات الرقمية (القوالب والأدوات)</h2>
+                                <h2 className="text-xl sm:text-2xl md:text-3xl font-black mb-6 text-accent-900 dark:text-white tracking-widest uppercase">1. المنتجات الرقمية وقوالب المتجر</h2>
                                 <p className="text-xl text-accent-700 dark:text-gray-300 leading-relaxed font-medium">
-                                    نظراً لطبيعة المنتجات الرقمية (مثل قوالب نوشن والأدوات) والتي يتم تسليمها فوراً وباب الوصول إليها يكون مفتوحاً بمجرد الشراء، فإننا لا نقدم سياسة استرجاع عامة لهذه المنتجات بعد تحميلها أو الحصول على رابط الوصول الخاص بها.
+                                    نظراً لطبيعة المنتجات الرقمية (مثل قوالب نوشن والأدوات) والتي يمكن نسخها فوراً بمجرد الشراء، فإن المشتريات من متجرنا غير قابلة للاسترداد بشكل عام.
                                 </p>
                                 <p className="text-xl text-accent-700 dark:text-gray-300 leading-relaxed font-medium mt-4">
-                                    ومع ذلك، في حالات استثنائية (مثل عدم قدرتك على الوصول للملف، أو وجود خطأ تقني جوهري في المنتج)، يرجى التواصل معنا. يمكنك أيضاً طلب استرداد المبلغ خلال 14 يوماً من تاريخ الشراء وفقاً لسياسة الاسترجاع الخاصة بمتجر قوالب نوشن (Notion Marketplace).
+                                    ومع ذلك، يحق للمشتري طلب استرداد المبلغ خلال 14 يوماً من تاريخ الشراء في الحالات الاستثنائية التالية فقط:
                                 </p>
+                                <ul className="space-y-4 text-xl text-accent-700 dark:text-gray-300 font-medium list-none pr-0 mt-4">
+                                    <li className="flex items-start gap-4">
+                                        <div className="w-2 h-2 bg-primary rounded-full mt-3 flex-shrink-0" />
+                                        <span>وجود خطأ تقني جوهري في القالب يمنع استخدامه كما تم وصفه.</span>
+                                    </li>
+                                    <li className="flex items-start gap-4">
+                                        <div className="w-2 h-2 bg-primary rounded-full mt-3 flex-shrink-0" />
+                                        <span>الاختلاف الجذري بين محتوى القالب الفعلي والوصف المقدم من المبدع في صفحة المنتج.</span>
+                                    </li>
+                                    <li className="flex items-start gap-4">
+                                        <div className="w-2 h-2 bg-primary rounded-full mt-3 flex-shrink-0" />
+                                        <span>في حال الموافقة على الاسترداد، سيتم خصم قيمة المنتج المسترد من رصيد المبدع (البائع).</span>
+                                    </li>
+                                </ul>
                             </section>
 
                             <section>

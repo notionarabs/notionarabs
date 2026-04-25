@@ -16,7 +16,6 @@ import SettingsContent from '../../components/SettingsContent';
 import AnalyticsContent from '../../components/AnalyticsContent';
 import CreatorEarnings from '../../components/CreatorEarnings';
 import AdminPayouts from '../../components/AdminPayouts';
-import BulkImageUploader from '../../components/BulkImageUploader';
 import { Camera, Mail, User as UserIcon, AtSign, Settings, LayoutDashboard, Edit3, Download, TrendingUp, DollarSign } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -317,8 +316,6 @@ function ProfilePageContent() {
         return <CreatorEarnings />;
       case 'admin-payouts':
         return <AdminPayouts />;
-      case 'bulk-image-upload':
-        return <BulkImageUploader />;
       default:
         return <ProfileOverview user={user} />;
     }

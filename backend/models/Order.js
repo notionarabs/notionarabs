@@ -34,10 +34,23 @@ class Order {
         const { data, error } = await q;
         if (error) throw error;
         
-        // Manually fetch items for each order
+        const Template = require('./Template');
         const orders = data || [];
         const results = await Promise.all(orders.map(async (o) => {
             const { data: items } = await supabase.from('OrderItem').select('*').eq('orderId', o.id);
+            
+            // Populate each item's templateId
+            if (items && items.length > 0) {
+                const populatedItems = await Promise.all(items.map(async (item) => {
+                    const template = await Template.findById(item.templateId);
+                    return {
+                        ...item,
+                        templateId: template || item.templateId // Replace with object if found
+                    };
+                }));
+                return new Order({ ...o, items: populatedItems });
+            }
+            
             return new Order({ ...o, items: items || [] });
         }));
         return results;
@@ -64,7 +77,21 @@ class Order {
       if (!data) return null;
       
       const { data: items } = await supabase.from('OrderItem').select('*').eq('orderId', data.id);
-      return new Order({ ...data, items: items || [] });
+      
+      // Populate items
+      let populatedItems = items || [];
+      if (items && items.length > 0) {
+          const Template = require('./Template');
+          populatedItems = await Promise.all(items.map(async (item) => {
+              const template = await Template.findById(item.templateId);
+              return {
+                  ...item,
+                  templateId: template || item.templateId
+              };
+          }));
+      }
+      
+      return new Order({ ...data, items: populatedItems });
     });
   }
 

@@ -27,10 +27,11 @@ class Rating {
 
     const { data, error } = await supabase.from('Rating').upsert(payload).select().single();
     if (error) throw error;
-    Object.assign(this, data);
-    this._id = data.id;
+    Object.assign(this, result);
+    this.id = result.id;
+    this._id = result.id;
     // Map back for application use
-    this.targetId = data.templateId || data.blogId || data.creatorId;
+    this.targetId = result.templateId || result.blogId || result.creatorId;
     return this;
   }
 
@@ -38,7 +39,6 @@ class Rating {
     let q = supabase.from('Rating').select('*');
     if (query.targetType) q = q.eq('targetType', query.targetType);
     
-    // Support generic targetId by checking the specific column
     if (query.targetId) {
         if (query.targetType === 'template') q = q.eq('templateId', query.targetId);
         else if (query.targetType === 'blog') q = q.eq('blogId', query.targetId);
@@ -48,23 +48,41 @@ class Rating {
     if (query.user) q = q.eq('userId', query.user);
     if (query.isPublic !== undefined) q = q.eq('isPublic', query.isPublic);
     
+    let populatePath = null;
+    let limitVal = null;
+    let skipVal = null;
+    let sortObj = null;
+
     const execute = async () => {
-        const { data, error } = await q;
+        let chain = q;
+        if (sortObj) {
+            const key = Object.keys(sortObj)[0];
+            const ascending = sortObj[key] === 1;
+            chain = chain.order(key === '_id' ? 'id' : key, { ascending });
+        }
+        if (skipVal !== null && limitVal !== null) {
+            chain = chain.range(skipVal, skipVal + limitVal - 1);
+        } else if (limitVal !== null) {
+            chain = chain.limit(limitVal);
+        }
+
+        const { data, error } = await chain;
         if (error) throw error;
+        
         const results = (data || []).map(item => {
             const r = new Rating(item);
             r.targetId = item.templateId || item.blogId || item.creatorId;
             return r;
         });
 
-        // Simple manual population for user if needed
         if (populatePath === 'user' && results.length > 0) {
             const User = require('./User');
             const userIds = [...new Set(results.map(r => r.userId).filter(id => id))];
             if (userIds.length > 0) {
                 const users = await User.find({ id: { $in: userIds } });
                 const userMap = users.reduce((map, u) => {
-                    map[u.id] = u;
+                    const uid = u.id || u._id;
+                    if (uid) map[uid] = u;
                     return map;
                 }, {});
                 results.forEach(r => {
@@ -75,35 +93,16 @@ class Rating {
         return results;
     };
 
-    let populatePath = null;
-    const promise = execute();
-    const wrap = (p) => {
-        const newPromise = execute();
-        newPromise.sort = (s) => {
-            if (s && typeof s === 'object') {
-                const key = Object.keys(s)[0];
-                const ascending = s[key] === 1;
-                q = q.order(key === '_id' ? 'id' : key, { ascending });
-            }
-            return wrap(execute());
-        };
-        newPromise.limit = (n) => {
-            q = q.limit(n);
-            return wrap(execute());
-        };
-        newPromise.skip = (n) => {
-            const limit = 50; 
-            q = q.range(n, (n + limit - 1));
-            return wrap(execute());
-        };
-        newPromise.populate = (path) => {
-            populatePath = path;
-            return wrap(execute());
-        };
-        newPromise.lean = () => wrap(newPromise);
-        return newPromise;
+    const promise = {
+        then: (onFullfilled, onRejected) => execute().then(onFullfilled, onRejected),
+        catch: (onRejected) => execute().catch(onRejected),
+        sort: (s) => { sortObj = s; return promise; },
+        limit: (n) => { limitVal = n; return promise; },
+        skip: (n) => { skipVal = n; return promise; },
+        populate: (path) => { populatePath = path; return promise; },
+        lean: () => promise
     };
-    return wrap(promise);
+    return promise;
   }
 
   static findOne(query = {}) {

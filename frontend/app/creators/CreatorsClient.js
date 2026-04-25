@@ -235,6 +235,30 @@ export default function CreatorsClient() {
               )}
             </div>
           )}
+
+          {/* Pagination */}
+          {!loading && pagination.pages > 1 && (
+            <div className="mt-28 flex justify-center">
+              <div className="flex items-center gap-3 bg-white/50 dark:bg-white/5 backdrop-blur-2xl p-3 rounded-[2rem] shadow-soft">
+                {[...Array(pagination.pages)].map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      setPagination(p => ({ ...p, current: i + 1 }));
+                      window.scrollTo({ top: 400, behavior: 'smooth' });
+                    }}
+                    className={`w-12 h-12 rounded-xl text-sm font-black transition-all ${
+                      pagination.current === i + 1
+                        ? 'bg-primary text-white shadow-glow scale-110'
+                        : 'text-foreground/40 dark:text-white/20 hover:text-primary'
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

@@ -198,11 +198,27 @@ class Template {
   }
 
   static find(query = {}) {
-    let chain = supabase.from('Template').select('*');
-    chain = this._applyQuery(chain, query);
+    let q = supabase.from('Template').select('*');
+    q = this._applyQuery(q, query);
 
     let populatePath = null;
+    let limitVal = null;
+    let skipVal = null;
+    let sortObj = null;
+
     const execute = async () => {
+        let chain = q;
+        if (sortObj) {
+            const key = Object.keys(sortObj)[0];
+            const ascending = sortObj[key] === 1;
+            chain = chain.order(key === '_id' ? 'id' : key, { ascending });
+        }
+        if (skipVal !== null && limitVal !== null) {
+            chain = chain.range(skipVal, skipVal + limitVal - 1);
+        } else if (limitVal !== null) {
+            chain = chain.limit(limitVal);
+        }
+
         const { data, error } = await chain;
         if (error) throw error;
         let results = (data || []).map(item => new Template(item));
@@ -214,7 +230,8 @@ class Template {
             if (creatorIds.length > 0) {
                 const creators = await User.find({ id: { $in: creatorIds } });
                 const creatorMap = creators.reduce((map, c) => {
-                    map[c.id] = c;
+                    const cid = c.id || c._id;
+                    if (cid) map[cid] = c;
                     return map;
                 }, {});
                 results.forEach(r => {
@@ -228,32 +245,17 @@ class Template {
         return results;
     };
 
-    const promise = execute();
-    const wrap = (p) => {
-        p.sort = (s) => {
-             if (s && typeof s === 'object') {
-                 const key = Object.keys(s)[0];
-                 if (key === 'score') return wrap(promise); // Ignore MongoDB textScore sorting
-                 const ascending = s[key] === 1;
-                 chain = chain.order(key === '_id' ? 'id' : key, { ascending });
-             }
-             return wrap(execute());
-        };
-        p.skip = (n) => { 
-            const limit = 50;
-            chain = chain.range(n, (n + limit - 1)); 
-            return wrap(execute()); 
-        };
-        p.limit = (n) => { 
-            chain = chain.limit(n); 
-            return wrap(execute()); 
-        };
-        p.select = (f) => wrap(p);
-        p.populate = (path) => { populatePath = path; return wrap(p); };
-        p.lean = () => wrap(p);
-        return p;
+    const promise = {
+        then: (onFullfilled, onRejected) => execute().then(onFullfilled, onRejected),
+        catch: (onRejected) => execute().catch(onRejected),
+        sort: (s) => { sortObj = s; return promise; },
+        limit: (n) => { limitVal = n; return promise; },
+        skip: (n) => { skipVal = n; return promise; },
+        populate: (path) => { populatePath = path; return promise; },
+        select: () => promise,
+        lean: () => promise
     };
-    return wrap(promise);
+    return promise;
   }
 
   static findOne(query = {}) {

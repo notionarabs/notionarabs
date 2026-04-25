@@ -22,6 +22,7 @@ export default function PurchasesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [orders, setOrders] = useState([]);
   const [items, setItems] = useState([]);
+  const [downloadingItemId, setDownloadingItemId] = useState(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -131,6 +132,22 @@ export default function PurchasesPage() {
         );
     }
   };
+  
+  const handleDownload = async (item) => {
+    const tid = item.templateId || item.id;
+    if (!tid) return;
+    
+    setDownloadingItemId(tid);
+    try {
+      await api.post(`/templates/${tid}/download`);
+      window.open(item.notionLink || `/templates/${tid}`, '_blank');
+    } catch (err) {
+      console.error('Download error:', err);
+      window.open(item.notionLink || `/templates/${tid}`, '_blank');
+    } finally {
+      setDownloadingItemId(null);
+    }
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -235,7 +252,7 @@ export default function PurchasesPage() {
               لم تقم بشراء أي قوالب بعد. استكشف متجرنا للعثور على قوالب نوشن احترافية تساعدك في تنظيم حياتك وعملك.
             </p>
             <Link
-              href="/#marketplace"
+              href="/templates"
               className="px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-2xl transition-all shadow-xl hover:shadow-primary-500/30 hover:-translate-y-1 flex items-center gap-2 group"
             >
               <Search size={20} className="group-hover:scale-110 transition-transform" />
@@ -301,11 +318,18 @@ export default function PurchasesPage() {
                       </div>
                     ) : (
                       <button
-                        onClick={() => window.open(item.notionLink || `/templates/${item.templateId?.toString() || item.id?.toString()}`, '_blank')}
-                        className="w-full py-3 px-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary-500/20 hover:shadow-primary-500/40"
+                        onClick={() => handleDownload(item)}
+                        disabled={downloadingItemId === (item.templateId || item.id)}
+                        className="w-full py-3 px-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-primary-500/20 hover:shadow-primary-500/40 disabled:opacity-70 disabled:cursor-not-allowed"
                       >
-                        <Download size={18} />
-                        <span>تحميل الآن</span>
+                        {downloadingItemId === (item.templateId || item.id) ? (
+                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                          <>
+                            <Download size={18} />
+                            <span>تحميل الآن</span>
+                          </>
+                        )}
                       </button>
                     )}
                   </div>

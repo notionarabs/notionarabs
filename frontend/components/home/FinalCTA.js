@@ -27,7 +27,7 @@ export default function FinalCTA() {
                                 انضم لآلاف المستخدمين العرب وابدأ اليوم في تنظيم حياتك وأعمالك بأفضل الأدوات والقوالب الاحترافية.
                             </p>
                             <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
-                                <Link href="/#marketplace" className="btn-primary min-w-[200px] text-lg py-4 shadow-[0_0_30px_rgba(245,99,30,0.3)]">
+                                <Link href="/templates" className="btn-primary min-w-[200px] text-lg py-4 shadow-[0_0_30px_rgba(245,99,30,0.3)]">
                                     استكشف القوالب
                                 </Link>
                                 <Link href="/creators" className="btn-secondary min-w-[200px] text-lg py-4 bg-white/5 backdrop-blur-md border-none hover:bg-white/10 text-white shadow-sm transition-all">

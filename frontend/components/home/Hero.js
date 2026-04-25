@@ -98,15 +98,15 @@ export default function Hero({ animationsPlayed }) {
 
                         {/* Enhanced CTA Buttons with Better Animations */}
                         <div className={`flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 mb-8 sm:mb-10 ${!animationsPlayed ? 'text-reveal-delayed-3' : ''}`}>
-                            <button
-                                onClick={() => document.getElementById('marketplace')?.scrollIntoView({ behavior: 'smooth' })}
-                                className="btn-primary min-w-[200px] text-lg py-4 shadow-[0_0_20px_rgba(245,99,30,0.15)] hover:shadow-[0_0_30px_rgba(245,99,30,0.3)]"
+                            <Link
+                                href="/templates"
+                                className="btn-primary min-w-[200px] text-lg py-4 shadow-[0_0_20px_rgba(245,99,30,0.15)] hover:shadow-[0_0_30px_rgba(245,99,30,0.3)] flex items-center justify-center gap-3 group"
                             >
                                 استكشف القوالب
                                 <svg className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                 </svg>
-                            </button>
+                            </Link>
                             <Link
                                 href="/creators"
                                 className="btn-secondary min-w-[200px] text-lg py-4"

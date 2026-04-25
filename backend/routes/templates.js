@@ -3,6 +3,7 @@ const { body, validationResult } = require('express-validator');
 const Template = require('../models/Template');
 const DownloadLog = require('../models/DownloadLog');
 const User = require('../models/User');
+const Order = require('../models/Order');
 const Notification = require('../models/Notification');
 const auth = require('../middleware/auth');
 const { generateTemplateSlug } = require('../utils/slugGenerator');
@@ -1183,7 +1184,9 @@ router.delete('/:id', auth, async (req, res) => {
 router.post('/:id/download', auth, async (req, res) => {
   try {
     const { id } = req.params;
-    const { timestamp, userAgent, referrer } = req.body;
+    const { userAgent: bodyUA, referrer: bodyRef } = req.body || {};
+    const userAgent = bodyUA || req.get('User-Agent');
+    const referrer = bodyRef || req.get('Referrer');
 
     // Find the template
     const template = await Template.findById(id);
@@ -1229,6 +1232,52 @@ router.post('/:id/download', auth, async (req, res) => {
       }
     } catch (notifyErr) {
       console.error('Create download notification error:', notifyErr?.message || notifyErr);
+    }
+
+    // Create a free order record for the user so it appears in /purchases
+    if (!template.isPaid || template.price === 0) {
+      console.log(`[DEBUG] Attempting to create free order for template: ${template.title} (${template._id}) for user: ${req.user._id || req.user.id}`);
+      try {
+        // Robust check for existing order for this template by this user
+        const supabase = require('../utils/supabase');
+        const { data: existingItems } = await supabase
+          .from('OrderItem')
+          .select('orderId')
+          .eq('templateId', template._id);
+          
+        let alreadyOwned = false;
+        if (existingItems && existingItems.length > 0) {
+           const orderIds = existingItems.map(i => i.orderId);
+           const { data: userOrders } = await supabase
+             .from('Order')
+             .select('id')
+             .in('id', orderIds)
+             .eq('userId', req.user._id || req.user.id);
+           
+           if (userOrders && userOrders.length > 0) {
+             console.log(`[DEBUG] User already owns template: ${template.title}`);
+             alreadyOwned = true;
+           }
+        }
+
+        if (!alreadyOwned) {
+          const newOrder = await Order.create({
+            user: req.user._id || req.user.id,
+            items: [{
+              templateId: template._id,
+              name: template.title,
+              price: 0
+            }],
+            total: 0,
+            status: 'completed',
+            paymentMethod: 'free',
+            notes: 'تحميل مجاني'
+          });
+          console.log(`[DEBUG] Free order created successfully: ${newOrder._id || newOrder.id}`);
+        }
+      } catch (orderErr) {
+        console.error('[DEBUG] Failed to create free order record:', orderErr);
+      }
     }
 
     res.json({

@@ -4,6 +4,7 @@ class UserDoc {
   constructor(data) {
     if (!data) return;
     Object.assign(this, data);
+    this.id = data.id || data._id;
     this._id = data.id || data._id;
     
     // Normalize case for application consistency (lowercase in memory)
@@ -298,40 +299,46 @@ class UserDoc {
   }
 
   static find(query = {}) {
-    let chain = supabase.from('User').select('*');
-    chain = this._applyQuery(chain, query);
+    let q = supabase.from('User').select('*');
+    q = this._applyQuery(q, query);
+
+    let limitVal = null;
+    let skipVal = null;
+    let sortObj = null;
 
     const execute = async () => {
-      const { data, error } = await chain;
-      if (error) throw error;
-      return (data || []).map(u => new UserDoc(u));
+        let chain = q;
+        if (sortObj) {
+            const key = Object.keys(sortObj)[0];
+            const ascending = sortObj[key] === 1;
+            chain = chain.order(key === '_id' ? 'id' : key, { ascending });
+        }
+        if (skipVal !== null && limitVal !== null) {
+            chain = chain.range(skipVal, skipVal + limitVal - 1);
+        } else if (limitVal !== null) {
+            chain = chain.limit(limitVal);
+        }
+
+        const { data, error } = await chain;
+        if (error) throw error;
+        return (data || []).map(u => {
+            const user = new UserDoc(u);
+            user.id = u.id;
+            user._id = u.id;
+            return user;
+        });
     };
 
-    const promise = execute();
-    const wrap = (p) => {
-        p.sort = (s) => {
-            if (s && typeof s === 'object') {
-                const key = Object.keys(s)[0];
-                if (key === 'score') return wrap(promise); // Ignore MongoDB textScore sorting
-                const ascending = s[key] === 1;
-                chain = chain.order(key === '_id' ? 'id' : key, { ascending });
-            }
-            return wrap(execute());
-        };
-        p.skip = (n) => { 
-            const limit = 50; 
-            chain = chain.range(n, n + limit - 1); 
-            return wrap(execute()); 
-        };
-        p.limit = (n) => { 
-            chain = chain.limit(n); 
-            return wrap(execute()); 
-        };
-        p.select = () => wrap(p);
-        p.lean = () => wrap(p);
-        return p;
+    const promise = {
+        then: (onFullfilled, onRejected) => execute().then(onFullfilled, onRejected),
+        catch: (onRejected) => execute().catch(onRejected),
+        sort: (s) => { sortObj = s; return promise; },
+        limit: (n) => { limitVal = n; return promise; },
+        skip: (n) => { skipVal = n; return promise; },
+        select: () => promise,
+        lean: () => promise
     };
-    return wrap(promise);
+    return promise;
   }
 
   static findOne(query = {}) {
@@ -342,7 +349,11 @@ class UserDoc {
         const { data, error } = await chain;
         if (error) throw error;
         const result = data && data[0];
-        return result ? new UserDoc(result) : null;
+        if (!result) return null;
+        const user = new UserDoc(result);
+        user.id = result.id;
+        user._id = result.id;
+        return user;
     };
 
     const promise = execute();

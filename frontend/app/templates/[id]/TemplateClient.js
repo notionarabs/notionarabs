@@ -446,7 +446,10 @@ export default function TemplateClient({ initialTemplate }) {
                       <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                       <div className="flex items-center justify-center gap-3 relative z-10">
                         {isPurchasing || isDownloading ? (
-                          <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                          <div className="flex items-center gap-3">
+                            <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                            <span className="text-sm font-bold">{isPurchasing ? 'جاري تحويلك للدفع...' : 'جاري التحميل...'}</span>
+                          </div>
                         ) : (
                           <>
                             <span>{userHasTemplate ? 'فتح في نوشن' : (template.isPaid ? 'اقتنِ النظام الآن' : 'تحميل مجاني')}</span>
@@ -530,17 +533,10 @@ export default function TemplateClient({ initialTemplate }) {
 
                   return (
                     <div className="pt-10 border-t border-gray-100 dark:border-dark-card-border">
-                      <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-8">المميزات الرئيسية</h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {features.map((feature, i) => (
-                          <div key={i} className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-dark-tertiary/50 rounded-2xl border border-gray-100/50 dark:border-dark-card-border hover:border-primary/30 transition-colors group">
-                             <div className="w-8 h-8 rounded-full bg-white dark:bg-dark-secondary shadow-sm flex items-center justify-center text-primary flex-shrink-0 group-hover:scale-110 transition-transform">
-                                <CheckCircle size={16} />
-                             </div>
-                             <span className="text-sm font-bold text-gray-700 dark:text-dark-text-primary">{feature}</span>
-                          </div>
-                        ))}
-                      </div>
+                      <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-6">المميزات الرئيسية</h3>
+                      <p className="text-lg font-bold text-gray-700 dark:text-dark-text-primary leading-relaxed whitespace-pre-wrap">
+                        {features.join('\n')}
+                      </p>
                     </div>
                   );
                 })()}

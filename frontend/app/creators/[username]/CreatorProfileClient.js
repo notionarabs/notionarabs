@@ -141,21 +141,12 @@ export default function CreatorProfileClient({ initialCreator }) {
     }
   };
 
-  const detectPlatform = (url) => {
-    if (!url) return null;
-    const urlLower = url.toLowerCase();
-    if (urlLower.includes('twitter.com') || urlLower.includes('x.com')) return { name: 'twitter' };
-    if (urlLower.includes('instagram.com')) return { name: 'instagram' };
-    if (urlLower.includes('linkedin.com')) return { name: 'linkedin' };
-    if (urlLower.includes('youtube.com') || urlLower.includes('youtu.be')) return { name: 'youtube' };
-    if (urlLower.includes('facebook.com')) return { name: 'facebook' };
-    if (urlLower.includes('tiktok.com')) return { name: 'tiktok' };
-    if (urlLower.includes('telegram.org') || urlLower.includes('t.me')) return { name: 'telegram' };
-    return { name: 'website' };
-  };
-
-  const getPlatformIcon = (platform) => {
-    return <Globe className="w-5 h-5" />; // Simplified for brevity in this refactor
+  const handlePageChange = (n) => {
+    setPagination(prev => ({ ...prev, current: n }));
+    const section = document.getElementById('creator-templates');
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   if (loading && !creator) {
@@ -218,7 +209,7 @@ export default function CreatorProfileClient({ initialCreator }) {
                   </div>
                     <div className="text-center sm:text-right">
                     <div className="flex flex-col sm:flex-row items-center gap-3 mb-2 sm:mb-4">
-                      <h1 className="text-4xl md:text-5xl font-black text-accent-500 dark:text-white line-clamp-2">
+                      <h1 className="text-4xl md:text-5xl font-black text-accent-500 dark:text-white inline-block pb-1">
                           {creator.displayName || creator.name}
                       </h1>
                       {creator.badges?.some(b => b.type === 'verified') && (
@@ -278,39 +269,75 @@ export default function CreatorProfileClient({ initialCreator }) {
         </section>
 
         {/* Templates Grid */}
-        <section className="py-20 bg-white/50 dark:bg-white/5 backdrop-blur-xl">
+        <section id="creator-templates" className="py-20 bg-white/50 dark:bg-white/5 backdrop-blur-xl">
            <div className="container-custom px-4 sm:px-6">
               <h2 className="text-3xl font-black mb-12">قوالب {creator.displayName || creator.name}</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                 {creatorTemplates.map((template) => (
-                    <Link key={template.id} href={`/templates/${template.slug || template.id}`} className="group card border-none overflow-hidden hover:scale-[1.02] transition-all">
-                       <div className="aspect-video relative overflow-hidden">
-                          <Image src={template.previewImage} alt={template.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
-                          <div className="absolute top-4 left-4">
-                             <span className="px-4 py-1.5 bg-black/60 backdrop-blur-md rounded-full text-white text-xs font-bold ring-1 ring-white/20">
-                                {template.isPaid ? `${template.price} ج.م` : 'مجاني'}
-                             </span>
+              
+              {templatesLoading ? (
+                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {[...Array(3)].map((_, i) => (
+                       <div key={i} className="aspect-[4/3] bg-white/50 dark:bg-white/10 rounded-3xl animate-pulse" />
+                    ))}
+                 </div>
+              ) : creatorTemplates.length > 0 ? (
+                 <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                       {creatorTemplates.map((template) => (
+                          <Link key={template.id} href={`/templates/${template.slug || template.id}`} className="group card border-none overflow-hidden hover:scale-[1.02] transition-all">
+                             <div className="aspect-video relative overflow-hidden">
+                                <Image src={template.previewImage} alt={template.title} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
+                                <div className="absolute top-4 left-4">
+                                   <span className="px-4 py-1.5 bg-black/60 backdrop-blur-md rounded-full text-white text-xs font-bold ring-1 ring-white/20">
+                                      {template.isPaid ? `${template.price} ج.م` : 'مجاني'}
+                                   </span>
+                                </div>
+                             </div>
+                             <div className="p-6">
+                                <div className="flex items-center gap-2 mb-3">
+                                   <span className="px-3 py-1 bg-primary/10 rounded-full text-[10px] font-black text-primary uppercase tracking-widest">
+                                      {template.categories?.[0] || template.category || 'عام'}
+                                   </span>
+                                </div>
+                                <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors line-clamp-1">{template.title}</h3>
+                                <div className="flex items-center justify-between mt-4">
+                                   <div className="flex items-center gap-2 text-gray-500 text-sm">
+                                      <Download size={14} /> {template.downloads || 0}
+                                   </div>
+                                   <div className="flex items-center gap-1 text-yellow-500 font-bold">
+                                      <Star size={14} fill="currentColor" /> {template.rating || 0}
+                                   </div>
+                                </div>
+                             </div>
+                          </Link>
+                       ))}
+                    </div>
+
+                    {/* Pagination */}
+                    {pagination.pages > 1 && (
+                       <div className="mt-24 flex justify-center">
+                          <div className="flex items-center gap-2 bg-white/50 dark:bg-white/5 backdrop-blur-xl p-2 rounded-2xl shadow-soft">
+                             {[...Array(pagination.pages)].map((_, i) => (
+                                <button
+                                   key={i}
+                                   onClick={() => handlePageChange(i + 1)}
+                                   className={`w-10 h-10 rounded-xl text-sm font-black transition-all ${
+                                      pagination.current === i + 1
+                                         ? 'bg-primary text-white shadow-glow scale-110'
+                                         : 'text-gray-400 hover:text-primary'
+                                   }`}
+                                >
+                                   {i + 1}
+                                </button>
+                             ))}
                           </div>
                        </div>
-                       <div className="p-6">
-                          <div className="flex items-center gap-2 mb-3">
-                             <span className="px-3 py-1 bg-primary/10 rounded-full text-[10px] font-black text-primary uppercase tracking-widest">
-                                {template.categories?.[0] || template.category || 'عام'}
-                             </span>
-                          </div>
-                          <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors line-clamp-1">{template.title}</h3>
-                          <div className="flex items-center justify-between mt-4">
-                             <div className="flex items-center gap-2 text-gray-500 text-sm">
-                                <Download size={14} /> {template.downloads || 0}
-                             </div>
-                             <div className="flex items-center gap-1 text-yellow-500 font-bold">
-                                <Star size={14} fill="currentColor" /> {template.rating || 0}
-                             </div>
-                          </div>
-                       </div>
-                    </Link>
-                 ))}
-              </div>
+                    )}
+                 </>
+              ) : (
+                 <div className="text-center py-20 bg-white/30 dark:bg-white/5 rounded-3xl backdrop-blur-sm">
+                    <p className="text-gray-500 font-bold">لا توجد قوالب متاحة حالياً لهذا المبدع.</p>
+                 </div>
+              )}
            </div>
         </section>
       </main>

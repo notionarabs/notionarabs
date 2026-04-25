@@ -45,6 +45,10 @@ export default function AnnouncementBanner() {
               <p className="text-[11px] sm:text-xs md:text-sm font-black text-white tracking-tight leading-relaxed">
                 <span className="opacity-80 ml-1.5 hidden sm:inline">إعلان هام:</span>
                 نحن نعمل حالياً على تفعيل نظام المدفوعات التلقائي وتطوير ميزات حصرية للمبدعين! ابقوا بالقرب 🚀
+                <span className="mx-2 opacity-30 hidden md:inline">|</span>
+                <span className="block sm:inline mt-1 sm:mt-0">
+                  للحصول على خدمات مخصصة، يمكنك زيارة <a href="https://arab-os.com" target="_blank" className="underline decoration-white/30 hover:decoration-white transition-all">arab-os.com</a>
+                </span>
               </p>
             </div>
 

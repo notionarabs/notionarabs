@@ -98,10 +98,10 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
             return;
         }
 
-        const headers = 'العنوان,الوصف,رابط نوشن,الفئات (مثال: إنتاجية),مدفوع (نعم/لا),السعر بالجنيه (0 إذا مجاني),رابط الصورة,المميزات (كل ميزة في سطر),الوسوم (مفصولة بفاصلة)\n';
+        const headers = 'العنوان,الوصف,رابط نوشن,الفئات (حتى 3 مفصولة بـ |),مدفوع (نعم/لا),السعر بالجنيه (0 إذا مجاني),رابط الصورة,المميزات (كل ميزة في سطر),الوسوم (مفصولة بفاصلة),لغة القالب (ar/en/ar-en),رابط فيديو توضيحي للقالب (اختياري)\n';
         const rows = uploadedImages.map(img => {
             const placeholderTitle = img.file.name.split('.')[0];
-            return `"${placeholderTitle}","وصف القالب هنا...","https://notion.so/xxx","إنتاجية","نعم","50","${img.url}","ميزة 1\nميزة 2\nميزة 3","نوشن, تنظيم"`;
+            return `"${placeholderTitle}","وصف القالب هنا...","https://notion.so/xxx","إنتاجية","نعم","50","${img.url}","ميزة 1\nميزة 2\nميزة 3","نوشن, تنظيم","ar",""`;
         }).join('\n');
 
         const blob = new Blob(['\uFEFF' + headers + rows], { type: 'text/csv;charset=utf-8;' });
@@ -177,14 +177,18 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
                     const obj = {};
                     rawHeaders.forEach((header, index) => {
                         let key = null;
-                        if (header.includes('صورة') || header.includes('image') || header.includes('preview')) key = 'previewImage';
+                        // Order matters: check more specific patterns first
+                        if (header.includes('فيديو') || header.includes('video') || header.includes('explanation')) key = 'explanationVideo';
+                        else if (header.includes('صور إضافية') || header.includes('صور معاينة') || header.includes('previewimages')) key = 'previewImages';
+                        else if (header.includes('صورة') || header.includes('image') || header.includes('preview')) key = 'previewImage';
                         else if (header.includes('عنوان') || header.includes('title')) key = 'title';
                         else if (header.includes('وصف') || header.includes('description')) key = 'description';
-                        else if (header.includes('نوشن') || header.includes('رابط') || header.includes('notion')) key = 'notionLink';
+                        else if (header.includes('نوشن') || header.includes('notion')) key = 'notionLink';
+                        else if (header.includes('رابط') || header.includes('link') || header.includes('url')) key = 'notionLink';
                         else if (header.includes('فئة') || header.includes('فئات') || header.includes('تصنيف') || header.includes('categories')) key = 'categories';
                         else if (header.includes('مدفوع') || header.includes('paid')) key = 'isPaid';
                         else if (header.includes('سعر') || header.includes('price')) key = 'price';
-                        else if (header.includes('شراء') || header.includes('purchase')) key = 'purchaseLink';
+                        else if (header.includes('لغة') || header.includes('language')) key = 'language';
                         else if (header.includes('وسم') || header.includes('وسوم') || header.includes('tag')) key = 'tags';
                         else if (header.includes('ميزة') || header.includes('مميزات') || header.includes('feature')) key = 'features';
 
@@ -226,17 +230,38 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
                 ...item,
                 isPaid: item.isPaid?.toLowerCase() === 'true' || item.isPaid === '1' || item.isPaid === 'نعم' || item.isPaid?.toLowerCase() === 'paid',
                 price: parseFloat(String(item.price).replace(/[^\d.]/g, '')) || 0,
-                categories: item.categories ? (Array.isArray(item.categories) ? item.categories : item.categories.split(',').map(c => c.trim())) : [],
+                categories: item.categories ? (Array.isArray(item.categories) ? item.categories : item.categories.split('|').map(c => c.trim()).filter(Boolean)) : [],
                 tags: item.tags ? (Array.isArray(item.tags) ? item.tags : item.tags.split(',').map(t => t.trim())) : [],
-                features: item.features ? (Array.isArray(item.features) ? item.features : item.features.split('\n').map(f => f.trim())) : []
+                features: item.features ? (Array.isArray(item.features) ? item.features : item.features.split('\n').map(f => f.trim())) : [],
+                language: item.language || undefined,
+                explanationVideo: item.explanationVideo || undefined,
+                previewImages: item.previewImages ? (Array.isArray(item.previewImages) ? item.previewImages : item.previewImages.split(',').map(u => u.trim()).filter(Boolean)) : []
             }));
 
             const response = await api.post('/templates/bulk-import', { templates: formattedData });
 
             if (response.data.success) {
+                const successList = response.data.results.success || [];
+
+                // Auto-download links CSV if any templates were imported successfully
+                if (successList.length > 0) {
+                    const baseUrl = 'https://notionarabs.com';
+                    const csvHeader = '\u0627\u0644\u0639\u0646\u0648\u0627\u0646,\u0631\u0627\u0628\u0637 \u0627\u0644\u0642\u0627\u0644\u0628 \u0641\u064a \u0627\u0644\u0645\u0646\u0635\u0629\n';
+                    const csvRows = successList.map(t => {
+                        const title = `"${(t.title || '').replace(/"/g, '""')}"`;
+                        const link = t.slug ? `"${baseUrl}/templates/${t.slug}"` : '""';
+                        return `${title},${link}`;
+                    }).join('\n');
+                    const blob = new Blob(['\uFEFF' + csvHeader + csvRows], { type: 'text/csv;charset=utf-8;' });
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = `imported-templates-links-${new Date().toISOString().split('T')[0]}.csv`;
+                    a.click();
+                }
+
                 if (response.data.results.errors.length > 0) {
                     setImportErrors(response.data.results.errors);
-                    showError(`تم استيراد ${response.data.results.success.length} قوالب، وفشل ${response.data.results.errors.length}`);
+                    showError(`\u062a\u0645 \u0627\u0633\u062a\u064a\u0631\u0627\u062f ${successList.length} \u0642\u0648\u0627\u0644\u0628\u060c \u0648\u0641\u0634\u0644 ${response.data.results.errors.length}`);
                 } else {
                     showSuccess(response.data.message);
                     onSuccess();
@@ -378,8 +403,8 @@ export default function ImportTemplatesModal({ isOpen, onClose, onSuccess }) {
                                         <button 
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                const headers = 'العنوان,الوصف,رابط نوشن,الفئات (مثال: إنتاجية),مدفوع (نعم/لا),السعر بالجنيه (0 إذا مجاني),رابط الصورة,المميزات (كل ميزة في سطر),الوسوم (مفصولة بفاصلة)\n';
-                                                const sample = '"قالب مجاني مثال","وصف القالب...","https://notion.so/xxx","إنتاجية","لا","0","TemplateA.png","ميزة 1\nميزة 2\nميزة 3","نوشن, تنظيم"';
+                                                const headers = 'العنوان,الوصف,رابط نوشن,الفئات (حتى 3 مفصولة بـ |),مدفوع (نعم/لا),السعر بالجنيه (0 إذا مجاني),رابط الصورة,المميزات (كل ميزة في سطر),الوسوم (مفصولة بفاصلة),لغة القالب (ar/en/ar-en),رابط فيديو توضيحي للقالب (اختياري)\n';
+                                                const sample = '"قالب مجاني مثال","وصف القالب...","https://notion.so/xxx","إنتاجية|الدراسة","لا","0","TemplateA.png","ميزة 1\nميزة 2\nميزة 3","نوشن, تنظيم","ar",""';
                                                 const blob = new Blob(['\uFEFF' + headers + sample], { type: 'text/csv;charset=utf-8;' });
                                                 const link = document.createElement('a');
                                                 link.href = URL.createObjectURL(blob);

@@ -448,7 +448,7 @@ router.post('/bulk-import', auth, async (req, res) => {
 
         const template = new Template(templateData);
         await template.save();
-        results.success.push({ title: item.title, id: template._id });
+        results.success.push({ title: item.title, id: template._id, slug: template.slug });
       } catch (err) {
         console.error('Error importing item:', item.title, err);
         results.errors.push({ title: item.title, error: err.message || 'خطأ أثناء الحفظ' });

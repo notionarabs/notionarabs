@@ -12,7 +12,7 @@ const router = express.Router();
 
 // Optimized pagination handler for templates without search
 async function handleOptimizedPagination(req, res, options) {
-  const { category, creator, isPinned, sortBy, sortOrder, page, limit } = options;
+  const { category, creator, isPinned, sortBy, sortOrder, page, limit, isPaid, minRating } = options;
 
   // Build filter object
   const filter = { status: 'approved' };
@@ -29,6 +29,16 @@ async function handleOptimizedPagination(req, res, options) {
     filter.isPinned = true;
   } else if (isPinned === 'false') {
     filter.isPinned = false;
+  }
+
+  if (isPaid === 'true') {
+    filter.isPaid = true;
+  } else if (isPaid === 'false') {
+    filter.isPaid = false;
+  }
+
+  if (minRating) {
+    filter.rating = { $gte: Number(minRating) };
   }
 
   // Build sort object
@@ -494,7 +504,9 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
       sortBy = 'createdAt',
       sortOrder = 'desc',
       page = 1,
-      limit = 12
+      limit = 12,
+      isPaid,
+      minRating
     } = req.query;
 
     // If no search term, use optimized server-side pagination
@@ -506,7 +518,9 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
         sortBy,
         sortOrder,
         page,
-        limit
+        limit,
+        isPaid,
+        minRating
       });
     }
 
@@ -521,58 +535,33 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
       filter.creator = creator;
     }
 
+    if (isPaid === 'true') {
+      filter.isPaid = true;
+    } else if (isPaid === 'false') {
+      filter.isPaid = false;
+    }
+
+    if (minRating) {
+      filter.rating = { $gte: Number(minRating) };
+    }
+
     // If search is provided, use server-side text search
     if (search && search.trim()) {
       try {
-        // Server-side text search using MongoDB
-        const searchQuery = {
+        const regexQuery = {
           ...filter,
-          $text: { $search: search.trim() }
+          $or: [
+            { title: { $regex: search.trim() } },
+            { description: { $regex: search.trim() } },
+            { tags: search.trim() },
+            { categories: search.trim() }
+          ]
         };
 
         const sort = {
           [sortBy]: sortOrder === 'desc' ? -1 : 1
         };
 
-        const skip = (parseInt(page) - 1) * parseInt(limit);
-
-        const [templates, totalCount] = await Promise.all([
-          Template.find(searchQuery)
-            .select('title description features category categories tags creator previewImage slug rating reviewsCount downloads views isPaid price purchaseLink isPinned pinnedAt pinnedBy ')
-            .populate('creator', 'name username displayName profilePicture badges')
-            .sort(sort)
-            .skip(skip)
-            .limit(parseInt(limit))
-            .lean(),
-          Template.countDocuments(searchQuery)
-        ]);
-
-        return res.json({
-          success: true,
-          templates,
-          pagination: {
-            current: parseInt(page),
-            pages: Math.ceil(totalCount / parseInt(limit)),
-            total: totalCount,
-            limit: parseInt(limit)
-          }
-        });
-      } catch (textSearchError) {
-        // Fallback to regex search if text search fails
-        console.warn('Text search failed, falling back to regex search:', textSearchError.message);
-
-        const regexQuery = {
-          ...filter,
-          $or: [
-            { title: { $regex: search.trim(), $options: 'i' } },
-            { description: { $regex: search.trim(), $options: 'i' } },
-            { tags: { $in: [new RegExp(search.trim(), 'i')] } },
-            { categories: { $in: [search.trim()] } }
-          ]
-        };
-
-        const sort = {};
-        sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
         const skip = (parseInt(page) - 1) * parseInt(limit);
 
         const [templates, totalCount] = await Promise.all([
@@ -596,6 +585,9 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
             limit: parseInt(limit)
           }
         });
+      } catch (searchError) {
+        console.error('Search failed:', searchError.message);
+        throw searchError;
       }
     }
 

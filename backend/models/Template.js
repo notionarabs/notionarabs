@@ -158,12 +158,15 @@ class Template {
         }
         
         if (val && typeof val === 'object') {
-            if (val.$ne) {
+            if (val.$ne !== undefined) {
                 let normalizedNe = val.$ne;
                 if (dbKey === 'status' && typeof normalizedNe === 'string') {
                     normalizedNe = normalizedNe.toUpperCase();
                 }
                 chain = chain.neq(dbKey, normalizedNe);
+            }
+            else if (val.$gte !== undefined) {
+                chain = chain.gte(dbKey, val.$gte);
             }
             else if (val.$in) {
                 let normalizedIn = val.$in;

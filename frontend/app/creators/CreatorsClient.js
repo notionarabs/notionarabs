@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import FollowButton from '../../components/FollowButton';
 import { Search, Star, User, CheckCircle, Heart, Crown, Award, Zap } from 'lucide-react';
 import Footer from '../../components/Footer';
+import { BreadcrumbWrapper } from '../../components/Breadcrumb';
 
 const getBadgeIcon = (badgeType) => {
   const iconMap = {
@@ -83,6 +84,9 @@ export default function CreatorsClient() {
         <div className="absolute top-[-10%] left-[-5%] w-[800px] h-[800px] bg-primary/10 rounded-full blur-[160px] animate-pulse" />
         <div className="absolute bottom-[-10%] right-[-5%] w-[800px] h-[800px] bg-purple-500/10 rounded-full blur-[160px] animate-pulse" style={{ animationDelay: '3s' }} />
       </div>
+
+      {/* Breadcrumb Section */}
+      <BreadcrumbWrapper items={[{ name: 'المبدعون', url: '/creators' }]} />
 
       {/* Premium Atmospheric Hero */}
       <section className="relative overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-24">

@@ -20,23 +20,62 @@ const BentoCard = ({ children, className, delay = 0 }) => (
 
 export default function VisionMissionSection() {
     const [stats, setStats] = useState({ downloads: 0 });
+    const [systemStatus, setSystemStatus] = useState({ 
+        status: 'loading', 
+        label: 'جاري الفحص...', 
+        color: 'text-gray-400',
+        bgColor: 'bg-gray-100 dark:bg-white/5',
+        iconColor: 'text-gray-400'
+    });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchStats = async () => {
+        const fetchData = async () => {
             try {
-                const response = await api.get('/stats/homepage');
-                if (response.data.success) {
-                    setStats(response.data.stats);
+                setLoading(true);
+                // Fetch stats
+                const statsResponse = await api.get('/stats/homepage');
+                if (statsResponse.data.success) {
+                    setStats(statsResponse.data.stats);
+                }
+
+                // Fetch health status
+                try {
+                    const healthResponse = await api.get('/health/detailed');
+                    if (healthResponse.data.status === 'healthy') {
+                        setSystemStatus({
+                            status: 'healthy',
+                            label: 'مستقر',
+                            color: 'text-green-600 dark:text-green-400',
+                            bgColor: 'bg-green-100 dark:bg-green-900/30',
+                            iconColor: 'text-green-600 dark:text-green-400'
+                        });
+                    } else {
+                        setSystemStatus({
+                            status: 'unhealthy',
+                            label: 'صيانة',
+                            color: 'text-amber-600 dark:text-amber-400',
+                            bgColor: 'bg-amber-100 dark:bg-amber-900/30',
+                            iconColor: 'text-amber-600 dark:text-amber-400'
+                        });
+                    }
+                } catch (healthError) {
+                    setSystemStatus({
+                        status: 'error',
+                        label: 'غير متصل',
+                        color: 'text-rose-600 dark:text-rose-400',
+                        bgColor: 'bg-rose-100 dark:bg-rose-900/30',
+                        iconColor: 'text-rose-600 dark:text-rose-400'
+                    });
                 }
             } catch (error) {
-                console.error('Error fetching stats:', error);
+                console.error('Error fetching data:', error);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchStats();
+        fetchData();
     }, []);
 
     return (
@@ -131,20 +170,24 @@ export default function VisionMissionSection() {
                             <Zap className="w-7 h-7 sm:w-8 sm:h-8" />
                         </div>
                         <h4 className="text-3xl sm:text-4xl font-bold text-accent-800 dark:text-white mb-2 tracking-tighter">
-                            <Counter end={stats.downloads || 1350} suffix="+" />
+                            <Counter end={stats.downloads || 0} suffix="+" />
                         </h4>
                         <p className="text-accent-500 dark:text-gray-400 font-medium">تحميل ناجح</p>
                     </BentoCard>
 
                     {/* Stat Card 4 - Status */}
                     <BentoCard delay={0.5} className="flex flex-col items-center justify-center text-center bg-white/50 dark:bg-white/5 backdrop-blur-2xl md:h-auto min-h-[200px]">
-                        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-4 text-green-600 dark:text-green-400">
+                        <div className={`w-14 h-14 sm:w-16 sm:h-16 ${systemStatus.bgColor} rounded-full flex items-center justify-center mb-4 ${systemStatus.iconColor}`}>
                             <div className="relative">
-                                <div className="absolute inset-0 bg-current rounded-full animate-ping opacity-25" />
+                                {systemStatus.status === 'healthy' && (
+                                    <div className="absolute inset-0 bg-current rounded-full animate-ping opacity-25" />
+                                )}
                                 <Settings className="w-7 h-7 sm:w-8 sm:h-8 relative z-10" />
                             </div>
                         </div>
-                        <h4 className="text-3xl sm:text-4xl font-bold text-accent-800 dark:text-white mb-2">مستقر</h4>
+                        <h4 className={`text-3xl sm:text-4xl font-bold mb-2 ${systemStatus.color}`}>
+                            {systemStatus.label}
+                        </h4>
                         <p className="text-accent-500 dark:text-gray-400 font-medium whitespace-nowrap">حالة النظام: مباشر</p>
                     </BentoCard>
 

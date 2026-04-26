@@ -1983,6 +1983,7 @@ router.post('/users/:id/badges', auth, [
 
     // Add badge
     user.badges.push({
+      _id: require('crypto').randomBytes(12).toString('hex'),
       type,
       label,
       color: color || '#3b82f6',
@@ -2015,7 +2016,7 @@ router.post('/users/:id/badges', auth, [
     res.json({
       success: true,
       message: 'تمت إضافة الشارة بنجاح',
-      user: user.toJSON()
+      user: user
     });
   } catch (error) {
     console.error('Add user badge error:', error);
@@ -2056,7 +2057,7 @@ router.delete('/users/:id/badges/:badgeId', auth, async (req, res) => {
     res.json({
       success: true,
       message: 'تم حذف الشارة بنجاح',
-      user: user.toJSON()
+      user: user
     });
   } catch (error) {
     console.error('Remove user badge error:', error);

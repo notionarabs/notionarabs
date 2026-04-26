@@ -11,6 +11,7 @@ import { useTheme } from '../contexts/ThemeContext';
 const FOOTER_LINKS = {
   community: [
     { href: '/templates', label: 'قوالب نوشن' },
+    { href: '/creators', label: 'المبدعين' },
     { href: '/blog', label: 'المدونة' },
     { href: '/widgets', label: 'الأدوات' },
   ],

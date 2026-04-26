@@ -210,24 +210,26 @@ export default function CreatorApplicationsPage() {
       const badge = badgePresets.userBadges.find(b => b.type === selectedBadgeType);
 
       ensureTokenInHeaders && ensureTokenInHeaders();
-      await api.post(`/admin/users/${selectedCreator.id}/badges`, {
+      const response = await api.post(`/admin/users/${selectedCreator.id}/badges`, {
         type: badge.type,
         label: badge.label,
         color: badge.color,
         icon: badge.icon
       });
 
+      const updatedUser = response.data.user;
+      
       // Update local state
       const updatedApps = applications.map(app =>
         app.id === selectedCreator.id
-          ? { ...app, badges: [...(app.badges || []), { ...badge, _id: Date.now().toString() }] }
+          ? { ...app, badges: updatedUser.badges }
           : app
       );
       setApplications(updatedApps);
 
       setSelectedCreator(prev => ({
         ...prev,
-        badges: [...(prev.badges || []), { ...badge, _id: Date.now().toString() }]
+        badges: updatedUser.badges
       }));
 
       setSelectedBadgeType('');
@@ -242,11 +244,12 @@ export default function CreatorApplicationsPage() {
   const handleRemoveBadge = async (userId, badgeId) => {
     try {
       ensureTokenInHeaders && ensureTokenInHeaders();
-      await api.delete(`/admin/users/${userId}/badges/${badgeId}`);
+      const response = await api.delete(`/admin/users/${userId}/badges/${badgeId}`);
+      const updatedUser = response.data.user;
 
       const updatedApps = applications.map(app =>
         app.id === userId
-          ? { ...app, badges: app.badges.filter(b => b._id !== badgeId) }
+          ? { ...app, badges: updatedUser.badges }
           : app
       );
       setApplications(updatedApps);
@@ -254,7 +257,7 @@ export default function CreatorApplicationsPage() {
       if (selectedCreator && selectedCreator.id === userId) {
         setSelectedCreator(prev => ({
           ...prev,
-          badges: prev.badges.filter(b => b._id !== badgeId)
+          badges: updatedUser.badges
         }));
       }
 
@@ -825,7 +828,7 @@ export default function CreatorApplicationsPage() {
                   <div className="flex flex-wrap gap-2">
                     {selectedCreator.badges.map((badge) => (
                       <div
-                        key={badge._id}
+                        key={badge._id || badge.type || `badge-${badge.label}`}
                         className="group flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-dark-tertiary border border-gray-100 dark:border-dark-card-border rounded-xl shadow-soft transition-all hover:scale-105"
                       >
                         <span className="text-sm">{badge.icon || '⭐'}</span>

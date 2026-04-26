@@ -7,6 +7,7 @@ import { Layout, Copy, ExternalLink, Zap, Sparkles, Users, Clock, Sun, Timer, Bo
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import Footer from '../../components/Footer';
+import { BreadcrumbWrapper } from '../../components/Breadcrumb';
 
 const iconMap = {
     sparkles: <Sparkles className="w-6 h-6 text-orange-500" />,
@@ -147,6 +148,9 @@ export default function WidgetsClient() {
 
     return (
         <main className="min-h-screen bg-secondary-50 dark:bg-[#0a0a0a] text-foreground dark:text-white transition-colors duration-300" dir="rtl">
+
+            {/* Breadcrumb Section */}
+            <BreadcrumbWrapper items={[{ name: 'الأدوات', url: '/widgets' }]} />
 
             {/* Premium Atmospheric Foundry Hero */}
             <section className="relative overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-24">

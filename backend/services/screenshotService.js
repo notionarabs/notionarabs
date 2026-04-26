@@ -101,191 +101,46 @@ class ScreenshotService {
   }
 
   async takeScreenshot(url, req = null) {
-    let browser;
     try {
-      // Production-optimized launch options
-      const launchOptions = {
-        headless: true,
-        ignoreDefaultArgs: ['--enable-automation'],
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-web-security',
-          '--disable-features=IsolateOrigins,site-per-process',
-          '--font-render-hinting=none',
-          '--disable-blink-features=AutomationControlled'
-        ],
-        timeout: process.env.NODE_ENV === 'production' ? 45000 : 30000,
-        protocolTimeout: process.env.NODE_ENV === 'production' ? 45000 : 30000
-      };
-
-
-
-      // Try to use system Chrome if available
-      const chromePaths = [
-        // Production/Linux paths first (for Render.com)
-        '/usr/bin/google-chrome-stable',
-        '/usr/bin/google-chrome',
-        '/usr/bin/chromium-browser',
-        '/usr/bin/chromium',
-        // Windows paths
-        'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-        'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-        'C:\\Users\\' + process.env.USERNAME + '\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe',
-        // macOS paths
-        '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-      ];
-
-      for (const chromePath of chromePaths) {
-        try {
-          const fs = require('fs');
-          if (fs.existsSync(chromePath)) {
-            launchOptions.executablePath = chromePath;
-            break;
-          }
-        } catch (e) {
-          // Continue to next path
-        }
+      console.log('Using ScreenshotOne (via fallback service) to capture:', url);
+      
+      const result = await fallbackScreenshotService.takeScreenshot(url);
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to capture screenshot with ScreenshotOne');
       }
 
-      try {
-        console.log('Attempting to launch browser with options:', JSON.stringify(launchOptions, null, 2));
-        browser = await puppeteer.launch(launchOptions);
-        console.log('Browser launched successfully');
-      } catch (launchError) {
-        console.error('Browser launch failed:', launchError);
-        throw new Error(`Browser launch failed: ${launchError.message}`);
-      }
-
-      const page = await browser.newPage();
-
-      // Mask puppeteer presence and proactively hide popups
-      await page.evaluateOnNewDocument(() => {
-        Object.defineProperty(navigator, 'webdriver', { get: () => false });
-
-        // Set dismissal flags in localStorage as early as possible
-        try {
-          localStorage.setItem('telegramPopupDismissed', 'true');
-          localStorage.setItem('hasClosedPopup', 'true');
-          localStorage.setItem('hasSeenRatingPopup', 'true');
-          localStorage.setItem('dismissedRatingPopups', '["*"]');
-        } catch (e) { }
-
-        // Inject CSS to hide all possible popups/navbars/overlays
-        // Using a style tag that will be added to the head as soon as it exists
-        const hidePopups = () => {
-          const style = document.createElement('style');
-          style.id = 'hide-popups-style';
-          style.innerHTML = `
-            #telegram-popup, .telegram-popup, 
-            nav, footer, header, .notion-topbar, 
-            [class*="Navbar"], [class*="Footer"], [class*="Modal"], [class*="Popup"],
-            .cookie-consent, #cookie-banner, .modal-overlay, .popup-container, 
-            .toast-container, #__next-prerender-indicator,
-            .fixed, .absolute[style*="z-index"][style*="999"] {
-              display: none !important;
-              visibility: hidden !important;
-              opacity: 0 !important;
-              pointer-events: none !important;
-            }
-          `;
-          if (document.head) {
-            document.head.appendChild(style);
-          } else {
-            document.documentElement.appendChild(style);
-          }
-        };
-
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', hidePopups);
-        } else {
-          hidePopups();
-        }
-      });
-
-      // Set viewport for consistent screenshots
-      await page.setViewport({ width: 1200, height: 800, deviceScaleFactor: 2 });
-
-      // Set user agent to a realistic chrome version
-      await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
-
-
-      // Navigate to the URL with better options for Notion pages
-      await page.goto(url, {
-        waitUntil: 'networkidle2', // Wait for network to be idle
-        timeout: 45000
-      });
-
-      // Wait for basic content to load
-      await new Promise(resolve => setTimeout(resolve, 7000));
-
-
-      // Try to wait for Notion content, but don't fail if not found
-      try {
-        await page.waitForSelector('[data-block-id]', { timeout: 10000 });
-      } catch (error) {
-        // Try alternative selectors
-        try {
-          await page.waitForSelector('.notion-page-content', { timeout: 3000 });
-        } catch (e) {
-          // Continue without Notion-specific content detection
-        }
-      }
-
-      // Scroll to get past any header/banner and load more content
-      await page.evaluate(() => {
-        window.scrollTo(0, 200);
-      });
-
-      // Wait for scroll to complete and content to load
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Try to scroll back to top to capture the main content
-      await page.evaluate(() => {
-        window.scrollTo(0, 0);
-      });
-
-      // Additional wait to ensure everything is settled
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-
-      // Generate unique filename
+      // If we have a data URL (base64) from ScreenshotOne, we might want to upload it to Cloudinary
+      // or save it locally if Cloudinary is not available.
+      
+      let screenshotUrl = result.screenshotUrl;
       const filename = this.generateFilename(url);
       const filepath = path.join(this.screenshotsDir, filename);
 
-      // Take a simple viewport screenshot
-      await page.screenshot({
-        path: filepath,
-        fullPage: false,
-        type: 'png'
-      });
-
-      // Verify file was created
-      if (!fs.existsSync(filepath)) {
-        throw new Error('Screenshot file was not created');
+      // Save the base64 to a local file first so we can use existing upload logic
+      if (screenshotUrl.startsWith('data:image')) {
+        const base64Data = screenshotUrl.replace(/^data:image\/\w+;base64,/, '');
+        fs.writeFileSync(filepath, base64Data, 'base64');
       }
 
-      // Try to upload to Cloudinary first
-      let screenshotUrl;
+      // Try to upload to Cloudinary if configured
       if (process.env.CLOUDINARY_CLOUD_NAME) {
         const uploadResult = await this.uploadToCloudinary(filepath, filename);
         if (uploadResult.success) {
           screenshotUrl = uploadResult.url;
-
+          
           // Clean up local file after successful upload
           try {
-            fs.unlinkSync(filepath);
+            if (fs.existsSync(filepath)) fs.unlinkSync(filepath);
           } catch (cleanupError) {
+            console.error('Cleanup error:', cleanupError);
           }
         } else {
+          console.warn('Cloudinary upload failed, using local/data URL');
           screenshotUrl = await this.getScreenshotUrl(filename, req);
         }
       } else {
-        // No Cloudinary configured, use local storage
+        // No Cloudinary, use local storage URL
         screenshotUrl = await this.getScreenshotUrl(filename, req);
       }
 
@@ -297,59 +152,12 @@ class ScreenshotService {
 
     } catch (error) {
       console.error('Screenshot capture error:', error.message);
-
-      // Return more specific error information
-      let errorMessage = 'Failed to capture screenshot';
-      let userMessage = 'فشل في التقاط صورة المعاينة تلقائياً. يمكنك إضافة صورة يدوياً لاحقاً.';
-
-      if (error.message.includes('Browser closed unexpectedly')) {
-        errorMessage = 'Browser closed unexpectedly - possible memory/resource issue';
-        userMessage = 'تعذر فتح المتصفح. يرجى المحاولة مرة أخرى أو إضافة صورة يدوياً.';
-      } else if (error.message.includes('Navigation timeout')) {
-        errorMessage = 'Page took too long to load';
-        userMessage = 'استغرق تحميل الصفحة وقتاً طويلاً. يرجى التحقق من الرابط وإضافة صورة يدوياً.';
-      } else if (error.message.includes('Cannot reach the website')) {
-        errorMessage = 'Cannot reach the website';
-        userMessage = 'لا يمكن الوصول إلى الموقع. يرجى التحقق من الرابط وإضافة صورة يدوياً.';
-      } else if (error.message.includes('Invalid URL')) {
-        errorMessage = 'Invalid URL provided';
-        userMessage = 'رابط غير صحيح. يرجى التحقق من الرابط وإضافة صورة يدوياً.';
-      } else if (error.message.includes('ENOENT')) {
-        errorMessage = 'Chrome/Chromium not found - installation issue';
-        userMessage = 'مشكلة في تثبيت المتصفح. يرجى إضافة صورة يدوياً.';
-      } else if (error.message.includes('Protocol error')) {
-        errorMessage = 'Protocol error - browser communication issue';
-        userMessage = 'مشكلة في الاتصال بالمتصفح. يرجى إضافة صورة يدوياً.';
-      } else if (error.message.includes('Target closed')) {
-        errorMessage = 'Browser target closed unexpectedly';
-        userMessage = 'تم إغلاق المتصفح بشكل غير متوقع. يرجى إضافة صورة يدوياً.';
-      }
-
-      // Try fallback service if Puppeteer fails
-      console.log('Attempting fallback screenshot service...');
-      try {
-        const fallbackResult = await fallbackScreenshotService.takeScreenshot(url);
-        if (fallbackResult.success) {
-          console.log('Fallback screenshot service succeeded');
-          return fallbackResult;
-        }
-      } catch (fallbackError) {
-        console.error('Fallback screenshot service also failed:', fallbackError.message);
-      }
-
+      
       return {
         success: false,
-        error: errorMessage,
-        userMessage: userMessage,
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        error: error.message,
+        userMessage: 'فشل في التقاط صورة المعاينة تلقائياً. يمكنك إضافة صورة يدوياً.'
       };
-    } finally {
-      if (browser) {
-        try {
-          await browser.close();
-        } catch (closeError) {
-        }
-      }
     }
   }
 }

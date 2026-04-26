@@ -1,24 +1,16 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Footer from '../components/Footer';
 
 // Homepage Sub-components
 import Hero from '../components/home/Hero';
-import ProblemsWeSolve from '../components/home/ProblemsWeSolve';
-import ServicesOverview from '../components/home/ServicesOverview';
 import HomeMarketplace from '../components/home/HomeMarketplace';
-import WhatMakesUsDifferent from '../components/home/WhatMakesUsDifferent';
-import HowWeDoIt from '../components/home/HowWeDoIt';
 import FAQ from '../components/home/FAQ';
 import FinalCTA from '../components/home/FinalCTA';
 
 export default function HomePage() {
   const [animationsPlayed, setAnimationsPlayed] = useState(false);
-  const [inViewSteps, setInViewSteps] = useState([]);
-  const [lineHeight, setLineHeight] = useState(0);
-  const stepRefs = useRef([]);
-  const timelineRef = useRef(null);
 
   // Respect reduced motion and stop replaying animations.
   useEffect(() => {
@@ -56,45 +48,6 @@ export default function HomePage() {
     return () => observer.disconnect();
   }, []);
 
-  // Timeline steps observer
-  useEffect(() => {
-    const targets = stepRefs.current.filter(Boolean);
-    if (targets.length === 0) return undefined;
-
-    const triggerStep = (index) => {
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          setInViewSteps((prev) => {
-            if (prev.includes(index)) return prev;
-            return [...prev, index];
-          });
-        }, 120);
-      });
-    };
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting && entry.intersectionRatio === 0) return;
-          const index = Number(entry.target.dataset.stepIndex);
-          if (!Number.isNaN(index)) triggerStep(index);
-          observer.unobserve(entry.target);
-        });
-      },
-      { threshold: 0.2, rootMargin: '0px 0px -20% 0px' }
-    );
-
-    targets.forEach((target) => {
-      observer.observe(target);
-      const rect = target.getBoundingClientRect();
-      if (rect.top < window.innerHeight && rect.bottom > 0) {
-        triggerStep(Number(target.dataset.stepIndex));
-        observer.unobserve(target);
-      }
-    });
-
-    return () => observer.disconnect();
-  }, []);
 
   // Section reveal observer
   useEffect(() => {
@@ -136,42 +89,11 @@ export default function HomePage() {
     };
   }, []);
 
-  // Continuous scroll line progress for timeline
-  useEffect(() => {
-    const handleScroll = () => {
-      const steps = stepRefs.current;
-      const container = timelineRef.current;
-      if (!steps.length || !steps[0] || !container) return;
-
-      const containerRect = container.getBoundingClientRect();
-      const triggerPoint = window.innerHeight / 2;
-      const relativeScrollPos = triggerPoint - containerRect.top;
-
-      const firstStepTop = steps[0].offsetTop + (steps[0].offsetHeight / 2);
-      const lastStepTop = steps[steps.length - 1].offsetTop + (steps[steps.length - 1].offsetHeight / 2);
-
-      const totalDistance = lastStepTop - firstStepTop;
-      const currentProgress = relativeScrollPos - firstStepTop;
-
-      setLineHeight(Math.max(0, Math.min(currentProgress, totalDistance)));
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300 bg-mesh" dir="rtl">
       <Hero animationsPlayed={animationsPlayed} />
-      <ServicesOverview />
       <HomeMarketplace />
-      <HowWeDoIt
-        timelineRef={timelineRef}
-        stepRefs={stepRefs}
-        inViewSteps={inViewSteps}
-        lineHeight={lineHeight}
-      />
       <FAQ />
       <FinalCTA />
       <Footer />

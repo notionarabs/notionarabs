@@ -97,7 +97,8 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
     { href: '/templates', label: 'القوالب', key: 'templates', icon: <Layout className="w-5 h-5" />, color: 'hover:text-emerald-400' },
     { href: '/creators', label: 'المبدعين', key: 'creators', icon: <Users className="w-5 h-5" />, color: 'hover:text-purple-400' },
     { href: '/blog', label: 'المدونة', key: 'blog', icon: <BookOpen className="w-5 h-5" />, color: 'hover:text-blue-400' },
-    { href: '/widgets', label: 'الأدوات', key: 'widgets', icon: <Zap className="w-5 h-5" />, color: 'hover:text-orange-400' }
+    { href: '/widgets', label: 'الأدوات', key: 'widgets', icon: <Zap className="w-5 h-5" />, color: 'hover:text-orange-400' },
+    { href: '/about', label: 'عن المجتمع', key: 'about', icon: <Compass className="w-5 h-5" />, color: 'hover:text-cyan-400' }
   ], []);
 
   return (

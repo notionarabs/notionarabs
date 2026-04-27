@@ -373,6 +373,15 @@ export default function AdminPage() {
       icon: Crown,
       color: 'orange',
       gradient: 'from-orange-500 to-red-600',
+    },
+    {
+      title: 'إدارة المدفوعات',
+      count: stats?.pendingPayouts || 0,
+      label: 'طلب سحب معلق',
+      href: '/admin/payouts',
+      icon: CreditCard,
+      color: 'emerald',
+      gradient: 'from-emerald-500 to-green-600',
     }
   ];
 

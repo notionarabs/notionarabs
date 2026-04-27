@@ -145,16 +145,39 @@ export default function AdminPayouts() {
                         <div className="font-black text-lg text-emerald-600 dark:text-emerald-400">{payout.amount} ج.م</div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <CreditCard size={16} className="text-primary" />
-                          <div>
-                            <div className="text-sm font-bold text-gray-700 dark:text-gray-300">
-                              {payout.payoutMethod === 'vodafone_cash' ? 'فودافون كاش' : 
-                               payout.payoutMethod === 'instapay' ? 'إنستاباي' : 
-                               payout.payoutMethod === 'bank_transfer' ? 'تحويل بنكي' : payout.payoutMethod}
+                        <div className="flex flex-col gap-3">
+                          {/* Data from the actual Request */}
+                          <div className="p-3 bg-gray-50 dark:bg-dark-tertiary rounded-xl border border-gray-100 dark:border-dark-card-border">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-[10px] font-black uppercase text-gray-400">بيانات الطلب:</span>
+                              <span className="text-[11px] font-black text-primary-500">
+                                {payout.method === 'vodafone_cash' ? 'فودافون كاش' : 
+                                 payout.method === 'instapay' ? 'إنستاباي' : 
+                                 payout.method === 'bank_transfer' ? 'تحويل بنكي' : payout.method}
+                              </span>
                             </div>
-                            <div className="text-xs text-gray-500 break-all max-w-[200px]">
-                              {JSON.stringify(payout.payoutDetails || {})}
+                            <div className="text-xs font-bold text-gray-700 dark:text-gray-300 break-all">
+                              {payout.method === 'vodafone_cash' ? payout.accountDetails?.walletNumber :
+                               payout.method === 'instapay' ? payout.accountDetails?.ipa :
+                               payout.method === 'bank_transfer' ? `${payout.accountDetails?.bankName} - ${payout.accountDetails?.accountNumber}` :
+                               JSON.stringify(payout.accountDetails || {})}
+                            </div>
+                          </div>
+
+                          {/* Reference from Profile */}
+                          <div className="p-3 bg-blue-50/50 dark:bg-blue-500/5 rounded-xl border border-blue-100/50 dark:border-blue-500/10">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-[10px] font-black uppercase text-blue-400">المرجع من الملف الشخصي:</span>
+                              <span className="text-[11px] font-black text-blue-600 dark:text-blue-400">
+                                {payout.creatorId?.payoutMethod === 'vodafone_cash' ? 'فودافون كاش' : 
+                                 payout.creatorId?.payoutMethod === 'instapay' ? 'إنستاباي' : 
+                                 payout.creatorId?.payoutMethod === 'bank_transfer' ? 'تحويل بنكي' : 'غير محدد'}
+                              </span>
+                            </div>
+                            <div className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
+                              {payout.creatorId?.payoutDetails?.walletNumber || 
+                               payout.creatorId?.payoutDetails?.ipa || 
+                               (payout.creatorId?.payoutDetails?.accountNumber ? `${payout.creatorId?.payoutDetails?.bankName}: ${payout.creatorId?.payoutDetails?.accountNumber}` : 'لا توجد بيانات مسجلة')}
                             </div>
                           </div>
                         </div>
@@ -187,52 +210,62 @@ export default function AdminPayouts() {
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        {payout.status === 'PENDING' && (
-                          <div className="flex flex-col gap-2">
-                            {rejectingId === (payout.id || payout._id) ? (
-                              <div className="flex flex-col gap-2 min-w-[200px] bg-white dark:bg-dark-secondary p-3 rounded-lg border border-gray-200 shadow-lg absolute z-10 -ml-32">
-                                <textarea 
-                                  placeholder="سبب الرفض (إلزامي)" 
-                                  className="form-input text-xs h-16 resize-none"
-                                  value={rejectionReason}
-                                  onChange={(e) => setRejectionReason(e.target.value)}
-                                />
-                                <div className="flex gap-2">
-                                  <button 
-                                    disabled={!rejectionReason.trim() || isProcessing}
-                                    onClick={() => handleStatusUpdate(payout.id || payout._id, 'REJECTED', rejectionReason)}
-                                    className="flex-1 bg-red-500 text-white text-xs font-bold py-1.5 rounded hover:bg-red-600 disabled:opacity-50"
+                        <div className="flex flex-col gap-2">
+                          {payout.status === 'PENDING' && (
+                            <>
+                              {rejectingId === (payout.id || payout._id) ? (
+                                <div className="flex flex-col gap-2 min-w-[200px] bg-white dark:bg-dark-secondary p-3 rounded-lg border border-gray-200 shadow-lg absolute z-10 -ml-32">
+                                  <textarea 
+                                    placeholder="سبب الرفض (إلزامي)" 
+                                    className="form-input text-xs h-16 resize-none"
+                                    value={rejectionReason}
+                                    onChange={(e) => setRejectionReason(e.target.value)}
+                                  />
+                                  <div className="flex gap-2">
+                                    <button 
+                                      disabled={!rejectionReason.trim() || isProcessing}
+                                      onClick={() => handleStatusUpdate(payout.id || payout._id, 'REJECTED', rejectionReason)}
+                                      className="flex-1 bg-red-500 text-white text-xs font-bold py-1.5 rounded hover:bg-red-600 disabled:opacity-50"
+                                    >
+                                      تأكيد الرفض
+                                    </button>
+                                    <button 
+                                      onClick={() => setRejectingId(null)}
+                                      className="flex-1 bg-gray-200 text-gray-800 text-xs font-bold py-1.5 rounded hover:bg-gray-300"
+                                    >
+                                      إلغاء
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    onClick={() => handleStatusUpdate(payout.id || payout._id, 'PAID')}
+                                    disabled={isProcessing}
+                                    className="flex items-center gap-1 bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500 hover:text-white px-3 py-1.5 rounded-lg text-xs font-black transition-colors"
                                   >
-                                    تأكيد الرفض
+                                    <CheckCircle size={14} /> اعتماد
                                   </button>
-                                  <button 
-                                    onClick={() => setRejectingId(null)}
-                                    className="flex-1 bg-gray-200 text-gray-800 text-xs font-bold py-1.5 rounded hover:bg-gray-300"
+                                  <button
+                                    onClick={() => setRejectingId(payout.id || payout._id)}
+                                    disabled={isProcessing}
+                                    className="flex items-center gap-1 bg-red-500/10 text-red-600 hover:bg-red-500 hover:text-white px-3 py-1.5 rounded-lg text-xs font-black transition-colors"
                                   >
-                                    إلغاء
+                                    <XCircle size={14} /> رفض
                                   </button>
                                 </div>
-                              </div>
-                            ) : (
-                              <div className="flex items-center gap-2">
-                                <button
-                                  onClick={() => handleStatusUpdate(payout.id || payout._id, 'PAID')}
-                                  disabled={isProcessing}
-                                  className="flex items-center gap-1 bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500 hover:text-white px-3 py-1.5 rounded-lg text-xs font-black transition-colors"
-                                >
-                                  <CheckCircle size={14} /> اعتماد الدفع
-                                </button>
-                                <button
-                                  onClick={() => setRejectingId(payout.id || payout._id)}
-                                  disabled={isProcessing}
-                                  className="flex items-center gap-1 bg-red-500/10 text-red-600 hover:bg-red-500 hover:text-white px-3 py-1.5 rounded-lg text-xs font-black transition-colors"
-                                >
-                                  <XCircle size={14} /> رفض
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        )}
+                              )}
+                            </>
+                          )}
+                          
+                          <Link 
+                            href={`/creators/${payout.creatorId?.username || ''}`}
+                            target="_blank"
+                            className="flex items-center justify-center gap-2 py-1.5 bg-gray-50 dark:bg-dark-tertiary hover:bg-orange-500/10 text-gray-400 hover:text-orange-500 rounded-lg text-[10px] font-black transition-all border border-transparent hover:border-orange-500/20"
+                          >
+                            <Eye size={12} /> عرض ملف المبدع
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   ))

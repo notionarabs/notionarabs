@@ -4,6 +4,7 @@ const User = require('../models/User');
 const Template = require('../models/Template');
 const Notification = require('../models/Notification');
 const Blog = require('../models/Blog');
+const Payout = require('../models/Payout');
 const auth = require('../middleware/auth');
 const { cacheMiddleware, invalidateCache } = require('../utils/redis-cache');
 
@@ -195,7 +196,7 @@ router.get('/stats', auth, cacheMiddleware(60), async (req, res) => {
     }
 
     // Run all stats aggregations and counts in parallel for maximum performance
-    const [userStats, templateStats, blogStats, unreadNotifications] = await Promise.all([
+    const [userStats, templateStats, blogStats, unreadNotifications, pendingPayouts] = await Promise.all([
       User.aggregate([
         {
           $group: {
@@ -278,7 +279,8 @@ router.get('/stats', auth, cacheMiddleware(60), async (req, res) => {
       Notification.countDocuments({
         type: { $in: ['admin_creator_application', 'admin_template_pending', 'admin_blog_pending', 'admin_user_registered', 'admin_system_alert'] },
         isRead: false
-      })
+      }),
+      Payout.find({ status: 'PENDING' }).then(res => res.length)
     ]);
 
     // Extract results
@@ -316,7 +318,8 @@ router.get('/stats', auth, cacheMiddleware(60), async (req, res) => {
         recentUsers: userData.recentUsers || 0,
         recentTemplates: templateData.recentTemplates || 0,
         recentBlogs: blogData.recentBlogs || 0,
-        unreadNotifications
+        unreadNotifications,
+        pendingPayouts
       }
     });
   } catch (error) {

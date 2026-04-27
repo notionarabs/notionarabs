@@ -1,6 +1,20 @@
 const supabase = require('../utils/supabase');
 
 class UserDoc {
+  static get VALID_COLUMNS() {
+    return [
+        'id', 'name', 'username', 'email', 'googleId', 'password', 'role', 'creatorStatus', 
+        'isActive', 'emailNotifications', 'unsubscribeDate', 'profilePicture', 'backgroundImage', 
+        'bio', 'templatesCount', 'followers', 'rating', 'isEmailVerified', 'emailVerificationToken', 
+        'emailVerificationExpiry', 'resetToken', 'resetTokenExpiry', 'displayName', 'portfolio', 
+        'experience', 'specialties', 'motivation', 'phone', 'instagram', 'twitter', 'linkedin', 
+        'website', 'youtube', 'facebook', 'createdAt', 'updatedAt', 'socialLinks', 'allowMessages', 
+        'contactEmail', 'badges', 'following',
+        'profileVisibility', 'showEmail', 'showPhone', 'showTemplateCount', 'showJoinDate', 
+        'customMessage', 'payoutMethod', 'payoutDetails', 'balance', 'totalEarnings'
+    ];
+  }
+
   constructor(data) {
     if (!data) return;
     Object.assign(this, data);
@@ -66,20 +80,9 @@ class UserDoc {
     this.updatedAt = now;
     updateData.updatedAt = now;
 
-    // List of known valid columns in the Supabase User table
-    const VALID_COLUMNS = [
-        'id', 'name', 'username', 'email', 'googleId', 'password', 'role', 'creatorStatus', 
-        'isActive', 'emailNotifications', 'unsubscribeDate', 'profilePicture', 'backgroundImage', 
-        'bio', 'templatesCount', 'followers', 'rating', 'isEmailVerified', 'emailVerificationToken', 
-        'emailVerificationExpiry', 'resetToken', 'resetTokenExpiry', 'displayName', 'portfolio', 
-        'experience', 'specialties', 'motivation', 'phone', 'instagram', 'twitter', 'linkedin', 
-        'website', 'youtube', 'facebook', 'createdAt', 'updatedAt', 'socialLinks', 'allowMessages', 
-        'contactEmail', 'badges', 'following'
-    ];
-
     const filteredUpdate = {};
     Object.keys(updateData).forEach(key => {
-        if (VALID_COLUMNS.includes(key)) {
+        if (UserDoc.VALID_COLUMNS.includes(key)) {
             filteredUpdate[key] = updateData[key];
         }
     });
@@ -372,22 +375,11 @@ class UserDoc {
 
   static findByIdAndUpdate(id, update, options = {}) {
       const execute = async () => {
-          // List of known valid columns in the Supabase User table
-          const VALID_COLUMNS = [
-              'id', 'name', 'username', 'email', 'googleId', 'password', 'role', 'creatorStatus', 
-              'isActive', 'emailNotifications', 'unsubscribeDate', 'profilePicture', 'backgroundImage', 
-              'bio', 'templatesCount', 'followers', 'rating', 'isEmailVerified', 'emailVerificationToken', 
-              'emailVerificationExpiry', 'resetToken', 'resetTokenExpiry', 'displayName', 'portfolio', 
-              'experience', 'specialties', 'motivation', 'phone', 'instagram', 'twitter', 'linkedin', 
-              'website', 'youtube', 'facebook', 'createdAt', 'updatedAt', 'socialLinks', 'allowMessages', 
-              'contactEmail', 'badges', 'following'
-          ];
-
           let dbUpdate = {};
           
           // Filter update object to only include valid columns
           Object.keys(update).forEach(key => {
-              if (VALID_COLUMNS.includes(key) || key.startsWith('$')) {
+              if (UserDoc.VALID_COLUMNS.includes(key) || key.startsWith('$')) {
                   dbUpdate[key] = update[key];
               }
           });

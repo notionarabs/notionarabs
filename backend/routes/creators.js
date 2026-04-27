@@ -398,6 +398,8 @@ router.get('/:id', cacheMiddleware(600), async (req, res) => {
         showTemplateCount: creator.showTemplateCount !== false,
         showJoinDate: creator.showJoinDate !== false,
         description: creator.bio,
+        experience: creator.experience,
+        motivation: creator.motivation,
         badges: creator.badges || [],
         stats: {
           totalDownloads: creatorStats.totalDownloads,

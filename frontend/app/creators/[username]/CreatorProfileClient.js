@@ -242,7 +242,7 @@ export default function CreatorProfileClient({ initialCreator }) {
                   </div>
                 </div>
                 <p className="text-lg text-accent-600 dark:text-gray-300 leading-relaxed text-center sm:text-right whitespace-pre-wrap">
-                    {creator.bio || creator.experience}
+                    {creator.bio || creator.experience || 'مبدع مستقل يساهم في إثراء المحتوى العربي على نوشن.'}
                 </p>
                 <div className="flex flex-wrap gap-4 justify-center sm:justify-start">
                   <FollowButton creatorId={creator.id} creatorName={creator.name} />

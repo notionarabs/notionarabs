@@ -203,7 +203,7 @@ export default function CreatorsClient() {
 
                       <h3 className="text-3xl font-black text-accent-500 dark:text-white mb-4 group-hover:text-primary transition-colors tracking-tighter">{creator.displayName || creator.name}</h3>
                       <div className="flex items-center gap-2 mb-6"><StarRating rating={creator.rating || 5} /></div>
-                      <p className="text-base text-accent-700/60 dark:text-white/40 mb-10 line-clamp-2 leading-relaxed font-medium italic">{creator.bio || 'مبدع مستقل يساهم في إثراء المحتوى العربي على نوشن.'}</p>
+                      <p className="text-base text-accent-700/60 dark:text-white/40 mb-10 line-clamp-2 leading-relaxed font-medium italic">{creator.bio || creator.experience || 'مبدع مستقل يساهم في إثراء المحتوى العربي على نوشن.'}</p>
                       
                       <div className="grid grid-cols-2 gap-8 w-full mb-12 border-y border-accent-900/5 dark:border-white/5 py-8">
                          <div>

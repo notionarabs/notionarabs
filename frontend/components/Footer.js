@@ -91,21 +91,19 @@ export default function Footer() {
                 مجتمعك العربي الأول لاحتراف نوشن، نوفر لك أرقى القوالب الرقمية والأدوات المبتكرة لتمكينك من تنظيم حياتك وإدارة مشاريعك بإبداع.
               </p>
 
-              <div className="space-y-4">
-                <p className="text-xs uppercase tracking-widest font-black text-foreground/40 dark:text-white/30">إحدى مبادرات</p>
+              <div className="space-y-3 pt-4">
+                <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-foreground/30 dark:text-white/20">إحدى مبادرات</p>
                 <Link 
                   href="https://arab-os.com" 
                   target="_blank" 
-                  className="group relative inline-flex items-center gap-6 p-6 rounded-[2.5rem] bg-card border-none transition-all duration-500 overflow-hidden shadow-2xl shadow-primary/5"
+                  className="group inline-flex items-center gap-4 hover:opacity-80 transition-opacity"
                 >
-                  
-                  <div className="relative z-10 text-right">
-                    <div className="text-lg font-black text-foreground dark:text-white mb-1 group-hover:text-primary transition-colors">Arab-OS Network</div>
-                    <div className="text-xs text-foreground/50 dark:text-white/40 font-medium">نحو بناء بيئة رقمية عربية ذكية</div>
+                  <div className="text-right">
+                    <div className="text-base font-bold text-foreground dark:text-white group-hover:text-primary transition-colors">Arab-OS Network</div>
+                    <div className="text-[11px] text-foreground/40 dark:text-white/30 font-medium">نحو بناء بيئة رقمية عربية ذكية</div>
                   </div>
-
-                  <div className="relative z-10 w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/30 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
-                    <ArrowUpRight className="w-6 h-6" />
+                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                    <ArrowUpRight className="w-4 h-4" />
                   </div>
                 </Link>
               </div>

@@ -91,19 +91,28 @@ export default function Footer() {
                 مجتمعك العربي الأول لاحتراف نوشن، نوفر لك أرقى القوالب الرقمية والأدوات المبتكرة لتمكينك من تنظيم حياتك وإدارة مشاريعك بإبداع.
               </p>
 
-              <div className="space-y-3 pt-4">
-                <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-foreground/30 dark:text-white/20">إحدى مبادرات</p>
+              <div className="pt-8 border-t border-foreground/5 dark:border-white/5">
                 <Link 
                   href="https://arab-os.com" 
                   target="_blank" 
-                  className="group inline-flex items-center gap-4 hover:opacity-80 transition-opacity"
+                  className="group block space-y-3"
                 >
-                  <div className="text-right">
-                    <div className="text-base font-bold text-foreground dark:text-white group-hover:text-primary transition-colors">Arab-OS Network</div>
-                    <div className="text-[11px] text-foreground/40 dark:text-white/30 font-medium">نحو بناء بيئة رقمية عربية ذكية</div>
-                  </div>
-                  <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300">
-                    <ArrowUpRight className="w-4 h-4" />
+                  <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-foreground/20 dark:text-white/10 block">
+                    إحدى مبادرات
+                  </span>
+                  <div className="flex items-center gap-4">
+                    <Image 
+                      src="/ArabOS.svg" 
+                      alt="Arab-OS" 
+                      width={90} 
+                      height={22} 
+                      className="h-5 w-auto opacity-50 group-hover:opacity-100 transition-all dark:brightness-200"
+                      unoptimized
+                    />
+                    <div className="h-4 w-px bg-foreground/10 dark:bg-white/10" />
+                    <span className="text-[11px] text-foreground/40 dark:text-white/30 font-medium">
+                      نحو بناء بيئة رقمية عربية ذكية
+                    </span>
                   </div>
                 </Link>
               </div>
@@ -184,6 +193,25 @@ export default function Footer() {
             <p className="text-foreground/40 dark:text-white/30 text-sm font-medium">
               © {mounted ? new Date().getFullYear() : '2026'} عرب نوشن. جميع الحقوق محفوظة.
             </p>
+
+            <div className="flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-foreground/[0.03] dark:bg-white/[0.03] border border-foreground/5 dark:border-white/5" dir="ltr">
+              <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-foreground/30 dark:text-white/20">Powered by</span>
+              <Link 
+                href="https://arab-os.com" 
+                target="_blank" 
+                className="opacity-50 hover:opacity-100 transition-all duration-300 transform hover:scale-105 flex items-center"
+              >
+                <Image 
+                  src="/ArabOS.svg" 
+                  alt="Arab OS" 
+                  width={80} 
+                  height={20} 
+                  className="h-4 w-auto dark:brightness-150"
+                  unoptimized
+                />
+              </Link>
+            </div>
+
             <div className="flex flex-wrap justify-center gap-8">
               {FOOTER_LINKS.legal.map((link) => (
                 <Link 

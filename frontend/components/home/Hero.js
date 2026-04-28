@@ -84,18 +84,18 @@ export default function Hero({ animationsPlayed }) {
                         </div>
 
                         {/* Main Heading */}
-                        <h1 className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-foreground dark:text-white mb-4 sm:mb-6 ${!animationsPlayed ? 'text-reveal-delayed' : ''} leading-tight tracking-tighter overflow-visible`}>
+                        <h1 className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-foreground dark:text-white mb-4 sm:mb-6 ${!animationsPlayed ? 'text-reveal-delayed' : ''} leading-tight tracking-tighter overflow-visible px-4 sm:px-0`}>
                             <div className="block pt-[0.2em] pb-[0.2rem]">
                                 <div className="block"><span className="inline-block pt-2 pb-2 -mt-2 -mb-2">أكبر مجتمع عربي لنوشن</span></div>
                                 <div className="block mt-2 leading-[1.1]">
-                                    <span className="text-gradient inline-block pt-4 pb-4 px-1 -mt-4 -mb-4">وجهتك للإبداع من المحيط</span>
-                                    <span className="text-gradient inline-block pt-4 pb-4 px-1 -mt-4 -mb-4 mr-12 md:mr-24">إلى الخليج</span>
+                                    <span className="text-gradient inline-block pt-4 pb-4 px-2 -mt-4 -mb-4">وجهتك للإبداع من المحيط</span>
+                                    <span className="text-gradient inline-block pt-4 pb-4 px-2 -mt-4 -mb-4">إلى الخليج</span>
                                 </div>
                             </div>
                         </h1>
 
                         {/* Enhanced Description with Better Typography */}
-                        <p className={`text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary mb-6 sm:mb-8 max-w-xs sm:max-w-2xl md:max-w-3xl mx-auto ${!animationsPlayed ? 'text-reveal-delayed-2' : ''} leading-relaxed px-2 sm:px-0 font-medium`}>
+                        <p className={`text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary mb-6 sm:mb-8 max-w-md sm:max-w-2xl md:max-w-3xl mx-auto ${!animationsPlayed ? 'text-reveal-delayed-2' : ''} leading-relaxed px-4 sm:px-0 font-medium`}>
                             انضم إلى آلاف المبدعين والخبراء العرب. اكتشف أرقى القوالب، تعلم أسرار الإنتاجية، وابنِ أنظمتك الذكية مع المجتمع العربي الأول والشركاء المعتمدين من نوشن.
                         </p>
 

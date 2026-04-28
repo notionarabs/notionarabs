@@ -66,9 +66,17 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
       isEmailVerified: true
     };
 
-    // Add specialty filter
+    // Add specialty filter with Arabic mapping
     if (specialty && specialty !== 'all') {
-      query.specialties = { $in: [specialty] };
+      const specialtyMap = {
+        'productivity': ['إنتاجية', 'الإنتاجية', 'الإنتاجية والتنظيم', 'التخطيط الشخصي', 'تنظيم', 'الكتابة والمحتوى'],
+        'business': ['أعمال', 'الأعمال', 'بيزنس', 'إدارة المشاريع', 'ريادة أعمال'],
+        'students': ['طلاب', 'الطلاب', 'تعليم', 'دراسة', 'التعليم والتدريب'],
+        'lifestyle': ['أسلوب حياة', 'حياة', 'Lifestyle', 'صحة', 'عادات'],
+        'design': ['تصميم', 'التصميم', 'مصمم', 'جرافيك', 'UI/UX']
+      };
+      const keywords = specialtyMap[specialty] || [specialty];
+      query.specialties = { $in: keywords };
     }
 
     // Optimized: Use server-side search and pagination

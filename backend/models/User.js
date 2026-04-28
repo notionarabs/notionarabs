@@ -263,6 +263,8 @@ class UserDoc {
                         v = v.toUpperCase();
                     }
 
+                    const isArrayCol = ['specialties', 'badges', 'socialLinks'].includes(dbK);
+                    
                     if (typeof v === 'object' && v.$regex) {
                         let pattern = v.$regex;
                         if (pattern.startsWith('^')) {
@@ -271,6 +273,11 @@ class UserDoc {
                             pattern = '%' + pattern + '%';
                         }
                         return `${dbK}.ilike.${pattern}`;
+                    }
+                    
+                    if (isArrayCol) {
+                        const arrayVal = Array.isArray(v) ? v : [v];
+                        return `${dbK}.ov.{${arrayVal.join(',')}}`;
                     }
                     return `${dbK}.eq.${v}`;
                 });
@@ -288,7 +295,12 @@ class UserDoc {
                 if (ENUM_FIELDS.includes(dbKey) && Array.isArray(val.$in)) {
                     val.$in = val.$in.map(v => typeof v === 'string' ? v.toUpperCase() : v);
                 }
-                q = q.in(dbKey, val.$in);
+                const isArrayCol = ['specialties', 'badges', 'socialLinks'].includes(dbKey);
+                if (isArrayCol) {
+                    q = q.overlaps(dbKey, val.$in);
+                } else {
+                    q = q.in(dbKey, val.$in);
+                }
             }
             else if (val.$ne !== undefined) {
                 // Normalize enums for $ne
@@ -322,9 +334,10 @@ class UserDoc {
     const execute = async () => {
         let chain = q;
         if (sortObj) {
-            const key = Object.keys(sortObj)[0];
-            const ascending = sortObj[key] === 1;
-            chain = chain.order(key === '_id' ? 'id' : key, { ascending });
+            Object.keys(sortObj).forEach(key => {
+                const ascending = sortObj[key] === 1 || sortObj[key] === 'asc';
+                chain = chain.order(key === '_id' ? 'id' : key, { ascending });
+            });
         }
         if (skipVal !== null && limitVal !== null) {
             chain = chain.range(skipVal, skipVal + limitVal - 1);

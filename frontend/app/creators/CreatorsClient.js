@@ -89,9 +89,9 @@ export default function CreatorsClient() {
       <BreadcrumbWrapper items={[{ name: 'المبدعون', url: '/creators' }]} />
 
       {/* Premium Atmospheric Hero */}
-      <section className="relative overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-24">
+      <section className="relative pt-32 pb-20 sm:pt-40 sm:pb-24 z-[20]">
         {/* mesh background */}
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute top-[-10%] right-[-5%] w-[45%] h-[45%] bg-primary/20 rounded-full blur-[120px] animate-pulse" />
           <div className="absolute bottom-[-10%] left-[-5%] w-[35%] h-[35%] bg-purple-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '3s' }} />
         </div>
@@ -119,7 +119,7 @@ export default function CreatorsClient() {
                   />
                   <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
                     {searchTerm && (
-                      <button 
+                      <button
                         type="button"
                         onClick={() => setSearchTerm('')}
                         className="p-2 text-foreground/40 hover:text-primary transition-colors"
@@ -134,16 +134,16 @@ export default function CreatorsClient() {
                 </div>
 
                 {/* Sort Dropdown */}
-                <div className="relative w-full sm:w-64 group p-1 rounded-[2rem] bg-white/50 dark:bg-white/5 backdrop-blur-xl border border-card-border shadow-2xl transition-all">
-                  <button 
-                    onClick={() => setIsSortOpen(!isSortOpen)} 
+                <div className="relative w-full sm:w-64 group p-1 rounded-[2rem] bg-white/50 dark:bg-white/5 backdrop-blur-xl border border-card-border shadow-2xl transition-all z-[60]">
+                  <button
+                    onClick={() => setIsSortOpen(!isSortOpen)}
                     className="w-full h-full px-8 py-5 flex items-center justify-between text-sm font-black text-foreground dark:text-white transition-all uppercase tracking-widest"
                   >
                     <span>{sortOptions.find(o => o.value === sortBy)?.name}</span>
                     <Zap size={18} className={`text-primary transition-transform duration-700 ${isSortOpen ? 'rotate-180' : ''}`} />
                   </button>
                   {isSortOpen && (
-                    <div className="absolute top-full left-0 right-0 z-50 mt-4 rounded-[2rem] bg-black/90 dark:bg-[#1a1a1a] backdrop-blur-xl border border-card-border shadow-large overflow-hidden animate-fade-in-up">
+                    <div className="absolute top-full left-0 right-0 z-[100] mt-4 rounded-[2rem] bg-black/90 dark:bg-[#1a1a1a] backdrop-blur-xl border border-card-border shadow-large overflow-hidden animate-fade-in-up">
                       {sortOptions.map(opt => (
                         <button key={opt.value} onClick={() => { setSortBy(opt.value); setIsSortOpen(false); }} className={`w-full text-right px-8 py-5 text-sm font-black transition-all ${sortBy === opt.value ? 'bg-primary text-white' : 'text-white/40 hover:bg-white/10 hover:text-white'}`}>{opt.name}</button>
                       ))}
@@ -158,11 +158,10 @@ export default function CreatorsClient() {
                   <button
                     key={spec}
                     onClick={() => { setSelectedSpecialty(spec); setPagination(p => ({ ...p, current: 1 })); }}
-                    className={`px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${
-                      selectedSpecialty === spec 
-                        ? 'bg-primary text-white shadow-xl shadow-primary/20 scale-105' 
+                    className={`px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${selectedSpecialty === spec
+                        ? 'bg-primary text-white shadow-xl shadow-primary/20 scale-105'
                         : 'bg-white/50 dark:bg-white/5 text-foreground/40 hover:bg-white/10'
-                    }`}
+                      }`}
                   >
                     {spec === 'all' ? 'الكل' : spec === 'productivity' ? 'إنتاجية' : spec === 'business' ? 'أعمال' : spec === 'students' ? 'طلاب' : spec === 'lifestyle' ? 'أسلوب حياة' : 'تصميم'}
                   </button>
@@ -187,41 +186,41 @@ export default function CreatorsClient() {
                   <Link key={creator.id} href={`/creators/${creator.username || creator.id}`} className="group">
                     <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[3rem] p-8 shadow-large group-hover:shadow-glow group-hover:-translate-y-2 transition-all duration-700 flex flex-col border-none relative overflow-hidden text-center items-center h-full">
                       <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 blur-3xl" />
-                      
+
                       <div className="relative w-24 h-24 mb-6">
-                         <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-                         {creator.profilePicture ? (
-                           <Image src={creator.profilePicture} alt="" fill className="rounded-full object-cover shadow-soft border-none group-hover:scale-110 transition-transform duration-700" />
-                         ) : (
-                           <div className="w-full h-full rounded-full bg-primary/10 flex items-center justify-center text-3xl font-black text-primary shadow-soft">{(creator.displayName || creator.name)?.charAt(0)}</div>
-                         )}
-                         {creator.badges?.length > 0 && (
-                           <div className="absolute -bottom-1 -right-1 w-10 h-10 bg-primary rounded-2xl flex items-center justify-center text-white shadow-glow rotate-12">
-                             <Award size={18} />
-                           </div>
-                         )}
+                        <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                        {creator.profilePicture ? (
+                          <Image src={creator.profilePicture} alt="" fill className="rounded-full object-cover shadow-soft border-none group-hover:scale-110 transition-transform duration-700" />
+                        ) : (
+                          <div className="w-full h-full rounded-full bg-primary/10 flex items-center justify-center text-3xl font-black text-primary shadow-soft">{(creator.displayName || creator.name)?.charAt(0)}</div>
+                        )}
+                        {creator.badges?.length > 0 && (
+                          <div className="absolute -bottom-1 -right-1 w-10 h-10 bg-primary rounded-2xl flex items-center justify-center text-white shadow-glow rotate-12">
+                            <Award size={18} />
+                          </div>
+                        )}
                       </div>
 
                       <h3 className="text-2xl font-black text-accent-500 dark:text-white mb-2 group-hover:text-primary transition-colors tracking-tighter line-clamp-1">{creator.displayName || creator.name}</h3>
                       <div className="flex items-center gap-2 mb-4"><StarRating rating={creator.rating || 5} /></div>
-                      
+
                       <p className="text-sm text-accent-700/60 dark:text-white/40 mb-8 line-clamp-2 leading-relaxed font-medium italic flex-1">
                         {creator.bio || creator.experience || 'مبدع مستقل يساهم في إثراء المحتوى العربي على نوشن.'}
                       </p>
-                      
+
                       <div className="grid grid-cols-2 gap-4 w-full mb-8 border-y border-accent-900/5 dark:border-white/5 py-6">
-                         <div>
-                           <div className="text-xl font-black text-accent-900 dark:text-white">{creator.templatesCount || creator.templates || 0}</div>
-                           <div className="text-[9px] font-black uppercase tracking-widest text-accent-900/30 dark:text-white/20">نظام</div>
-                         </div>
-                         <div>
-                           <div className="text-xl font-black text-accent-900 dark:text-white">{creator.followersCount || creator.followers || 0}</div>
-                           <div className="text-[9px] font-black uppercase tracking-widest text-accent-900/30 dark:text-white/20">متابع</div>
-                         </div>
+                        <div>
+                          <div className="text-xl font-black text-accent-900 dark:text-white">{creator.templatesCount || creator.templates || 0}</div>
+                          <div className="text-[9px] font-black uppercase tracking-widest text-accent-900/30 dark:text-white/20">نظام</div>
+                        </div>
+                        <div>
+                          <div className="text-xl font-black text-accent-900 dark:text-white">{creator.followersCount || creator.followers || 0}</div>
+                          <div className="text-[9px] font-black uppercase tracking-widest text-accent-900/30 dark:text-white/20">متابع</div>
+                        </div>
                       </div>
 
                       <div className="w-full">
-                         <button className="w-full py-4 rounded-xl bg-accent-900 dark:bg-white text-white dark:text-accent-900 font-black text-[10px] uppercase tracking-[0.2em] shadow-soft group-hover:shadow-large transition-all">الملف الشخصي</button>
+                        <button className="w-full py-4 rounded-xl bg-accent-900 dark:bg-white text-white dark:text-accent-900 font-black text-[10px] uppercase tracking-[0.2em] shadow-soft group-hover:shadow-large transition-all">الملف الشخصي</button>
                       </div>
                     </div>
                   </Link>
@@ -233,8 +232,8 @@ export default function CreatorsClient() {
                   </div>
                   <h3 className="text-4xl font-black text-accent-500 dark:text-white mb-6 tracking-tighter">لم يتم العثور على مبدعين</h3>
                   <p className="text-xl text-accent-700/40 dark:text-white/30 max-w-xl mx-auto mb-12 font-medium">نحن بصدد استقطاب المزيد من المبدعين. حاول تغيير فلاتر البحث.</p>
-                  <button 
-                    onClick={() => { setSearchTerm(''); setSelectedSpecialty('all'); }} 
+                  <button
+                    onClick={() => { setSearchTerm(''); setSelectedSpecialty('all'); }}
                     className="px-12 py-5 bg-accent-900 dark:bg-white text-white dark:text-accent-900 font-black rounded-2xl shadow-glow uppercase tracking-widest text-xs"
                   >
                     إعادة ضبط البحث
@@ -255,11 +254,10 @@ export default function CreatorsClient() {
                       setPagination(p => ({ ...p, current: i + 1 }));
                       window.scrollTo({ top: 400, behavior: 'smooth' });
                     }}
-                    className={`w-12 h-12 rounded-xl text-sm font-black transition-all ${
-                      pagination.current === i + 1
+                    className={`w-12 h-12 rounded-xl text-sm font-black transition-all ${pagination.current === i + 1
                         ? 'bg-primary text-white shadow-glow scale-110'
                         : 'text-foreground/40 dark:text-white/20 hover:text-primary'
-                    }`}
+                      }`}
                   >
                     {i + 1}
                   </button>
@@ -271,16 +269,16 @@ export default function CreatorsClient() {
       </section>
 
       <section className="py-32 z-10 relative">
-         <div className="container-custom">
-           <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[60px] rounded-[5rem] p-20 sm:p-32 shadow-large text-center relative overflow-hidden">
-             <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-primary/10 blur-[160px] rounded-full" />
-             <div className="relative z-10">
-               <h2 className="text-5xl sm:text-7xl lg:text-8xl font-black text-accent-500 dark:text-white mb-10 tracking-tighter leading-none">كُن أنت <br /><span className="inline-block text-primary text-gradient pt-2 pb-2 -mt-2 -mb-2">المِعمار الحالي</span></h2>
-               <p className="text-xl sm:text-2xl text-accent-700/60 dark:text-white/40 mb-16 max-w-3xl mx-auto font-black uppercase tracking-widest">انضم إلى مجتمع صفوة المبدعين العرب وابدأ في بناء إرثك الرقمي.</p>
-               <Link href="/signup" className="px-16 py-6 bg-primary text-white rounded-2xl font-black text-xl shadow-glow hover:scale-110 transition-all uppercase tracking-widest inline-block">انضم للمبدعين</Link>
-             </div>
-           </div>
-         </div>
+        <div className="container-custom">
+          <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[60px] rounded-[5rem] p-20 sm:p-32 shadow-large text-center relative overflow-hidden">
+            <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-primary/10 blur-[160px] rounded-full" />
+            <div className="relative z-10">
+              <h2 className="text-5xl sm:text-7xl lg:text-8xl font-black text-accent-500 dark:text-white mb-10 tracking-tighter leading-none">كُن أنت <br /><span className="inline-block text-primary text-gradient pt-2 pb-2 -mt-2 -mb-2">المِعمار الحالي</span></h2>
+              <p className="text-xl sm:text-2xl text-accent-700/60 dark:text-white/40 mb-16 max-w-3xl mx-auto font-black uppercase tracking-widest">انضم إلى مجتمع صفوة المبدعين العرب وابدأ في بناء إرثك الرقمي.</p>
+              <Link href="/signup" className="px-16 py-6 bg-primary text-white rounded-2xl font-black text-xl shadow-glow hover:scale-110 transition-all uppercase tracking-widest inline-block">انضم للمبدعين</Link>
+            </div>
+          </div>
+        </div>
       </section>
 
       <Footer />

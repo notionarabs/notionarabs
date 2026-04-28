@@ -1,50 +1,82 @@
 'use client';
 
-import Link from 'next/link';
-import { testimonials } from '../../lib/marketingContent';
+import { Star, Quote } from 'lucide-react';
+
+const testimonials = [
+  {
+    name: 'أحمد محمود',
+    role: 'رائد أعمال',
+    content: 'عرب نوشن غير طريقتي في إدارة مشاريعي تماماً. القوالب احترافية جداً ومناسبة للغة العربية بشكل مثالي.',
+    avatar: 'https://api.dicebear.com/9.x/lorelei/svg?seed=Felix',
+    rating: 5
+  },
+  {
+    name: 'سارة خالد',
+    role: 'مديرة محتوى',
+    content: 'أفضل مجتمع عربي لنوشن. الدعم الفني والخبرة التي يشاركونها لا تقدر بثمن. فخورة بكوني جزءاً من هذا المجتمع.',
+    avatar: 'https://api.dicebear.com/9.x/lorelei/svg?seed=Sara',
+    rating: 5
+  },
+  {
+    name: 'ياسين علي',
+    role: 'مصمم مستقل',
+    content: 'قوالب عرب نوشن ساعدتني في تنظيم مهامي اليومية وزيادة إنتاجيتي بنسبة 200%. أنصح بها لكل مستقل.',
+    avatar: 'https://api.dicebear.com/9.x/lorelei/svg?seed=Jack',
+    rating: 5
+  }
+];
 
 export default function Testimonials() {
-    return (
-        <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-white dark:bg-dark-secondary transition-colors duration-300" data-reveal-section>
-            <div className="container-custom">
-                <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] items-start">
-                    <div className="text-center lg:text-right">
-                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
-                            آراء عملائنا
-                        </h2>
-                        <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary max-w-xl mx-auto lg:mx-0">
-                            قصص نجاح حقيقية من مؤسسات وفرق اعتمدت نظم عرب نوشن لتطوير وتوسعة أعمالها.
-                        </p>
-                    </div>
-                    <div className="space-y-4 sm:space-y-5">
-                        {testimonials.slice(0, 3).map((testimonial, idx) => (
-                            <div key={idx} className="group card-interactive cursor-default p-5 sm:p-6 rounded-2xl border border-gray-200 dark:border-dark-card-border bg-secondary-50 dark:bg-dark-primary">
-                                <div className="flex items-start justify-between gap-4">
-                                    <div className="text-sm sm:text-base text-accent-600 dark:text-dark-text-secondary leading-relaxed">
-                                        “{testimonial.quote}”
-                                    </div>
-                                </div>
-                                <div className="mt-4 flex items-center justify-between text-sm">
-                                    <span className="font-semibold text-accent-900 dark:text-dark-text-primary">
-                                        {testimonial.name}
-                                    </span>
-                                    <span className="text-xs text-accent-500 dark:text-dark-text-tertiary font-medium">
-                                        {testimonial.role}
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                        <div className="text-center lg:text-right pt-4">
-                            <Link href="/projects" className="btn-outline inline-flex items-center text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3">
-                                تصفح جميع أعمالنا
-                                <svg className="mr-2 w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                </svg>
-                            </Link>
-                        </div>
-                    </div>
+  return (
+    <section className="py-20 bg-secondary-50 dark:bg-dark-secondary overflow-hidden relative" data-reveal-section>
+      {/* Decorative background element */}
+      <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+      
+      <div className="container-custom relative z-10">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-5xl font-black mb-4 text-foreground dark:text-white">
+            قصص نجاح <span className="text-gradient">مجتمعنا</span>
+          </h2>
+          <p className="text-accent-600 dark:text-dark-text-secondary max-w-2xl mx-auto text-lg">
+            انضم إلى آلاف المستخدمين الذين طوروا إنتاجيتهم باستخدام حلولنا المبتكرة في نوشن.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {testimonials.map((t, i) => (
+            <div 
+              key={i} 
+              className="bg-white dark:bg-dark-tertiary p-8 rounded-3xl shadow-xl dark:shadow-dark-medium border border-transparent hover:border-primary/20 transition-all duration-300 group relative"
+            >
+              <Quote size={24} className="absolute top-8 left-8 text-primary/10 group-hover:text-primary/20 transition-all" />
+              
+              <div className="flex gap-1 mb-4">
+                {[...Array(t.rating)].map((_, i) => (
+                  <Star key={i} size={16} className="fill-orange-400 text-orange-400" />
+                ))}
+              </div>
+              
+              <div className="relative mb-6">
+                <p className="text-accent-800 dark:text-dark-text-primary text-lg leading-relaxed">
+                  "{t.content}"
+                </p>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <img 
+                  src={t.avatar} 
+                  alt={t.name} 
+                  className="w-12 h-12 rounded-full bg-secondary-100 dark:bg-dark-primary p-1"
+                />
+                <div className="text-right">
+                  <h4 className="font-bold text-foreground dark:text-white">{t.name}</h4>
+                  <p className="text-sm text-accent-500 dark:text-dark-text-secondary">{t.role}</p>
                 </div>
+              </div>
             </div>
-        </section>
-    );
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 }

@@ -8,6 +8,8 @@ import Hero from '../components/home/Hero';
 import HomeMarketplace from '../components/home/HomeMarketplace';
 import FAQ from '../components/home/FAQ';
 import FinalCTA from '../components/home/FinalCTA';
+import Testimonials from '../components/home/Testimonials';
+import Integrations from '../components/home/Integrations';
 
 export default function HomePage() {
   const [animationsPlayed, setAnimationsPlayed] = useState(false);
@@ -94,6 +96,8 @@ export default function HomePage() {
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300 bg-mesh" dir="rtl">
       <Hero animationsPlayed={animationsPlayed} />
       <HomeMarketplace />
+      <Integrations />
+      <Testimonials />
       <FAQ />
       <FinalCTA />
       <Footer />

@@ -23,16 +23,13 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const { user, isAuthenticated, loading, logout } = useAuth();
   const { setLoading } = useLoading();
   const { theme } = useTheme();
   const pathname = usePathname();
   const menuRef = useRef(null);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -111,16 +108,30 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
             aria-label="الرئيسية - عرب نوشن"
             onClick={() => handleNavigation('/')}
           >
-            <Image
-              src={(isMenuOpen || (mounted && theme === 'dark')) ? '/brand/NavLogoLight.svg' : '/brand/NavLogoDark.svg'}
-              alt="عرب نوشن"
-              width={200}
-              height={60}
-              className="h-10 md:h-12 lg:h-14 w-auto drop-shadow-sm transition-all duration-300"
-              quality={100}
-              priority
-              unoptimized
-            />
+            <div className="flex items-center relative">
+              {/* Light Logo (for dark theme or when menu is open) */}
+              <Image
+                src="/brand/NavLogoLight.svg"
+                alt="عرب نوشن"
+                width={200}
+                height={60}
+                className={`h-10 md:h-12 lg:h-14 w-auto drop-shadow-sm transition-all duration-300 ${isMenuOpen ? 'block' : 'hidden dark:block'}`}
+                quality={100}
+                priority
+                unoptimized
+              />
+              {/* Dark Logo (for light theme) */}
+              <Image
+                src="/brand/NavLogoDark.svg"
+                alt="عرب نوشن"
+                width={200}
+                height={60}
+                className={`h-10 md:h-12 lg:h-14 w-auto drop-shadow-sm transition-all duration-300 ${isMenuOpen ? 'hidden' : 'block dark:hidden'}`}
+                quality={100}
+                priority
+                unoptimized
+              />
+            </div>
           </Link>
 
           {/* Desktop Navigation */}

@@ -63,15 +63,28 @@ export default function Footer() {
             {/* Brand Identity Section */}
             <div className="lg:col-span-5 space-y-8">
               <Link href="/" className="inline-block" onClick={() => handleNavigation('/')}>
+              <div className="flex items-center relative">
+                {/* Light Logo (for dark theme) */}
                 <Image
-                  src={mounted && theme === 'light' ? '/brand/NavLogoDark.svg' : '/brand/NavLogoLight.svg'}
+                  src="/brand/NavLogoLight.svg"
                   alt="عرب نوشن"
                   width={220}
                   height={66}
-                  className="h-12 w-auto drop-shadow-sm"
+                  className="h-12 w-auto drop-shadow-sm hidden dark:block"
                   quality={100}
                   unoptimized
                 />
+                {/* Dark Logo (for light theme) */}
+                <Image
+                  src="/brand/NavLogoDark.svg"
+                  alt="عرب نوشن"
+                  width={220}
+                  height={66}
+                  className="h-12 w-auto drop-shadow-sm block dark:hidden"
+                  quality={100}
+                  unoptimized
+                />
+              </div>
               </Link>
               
               <p className="text-foreground/70 dark:text-white/60 text-lg leading-relaxed max-w-md font-medium">

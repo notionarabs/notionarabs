@@ -16,7 +16,8 @@ router.get('/homepage', cacheMiddleware(600), async (req, res) => {
       totalCreators,
       totalDownloads,
       categoryStats,
-      topCreators
+      topCreators,
+      totalUsers
     ] = await Promise.all([
       // Total templates count
       Template.countDocuments({ status: 'approved' }),
@@ -157,7 +158,10 @@ router.get('/homepage', cacheMiddleware(600), async (req, res) => {
             isPinned: 1
           }
         }
-      ])
+      ]),
+      
+      // Total users count
+      User.countDocuments({ isActive: true, isEmailVerified: true })
     ]);
 
     // Post-process topCreators to calculate correct average ratings
@@ -199,6 +203,7 @@ router.get('/homepage', cacheMiddleware(600), async (req, res) => {
         templates: totalTemplates,
         creators: totalCreators[0]?.total || 0,
         downloads: totalDownloads[0]?.totalDownloads || 0,
+        users: totalUsers || 0,
         specialties: specialtiesCount
       },
       status: 'operational',

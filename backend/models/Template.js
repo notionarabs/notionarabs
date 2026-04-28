@@ -6,10 +6,12 @@ class Template {
     if (!data) return;
     Object.assign(this, data);
     this._id = data.id || data._id;
-    // Map database creatorId to application creator
-    if (data.creatorId && !this.creator) {
-        this.creator = data.creatorId;
-    }
+    // Map database IDs to application properties
+    if (data.creatorId && !this.creator) this.creator = data.creatorId;
+    if (data.pinnedById && !this.pinnedBy) this.pinnedBy = data.pinnedById;
+    if (data.approvedById && !this.approvedBy) this.approvedBy = data.approvedById;
+    if (data.rejectedById && !this.rejectedBy) this.rejectedBy = data.rejectedById;
+
     // Normalize status for application usage
     if (this.status) this.status = this.status.toLowerCase();
   }
@@ -49,7 +51,12 @@ class Template {
       views: this.views || 0,
       isPinned: this.isPinned || false,
       pinnedAt: this.pinnedAt,
-      pinnedBy: this.pinnedBy,
+      pinnedById: this.pinnedBy || this.pinnedById,
+      approvedAt: this.approvedAt,
+      approvedById: this.approvedBy || this.approvedById,
+      rejectedAt: this.rejectedAt,
+      rejectedById: this.rejectedBy || this.rejectedById,
+      adminNotes: this.adminNotes,
       createdAt: this.createdAt || now,
       updatedAt: now,
     };
@@ -210,9 +217,10 @@ class Template {
     const execute = async () => {
         let chain = q;
         if (sortObj) {
-            const key = Object.keys(sortObj)[0];
-            const ascending = sortObj[key] === 1;
-            chain = chain.order(key === '_id' ? 'id' : key, { ascending });
+            Object.keys(sortObj).forEach(key => {
+                const ascending = sortObj[key] === 1;
+                chain = chain.order(key === '_id' ? 'id' : key, { ascending });
+            });
         }
         if (skipVal !== null && limitVal !== null) {
             chain = chain.range(skipVal, skipVal + limitVal - 1);
@@ -307,6 +315,12 @@ class Template {
     const execute = async () => {
         let dbUpdate = { ...update };
         
+        // Handle $set if present (standard Mongoose pattern used in some routes)
+        if (dbUpdate.$set) {
+            dbUpdate = { ...dbUpdate, ...dbUpdate.$set };
+            delete dbUpdate.$set;
+        }
+
         // Handle $inc for views/downloads
         if (dbUpdate.$inc) {
             const { data: current } = await supabase.from('Template').select('views, downloads').eq('id', id).maybeSingle();
@@ -321,6 +335,21 @@ class Template {
         if (dbUpdate.creator) {
             dbUpdate.creatorId = dbUpdate.creator;
             delete dbUpdate.creator;
+        }
+
+        if (dbUpdate.pinnedBy !== undefined) {
+            dbUpdate.pinnedById = dbUpdate.pinnedBy;
+            delete dbUpdate.pinnedBy;
+        }
+
+        if (dbUpdate.approvedBy !== undefined) {
+            dbUpdate.approvedById = dbUpdate.approvedBy;
+            delete dbUpdate.approvedBy;
+        }
+
+        if (dbUpdate.rejectedBy !== undefined) {
+            dbUpdate.rejectedById = dbUpdate.rejectedBy;
+            delete dbUpdate.rejectedBy;
         }
         
         // Ensure status is UPPERCASE if present

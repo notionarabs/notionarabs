@@ -38,7 +38,7 @@ export default function Testimonials() {
             قصص نجاح <span className="text-gradient">مجتمعنا</span>
           </h2>
           <p className="text-accent-600 dark:text-dark-text-secondary max-w-2xl mx-auto text-lg">
-            انضم إلى آلاف المستخدمين الذين طوروا إنتاجيتهم باستخدام حلولنا المبتكرة في نوشن.
+            انضم إلى مجتمعنا من المستخدمين الذين طوروا إنتاجيتهم باستخدام حلولنا المبتكرة في نوشن.
           </p>
         </div>
 

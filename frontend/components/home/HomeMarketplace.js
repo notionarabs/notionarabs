@@ -155,9 +155,9 @@ export default function HomeMarketplace() {
               [...Array(4)].map((_, i) => <div key={i} className="h-64 rounded-[3.5rem] bg-white/50 dark:bg-white/5 animate-pulse shadow-soft" />)
             ) : (
               topCreators.slice(0, 4).map((cr, idx) => (
-                <Link key={idx} href={`/creators/${cr.id}`} className="group">
-                  <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[3.5rem] p-10 shadow-large group-hover:shadow-glow group-hover:-translate-y-4 transition-all duration-700 flex flex-col items-center text-center">
-                    <div className="relative w-24 h-24 mb-8">
+                <Link key={idx} href={`/creators/${cr.username || cr.id}`} className="group h-full">
+                  <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[3.5rem] p-10 shadow-large group-hover:shadow-glow group-hover:-translate-y-4 transition-all duration-700 flex flex-col items-center text-center h-full">
+                    <div className="relative w-24 h-24 mb-8 flex-shrink-0">
                       <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
                       <Image src={cr.profilePicture || '/default-avatar.png'} width={96} height={96} className="relative w-full h-full rounded-full object-cover shadow-soft group-hover:scale-110 transition-transform duration-700 border-none" alt="" />
                       <div className="absolute -bottom-1 -right-1 w-10 h-10 bg-primary rounded-2xl flex items-center justify-center text-white shadow-glow rotate-12">

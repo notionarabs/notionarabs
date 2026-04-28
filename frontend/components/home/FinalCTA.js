@@ -1,8 +1,40 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import api from '../../lib/api';
 
 export default function FinalCTA() {
+    const [stats, setStats] = useState({
+        templates: 0,
+        creators: 0,
+        users: 0,
+        quality: 'احترافية'
+    });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const response = await api.get('/stats/homepage');
+                if (response.data.success && response.data.stats) {
+                    const s = response.data.stats;
+                    setStats({
+                        templates: s.templates || 0,
+                        creators: s.creators || 0,
+                        users: s.users || 0,
+                        quality: 'احترافية'
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching stats for CTA:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchStats();
+    }, []);
     return (
         <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 transition-colors duration-300" data-reveal-section>
             <div className="container-custom">
@@ -20,11 +52,11 @@ export default function FinalCTA() {
                             <p className="text-sm font-black tracking-[0.3em] text-primary mb-6 uppercase">
                                 الخطوة التالية
                             </p>
-                            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white mb-8 leading-tight">
-                                جاهز لتطوير مهاراتك <br /><span className="inline-block text-gradient pt-2 pb-2 -mt-2 -mb-2">في عالم نوشن؟</span>
+                            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white mb-8 leading-snug">
+                                جاهز لتطوير مهاراتك <br /><span className="inline-block text-gradient pt-2 pb-2">في عالم نوشن؟</span>
                             </h2>
                             <p className="text-lg sm:text-xl text-white/70 mb-10 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-medium">
-                                انضم لآلاف المستخدمين العرب وابدأ اليوم في تنظيم حياتك وأعمالك بأفضل الأدوات والقوالب الاحترافية.
+                                انضم لمجتمعنا المتنامي من المستخدمين العرب وابدأ اليوم في تنظيم حياتك وأعمالك بأفضل الأدوات والقوالب الاحترافية.
                             </p>
                             <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
                                 <Link href="/templates" className="btn-primary min-w-[200px] text-lg py-4 shadow-[0_0_30px_rgba(245,99,30,0.3)]">
@@ -38,10 +70,10 @@ export default function FinalCTA() {
 
                         <div className="grid grid-cols-2 gap-4">
                             {[
-                                { label: 'قالب عربي', value: '100+' },
-                                { label: 'مبدع نشط', value: '50+' },
-                                { label: 'عضو مجتمع', value: '5000+' },
-                                { label: 'جودة محتوى', value: 'احترافية' }
+                                { label: 'قالب عربي', value: loading ? '...' : `+${stats.templates}` },
+                                { label: 'مبدع نشط', value: loading ? '...' : `+${stats.creators}` },
+                                { label: 'عضو مجتمع', value: loading ? '...' : `+${stats.users}` },
+                                { label: 'جودة محتوى', value: stats.quality }
                             ].map((item, idx) => (
                                 <div key={idx} className="group p-6 rounded-3xl border-none bg-white/5 backdrop-blur-md hover:bg-white/10 transition-all duration-500 text-center shadow-sm">
                                     <div className="text-2xl sm:text-3xl font-black text-white mb-2 group-hover:scale-110 transition-transform duration-500">{item.value}</div>

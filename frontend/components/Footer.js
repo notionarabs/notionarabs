@@ -106,7 +106,7 @@ export default function Footer() {
                       alt="Arab-OS" 
                       width={90} 
                       height={22} 
-                      className="h-5 w-auto opacity-50 group-hover:opacity-100 transition-all dark:brightness-200"
+                      className="h-5 w-auto opacity-50 group-hover:opacity-100 transition-all"
                       unoptimized
                     />
                     <div className="h-4 w-px bg-foreground/10 dark:bg-white/10" />
@@ -206,7 +206,7 @@ export default function Footer() {
                   alt="Arab OS" 
                   width={80} 
                   height={20} 
-                  className="h-4 w-auto dark:brightness-150"
+                  className="h-4 w-auto"
                   unoptimized
                 />
               </Link>

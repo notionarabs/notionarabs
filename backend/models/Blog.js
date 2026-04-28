@@ -290,6 +290,12 @@ class Blog {
     const execute = async () => {
         let dbUpdate = { ...update };
         
+        // Handle $set if present
+        if (dbUpdate.$set) {
+            dbUpdate = { ...dbUpdate, ...dbUpdate.$set };
+            delete dbUpdate.$set;
+        }
+
         // Handle $inc for views/likes if needed
         if (dbUpdate.$inc) {
             const { data: current } = await supabase.from('Blog').select('views, likes').eq('id', id).maybeSingle();

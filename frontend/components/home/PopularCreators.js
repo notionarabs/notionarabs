@@ -32,6 +32,8 @@ export default function PopularCreators() {
             id: cr._id || cr.id,
             username: cr.username,
             name: cr.name,
+            displayName: cr.displayName,
+            email: cr.email,
             profilePicture: cr.profilePicture,
             specialty: (cr.specialties && cr.specialties.length > 0) ? cr.specialties[0] : 'صانع محتوى',
             bio: cr.bio,
@@ -88,7 +90,7 @@ export default function PopularCreators() {
               ))
             ) : (topCreators && topCreators.length > 0) ? (
               topCreators.slice(0, 4).map((cr, idx) => (
-                <Link key={cr.id || idx} href={`/creators/${cr.username || cr.email?.split('@')[0] || cr.displayName || cr.name || cr.id || cr._id || idx}`}>
+                <Link key={cr.id || idx} href={`/creators/${cr.username || cr.id || idx}`} className="h-full">
                     <div className="group bg-white/80 dark:bg-dark-tertiary/80 backdrop-blur-2xl rounded-[2rem] p-6 shadow-soft hover:shadow-2xl border-none transition-all duration-300 h-full flex flex-col opacity-0 animate-[fadeIn_0.5s_ease-in-out_forwards] hover:-translate-y-2">
                     <div className="text-center mb-4 flex-shrink-0">
                       <div className="relative w-16 h-16 mx-auto mb-3">

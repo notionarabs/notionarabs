@@ -96,7 +96,7 @@ export default function Hero({ animationsPlayed }) {
 
                         {/* Enhanced Description with Better Typography */}
                         <p className={`text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary mb-6 sm:mb-8 max-w-md sm:max-w-2xl md:max-w-3xl mx-auto ${!animationsPlayed ? 'text-reveal-delayed-2' : ''} leading-relaxed px-4 sm:px-0 font-medium`}>
-                            انضم إلى آلاف المبدعين والخبراء العرب. اكتشف أرقى القوالب، تعلم أسرار الإنتاجية، وابنِ أنظمتك الذكية مع المجتمع العربي الأول والشركاء المعتمدين من نوشن.
+                            انضم إلى مجتمع المبدعين والخبراء العرب. اكتشف أرقى القوالب، تعلم أسرار الإنتاجية، وابنِ أنظمتك الذكية مع المجتمع العربي الأول والشركاء المعتمدين من نوشن.
                         </p>
 
                         {/* Enhanced CTA Buttons with Better Animations */}

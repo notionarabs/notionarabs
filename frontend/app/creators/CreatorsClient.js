@@ -185,39 +185,43 @@ export default function CreatorsClient() {
               {allCreators.length > 0 ? (
                 allCreators.map((creator, i) => (
                   <Link key={creator.id} href={`/creators/${creator.username || creator.id}`} className="group">
-                    <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[4rem] p-12 shadow-large group-hover:shadow-glow group-hover:-translate-y-4 transition-all duration-700 h-full flex flex-col border-none relative overflow-hidden text-center items-center">
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl" />
-                      <div className="relative w-32 h-32 mb-8">
+                    <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[3rem] p-8 shadow-large group-hover:shadow-glow group-hover:-translate-y-2 transition-all duration-700 flex flex-col border-none relative overflow-hidden text-center items-center h-full">
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 blur-3xl" />
+                      
+                      <div className="relative w-24 h-24 mb-6">
                          <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
                          {creator.profilePicture ? (
-                           <Image src={creator.profilePicture} alt="" fill className="rounded-full object-cover shadow-large border-none group-hover:scale-110 transition-transform duration-700" />
+                           <Image src={creator.profilePicture} alt="" fill className="rounded-full object-cover shadow-soft border-none group-hover:scale-110 transition-transform duration-700" />
                          ) : (
-                           <div className="w-full h-full rounded-full bg-primary/10 flex items-center justify-center text-4xl font-black text-primary shadow-soft">{(creator.displayName || creator.name)?.charAt(0)}</div>
+                           <div className="w-full h-full rounded-full bg-primary/10 flex items-center justify-center text-3xl font-black text-primary shadow-soft">{(creator.displayName || creator.name)?.charAt(0)}</div>
                          )}
                          {creator.badges?.length > 0 && (
-                           <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-white shadow-glow rotate-12">
-                             <Award size={24} />
+                           <div className="absolute -bottom-1 -right-1 w-10 h-10 bg-primary rounded-2xl flex items-center justify-center text-white shadow-glow rotate-12">
+                             <Award size={18} />
                            </div>
                          )}
                       </div>
 
-                      <h3 className="text-3xl font-black text-accent-500 dark:text-white mb-4 group-hover:text-primary transition-colors tracking-tighter">{creator.displayName || creator.name}</h3>
-                      <div className="flex items-center gap-2 mb-6"><StarRating rating={creator.rating || 5} /></div>
-                      <p className="text-base text-accent-700/60 dark:text-white/40 mb-10 line-clamp-2 leading-relaxed font-medium italic">{creator.bio || creator.experience || 'مبدع مستقل يساهم في إثراء المحتوى العربي على نوشن.'}</p>
+                      <h3 className="text-2xl font-black text-accent-500 dark:text-white mb-2 group-hover:text-primary transition-colors tracking-tighter line-clamp-1">{creator.displayName || creator.name}</h3>
+                      <div className="flex items-center gap-2 mb-4"><StarRating rating={creator.rating || 5} /></div>
                       
-                      <div className="grid grid-cols-2 gap-8 w-full mb-12 border-y border-accent-900/5 dark:border-white/5 py-8">
+                      <p className="text-sm text-accent-700/60 dark:text-white/40 mb-8 line-clamp-2 leading-relaxed font-medium italic flex-1">
+                        {creator.bio || creator.experience || 'مبدع مستقل يساهم في إثراء المحتوى العربي على نوشن.'}
+                      </p>
+                      
+                      <div className="grid grid-cols-2 gap-4 w-full mb-8 border-y border-accent-900/5 dark:border-white/5 py-6">
                          <div>
-                           <div className="text-2xl font-black text-accent-900 dark:text-white">{creator.templatesCount || creator.templates || 0}</div>
-                           <div className="text-[10px] font-black uppercase tracking-widest text-accent-900/30 dark:text-white/20">نظام</div>
+                           <div className="text-xl font-black text-accent-900 dark:text-white">{creator.templatesCount || creator.templates || 0}</div>
+                           <div className="text-[9px] font-black uppercase tracking-widest text-accent-900/30 dark:text-white/20">نظام</div>
                          </div>
                          <div>
-                           <div className="text-2xl font-black text-accent-900 dark:text-white">{creator.followersCount || creator.followers || 0}</div>
-                           <div className="text-[10px] font-black uppercase tracking-widest text-accent-900/30 dark:text-white/20">متابع</div>
+                           <div className="text-xl font-black text-accent-900 dark:text-white">{creator.followersCount || creator.followers || 0}</div>
+                           <div className="text-[9px] font-black uppercase tracking-widest text-accent-900/30 dark:text-white/20">متابع</div>
                          </div>
                       </div>
 
-                      <div className="w-full flex flex-col gap-4">
-                         <button className="w-full py-5 rounded-2xl bg-accent-900 dark:bg-white text-white dark:text-accent-900 font-black text-xs uppercase tracking-[0.2em] shadow-soft group-hover:shadow-large transition-all">الملف الشخصي</button>
+                      <div className="w-full">
+                         <button className="w-full py-4 rounded-xl bg-accent-900 dark:bg-white text-white dark:text-accent-900 font-black text-[10px] uppercase tracking-[0.2em] shadow-soft group-hover:shadow-large transition-all">الملف الشخصي</button>
                       </div>
                     </div>
                   </Link>

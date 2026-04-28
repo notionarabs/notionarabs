@@ -11,7 +11,8 @@ class UserDoc {
         'website', 'youtube', 'facebook', 'createdAt', 'updatedAt', 'socialLinks', 'allowMessages', 
         'contactEmail', 'badges', 'following',
         'profileVisibility', 'showEmail', 'showPhone', 'showTemplateCount', 'showJoinDate', 
-        'customMessage', 'payoutMethod', 'payoutDetails', 'balance', 'totalEarnings'
+        'customMessage', 'payoutMethod', 'payoutDetails', 'balance', 'totalEarnings',
+        'isPinned', 'pinnedAt', 'pinnedById'
     ];
   }
 
@@ -25,6 +26,9 @@ class UserDoc {
     // Database storage handles UPPERCASE conversion in _applyQuery and save
     if (this.role) this.role = this.role.toString().trim().toLowerCase();
     if (this.creatorStatus) this.creatorStatus = this.creatorStatus.toString().trim().toLowerCase();
+    
+    // Map database pinning ID to application property
+    if (data.pinnedById && !this.pinnedBy) this.pinnedBy = data.pinnedById;
   }
 
   async save() {
@@ -79,6 +83,12 @@ class UserDoc {
     }
     this.updatedAt = now;
     updateData.updatedAt = now;
+
+    // Handle Pinning mapping
+    if (updateData.pinnedBy !== undefined) {
+        updateData.pinnedById = updateData.pinnedBy;
+        delete updateData.pinnedBy;
+    }
 
     const filteredUpdate = {};
     Object.keys(updateData).forEach(key => {
@@ -403,6 +413,12 @@ class UserDoc {
               // Handle $set
               if (dbUpdate.$set) {
                   Object.assign(finalData, dbUpdate.$set);
+              }
+
+              // Handle pinning mapping
+              if (finalData.pinnedBy !== undefined) {
+                  finalData.pinnedById = finalData.pinnedBy;
+                  delete finalData.pinnedBy;
               }
 
               // Handle $inc

@@ -122,7 +122,15 @@ class Notification {
 
   static findByIdAndUpdate(id, update) {
     const execute = async () => {
-        const dbUpdate = { ...update, updatedAt: new Date().toISOString() };
+        let dbUpdate = { ...update };
+        
+        // Handle $set if present
+        if (dbUpdate.$set) {
+            dbUpdate = { ...dbUpdate, ...dbUpdate.$set };
+            delete dbUpdate.$set;
+        }
+
+        dbUpdate.updatedAt = new Date().toISOString();
         const { data, error } = await supabase
           .from('Notification')
           .update(dbUpdate)

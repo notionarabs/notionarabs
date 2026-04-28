@@ -42,8 +42,8 @@ async function handleOptimizedPagination(req, res, options) {
     filter.rating = { $gte: Number(minRating) };
   }
 
-  // Build sort object
-  const sort = {};
+  // Build sort object with pinning priority
+  const sort = { isPinned: -1, pinnedAt: -1 };
   sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
 
   const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -51,7 +51,7 @@ async function handleOptimizedPagination(req, res, options) {
   // Use aggregation for better performance with pagination
   const [templates, totalCount] = await Promise.all([
     Template.find(filter)
-      .select('title description features category categories tags creator previewImage slug rating reviewsCount downloads views isPaid price purchaseLink isPinned pinnedAt pinnedBy ')
+      .select('title description features category categories tags creator previewImage slug rating reviewsCount downloads views isPaid price purchaseLink isPinned pinnedAt pinnedById ')
       .populate('creator', 'name username displayName profilePicture badges')
       .sort(sort)
       .skip(skip)
@@ -565,6 +565,8 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
         };
 
         const sort = {
+          isPinned: -1,
+          pinnedAt: -1,
           [sortBy]: sortOrder === 'desc' ? -1 : 1
         };
 
@@ -572,7 +574,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
 
         const [templates, totalCount] = await Promise.all([
           Template.find(regexQuery)
-            .select('title description features category categories tags creator previewImage slug rating reviewsCount downloads views isPaid price purchaseLink isPinned pinnedAt pinnedBy ')
+            .select('title description features category categories tags creator previewImage slug rating reviewsCount downloads views isPaid price purchaseLink isPinned pinnedAt pinnedById ')
             .populate('creator', 'name username displayName profilePicture badges')
             .sort(sort)
             .skip(skip)
@@ -949,7 +951,7 @@ router.get('/:identifier', async (req, res) => {
     const { identifier } = req.params;
 
     // Optimize: Use lean() for better performance and selective field projection
-    const selectFields = 'title description features category categories tags creator previewImage previewImages slug rating reviewsCount downloads isPaid price purchaseLink notionLink views createdAt updatedAt explanationVideo isPinned pinnedAt pinnedBy';
+    const selectFields = 'title description features category categories tags creator previewImage previewImages slug rating reviewsCount downloads isPaid price purchaseLink notionLink views createdAt updatedAt explanationVideo isPinned pinnedAt pinnedById';
 
     // Try to find by slug first, then by ID
     let template = await Template.findOne({

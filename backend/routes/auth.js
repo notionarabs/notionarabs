@@ -9,6 +9,7 @@ const Blog = require('../models/Blog');
 const Template = require('../models/Template');
 const Notification = require('../models/Notification');
 const auth = require('../middleware/auth');
+const { invalidateCache } = require('../utils/redis-cache');
 const {
   sendVerificationEmail,
   sendResetPasswordEmail,
@@ -477,6 +478,14 @@ router.put('/profile', auth, [
       message: 'تم تحديث الملف الشخصي بنجاح',
       user
     });
+
+    // Invalidate caches to reflect profile changes (like name/bio)
+    try {
+      await invalidateCache('creators');
+      await invalidateCache('stats', 'homepage');
+    } catch (cacheErr) {
+      console.warn('Cache invalidation failed (non-blocking):', cacheErr.message);
+    }
   } catch (error) {
     console.error('Update profile error:', error);
     res.status(500).json({
@@ -726,6 +735,14 @@ router.put('/profile/settings', auth, [
       message: 'تم حفظ إعدادات الملف الشخصي بنجاح! 🎉',
       user
     });
+
+    // Invalidate caches to reflect username/profile changes
+    try {
+      await invalidateCache('creators');
+      await invalidateCache('stats', 'homepage');
+    } catch (cacheErr) {
+      console.warn('Cache invalidation failed (non-blocking):', cacheErr.message);
+    }
   } catch (error) {
     console.error('Update profile settings error:', error);
     res.status(500).json({

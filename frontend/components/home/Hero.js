@@ -84,10 +84,10 @@ export default function Hero({ animationsPlayed }) {
                         </div>
 
                         {/* Main Heading */}
-                        <h1 className={`text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-foreground dark:text-white mb-4 sm:mb-6 ${!animationsPlayed ? 'text-reveal-delayed' : ''} leading-tight tracking-tighter overflow-visible px-4 sm:px-0`}>
+                        <h1 className={`text-[2.25rem] sm:text-5xl md:text-6xl lg:text-7xl font-black text-foreground dark:text-white mb-6 sm:mb-8 ${!animationsPlayed ? 'text-reveal-delayed' : ''} leading-[1.1] tracking-tighter overflow-visible px-2 sm:px-0`}>
                             <div className="block pt-[0.2em] pb-[0.2rem]">
-                                <div className="block"><span className="inline-block pt-2 pb-2 -mt-2 -mb-2">أكبر مجتمع عربي لنوشن</span></div>
-                                <div className="block mt-2 leading-[1.1]">
+                                <div className="block mb-2 sm:mb-4"><span className="inline-block pt-2 pb-2 -mt-2 -mb-2">أكبر مجتمع عربي لنوشن</span></div>
+                                <div className="block leading-[1.15]">
                                     <span className="text-gradient inline-block pt-4 pb-4 px-2 -mt-4 -mb-4">وجهتك للإبداع من المحيط</span>
                                     <span className="text-gradient inline-block pt-4 pb-4 px-2 -mt-4 -mb-4">إلى الخليج</span>
                                 </div>
@@ -95,15 +95,15 @@ export default function Hero({ animationsPlayed }) {
                         </h1>
 
                         {/* Enhanced Description with Better Typography */}
-                        <p className={`text-base sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary mb-6 sm:mb-8 max-w-md sm:max-w-2xl md:max-w-3xl mx-auto ${!animationsPlayed ? 'text-reveal-delayed-2' : ''} leading-relaxed px-4 sm:px-0 font-medium`}>
+                        <p className={`text-sm sm:text-lg md:text-xl text-accent-700 dark:text-dark-text-secondary mb-8 sm:mb-10 max-w-md sm:max-w-2xl md:max-w-3xl mx-auto ${!animationsPlayed ? 'text-reveal-delayed-2' : ''} leading-relaxed px-4 sm:px-0 font-medium`}>
                             انضم إلى مجتمع المبدعين والخبراء العرب. اكتشف أرقى القوالب، تعلم أسرار الإنتاجية، وابنِ أنظمتك الذكية مع المجتمع العربي الأول والشركاء المعتمدين من نوشن.
                         </p>
 
                         {/* Enhanced CTA Buttons with Better Animations */}
-                        <div className={`flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 mb-8 sm:mb-10 ${!animationsPlayed ? 'text-reveal-delayed-3' : ''}`}>
+                        <div className={`flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 mb-12 sm:mb-16 ${!animationsPlayed ? 'text-reveal-delayed-3' : ''}`}>
                             <Link
                                 href="/templates"
-                                className="btn-primary min-w-[200px] text-lg py-4 shadow-[0_0_20px_rgba(245,99,30,0.15)] hover:shadow-[0_0_30px_rgba(245,99,30,0.3)] flex items-center justify-center gap-3 group"
+                                className="btn-primary w-full sm:min-w-[220px] text-lg py-5 shadow-[0_0_20px_rgba(245,99,30,0.15)] hover:shadow-[0_0_30px_rgba(245,99,30,0.3)] flex items-center justify-center gap-3 group"
                             >
                                 استكشف القوالب
                                 <svg className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,34 +112,34 @@ export default function Hero({ animationsPlayed }) {
                             </Link>
                             <Link
                                 href="/creators"
-                                className="btn-secondary min-w-[200px] text-lg py-4"
+                                className="btn-secondary w-full sm:min-w-[220px] text-lg py-5"
                             >
                                 منصة المبدعين
                             </Link>
                         </div>
 
                         {/* Integrated Horizontal Statistics */}
-                        <div className={`mt-12 sm:mt-16 flex flex-wrap justify-center items-center gap-6 sm:gap-12 md:gap-16 lg:gap-20 ${!animationsPlayed ? 'text-reveal-delayed-4' : ''}`}>
+                        <div className={`mt-16 sm:mt-24 grid grid-cols-2 md:flex md:flex-wrap justify-center items-center gap-8 sm:gap-12 md:gap-16 lg:gap-20 ${!animationsPlayed ? 'text-reveal-delayed-4' : ''}`}>
                             {[
                                 { label: 'قالب إبداعي', val: stats.templates, icon: LayoutDashboard },
                                 { label: 'مبدع خبير', val: stats.creators, icon: Crown },
                                 { label: 'تحميل ناجح', val: stats.downloads, icon: Zap },
                                 { label: 'تخصص إبداعي', val: stats.specialties, icon: Award }
                             ].map((stat, i) => (
-                                <div key={i} className="flex flex-col items-center sm:items-start group">
-                                    <div className="flex items-center gap-3 mb-1">
+                                <div key={i} className="flex flex-col items-center group">
+                                    <div className="flex items-center gap-2 sm:gap-3 mb-1">
                                         <div className="text-primary/60 group-hover:text-primary transition-colors">
-                                            <stat.icon size={20} strokeWidth={2.5} />
+                                            <stat.icon size={18} className="sm:w-5 sm:h-5" strokeWidth={2.5} />
                                         </div>
-                                        <div className="text-2xl sm:text-3xl font-black text-foreground dark:text-white flex items-center tabular-nums">
+                                        <div className="text-xl sm:text-3xl font-black text-foreground dark:text-white flex items-center tabular-nums h-[1.2em]">
                                             {loadingStats ? (
-                                                <div className="h-8 w-12 bg-gray-200 dark:bg-white/10 rounded animate-pulse" />
+                                                <div className="h-[0.8em] w-12 bg-gray-200 dark:bg-white/10 rounded-lg animate-pulse" />
                                             ) : (
                                                 <><Counter end={stat.val} duration={1500} />+</>
                                             )}
                                         </div>
                                     </div>
-                                    <span className="text-[10px] sm:text-xs font-black text-foreground/40 dark:text-white/30 uppercase tracking-[0.2em] group-hover:text-foreground/60 dark:group-hover:text-white/50 transition-colors">
+                                    <span className="text-[9px] sm:text-xs font-black text-foreground/40 dark:text-white/30 uppercase tracking-[0.2em] group-hover:text-foreground/60 dark:group-hover:text-white/50 transition-colors text-center">
                                         {stat.label}
                                     </span>
                                 </div>

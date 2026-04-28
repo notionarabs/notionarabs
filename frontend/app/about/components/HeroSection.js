@@ -58,26 +58,26 @@ export default function HeroSection() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2, duration: 0.6 }}
-                            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/50 dark:bg-white/5 backdrop-blur-xl text-primary font-black text-xs mb-8 border-none shadow-soft uppercase tracking-widest"
+                            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/50 dark:bg-white/5 backdrop-blur-xl text-primary font-black text-xs mb-10 border-none shadow-soft uppercase tracking-widest"
                         >
                             <Zap size={14} className="fill-current" />
-                            <span>عالم نوشن | عرب نوشن</span>
+                            <span>عرب نوشن | المجتمع الإقليمي الأول</span>
                         </motion.div>
 
                         <motion.h1
-                            className="text-5xl sm:text-6xl lg:text-8xl font-black tracking-tighter mb-8 text-accent-500 dark:text-white leading-[0.9]"
+                            className="text-5xl sm:text-6xl lg:text-8xl font-black tracking-tighter mb-10 text-accent-500 dark:text-white leading-[1.2] overflow-visible"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.3, duration: 0.6 }}
                         >
                             مجتمعك لتصميم <br />
-                            <span className="inline-block text-transparent bg-clip-text bg-gradient-to-l from-primary to-orange-600 drop-shadow-[0_0_20px_rgba(249,115,22,0.3)] pt-2 pb-2 -mt-2 -mb-2">
+                            <span className="inline-block text-transparent bg-clip-text bg-gradient-to-l from-primary to-orange-600 drop-shadow-[0_0_20px_rgba(249,115,22,0.3)] pt-4 pb-4 px-2 -mt-4 -mb-4">
                                 يومك الأمثل
                             </span>
                         </motion.h1>
 
                         <motion.p
-                            className="text-lg sm:text-xl text-accent-600 dark:text-dark-text-secondary leading-relaxed mb-8 max-w-xl"
+                            className="text-lg sm:text-xl text-accent-600 dark:text-dark-text-secondary leading-relaxed mb-10 max-w-xl"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.4, duration: 0.6 }}

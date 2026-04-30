@@ -6,7 +6,7 @@
 import { siteConfig } from '../../../../lib/seo';
 
 export const metadata = {
-    title: 'ودجت آية اليوم - عرب نوشن',
+    title: 'ودجت آية اليوم',
     description: 'ودجت آية اليوم القرآنية القابل للتضمين في نوشن.',
     robots: { index: false, follow: false },
     metadataBase: new URL(siteConfig.url),

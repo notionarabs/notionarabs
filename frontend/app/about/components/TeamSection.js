@@ -8,7 +8,7 @@ import { Linkedin, Twitter, Globe, Users } from 'lucide-react';
 const teamMembers = [
     {
         name: "مصطفى ياسر",
-        role: "Co-Founder | Notion Consultant",
+        role: "Co-Founder | Notion Expert",
         image: "/team/mostafa_yasser_orange_ai.png",
         social: {
             website: "https://www.mostafayasser.com/en",
@@ -156,7 +156,7 @@ export default function TeamSection() {
                             <h3 className="text-3xl font-black text-accent-900 dark:text-white mb-4">
                                 مكانك شاغر!
                             </h3>
-                            <p className="text-lg text-accent-600 dark:text-gray-400 mb-10 font-medium">
+                             <p className="text-lg text-accent-600 dark:text-gray-400 mb-10 font-medium">
                                 نبحث دائماً عن مواهب استثنائية لتنضم إلينا في رحلتنا.
                             </p>
                             <Link href="/careers" className="px-8 py-4 rounded-2xl bg-primary text-white font-black text-lg shadow-large hover:scale-105 transition-all">

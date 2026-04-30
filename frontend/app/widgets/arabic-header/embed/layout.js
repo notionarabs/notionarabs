@@ -4,7 +4,7 @@
 import { siteConfig } from '../../../../lib/seo';
 
 export const metadata = {
-    title: 'ودجت العناوين الفنية - عرب نوشن',
+    title: 'ودجت العناوين الفنية',
     description: 'ودجت العناوين الفنية بالخط العربي القابل للتضمين في نوشن.',
     robots: { index: false, follow: false },
     metadataBase: new URL(siteConfig.url),

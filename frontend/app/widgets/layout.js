@@ -6,7 +6,7 @@
 import { generateMetadata } from '../../lib/seo';
 
 export const metadata = generateMetadata({
-    title: 'أدوات عرب نوشن',
+    title: 'الأدوات',
     description: 'مجموعة من الأدوات والودجتس المصممة خصيصاً للمستخدم العربي، تشمل ودجت آية اليوم القرآنية ومواقيت الصلاة، قابلة للتضمين في نوشن مباشرةً.',
     url: '/widgets',
     keywords: [

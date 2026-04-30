@@ -6,7 +6,7 @@
 import { siteConfig } from '../../../../lib/seo';
 
 export const metadata = {
-    title: 'ودجت حديث اليوم - عرب نوشن',
+    title: 'ودجت حديث اليوم',
     description: 'ودجت حديث اليوم الشريف القابل للتضمين في نوشن.',
     robots: { index: false, follow: false },
     metadataBase: new URL(siteConfig.url),

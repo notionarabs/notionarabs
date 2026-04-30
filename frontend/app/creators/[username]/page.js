@@ -24,7 +24,7 @@ export async function generateMetadata({ params }) {
   
   if (!creator) {
     return {
-      title: 'مبدع غير موجود | عرب نوشن',
+      title: 'مبدع غير موجود',
       description: 'عذراً، لم نتمكن من العثور على المبدع المطلوب في مجتمع عرب نوشن.'
     };
   }

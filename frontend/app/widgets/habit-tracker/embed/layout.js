@@ -6,7 +6,7 @@
 import { siteConfig } from '../../../../lib/seo';
 
 export const metadata = {
-    title: 'ودجت متتبع العادات - عرب نوشن',
+    title: 'ودجت متتبع العادات',
     description: 'ودجت متتبع عادات تفاعلي قابل للتضمين في نوشن.',
     robots: { index: false, follow: false },
     metadataBase: new URL(siteConfig.url),

@@ -86,7 +86,7 @@ export async function generateMetadata({ params }) {
   const data = await getBlog(slug);
   if (!data) {
     return {
-      title: 'المقال غير موجود | عرب نوشن',
+      title: 'المقال غير موجود',
       description: 'المقال الذي تبحث عنه غير موجود'
     };
   }

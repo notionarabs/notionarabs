@@ -6,7 +6,7 @@
 import { siteConfig } from '../../../../lib/seo';
 
 export const metadata = {
-    title: 'ودجت أذكار المسلم - عرب نوشن',
+    title: 'ودجت أذكار المسلم',
     description: 'ودجت أذكار الصباح والمساء التفاعلي القابل للتضمين في نوشن.',
     robots: { index: false, follow: false },
     metadataBase: new URL(siteConfig.url),

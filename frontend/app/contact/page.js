@@ -22,16 +22,16 @@ const contactMethods = [
 
 const faqs = [
   {
-    question: "كيف تبدأون مشروع الاستشارة؟",
-    answer: "نبدأ بجلسة استكشاف لفهم أهدافك وتحدياتك، ثم نقدم خطة واضحة للهيكلة والتنفيذ."
+    question: "كيف يمكنني الحصول على دعم لقالب قمت بشرائه؟",
+    answer: "يمكنك مراسلة المبدع صاحب القالب مباشرة عبر صفحته، أو التواصل معنا وسنقوم بمساعدتك في الوصول إليه."
   },
   {
-    question: "هل يمكن ربط نوشن بأدواتنا الحالية؟",
-    answer: "نعم، نوفر تكاملات وأتمتة مع الأدوات الشائعة لتقليل العمل اليدوي وتسريع الإنجاز."
+    question: "هل يمكنني طلب ميزات إضافية في قالب معين؟",
+    answer: "نحن نشجع المبدعين على تحديث قوالبهم باستمرار. يمكنك إرسال اقتراحاتك لنا وسنقوم بتوصيلها للمبدع المعني."
   },
   {
-    question: "كم يستغرق تنفيذ النظام؟",
-    answer: "يعتمد على حجم المشروع، لكننا نشاركك جدولاً زمنياً واضحاً من البداية."
+    question: "كيف أنضم لمجتمع المبدعين؟",
+    answer: "يمكنك التقديم عبر صفحة 'انضم كمبدع'، وسيقوم فريقنا بمراجعة أعمالك وفتح متجرك الخاص في عرب نوشن."
   }
 ];
 
@@ -40,8 +40,8 @@ export default function ContactPage() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "ContactPage",
-    "name": "اتصل بنا | عرب نوشن",
-    "description": "تواصل مع عرب نوشن - نحن هنا لمساعدتك في أي استفسار أو مساعدة تحتاجها. راسلنا وسنرد عليك خلال 24 ساعة.",
+    "name": "اتصل بنا",
+    "description": "تواصل مع فريق دعم عرب نوشن لأي استفسارات حول القوالب، حسابات المبدعين، أو الدعم التقني للمجتمع.",
     "url": "https://www.notionarabs.com/contact",
     "mainEntity": {
       "@type": "Organization",
@@ -86,7 +86,7 @@ export default function ContactPage() {
                 تواصل <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600">معنا</span>
               </h1>
               <p className="text-lg sm:text-xl text-accent-600 dark:text-gray-400 leading-relaxed mb-10 max-w-xl mx-auto lg:mx-0 font-medium opacity-80">
-                اشرح لنا احتياجك وسنقترح عليك أفضل حل لبناء نظام نوشن يناسب فريقك. نحن هنا لمساعدتك في كل خطوة.
+                لديك استفسار حول قالب؟ أو تواجه مشكلة تقنية؟ فريق دعم عرب نوشن هنا لمساعدتك وتوجيهك نحو أفضل تجربة إنتاجية.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 w-full lg:max-w-2xl mx-auto lg:mx-0">

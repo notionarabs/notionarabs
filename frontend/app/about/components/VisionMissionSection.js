@@ -132,7 +132,7 @@ export default function VisionMissionSection() {
                                     <h3 className="text-3xl sm:text-4xl font-black tracking-tight">الرسالة</h3>
                                 </div>
                                 <p className="text-xl sm:text-2xl text-white/90 leading-relaxed font-bold">
-                                    نسهّل على المستخدم العربي الوصول إلى قوالب نوشن احترافية تساعده على بناء أنظمة إنتاجية مخصصة وفهم أعمق للابتكار الرقمي.
+                                    نسهّل على المستخدم العربي الوصول إلى قوالب نوشن احترافية تساعده على بناء أنظمة إنتاجية احترافية وفهم أعمق للابتكار الرقمي.
                                 </p>
                             </div>
                         </div>

@@ -20,20 +20,16 @@ import { generateMetadata as generateBaseMetadata } from '../lib/seo'
 
 export const metadata = {
   ...generateBaseMetadata({
-    description: 'عرب نوشن (Notion Arabs) هي المنصة الرائدة والأولى في العالم العربي لمتجر قوالب نوشن وتقديم استشارات بناء أنظمة عمل مخصصة للشركات والفرق.',
+    description: 'عرب نوشن (Notion Arabs) هي الوجهة والمجتمع العربي الأول المتخصص في قوالب نوشن الإبداعية، وتمكين المبدعين العرب من تطوير إنتاجيتهم.',
     keywords: [
-      'خدمات نوشن',
-      'أنظمة نوشن',
-      'استشارات نوشن',
-      'تصميم قواعد بيانات نوشن',
-      'أتمتة نوشن',
-      'إدارة العمليات',
-      'إنتاجية',
+      'مجتمع نوشن العربي',
       'قوالب نوشن',
       'notion templates',
       'قوالب عربية',
-      'notion arabic',
-      'قوالب مجانية'
+      'صناع القوالب العرب',
+      'إنتاجية رقمية',
+      'نوشن العرب',
+      'تعلم نوشن'
     ]
   }),
   icons: {
@@ -72,12 +68,16 @@ export default function RootLayout({ children }) {
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://notion-arabs-fe5b3f214071.herokuapp.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://notion-arabs-fe5b3f214071.herokuapp.com" />
 
         {/* Apple Touch Icon for iOS devices */}
         <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="عرب نوشن" />
+        <meta name="application-name" content="عرب نوشن" />
+        <meta name="apple-mobile-web-app-title" content="Notion Arabs" />
 
         {/* Web App Manifest - PWA Support */}
         <link rel="manifest" href="/metadata/manifest.json" />

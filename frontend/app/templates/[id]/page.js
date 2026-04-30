@@ -24,7 +24,7 @@ export async function generateMetadata({ params }) {
   
   if (!template) {
     return {
-      title: 'قالب غير موجود | عرب نوشن',
+      title: 'قالب غير موجود',
       description: 'عذراً، لم نتمكن من العثور على القالب المطلوب في متجر عرب نوشن.'
     };
   }

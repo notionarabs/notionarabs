@@ -6,7 +6,7 @@
 import { siteConfig } from '../../../../lib/seo';
 
 export const metadata = {
-    title: 'ودجت المؤقت (بومودورو) - عرب نوشن',
+    title: 'ودجت المؤقت (بومودورو)',
     description: 'ودجت مؤقت التركيز (بومودورو) البسيط والقابل للتضمين في نوشن.',
     robots: { index: false, follow: false },
     metadataBase: new URL(siteConfig.url),

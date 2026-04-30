@@ -12,7 +12,7 @@ export async function generateMetadata({ params }) {
     if (!project) return {};
 
     return {
-        title: `${project.title} | مشاريعنا | عرب نوشن`,
+        title: `${project.title}`,
         description: project.description,
         openGraph: {
             title: project.title,

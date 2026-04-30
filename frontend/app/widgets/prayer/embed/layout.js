@@ -6,7 +6,7 @@
 import { siteConfig } from '../../../../lib/seo';
 
 export const metadata = {
-    title: 'ودجت مواقيت الصلاة - عرب نوشن',
+    title: 'ودجت مواقيت الصلاة',
     description: 'ودجت مواقيت الصلاة القابل للتضمين في نوشن.',
     robots: { index: false, follow: false },
     metadataBase: new URL(siteConfig.url),

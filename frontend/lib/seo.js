@@ -3,30 +3,34 @@ import { getCategorySlug } from './categoryMapping';
 
 export const siteConfig = {
   name: 'عرب نوشن',
-  title: 'عرب نوشن | Notion Arabs - المجتمع والمنصة الإقليمية الأولى لنوشن',
-  description: 'عرب نوشن (Notion Arabs) هي الوجهة الإقليمية والمجتمع الأول في الشرق الأوسط وشمال أفريقيا المتخصص في قوالب نوشن الاحترافية، والحلول المؤتمتة، وتمكين المبدعين العرب من المحيط إلى الخليج.',
+  title: 'عرب نوشن | Notion Arabs - المجتمع والمنصة العربية الأولى لقوالب نوشن',
+  description: 'عرب نوشن (Notion Arabs) هي الوجهة والمجتمع العربي الأول المتخصص في قوالب نوشن الإبداعية، وتمكين صناع المحتوى والمبدعين العرب من مشاركة أعمالهم وتطوير إنتاجيتهم باستخدام Notion.',
   url: 'https://www.notionarabs.com',
   ogImage: '/images/og-image.png',
   creator: '@notionarabs',
   keywords: [
     'مجتمع نوشن العربي',
-    'نوشن الشرق الأوسط',
-    'قوالب نوشن احترافية',
+    'نوشن العرب',
+    'قوالب نوشن إبداعية',
     'متجر نوشن العربي',
-    'أدوات إنتاجية عربية',
-    'نظام نوشن المتكامل',
+    'أدوات إنتاجية',
     'تعلم نوشن بالعربي',
     'صناع القوالب العرب',
-    'إدارة مهام ذكية',
-    'إنتاجية رقمية',
-    'notion templates middle east',
-    'قوالب عربية من المحيط إلى الخليج',
-    'notion arabic hub',
-    'قوالب نوشن مجانية ومدفوعة'
+    'تحميل قوالب نوشن',
+    'مبدعين عرب',
+    'notion templates arabic',
+    'قوالب عربية مجانية',
+    'أفضل قوالب نوشن',
+    'مبدعون نوشن'
   ],
   locale: 'ar_EG',
-  currency: 'EGP', // Egyptian Pound (used for pricing)
-  currencySymbol: 'ج.م'
+  currency: 'EGP',
+  currencySymbol: 'ج.م',
+  twitter: {
+    handle: '@notionarabs',
+    site: '@notionarabs',
+    cardType: 'summary_large_image',
+  }
 };
 
 // Utility function to get absolute image URL
@@ -63,16 +67,24 @@ export function generateMetadata({
   modifiedTime,
   authors,
   noindex = false,
-  canonical
+  canonical,
+  ogType = 'website',
+  section
 }) {
-  const fullTitle = title ? `${title} | ${siteConfig.name}` : siteConfig.title;
+  const fullTitle = title 
+    ? (title.includes(siteConfig.name) ? title : `${title} | ${siteConfig.name}`) 
+    : siteConfig.title;
   const fullDescription = description || siteConfig.description;
-  const fullKeywords = [...siteConfig.keywords, ...keywords].join(', ');
-  const fullImage = getAbsoluteImageUrl(image);
-  const fullUrl = url ? `${siteConfig.url}${url}` : siteConfig.url;
+  const fullKeywords = Array.isArray(keywords) 
+    ? [...siteConfig.keywords, ...keywords].join(', ')
+    : `${siteConfig.keywords.join(', ')}, ${keywords}`;
+  const fullImage = image 
+    ? getAbsoluteImageUrl(image)
+    : `${siteConfig.url}/api/og?title=${encodeURIComponent(title || siteConfig.name)}&type=${type}`;
+  const fullUrl = url ? (url.startsWith('http') ? url : `${siteConfig.url}${url}`) : siteConfig.url;
 
   const metadata = {
-    title: fullTitle,
+    title: title ? title : siteConfig.title,
     description: fullDescription,
     keywords: fullKeywords,
     authors: authors ? authors.map(author => ({ name: author })) : [{ name: siteConfig.creator }],
@@ -93,7 +105,7 @@ export function generateMetadata({
       },
     },
     openGraph: {
-      type,
+      type: ogType || type,
       url: fullUrl,
       title: fullTitle,
       description: fullDescription,
@@ -111,23 +123,20 @@ export function generateMetadata({
       ...(publishedTime && { publishedTime }),
       ...(modifiedTime && { modifiedTime }),
       ...(authors && { authors }),
+      ...(section && { section }),
     },
     twitter: {
-      card: 'summary_large_image',
-      site: siteConfig.creator,
-      creator: siteConfig.creator,
+      card: siteConfig.twitter.cardType,
+      site: siteConfig.twitter.site,
+      creator: siteConfig.twitter.handle,
       title: fullTitle,
       description: fullDescription,
-      images: [
-        {
-          url: fullImage,
-          alt: fullTitle,
-        }
-      ],
+      images: [fullImage],
     },
     robots: {
       index: !noindex,
       follow: !noindex,
+      nocache: true,
       googleBot: {
         index: !noindex,
         follow: !noindex,
@@ -137,11 +146,20 @@ export function generateMetadata({
       },
     },
     verification: {
-      google: process.env.GOOGLE_SITE_VERIFICATION,
-      yandex: process.env.YANDEX_VERIFICATION,
-      yahoo: process.env.YAHOO_VERIFICATION,
+      google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
     },
+    other: {
+      'apple-mobile-web-app-title': siteConfig.name,
+    }
   };
+
+  // Only add template in root layout or if explicitly needed
+  if (!title) {
+    metadata.title = {
+      default: siteConfig.title,
+      template: `%s | ${siteConfig.name}`,
+    };
+  }
 
   return metadata;
 }
@@ -172,7 +190,7 @@ export function generateTemplateMetadata(template) {
     title,
     description,
     keywords,
-    image: template.previewImage,
+    image: `${siteConfig.url}/api/og?title=${encodeURIComponent(template.title)}&type=template&creator=${encodeURIComponent(creatorName)}&price=${encodeURIComponent(isPaid && template.price ? `${template.price} ${siteConfig.currencySymbol}` : 'مجاني')}`,
     url: `/templates/${template.slug || template._id}`,
     type: 'article',
     publishedTime: template.createdAt,
@@ -297,7 +315,7 @@ export function generateCreatorMetadata(creator) {
     title,
     description,
     keywords,
-    image: creator.profilePicture,
+    image: `${siteConfig.url}/api/og?title=${encodeURIComponent(displayName)}&type=creator&count=${creator.templateCount || creator.templates || 0}`,
     url: `/creators/${creator.username || creator._id}`,
     type: 'profile',
   });

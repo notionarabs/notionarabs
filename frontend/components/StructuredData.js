@@ -4,38 +4,44 @@ import { siteConfig } from '../lib/seo'
 export function OrganizationSchema() {
   const schema = {
     "@context": "https://schema.org",
-    "@type": "Corporation",
+    "@type": "Organization",
     "name": siteConfig.name,
-    "alternateName": ["Notion Arabs", "Notion Arabia", "عرب نوشن"],
+    "alternateName": ["Notion Arabs", "Notion Arabia", "عرب نوشن", "نوشن العرب"],
     "url": siteConfig.url,
-    "logo": `${siteConfig.url}/icon-512x512.png`,
-    "description": "عرب نوشن (Notion Arabs) هي الشركة والمنصة الرائدة لمتجر قوالب نوشن العربية، تقدم خدمات استشارية وبناء أنظمة عمل مخصصة للشركات والأفراد.",
+    "logo": {
+      "@type": "ImageObject",
+      "url": `${siteConfig.url}/icons/icon-512x512.png`,
+      "width": 512,
+      "height": 512
+    },
+    "image": `${siteConfig.url}/images/og-image.png`,
+    "description": "عرب نوشن (Notion Arabs) هي المنصة والمجتمع العربي الرائد لتبادل قوالب نوشن الإبداعية، ودعم المبدعين العرب في تطوير أدواتهم الإنتاجية.",
     "sameAs": [
       "https://twitter.com/notionarabs",
       "https://github.com/notionarabs",
-      "https://youtube.com/@notionarabs"
+      "https://youtube.com/@notionarabs",
+      "https://facebook.com/notionarabs",
+      "https://instagram.com/notionarabs"
     ],
     "contactPoint": {
       "@type": "ContactPoint",
       "contactType": "customer service",
-      "email": "support@notionarabs.com"
-    },
-    "address": {
-      "@type": "PostalAddress",
-      "addressCountry": "EG",
-      "addressRegion": "Cairo"
+      "email": "support@notionarabs.com",
+      "availableLanguage": ["Arabic", "English"]
     },
     "founder": {
       "@type": "Person",
       "name": "Hazem Yasser"
     },
     "foundingDate": "2024-01-01",
-    "inLanguage": ["ar", "en"]
+    "knowsAbout": ["Notion", "Productivity", "Community Building", "Creative Templates"],
+    "areaServed": "Arab World"
   }
 
   return (
     <script
       type="application/ld+json"
+      id="organization-schema"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
     />
   )
@@ -57,17 +63,13 @@ export function WebsiteSchema() {
         "urlTemplate": `${siteConfig.url}/templates?search={search_term_string}`
       },
       "query-input": "required name=search_term_string"
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": siteConfig.name,
-      "url": siteConfig.url
     }
   }
 
   return (
     <script
       type="application/ld+json"
+      id="website-schema"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
     />
   )
@@ -75,40 +77,45 @@ export function WebsiteSchema() {
 
 // Template structured data (for paid templates, uses Product schema; for free, uses SoftwareApplication)
 export function TemplateSchema({ template }) {
+  const isPaid = template.isPaid || false;
+  const baseUrl = siteConfig.url;
+  const templateId = template.slug || template._id;
+  const templatePath = `/templates/${templateId}`;
+  const fullUrl = `${baseUrl}${templatePath}`;
+  
   // Use Product schema for paid templates for better e-commerce SEO
-  const schema = template.isPaid ? {
+  const schema = isPaid ? {
     "@context": "https://schema.org",
     "@type": "Product",
     "name": template.title,
     "description": template.description || template.features || `قالب ${template.title} - قالب نوشن احترافي`,
-    "image": template.previewImage || template.previewImages?.[0],
+    "image": [template.previewImage ? (template.previewImage.startsWith('http') ? template.previewImage : `${baseUrl}${template.previewImage}`) : `${baseUrl}/images/og-image.png`],
     "brand": {
       "@type": "Brand",
       "name": siteConfig.name
     },
     "offers": {
       "@type": "Offer",
-      "price": template.price,
-      "priceCurrency": "EGP",
+      "price": template.price || 0,
+      "priceCurrency": siteConfig.currency || "EGP",
       "availability": "https://schema.org/InStock",
-      "url": `${siteConfig.url}/templates/${template.slug || template._id}`,
+      "url": fullUrl,
       "seller": {
-        "@type": "Person",
-        "name": template.creator?.name || "مبدع",
-        "url": template.creator?.username ? `${siteConfig.url}/creators/${template.creator.username}` : undefined
+        "@type": "Organization",
+        "name": siteConfig.name
       },
       "priceValidUntil": new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0]
     },
     "aggregateRating": template.rating ? {
       "@type": "AggregateRating",
       "ratingValue": template.rating,
-      "reviewCount": template.reviewsCount || template.reviews || 1,
+      "reviewCount": template.reviewsCount || 1,
       "bestRating": 5,
       "worstRating": 1
     } : undefined,
     "category": template.category,
     "sku": template._id,
-    "url": `${siteConfig.url}/templates/${template.slug || template._id}`,
+    "url": fullUrl,
     "inLanguage": "ar"
   } : {
     // SoftwareApplication schema for free templates
@@ -116,54 +123,36 @@ export function TemplateSchema({ template }) {
     "@type": "SoftwareApplication",
     "name": template.title,
     "description": template.description || template.features || `قالب ${template.title} - قالب نوشن مجاني`,
-    "url": `${siteConfig.url}/templates/${template.slug || template._id}`,
+    "url": fullUrl,
     "applicationCategory": "ProductivityApplication",
     "operatingSystem": "Web",
     "offers": {
       "@type": "Offer",
       "price": "0",
-      "priceCurrency": "EGP",
+      "priceCurrency": siteConfig.currency || "EGP",
       "availability": "https://schema.org/InStock"
     },
     "author": {
       "@type": "Person",
       "name": template.creator?.name || "مبدع",
-      "url": template.creator?.username ? `${siteConfig.url}/creators/${template.creator.username}` : undefined
+      "url": template.creator?.username ? `${baseUrl}/creators/${template.creator.username}` : undefined
     },
     "datePublished": template.createdAt,
     "dateModified": template.updatedAt,
     "aggregateRating": template.rating ? {
       "@type": "AggregateRating",
       "ratingValue": template.rating,
-      "ratingCount": template.reviewsCount || template.reviews || template.downloads || 1,
+      "reviewCount": template.reviewsCount || 1,
       "bestRating": 5,
       "worstRating": 1
     } : undefined,
-    "downloadUrl": template.notionLink,
-    "screenshot": template.previewImage,
-    "keywords": template.tags?.join(", ") || template.category,
     "inLanguage": "ar"
-  }
-
-  // Remove undefined values
-  Object.keys(schema).forEach(key => {
-    if (schema[key] === undefined) {
-      delete schema[key]
-    }
-  })
-
-  // Clean nested objects
-  if (schema.offers) {
-    Object.keys(schema.offers).forEach(key => {
-      if (schema.offers[key] === undefined) {
-        delete schema.offers[key]
-      }
-    })
   }
 
   return (
     <script
       type="application/ld+json"
+      id={`template-schema-${template._id}`}
       dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
     />
   )

@@ -15,6 +15,7 @@ import { GoogleAnalytics } from '../components/SEOOptimizations'
 import { QueryProvider } from '../components/QueryProvider'
 import MaintenanceMode from '../components/MaintenanceMode'
 import TelegramPopupWrapper from '../components/TelegramPopupWrapper'
+import AIChat from '../components/AIChat'
 
 import { generateMetadata as generateBaseMetadata } from '../lib/seo'
 
@@ -162,6 +163,7 @@ export default function RootLayout({ children }) {
                     <LoadingIndicator />
                     <TelegramPopupWrapper />
                     {children}
+                    <AIChat />
                   </ToastProvider>
                 </AuthProvider>
               </MaintenanceProvider>

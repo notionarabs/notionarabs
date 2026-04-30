@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense, useRef } from 'react';
 import Image from 'next/image';
 import { LayoutDashboard, Star, Filter, Download, Globe, Calendar, ShoppingCart, XCircle, Search } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import api from '../../lib/api';
 import LoadingIndicator from '../../components/LoadingIndicator';
 import { getCategorySlug } from '../../lib/categoryMapping';
@@ -39,6 +40,7 @@ function StarRating({ rating }) {
 }
 
 function TemplatesPageContent() {
+  const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('createdAt');
   const [selectedCategory, setSelectedCategory] = useState('الكل');
@@ -54,8 +56,17 @@ function TemplatesPageContent() {
     total: 0,
     limit: 12
   });
-  const sortButtonRef = useRef(null);
-  const sortMenuRef = useRef(null);
+
+  // Sync state with URL search parameters
+  useEffect(() => {
+    const category = searchParams.get('category');
+    const price = searchParams.get('price');
+    const search = searchParams.get('search');
+
+    if (category) setSelectedCategory(category);
+    if (price) setPriceFilter(price);
+    if (search) setSearchTerm(search);
+  }, [searchParams]);
 
   const fetchTemplates = async () => {
     try {
@@ -121,7 +132,6 @@ function TemplatesPageContent() {
         
         {/* Premium Atmospheric Hero */}
         <section className="relative overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-24">
-          {/* mesh background */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-[-10%] right-[-5%] w-[45%] h-[45%] bg-primary/20 rounded-full blur-[120px] animate-pulse" />
             <div className="absolute bottom-[-10%] left-[-5%] w-[35%] h-[35%] bg-blue-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '3s' }} />
@@ -136,7 +146,6 @@ function TemplatesPageContent() {
                 اكتشف النخبة من أنظمة نوتشين العربية المصممة لتغيير قواعد اللعب. حلول متكاملة لرفع إنتاجيتك بلمسة احترافية.
               </p>
 
-              {/* Integrated Command Search */}
               <div className="max-w-2xl mx-auto mb-16">
                 <form onSubmit={handleSearch} className="relative group p-1 rounded-[2rem] bg-white/50 dark:bg-white/5 backdrop-blur-xl border border-card-border shadow-2xl transition-all hover:border-primary/50 focus-within:border-primary">
                   <input
@@ -148,63 +157,29 @@ function TemplatesPageContent() {
                   />
                   <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
                     {searchTerm && (
-                      <button 
-                        type="button"
-                        onClick={() => setSearchTerm('')}
-                        className="p-2 text-foreground/40 hover:text-primary transition-colors"
-                      >
-                        <XCircle className="w-5 h-5" />
-                      </button>
+                      <button type="button" onClick={() => setSearchTerm('')} className="p-2 text-foreground/40 hover:text-primary transition-colors"><XCircle className="w-5 h-5" /></button>
                     )}
-                    <button 
-                      type="submit"
-                      className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
-                    >
-                      <Search className="w-5 h-5" />
-                    </button>
+                    <button type="submit" className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-105 transition-transform"><Search className="w-5 h-5" /></button>
                   </div>
                 </form>
               </div>
 
-              {/* Silk Pill Categories */}
               <div className="flex items-center justify-center gap-3 overflow-x-auto overflow-y-hidden pb-4 lg:pb-0 w-full no-scrollbar scroll-smooth">
                 {['الكل', ...popularCategories].map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => handleCategorySelect(cat)}
-                    className={`px-8 py-3 rounded-2xl text-sm font-black tracking-widest transition-all duration-300 whitespace-nowrap uppercase border-none ${selectedCategory === cat
-                      ? 'bg-primary text-white shadow-xl shadow-primary/20 scale-105'
-                      : 'bg-white/50 dark:bg-white/5 text-foreground/60 dark:text-white/40 hover:bg-white/10'
-                    }`}
-                  >
-                    {cat}
-                  </button>
+                  <button key={cat} onClick={() => handleCategorySelect(cat)} className={`px-8 py-3 rounded-2xl text-sm font-black tracking-widest transition-all duration-300 whitespace-nowrap uppercase border-none ${selectedCategory === cat ? 'bg-primary text-white shadow-xl shadow-primary/20 scale-105' : 'bg-white/50 dark:bg-white/5 text-foreground/60 dark:text-white/40 hover:bg-white/10'}`}>{cat}</button>
                 ))}
               </div>
 
-               {/* Advanced Filters Pill */}
                <div className="flex flex-wrap items-center justify-center gap-6 mt-10">
                 <div className="flex bg-white/50 dark:bg-white/5 backdrop-blur-xl p-1.5 rounded-2xl border border-black/5 dark:border-white/5">
                   {[{ id: 'all', label: 'الكل' }, { id: 'free', label: 'مجاني' }, { id: 'paid', label: 'مدفوع' }].map((p) => (
-                    <button 
-                      key={p.id} 
-                      onClick={() => setPriceFilter(p.id)} 
-                      className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all ${priceFilter === p.id ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-foreground/40 dark:text-white/30 hover:text-primary'}`}
-                    >
-                      {p.label}
-                    </button>
+                    <button key={p.id} onClick={() => setPriceFilter(p.id)} className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all ${priceFilter === p.id ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-foreground/40 dark:text-white/30 hover:text-primary'}`}>{p.label}</button>
                   ))}
                 </div>
                 
                 <div className="flex bg-white/50 dark:bg-white/5 backdrop-blur-xl p-1.5 rounded-2xl border border-black/5 dark:border-white/5">
                   {[0, 4].map((r) => (
-                    <button 
-                      key={r} 
-                      onClick={() => setMinRating(r)} 
-                      className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${minRating === r ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-foreground/40 dark:text-white/30 hover:text-primary'}`}
-                    >
-                      {r === 0 ? 'كل التقييمات' : <><Star size={14} className="fill-current" /> النخبة</>}
-                    </button>
+                    <button key={r} onClick={() => setMinRating(r)} className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${minRating === r ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-foreground/40 dark:text-white/30 hover:text-primary'}`}>{r === 0 ? 'كل التقييمات' : <><Star size={14} className="fill-current" /> النخبة</>}</button>
                   ))}
                 </div>
               </div>
@@ -212,8 +187,6 @@ function TemplatesPageContent() {
           </div>
         </section>
 
-
-        {/* Dynamic Catalog */}
         <div className="container-custom pb-32">
           <div className="relative z-50 flex items-center justify-between py-12 border-none gap-8">
             <div className="px-8 py-4 rounded-full bg-white/50 dark:bg-white/5 backdrop-blur-2xl shadow-soft">
@@ -244,7 +217,6 @@ function TemplatesPageContent() {
               {allTemplates.map((rel) => (
                 <Link key={rel._id} href={`/templates/${rel.slug || rel._id}`} className="group relative">
                   <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[3.5rem] shadow-large group-hover:shadow-glow group-hover:-translate-y-4 transition-all duration-700 h-full flex flex-col border-none overflow-hidden isolate">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 z-0" />
                     <div className="relative aspect-[16/10] m-4 overflow-hidden rounded-[2.5rem] shadow-soft">
                       <Image src={rel.previewImage || '/placeholder-template.jpg'} alt={rel.title} fill className="object-cover object-center group-hover:scale-105 transition-transform duration-1000" />
                       <div className="absolute top-6 left-6 z-20"><div className="px-6 py-3 bg-black/40 backdrop-blur-xl rounded-2xl text-white font-black text-sm uppercase tracking-widest">{rel.isPaid ? `${rel.price} ج.م` : 'مجاني'}</div></div>
@@ -277,12 +249,7 @@ function TemplatesPageContent() {
               </div>
               <h3 className="text-4xl font-black text-accent-900 dark:text-white mb-6 tracking-tighter">لم يتم رصد الهدف</h3>
               <p className="text-xl text-accent-700/40 dark:text-white/30 max-w-xl mx-auto mb-12 font-medium">نحن بصدد إطلاق المزيد من الأنظمة. حاول توسيع نطاق البحث.</p>
-              <button 
-                onClick={() => { setSearchTerm(''); setSelectedCategory('الكل'); setPriceFilter('all'); setMinRating(0); }} 
-                className="px-12 py-5 bg-primary text-white font-black rounded-2xl shadow-glow uppercase tracking-widest text-xs"
-              >
-                إعادة ضبط النطاق
-              </button>
+              <button onClick={() => { setSearchTerm(''); setSelectedCategory('الكل'); setPriceFilter('all'); setMinRating(0); }} className="px-12 py-5 bg-primary text-white font-black rounded-2xl shadow-glow uppercase tracking-widest text-xs">إعادة ضبط النطاق</button>
             </div>
           )}
 

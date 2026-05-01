@@ -22,6 +22,12 @@ const ALLOWED_SORT_KEYS = new Set([
 const getSortObject = (sortKey = 'popular', sortOrder = 'desc') => {
   const direction = sortOrder === 'asc' ? 'asc' : 'desc';
 
+  // Always prioritize pinned creators first
+  const sort = {
+    isPinned: 'desc',
+    pinnedAt: 'desc'
+  };
+
   const fieldMap = {
     popular: ['followers', 'rating', 'templatesCount'],
     newest: ['createdAt'],
@@ -31,14 +37,13 @@ const getSortObject = (sortKey = 'popular', sortOrder = 'desc') => {
 
   const fields = fieldMap[sortKey] || [sortKey];
 
-  const sort = fields.reduce((acc, field) => {
+  fields.forEach(field => {
     if (typeof field === 'string' && /^[a-zA-Z0-9_]+$/.test(field)) {
-      acc[field] = direction;
+      sort[field] = direction;
     }
-    return acc;
-  }, Object.create(null));
+  });
 
-  if (Object.keys(sort).length === 0) {
+  if (Object.keys(sort).length === 2) { // only isPinned and pinnedAt
     sort.followers = direction;
   }
 
@@ -99,7 +104,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
 
         [creators, totalCount] = await Promise.all([
           User.find(searchQuery)
-            .select('name username displayName email bio profilePicture specialties rating followers createdAt templatesCount totalEarnings experience motivation badges')
+            .select('name username displayName email bio profilePicture specialties rating followers createdAt templatesCount totalEarnings experience motivation badges isPinned pinnedAt')
             .sort(sort)
             .skip(skip)
             .limit(limit)
@@ -126,7 +131,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
 
         [creators, totalCount] = await Promise.all([
           User.find(searchQuery)
-            .select('name username displayName email bio profilePicture specialties rating followers createdAt templatesCount totalEarnings experience motivation badges')
+            .select('name username displayName email bio profilePicture specialties rating followers createdAt templatesCount totalEarnings experience motivation badges isPinned pinnedAt')
             .sort(sort)
             .skip(skip)
             .limit(limit)
@@ -142,7 +147,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
 
       [creators, totalCount] = await Promise.all([
         User.find(query)
-          .select('name username displayName email bio profilePicture specialties rating followers createdAt templatesCount totalEarnings experience motivation badges')
+          .select('name username displayName email bio profilePicture specialties rating followers createdAt templatesCount totalEarnings experience motivation badges isPinned pinnedAt')
           .sort(sort)
           .skip(skip)
           .limit(limit)
@@ -211,6 +216,10 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
     const resolvedSortOrder = sortOrder === 'asc' ? 1 : -1;
     if (sortBy === 'templates') {
       creatorsWithStats = creatorsWithStats.sort((a, b) => {
+        // Pinning priority
+        if (a.isPinned !== b.isPinned) return b.isPinned ? 1 : -1;
+        if (a.isPinned && a.pinnedAt !== b.pinnedAt) return new Date(b.pinnedAt) - new Date(a.pinnedAt);
+
         const primaryDiff = (a.templates || 0) - (b.templates || 0);
         if (primaryDiff !== 0) {
           return resolvedSortOrder * primaryDiff;
@@ -220,12 +229,23 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
       });
     } else if (sortBy === 'rating') {
       creatorsWithStats = creatorsWithStats.sort((a, b) => {
+        // Pinning priority
+        if (a.isPinned !== b.isPinned) return b.isPinned ? 1 : -1;
+        if (a.isPinned && a.pinnedAt !== b.pinnedAt) return new Date(b.pinnedAt) - new Date(a.pinnedAt);
+
         const primaryDiff = (a.rating || 0) - (b.rating || 0);
         if (primaryDiff !== 0) {
           return resolvedSortOrder * primaryDiff;
         }
         const secondaryDiff = (a.followers || 0) - (b.followers || 0);
         return resolvedSortOrder * secondaryDiff;
+      });
+    } else {
+      // For other sorts (like popular) that might not be manually re-sorted above but still need pinning priority in JS
+      creatorsWithStats = creatorsWithStats.sort((a, b) => {
+        if (a.isPinned !== b.isPinned) return b.isPinned ? 1 : -1;
+        if (a.isPinned && a.pinnedAt !== b.pinnedAt) return new Date(b.pinnedAt) - new Date(a.pinnedAt);
+        return 0; // Maintain original order for non-pinned
       });
     }
 

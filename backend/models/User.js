@@ -98,8 +98,8 @@ class UserDoc {
     });
 
     let result;
-    if (this._id && this.createdAt !== now) {
-        // Update (It has an ID and existed before)
+    if (dbId) {
+        // Update (It has an ID)
         const { data, error } = await supabase.from('User').update(filteredUpdate).eq('id', dbId).select();
         if (error) throw error;
         result = data && data[0];
@@ -189,19 +189,32 @@ class UserDoc {
 
           if (!users || users.length === 0) return [];
 
-          // For each user, fetch template stats manually
+          // Fetch template stats for ALL users in one go to avoid N+1 queries
           const Template = require('./Template');
-          const results = await Promise.all(users.map(async (u) => {
-              const templates = await Template.find({ creator: u.id, status: 'approved' });
-              
-              const stats = {
-                  count: templates.length,
-                  totalDownloads: templates.reduce((sum, t) => sum + (t.downloads || 0), 0),
-                  avgRating: templates.length > 0 
-                      ? templates.reduce((sum, t) => sum + (t.rating || 0), 0) / templates.length 
-                      : 0
-              };
+          const allCreatorStats = await Template.aggregate([
+              { $group: { _id: '$creator', totalTemplates: { $sum: 1 } } }
+          ]);
 
+          // Create a map for quick lookup
+          const statsMap = {};
+          allCreatorStats.forEach(s => {
+              if (s._id) {
+                  const validRatings = (s.templateRatings || []).filter(r => r > 0);
+                  const avgRating = validRatings.length > 0 
+                      ? validRatings.reduce((sum, r) => sum + r, 0) / validRatings.length 
+                      : 0;
+                  
+                  statsMap[s._id] = {
+                      count: s.totalTemplates || 0,
+                      totalDownloads: s.totalDownloads || 0,
+                      avgRating: avgRating
+                  };
+              }
+          });
+
+          const results = users.map(u => {
+              const stats = statsMap[u.id] || { count: 0, totalDownloads: 0, avgRating: 0 };
+              
               // Calculate fame score (matches stats.js logic)
               const followersCount = u.followers || 0;
               const fameScore = (followersCount * 0.5) + (stats.avgRating * 10 * 0.3) + (Math.min(stats.count, 20) * 0.2);
@@ -219,10 +232,10 @@ class UserDoc {
                   isPinned: u.isPinned || false,
                   pinnedAt: u.pinnedAt || new Date(0).toISOString()
               };
-          }));
+          });
 
-          // Filter out those with no templates (matches stats.js $match templatesCount: { $gt: 0 })
-          let filtered = results.filter(r => r.templatesCount > 0);
+          // Pinned creators should always show up
+          let filtered = results;
 
           // Sort (pinned first, then fameScore)
           filtered.sort((a, b) => {

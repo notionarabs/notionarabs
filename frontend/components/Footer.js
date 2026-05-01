@@ -18,7 +18,6 @@ const FOOTER_LINKS = {
   support: [
     { href: '/contact', label: 'اتصل بنا' },
     { href: '/creators/apply', label: 'انضم كمبدع' },
-    { href: '/faq', label: 'الأسئلة الشائعة' },
   ],
   legal: [
     { href: '/privacy', label: 'الخصوصية' },

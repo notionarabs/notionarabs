@@ -40,7 +40,8 @@ export default function PopularCreators() {
             templatesCount: cr.templateCount || 0,
             followersCount: cr.followersCount || 0,
             averageRating: cr.averageRating || 0,
-            badges: cr.badges || []
+            badges: cr.badges || [],
+            isPinned: cr.isPinned || false
           })));
         }
       } catch (error) {
@@ -106,6 +107,12 @@ export default function PopularCreators() {
                               quality={80}
                               sizes="64px"
                             />
+                            {/* Pinned Badge */}
+                            {cr.isPinned && (
+                              <div className="absolute -top-1 -left-1 bg-[#f5631e] text-white rounded-full p-1 shadow-lg z-20 border-2 border-white dark:border-dark-tertiary">
+                                <Award className="w-3 h-3" />
+                              </div>
+                            )}
                             {/* Verified Badge on top of picture if present */}
                             {cr.badges?.some(b => b.type === 'verified') && (
                               <div className="absolute -bottom-1 -right-1 bg-white dark:bg-dark-secondary rounded-full p-0.5 shadow-sm z-20">

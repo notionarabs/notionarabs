@@ -772,7 +772,8 @@ router.get('/google', (req, res) => {
   }
 
   passport.authenticate('google', {
-    scope: ['profile', 'email']
+    scope: ['profile', 'email'],
+    state: false
   })(req, res);
 });
 
@@ -788,7 +789,7 @@ router.get('/google/callback', async (req, res) => {
     }
 
     // Use passport.authenticate as middleware
-    passport.authenticate('google', { session: false }, async (err, user, info) => {
+    passport.authenticate('google', { session: false, state: false }, async (err, user, info) => {
       try {
         if (err) {
           console.error('Passport authentication error:', err);

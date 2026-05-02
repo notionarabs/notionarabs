@@ -26,12 +26,22 @@ function AuthCallbackForm() {
       // If we have a token, proceed with authentication regardless of success parameter
       if (token) {
         try {
-          // Store the token
-          Cookies.set('authToken', token, { expires: 7 });
+          // Store the token with proper options for HTTPS cross-origin redirects
+          const isProduction = window.location.protocol === 'https:';
+          Cookies.set('authToken', token, {
+            expires: 7,
+            path: '/',
+            secure: isProduction,
+            sameSite: isProduction ? 'Lax' : 'Strict'
+          });
 
           // Set token in axios headers
           const api = (await import('../../../lib/api')).default;
           api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+          // Clear stale localStorage cache so checkAuthStatus fetches fresh user data
+          localStorage.removeItem('user');
+          localStorage.removeItem('userCacheTimestamp');
 
           // Check auth status to update context with timeout
           try {
@@ -54,7 +64,7 @@ function AuthCallbackForm() {
               // Use window.location for more reliable redirect
               window.location.href = '/';
             }
-          }, 200);
+          }, 300);
 
         } catch (error) {
           console.error('Auth setup error:', error);

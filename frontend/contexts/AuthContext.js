@@ -100,11 +100,12 @@ export const AuthProvider = ({ children }) => {
 
           // Clear invalid token and cache only for auth errors
           if (apiError.response?.status === 401) {
-            Cookies.remove('authToken');
+            Cookies.remove('authToken', { path: '/' }); // Must match set options to actually delete
             localStorage.removeItem('user');
             localStorage.removeItem('userCacheTimestamp');
             delete api.defaults.headers.common['Authorization'];
             delete emailApi.defaults.headers.common['Authorization'];
+            setUser(null); // Explicitly clear user so event listeners stop retrying
           }
           throw apiError; // Re-throw to be caught by callback
         }
@@ -116,11 +117,12 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       // Only clear token for authentication errors, not network errors
       if (error.response?.status === 401) {
-        Cookies.remove('authToken');
+        Cookies.remove('authToken', { path: '/' }); // Must match set options to actually delete
         localStorage.removeItem('user');
         localStorage.removeItem('userCacheTimestamp');
         delete api.defaults.headers.common['Authorization'];
         delete emailApi.defaults.headers.common['Authorization'];
+        setUser(null); // Explicitly clear user so event listeners stop retrying
       }
       throw error; // Re-throw to be caught by callback
     } finally {
@@ -281,7 +283,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    Cookies.remove('authToken');
+    Cookies.remove('authToken', { path: '/' }); // Must match set options to actually delete
     delete api.defaults.headers.common['Authorization'];
     setUser(null);
 

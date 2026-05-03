@@ -27,11 +27,11 @@ class Rating {
 
     const { data, error } = await supabase.from('Rating').upsert(payload).select().single();
     if (error) throw error;
-    Object.assign(this, result);
-    this.id = result.id;
-    this._id = result.id;
+    Object.assign(this, data);
+    this.id = data.id;
+    this._id = data.id;
     // Map back for application use
-    this.targetId = result.templateId || result.blogId || result.creatorId;
+    this.targetId = data.templateId || data.blogId || data.creatorId;
     return this;
   }
 
@@ -123,6 +123,25 @@ class Rating {
       r.targetId = data.templateId || data.blogId || data.creatorId;
       return r;
     });
+  }
+
+  static async findOneAndDelete(query = {}) {
+    let q = supabase.from('Rating').delete();
+    if (query.user) q = q.eq('userId', query.user);
+    if (query.targetType) q = q.eq('targetType', query.targetType);
+    
+    if (query.targetId) {
+        if (query.targetType === 'template') q = q.eq('templateId', query.targetId);
+        else if (query.targetType === 'blog') q = q.eq('blogId', query.targetId);
+        else if (query.targetType === 'creator') q = q.eq('creatorId', query.targetId);
+    }
+    
+    const { data, error } = await q.select().maybeSingle();
+    if (error) throw error;
+    if (!data) return null;
+    const r = new Rating(data);
+    r.targetId = data.templateId || data.blogId || data.creatorId;
+    return r;
   }
 
   static countDocuments(query = {}) {

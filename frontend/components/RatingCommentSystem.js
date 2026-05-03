@@ -102,7 +102,7 @@ const RatingCommentSystem = ({
       if (response.data.success) {
         if (onRatingChange) onRatingChange(response.data);
         setHasSubmitted(true);
-        
+
         // Success Notification
         const successMessage = userComment.trim()
           ? 'تم إرسال تقييمك ومراجعتك بنجاح! شكراً لك.'

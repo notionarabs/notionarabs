@@ -173,6 +173,7 @@ export default function TemplateClient({ initialTemplate }) {
     const tid = template._id || template.id;
     if (userHasTemplate) {
       window.open(template.notionLink, '_blank');
+      window.dispatchEvent(new CustomEvent('templateDownloaded', { detail: { templateId: tid } }));
       return;
     }
     setIsDownloading(true);
@@ -180,6 +181,7 @@ export default function TemplateClient({ initialTemplate }) {
       await api.post(`/templates/${tid}/download`);
       window.open(template.notionLink, '_blank');
       setUserHasTemplate(true);
+      window.dispatchEvent(new CustomEvent('templateDownloaded', { detail: { templateId: tid } }));
     } catch (err) {
       alert('خطأ في التحميل');
     } finally {

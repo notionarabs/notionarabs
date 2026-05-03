@@ -398,11 +398,15 @@ const sendWelcomeEmail = async (user) => {
 
     <div style="text-align: center;">
       <a href="${browseLink}" class="button">تصفح القوالب</a>
-      <a href="${dashboardLink}" class="secondary-button">لوحة التحكم</a>
+      ${user.creatorStatus === 'approved' || user.role === 'admin' 
+        ? `<a href="${dashboardLink}" class="secondary-button">لوحة التحكم</a>`
+        : `<a href="https://www.notionarabs.com/profile" class="secondary-button">الملف الشخصي</a>`
+      }
     </div>
   `, 'أهلاً بك في عرب نوشن!');
 
-  const text = `مرحباً ${user.name}،\n\nأهلاً بك في عرب نوشن! تم تفعيل حسابك بنجاح.\n\nيمكنك الآن تصفح القوالب: ${browseLink}\n\nأو الذهاب للوحة التحكم: ${dashboardLink}\n\nعرب نوشن`;
+  const isCreator = user.creatorStatus === 'approved' || user.role === 'admin';
+  const text = `مرحباً ${user.name}،\n\nأهلاً بك في عرب نوشن! تم تفعيل حسابك بنجاح.\n\nيمكنك الآن تصفح القوالب: ${browseLink}\n\nأو الذهاب إلى ${isCreator ? 'لوحة التحكم' : 'الملف الشخصي'}: ${isCreator ? dashboardLink : 'https://www.notionarabs.com/profile'}\n\nعرب نوشن`;
 
   await sendEmail({ to: user.email, subject, html, text });
 };

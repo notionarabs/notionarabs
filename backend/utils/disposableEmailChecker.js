@@ -19,8 +19,22 @@ const allowedDomains = [
 const isAllowedEmail = (email) => {
   if (!email || typeof email !== 'string') return false;
   
-  const domain = email.split('@')[1]?.toLowerCase();
+  const emailLower = email.toLowerCase();
+  const domain = emailLower.split('@')[1];
   if (!domain) return false;
+
+  // List of keywords that indicate a fake or test email
+  const suspiciousKeywords = ['test', 'bug', 'fake', 'temp', 'demo', 'dummy'];
+  
+  // If the email contains suspicious keywords AND is not from a highly trusted primary provider
+  // we block it to prevent spam/test accounts.
+  const isSuspicious = suspiciousKeywords.some(keyword => emailLower.includes(keyword));
+  const isPrimaryProvider = ['gmail.com', 'outlook.com', 'hotmail.com', 'icloud.com'].includes(domain);
+
+  if (isSuspicious && !isPrimaryProvider) {
+    console.warn(`[SECURITY] Blocked suspicious email: ${emailLower}`);
+    return false;
+  }
 
   // Check if it's in our safe whitelist
   return allowedDomains.includes(domain);

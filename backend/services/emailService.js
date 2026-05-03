@@ -87,8 +87,10 @@ const getMasterTemplate = (content, title = 'عرب نوشن') => `
         margin: 0; 
         padding: 0; 
         -webkit-font-smoothing: antialiased;
+        direction: rtl;
+        text-align: right;
       }
-      .wrapper { padding: 40px 20px; }
+      .wrapper { padding: 40px 20px; direction: rtl; }
       .container { 
         max-width: 600px; 
         margin: 0 auto; 
@@ -97,6 +99,7 @@ const getMasterTemplate = (content, title = 'عرب نوشن') => `
         overflow: hidden;
         box-shadow: 0 20px 40px rgba(0,0,0,0.05);
         border: 1px solid #eef0f2;
+        direction: rtl;
       }
       .header { 
         background: linear-gradient(135deg, #f5631e 0%, #ff8c52 100%); 
@@ -105,7 +108,7 @@ const getMasterTemplate = (content, title = 'عرب نوشن') => `
         color: #ffffff;
       }
       .header h1 { margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
-      .body { padding: 40px 30px; text-align: right; color: #1a1d21; line-height: 1.8; }
+      .body { padding: 40px 30px; text-align: right; color: #1a1d21; line-height: 1.8; direction: rtl; }
       .footer { 
         background-color: #f8f9fa; 
         padding: 30px; 
@@ -113,6 +116,7 @@ const getMasterTemplate = (content, title = 'عرب نوشن') => `
         color: #8b949e; 
         font-size: 13px;
         border-top: 1px solid #eef0f2;
+        direction: rtl;
       }
       .button { 
         display: inline-block; 
@@ -141,8 +145,10 @@ const getMasterTemplate = (content, title = 'عرب نوشن') => `
       .divider { height: 1px; background-color: #eef0f2; margin: 30px 0; }
       .social-links { margin-top: 20px; }
       .social-links a { color: #f5631e; text-decoration: none; margin: 0 10px; font-weight: 600; }
-      .feature-box { background-color: #f8f9fa; padding: 25px; border-radius: 18px; margin: 25px 0; border: 1px solid #eef0f2; }
+      .feature-box { background-color: #f8f9fa; padding: 25px; border-radius: 18px; margin: 25px 0; border: 1px solid #eef0f2; direction: rtl; text-align: right; }
       .feature-box strong { display: block; margin-bottom: 10px; color: #1a1d21; }
+      .feature-box ul { padding: 0 20px 0 0; margin: 0; list-style-position: inside; }
+      .feature-box li { margin-bottom: 8px; }
       .price-tag { color: #f5631e; font-weight: 900; font-size: 20px; }
     </style>
   </head>

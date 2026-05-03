@@ -1,6 +1,7 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/User');
+const { sendWelcomeEmail } = require('../services/emailService');
 
 // Google OAuth Strategy
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
@@ -123,6 +124,14 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
         }
 
         console.log('[GOOGLE OAUTH] New user created successfully, id:', dbUser.id);
+        
+        // Send welcome email to new Google user
+        try {
+          await sendWelcomeEmail(dbUser);
+        } catch (emailError) {
+          console.error('[GOOGLE OAUTH] Failed to send welcome email:', emailError.message);
+          // Don't fail the login just because the email failed
+        }
       }
 
       // Return user in UserDoc-compatible shape

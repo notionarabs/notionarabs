@@ -204,7 +204,7 @@ const sendTemplateRejectedEmail = async (user, template, reason, isUpdate = fals
   if (!user || !user.email) return;
 
   const subject = `تحديث بخصوص قالبك: ${template.title}`;
-  const dashboardLink = `https://www.notionarabs.com/profile`;
+  const dashboardLink = `https://www.notionarabs.com/profile?tab=templates`;
 
   const html = getMasterTemplate(`
     <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">مرحباً ${user.name || 'مبدعنا'}،</h2>
@@ -221,11 +221,11 @@ const sendTemplateRejectedEmail = async (user, template, reason, isUpdate = fals
     <p style="font-size: 16px;">يمكنك تعديل القالب بناءً على هذه الملاحظات وإعادة إرساله مرة أخرى للمراجعة. نحن هنا لمساعدتك!</p>
     
     <div style="text-align: center;">
-      <a href="${dashboardLink}" class="button">الذهاب للملف الشخصي</a>
+      <a href="${dashboardLink}" class="button">الذهاب للوحة التحكم</a>
     </div>
   `, 'تحديث بخصوص قالبك');
 
-  const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nشكراً لإرسال قالبك "${template.title}" للمراجعة.\n\nنأسف لإخبارك بأنه لم يتم قبول القالب في الوقت الحالي.\n\n${reason ? `السبب: ${reason}\n\n` : ''}يمكنك التعديل وإعادة الإرسال من ملفك الشخصي.\n\nعرب نوشن`;
+  const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nشكراً لإرسال قالبك "${template.title}" للمراجعة.\n\nنأسف لإخبارك بأنه لم يتم قبول القالب في الوقت الحالي.\n\n${reason ? `السبب: ${reason}\n\n` : ''}يمكنك التعديل وإعادة الإرسال من لوحة التحكم.\n\nعرب نوشن`;
 
   await sendEmail({ to: user.email, subject, html, text });
 };
@@ -237,7 +237,7 @@ const sendCreatorApprovedEmail = async (user) => {
   if (!user || !user.email) return;
 
   const subject = `مبروك! تم قبول انضمامك كمبدع`;
-  const dashboardLink = `https://www.notionarabs.com/profile`;
+  const dashboardLink = `https://www.notionarabs.com/profile?tab=earnings`;
 
   const html = getMasterTemplate(`
     <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">مرحباً ${user.name || 'مبدعنا'}،</h2>
@@ -245,14 +245,14 @@ const sendCreatorApprovedEmail = async (user) => {
     <p style="font-size: 16px;">يمكنك الآن الدخول إلى لوحة التحكم الخاصة بالمبدعين والبدء في نشر قوالبك ومشاركة إبداعاتك مع المجتمع.</p>
     
     <div style="text-align: center;">
-      <a href="${dashboardLink}" class="button">الذهاب للملف الشخصي</a>
+      <a href="${dashboardLink}" class="button">الذهاب للوحة المبدعين</a>
     </div>
     
     <div class="divider"></div>
     <p class="secondary-text">نحن متحمسون جداً لرؤية ما ستقدمه لمجتمعنا العربي!</p>
   `, 'أهلاً بك في فريق المبدعين!');
 
-  const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nيسعدنا إخبارك بأنه تم قبول طلب انضمامك كمبدع في منصة عرب نوشن.\n\nيمكنك الدخول إلى ملفك الشخصي من هنا: ${dashboardLink}\n\nنحن متحمسون لرؤية إبداعاتك!\n\nعرب نوشن`;
+  const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nيسعدنا إخبارك بأنه تم قبول طلب انضمامك كمبدع في منصة عرب نوشن.\n\nيمكنك الدخول إلى لوحة التحكم من هنا: ${dashboardLink}\n\nنحن متحمسون لرؤية إبداعاتك!\n\nعرب نوشن`;
 
   await sendEmail({ to: user.email, subject, html, text });
 };
@@ -321,7 +321,7 @@ const sendBlogRejectedEmail = async (user, blog, reason) => {
   if (!user || !user.email) return;
 
   const subject = `تحديث بخصوص مقالك: ${blog.title}`;
-  const dashboardLink = `https://www.notionarabs.com/profile`;
+  const dashboardLink = `https://www.notionarabs.com/profile?tab=blogs`;
 
   const html = getMasterTemplate(`
     <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">مرحباً ${user.name || 'مبدعنا'}،</h2>
@@ -342,7 +342,7 @@ const sendBlogRejectedEmail = async (user, blog, reason) => {
     </div>
   `, 'تحديث بخصوص مقالك');
 
-  const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nنأسف لإخبارك بأنه لم يتم قبول مقالك "${blog.title}" في الوقت الحالي.\n\n${reason ? `السبب: ${reason}\n\n` : ''}يمكنك تعديل المقال وإعادة إرساله من ملفك الشخصي.\n\nعرب نوشن`;
+  const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nنأسف لإخبارك بأنه لم يتم قبول مقالك "${blog.title}" في الوقت الحالي.\n\n${reason ? `السبب: ${reason}\n\n` : ''}يمكنك تعديل المقال وإعادة إرساله من لوحة التحكم.\n\nعرب نوشن`;
 
   await sendEmail({ to: user.email, subject, html, text });
 };
@@ -380,33 +380,30 @@ const sendWelcomeEmail = async (user) => {
   if (!user || !user.email) return;
 
   const subject = `مرحباً بك في مجتمع عرب نوشن!`;
+  const isCreator = user.role?.toLowerCase() === 'creator' || user.role?.toLowerCase() === 'admin';
   const dashboardLink = `https://www.notionarabs.com/profile`;
   const browseLink = `https://www.notionarabs.com/templates`;
 
   const html = getMasterTemplate(`
     <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">مرحباً ${user.name}،</h2>
-    <p style="font-size: 16px;">سعداء جداً بانضمامك إلينا! تم تفعيل حسابك بنجاح وأصبحت الآن جزءاً من أكبر مجتمع عربي لمبدعي نوشن.</p>
+    <p style="font-size: 16px;">سعداء جداً بانضمامك إلينا! تم تفعيل حسابك بنجاح وأصبحت الآن جزءاً من مجتمع عرب نوشن.</p>
     
     <div class="feature-box">
       <strong style="font-size: 18px;">ماذا يمكنك أن تفعل الآن؟ 🚀</strong>
       <ul style="padding-right: 20px; line-height: 2;">
         <li>تصفح مئات القوالب العربية المميزة.</li>
         <li>تحميل القوالب المجانية والمدفوعة.</li>
-        <li>الانضمام كمبدع وبيع قوالبك الخاصة.</li>
+        ${!isCreator ? '<li>تخصيص ملفك الشخصي وإعدادات حسابك.</li>' : '<li>إدارة قوالبك ومبيعاتك من لوحة التحكم.</li>'}
       </ul>
     </div>
 
     <div style="text-align: center;">
       <a href="${browseLink}" class="button">تصفح القوالب</a>
-      ${user.creatorStatus === 'approved' || user.role === 'admin' 
-        ? `<a href="${dashboardLink}" class="secondary-button">الملف الشخصي</a>`
-        : `<a href="https://www.notionarabs.com/profile" class="secondary-button">الملف الشخصي</a>`
-      }
+      ${isCreator ? `<a href="${dashboardLink}" class="secondary-button">لوحة التحكم</a>` : ''}
     </div>
   `, 'أهلاً بك في عرب نوشن!');
 
-  const isCreator = user.creatorStatus === 'approved' || user.role === 'admin';
-  const text = `مرحباً ${user.name}،\n\nأهلاً بك في عرب نوشن! تم تفعيل حسابك بنجاح.\n\nيمكنك الآن تصفح القوالب: ${browseLink}\n\nأو الذهاب إلى الملف الشخصي: ${dashboardLink}\n\nعرب نوشن`;
+  const text = `مرحباً ${user.name}،\n\nأهلاً بك في عرب نوشن! تم تفعيل حسابك بنجاح.\n\nيمكنك الآن تصفح القوالب: ${browseLink}${isCreator ? `\n\nأو الذهاب للوحة التحكم: ${dashboardLink}` : ''}\n\nعرب نوشن`;
 
   await sendEmail({ to: user.email, subject, html, text });
 };
@@ -446,7 +443,7 @@ const sendOrderConfirmationEmail = async (user, order) => {
   if (!user || !user.email) return;
 
   const subject = `شكراً لطلبك! تأكيد الطلب #${order._id.toString().slice(-6).toUpperCase()}`;
-  const orderLink = `https://www.notionarabs.com/profile`;
+  const orderLink = `https://www.notionarabs.com/purchases`;
 
   const itemsList = order.items.map(item => `
     <li style="padding: 12px 0; border-bottom: 1px solid #eef0f2; display: flex; justify-content: space-between; align-items: center;">
@@ -470,7 +467,7 @@ const sendOrderConfirmationEmail = async (user, order) => {
       </div>
     </div>
 
-    <p style="font-size: 16px;">يمكنك الوصول إلى القوالب الخاصة بك وتحميلها في أي وقت من خلال ملفك الشخصي.</p>
+    <p style="font-size: 16px;">يمكنك الوصول إلى القوالب الخاصة بك وتحميلها في أي وقت من خلال لوحة التحكم.</p>
 
     <div style="text-align: center;">
       <a href="${orderLink}" class="button">عرض وتحميل مشترياتي</a>
@@ -489,7 +486,7 @@ const sendPayoutRequestedEmail = async (user, payout) => {
   if (!user || !user.email) return;
 
   const subject = `تم استلام طلب سحب الأرباح`;
-  const dashboardLink = `https://www.notionarabs.com/profile`;
+  const dashboardLink = `https://www.notionarabs.com/profile?tab=earnings`;
 
   const html = getMasterTemplate(`
     <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">مرحباً ${user.name}،</h2>
@@ -560,7 +557,7 @@ const sendPayoutRejectedEmail = async (user, payout, reason) => {
     </div>
     ` : ''}
 
-    <p style="font-size: 16px;">لقد تمت إعادة المبلغ إلى رصيدك في ملفك الشخصي. يمكنك مراجعة بيانات السحب الخاصة بك وإعادة الطلب مرة أخرى.</p>
+    <p style="font-size: 16px;">لقد تمت إعادة المبلغ إلى رصيدك في لوحة التحكم. يمكنك مراجعة بيانات السحب الخاصة بك وإعادة الطلب مرة أخرى.</p>
   `, 'تحديث بخصوص طلب السحب');
 
   const text = `مرحباً ${user.name}،\n\nنأسف لإخبارك بأنه تم رفض طلب سحب الأرباح الخاص بك (${payout.amount} ج.م).\n\n${reason ? `السبب: ${reason}\n\n` : ''}تمت إعادة المبلغ لرصيدك.\n\nعرب نوشن`;

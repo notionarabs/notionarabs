@@ -98,8 +98,8 @@ class UserDoc {
     });
 
     let result;
-    if (dbId) {
-        // Update (It has an ID)
+    if (id || _id) {
+        // Update (It had an ID originally)
         const { data, error } = await supabase.from('User').update(filteredUpdate).eq('id', dbId).select();
         if (error) throw error;
         result = data && data[0];

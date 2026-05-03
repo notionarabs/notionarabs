@@ -274,40 +274,52 @@ router.post('/signup', [
     const emailVerificationToken = crypto.randomBytes(32).toString('hex');
     const emailVerificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-      // BYPASS EMAIL VERIFICATION FOR IMMEDIATE ACCESS
-      // Create user directly in Supabase using the Shim
-      const newUser = new User({
-        name,
-        username: finalUsername,
-        email,
-        password: await require('bcryptjs').hash(password, 12),
-        isEmailVerified: true,
-        isActive: true,
-        role: 'USER', // We can promote this to admin later
-        creatorStatus: 'NONE'
-      });
+    // Store user data temporarily
+    const tempUserData = {
+      name,
+      username: finalUsername,
+      email,
+      password: await require('bcryptjs').hash(password, 12),
+      emailVerificationToken,
+      emailVerificationExpiry
+    };
 
-      await newUser.save();
+    tempUserStorage.set(emailVerificationToken, tempUserData);
 
-      // Generate login token immediately
-      const token = jwt.sign(
-        { userId: newUser.id || newUser._id },
-        process.env.JWT_SECRET || 'your-secret-key',
-        { expiresIn: '7d' }
-      );
-
+    // Send verification email
+    try {
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      const verificationUrl = `${frontendUrl}/verify-email?token=${emailVerificationToken}`;
+      
+      await sendVerificationEmail({ name, email }, verificationUrl);
+      
       return res.status(201).json({
         success: true,
-        message: 'تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.',
-        user: {
-          id: newUser.id || newUser._id,
-          name: newUser.name,
-          email: newUser.email,
-          role: newUser.role,
-          creatorStatus: newUser.creatorStatus
-        },
-        token
+        message: 'تم إرسال رابط التأكيد إلى بريدك الإلكتروني',
+        requiresVerification: true,
+        verificationToken: emailVerificationToken
       });
+    } catch (emailError) {
+      console.error('Email sending error:', emailError);
+      tempUserStorage.delete(emailVerificationToken);
+      
+      // Provide an easy fallback for local development if email service fails
+      if (process.env.NODE_ENV === 'development') {
+        return res.status(201).json({
+          success: true,
+          message: 'Local development mode: Bypass successful.',
+          requiresVerification: true,
+          verificationToken: emailVerificationToken,
+          errorType: 'EMAIL_SERVICE_NOT_CONFIGURED'
+        });
+      }
+      
+      return res.status(500).json({
+        success: false,
+        message: 'فشل في إرسال بريد التأكيد',
+        errorType: 'EMAIL_SEND_FAILED'
+      });
+    }
     } catch (error) {
     console.error('Signup error:', error);
     console.error('Error details:', {

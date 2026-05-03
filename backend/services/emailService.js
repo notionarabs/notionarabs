@@ -17,6 +17,12 @@ const sendEmail = async ({ to, subject, html, text }) => {
       console.log('--- EMAIL MOCK ---');
       console.log(`To: ${to}`);
       console.log(`Subject: ${subject}`);
+      console.log(`Text Content: ${text}`);
+      if (html) {
+          // Extract link for convenience if possible, or just log first 200 chars
+          const linkMatch = html.match(/href="([^"]+)"/);
+          if (linkMatch) console.log(`Detected Link: ${linkMatch[1]}`);
+      }
       console.log('--- END EMAIL MOCK ---');
       return { messageId: 'mock-id', response: 'Email logged (dev mode)' };
     }

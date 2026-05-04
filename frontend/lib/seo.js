@@ -190,7 +190,7 @@ export function generateTemplateMetadata(template) {
     title,
     description,
     keywords,
-    image: `${siteConfig.url}/api/og?title=${encodeURIComponent(template.title)}&type=template&creator=${encodeURIComponent(creatorName)}&price=${encodeURIComponent(isPaid && template.price ? `${template.price} ${siteConfig.currencySymbol}` : 'مجاني')}`,
+    image: `${siteConfig.url}/api/og?title=${encodeURIComponent(template.title)}&type=template&creator=${encodeURIComponent(creatorName)}&price=${encodeURIComponent(isPaid && template.price ? `${template.price} ${siteConfig.currencySymbol}` : 'مجاني')}&image=${encodeURIComponent(getAbsoluteImageUrl(template.previewImage))}`,
     url: `/templates/${template.slug || template._id}`,
     type: 'article',
     publishedTime: template.createdAt,
@@ -315,7 +315,7 @@ export function generateCreatorMetadata(creator) {
     title,
     description,
     keywords,
-    image: `${siteConfig.url}/api/og?title=${encodeURIComponent(displayName)}&type=creator&count=${creator.templateCount || creator.templates || 0}`,
+    image: `${siteConfig.url}/api/og?title=${encodeURIComponent(displayName)}&type=creator&count=${creator.templateCount || creator.templates || 0}&image=${encodeURIComponent(getAbsoluteImageUrl(creator.profilePicture))}`,
     url: `/creators/${creator.username || creator._id}`,
     type: 'profile',
   });

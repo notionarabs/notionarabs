@@ -71,21 +71,21 @@ const FollowButton = ({
   };
 
   // Don't show button if user is viewing their own profile
-  if (!isAuthenticated || !creatorId || user?.id === creatorId) {
+  if (!creatorId || (isAuthenticated && user?.id === creatorId)) {
     return null;
   }
 
   const sizeClasses = {
-    small: 'px-3 py-1.5 text-sm',
-    default: 'px-4 py-2 text-base',
-    large: 'px-6 py-3 text-lg',
-    icon: 'p-0'
+    small: 'px-4 py-1.5 text-xs font-black',
+    default: 'px-6 py-2.5 text-sm font-black',
+    large: 'px-8 py-3.5 text-base font-black',
+    icon: 'p-2.5'
   };
 
   const iconSizes = {
-    small: 'w-4 h-4',
-    default: 'w-5 h-5',
-    large: 'w-6 h-6',
+    small: 'w-3.5 h-3.5',
+    default: 'w-4 h-4',
+    large: 'w-5 h-5',
     icon: 'w-5 h-5'
   };
 
@@ -93,14 +93,14 @@ const FollowButton = ({
     <button
       onClick={handleFollowToggle}
       disabled={loading}
-      className={`inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${isFollowing
-        ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-gray-500'
-        : 'bg-blue-500 hover:bg-blue-600 text-white focus:ring-blue-500'
+      className={`inline-flex items-center justify-center gap-2 rounded-xl transition-all duration-500 uppercase tracking-widest ${isFollowing
+        ? 'bg-zinc-100 dark:bg-white/5 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-white/10 shadow-sm'
+        : 'bg-primary text-white hover:shadow-glow hover:scale-105 active:scale-95 shadow-lg shadow-primary/20'
         } ${sizeClasses[size]} ${loading ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
       title={isFollowing ? `إلغاء متابعة ${creatorName}` : `متابعة ${creatorName}`}
     >
       {loading ? (
-        <div className={`${iconSizes[size]} border-2 border-current border-t-transparent rounded-full animate-spin`}></div>
+        <div className={`${iconSizes[size]} border-2 border-white/30 border-t-white rounded-full animate-spin`}></div>
       ) : (
         isFollowing ? (
           <UserMinus className={iconSizes[size]} />

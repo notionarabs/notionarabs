@@ -14,6 +14,7 @@ export default function AnalyticsContent() {
     const [templates, setTemplates] = useState([]);
     const [stats, setStats] = useState(null);
     const [timeRange, setTimeRange] = useState('all'); // all | 7d | 30d | 90d | 1y
+    const [chartMetric, setChartMetric] = useState('downloads'); // downloads | revenue
     const [error, setError] = useState('');
 
     useEffect(() => {
@@ -63,61 +64,97 @@ export default function AnalyticsContent() {
     // Simple SVG Line Chart Component
     const PerformanceChart = ({ data, type = 'downloads' }) => {
         if (!data || data.length < 2) return (
-            <div className="h-48 flex items-center justify-center text-gray-400 text-sm">
-                بيانات غير كافية لرسم المخطط
+            <div className="h-64 flex flex-col items-center justify-center text-gray-400 bg-gray-50/50 dark:bg-white/5 rounded-3xl border border-dashed border-gray-200 dark:border-white/10">
+                <TrendingUp className="w-8 h-8 mb-3 opacity-20" />
+                <p className="text-sm font-bold">بيانات غير كافية لرسم المخطط</p>
             </div>
         );
 
-        const values = data.map(d => d[type]);
-        const max = Math.max(...values, 10); // Minimum scale of 10
+        const values = data.map(d => d[type] || 0);
+        const max = Math.max(...values, 5); 
         const min = 0;
         const range = max - min;
         
-        const width = 800;
-        const height = 150;
-        const padding = 20;
+        const width = 1000;
+        const height = 300;
+        const padding = 40;
         
         const points = data.map((d, i) => {
             const x = (i / (data.length - 1)) * (width - padding * 2) + padding;
-            const y = height - ((d[type] - min) / range) * (height - padding * 2) - padding;
+            const y = height - (((d[type] || 0) - min) / range) * (height - padding * 2) - padding;
             return `${x},${y}`;
         }).join(' ');
 
+        const metricColor = type === 'revenue' ? '#fbbf24' : '#f97316';
+        const metricGradient = type === 'revenue' ? 'revenueGradient' : 'downloadGradient';
+
         return (
-            <div className="w-full overflow-hidden">
-                <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-48 drop-shadow-sm">
+            <div className="relative w-full h-72 group mt-4">
+                <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible" preserveAspectRatio="none">
                     <defs>
-                        <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stopColor="#f97316" stopOpacity="0.2" />
+                        <linearGradient id="downloadGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="#f97316" stopOpacity="0.3" />
                             <stop offset="100%" stopColor="#f97316" stopOpacity="0" />
                         </linearGradient>
+                        <linearGradient id="revenueGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.3" />
+                            <stop offset="100%" stopColor="#fbbf24" stopOpacity="0" />
+                        </linearGradient>
                     </defs>
+
+                    {/* Grid Lines */}
+                    {[0, 0.25, 0.5, 0.75, 1].map((p, i) => (
+                        <line
+                            key={i}
+                            x1={padding}
+                            y1={padding + p * (height - padding * 2)}
+                            x2={width - padding}
+                            y2={padding + p * (height - padding * 2)}
+                            stroke="currentColor"
+                            className="text-gray-100 dark:text-white/5"
+                            strokeWidth="1"
+                        />
+                    ))}
+
                     {/* Area under the line */}
                     <path
-                        d={`M ${padding},${height} ${points} L ${width - padding},${height} Z`}
-                        fill="url(#gradient)"
+                        d={`M ${padding},${height - padding} ${points} L ${width - padding},${height - padding} Z`}
+                        fill={`url(#${metricGradient})`}
+                        className="transition-all duration-700 ease-in-out"
                     />
+
                     {/* The Line */}
                     <polyline
                         fill="none"
-                        stroke="#f97316"
-                        strokeWidth="3"
+                        stroke={metricColor}
+                        strokeWidth="4"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         points={points}
+                        className="transition-all duration-700 ease-in-out drop-shadow-lg"
                     />
-                    {/* Points */}
+
+                    {/* Interactive Points */}
                     {data.map((d, i) => {
                         const x = (i / (data.length - 1)) * (width - padding * 2) + padding;
-                        const y = height - ((d[type] - min) / range) * (height - padding * 2) - padding;
+                        const y = height - (((d[type] || 0) - min) / range) * (height - padding * 2) - padding;
                         return (
-                            <circle
-                                key={i}
-                                cx={x}
-                                cy={y}
-                                r="4"
-                                className="fill-white stroke-primary-600 stroke-[2px] opacity-0 group-hover:opacity-100 transition-opacity"
-                            />
+                            <g key={i} className="group/point">
+                                <circle
+                                    cx={x}
+                                    cy={y}
+                                    r="6"
+                                    fill={metricColor}
+                                    className="opacity-0 group-hover/point:opacity-100 transition-opacity"
+                                />
+                                <circle
+                                    cx={x}
+                                    cy={y}
+                                    r="12"
+                                    fill={metricColor}
+                                    className="opacity-0 group-hover/point:opacity-20 transition-opacity"
+                                />
+                            </g>
                         );
                     })}
                 </svg>
@@ -196,19 +233,29 @@ export default function AnalyticsContent() {
                     <div className="flex items-center justify-between mb-8">
                         <div>
                             <h3 className="text-xl font-black text-gray-900 dark:text-dark-text-primary flex items-center gap-2">
-                                <TrendingUp className="w-5 h-5 text-primary-500" />
-                                منحنى الأداء
+                                <TrendingUp className={`w-5 h-5 ${chartMetric === 'downloads' ? 'text-primary-500' : 'text-amber-500'}`} />
+                                {chartMetric === 'downloads' ? 'منحنى التحميلات' : 'منحنى الأرباح'}
                             </h3>
-                            <p className="text-sm text-gray-500 dark:text-dark-text-secondary">عدد التحميلات اليومية</p>
+                            <p className="text-sm text-gray-500 dark:text-dark-text-secondary">
+                                {chartMetric === 'downloads' ? 'تتبع عدد التحميلات اليومية لقوالبك' : 'تتبع نمو مبيعاتك اليومية'}
+                            </p>
                         </div>
-                        <div className="flex items-center gap-4 text-xs font-bold">
-                            <div className="flex items-center gap-1.5">
-                                <span className="w-3 h-3 rounded-full bg-primary-500"></span>
-                                <span className="text-gray-700 dark:text-dark-text-primary">التحميلات</span>
-                            </div>
+                        <div className="flex items-center gap-2 bg-gray-50 dark:bg-dark-tertiary p-1 rounded-2xl border border-gray-100 dark:border-white/5">
+                            <button 
+                                onClick={() => setChartMetric('downloads')}
+                                className={`px-4 py-1.5 rounded-xl text-xs font-black transition-all ${chartMetric === 'downloads' ? 'bg-white dark:bg-dark-secondary shadow-md text-primary-600' : 'text-gray-400 hover:text-gray-600'}`}
+                            >
+                                تحميلات
+                            </button>
+                            <button 
+                                onClick={() => setChartMetric('revenue')}
+                                className={`px-4 py-1.5 rounded-xl text-xs font-black transition-all ${chartMetric === 'revenue' ? 'bg-white dark:bg-dark-secondary shadow-md text-amber-600' : 'text-gray-400 hover:text-gray-600'}`}
+                            >
+                                أرباح
+                            </button>
                         </div>
                     </div>
-                    <PerformanceChart data={stats?.dailyStats || []} type="downloads" />
+                    <PerformanceChart data={stats?.dailyStats || []} type={chartMetric} />
                     
                     <div className="mt-8 flex items-center justify-between pt-6 border-t border-gray-50 dark:border-dark-card-border">
                         <div className="flex gap-8">

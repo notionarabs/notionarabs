@@ -189,9 +189,11 @@ class UserDoc {
 
           if (!users || users.length === 0) return [];
 
-          // Fetch template stats for ALL users in one go to avoid N+1 queries
+          // Fetch template stats for ONLY the users we are currently processing
           const Template = require('./Template');
+          const creatorIds = users.map(u => u.id);
           const allCreatorStats = await Template.aggregate([
+              { $match: { creator: { $in: creatorIds } } },
               { $group: { _id: '$creator', totalTemplates: { $sum: 1 } } }
           ]);
 

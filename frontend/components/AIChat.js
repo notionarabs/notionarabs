@@ -9,6 +9,13 @@ import ReactMarkdown from 'react-markdown';
 
 export default function AIChat() {
   const pathname = usePathname();
+  
+  // Hide AI Chat on dashboard and profile pages as requested
+  const hiddenRoutes = ['/profile', '/user-settings', '/admin'];
+  if (hiddenRoutes.some(route => pathname?.startsWith(route))) {
+    return null;
+  }
+
   const [isOpen, setIsOpen] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   

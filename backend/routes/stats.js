@@ -11,18 +11,38 @@ const router = express.Router();
 router.get('/homepage', cacheMiddleware(600), async (req, res) => {
   try {
     // Parallel execution of all queries
+    // Get all approved template data in ONE query to minimize round-trips
+    const { data: templates, error: templateError } = await require('../utils/supabase')
+      .from('Template')
+      .select('downloads, categories')
+      .eq('status', 'APPROVED');
+      
+    if (templateError) throw templateError;
+
+    const totalTemplates = templates.length;
+    let totalDownloads = 0;
+    const categoryCounts = {};
+    
+    templates.forEach(t => {
+      totalDownloads += (t.downloads || 0);
+      if (t.categories && Array.isArray(t.categories)) {
+        t.categories.forEach(cat => {
+          if (cat) categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+        });
+      }
+    });
+
+    const categoryStats = Object.keys(categoryCounts).map(cat => ({
+      category: cat,
+      count: categoryCounts[cat]
+    }));
+
     const [
-      totalTemplates,
       totalCreatorsResult,
-      totalDownloads,
-      categoryStats,
       topCreatorsResult,
       totalUsers
     ] = await Promise.all([
-      // Total templates count
-      Template.countDocuments({ status: 'approved' }),
-
-      // Total creators count (approved creators with at least one template)
+      // Total creators count (approved creators)
       User.aggregate([
         {
           $match: {
@@ -33,25 +53,6 @@ router.get('/homepage', cacheMiddleware(600), async (req, res) => {
           }
         },
         { $count: 'total' }
-      ]),
-
-      // Total downloads (sum all template downloads)
-      Template.aggregate([
-        { $match: { status: 'approved' } },
-        { $group: { _id: null, totalDownloads: { $sum: '$downloads' } } }
-      ]),
-
-      // Get ALL categories with their counts using aggregation
-      Template.aggregate([
-        { $match: { status: 'approved' } },
-        {
-          $project: {
-            allCategories: { $ifNull: ['$categories', []] }
-          }
-        },
-        { $unwind: '$allCategories' },
-        { $group: { _id: '$allCategories', count: { $sum: 1 } } },
-        { $project: { category: '$_id', count: 1, _id: 0 } }
       ]),
 
       // Top creators with their stats (prioritizing pinned creators)
@@ -90,7 +91,7 @@ router.get('/homepage', cacheMiddleware(600), async (req, res) => {
       stats: {
         templates: totalTemplates,
         creators: totalCreatorsResult[0]?.total || 0,
-        downloads: totalDownloads[0]?.totalDownloads || 0,
+        downloads: totalDownloads || 0,
         users: totalUsers || 0,
         specialties: specialtiesCount
       },
@@ -102,7 +103,8 @@ router.get('/homepage', cacheMiddleware(600), async (req, res) => {
     console.error('Get homepage stats error:', error);
     res.status(500).json({
       success: false,
-      message: 'خطأ في الخادم'
+      message: 'خطأ في الخادم',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });

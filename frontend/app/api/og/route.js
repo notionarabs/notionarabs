@@ -126,19 +126,37 @@ export async function GET(request) {
               {title}
             </h1>
 
-            {creator && (
-              <div style={{ display: 'flex', alignItems: 'center', marginTop: 15 }}>
-                <span style={{ fontSize: 28, color: '#94a3b8', marginRight: 10, direction: 'rtl' }}>بواسطة</span>
-                <span style={{ fontSize: 32, color: secondary, fontWeight: 'bold' }}>{creator}</span>
-              </div>
-            )}
+            <div style={{ display: 'flex', alignItems: 'center', marginTop: 10, width: '100%', justifyContent: 'flex-end' }}>
+               {image && (
+                <div style={{ 
+                  display: 'flex', 
+                  width: 120, 
+                  height: 120, 
+                  borderRadius: type === 'creator' ? 60 : 20, 
+                  overflow: 'hidden', 
+                  border: '4px solid rgba(255,255,255,0.1)',
+                  marginRight: 20
+                }}>
+                  <img src={image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+              )}
+              
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                {creator && (
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <span style={{ fontSize: 24, color: '#94a3b8', marginRight: 10, direction: 'rtl' }}>بواسطة</span>
+                    <span style={{ fontSize: 28, color: secondary, fontWeight: 'bold' }}>{creator}</span>
+                  </div>
+                )}
 
-            {count && (
-              <div style={{ display: 'flex', alignItems: 'center', marginTop: 15 }}>
-                <span style={{ fontSize: 32, color: 'white', fontWeight: 'bold' }}>{count}</span>
-                <span style={{ fontSize: 28, color: '#94a3b8', marginLeft: 10, direction: 'rtl' }}>قالب متاح</span>
+                {count && (
+                  <div style={{ display: 'flex', alignItems: 'center', marginTop: 5 }}>
+                    <span style={{ fontSize: 28, color: 'white', fontWeight: 'bold' }}>{count}</span>
+                    <span style={{ fontSize: 24, color: '#94a3b8', marginLeft: 8, direction: 'rtl' }}>قالب متاح</span>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
 
           {/* Footer Stats */}

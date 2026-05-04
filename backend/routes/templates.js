@@ -13,17 +13,21 @@ const router = express.Router();
 
 // Optimized pagination handler for templates without search
 async function handleOptimizedPagination(req, res, options) {
-  const { category, creator, isPinned, sortBy, sortOrder, page, limit, isPaid, minRating } = options;
-
+  const { category, creator, isPinned, sortBy, sortOrder, page, limit, isPaid, minRating, language } = options;
+  
   // Build filter object
   const filter = { status: 'approved' };
-
+  
   if (category && category !== 'all') {
     filter.categories = category;
   }
-
+  
   if (creator) {
     filter.creator = creator;
+  }
+  
+  if (language && language !== 'all') {
+    filter.language = language;
   }
 
   if (isPinned === 'true') {
@@ -512,7 +516,8 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
       page = 1,
       limit = 12,
       isPaid,
-      minRating
+      minRating,
+      language
     } = req.query;
 
     // If no search term, use optimized server-side pagination
@@ -526,7 +531,8 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
         page,
         limit,
         isPaid,
-        minRating
+        minRating,
+        language
       });
     }
 
@@ -549,6 +555,10 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
 
     if (minRating) {
       filter.rating = { $gte: Number(minRating) };
+    }
+
+    if (language && language !== 'all') {
+      filter.language = language;
     }
 
     // If search is provided, use server-side text search

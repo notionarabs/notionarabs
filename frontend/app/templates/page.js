@@ -45,6 +45,7 @@ function TemplatesPageContent() {
   const [sortBy, setSortBy] = useState('createdAt');
   const [selectedCategory, setSelectedCategory] = useState('الكل');
   const [priceFilter, setPriceFilter] = useState('all'); 
+  const [languageFilter, setLanguageFilter] = useState('all');
   const [minRating, setMinRating] = useState(0);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [allTemplates, setAllTemplates] = useState([]);
@@ -61,10 +62,12 @@ function TemplatesPageContent() {
   useEffect(() => {
     const category = searchParams.get('category');
     const price = searchParams.get('price');
+    const language = searchParams.get('language');
     const search = searchParams.get('search');
 
     if (category) setSelectedCategory(category);
     if (price) setPriceFilter(price);
+    if (language) setLanguageFilter(language);
     if (search) setSearchTerm(search);
   }, [searchParams]);
 
@@ -81,6 +84,7 @@ function TemplatesPageContent() {
       if (selectedCategory !== 'الكل') params.append('category', selectedCategory);
       if (priceFilter === 'free') params.append('isPaid', 'false');
       if (priceFilter === 'paid') params.append('isPaid', 'true');
+      if (languageFilter !== 'all') params.append('language', languageFilter);
       if (minRating > 0) params.append('minRating', minRating.toString());
 
       const response = await api.get(`/templates?${params.toString()}`);
@@ -105,7 +109,7 @@ function TemplatesPageContent() {
   useEffect(() => {
     const timer = setTimeout(fetchTemplates, 500);
     return () => clearTimeout(timer);
-  }, [searchTerm, sortBy, selectedCategory, priceFilter, minRating, pagination.current]);
+  }, [searchTerm, sortBy, selectedCategory, priceFilter, languageFilter, minRating, pagination.current]);
 
   const handleSearch = (e) => { e.preventDefault(); setPagination(p => ({ ...p, current: 1 })); };
   const handleCategorySelect = (c) => { setSelectedCategory(c); setPagination(p => ({ ...p, current: 1 })); };
@@ -176,10 +180,18 @@ function TemplatesPageContent() {
                     <button key={p.id} onClick={() => setPriceFilter(p.id)} className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all ${priceFilter === p.id ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-foreground/40 dark:text-white/30 hover:text-primary'}`}>{p.label}</button>
                   ))}
                 </div>
+
+                <div className="flex bg-white/50 dark:bg-white/5 backdrop-blur-xl p-1.5 rounded-2xl border border-black/5 dark:border-white/5">
+                  {[{ id: 'all', label: 'كل اللغات' }, { id: 'ar', label: 'العربية' }, { id: 'en', label: 'English' }].map((l) => (
+                    <button key={l.id} onClick={() => setLanguageFilter(l.id)} className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all ${languageFilter === l.id ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-foreground/40 dark:text-white/30 hover:text-primary'}`}>{l.label}</button>
+                  ))}
+                </div>
                 
                 <div className="flex bg-white/50 dark:bg-white/5 backdrop-blur-xl p-1.5 rounded-2xl border border-black/5 dark:border-white/5">
-                  {[0, 4].map((r) => (
-                    <button key={r} onClick={() => setMinRating(r)} className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${minRating === r ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-foreground/40 dark:text-white/30 hover:text-primary'}`}>{r === 0 ? 'كل التقييمات' : <><Star size={14} className="fill-current" /> النخبة</>}</button>
+                  {[0, 3, 4].map((r) => (
+                    <button key={r} onClick={() => setMinRating(r)} className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${minRating === r ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-foreground/40 dark:text-white/30 hover:text-primary'}`}>
+                      {r === 0 ? 'كل التقييمات' : r === 4 ? <><Star size={14} className="fill-current" /> النخبة</> : <><Star size={14} className="fill-current" /> +3</>}
+                    </button>
                   ))}
                 </div>
               </div>

@@ -464,7 +464,18 @@ class Template {
 
       // Special Case 3: Creator-wise Template Stats ($group: { _id: '$creator', ... })
       if (groupStage && groupStage.$group?._id === '$creator' && groupStage.$group?.totalTemplates) {
-          const { data, error } = await supabase.from('Template').select('creatorId, downloads, rating').eq('status', 'APPROVED');
+          let q = supabase.from('Template').select('creatorId, downloads, rating').eq('status', 'APPROVED');
+          
+          // CRITICAL FIX: Apply match filter if present to avoid fetching ALL templates
+          if (matchStage && matchStage.$match) {
+              const creatorFilter = matchStage.$match.creator || matchStage.$match.creatorId;
+              if (creatorFilter) {
+                  if (creatorFilter.$in) q = q.in('creatorId', creatorFilter.$in);
+                  else q = q.eq('creatorId', creatorFilter);
+              }
+          }
+
+          const { data, error } = await q;
           if (error) throw error;
           
           const creatorStats = {};
@@ -482,13 +493,23 @@ class Template {
           return Object.values(creatorStats);
       }
 
-      // Special Case 4: Individual Creator Ratings ($push: { $ifNull: ['$rating', 0] })
-      if (groupStage && groupStage.$group?._id === null && groupStage.$group?.ratings?.$push) {
-          const cid = matchStage?.$match?.creator;
+      // Special Case 4: Individual Creator Ratings and Downloads ($group: { _id: null, ratings: { $push: ... } })
+      if (groupStage && groupStage.$group?._id === null && (groupStage.$group?.ratings?.$push || groupStage.$group?.totalDownloads)) {
+          const cid = matchStage?.$match?.creator || matchStage?.$match?.creatorId;
           if (cid) {
-              const { data, error } = await supabase.from('Template').select('rating').eq('creatorId', cid).eq('status', 'APPROVED');
+              const { data, error } = await supabase.from('Template').select('rating, downloads').eq('creatorId', cid).eq('status', 'APPROVED');
               if (error) throw error;
-              return [{ _id: null, ratings: (data || []).map(item => item.rating || 0) }];
+              
+              const ratings = (data || []).map(item => item.rating || 0);
+              const totalDownloads = (data || []).reduce((sum, item) => sum + (item.downloads || 0), 0);
+              
+              return [{ 
+                  _id: null, 
+                  ratings, 
+                  totalDownloads,
+                  // Compatibility with different group stage formats
+                  totalTemplates: data?.length || 0
+              }];
           }
       }
 

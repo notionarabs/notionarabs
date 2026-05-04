@@ -19,6 +19,8 @@ import AdminPayouts from '../../components/AdminPayouts';
 import NotificationsContent from '../../components/NotificationsContent';
 import { Camera, Mail, User as UserIcon, AtSign, Settings, LayoutDashboard, Edit3, Download, TrendingUp, DollarSign, Bell } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import SocialIcon from '../../components/settings/SocialIcon';
+import { detectPlatform } from '../../lib/socialUtils';
 
 // Profile Overview Component
 function ProfileOverview({ user }) {
@@ -112,6 +114,32 @@ function ProfileOverview({ user }) {
               <div className="flex items-center gap-3 px-4 py-3 bg-gray-50/50 dark:bg-dark-tertiary rounded-xl border-none font-bold shadow-sm">
                 <AtSign className="w-5 h-5 text-gray-400" />
                 <span className="text-gray-900 dark:text-dark-text-primary text-ltr">@{user.username}</span>
+              </div>
+            </div>
+          )}
+          
+          {/* Social Links */}
+          {user?.socialLinks && user.socialLinks.length > 0 && (
+            <div className="md:col-span-2 mt-4 pt-6 border-t border-gray-100 dark:border-dark-card-border">
+              <label className="block text-sm font-bold text-gray-700 dark:text-dark-text-secondary mb-4">
+                روابط التواصل
+              </label>
+              <div className="flex flex-wrap gap-3">
+                {user.socialLinks.map((link, idx) => {
+                  const platform = detectPlatform(link.url);
+                  return (
+                    <a
+                      key={idx}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`p-3 bg-zinc-50 dark:bg-white/5 backdrop-blur-sm rounded-xl hover:scale-105 transition-all border border-zinc-100 dark:border-white/5 hover:border-zinc-200 dark:hover:border-white/10 ${platform?.color || 'text-zinc-500'}`}
+                      title={platform?.name || 'رابط خارجي'}
+                    >
+                      <SocialIcon platform={platform?.icon} className="w-5 h-5" />
+                    </a>
+                  );
+                })}
               </div>
             </div>
           )}

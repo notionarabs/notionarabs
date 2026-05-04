@@ -11,6 +11,8 @@ import { formatDate } from '../../../lib/dateUtils';
 import api from '../../../lib/api';
 import { useAuth } from '../../../contexts/AuthContext';
 import FollowButton from '../../../components/FollowButton';
+import SocialIcon from '../../../components/settings/SocialIcon';
+import { detectPlatform } from '../../../lib/socialUtils';
 
 // Map badge types to Lucide icons
 const getBadgeIcon = (badgeType) => {
@@ -244,14 +246,48 @@ export default function CreatorProfileClient({ initialCreator }) {
                 <p className="text-lg text-accent-600 dark:text-gray-300 leading-relaxed text-center sm:text-right whitespace-pre-wrap">
                     {creator.bio || creator.experience || 'مبدع مستقل يساهم في إثراء المحتوى العربي على نوشن.'}
                 </p>
-                <div className="flex flex-wrap gap-4 justify-center sm:justify-start">
-                  <FollowButton creatorId={creator.id} creatorName={creator.name} />
+                <div className="flex flex-wrap gap-4 justify-center sm:justify-start items-center">
                   {creator.email && (
                      <a href={`mailto:${creator.email}`} className="btn-secondary px-8 py-3 rounded-xl flex items-center gap-2">
                         <Mail size={18} /> تواصل
                      </a>
                   )}
+                  
+                  {/* Follow Button */}
+                  <FollowButton 
+                    creatorId={creator.id} 
+                    creatorName={creator.displayName || creator.name} 
+                    size="large"
+                    className="shadow-xl"
+                    onFollowChange={(isFollowing) => {
+                      setCreator(prev => ({
+                        ...prev,
+                        followers: isFollowing ? (prev.followers || 0) + 1 : Math.max(0, (prev.followers || 0) - 1)
+                      }));
+                    }}
+                  />
                 </div>
+
+                {/* Social Links */}
+                {creator.socialLinks && creator.socialLinks.length > 0 && (
+                  <div className="flex flex-wrap gap-3 mt-4 justify-center sm:justify-start">
+                    {creator.socialLinks.map((link, idx) => {
+                      const platform = detectPlatform(link.url);
+                      return (
+                        <a
+                          key={idx}
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`p-3 bg-white/90 dark:bg-white/5 backdrop-blur-md rounded-2xl shadow-sm hover:shadow-lg hover:scale-110 transition-all border border-zinc-200/50 dark:border-white/10 ${platform?.color || 'text-zinc-500'}`}
+                          title={platform?.name || 'رابط خارجي'}
+                        >
+                          <SocialIcon platform={platform?.icon} className="w-5 h-5" />
+                        </a>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl p-8 rounded-3xl shadow-large border-none">

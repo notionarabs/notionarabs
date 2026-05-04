@@ -281,12 +281,13 @@ class Template {
                     // Always include id if selecting specific fields
                     if (!parts.includes('id') && !parts.includes('_id')) parts.push('id');
                     
-                    // Map common field names to DB column names
                     selectFields = parts.map(f => {
                         if (f === '_id') return 'id';
                         if (f === 'category') return 'categories';
                         if (f === 'coverImage') return 'previewImage';
                         if (f === 'creator') return 'creatorId';
+                        if (f === 'approvedBy') return 'approvedById';
+                        if (f === 'rejectedBy') return 'rejectedById';
                         return f;
                     }).join(',');
                 }
@@ -332,6 +333,8 @@ class Template {
                         if (f === 'category') return 'categories';
                         if (f === 'coverImage') return 'previewImage';
                         if (f === 'creator') return 'creatorId';
+                        if (f === 'approvedBy') return 'approvedById';
+                        if (f === 'rejectedBy') return 'rejectedById';
                         return f;
                     }).join(',');
                 }

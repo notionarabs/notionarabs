@@ -244,7 +244,8 @@ router.post('/', auth, [
   console.log('User:', req.user?._id);
   try {
     // Check if user is an approved creator
-    if (req.user.creatorStatus !== 'approved' || req.user.role !== 'creator') {
+    const isCreatorOrAdmin = req.user.role === 'admin' || (req.user.role === 'creator' && req.user.creatorStatus === 'approved');
+    if (!isCreatorOrAdmin) {
       return res.status(403).json({
         success: false,
         message: 'يجب أن تكون مبدعاً معتمداً لإنشاء قوالب'
@@ -361,7 +362,8 @@ router.post('/', auth, [
 router.post('/bulk-import', auth, async (req, res) => {
   try {
     // Check if user is an approved creator
-    if (req.user.creatorStatus !== 'approved' || req.user.role !== 'creator') {
+    const isCreatorOrAdmin = req.user.role === 'admin' || (req.user.role === 'creator' && req.user.creatorStatus === 'approved');
+    if (!isCreatorOrAdmin) {
       return res.status(403).json({
         success: false,
         message: 'يجب أن تكون مبدعاً معتمداً لإنشاء قوالب'
@@ -624,7 +626,8 @@ router.get('/', cacheMiddleware(3600), async (req, res) => {
 // @access  Private (Creator)
 router.get('/my-templates', auth, async (req, res) => {
   try {
-    if (req.user.creatorStatus !== 'approved' || req.user.role !== 'creator') {
+    const isCreatorOrAdmin = req.user.role === 'admin' || (req.user.role === 'creator' && req.user.creatorStatus === 'approved');
+    if (!isCreatorOrAdmin) {
       return res.status(403).json({
         success: false,
         message: 'يجب أن تكون مبدعاً معتمداً'
@@ -634,33 +637,6 @@ router.get('/my-templates', auth, async (req, res) => {
     const templates = await Template.find({ creator: req.user._id })
       .select('title description categories tags previewImage slug rating reviewsCount downloads views isPaid price purchaseLink status adminNotes approvedAt rejectedAt approvedBy rejectedBy createdAt updatedAt')
       .sort({ createdAt: -1 });
-
-    const csvHeader = 'العنوان,الوصف,رابط نوشن,الفئات,مدفوع,السعر,رابط الصورة,صور إضافية,المميزات,الوسوم,اللغة,فيديو توضيحي,المنشئ,البريد الإلكتروني,الحالة,المشاهدات,التحميلات,التقييم,تاريخ الموافقة,تاريخ الإنشاء\n';
-    const csvRows = templates.map(template => {
-      const title = `"${(template.title || '').replace(/"/g, '""')}"`;
-      const description = `"${(template.description || '').replace(/"/g, '""')}"`;
-      const notionLink = `"${(template.notionLink || '').replace(/"/g, '""')}"`;
-      const categories = `"${(Array.isArray(template.categories) ? template.categories.join('|') : (template.category || '')).replace(/"/g, '""')}"`;
-      const isPaid = template.isPaid ? 'نعم' : 'لا';
-      const price = template.price || 0;
-      const previewImage = `"${(template.previewImage || '').replace(/"/g, '""')}"`;
-      const previewImages = `"${(Array.isArray(template.previewImages) ? template.previewImages.join('|') : '').replace(/"/g, '""')}"`;
-      const features = `"${(Array.isArray(template.features) ? template.features.join('\n') : (template.features || '')).replace(/"/g, '""')}"`;
-      const tags = `"${(Array.isArray(template.tags) ? template.tags.join(',') : (template.tags || '')).replace(/"/g, '""')}"`;
-      const language = `"${(template.language || '').replace(/"/g, '""')}"`;
-      const explanationVideo = `"${(template.explanationVideo || '').replace(/"/g, '""')}"`;
-      
-      const creator = `"${(template.creator?.name || '').replace(/"/g, '""')}"`;
-      const email = `"${(template.creator?.email || '').replace(/"/g, '""')}"`;
-      const status = `"${(template.status || '').replace(/"/g, '""')}"`;
-      const views = template.views || 0;
-      const downloads = template.downloads || 0;
-      const rating = template.rating || 0;
-      const approvedAt = template.approvedAt ? new Date(template.approvedAt).toLocaleDateString('en-US') : '';
-      const createdAt = template.createdAt ? new Date(template.createdAt).toLocaleDateString('en-US') : '';
-      
-      return `${title},${description},${notionLink},${categories},${isPaid},${price},${previewImage},${previewImages},${features},${tags},${language},${explanationVideo},${creator},${email},${status},${views},${downloads},${rating},${approvedAt},${createdAt}`;
-    }).join('\n');
 
     res.json({
       success: true,
@@ -1088,7 +1064,8 @@ router.put('/:id', auth, [
     .withMessage('لغة القالب غير صحيحة')
 ], async (req, res) => {
   try {
-    if (req.user.creatorStatus !== 'approved' || req.user.role !== 'creator') {
+    const isCreatorOrAdmin = req.user.role === 'admin' || (req.user.role === 'creator' && req.user.creatorStatus === 'approved');
+    if (!isCreatorOrAdmin) {
       return res.status(403).json({
         success: false,
         message: 'يجب أن تكون مبدعاً معتمداً'
@@ -1194,7 +1171,8 @@ router.put('/:id', auth, [
 // @access  Private (Creator - own templates only)
 router.delete('/:id', auth, async (req, res) => {
   try {
-    if (req.user.creatorStatus !== 'approved' || req.user.role !== 'creator') {
+    const isCreatorOrAdmin = req.user.role === 'admin' || (req.user.role === 'creator' && req.user.creatorStatus === 'approved');
+    if (!isCreatorOrAdmin) {
       return res.status(403).json({
         success: false,
         message: 'يجب أن تكون مبدعاً معتمداً'

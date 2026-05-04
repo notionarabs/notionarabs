@@ -56,11 +56,67 @@ api.interceptors.request.use(
 );
 
 // Recursive function to normalize IDs (_id <-> id) across the entire response tree
+// Helper to clean corrupted strings (recursive escaping/backslashes)
+const cleanCorruptedString = (str) => {
+  if (!str || typeof str !== 'string' || str.length < 2) return str;
+  
+  // If it doesn't look like escaped JSON or have multiple backslashes, skip
+  if (!str.includes('\\') && !str.startsWith('[') && !str.startsWith('"')) return str;
+
+  let current = str;
+  let prev;
+  let iterations = 0;
+
+  while (iterations < 5) {
+    prev = current;
+    
+    // 1. Strip massive backslash sequences early
+    if (current.includes('\\\\\\\\')) {
+      current = current.replace(/\\+/g, '\\');
+    }
+
+    // 2. Try to parse if it looks like JSON
+    const trimmed = current.trim();
+    if ((trimmed.startsWith('[') && trimmed.endsWith(']')) || (trimmed.startsWith('"') && trimmed.endsWith('"'))) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (typeof parsed === 'string') {
+          current = parsed;
+        } else if (Array.isArray(parsed)) {
+          // If it's an array, return it so normalizeData can recurse on its elements
+          return parsed.map(item => {
+            if (typeof item === 'string') return cleanCorruptedString(item);
+            return normalizeData(item);
+          });
+        } else if (parsed && typeof parsed === 'object') {
+          return normalizeData(parsed);
+        } else {
+          break;
+        }
+      } catch (e) {
+        // If parsing fails, try manual unescape of common issues
+        current = current.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+      }
+    } else {
+      // Not JSON-like, just unescape backslashes
+      current = current.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+    }
+
+    if (current === prev) break;
+    iterations++;
+  }
+
+  // Final pass to remove trailing/leading junk often found in these corrupted strings
+  return current.replace(/^"+|"+$/g, '').replace(/\\+$/g, '').trim();
+};
+
 const normalizeData = (obj) => {
-  if (!obj || typeof obj !== 'object' || obj instanceof Date) return obj;
+  if (!obj || typeof obj !== 'object' || obj instanceof Date) {
+    if (typeof obj === 'string') return cleanCorruptedString(obj);
+    return obj;
+  }
   
   if (Array.isArray(obj)) {
-    // Only map if needed, otherwise return as is
     let changed = false;
     const newArr = obj.map(item => {
       const normalized = normalizeData(item);
@@ -82,11 +138,18 @@ const normalizeData = (obj) => {
     changed = true;
   }
   
-  // Recursively normalize nested objects
+  // Recursively normalize nested objects and clean strings
   for (const key in newObj) {
     if (Object.prototype.hasOwnProperty.call(newObj, key)) {
       const val = newObj[key];
-      if (val && typeof val === 'object' && !(val instanceof Date)) {
+      
+      if (typeof val === 'string') {
+        const cleaned = cleanCorruptedString(val);
+        if (cleaned !== val) {
+          newObj[key] = cleaned;
+          changed = true;
+        }
+      } else if (val && typeof val === 'object' && !(val instanceof Date)) {
         const normalized = normalizeData(val);
         if (normalized !== val) {
           newObj[key] = normalized;

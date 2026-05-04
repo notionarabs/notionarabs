@@ -339,14 +339,15 @@ class UserDoc {
   }
 
   static find(query = {}) {
-    let q = supabase.from('User').select('*');
-    q = this._applyQuery(q, query);
-
     let limitVal = null;
     let skipVal = null;
     let sortObj = null;
+    let selectFields = '*';
 
     const execute = async () => {
+        let q = supabase.from('User').select(selectFields);
+        q = this._applyQuery(q, query);
+        
         let chain = q;
         if (sortObj) {
             Object.keys(sortObj).forEach(key => {
@@ -376,18 +377,29 @@ class UserDoc {
         sort: (s) => { sortObj = s; return promise; },
         limit: (n) => { limitVal = n; return promise; },
         skip: (n) => { skipVal = n; return promise; },
-        select: () => promise,
+        select: (fields) => { 
+            if (typeof fields === 'string') {
+                const parts = fields.split(/\s+/).filter(f => f && !f.startsWith('-'));
+                if (parts.length > 0) {
+                    if (!parts.includes('id') && !parts.includes('_id')) parts.push('id');
+                    selectFields = parts.map(f => f === '_id' ? 'id' : f).join(',');
+                }
+            }
+            return promise; 
+        },
         lean: () => promise
     };
     return promise;
   }
 
   static findOne(query = {}) {
-    let chain = supabase.from('User').select('*');
-    chain = this._applyQuery(chain, query);
+    let selectFields = '*';
     
     const execute = async () => {
-        const { data, error } = await chain;
+        let q = supabase.from('User').select(selectFields);
+        q = this._applyQuery(q, query);
+        
+        const { data, error } = await q;
         if (error) throw error;
         const result = data && data[0];
         if (!result) return null;
@@ -397,13 +409,22 @@ class UserDoc {
         return user;
     };
 
-    const promise = execute();
-    const wrap = (p) => {
-      p.select = () => wrap(p);
-      p.lean = () => wrap(p);
-      return p;
+    const promise = {
+        then: (onFullfilled, onRejected) => execute().then(onFullfilled, onRejected),
+        catch: (onRejected) => execute().catch(onRejected),
+        select: (fields) => { 
+            if (typeof fields === 'string') {
+                const parts = fields.split(/\s+/).filter(f => f && !f.startsWith('-'));
+                if (parts.length > 0) {
+                    if (!parts.includes('id') && !parts.includes('_id')) parts.push('id');
+                    selectFields = parts.map(f => f === '_id' ? 'id' : f).join(',');
+                }
+            }
+            return promise; 
+        },
+        lean: () => promise
     };
-    return wrap(promise);
+    return promise;
   }
 
   static findById(id) {

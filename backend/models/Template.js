@@ -6,6 +6,15 @@ class Template {
     if (!data) return;
     Object.assign(this, data);
     this._id = data.id || data._id;
+    
+    // Safety Truncation: Never allow a massive features list to crash the system
+    if (Array.isArray(this.features) && this.features.length > 50) {
+        this.features = this.features.slice(0, 50);
+        this.features.push('... (truncated for performance)');
+    } else if (typeof this.features === 'string' && this.features.length > 5000) {
+        this.features = this.features.substring(0, 5000) + '... (truncated for performance)';
+    }
+
     // Map database IDs to application properties
     if (data.creatorId && !this.creator) this.creator = data.creatorId;
     if (data.pinnedById && !this.pinnedBy) this.pinnedBy = data.pinnedById;
@@ -206,16 +215,19 @@ class Template {
   }
 
   static find(query = {}) {
-    let q = supabase.from('Template').select('*');
-    q = this._applyQuery(q, query);
-
     let populatePath = null;
     let limitVal = null;
     let skipVal = null;
     let sortObj = null;
+    let selectFields = '*';
 
     const execute = async () => {
+        let q = supabase.from('Template').select(selectFields);
+        q = this._applyQuery(q, query);
+        
         let chain = q;
+
+
         if (sortObj) {
             Object.keys(sortObj).forEach(key => {
                 const ascending = sortObj[key] === 1;
@@ -261,19 +273,40 @@ class Template {
         limit: (n) => { limitVal = n; return promise; },
         skip: (n) => { skipVal = n; return promise; },
         populate: (path) => { populatePath = path; return promise; },
-        select: () => promise,
+        select: (fields) => { 
+            if (typeof fields === 'string') {
+                // Convert Mongoose-style 'field1 field2 -excluded' to Supabase-style 'field1,field2'
+                const parts = fields.split(/\s+/).filter(f => f && !f.startsWith('-'));
+                if (parts.length > 0) {
+                    // Always include id if selecting specific fields
+                    if (!parts.includes('id') && !parts.includes('_id')) parts.push('id');
+                    
+                    // Map common field names to DB column names
+                    selectFields = parts.map(f => {
+                        if (f === '_id') return 'id';
+                        if (f === 'category') return 'categories';
+                        if (f === 'coverImage') return 'previewImage';
+                        if (f === 'creator') return 'creatorId';
+                        return f;
+                    }).join(',');
+                }
+            }
+            return promise; 
+        },
         lean: () => promise
     };
     return promise;
   }
 
   static findOne(query = {}) {
-    let chain = supabase.from('Template').select('*');
-    chain = this._applyQuery(chain, query);
-    
     let populatePath = null;
+    let selectFields = '*';
+
     const execute = async () => {
-        const { data, error } = await chain.maybeSingle();
+        let q = supabase.from('Template').select(selectFields);
+        q = this._applyQuery(q, query);
+        
+        const { data, error } = await q.maybeSingle();
         if (error && error.code !== 'PGRST116') throw error;
         if (!data) return null;
         const doc = new Template(data);
@@ -285,14 +318,30 @@ class Template {
         return doc;
     };
 
-    const promise = execute();
-    const wrap = (p) => {
-        p.select = (f) => wrap(p);
-        p.populate = (path) => { populatePath = path; return wrap(p); };
-        p.lean = () => wrap(p);
-        return p;
+    const promise = {
+        then: (onFullfilled, onRejected) => execute().then(onFullfilled, onRejected),
+        catch: (onRejected) => execute().catch(onRejected),
+        select: (fields) => { 
+            if (typeof fields === 'string') {
+                const parts = fields.split(/\s+/).filter(f => f && !f.startsWith('-'));
+                if (parts.length > 0) {
+                    if (!parts.includes('id') && !parts.includes('_id')) parts.push('id');
+                    
+                    selectFields = parts.map(f => {
+                        if (f === '_id') return 'id';
+                        if (f === 'category') return 'categories';
+                        if (f === 'coverImage') return 'previewImage';
+                        if (f === 'creator') return 'creatorId';
+                        return f;
+                    }).join(',');
+                }
+            }
+            return promise; 
+        },
+        populate: (path) => { populatePath = path; return promise; },
+        lean: () => promise
     };
-    return wrap(promise);
+    return promise;
   }
 
   static findById(id) {
@@ -497,17 +546,18 @@ class Template {
       if (groupStage && groupStage.$group?._id === null && (groupStage.$group?.ratings?.$push || groupStage.$group?.totalDownloads)) {
           const cid = matchStage?.$match?.creator || matchStage?.$match?.creatorId;
           if (cid) {
-              const { data, error } = await supabase.from('Template').select('rating, downloads').eq('creatorId', cid).eq('status', 'APPROVED');
+              const { data, error } = await supabase.from('Template').select('rating, downloads, price').eq('creatorId', cid).eq('status', 'APPROVED');
               if (error) throw error;
               
               const ratings = (data || []).map(item => item.rating || 0);
               const totalDownloads = (data || []).reduce((sum, item) => sum + (item.downloads || 0), 0);
+              const totalRevenue = (data || []).reduce((sum, item) => sum + ((Number(item.price) || 0) * (item.downloads || 0)), 0);
               
               return [{ 
                   _id: null, 
                   ratings, 
                   totalDownloads,
-                  // Compatibility with different group stage formats
+                  totalRevenue,
                   totalTemplates: data?.length || 0
               }];
           }
@@ -552,7 +602,7 @@ class Template {
       const skipStage = pipeline.find(p => p.$skip);
       const limitStage = pipeline.find(p => p.$limit);
 
-      let q = supabase.from('Template').select('*');
+      let q = supabase.from('Template').select('id, title, slug, status, creatorId, downloads, rating, createdAt, updatedAt');
       if (matchStage) q = this._applyQuery(q, matchStage.$match);
       
       q = q.order('status', { ascending: false }); 

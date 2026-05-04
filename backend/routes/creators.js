@@ -53,7 +53,7 @@ const getSortObject = (sortKey = 'popular', sortOrder = 'desc') => {
 // @route   GET /api/creators
 // @desc    Get all approved creators with their stats
 // @access  Public
-router.get('/', cacheMiddleware(300), async (req, res) => {
+router.get('/', cacheMiddleware(3600), async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 12;
@@ -342,7 +342,7 @@ router.get('/:id', cacheMiddleware(600), async (req, res) => {
           creator: creator._id,
           status: 'approved'
         })
-          .select('title price rating downloads category coverImage isPaid purchaseLink')
+          .select('title price rating downloads categories previewImage isPaid purchaseLink')
           .sort({ createdAt: -1 })
           .limit(6)
           .lean(),

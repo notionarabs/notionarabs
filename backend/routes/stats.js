@@ -8,7 +8,7 @@ const router = express.Router();
 // @route   GET /api/stats/homepage
 // @desc    Get all homepage statistics in a single request
 // @access  Public
-router.get('/homepage', cacheMiddleware(600), async (req, res) => {
+router.get('/homepage', cacheMiddleware(3600), async (req, res) => {
   try {
     // Parallel execution of all queries
     // Get all approved template data in ONE query to minimize round-trips

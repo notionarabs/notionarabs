@@ -55,7 +55,7 @@ async function handleOptimizedPagination(req, res, options) {
   // Use aggregation for better performance with pagination
   const [templates, totalCount] = await Promise.all([
     Template.find(filter)
-      .select('title description features category categories tags creator previewImage slug rating reviewsCount downloads views isPaid price purchaseLink isPinned pinnedAt pinnedById ')
+      .select('title description categories tags creator previewImage slug rating reviewsCount downloads views isPaid price purchaseLink isPinned pinnedAt pinnedById')
       .populate('creator', 'name username displayName profilePicture badges')
       .sort(sort)
       .skip(skip)
@@ -504,7 +504,7 @@ router.post('/bulk-import', auth, async (req, res) => {
 // @route   GET /api/templates
 // @desc    Get all approved templates with optimized server-side pagination
 // @access  Public
-router.get('/', cacheMiddleware(300), async (req, res) => {
+router.get('/', cacheMiddleware(3600), async (req, res) => {
   try {
     const {
       category,
@@ -584,7 +584,7 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
 
         const [templates, totalCount] = await Promise.all([
           Template.find(regexQuery)
-            .select('title description features category categories tags creator previewImage slug rating reviewsCount downloads views isPaid price purchaseLink isPinned pinnedAt pinnedById ')
+            .select('title description categories tags creator previewImage slug rating reviewsCount downloads views isPaid price purchaseLink isPinned pinnedAt pinnedById')
             .populate('creator', 'name username displayName profilePicture badges')
             .sort(sort)
             .skip(skip)
@@ -632,7 +632,7 @@ router.get('/my-templates', auth, async (req, res) => {
     }
 
     const templates = await Template.find({ creator: req.user._id })
-      .select('title description features category categories tags previewImage slug rating reviewsCount downloads views isPaid price purchaseLink status adminNotes approvedAt rejectedAt approvedBy rejectedBy createdAt updatedAt ')
+      .select('title description categories tags previewImage slug rating reviewsCount downloads views isPaid price purchaseLink status adminNotes approvedAt rejectedAt approvedBy rejectedBy createdAt updatedAt')
       .sort({ createdAt: -1 });
 
     const csvHeader = 'العنوان,الوصف,رابط نوشن,الفئات,مدفوع,السعر,رابط الصورة,صور إضافية,المميزات,الوسوم,اللغة,فيديو توضيحي,المنشئ,البريد الإلكتروني,الحالة,المشاهدات,التحميلات,التقييم,تاريخ الموافقة,تاريخ الإنشاء\n';
@@ -874,7 +874,7 @@ router.get('/similar/:id', cacheMiddleware(600), async (req, res) => {
 
     // Get all approved templates except the current one with limit for performance
     // Optimize: Use lean() and selective field projection for better performance
-    const selectFields = 'title description category categories tags creator previewImage slug rating reviewsCount downloads isPaid price';
+    const selectFields = 'title description categories tags creator previewImage slug rating reviewsCount downloads isPaid price';
     const allTemplates = await Template.find({
       status: 'approved',
       _id: { $ne: currentTemplate._id }
@@ -961,7 +961,7 @@ router.get('/:identifier', async (req, res) => {
     const { identifier } = req.params;
 
     // Optimize: Use lean() for better performance and selective field projection
-    const selectFields = 'title description features category categories tags creator previewImage previewImages slug rating reviewsCount downloads isPaid price purchaseLink notionLink views createdAt updatedAt explanationVideo isPinned pinnedAt pinnedById';
+    const selectFields = 'title description features categories tags creator previewImage previewImages slug rating reviewsCount downloads isPaid price purchaseLink notionLink views createdAt updatedAt explanationVideo isPinned pinnedAt pinnedById';
 
     // Try to find by slug first, then by ID
     let template = await Template.findOne({

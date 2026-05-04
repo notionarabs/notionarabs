@@ -6,11 +6,14 @@ import { LayoutDashboard, Crown, Zap, Award } from 'lucide-react';
 import api from '../../lib/api';
 import Counter from '../Counter';
 
-export default function Hero({ animationsPlayed }) {
-    const [stats, setStats] = useState({ templates: 0, creators: 0, specialties: 0, downloads: 0 });
-    const [loadingStats, setLoadingStats] = useState(true);
+export default function Hero({ animationsPlayed, initialStats }) {
+    const [stats, setStats] = useState(initialStats || { templates: 0, creators: 0, specialties: 0, downloads: 0 });
+    const [loadingStats, setLoadingStats] = useState(!initialStats);
 
     useEffect(() => {
+        // Only fetch if stats weren't provided by server
+        if (initialStats) return;
+
         const fetchStats = async () => {
             try {
                 setLoadingStats(true);
@@ -25,7 +28,7 @@ export default function Hero({ animationsPlayed }) {
             }
         };
         fetchStats();
-    }, []);
+    }, [initialStats]);
     return (
         <section className="relative overflow-hidden bg-white dark:bg-dark-primary px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-6 sm:py-8 md:py-12 lg:py-14 xl:py-16 transition-colors duration-300 min-h-[calc(100vh-64px)] sm:min-h-[calc(100vh-72px)] flex items-center">
             {/* Animated Background Elements */}

@@ -9,15 +9,39 @@ import NavigationWrapper from '../components/NavigationWrapper'
 import NavigationHandler from '../components/NavigationHandler'
 import ReferralHandler from '../components/ReferralHandler'
 import LoadingIndicator from '../components/LoadingIndicator'
-import { Suspense } from 'react'
+import { Suspense, lazy } from 'react'
+import { Almarai, Tajawal, Cairo } from 'next/font/google'
 import { OrganizationSchema, WebsiteSchema } from '../components/StructuredData'
 import { GoogleAnalytics } from '../components/SEOOptimizations'
 import { QueryProvider } from '../components/QueryProvider'
 import MaintenanceMode from '../components/MaintenanceMode'
 import TelegramPopupWrapper from '../components/TelegramPopupWrapper'
-import AIChat from '../components/AIChat'
+
+// Lazy load heavy components
+const AIChat = lazy(() => import('../components/AIChat'))
 
 import { generateMetadata as generateBaseMetadata } from '../lib/seo'
+
+const almarai = Almarai({
+  subsets: ['arabic'],
+  weight: ['300', '400', '700', '800'],
+  variable: '--font-almarai',
+  display: 'swap',
+});
+
+const tajawal = Tajawal({
+  subsets: ['arabic'],
+  weight: ['200', '300', '400', '500', '700', '800', '900'],
+  variable: '--font-tajawal',
+  display: 'swap',
+});
+
+const cairo = Cairo({
+  subsets: ['arabic'],
+  weight: ['200', '300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-cairo',
+  display: 'swap',
+});
 
 export const metadata = {
   ...generateBaseMetadata({
@@ -56,7 +80,7 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="ar" dir="rtl" suppressHydrationWarning>
+    <html lang="ar" dir="rtl" suppressHydrationWarning className={`${almarai.variable} ${tajawal.variable} ${cairo.variable}`}>
       <head>
         <OrganizationSchema />
         <WebsiteSchema />
@@ -66,9 +90,9 @@ export default function RootLayout({ children }) {
         <link rel="icon" type="image/png" href="/icons/favicon.png" />
         <link rel="shortcut icon" href="/icons/favicon.png" />
         {/* Resource hints for critical resources */}
-        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://www.google-analytics.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://notion-arabs-fe5b3f214071.herokuapp.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://notion-arabs-fe5b3f214071.herokuapp.com" />
 
@@ -78,24 +102,9 @@ export default function RootLayout({ children }) {
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="عرب نوشن" />
         <meta name="application-name" content="عرب نوشن" />
-        <meta name="apple-mobile-web-app-title" content="Notion Arabs" />
 
         {/* Web App Manifest - PWA Support */}
         <link rel="manifest" href="/metadata/manifest.json" />
-        {/* Font preconnect for faster font loading */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Font loading with font-display: swap to prevent render blocking */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&family=Cairo:wght@200;300;400;500;600;700;800;900&family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Almarai:wght@300;400;700;800&family=Changa:wght@200;300;400;500;600;700;800&family=Reem+Kufi:wght@400..700&family=Aref+Ruqaa:wght@400;700&family=Vibes&family=Katibeh&display=swap"
-          rel="stylesheet"
-        />
-        <noscript>
-          <link
-            href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&family=Cairo:wght@200;300;400;500;600;700;800;900&family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Almarai:wght@300;400;700;800&family=Changa:wght@200;300;400;500;600;700;800&family=Reem+Kufi:wght@400..700&family=Aref+Ruqaa:wght@400;700&family=Vibes&family=Katibeh&display=swap"
-            rel="stylesheet"
-          />
-        </noscript>
         {/* Critical blocking script for theme - runs synchronously before any rendering */}
         <script
           dangerouslySetInnerHTML={{
@@ -163,7 +172,9 @@ export default function RootLayout({ children }) {
                     <LoadingIndicator />
                     <TelegramPopupWrapper />
                     {children}
-                    <AIChat />
+                    <Suspense fallback={null}>
+                      <AIChat />
+                    </Suspense>
                   </ToastProvider>
                 </AuthProvider>
               </MaintenanceProvider>

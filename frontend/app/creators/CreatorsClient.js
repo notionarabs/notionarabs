@@ -40,16 +40,16 @@ function StarRating({ rating }) {
   );
 }
 
-export default function CreatorsClient() {
+export default function CreatorsClient({ initialCreators, initialPagination }) {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('popular');
   const [selectedSpecialty, setSelectedSpecialty] = useState('all');
   const [isSortOpen, setIsSortOpen] = useState(false);
-  const [allCreators, setAllCreators] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [allCreators, setAllCreators] = useState(initialCreators || []);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [pagination, setPagination] = useState({ current: 1, pages: 1, total: 0, limit: 12 });
+  const [pagination, setPagination] = useState(initialPagination || { current: 1, pages: 1, total: 0, limit: 12 });
   const sortButtonRef = useRef(null);
   const sortMenuRef = useRef(null);
 
@@ -73,6 +73,10 @@ export default function CreatorsClient() {
   };
 
   useEffect(() => {
+    // Skip first load if we have initial data
+    if (initialCreators && pagination.current === initialPagination.current && !searchTerm && selectedSpecialty === 'all' && sortBy === 'popular') {
+      return;
+    }
     const timer = setTimeout(fetchCreators, 500);
     return () => clearTimeout(timer);
   }, [searchTerm, sortBy, selectedSpecialty, pagination.current]);

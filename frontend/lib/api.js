@@ -60,30 +60,46 @@ const normalizeData = (obj) => {
   if (!obj || typeof obj !== 'object' || obj instanceof Date) return obj;
   
   if (Array.isArray(obj)) {
-    return obj.map(normalizeData);
+    // Only map if needed, otherwise return as is
+    let changed = false;
+    const newArr = obj.map(item => {
+      const normalized = normalizeData(item);
+      if (normalized !== item) changed = true;
+      return normalized;
+    });
+    return changed ? newArr : obj;
   }
   
+  let changed = false;
   const newObj = { ...obj };
   
-  // Ensure both id and _id exist if either one exists
+  // Ensure both id and _id exist
   if (newObj._id && !newObj.id) {
     newObj.id = newObj._id;
+    changed = true;
   } else if (newObj.id && !newObj._id) {
     newObj._id = newObj.id;
+    changed = true;
   }
   
-  // Recursively normalize nested objects/arrays (but skip circular references and special types)
-  Object.keys(newObj).forEach(key => {
-    const val = newObj[key];
-    if (val && typeof val === 'object' && !(val instanceof Date)) {
-      newObj[key] = normalizeData(val);
+  // Recursively normalize nested objects
+  for (const key in newObj) {
+    if (Object.prototype.hasOwnProperty.call(newObj, key)) {
+      const val = newObj[key];
+      if (val && typeof val === 'object' && !(val instanceof Date)) {
+        const normalized = normalizeData(val);
+        if (normalized !== val) {
+          newObj[key] = normalized;
+          changed = true;
+        }
+      }
     }
-  });
+  }
   
-  return newObj;
+  return changed ? newObj : obj;
 };
 
-// Add response interceptor to handle auth errors and data normalization
+// Add response interceptor to handle auth errors, data normalization, and retries
 api.interceptors.response.use(
   (response) => {
     // Automatically normalize _id and id fields in the response data
@@ -102,11 +118,24 @@ api.interceptors.response.use(
     }
     return response;
   },
-  (error) => {
+  async (error) => {
+    const { config, response } = error;
+
+    // Retry logic for 5xx errors or network timeouts
+    const maxRetries = 2;
+    config.retryCount = config.retryCount || 0;
+
+    if (config.retryCount < maxRetries && (!response || response.status >= 500)) {
+      config.retryCount += 1;
+      const delay = config.retryCount * 1000; // Linear backoff
+      console.warn(`🔄 Retrying API request (${config.retryCount}/${maxRetries}): ${config.url} in ${delay}ms`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return api(config);
+    }
+
     if (axios.isCancel(error)) {
       return Promise.reject(error);
     }
-    const { response } = error;
 
     // Log API error response times — skip 401s and network errors (backend cold-starting)
     if (error.config?.metadata?.startTime) {

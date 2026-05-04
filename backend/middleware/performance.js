@@ -17,11 +17,12 @@ const cacheMiddleware = (duration = 300) => {
       return next();
     }
 
-    const key = `${req.originalUrl}_${req.user?.id || 'anonymous'}`;
+    const key = `cache:${req.originalUrl}_${req.user?.id || 'anonymous'}`;
     const cached = cache.get(key);
 
     if (cached && Date.now() - cached.timestamp < duration * 1000) {
       res.set('X-Cache', 'HIT');
+      res.set('X-Cache-Duration', `${duration}s`);
       return res.json(cached.data);
     }
 
@@ -30,12 +31,15 @@ const cacheMiddleware = (duration = 300) => {
 
     // Override res.json to cache the response
     res.json = function (data) {
-      cache.set(key, {
-        data,
-        timestamp: Date.now()
-      });
+      // Only cache successful responses
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        cache.set(key, {
+          data,
+          timestamp: Date.now()
+        });
+        res.set('X-Cache', 'MISS');
+      }
 
-      res.set('X-Cache', 'MISS');
       return originalJson.call(this, data);
     };
 
@@ -107,7 +111,12 @@ const responseTimeOptimization = (req, res, next) => {
     if (req.originalUrl.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg)$/)) {
       res.set('Cache-Control', 'public, max-age=31536000'); // 1 year
     } else if (req.originalUrl.startsWith('/api/')) {
-      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      // If it's a public GET request, allow some caching
+      if (req.method === 'GET' && !req.headers.authorization && !req.originalUrl.includes('/auth/')) {
+        res.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=30');
+      } else {
+        res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      }
     }
 
     return originalSend.call(this, data);
@@ -122,7 +131,12 @@ const responseTimeOptimization = (req, res, next) => {
     if (req.originalUrl.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg)$/)) {
       res.set('Cache-Control', 'public, max-age=31536000'); // 1 year
     } else if (req.originalUrl.startsWith('/api/')) {
-      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      // If it's a public GET request, allow some caching
+      if (req.method === 'GET' && !req.headers.authorization && !req.originalUrl.includes('/auth/')) {
+        res.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=30');
+      } else {
+        res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      }
     }
 
     return originalJson.call(this, data);

@@ -230,7 +230,13 @@ function TemplatesPageContent() {
                 <Link key={rel._id} href={`/templates/${rel.slug || rel._id}`} className="group relative">
                   <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[3.5rem] shadow-large group-hover:shadow-glow group-hover:-translate-y-4 transition-all duration-700 h-full flex flex-col border-none overflow-hidden isolate">
                     <div className="relative aspect-[16/10] m-4 overflow-hidden rounded-[2.5rem] shadow-soft">
-                      <Image src={rel.previewImage || '/placeholder-template.jpg'} alt={rel.title} fill className="object-cover object-center group-hover:scale-105 transition-transform duration-1000" />
+                      <Image 
+                        src={rel.previewImage || '/placeholder-template.jpg'} 
+                        alt={rel.title} 
+                        fill 
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover object-center group-hover:scale-105 transition-transform duration-1000" 
+                      />
                       <div className="absolute top-6 left-6 z-20"><div className="px-6 py-3 bg-black/40 backdrop-blur-xl rounded-2xl text-white font-black text-sm uppercase tracking-widest">{rel.isPaid ? `${rel.price} ج.م` : 'مجاني'}</div></div>
                     </div>
                     <div className="p-10 flex-1 flex flex-col relative z-20">

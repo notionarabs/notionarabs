@@ -7,12 +7,12 @@ class Template {
     Object.assign(this, data);
     this._id = data.id || data._id;
     
-    // Safety Truncation: Never allow a massive features list to crash the system
-    if (Array.isArray(this.features) && this.features.length > 50) {
-        this.features = this.features.slice(0, 50);
-        this.features.push('... (truncated for performance)');
-    } else if (typeof this.features === 'string' && this.features.length > 5000) {
-        this.features = this.features.substring(0, 5000) + '... (truncated for performance)';
+    // Safety Truncation: Prevent extreme data bloat from affecting performance
+    if (Array.isArray(this.features) && this.features.length > 500) {
+        this.features = this.features.slice(0, 500);
+        this.features.push('...');
+    } else if (typeof this.features === 'string' && this.features.length > 50000) {
+        this.features = this.features.substring(0, 50000) + '...';
     }
 
     // Map database IDs to application properties

@@ -38,8 +38,38 @@ export default function CreatorProfileClient({ initialCreator }) {
   const [creatorTemplates, setCreatorTemplates] = useState([]);
   const [loading, setLoading] = useState(!initialCreator);
   const [templatesLoading, setTemplatesLoading] = useState(true);
+  const [isCoverDark, setIsCoverDark] = useState(false);
   const [profileImageError, setProfileImageError] = useState(false);
   const [sortBy, setSortBy] = useState('newest');
+  
+  // Dynamic contrast detection for cover image
+  useEffect(() => {
+    if (!creator?.backgroundImage) {
+      setIsCoverDark(false); // Default to light mode colors for empty/light gray covers
+      return;
+    }
+
+    const img = new window.Image();
+    img.crossOrigin = "Anonymous";
+    img.src = creator.backgroundImage;
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 1;
+        canvas.height = 1;
+        // Sample the bottom part where the text overlaps
+        ctx.drawImage(img, img.width / 2, img.height * 0.7, img.width / 10, img.height / 10, 0, 0, 1, 1);
+        const data = ctx.getImageData(0, 0, 1, 1).data;
+        const brightness = (data[0] * 299 + data[1] * 587 + data[2] * 114) / 1000;
+        setIsCoverDark(brightness < 140); // threshold
+      } catch (e) {
+        console.warn("Could not calculate cover brightness (CORS)", e);
+        setIsCoverDark(false); // Fallback to dark text
+      }
+    };
+  }, [creator?.backgroundImage]);
+
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchInput, setSearchInput] = useState('');
@@ -341,10 +371,10 @@ export default function CreatorProfileClient({ initialCreator }) {
 
                 {/* Identity */}
                 <div className="min-w-0 pb-1">
-                  <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-foreground dark:text-white truncate">
+                  <h1 className={`text-3xl sm:text-4xl font-black tracking-tight truncate transition-colors duration-500 ${isCoverDark ? 'text-white drop-shadow-md' : 'text-zinc-900'} dark:text-white`}>
                     {creator.displayName || creator.name}
                   </h1>
-                  <p className="text-sm text-foreground/50 dark:text-white/40 font-black uppercase tracking-widest truncate mt-1">
+                  <p className="text-sm text-zinc-500 dark:text-white/40 font-black uppercase tracking-widest truncate mt-1">
                     @{creator.username}
                   </p>
                 </div>

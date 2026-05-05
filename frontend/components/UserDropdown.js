@@ -153,7 +153,7 @@ export default function UserDropdown() {
             <div className="bg-white/90 dark:bg-dark-secondary/90 backdrop-blur-xl border border-gray-200/50 dark:border-dark-card-border/50 shadow-2xl rounded-2xl overflow-hidden ring-1 ring-black/5" dir="rtl">
 
               {/* Header Section */}
-              <div className="p-4 bg-gradient-to-br from-gray-50/50 to-white/50 dark:from-dark-tertiary/20 dark:to-dark-secondary/50 border-b border-gray-100 dark:border-dark-card-border">
+              <div className="p-4 bg-gradient-to-br from-gray-50/50 to-white/50 dark:from-dark-tertiary/20 dark:to-dark-secondary/50">
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     {user?.profilePicture ? (

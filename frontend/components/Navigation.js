@@ -100,7 +100,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
 
   return (
     <>
-      <header ref={menuRef} className={`w-full sticky top-0 z-50 backdrop-blur-2xl transition-all duration-300 ${isSearchOpen ? 'translate-y-[-100%]' : 'translate-y-0'} ${scrolled ? 'py-2 shadow-lg' : 'py-4'} ${isMenuOpen ? 'bg-accent-600 dark:bg-dark-secondary' : 'bg-nav'}`}>
+      <header ref={menuRef} className={`w-full sticky top-0 z-50 backdrop-blur-2xl transition-all duration-300 ${isSearchOpen ? 'translate-y-[-100%]' : 'translate-y-0'} ${scrolled ? 'py-2 shadow-none' : 'py-4'} ${isMenuOpen ? 'bg-accent-600 dark:bg-dark-secondary' : 'bg-nav'} border-none`}>
         <div className="container-custom flex justify-between items-center px-6">
           <Link
             href="/"
@@ -223,7 +223,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
         </div>
 
         {/* Mobile Menu - Enhanced with Glassmorphism */}
-        <div className={`md:hidden absolute top-full left-0 right-0 z-40 bg-accent-600/95 dark:bg-dark-secondary/95 backdrop-blur-xl border-b border-white/10 dark:border-dark-card-border shadow-2xl transition-all duration-300 ease-in-out origin-top ${isMenuOpen ? 'opacity-100 visible scale-y-100' : 'opacity-0 invisible scale-y-95 pointer-events-none'}`}>
+        <div className={`md:hidden absolute top-full left-0 right-0 z-40 bg-accent-600/95 dark:bg-dark-secondary/95 backdrop-blur-xl shadow-2xl transition-all duration-300 ease-in-out origin-top ${isMenuOpen ? 'opacity-100 visible scale-y-100' : 'opacity-0 invisible scale-y-95 pointer-events-none'}`}>
           <div className="container-custom py-6 flex flex-col h-[calc(100vh-80px)] overflow-y-auto">
             {/* Mobile Navigation Links */}
             <nav className="space-y-2 mb-6" aria-label="Mobile navigation">

@@ -660,6 +660,11 @@ select:focus {
 
 
   /* Enhanced Navigation */
+  header {
+    border-bottom: none !important;
+    box-shadow: none !important;
+  }
+
   .nav-link {
     @apply text-accent-500/60 hover:text-accent-500 transition-colors duration-200 py-2 px-3 rounded-lg hover:bg-black/5 whitespace-nowrap;
   }

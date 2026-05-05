@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import api from '../../../lib/api';
-import toast from 'react-hot-toast';
+import { useToast } from '../../../contexts/ToastContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Star, Zap, Crown, Award, CheckCircle, Heart, Pin, PinOff,
@@ -49,6 +49,7 @@ export default function CreatorApplicationsPage() {
   const [imageErrors, setImageErrors] = useState({});
   const [pinLoading, setPinLoading] = useState(null);
   const { user, isAuthenticated, loading: authLoading, refreshUserData, ensureTokenInHeaders } = useAuth();
+  const { showSuccess, showError } = useToast();
   const router = useRouter();
 
   const handleImageError = (applicationId) => {
@@ -178,9 +179,9 @@ export default function CreatorApplicationsPage() {
           }
         }
       }
-      toast.success(newStatus === 'approved' ? 'تم قبول الطلب بنجاح' : 'تم رفض الطلب');
+      showSuccess(newStatus === 'approved' ? 'تم قبول الطلب بنجاح' : 'تم رفض الطلب');
     } catch (err) {
-      toast.error('حدث خطأ أثناء تحديث حالة الطلب');
+      showError('حدث خطأ أثناء تحديث حالة الطلب');
     }
   };
 
@@ -233,9 +234,9 @@ export default function CreatorApplicationsPage() {
       }));
 
       setSelectedBadgeType('');
-      toast.success('تمت إضافة الشارة بنجاح');
+      showSuccess('تمت إضافة الشارة بنجاح');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'خطأ في إضافة الشارة');
+      showError(error.response?.data?.message || 'خطأ في إضافة الشارة');
     } finally {
       setActionLoading(false);
     }
@@ -261,9 +262,9 @@ export default function CreatorApplicationsPage() {
         }));
       }
 
-      toast.success('تم حذف الشارة بنجاح');
+      showSuccess('تم حذف الشارة بنجاح');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'خطأ في حذف الشارة');
+      showError(error.response?.data?.message || 'خطأ في حذف الشارة');
     }
   };
 
@@ -274,7 +275,7 @@ export default function CreatorApplicationsPage() {
       const response = await api.put(`/admin/users/${userId}/pin`);
 
       if (response.data.success) {
-        toast.success(response.data.message);
+        showSuccess(response.data.message);
         setApplications(prev =>
           prev.map(app =>
             app.id === userId
@@ -288,7 +289,7 @@ export default function CreatorApplicationsPage() {
         );
       }
     } catch (error) {
-      toast.error('حدث خطأ أثناء تثبيت المبدع');
+      showError('حدث خطأ أثناء تثبيت المبدع');
     } finally {
       setPinLoading(null);
     }

@@ -51,7 +51,7 @@ export default function Footer() {
     <footer className="relative mt-20 md:mt-32">
       {/* Signature Hardware Silhouette */}
       <div className="absolute inset-x-0 -top-12 h-12 bg-card rounded-t-[3rem]" />
-      
+
       <div className="bg-card relative overflow-hidden">
         {/* Atmospheric Glow */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
@@ -62,49 +62,49 @@ export default function Footer() {
             {/* Brand Identity Section */}
             <div className="lg:col-span-5 space-y-8">
               <Link href="/" className="inline-block" onClick={() => handleNavigation('/')}>
-              <div className="flex items-center relative">
-                {/* Light Logo (for dark theme) */}
-                <Image
-                  src="/brand/NavLogoLight.svg"
-                  alt="عرب نوشن"
-                  width={220}
-                  height={66}
-                  className="h-12 w-auto drop-shadow-sm hidden dark:block"
-                  quality={100}
-                  unoptimized
-                />
-                {/* Dark Logo (for light theme) */}
-                <Image
-                  src="/brand/NavLogoDark.svg"
-                  alt="عرب نوشن"
-                  width={220}
-                  height={66}
-                  className="h-12 w-auto drop-shadow-sm block dark:hidden"
-                  quality={100}
-                  unoptimized
-                />
-              </div>
+                <div className="flex items-center relative">
+                  {/* Light Logo (for dark theme) */}
+                  <Image
+                    src="/brand/NavLogoLight.svg"
+                    alt="عرب نوشن"
+                    width={220}
+                    height={66}
+                    className="h-12 w-auto drop-shadow-sm hidden dark:block"
+                    quality={100}
+                    unoptimized
+                  />
+                  {/* Dark Logo (for light theme) */}
+                  <Image
+                    src="/brand/NavLogoDark.svg"
+                    alt="عرب نوشن"
+                    width={220}
+                    height={66}
+                    className="h-12 w-auto drop-shadow-sm block dark:hidden"
+                    quality={100}
+                    unoptimized
+                  />
+                </div>
               </Link>
-              
+
               <p className="text-foreground/70 dark:text-white/60 text-lg leading-relaxed max-w-md font-medium">
                 مجتمعك العربي الأول لاحتراف نوشن، نوفر لك أرقى القوالب الرقمية والأدوات المبتكرة لتمكينك من تنظيم حياتك وإدارة مشاريعك بإبداع.
               </p>
 
               <div className="pt-8 border-t border-foreground/5 dark:border-white/5">
-                <Link 
-                  href="https://arab-os.com" 
-                  target="_blank" 
+                <Link
+                  href="https://arab-os.com"
+                  target="_blank"
                   className="group block space-y-3"
                 >
                   <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-foreground/20 dark:text-white/10 block">
                     إحدى مبادرات
                   </span>
                   <div className="flex items-center gap-4">
-                    <Image 
-                      src="/ArabOS.svg" 
-                      alt="Arab-OS" 
-                      width={90} 
-                      height={22} 
+                    <Image
+                      src="/ArabOS.svg"
+                      alt="Arab-OS"
+                      width={90}
+                      height={22}
                       className="h-5 w-auto opacity-50 group-hover:opacity-100 transition-all"
                       unoptimized
                     />
@@ -124,8 +124,8 @@ export default function Footer() {
                 <ul className="space-y-4">
                   {FOOTER_LINKS.community.map((link) => (
                     <li key={link.href}>
-                      <Link 
-                        href={link.href} 
+                      <Link
+                        href={link.href}
                         onClick={() => handleNavigation(link.href)}
                         className="text-foreground/60 dark:text-white/50 hover:text-primary transition-all flex items-center group gap-2"
                       >
@@ -142,8 +142,8 @@ export default function Footer() {
                 <ul className="space-y-4">
                   {FOOTER_LINKS.support.map((link) => (
                     <li key={link.href}>
-                      <Link 
-                        href={link.href} 
+                      <Link
+                        href={link.href}
                         onClick={() => handleNavigation(link.href)}
                         className="text-foreground/60 dark:text-white/50 hover:text-primary transition-all flex items-center group gap-2"
                       >
@@ -174,8 +174,8 @@ export default function Footer() {
                     </Link>
                   ))}
                 </div>
-                <Link 
-                  href="mailto:support@notionarabs.com" 
+                <Link
+                  href="mailto:support@notionarabs.com"
                   className="inline-flex items-center gap-4 p-4 rounded-2xl bg-foreground/5 dark:bg-white/5 border-none group transition-all w-full md:w-auto shadow-sm"
                 >
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300">
@@ -195,16 +195,16 @@ export default function Footer() {
 
             <div className="flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-foreground/[0.03] dark:bg-white/[0.03] border border-foreground/5 dark:border-white/5" dir="ltr">
               <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-foreground/30 dark:text-white/20">Powered by</span>
-              <Link 
-                href="https://arab-os.com" 
-                target="_blank" 
+              <Link
+                href="https://arab-os.com"
+                target="_blank"
                 className="opacity-50 hover:opacity-100 transition-all duration-300 transform hover:scale-105 flex items-center"
               >
-                <Image 
-                  src="/ArabOS.svg" 
-                  alt="Arab OS" 
-                  width={80} 
-                  height={20} 
+                <Image
+                  src="/ArabOS.svg"
+                  alt="Arab OS"
+                  width={80}
+                  height={20}
                   className="h-4 w-auto"
                   unoptimized
                 />
@@ -213,7 +213,7 @@ export default function Footer() {
 
             <div className="flex flex-wrap justify-center gap-8">
               {FOOTER_LINKS.legal.map((link) => (
-                <Link 
+                <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => handleNavigation(link.href)}

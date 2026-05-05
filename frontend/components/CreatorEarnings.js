@@ -6,10 +6,12 @@ import { useRouter } from 'next/navigation';
 import { formatDate } from '../lib/dateUtils';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../lib/api';
+import { useToast } from '../contexts/ToastContext';
 import LoadingIndicator from './LoadingIndicator';
 
 const CreatorEarnings = () => {
   const { user, ensureTokenInHeaders } = useAuth();
+  const { showSuccess, showError } = useToast();
   const [stats, setStats] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -61,7 +63,7 @@ const CreatorEarnings = () => {
 
     // Check if payout details are set
     if (!user?.payoutMethod || !user?.payoutDetails || Object.keys(user.payoutDetails).length === 0) {
-      alert('يرجى ضبط إعدادات الدفع أولاً في صفحة الإعدادات');
+      showError('يرجى ضبط إعدادات الدفع أولاً في صفحة الإعدادات');
       router.push('/profile?section=settings');
       return;
     }
@@ -78,14 +80,14 @@ const CreatorEarnings = () => {
       });
 
       if (response.data.success) {
-        alert('تم تقديم طلب السحب بنجاح!');
+        showSuccess('تم تقديم طلب السحب بنجاح!');
         // Refresh stats
         const statsRes = await api.get('/creators/me/stats');
         if (statsRes.data.success) setStats(statsRes.data.stats);
       }
     } catch (err) {
       console.error('Withdrawal error:', err);
-      alert(err.response?.data?.message || 'حدث خطأ أثناء تقديم الطلب');
+      showError(err.response?.data?.message || 'حدث خطأ أثناء تقديم الطلب');
     } finally {
       setIsWithdrawing(false);
     }

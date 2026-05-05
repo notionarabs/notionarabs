@@ -29,16 +29,44 @@ export default function Hero({ animationsPlayed, initialStats }) {
         };
         fetchStats();
     }, [initialStats]);
+    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            setMousePos({
+                x: (e.clientX / window.innerWidth - 0.5) * 20,
+                y: (e.clientY / window.innerHeight - 0.5) * 20
+            });
+        };
+        window.addEventListener('mousemove', handleMouseMove);
+        return () => window.removeEventListener('mousemove', handleMouseMove);
+    }, []);
+
     return (
         <section className="relative overflow-hidden bg-white dark:bg-dark-primary px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-6 sm:py-8 md:py-12 lg:py-14 xl:py-16 transition-colors duration-300 min-h-[calc(100vh-64px)] sm:min-h-[calc(100vh-72px)] flex items-center">
             {/* Animated Background Elements */}
-            <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
-                {/* Floating Notion-style Blocks */}
-                <div className="hidden sm:block absolute top-10 left-[5%] w-16 h-16 bg-accent-500/5 dark:bg-white/5 rounded-2xl border-none floating-block notion-block-hover shadow-2xl opacity-40"></div>
-                <div className="hidden sm:block absolute top-60 right-[8%] w-12 h-12 bg-accent-500/5 dark:bg-white/5 rounded-xl border-none floating-block-delayed notion-block-hover shadow-xl opacity-30"></div>
-                <div className="hidden md:block absolute bottom-20 left-[15%] w-20 h-20 bg-accent-500/5 dark:bg-white/5 rounded-[2rem] border-none floating-block notion-block-hover shadow-2xl opacity-40"></div>
-                <div className="hidden lg:block absolute top-1/2 right-[5%] w-14 h-14 bg-accent-500/5 dark:bg-white/5 rounded-2xl border-none floating-block-delayed notion-block-hover shadow-xl opacity-30"></div>
-                <div className="hidden md:block absolute bottom-10 right-[20%] w-18 h-18 bg-accent-500/5 dark:bg-white/5 rounded-[2.5rem] border-none floating-block notion-block-hover shadow-2xl opacity-40"></div>
+            <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+                {/* Floating Notion-style Blocks with Magnetic Effect */}
+                <div 
+                    className="hidden sm:block absolute top-10 left-[5%] w-16 h-16 bg-accent-500/5 dark:bg-white/5 rounded-2xl floating-block notion-block-hover shadow-2xl opacity-40 transition-transform duration-300"
+                    style={{ transform: `translate(${mousePos.x * 1.5}px, ${mousePos.y * 1.5}px)` }}
+                ></div>
+                <div 
+                    className="hidden sm:block absolute top-60 right-[8%] w-12 h-12 bg-accent-500/5 dark:bg-white/5 rounded-xl floating-block-delayed notion-block-hover shadow-xl opacity-30 transition-transform duration-300"
+                    style={{ transform: `translate(${mousePos.x * -1.2}px, ${mousePos.y * -1.2}px)` }}
+                ></div>
+                <div 
+                    className="hidden md:block absolute bottom-20 left-[15%] w-20 h-20 bg-accent-500/5 dark:bg-white/5 rounded-[2rem] floating-block notion-block-hover shadow-2xl opacity-40 transition-transform duration-300"
+                    style={{ transform: `translate(${mousePos.x * 2}px, ${mousePos.y * 2}px)` }}
+                ></div>
+                <div 
+                    className="hidden lg:block absolute top-1/2 right-[5%] w-14 h-14 bg-accent-500/5 dark:bg-white/5 rounded-2xl floating-block-delayed notion-block-hover shadow-xl opacity-30 transition-transform duration-300"
+                    style={{ transform: `translate(${mousePos.x * -2.5}px, ${mousePos.y * -2.5}px)` }}
+                ></div>
+                <div 
+                    className="hidden md:block absolute bottom-10 right-[20%] w-18 h-18 bg-accent-500/5 dark:bg-white/5 rounded-[2.5rem] floating-block notion-block-hover shadow-2xl opacity-40 transition-transform duration-300"
+                    style={{ transform: `translate(${mousePos.x}px, ${mousePos.y}px)` }}
+                ></div>
 
                 {/* Gradient Orbs */}
                 <div className="hidden sm:block absolute top-0 left-0 w-96 h-96 bg-gradient-to-r from-orange-100/30 to-amber-100/30 dark:from-orange-500/5 dark:to-orange-600/5 rounded-full blur-3xl motion-safe:animate-pulse"></div>

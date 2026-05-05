@@ -95,7 +95,7 @@ const FollowButton = ({
       disabled={loading}
       className={`inline-flex items-center justify-center gap-2 rounded-xl transition-all duration-500 uppercase tracking-widest ${isFollowing
         ? 'bg-zinc-100 dark:bg-white/5 text-zinc-900 dark:text-white hover:bg-zinc-200 dark:hover:bg-white/10 shadow-sm'
-        : 'bg-primary text-white hover:shadow-glow hover:scale-105 active:scale-95 shadow-lg shadow-primary/20'
+        : 'bg-primary text-white hover:shadow-glow shadow-lg shadow-primary/20'
         } ${sizeClasses[size]} ${loading ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
       title={isFollowing ? `إلغاء متابعة ${creatorName}` : `متابعة ${creatorName}`}
     >

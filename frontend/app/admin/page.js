@@ -7,6 +7,7 @@ import Link from 'next/link';
 import api from '../../lib/api';
 import { formatDate } from '../../lib/dateUtils';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useToast } from '../../contexts/ToastContext';
 import { useAuthPersistence } from '../../hooks/useAuthPersistence';
 import ExportButton from '../../components/ExportButton';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -34,6 +35,7 @@ import { BreadcrumbWrapper } from '../../components/Breadcrumb.js';
 
 export default function AdminPage() {
   const { user, isAuthenticated, loading: authLoading, refreshUserData } = useAuth();
+  const { showSuccess, showError } = useToast();
   
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState(null);
@@ -291,7 +293,7 @@ export default function AdminPage() {
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error exporting users:', error);
-      alert('حدث خطأ أثناء تصدير البيانات. يرجى المحاولة مرة أخرى.');
+      showError('حدث خطأ أثناء تصدير البيانات. يرجى المحاولة مرة أخرى.');
     } finally {
       setExportLoading(false);
     }

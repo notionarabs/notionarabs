@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useCallback, useMemo } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import Toast from '../components/Toast';
 
 const ToastContext = createContext();
@@ -46,25 +47,23 @@ export const ToastProvider = ({ children }) => {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      {/* Render all toasts */}
-      <div className="fixed top-4 right-4 z-50 space-y-2">
-        {toasts.map((toast, index) => (
-          <div
-            key={toast.id}
-            className="transform transition-all duration-300 ease-in-out"
-            style={{
-              transform: `translateY(${index * -8}px)`,
-              zIndex: 1000 - index
-            }}
-          >
-            <Toast
-              message={toast.message}
-              type={toast.type}
-              duration={toast.duration}
-              onClose={() => removeToast(toast.id)}
-            />
-          </div>
-        ))}
+      {/* Render all toasts - Positioned according to website direction (top-left for RTL) */}
+      <div className="fixed top-6 end-6 z-[9999] flex flex-col items-end gap-3 pointer-events-none">
+        <AnimatePresence mode="popLayout">
+          {toasts.map((toast) => (
+            <div
+              key={toast.id}
+              className="pointer-events-auto"
+            >
+              <Toast
+                message={toast.message}
+                type={toast.type}
+                duration={toast.duration}
+                onClose={() => removeToast(toast.id)}
+              />
+            </div>
+          ))}
+        </AnimatePresence>
       </div>
     </ToastContext.Provider>
   );

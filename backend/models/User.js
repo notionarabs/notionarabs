@@ -278,7 +278,7 @@ class UserDoc {
                         v = v.toUpperCase();
                     }
 
-                    const isArrayCol = ['specialties', 'badges', 'socialLinks'].includes(dbK);
+                    const isArrayCol = ['specialties', 'badges', 'socialLinks', 'following'].includes(dbK);
                     
                     if (typeof v === 'object' && v.$regex) {
                         let pattern = v.$regex;
@@ -310,7 +310,7 @@ class UserDoc {
                 if (ENUM_FIELDS.includes(dbKey) && Array.isArray(val.$in)) {
                     val.$in = val.$in.map(v => typeof v === 'string' ? v.toUpperCase() : v);
                 }
-                const isArrayCol = ['specialties', 'badges', 'socialLinks'].includes(dbKey);
+                const isArrayCol = ['specialties', 'badges', 'socialLinks', 'following'].includes(dbKey);
                 if (isArrayCol) {
                     q = q.overlaps(dbKey, val.$in);
                 } else {
@@ -330,7 +330,13 @@ class UserDoc {
             if (ENUM_FIELDS.includes(dbKey) && typeof val === 'string') {
                 q = q.eq(dbKey, val.toUpperCase());
             } else {
-                q = q.eq(dbKey, val);
+                const isArrayCol = ['specialties', 'badges', 'socialLinks', 'following'].includes(dbKey);
+                if (isArrayCol) {
+                    // Supabase array contains/overlaps semantics
+                    q = q.overlaps(dbKey, [val]);
+                } else {
+                    q = q.eq(dbKey, val);
+                }
             }
         }
     });

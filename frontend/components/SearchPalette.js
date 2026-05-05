@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, X, Zap, Layout, BookOpen, Clock, Command, ArrowRight } from 'lucide-react';
+import { Search, X, Zap, Layout, BookOpen, Clock, Command, ArrowRight, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../contexts/ThemeContext';
 import axios from 'axios';
@@ -186,14 +186,36 @@ export default function SearchPalette({ isOpen, onClose }) {
                 {/* Results Area */}
                 <div className="max-h-[450px] overflow-y-auto no-scrollbar py-2">
                     {!query ? (
-                        <div className="px-6 py-20 text-center">
-                            <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 ${theme === 'dark' ? 'bg-white/[0.02]' : 'bg-gray-100'
-                                }`}>
-                                <Search className={`w-8 h-8 ${theme === 'dark' ? 'text-white/10' : 'text-gray-300'}`} />
+                        <div className="px-6 py-12">
+                            <div className="mb-8">
+                                <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-6 ${theme === 'dark' ? 'text-white/20' : 'text-gray-400'}`}>الوصول السريع</p>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {[
+                                        { label: 'متجر القوالب', icon: <Layout className="w-5 h-5" />, href: '/templates', color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+                                        { label: 'مختبر الأدوات', icon: <Zap className="w-5 h-5" />, href: '/widgets', color: 'text-orange-500', bg: 'bg-orange-500/10' },
+                                        { label: 'مدونة المجتمع', icon: <BookOpen className="w-5 h-5" />, href: '/blog', color: 'text-blue-500', bg: 'bg-blue-500/10' },
+                                        { label: 'صناع المحتوى', icon: <Users className="w-5 h-5" />, href: '/creators', color: 'text-purple-500', bg: 'bg-purple-500/10' }
+                                    ].map((item) => (
+                                        <button
+                                            key={item.href}
+                                            onClick={() => { router.push(item.href); onClose(); }}
+                                            className={`flex items-center gap-4 p-4 rounded-2xl transition-all border border-transparent ${theme === 'dark' ? 'bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/5' : 'bg-gray-50 hover:bg-white hover:shadow-lg hover:shadow-gray-200/50'}`}
+                                        >
+                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${item.bg} ${item.color}`}>
+                                                {item.icon}
+                                            </div>
+                                            <span className={`font-black text-sm ${theme === 'dark' ? 'text-white/80' : 'text-gray-700'}`}>{item.label}</span>
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                            <p className={`font-bold text-xl mb-1 ${theme === 'dark' ? 'text-white/60' : 'text-gray-700'}`}>استكشف عرب نوشن</p>
-                            <p className={`text-sm font-tajawal max-w-[280px] mx-auto leading-relaxed ${theme === 'dark' ? 'text-white/20' : 'text-gray-400'
-                                }`}>ابدأ الكتابة للبحث عن القوالب، الأدوات الذكية، أو المقالات التعليمية.</p>
+
+                            <div className="text-center pt-8 border-t border-white/5">
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 ${theme === 'dark' ? 'bg-white/[0.02]' : 'bg-gray-100'}`}>
+                                    <Command className={`w-6 h-6 ${theme === 'dark' ? 'text-white/10' : 'text-gray-300'}`} />
+                                </div>
+                                <p className={`text-xs font-bold ${theme === 'dark' ? 'text-white/30' : 'text-gray-400'}`}>أو ابدأ الكتابة للبحث عن شيء محدد...</p>
+                            </div>
                         </div>
                     ) : results.length > 0 ? (
                         <div className="space-y-1 px-3">

@@ -37,13 +37,13 @@ export default function Breadcrumb({ items = [], className = '' }) {
 
             {/* Breadcrumb Item */}
             {isLast ? (
-              <span className="text-accent-900 dark:text-white font-black truncate max-w-[120px] sm:max-w-xs uppercase tracking-widest text-[10px]" aria-current="page">
+              <span className="px-3 py-1.5 text-accent-900 dark:text-white font-black truncate max-w-[120px] sm:max-w-xs uppercase tracking-widest text-[10px]" aria-current="page">
                 {item.name}
               </span>
             ) : (
               <Link
                 href={item.url || item.href}
-                className="hover:text-primary dark:hover:text-primary transition-all whitespace-nowrap font-black uppercase tracking-widest text-[10px]"
+                className="px-3 py-1.5 rounded-full hover:bg-primary/10 dark:hover:bg-primary/20 hover:text-primary dark:hover:text-primary transition-all whitespace-nowrap font-black uppercase tracking-widest text-[10px]"
               >
                 {item.name}
               </Link>

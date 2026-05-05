@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import api from '../../../lib/api';
-import toast from 'react-hot-toast';
+import { useToast } from '../../../contexts/ToastContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Settings, Shield, UserPlus,
@@ -65,6 +65,7 @@ export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const { showSuccess, showError } = useToast();
   const router = useRouter();
 
   useEffect(() => {
@@ -97,17 +98,14 @@ export default function AdminSettingsPage() {
   const handleSave = async () => {
     try {
       setSaving(true);
-      const savePromise = api.put('/admin/settings', settings);
-
-      toast.promise(savePromise, {
-        loading: 'جاري الحفظ...',
-        success: 'تم تحديث الإعدادات بنجاح! 🚀',
-        error: 'حدث خطأ أثناء الحفظ'
-      });
-
-      await savePromise;
+      const response = await api.put('/admin/settings', settings);
+      
+      if (response.data.success) {
+        showSuccess('تم تحديث الإعدادات بنجاح! 🚀');
+      }
     } catch (error) {
       console.error('Error saving settings:', error);
+      showError('حدث خطأ أثناء الحفظ');
     } finally {
       setSaving(false);
     }

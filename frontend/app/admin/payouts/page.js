@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useToast } from '../../../contexts/ToastContext';
 import { useRouter } from 'next/navigation';
 import api from '../../../lib/api';
 import { formatDate } from '../../../lib/dateUtils';
@@ -10,9 +11,11 @@ import { DollarSign, CheckCircle, XCircle, Clock, Search, ExternalLink, CreditCa
 import Link from 'next/link';
 import Image from 'next/image';
 import { BreadcrumbWrapper } from '../../../components/Breadcrumb.js';
+import ConfirmModal from '../../../components/ConfirmModal';
 
 export default function AdminPayouts() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const { showSuccess, showError } = useToast();
   const router = useRouter();
   
   const [payouts, setPayouts] = useState([]);
@@ -22,6 +25,14 @@ export default function AdminPayouts() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [rejectingId, setRejectingId] = useState(null);
   const [rejectionReason, setRejectionReason] = useState('');
+
+  // Confirmation state
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    id: null,
+    status: '',
+    reason: ''
+  });
 
   useEffect(() => {
     if (!authLoading && (!isAuthenticated || user?.role !== 'admin')) {
@@ -46,19 +57,18 @@ export default function AdminPayouts() {
   };
 
   const handleStatusUpdate = async (id, status, reason = '') => {
-    if (!confirm(`هل أنت متأكد من ${status === 'PAID' ? 'الموافقة على الدفع' : 'رفض طلب السحب'}؟`)) return;
-    
     setIsProcessing(true);
     try {
       const res = await api.patch(`/payouts/admin/${id}`, { status, rejectionReason: reason });
       if (res.data.success) {
-        alert(res.data.message || 'تم تحديث الحالة بنجاح');
+        showSuccess(res.data.message || 'تم تحديث الحالة بنجاح');
         setRejectingId(null);
         setRejectionReason('');
+        setConfirmModal({ ...confirmModal, isOpen: false });
         fetchPayouts();
       }
     } catch (err) {
-      alert(err.response?.data?.message || 'حدث خطأ أثناء المعالجة');
+      showError(err.response?.data?.message || 'حدث خطأ أثناء المعالجة');
     } finally {
       setIsProcessing(false);
     }
@@ -224,7 +234,12 @@ export default function AdminPayouts() {
                                   <div className="flex gap-2">
                                     <button 
                                       disabled={!rejectionReason.trim() || isProcessing}
-                                      onClick={() => handleStatusUpdate(payout.id || payout._id, 'REJECTED', rejectionReason)}
+                                      onClick={() => setConfirmModal({ 
+                                        isOpen: true, 
+                                        id: payout._id || payout.id, 
+                                        status: 'REJECTED', 
+                                        reason: rejectionReason 
+                                      })}
                                       className="flex-1 bg-red-500 text-white text-xs font-bold py-1.5 rounded hover:bg-red-600 disabled:opacity-50"
                                     >
                                       تأكيد الرفض
@@ -240,7 +255,12 @@ export default function AdminPayouts() {
                               ) : (
                                 <div className="flex items-center gap-2">
                                   <button
-                                    onClick={() => handleStatusUpdate(payout.id || payout._id, 'PAID')}
+                                    onClick={() => setConfirmModal({ 
+                                      isOpen: true, 
+                                      id: payout.id || payout._id, 
+                                      status: 'PAID', 
+                                      reason: '' 
+                                    })}
                                     disabled={isProcessing}
                                     className="flex items-center gap-1 bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500 hover:text-white px-3 py-1.5 rounded-lg text-xs font-black transition-colors"
                                   >
@@ -275,6 +295,22 @@ export default function AdminPayouts() {
           </div>
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+        onConfirm={() => handleStatusUpdate(confirmModal.id, confirmModal.status, confirmModal.reason)}
+        title={confirmModal.status === 'PAID' ? 'تأكيد الدفع' : 'تأكيد الرفض'}
+        message={
+          confirmModal.status === 'PAID' 
+            ? 'هل أنت متأكد من رغبتك في تحويل حالة الطلب إلى "تم الدفع"؟ سيتم إرسال إشعار لصانع المحتوى.' 
+            : 'هل أنت متأكد من رغبتك في رفض طلب السحب هذا؟ سيتم إرجاع المبلغ إلى رصيد المبدع.'
+        }
+        confirmText={confirmModal.status === 'PAID' ? 'تأكيد الدفع' : 'تأكيد الرفض'}
+        variant={confirmModal.status === 'PAID' ? 'success' : 'danger'}
+        isLoading={isProcessing}
+      />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { Star, Quote } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const testimonials = [
   {
@@ -23,6 +24,20 @@ const testimonials = [
     content: 'قوالب عرب نوشن ساعدتني في تنظيم مهامي اليومية وزيادة إنتاجيتي بنسبة 200%. أنصح بها لكل مستقل.',
     avatar: 'https://api.dicebear.com/9.x/lorelei/svg?seed=Jack',
     rating: 5
+  },
+  {
+    name: 'نور أحمد',
+    role: 'طالبة جامعية',
+    content: 'ساعدتني القوالب الدراسية في تنظيم محاضراتي ومواعيد الامتحانات بشكل لم أكن أتخيله.',
+    avatar: 'https://api.dicebear.com/9.x/lorelei/svg?seed=Nour',
+    rating: 5
+  },
+  {
+    name: 'عمر ياسر',
+    role: 'مدير مشاريع',
+    content: 'نظام إدارة المشاريع هنا يفوق الوصف. التفاصيل والترجمة العربية المتقنة تجعل العمل متعة.',
+    avatar: 'https://api.dicebear.com/9.x/lorelei/svg?seed=Omar',
+    rating: 5
   }
 ];
 
@@ -42,41 +57,64 @@ export default function Testimonials() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {testimonials.map((t, i) => (
-            <div 
-              key={i} 
-              className="bg-white dark:bg-dark-tertiary p-8 rounded-3xl shadow-xl dark:shadow-dark-medium border border-transparent hover:border-primary/20 transition-all duration-300 group relative"
-            >
-              <Quote size={24} className="absolute top-8 left-8 text-primary/10 group-hover:text-primary/20 transition-all" />
-              
-              <div className="flex gap-1 mb-4">
-                {[...Array(t.rating)].map((_, i) => (
-                  <Star key={i} size={16} className="fill-orange-400 text-orange-400" />
-                ))}
-              </div>
-              
-              <div className="relative mb-6">
-                <p className="text-accent-800 dark:text-dark-text-primary text-lg leading-relaxed">
-                  "{t.content}"
-                </p>
-              </div>
+        {/* Infinite Marquee Wrapper */}
+        <div className="relative flex overflow-hidden py-10 mask-fade-edges mt-8" dir="ltr">
+          <div className="flex gap-8 whitespace-nowrap animate-marquee hover:pause">
+            {/* Triple the items to create a seamless loop */}
+            {[...testimonials, ...testimonials, ...testimonials].map((t, i) => (
+              <div 
+                key={i} 
+                className="inline-block w-[350px] sm:w-[450px] bg-white dark:bg-dark-tertiary p-8 rounded-3xl shadow-xl dark:shadow-dark-medium border border-transparent hover:border-primary/20 transition-all duration-300 group relative whitespace-normal flex-shrink-0"
+                dir="rtl"
+              >
+                <Quote size={24} className="absolute top-8 left-8 text-primary/10 group-hover:text-primary/20 transition-all" />
+                
+                <div className="flex gap-1 mb-4">
+                  {[...Array(t.rating)].map((_, idx) => (
+                    <Star key={idx} size={16} className="fill-orange-400 text-orange-400" />
+                  ))}
+                </div>
+                
+                <div className="relative mb-6">
+                  <p className="text-accent-800 dark:text-dark-text-primary text-lg leading-relaxed font-medium">
+                    "{t.content}"
+                  </p>
+                </div>
 
-              <div className="flex items-center gap-4">
-                <img 
-                  src={t.avatar} 
-                  alt={t.name} 
-                  className="w-12 h-12 rounded-full bg-secondary-100 dark:bg-dark-primary p-1"
-                />
-                <div className="text-right">
-                  <h4 className="font-bold text-foreground dark:text-white">{t.name}</h4>
-                  <p className="text-sm text-accent-500 dark:text-dark-text-secondary">{t.role}</p>
+                <div className="flex items-center gap-4">
+                  <img 
+                    src={t.avatar} 
+                    alt={t.name} 
+                    className="w-12 h-12 rounded-full bg-secondary-100 dark:bg-dark-primary p-1 shadow-sm"
+                  />
+                  <div className="text-right">
+                    <h4 className="font-bold text-foreground dark:text-white">{t.name}</h4>
+                    <p className="text-sm text-accent-500 dark:text-dark-text-secondary">{t.role}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .mask-fade-edges {
+          mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+        }
+        .animate-marquee {
+          display: flex;
+          animation: marquee 120s linear infinite;
+          width: fit-content;
+        }
+        .pause:hover {
+          animation-play-state: paused;
+        }
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-33.333%); }
+        }
+      `}</style>
     </section>
   );
 }

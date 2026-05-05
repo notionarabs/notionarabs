@@ -461,7 +461,8 @@ router.get('/:id/follow-status', auth, async (req, res) => {
     const userId = req.user._id;
 
     const user = await User.findById(userId);
-    const isFollowing = user.following && user.following.includes(creatorId);
+    const followingArr = Array.isArray(user?.following) ? user.following.map(String) : [];
+    const isFollowing = followingArr.includes(String(creatorId));
 
     res.json({
       success: true,
@@ -503,7 +504,8 @@ router.post('/:id/follow', auth, async (req, res) => {
 
     // Check if user is already following
     const user = await User.findById(userId);
-    const isFollowing = user.following && user.following.includes(creatorId);
+    const followingArr = Array.isArray(user?.following) ? user.following.map(String) : [];
+    const isFollowing = followingArr.includes(String(creatorId));
 
     if (isFollowing) {
       // Unfollow

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useLoading } from '../contexts/LoadingContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const NavigationLoader = () => {
   const [progress, setProgress] = useState(0);
@@ -32,13 +33,59 @@ const NavigationLoader = () => {
 };
 
 const GlobalSpinner = () => (
-  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/40 dark:bg-black/60 backdrop-blur-md transition-all duration-500 animate-fadeIn">
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/60 dark:bg-dark-primary/60 backdrop-blur-xl transition-all duration-500">
     <div className="relative flex flex-col items-center">
-      <div className="relative w-16 h-16">
-        <div className="absolute inset-0 rounded-full border-4 border-gray-200 dark:border-white/10 opacity-50"></div>
-        <div className="absolute inset-0 rounded-full border-4 border-t-primary-600 dark:border-t-primary-400 border-r-transparent border-b-transparent border-l-transparent animate-spin shadow-lg shadow-primary-500/20"></div>
-        <div className="absolute inset-0 m-auto w-3 h-3 rounded-full bg-primary-500 dark:bg-primary-400 animate-ping opacity-75"></div>
+      <div className="relative w-24 h-24">
+        {/* Outer Glow Ring */}
+        <motion.div 
+          animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.3, 0.1] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute -inset-4 rounded-full bg-primary-500/20 blur-xl"
+        />
+        
+        {/* Orbiting Ring */}
+        <motion.div 
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+          className="absolute inset-0 rounded-full border-2 border-primary-500/10 border-t-primary-500 border-r-primary-500 shadow-glow-primary"
+        />
+        
+        {/* Inner Pulsing Core */}
+        <div className="absolute inset-4 rounded-full bg-white dark:bg-dark-secondary shadow-large flex items-center justify-center border border-gray-100 dark:border-dark-card-border overflow-hidden">
+          <motion.div 
+             animate={{ 
+               scale: [1, 1.5, 1],
+               opacity: [0.5, 0.8, 0.5]
+             }}
+             transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
+             className="w-4 h-4 rounded-full bg-primary-500 blur-[2px]"
+          />
+        </div>
+
+        {/* Floating Particles */}
+        {[0, 120, 240].map((angle, i) => (
+          <motion.div
+            key={i}
+            animate={{ 
+              rotate: angle + 360,
+              scale: [1, 1.2, 1]
+            }}
+            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+            className="absolute inset-0"
+          >
+            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary-400 shadow-glow-primary" />
+          </motion.div>
+        ))}
       </div>
+      
+      <motion.p 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mt-8 text-xs font-black text-primary-600 dark:text-primary-400 uppercase tracking-[0.3em] animate-pulse"
+        dir="rtl"
+      >
+        جاري التحميل...
+      </motion.p>
     </div>
   </div>
 );
@@ -48,5 +95,18 @@ export default function LoadingIndicator() {
 
   if (!isLoading) return null;
 
-  return loadingType === 'navigation' ? <NavigationLoader /> : <GlobalSpinner />;
+  return (
+    <AnimatePresence>
+      {isLoading && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {loadingType === 'navigation' ? <NavigationLoader /> : <GlobalSpinner />}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 }

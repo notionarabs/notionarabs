@@ -8,8 +8,9 @@ import dynamic from 'next/dynamic';
 import { formatDate } from '../../../lib/dateUtils';
 import api from '../../../lib/api';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useToast } from '../../../contexts/ToastContext';
 import Breadcrumb from '../../../components/Breadcrumb';
-import { ShoppingCart, Star, Download, Globe, Calendar, Zap, CheckCircle, ExternalLink, ShieldCheck, Clock, Layers, Rocket, Users } from 'lucide-react';
+import { ShoppingCart, Star, Download, Globe, Calendar, Zap, CheckCircle, ExternalLink, ShieldCheck, Clock, Layers, Rocket, Users, X } from 'lucide-react';
 import Footer from '../../../components/Footer';
 import RatingPopup from '../../../components/RatingPopup';
 import { useRatingPopup } from '../../../hooks/useRatingPopup';
@@ -32,6 +33,7 @@ export default function TemplateClient({ initialTemplate }) {
   const params = useParams();
   const templateIdentifier = params.id;
   const { isAuthenticated, user } = useAuth();
+  const { showSuccess, showError } = useToast();
 
   const processedInitialTemplate = useMemo(() => {
     if (!initialTemplate) return null;
@@ -183,7 +185,7 @@ export default function TemplateClient({ initialTemplate }) {
       setUserHasTemplate(true);
       window.dispatchEvent(new CustomEvent('templateDownloaded', { detail: { templateId: tid } }));
     } catch (err) {
-      alert('خطأ في التحميل');
+      showError('خطأ في التحميل');
     } finally {
       setIsDownloading(false);
     }
@@ -210,12 +212,12 @@ export default function TemplateClient({ initialTemplate }) {
       } else {
         console.error('Payment failed to initialize:', res.data);
         const errorMsg = res.data.message || 'فشل في بدء عملية الدفع';
-        alert(`عذراً: ${errorMsg}`);
+        showError(`عذراً: ${errorMsg}`);
       }
     } catch (err) {
       console.error('Purchase Error:', err);
       const serverMsg = err.response?.data?.message || err.message;
-      alert(`خطأ في عملية الشراء: ${serverMsg}`);
+      showError(`خطأ في عملية الشراء: ${serverMsg}`);
     } finally {
       setIsPurchasing(false);
     }
@@ -391,25 +393,25 @@ export default function TemplateClient({ initialTemplate }) {
                     {template.title}
                   </h1>
 
-                  <div className="flex items-center gap-4 mb-10 group bg-gray-50/50 dark:bg-dark-tertiary/30 p-3 rounded-2xl border border-gray-100/50 dark:border-dark-card-border w-fit">
-                    <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-gray-200 shadow-sm">
+                  <Link 
+                    href={`/creators/${template.creator?.username}`}
+                    className="flex items-center gap-4 mb-10 group bg-gray-50/50 dark:bg-dark-tertiary/30 p-3 rounded-2xl border border-gray-100/50 dark:border-dark-card-border w-fit hover:bg-gray-100 dark:hover:bg-dark-tertiary/50 transition-all active:scale-[0.98]"
+                  >
+                    <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-gray-200 shadow-sm group-hover:shadow-md transition-shadow">
                       <Image 
                         src={template.creator?.profilePicture || '/default-avatar.png'} 
                         alt={template.creator?.name || 'Creator'} 
                         fill 
-                        className="object-cover" 
+                        className="object-cover group-hover:scale-110 transition-transform duration-500" 
                       />
                     </div>
                     <div>
-                      <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">صمم بواسطة</div>
-                      <Link 
-                        href={`/creators/${template.creator?.username}`} 
-                        className="text-sm font-black text-gray-900 dark:text-white hover:text-primary transition-colors block"
-                      >
+                      <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5 group-hover:text-primary transition-colors">صمم بواسطة</div>
+                      <div className="text-sm font-black text-gray-900 dark:text-white group-hover:text-primary transition-colors">
                         {template.creator?.name || 'مبدع مستقل'}
-                      </Link>
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </div>
 
                 <div className="space-y-8 mt-4">
@@ -682,20 +684,34 @@ export default function TemplateClient({ initialTemplate }) {
       {/* Lightbox */}
       {isLightboxOpen && (
         <div 
-          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 sm:p-12 animate-fadeIn" 
+          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 sm:p-20 animate-fadeIn cursor-pointer" 
           onClick={() => setIsLightboxOpen(false)}
         >
-           <button className="absolute top-8 right-8 text-white/50 hover:text-white transition-colors">
-              <Zap size={32} />
-           </button>
-           <div className="relative w-full h-full" onClick={(e) => e.stopPropagation()}>
+           {/* Image Container - Restricted size to allow clicking outside */}
+           <div 
+             className="relative max-w-[95vw] max-h-[90vh] w-full h-full flex items-center justify-center cursor-default z-[105]" 
+             onClick={(e) => e.stopPropagation()}
+           >
               <Image 
                 src={selectedImage === -2 ? template.previewImage : (template.previewImages?.[selectedImage] || template.previewImage)} 
                 alt="Fullscreen Preview" 
                 fill 
-                className="object-contain" 
+                className="object-contain select-none pointer-events-auto" 
+                priority
               />
            </div>
+
+           {/* Close Button - Defined last to ensure it's on top */}
+           <button 
+             className="absolute top-4 right-4 sm:top-8 sm:right-8 p-4 text-white/70 hover:text-white transition-all hover:rotate-90 z-[120] flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 active:scale-90 shadow-2xl"
+             onClick={(e) => {
+               e.stopPropagation();
+               setIsLightboxOpen(false);
+             }}
+             aria-label="Close"
+           >
+              <X size={32} strokeWidth={3} />
+           </button>
         </div>
       )}
 

@@ -48,7 +48,16 @@ async function handleOptimizedPagination(req, res, options) {
 
   // Build sort object with pinning priority
   const sort = { isPinned: -1, pinnedAt: -1 };
-  sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+  
+  // Map friendly sort keys to actual DB fields
+  const sortFieldMap = {
+    'newest': 'createdAt',
+    'popular': 'downloads',
+    'rating': 'rating'
+  };
+  const actualSortBy = sortFieldMap[sortBy] || sortBy;
+  
+  sort[actualSortBy] = sortOrder === 'desc' ? -1 : 1;
 
   const skip = (parseInt(page) - 1) * parseInt(limit);
 
@@ -576,10 +585,18 @@ router.get('/', cacheMiddleware(3600), async (req, res) => {
           ]
         };
 
+        // Map friendly sort keys to actual DB fields
+        const sortFieldMap = {
+          'newest': 'createdAt',
+          'popular': 'downloads',
+          'rating': 'rating'
+        };
+        const actualSortBy = sortFieldMap[sortBy] || sortBy;
+
         const sort = {
           isPinned: -1,
           pinnedAt: -1,
-          [sortBy]: sortOrder === 'desc' ? -1 : 1
+          [actualSortBy]: sortOrder === 'desc' ? -1 : 1
         };
 
         const skip = (parseInt(page) - 1) * parseInt(limit);

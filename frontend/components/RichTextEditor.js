@@ -23,12 +23,13 @@ import {
 } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
 import api from '../lib/api';
-import { toast } from 'react-hot-toast';
+import { useToast } from '../contexts/ToastContext';
 
 const InputModal = ({ isOpen, onClose, onSubmit, title, placeholder, initialValue = '', type = 'text' }) => {
     const [value, setValue] = useState(initialValue);
     const [file, setFile] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const { showError } = useToast();
 
     // Reset value when modal opens with new initialValue
     useEffect(() => {
@@ -63,7 +64,7 @@ const InputModal = ({ isOpen, onClose, onSubmit, title, placeholder, initialValu
             }
         } catch (error) {
             console.error('Upload error:', error);
-            toast.error('حدث خطأ أثناء رفع الصورة');
+            showError('حدث خطأ أثناء رفع الصورة');
         } finally {
             setIsLoading(false);
         }

@@ -16,6 +16,7 @@ import { GoogleAnalytics } from '../components/SEOOptimizations'
 import { QueryProvider } from '../components/QueryProvider'
 import MaintenanceMode from '../components/MaintenanceMode'
 import TelegramPopupWrapper from '../components/TelegramPopupWrapper'
+import ScrollToTop from '../components/ScrollToTop'
 
 // Lazy load heavy components
 const AIChat = lazy(() => import('../components/AIChat'))
@@ -171,6 +172,7 @@ export default function RootLayout({ children }) {
                     </Suspense>
                     <LoadingIndicator />
                     <TelegramPopupWrapper />
+                    <ScrollToTop />
                     {children}
                     <Suspense fallback={null}>
                       <AIChat />

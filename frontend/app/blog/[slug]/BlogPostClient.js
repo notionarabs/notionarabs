@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
@@ -11,6 +12,7 @@ import LoadingIndicator from '../../../components/LoadingIndicator';
 import StarRating from '../../../components/StarRating';
 import { useToast } from '../../../contexts/ToastContext';
 import { useAuth } from '../../../contexts/AuthContext';
+import { Twitter, Send, Link as LinkIcon, Share2, Facebook, Clock, Calendar, Eye } from 'lucide-react';
 // Dynamic import for heavy component
 const RatingCommentSystem = dynamic(() => import('../../../components/RatingCommentSystem'), {
     ssr: false,
@@ -77,6 +79,12 @@ export default function BlogPostClient({ initialBlog, initialRelatedBlogs }) {
     const router = useRouter();
     const { showError } = useToast();
     const { isAuthenticated, user } = useAuth();
+    const { scrollYProgress } = useScroll();
+    const scaleX = useSpring(scrollYProgress, {
+        stiffness: 100,
+        damping: 30,
+        restDelta: 0.001
+    });
 
     const [blog, setBlog] = useState(initialBlog || null);
     const [authorSlug, setAuthorSlug] = useState('');
@@ -499,6 +507,12 @@ export default function BlogPostClient({ initialBlog, initialRelatedBlogs }) {
                     />
                 )}
 
+                {/* Reading Progress Bar */}
+                <motion.div
+                    className="fixed top-0 left-0 right-0 h-1 bg-primary-500 z-[100] origin-[100%]"
+                    style={{ scaleX }}
+                />
+
                 <div className="container-custom py-4 sm:py-8">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
                         {/* Main Content */}
@@ -569,25 +583,18 @@ export default function BlogPostClient({ initialBlog, initialRelatedBlogs }) {
                                         </Link>
 
                                         <span className="inline-flex items-center gap-1 sm:gap-1.5 bg-gray-50 dark:bg-dark-primary/60 border border-gray-200 dark:border-dark-card-border rounded-full px-2.5 py-1 sm:px-3 sm:py-1.5">
-                                            <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
+                                            <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-500" />
                                             <span>{formatDate(blog.publishedAt)}</span>
                                         </span>
 
                                         <span className="inline-flex items-center gap-1 sm:gap-1.5 bg-gray-50 dark:bg-dark-primary/60 border border-gray-200 dark:border-dark-card-border rounded-full px-2.5 py-1 sm:px-3 sm:py-1.5">
-                                            <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
+                                            <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-500" />
                                             <span>{viewCount} مشاهدة</span>
                                         </span>
 
                                         <span className="inline-flex items-center gap-1 sm:gap-1.5 bg-gray-50 dark:bg-dark-primary/60 border border-gray-200 dark:border-dark-card-border rounded-full px-2.5 py-1 sm:px-3 sm:py-1.5">
-                                            <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            <span>{blog.readTime || calculateReadingTime(blog.content)}</span>
+                                            <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary-500" />
+                                            <span className="font-bold text-primary-600 dark:text-primary-400">{blog.readTime || calculateReadingTime(blog.content)} للقراءة</span>
                                         </span>
                                     </div>
 
@@ -598,6 +605,33 @@ export default function BlogPostClient({ initialBlog, initialRelatedBlogs }) {
                                             className="text-accent-700 dark:text-dark-text-primary leading-relaxed"
                                             dangerouslySetInnerHTML={{ __html: blog.content }}
                                         />
+                                    </div>
+
+                                    {/* Glassy Share Bar */}
+                                    <div className="mt-12 py-8 border-t border-gray-100 dark:border-white/5 flex flex-col sm:flex-row items-center justify-between gap-6">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-full bg-primary-500/10 flex items-center justify-center">
+                                                <Share2 className="w-5 h-5 text-primary-500" />
+                                            </div>
+                                            <p className="text-sm font-black text-accent-900 dark:text-white uppercase tracking-widest">شارك المعرفة</p>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-3">
+                                            {[
+                                                { icon: <Twitter className="w-4 h-4" />, name: 'Twitter', color: 'hover:bg-[#1DA1F2]', url: `https://twitter.com/intent/tweet?text=${encodeURIComponent(blog.title)}&url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}` },
+                                                { icon: <Facebook className="w-4 h-4" />, name: 'Facebook', color: 'hover:bg-[#4267B2]', url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}` },
+                                                { icon: <Send className="w-4 h-4" />, name: 'Telegram', color: 'hover:bg-[#0088cc]', url: `https://t.me/share/url?url=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}&text=${encodeURIComponent(blog.title)}` },
+                                                { icon: <LinkIcon className="w-4 h-4" />, name: 'Copy', color: 'hover:bg-primary-500', onClick: () => { navigator.clipboard.writeText(window.location.href); showSuccess('تم نسخ الرابط بنجاح'); } }
+                                            ].map((social) => (
+                                                <button
+                                                    key={social.name}
+                                                    onClick={social.onClick || (() => window.open(social.url, '_blank'))}
+                                                    className={`w-10 h-10 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-500 dark:text-white/40 transition-all hover:text-white hover:scale-110 ${social.color}`}
+                                                >
+                                                    {social.icon}
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
 
                                     {/* Author Bio */}

@@ -4,7 +4,8 @@ import { useState, useEffect, Suspense, useRef } from 'react';
 import Image from 'next/image';
 import { LayoutDashboard, Star, Filter, Download, Globe, Calendar, ShoppingCart, XCircle, Search } from 'lucide-react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../lib/api';
 import LoadingIndicator from '../../components/LoadingIndicator';
 import { getCategorySlug } from '../../lib/categoryMapping';
@@ -29,6 +30,31 @@ const popularCategories = [
   "الحياة الشخصية"
 ];
 
+// Animation Variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 30, scale: 0.95 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    scale: 1,
+    transition: {
+      type: "spring",
+      damping: 25,
+      stiffness: 200
+    }
+  }
+};
+
 function StarRating({ rating }) {
   return (
     <div className="flex items-center gap-1">
@@ -39,7 +65,23 @@ function StarRating({ rating }) {
   );
 }
 
+function Chip({ label, onRemove }) {
+  return (
+    <motion.div 
+      initial={{ scale: 0.8, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-xl text-[11px] font-black text-primary transition-all hover:bg-primary/20"
+    >
+      <span>{label}</span>
+      <button onClick={onRemove} className="hover:text-primary-600 transition-colors">
+        <XCircle size={14} />
+      </button>
+    </motion.div>
+  );
+}
+
 function TemplatesPageContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('createdAt');
@@ -58,18 +100,36 @@ function TemplatesPageContent() {
     limit: 12
   });
 
-  // Sync state with URL search parameters
+  // Sync state with URL search parameters on initial load
   useEffect(() => {
     const category = searchParams.get('category');
     const price = searchParams.get('price');
     const language = searchParams.get('language');
     const search = searchParams.get('search');
+    const sort = searchParams.get('sort');
 
     if (category) setSelectedCategory(category);
     if (price) setPriceFilter(price);
     if (language) setLanguageFilter(language);
     if (search) setSearchTerm(search);
+    if (sort) setSortBy(sort);
   }, [searchParams]);
+
+  // Update URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (selectedCategory !== 'الكل') params.set('category', selectedCategory);
+    if (priceFilter !== 'all') params.set('price', priceFilter);
+    if (languageFilter !== 'all') params.set('language', languageFilter);
+    if (searchTerm) params.set('search', searchTerm);
+    if (sortBy !== 'createdAt') params.set('sort', sortBy);
+    
+    const queryString = params.toString();
+    // Use window.history to avoid unnecessary re-mounts or use router.push with shallow if supported
+    // Since we are in app router, router.push is usually fine but can be noisy.
+    const url = queryString ? `/templates?${queryString}` : '/templates';
+    window.history.replaceState({ ...window.history.state, as: url, url }, '', url);
+  }, [selectedCategory, priceFilter, languageFilter, searchTerm, sortBy]);
 
   const fetchTemplates = async () => {
     try {
@@ -111,9 +171,36 @@ function TemplatesPageContent() {
     return () => clearTimeout(timer);
   }, [searchTerm, sortBy, selectedCategory, priceFilter, languageFilter, minRating, pagination.current]);
 
+  const clearAllFilters = () => {
+    setSelectedCategory('الكل');
+    setPriceFilter('all');
+    setLanguageFilter('all');
+    setMinRating(0);
+    setSearchTerm('');
+    setSortBy('createdAt');
+    setPagination(p => ({ ...p, current: 1 }));
+  };
+
+  const templatesRef = useRef(null);
+
   const handleSearch = (e) => { e.preventDefault(); setPagination(p => ({ ...p, current: 1 })); };
   const handleCategorySelect = (c) => { setSelectedCategory(c); setPagination(p => ({ ...p, current: 1 })); };
-  const handlePageChange = (n) => { setPagination(p => ({ ...p, current: n })); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const handlePageChange = (n) => { 
+    setPagination(p => ({ ...p, current: n })); 
+    if (templatesRef.current) {
+      // Offset for sticky headers or better positioning
+      const offset = 120;
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = templatesRef.current.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-transparent relative overflow-x-hidden transition-colors duration-300" dir="rtl">
@@ -177,29 +264,66 @@ function TemplatesPageContent() {
                <div className="flex flex-wrap items-center justify-center gap-6 mt-10">
                 <div className="flex bg-white/50 dark:bg-white/5 backdrop-blur-xl p-1.5 rounded-2xl border border-black/5 dark:border-white/5">
                   {[{ id: 'all', label: 'الكل' }, { id: 'free', label: 'مجاني' }, { id: 'paid', label: 'مدفوع' }].map((p) => (
-                    <button key={p.id} onClick={() => setPriceFilter(p.id)} className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all ${priceFilter === p.id ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-foreground/40 dark:text-white/30 hover:text-primary'}`}>{p.label}</button>
+                    <button key={p.id} onClick={() => { setPriceFilter(p.id); setPagination(prev => ({ ...prev, current: 1 })); }} className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all ${priceFilter === p.id ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-foreground/40 dark:text-white/30 hover:text-primary'}`}>{p.label}</button>
                   ))}
                 </div>
 
                 <div className="flex bg-white/50 dark:bg-white/5 backdrop-blur-xl p-1.5 rounded-2xl border border-black/5 dark:border-white/5">
                   {[{ id: 'all', label: 'كل اللغات' }, { id: 'ar', label: 'العربية' }, { id: 'en', label: 'English' }].map((l) => (
-                    <button key={l.id} onClick={() => setLanguageFilter(l.id)} className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all ${languageFilter === l.id ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-foreground/40 dark:text-white/30 hover:text-primary'}`}>{l.label}</button>
+                    <button key={l.id} onClick={() => { setLanguageFilter(l.id); setPagination(prev => ({ ...prev, current: 1 })); }} className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all ${languageFilter === l.id ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-foreground/40 dark:text-white/30 hover:text-primary'}`}>{l.label}</button>
                   ))}
                 </div>
                 
                 <div className="flex bg-white/50 dark:bg-white/5 backdrop-blur-xl p-1.5 rounded-2xl border border-black/5 dark:border-white/5">
                   {[0, 3, 4].map((r) => (
-                    <button key={r} onClick={() => setMinRating(r)} className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${minRating === r ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-foreground/40 dark:text-white/30 hover:text-primary'}`}>
+                    <button key={r} onClick={() => { setMinRating(r); setPagination(prev => ({ ...prev, current: 1 })); }} className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 ${minRating === r ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-foreground/40 dark:text-white/30 hover:text-primary'}`}>
                       {r === 0 ? 'كل التقييمات' : r === 4 ? <><Star size={14} className="fill-current" /> النخبة</> : <><Star size={14} className="fill-current" /> +3</>}
                     </button>
                   ))}
                 </div>
               </div>
+
+              {/* Filter Chips - Command Center */}
+              <AnimatePresence>
+                {(selectedCategory !== 'الكل' || priceFilter !== 'all' || languageFilter !== 'all' || minRating > 0 || searchTerm) && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="flex flex-wrap items-center justify-center gap-3 mt-8"
+                  >
+                    <span className="text-xs font-black text-foreground/30 dark:text-white/20 uppercase tracking-widest ml-2">الفلاتر النشطة:</span>
+                    
+                    {searchTerm && (
+                      <Chip label={`بحث: ${searchTerm}`} onRemove={() => setSearchTerm('')} />
+                    )}
+                    {selectedCategory !== 'الكل' && (
+                      <Chip label={selectedCategory} onRemove={() => setSelectedCategory('الكل')} />
+                    )}
+                    {priceFilter !== 'all' && (
+                      <Chip label={priceFilter === 'free' ? 'مجاني' : 'مدفوع'} onRemove={() => setPriceFilter('all')} />
+                    )}
+                    {languageFilter !== 'all' && (
+                      <Chip label={languageFilter === 'ar' ? 'العربية' : 'English'} onRemove={() => setLanguageFilter('all')} />
+                    )}
+                    {minRating > 0 && (
+                      <Chip label={`تقييم +${minRating}`} onRemove={() => setMinRating(0)} />
+                    )}
+
+                    <button 
+                      onClick={clearAllFilters}
+                      className="text-xs font-black text-primary hover:text-primary-600 transition-colors uppercase tracking-widest mr-4 border-b border-primary/20 hover:border-primary pb-0.5"
+                    >
+                      إعادة ضبط الكل
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </section>
 
-        <div className="container-custom pb-32">
+        <div ref={templatesRef} className="container-custom pb-32">
           <div className="relative z-50 flex items-center justify-between py-12 border-none gap-8">
             <div className="px-8 py-4 rounded-full bg-white/50 dark:bg-white/5 backdrop-blur-2xl shadow-soft">
                <p className="text-xs font-black uppercase tracking-[0.2em] text-accent-900/40 dark:text-white/20">تم تحليل <span className="text-primary">{pagination.total}</span> مسار نجاح</p>
@@ -213,7 +337,7 @@ function TemplatesPageContent() {
               {isSortOpen && (
                 <div className="absolute z-50 mt-4 w-full rounded-[2rem] bg-black/90 dark:bg-white/10 backdrop-blur-[60px] shadow-large overflow-hidden animate-fade-in-up">
                   {sortOptions.map(opt => (
-                    <button key={opt.value} onClick={() => { setSortBy(opt.value); setIsSortOpen(false); }} className={`w-full text-right px-8 py-5 text-sm font-black transition-all ${sortBy === opt.value ? 'bg-primary text-white' : 'text-white/40 hover:bg-white/10 hover:text-white'}`}>{opt.name}</button>
+                    <button key={opt.value} onClick={() => { setSortBy(opt.value); setIsSortOpen(false); setPagination(prev => ({ ...prev, current: 1 })); }} className={`w-full text-right px-8 py-5 text-sm font-black transition-all ${sortBy === opt.value ? 'bg-primary text-white' : 'text-white/40 hover:bg-white/10 hover:text-white'}`}>{opt.name}</button>
                   ))}
                 </div>
               )}
@@ -221,45 +345,74 @@ function TemplatesPageContent() {
           </div>
 
           {loading ? (
-             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
-               {[...Array(6)].map((_, i) => <div key={i} className="aspect-[4/5] bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-[3.5rem] animate-pulse" />)}
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-16">
+               {[...Array(6)].map((_, i) => (
+                 <div key={i} className="bg-white/30 dark:bg-white/5 backdrop-blur-2xl rounded-[3.5rem] p-4 h-full animate-pulse border border-black/5 dark:border-white/5">
+                   <div className="aspect-[16/10] bg-gray-200 dark:bg-white/10 rounded-[2.5rem] mb-8" />
+                   <div className="px-6 space-y-6">
+                     <div className="flex justify-between items-center">
+                        <div className="w-20 h-6 bg-gray-200 dark:bg-white/10 rounded-full" />
+                        <div className="w-12 h-6 bg-gray-200 dark:bg-white/10 rounded-full" />
+                     </div>
+                     <div className="w-3/4 h-10 bg-gray-200 dark:bg-white/10 rounded-2xl" />
+                     <div className="space-y-3">
+                        <div className="w-full h-4 bg-gray-200 dark:bg-white/10 rounded-full" />
+                        <div className="w-5/6 h-4 bg-gray-200 dark:bg-white/10 rounded-full" />
+                     </div>
+                     <div className="pt-8 border-t border-black/5 dark:border-white/5 flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-white/10" />
+                          <div className="w-24 h-4 bg-gray-200 dark:bg-white/10 rounded-full" />
+                        </div>
+                        <div className="w-12 h-4 bg-gray-200 dark:bg-white/10 rounded-full" />
+                     </div>
+                   </div>
+                 </div>
+               ))}
              </div>
           ) : allTemplates.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-16">
+            <motion.div 
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-16"
+            >
               {allTemplates.map((rel) => (
-                <Link key={rel._id} href={`/templates/${rel.slug || rel._id}`} className="group relative">
-                  <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[3.5rem] shadow-large group-hover:shadow-glow group-hover:-translate-y-4 transition-all duration-700 h-full flex flex-col border-none overflow-hidden isolate">
-                    <div className="relative aspect-[16/10] m-4 overflow-hidden rounded-[2.5rem] shadow-soft">
-                      <Image 
-                        src={rel.previewImage || '/placeholder-template.jpg'} 
-                        alt={rel.title} 
-                        fill 
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        className="object-cover object-center group-hover:scale-105 transition-transform duration-1000" 
-                      />
-                      <div className="absolute top-6 left-6 z-20"><div className="px-6 py-3 bg-black/40 backdrop-blur-xl rounded-2xl text-white font-black text-sm uppercase tracking-widest">{rel.isPaid ? `${rel.price} ج.م` : 'مجاني'}</div></div>
-                    </div>
-                    <div className="p-10 flex-1 flex flex-col relative z-20">
-                      <div className="flex items-center justify-between mb-6">
-                        <div className="px-4 py-1.5 bg-primary/10 rounded-full text-[10px] font-black text-primary uppercase tracking-[0.2em]">{rel.categories?.[0] || rel.category || 'عام'}</div>
-                        <div className="flex items-center gap-2"><Star size={14} className="text-yellow-500 fill-yellow-500" /><span className="text-sm font-black text-accent-900 dark:text-white">{(rel.rating || 0).toFixed(1)}</span></div>
+                <motion.div key={rel._id} variants={cardVariants}>
+                  <Link href={`/templates/${rel.slug || rel._id}`} className="group relative block h-full">
+                    <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[3.5rem] shadow-large group-hover:shadow-glow group-hover:-translate-y-4 transition-all duration-700 h-full flex flex-col border-none overflow-hidden isolate">
+                      <div className="relative aspect-[16/10] m-4 overflow-hidden rounded-[2.5rem] shadow-soft">
+                        <Image 
+                          src={rel.previewImage || '/placeholder-template.jpg'} 
+                          alt={rel.title} 
+                          fill 
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="object-cover object-center group-hover:scale-105 transition-transform duration-1000" 
+                        />
+                        <div className="absolute top-6 left-6 z-20"><div className="px-6 py-3 bg-black/40 backdrop-blur-xl rounded-2xl text-white font-black text-sm uppercase tracking-widest">{rel.isPaid ? `${rel.price} ج.م` : 'مجاني'}</div></div>
                       </div>
-                      <h3 className="text-3xl font-black text-accent-900 dark:text-white mb-4 group-hover:text-primary transition-colors tracking-tighter leading-tight">{rel.title}</h3>
-                      <p className="text-base text-accent-700/60 dark:text-white/40 mb-10 line-clamp-2 leading-relaxed flex-1 font-medium">{rel.description || 'نظام هندسي متكامل مخصص للارتقاء بإنتاجية المستخدم العربي.'}</p>
-                      <div className="flex items-center justify-between pt-8 border-t border-accent-900/5 dark:border-white/5">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full overflow-hidden bg-primary/10 relative shadow-soft">
-                            {rel.creator?.profilePicture && <Image src={rel.creator.profilePicture} alt="Cr" fill className="object-cover" />}
-                          </div>
-                          <span className="text-sm font-black text-accent-900 dark:text-white/80 group-hover:text-primary transition-colors">{rel.creator?.name || 'نُخبة المبدعين'}</span>
+                      <div className="p-10 flex-1 flex flex-col relative z-20">
+                        <div className="flex items-center justify-between mb-6">
+                          <div className="px-4 py-1.5 bg-primary/10 rounded-full text-[10px] font-black text-primary uppercase tracking-[0.2em]">{rel.categories?.[0] || rel.category || 'عام'}</div>
+                          <div className="flex items-center gap-2"><Star size={14} className="text-yellow-500 fill-yellow-500" /><span className="text-sm font-black text-accent-900 dark:text-white">{(rel.rating || 0).toFixed(1)}</span></div>
                         </div>
-                        <div className="flex items-center gap-2 text-accent-900/20 dark:text-white/10 font-black text-xs uppercase tracking-widest"><Download size={14} />{(rel.downloads || 0).toLocaleString()}</div>
+                        <h3 className="text-3xl font-black text-accent-900 dark:text-white mb-4 group-hover:text-primary transition-colors tracking-tighter leading-tight">{rel.title}</h3>
+                        <p className="text-base text-accent-700/60 dark:text-white/40 mb-10 line-clamp-2 leading-relaxed flex-1 font-medium">{rel.description || 'نظام هندسي متكامل مخصص للارتقاء بإنتاجية المستخدم العربي.'}</p>
+                        <div className="flex items-center justify-between pt-8 border-t border-accent-900/5 dark:border-white/5">
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-full overflow-hidden bg-primary/10 relative shadow-soft">
+                              {rel.creator?.profilePicture && <Image src={rel.creator.profilePicture} alt="Cr" fill className="object-cover" />}
+                            </div>
+                            <span className="text-sm font-black text-accent-900 dark:text-white/80 group-hover:text-primary transition-colors">{rel.creator?.name || 'نُخبة المبدعين'}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-accent-900/20 dark:text-white/10 font-black text-xs uppercase tracking-widest"><Download size={14} />{(rel.downloads || 0).toLocaleString()}</div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
+                  </Link>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           ) : (
             <div className="text-center py-48 bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-[4rem] shadow-large border-none">
               <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-8">

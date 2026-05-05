@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Book, RefreshCw, Settings, Play, Pause, ChevronRight, ChevronLeft, Repeat, Repeat1, Infinity, Music2, Share2 } from 'lucide-react';
+import { useToast } from '../../contexts/ToastContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AyahMarker = ({ number }) => (
@@ -45,6 +46,7 @@ export default function QuranWidget({
     showControls = true,
     id = 'quran'
 }) {
+    const { showSuccess } = useToast();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -362,7 +364,7 @@ export default function QuranWidget({
             }
         } else {
             navigator.clipboard.writeText(`${text}\n\n${url}`);
-            alert('تم نسخ رابط وتفاصيل الآية');
+            showSuccess('تم نسخ رابط وتفاصيل الآية');
         }
     };
 

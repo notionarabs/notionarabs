@@ -1,111 +1,127 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { CheckCircle2, AlertCircle, AlertTriangle, Info, X } from 'lucide-react';
 
 const Toast = ({
   message,
   type = 'info',
   duration = 5000,
-  onClose,
-  isVisible = true
+  onClose
 }) => {
-  const [show, setShow] = useState(isVisible);
+  const [progress, setProgress] = useState(100);
 
   useEffect(() => {
-    if (isVisible) {
-      setShow(true);
-      const timer = setTimeout(() => {
-        setShow(false);
-        setTimeout(() => onClose && onClose(), 300); // Wait for animation
-      }, duration);
-      return () => clearTimeout(timer);
-    }
-  }, [isVisible, duration, onClose]);
+    const startTime = Date.now();
+    const endTime = startTime + duration;
 
-  const handleClose = () => {
-    setShow(false);
-    setTimeout(() => onClose && onClose(), 300);
-  };
+    const timer = setTimeout(() => {
+      onClose && onClose();
+    }, duration);
 
-  const getTypeStyles = () => {
+    const progressInterval = setInterval(() => {
+      const now = Date.now();
+      const remaining = Math.max(0, endTime - now);
+      const percent = (remaining / duration) * 100;
+      setProgress(percent);
+      
+      if (percent <= 0) clearInterval(progressInterval);
+    }, 10);
+
+    return () => {
+      clearTimeout(timer);
+      clearInterval(progressInterval);
+    };
+  }, [duration, onClose]);
+
+  const getTypeConfig = () => {
     switch (type) {
       case 'success':
         return {
-          bg: 'bg-green-50 dark:bg-green-900/20',
-          border: 'border-green-200 dark:border-green-800',
-          text: 'text-green-800 dark:text-green-200',
-          icon: (
-            <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-          )
+          icon: <CheckCircle2 className="w-5 h-5 text-green-500" />,
+          borderColor: 'border-green-500/30',
+          bgColor: 'bg-green-500/10',
+          progressBarColor: 'bg-green-500',
+          textColor: 'text-green-800 dark:text-green-200'
         };
       case 'error':
         return {
-          bg: 'bg-red-50 dark:bg-red-900/20',
-          border: 'border-red-200 dark:border-red-800',
-          text: 'text-red-800 dark:text-red-200',
-          icon: (
-            <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-            </svg>
-          )
+          icon: <AlertCircle className="w-5 h-5 text-red-500" />,
+          borderColor: 'border-red-500/30',
+          bgColor: 'bg-red-500/10',
+          progressBarColor: 'bg-red-500',
+          textColor: 'text-red-800 dark:text-red-200'
         };
       case 'warning':
         return {
-          bg: 'bg-yellow-50 dark:bg-yellow-900/20',
-          border: 'border-yellow-200 dark:border-yellow-800',
-          text: 'text-yellow-800 dark:text-yellow-200',
-          icon: (
-            <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
-          )
+          icon: <AlertTriangle className="w-5 h-5 text-orange-500" />,
+          borderColor: 'border-orange-500/30',
+          bgColor: 'bg-orange-500/10',
+          progressBarColor: 'bg-orange-500',
+          textColor: 'text-orange-800 dark:text-orange-200'
         };
       default:
         return {
-          bg: 'bg-blue-50 dark:bg-blue-900/20',
-          border: 'border-blue-200 dark:border-blue-800',
-          text: 'text-blue-800 dark:text-blue-200',
-          icon: (
-            <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-            </svg>
-          )
+          icon: <Info className="w-5 h-5 text-blue-500" />,
+          borderColor: 'border-blue-500/30',
+          bgColor: 'bg-blue-500/10',
+          progressBarColor: 'bg-blue-500',
+          textColor: 'text-blue-800 dark:text-blue-200'
         };
     }
   };
 
-  const styles = getTypeStyles();
-
-  if (!show) return null;
+  const config = getTypeConfig();
 
   return (
-    <div className={`transform transition-all duration-300 ease-in-out ${show ? 'translate-x-0 opacity-100' : 'rtl:translate-x-full ltr:-translate-x-full opacity-0'
-      }`} dir="rtl">
-      <div className={`max-w-sm w-full ${styles.bg} ${styles.border} border rounded-xl shadow-lg p-4 backdrop-blur-sm`}>
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: -20, scale: 0.9, filter: 'blur(10px)' }}
+      animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+      exit={{ opacity: 0, scale: 0.9, filter: 'blur(10px)', transition: { duration: 0.2 } }}
+      className="relative group pointer-events-auto"
+      dir="rtl"
+    >
+      <div className={`
+        max-w-md w-full overflow-hidden
+        backdrop-blur-xl bg-white/10 dark:bg-black/60 
+        ${config.borderColor} border rounded-2xl shadow-2xl
+        p-4 transition-all duration-300
+        hover:shadow-orange-500/10 hover:border-orange-500/20
+      `}>
         <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 mt-0.5">
-            {styles.icon}
+          <div className="flex-shrink-0 mt-0.5 animate-pulse-subtle">
+            {config.icon}
           </div>
           <div className="flex-1">
-            <p className={`text-sm font-medium leading-relaxed ${styles.text}`}>
+            <p className={`text-[15px] font-medium leading-relaxed ${config.textColor}`}>
               {message}
             </p>
           </div>
           <button
-            onClick={handleClose}
-            className={`flex-shrink-0 ${styles.text} hover:opacity-75 transition-opacity p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/5`}
+            onClick={onClose}
+            className="flex-shrink-0 text-gray-400 hover:text-white transition-colors p-1 rounded-full hover:bg-white/5"
             aria-label="إغلاق"
           >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
+            <X className="w-4 h-4" />
           </button>
         </div>
+
+        {/* Progress Bar */}
+        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-white/5">
+          <motion.div
+            className={`h-full ${config.progressBarColor} shadow-[0_0_10px_rgba(249,115,22,0.3)]`}
+            initial={{ width: '100%' }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.1, ease: 'linear' }}
+          />
+        </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
 export default Toast;
+
+

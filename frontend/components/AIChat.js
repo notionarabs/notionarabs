@@ -56,8 +56,16 @@ export default function AIChat() {
 
   // Auto-notification after 5 seconds
   useEffect(() => {
+    // Check if user has already seen or dismissed the notification
+    const hasSeenNotification = localStorage.getItem('hasSeenAIChatNotification');
+    if (hasSeenNotification) return;
+
     const timer = setTimeout(() => {
-      if (!isOpen) setShowNotification(true);
+      if (!isOpen) {
+        setShowNotification(true);
+        // Mark as seen so it doesn't show again on refresh
+        localStorage.setItem('hasSeenAIChatNotification', 'true');
+      }
     }, 5000);
     return () => clearTimeout(timer);
   }, [isOpen]);
@@ -303,7 +311,11 @@ export default function AIChat() {
       <motion.button
         whileHover={{ scale: 1.1, rotate: isOpen ? 90 : 0 }}
         whileTap={{ scale: 0.9 }}
-        onClick={() => { setIsOpen(!isOpen); setShowNotification(false); }}
+        onClick={() => { 
+          setIsOpen(!isOpen); 
+          setShowNotification(false);
+          localStorage.setItem('hasSeenAIChatNotification', 'true');
+        }}
         className={cn(
           "w-16 h-16 sm:w-18 sm:h-18 rounded-[2rem] flex items-center justify-center shadow-2xl transition-all duration-500 relative overflow-hidden group",
           isOpen 

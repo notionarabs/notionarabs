@@ -44,14 +44,11 @@ export default function CreatorProfileClient({ initialCreator }) {
   
   // Dynamic contrast detection for cover image
   useEffect(() => {
-    if (!creator?.backgroundImage) {
-      setIsCoverDark(false); // Default to light mode colors for empty/light gray covers
-      return;
-    }
-
+    const coverUrl = creator?.backgroundImage || '/images/default-cover.png';
+    
     const img = new window.Image();
     img.crossOrigin = "Anonymous";
-    img.src = creator.backgroundImage;
+    img.src = coverUrl;
     img.onload = () => {
       try {
         const canvas = document.createElement('canvas');
@@ -64,8 +61,13 @@ export default function CreatorProfileClient({ initialCreator }) {
         const brightness = (data[0] * 299 + data[1] * 587 + data[2] * 114) / 1000;
         setIsCoverDark(brightness < 140); // threshold
       } catch (e) {
-        console.warn("Could not calculate cover brightness (CORS)", e);
-        setIsCoverDark(false); // Fallback to dark text
+        console.warn("Could not calculate cover brightness (CORS or Error)", e);
+        // Fallback: If it's the default cover, we know it's relatively dark/colorful
+        if (coverUrl === '/images/default-cover.png') {
+            setIsCoverDark(true);
+        } else {
+            setIsCoverDark(false); 
+        }
       }
     };
   }, [creator?.backgroundImage]);
@@ -203,18 +205,14 @@ export default function CreatorProfileClient({ initialCreator }) {
         {/* Cover Image */}
         <div className="relative z-10">
           <div className="relative h-[180px] sm:h-[220px] md:h-[260px] w-full bg-zinc-100 dark:bg-zinc-900 overflow-hidden">
-          {creator.backgroundImage ? (
             <Image 
-              src={creator.backgroundImage} 
+              src={creator.backgroundImage || '/images/default-cover.png'} 
               alt="Cover" 
               fill 
               sizes="100vw"
               className="object-cover object-center"
               priority
             />
-          ) : (
-            <div className="absolute inset-0 bg-zinc-200/60 dark:bg-zinc-900/60" />
-          )}
           <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/5 to-transparent dark:from-black/45 dark:via-black/25 dark:to-transparent" />
           
           {/* Share Button (Top Left) */}

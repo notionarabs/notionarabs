@@ -213,10 +213,93 @@ export default function CreatorProfileClient({ initialCreator }) {
         {/* Profile Header Section */}
         <div className="container-custom max-w-7xl relative z-10">
           {/* Force column placement like Notion (layout LTR, content RTL) */}
-          {/* Force column placement like Notion (layout LTR, content RTL) */}
           <div className="flex flex-col md:flex-row gap-12 items-start w-full -mt-4 sm:-mt-6" dir="ltr">
             
-            {/* Main Content (Identity & Bio) - Rendered first in LTR so it's on top on mobile */}
+            {/* Sidebar (actions + meta) */}
+            <aside className="md:mt-8 w-full md:w-80 md:flex-none md:sticky md:top-28" dir="rtl">
+              {/* No more card box here - open layout */}
+              <div className="space-y-10">
+                <div className="space-y-3">
+                  {creator.email && (
+                    <a
+                      href={`mailto:${creator.email}`}
+                      className="w-full py-4 px-6 bg-accent-900 dark:bg-white text-white dark:text-accent-900 rounded-2xl text-center font-black text-[12px] uppercase tracking-[0.2em] shadow-soft hover:shadow-large transition-all flex items-center justify-center gap-2"
+                    >
+                      <Mail size={16} className="opacity-80" />
+                      تواصل مع المبدع
+                    </a>
+                  )}
+
+                  <FollowButton
+                    creatorId={creator.id}
+                    creatorName={creator.displayName || creator.name}
+                    className="w-full py-4 rounded-2xl font-black text-[12px] uppercase tracking-[0.2em] shadow-lg shadow-primary/20 transition-all"
+                    onFollowChange={(isFollowing) => {
+                      setCreator(prev => ({
+                        ...prev,
+                        followers: isFollowing ? (prev.followers || 0) + 1 : Math.max(0, (prev.followers || 0) - 1)
+                      }));
+                    }}
+                  />
+
+                  <div className="flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-widest text-foreground/40 dark:text-white/25 pt-1">
+                    <Calendar size={14} className="text-zinc-400" />
+                    <span>عضو منذ {formatDate(creator.createdAt)}</span>
+                  </div>
+                </div>
+
+                {creator.specialties && creator.specialties.length > 0 && (
+                  <div className="space-y-2.5">
+                    <p className="text-[11px] font-black uppercase tracking-widest text-foreground/40 dark:text-white/25">أهم التصنيفات</p>
+                    <div className="flex flex-wrap gap-2">
+                      {creator.specialties.slice(0, 6).map((s, i) => (
+                        <span
+                          key={i}
+                          className="px-4 py-2 bg-white/50 dark:bg-white/5 border border-card-border rounded-2xl text-[11px] font-black text-foreground/60 dark:text-white/50"
+                        >
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {creator.socialLinks && creator.socialLinks.length > 0 && (
+                  <div className="space-y-2.5">
+                    <p className="text-[11px] font-black uppercase tracking-widest text-foreground/40 dark:text-white/25">روابط التواصل</p>
+                    <div className="flex flex-wrap gap-2.5">
+                      {creator.socialLinks.slice(0, 8).map((link, idx) => {
+                        const platform = detectPlatform(link.url);
+                        const safeUrl = normalizeExternalUrl(link.url);
+                        return (
+                          <a
+                            key={idx}
+                            href={safeUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-11 h-11 bg-white/50 dark:bg-white/5 border border-card-border rounded-2xl flex items-center justify-center hover:shadow-soft transition-all group"
+                            title={platform?.name || 'رابط خارجي'}
+                          >
+                            <SocialIcon
+                              platform={platform?.icon}
+                              className="w-5 h-5 text-foreground/40 dark:text-white/30 group-hover:text-primary transition-colors"
+                            />
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                <div className="pt-1">
+                  <div className="text-[11px] font-black uppercase tracking-widest text-foreground/40 dark:text-white/25">
+                    <span className="text-primary">{pagination.total || 0}</span> قالب
+                  </div>
+                </div>
+              </div>
+            </aside>
+
+            {/* Main (Notion-like) */}
             <section className="relative z-10 space-y-12 w-full md:flex-1 min-w-0" dir="rtl">
               <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6 -mt-16 sm:-mt-20 relative z-20 px-4 sm:px-0">
                 {/* Avatar */}
@@ -268,106 +351,27 @@ export default function CreatorProfileClient({ initialCreator }) {
               </div>
 
               {/* Bio */}
-              <div className="max-w-3xl px-4 sm:px-0">
-                <p className="text-[15px] sm:text-[17px] leading-8 text-foreground/70 dark:text-white/55 font-medium whitespace-pre-wrap mt-6">
+              <div className="max-w-2xl">
+                <p className="text-[15px] sm:text-[16px] leading-8 text-foreground/70 dark:text-white/55 font-medium whitespace-pre-wrap mt-6">
                   {creator.bio || creator.experience || 'مبدع مستقل يساهم في إثراء المحتوى العربي على نوشن.'}
                 </p>
               </div>
 
-              {/* Stats (calm, Notion-like) */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mt-12 pt-10 border-t border-card-border px-4 sm:px-0">
-                {[
-                  { label: 'قالب', value: pagination.total || 0 },
-                  { label: 'متابع', value: creator.followers || 0 },
-                  { label: 'تحميل', value: (creator.stats?.totalDownloads || 0).toLocaleString() },
-                  { label: 'تقييم', value: typeof creator.rating === 'number' ? creator.rating.toFixed(1) : (creator.rating || '5.0') }
-                ].map((s) => (
-                  <div key={s.label} className="text-right">
-                    <div className="text-3xl font-black text-foreground dark:text-white">{s.value}</div>
-                    <div className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/40 dark:text-white/25 mt-2">{s.label}</div>
-                  </div>
-                ))}
-              </div>
+                {/* Stats (calm, Notion-like) */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mt-12 pt-10 border-t border-card-border">
+                  {[
+                    { label: 'قالب', value: pagination.total || 0 },
+                    { label: 'متابع', value: creator.followers || 0 },
+                    { label: 'تحميل', value: (creator.stats?.totalDownloads || 0).toLocaleString() },
+                    { label: 'تقييم', value: typeof creator.rating === 'number' ? creator.rating.toFixed(1) : (creator.rating || '5.0') }
+                  ].map((s) => (
+                    <div key={s.label} className="text-right">
+                      <div className="text-3xl font-black text-foreground dark:text-white">{s.value}</div>
+                      <div className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/40 dark:text-white/25 mt-2">{s.label}</div>
+                    </div>
+                  ))}
+                </div>
             </section>
-
-            {/* Sidebar (actions + meta) */}
-            <aside className="w-full md:w-80 md:flex-none md:sticky md:top-28 px-4 sm:px-0" dir="rtl">
-              <div className="space-y-10">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-3">
-                  {creator.email && (
-                    <a
-                      href={`mailto:${creator.email}`}
-                      className="w-full py-4 px-6 bg-accent-900 dark:bg-white text-white dark:text-accent-900 rounded-2xl text-center font-black text-[11px] uppercase tracking-[0.2em] shadow-soft hover:shadow-large transition-all flex items-center justify-center gap-2"
-                    >
-                      <Mail size={16} className="opacity-80" />
-                      تواصل مع المبدع
-                    </a>
-                  )}
-
-                  <FollowButton
-                    creatorId={creator.id}
-                    creatorName={creator.displayName || creator.name}
-                    className="w-full py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-primary/20 transition-all"
-                    onFollowChange={(isFollowing) => {
-                      setCreator(prev => ({
-                        ...prev,
-                        followers: isFollowing ? (prev.followers || 0) + 1 : Math.max(0, (prev.followers || 0) - 1)
-                      }));
-                    }}
-                  />
-                </div>
-
-                <div className="flex flex-col gap-8">
-                  <div className="flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-foreground/40 dark:text-white/25">
-                    <Calendar size={14} className="text-zinc-400" />
-                    <span>عضو منذ {formatDate(creator.createdAt)}</span>
-                  </div>
-
-                  {creator.specialties && creator.specialties.length > 0 && (
-                    <div className="space-y-4">
-                      <p className="text-[11px] font-black uppercase tracking-widest text-foreground/40 dark:text-white/25">أهم التصنيفات</p>
-                      <div className="flex flex-wrap gap-2">
-                        {creator.specialties.slice(0, 6).map((s, i) => (
-                          <span
-                            key={i}
-                            className="px-4 py-2 bg-white/50 dark:bg-white/5 border border-card-border rounded-2xl text-[11px] font-black text-foreground/60 dark:text-white/50"
-                          >
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {creator.socialLinks && creator.socialLinks.length > 0 && (
-                    <div className="space-y-4">
-                      <p className="text-[11px] font-black uppercase tracking-widest text-foreground/40 dark:text-white/25">روابط التواصل</p>
-                      <div className="flex flex-wrap gap-3">
-                        {creator.socialLinks.slice(0, 8).map((link, idx) => {
-                          const platform = detectPlatform(link.url);
-                          const safeUrl = normalizeExternalUrl(link.url);
-                          return (
-                            <a
-                              key={idx}
-                              href={safeUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="w-12 h-12 bg-white/50 dark:bg-white/5 border border-card-border rounded-2xl flex items-center justify-center hover:shadow-soft transition-all group"
-                              title={platform?.name || 'رابط خارجي'}
-                            >
-                              <SocialIcon
-                                platform={platform?.icon}
-                                className="w-5 h-5 text-foreground/40 dark:text-white/30 group-hover:text-primary transition-colors"
-                              />
-                            </a>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </aside>
           </div>
         </div>
         {/* Content Section (Templates) */}

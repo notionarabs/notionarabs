@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { getApiUrl } from '../../lib/apiConfig';
 
 function LoginForm() {
   const [formData, setFormData] = useState({
@@ -100,7 +101,7 @@ function LoginForm() {
           {/* Social Login */}
           <div className="mb-6">
             <a
-              href={`${process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? 'https://notion-arabs-fe5b3f214071.herokuapp.com/api' : 'http://localhost:5000/api')}/auth/google`}
+              href={`${getApiUrl('/auth/google')}?state=${Math.random().toString(36).substring(2, 15)}`}
               className="w-full flex items-center justify-center gap-3 bg-white dark:bg-dark-tertiary hover:bg-gray-50 dark:hover:bg-white/5 border-none text-gray-700 dark:text-gray-200 font-medium py-3 px-4 rounded-xl transition-all duration-200 group hover:shadow-md"
             >
               <svg className="w-5 h-5 transition-transform group-hover:scale-110 duration-200" viewBox="0 0 24 24">

@@ -794,11 +794,13 @@ router.get('/google', (req, res) => {
 // @access  Public
 router.get('/google/callback', async (req, res) => {
   try {
-    // Check if we have the required parameters
     if (!req.query.code) {
-      const frontendUrl = process.env.FRONTEND_URL || 'https://www.notionarabs.com';
+      console.error('[GOOGLE CALLBACK] No code parameter in request query');
+      const frontendUrl = (process.env.FRONTEND_URL || 'https://www.notionarabs.com').replace(/\/$/, '');
       return res.redirect(`${frontendUrl}/auth/callback?success=false&error=no_code`);
     }
+
+    console.log('[GOOGLE CALLBACK] Received code, initiating passport exchange...');
 
     // Use passport.authenticate as middleware
     passport.authenticate('google', { session: false, state: false }, async (err, user, info) => {
@@ -811,26 +813,29 @@ router.get('/google/callback', async (req, res) => {
         }
 
         if (!user) {
-          console.error('No user from Google OAuth');
-          const frontendUrl = process.env.FRONTEND_URL || 'https://notionarabs.com';
+          console.error('[GOOGLE CALLBACK] Passport authenticated but no user returned');
+          const frontendUrl = (process.env.FRONTEND_URL || 'https://www.notionarabs.com').replace(/\/$/, '');
           return res.redirect(`${frontendUrl}/auth/callback?success=false&error=no_user`);
         }
+
+        console.log('[GOOGLE CALLBACK] User authenticated successfully:', user.email);
 
         // Generate token with email fallback capability
         const token = generateToken(user._id, user.email);
 
         // Redirect to frontend with token
-        const frontendUrl = process.env.FRONTEND_URL || 'https://notionarabs.com';
+        const frontendUrl = (process.env.FRONTEND_URL || 'https://www.notionarabs.com').replace(/\/$/, '');
+        console.log('[GOOGLE CALLBACK] Redirecting to frontend with token');
         res.redirect(`${frontendUrl}/auth/callback?token=${token}&success=true`);
       } catch (error) {
-        console.error('Callback processing error:', error);
-        const frontendUrl = process.env.FRONTEND_URL || 'https://notionarabs.com';
+        console.error('[GOOGLE CALLBACK] Inner processing error:', error);
+        const frontendUrl = (process.env.FRONTEND_URL || 'https://www.notionarabs.com').replace(/\/$/, '');
         res.redirect(`${frontendUrl}/auth/callback?success=false&error=processing_error`);
       }
     })(req, res);
   } catch (error) {
-    console.error('Google OAuth callback error:', error);
-    const frontendUrl = process.env.FRONTEND_URL || 'https://notionarabs.com';
+    console.error('[GOOGLE CALLBACK] Outer callback error:', error);
+    const frontendUrl = (process.env.FRONTEND_URL || 'https://www.notionarabs.com').replace(/\/$/, '');
     res.redirect(`${frontendUrl}/auth/callback?success=false&error=callback_error`);
   }
 });

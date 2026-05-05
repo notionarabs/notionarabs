@@ -8,9 +8,11 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.GOOGLE_CALLBACK_URL || `${process.env.FRONTEND_URL || 'https://www.notionarabs.com'}/api/auth/google/callback`
+    callbackURL: process.env.GOOGLE_CALLBACK_URL || `${process.env.FRONTEND_URL || 'https://www.notionarabs.com'}`.replace(/\/$/, '') + '/api/auth/google/callback',
+    proxy: true // Trust proxy for Heroku/Render
   }, async (accessToken, refreshToken, profile, done) => {
     try {
+      console.log('[GOOGLE OAUTH] Strategy triggered for profile:', profile.id);
       if (!profile.emails || !profile.emails[0]) {
         console.error('[GOOGLE OAUTH] No email in Google profile');
         return done(new Error('No email found in Google profile'), null);
@@ -143,7 +145,8 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
 
     } catch (error) {
       console.error('[GOOGLE OAUTH] Strategy error:', error);
-      return done(error, null);
+      // Ensure we don't pass an empty object or something that might crash passport
+      return done(error instanceof Error ? error : new Error(String(error)), null);
     }
   }));
 } else {

@@ -58,6 +58,13 @@ export const metadata = {
       'تعلم نوشن'
     ]
   }),
+  applicationName: 'عرب نوشن',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'عرب نوشن',
+  },
+  manifest: '/metadata/manifest.json',
   icons: {
     icon: [
       { url: '/icons/favicon.png', type: 'image/png' }
@@ -82,30 +89,7 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning className={`${almarai.variable} ${tajawal.variable} ${cairo.variable}`}>
-      <head>
-        <OrganizationSchema />
-        <WebsiteSchema />
-
-
-        {/* Favicon - PNG */}
-        <link rel="icon" type="image/png" href="/icons/favicon.png" />
-        <link rel="shortcut icon" href="/icons/favicon.png" />
-        {/* Resource hints for critical resources */}
-        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://www.google-analytics.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://notion-arabs-fe5b3f214071.herokuapp.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://notion-arabs-fe5b3f214071.herokuapp.com" />
-
-        {/* Apple Touch Icon for iOS devices */}
-        <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="عرب نوشن" />
-        <meta name="application-name" content="عرب نوشن" />
-
-        {/* Web App Manifest - PWA Support */}
-        <link rel="manifest" href="/metadata/manifest.json" />
+      <body className="font-almarai transition-colors duration-300 scrollbar-primary scrollbar-hover-effect" suppressHydrationWarning={true}>
         {/* Critical blocking script for theme - runs synchronously before any rendering */}
         <script
           dangerouslySetInnerHTML={{
@@ -156,8 +140,18 @@ export default function RootLayout({ children }) {
             `,
           }}
         />
-      </head>
-      <body className="font-almarai transition-colors duration-300 scrollbar-primary scrollbar-hover-effect" suppressHydrationWarning={true}>
+
+        {/* Structured Data & Schema */}
+        <OrganizationSchema />
+        <WebsiteSchema />
+
+        {/* Resource hints for critical resources - Lifted automatically to head by React */}
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://www.google-analytics.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://notion-arabs-fe5b3f214071.herokuapp.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://notion-arabs-fe5b3f214071.herokuapp.com" />
+
         <QueryProvider>
           <ThemeProvider>
             <LoadingProvider>

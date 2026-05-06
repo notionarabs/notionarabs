@@ -71,14 +71,14 @@ export function generateMetadata({
   ogType,
   section
 }) {
-  const fullTitle = title 
-    ? (title.includes(siteConfig.name) ? title : `${title} | ${siteConfig.name}`) 
+  const fullTitle = title
+    ? (title.includes(siteConfig.name) ? title : `${title} | ${siteConfig.name}`)
     : siteConfig.title;
   const fullDescription = description || siteConfig.description;
-  const fullKeywords = Array.isArray(keywords) 
+  const fullKeywords = Array.isArray(keywords)
     ? [...siteConfig.keywords, ...keywords].join(', ')
     : `${siteConfig.keywords.join(', ')}, ${keywords}`;
-  const fullImage = image 
+  const fullImage = image
     ? getAbsoluteImageUrl(image)
     : getAbsoluteImageUrl(siteConfig.ogImage);
   const fullUrl = url ? (url.startsWith('http') ? url : `${siteConfig.url}${url}`) : siteConfig.url;
@@ -230,7 +230,7 @@ export function generateTemplateSchema(template) {
   const creatorName = template.creator?.name || 'مبدع';
   const fullImage = getAbsoluteImageUrl(template.previewImage);
   const url = `${siteConfig.url}/templates/${template.slug || template._id}`;
-  
+
   // Clean the description to remove database artifacts
   const cleanNoise = (str) => {
     if (!str) return '';
@@ -290,7 +290,7 @@ export function generateCreatorSchema(creator) {
   const displayName = creator.displayName || creator.name;
   const fullImage = getAbsoluteImageUrl(creator.profilePicture);
   const url = `${siteConfig.url}/creators/${creator.username || creator._id}`;
-  
+
   return {
     '@context': 'https://schema.org',
     '@type': 'ProfilePage',
@@ -316,7 +316,7 @@ export function generateCreatorSchema(creator) {
 export function generateBlogSchema(blog) {
   const fullImage = getAbsoluteImageUrl(blog.featuredImage);
   const url = `${siteConfig.url}/blog/${blog.slug}`;
-  
+
   return {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',

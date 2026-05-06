@@ -370,4 +370,103 @@ router.delete('/:targetType/:targetId', auth, async (req, res) => {
   }
 });
 
+// @route   POST /api/ratings/:ratingId/reply
+// @desc    Reply to a rating (for creators/admins)
+// @access  Private
+router.post('/:ratingId/reply', auth, [
+  body('reply')
+    .notEmpty()
+    .withMessage('الرد لا يمكن أن يكون فارغاً')
+    .isLength({ max: 1000 })
+    .withMessage('الرد لا يجب أن يتجاوز 1000 حرف')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'بيانات غير صحيحة',
+        errors: errors.array()
+      });
+    }
+
+    const { ratingId } = req.params;
+    const { reply } = req.body;
+    const userId = req.user._id;
+
+    // Find the rating
+    const rating = await Rating.findById(ratingId);
+    if (!rating) {
+      return res.status(404).json({
+        success: false,
+        message: 'التقييم غير موجود'
+      });
+    }
+
+    // Check authorization
+    // Only the creator of the target (template/blog) or the creator themselves (if targetType is creator) can reply
+    let isAuthorized = false;
+    
+    if (rating.targetType === 'template') {
+      const template = await Template.findById(rating.targetId);
+      if (template && template.creator && template.creator.toString() === userId.toString()) {
+        isAuthorized = true;
+      }
+    } else if (rating.targetType === 'creator') {
+      if (rating.targetId === userId.toString()) {
+        isAuthorized = true;
+      }
+    } else if (rating.targetType === 'blog') {
+      const blog = await Blog.findById(rating.targetId);
+      if (blog && blog.author && blog.author.toString() === userId.toString()) {
+        isAuthorized = true;
+      }
+    }
+
+    // Admins are always authorized
+    if (req.user.role === 'admin') isAuthorized = true;
+
+    if (!isAuthorized) {
+      return res.status(403).json({
+        success: false,
+        message: 'غير مصرح لك بالرد على هذا التقييم'
+      });
+    }
+
+    // Update the rating with reply
+    const updatedRating = await Rating.findByIdAndUpdate(ratingId, {
+      creatorReply: reply,
+      repliedAt: new Date().toISOString()
+    });
+
+    // Notify the user who left the rating
+    try {
+      const targetName = rating.targetType === 'template' ? 'قالبك' : 'تقييمك';
+      await Notification.create({
+        user: rating.userId,
+        type: 'comment_replied',
+        title: 'رد جديد على تقييمك',
+        message: `قام المبدع بالرد على تقييمك: "${reply.substring(0, 50)}${reply.length > 50 ? '...' : ''}"`,
+        link: rating.targetType === 'template' ? `/templates/${rating.targetId}` : `/creators/${rating.targetId}`,
+        metadata: { ratingId, reply, actorId: userId, actorProfilePicture: req.user.profilePicture || '' }
+      });
+    } catch (notifyErr) {
+      console.error('Reply notification error:', notifyErr);
+    }
+
+    res.json({
+      success: true,
+      message: 'تم إضافة الرد بنجاح',
+      rating: updatedRating
+    });
+
+  } catch (error) {
+    console.error('Reply submission error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
 module.exports = router;

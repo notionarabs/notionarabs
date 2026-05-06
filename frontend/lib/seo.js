@@ -169,8 +169,19 @@ export function generateTemplateMetadata(template) {
   const isPaid = template.isPaid || false;
   const isVerified = template.creator?.badges?.some(b => b.type === 'verified');
   const creatorName = template.creator?.name || 'مبدع';
-  const title = `${template.title} - قالب نوشن عربي ${isPaid ? 'مدفوع' : 'مجاني'}${isVerified ? ' (من مبدع معتمد)' : ''}`;
-  const description = template.description || `تحميل قالب ${template.title} باللغة العربية لـ Notion. ${template.category} ${isPaid ? 'مدفوع' : 'مجاني'} من ${creatorName}${isVerified ? ' المعتمد' : ''}.`;
+
+  const cleanNoise = (str) => {
+    if (!str) return '';
+    if (typeof str !== 'string') return String(str);
+    return str
+      .replace(/[.,\s]*"[\s.,]*"?[.,\s]*/g, ' ')
+      .replace(/[\\[\]"\/]{2,}/g, ' ')
+      .replace(/^[\\[\]"\/, .]+|[\\[\]"\/, .]+$/g, '')
+      .trim();
+  };
+
+  const title = `${cleanNoise(template.title)} - قالب نوشن عربي ${isPaid ? 'مدفوع' : 'مجاني'}${isVerified ? ' (من مبدع معتمد)' : ''}`;
+  const description = cleanNoise(template.description) || `تحميل قالب ${cleanNoise(template.title)} باللغة العربية لـ Notion. ${template.category} ${isPaid ? 'مدفوع' : 'مجاني'} من ${creatorName}${isVerified ? ' المعتمد' : ''}.`;
 
   const keywords = [
     template.title,
@@ -220,12 +231,23 @@ export function generateTemplateSchema(template) {
   const fullImage = getAbsoluteImageUrl(template.previewImage);
   const url = `${siteConfig.url}/templates/${template.slug || template._id}`;
   
+  // Clean the description to remove database artifacts
+  const cleanNoise = (str) => {
+    if (!str) return '';
+    if (typeof str !== 'string') return String(str);
+    return str
+      .replace(/[.,\s]*"[\s.,]*"?[.,\s]*/g, ' ')
+      .replace(/[\\[\]"\/]{2,}/g, ' ')
+      .replace(/^[\\[\]"\/, .]+|[\\[\]"\/, .]+$/g, '')
+      .trim();
+  };
+
   const schema = {
     '@context': 'https://schema.org/',
     '@type': 'Product',
-    'name': template.title,
+    'name': cleanNoise(template.title),
     'image': [fullImage],
-    'description': template.description || template.title,
+    'description': cleanNoise(template.description || template.title),
     'sku': template._id || template.id,
     'mpn': template._id || template.id,
     'brand': {

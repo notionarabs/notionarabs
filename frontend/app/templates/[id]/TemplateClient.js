@@ -39,47 +39,48 @@ export default function TemplateClient({ initialTemplate }) {
     if (!initialTemplate) return null;
     const t = { ...initialTemplate };
     
-    const cleanData = (val) => {
-      if (!val || typeof val !== 'string') return val;
+    const ultimateClean = (val) => {
+      if (!val) return '';
+      if (Array.isArray(val)) return val.map(v => ultimateClean(v)).flat().filter(Boolean);
+      if (typeof val !== 'string') return val;
+
+      let cleaned = val;
+
+      // 1. Target and remove complex artifact patterns like ." . , "
+      cleaned = cleaned.replace(/[.,\s]*"[\s.,]*"?[.,\s]*/g, '\n');
       
-      // Aggressive cleaning of repeated slashes/artifacts
-      let cleaned = val.replace(/[\\\/]{2,}/g, ' ').trim();
+      // 2. Wipe out sequences of JSON/Escape noise characters
+      cleaned = cleaned.replace(/[\\[\]"\/]{2,}/g, ' ');
       
-      // Recursive JSON unwrapping for double/triple encoded strings
-      if ((cleaned.startsWith('[') && cleaned.endsWith(']')) || (cleaned.startsWith('"') && cleaned.endsWith('"'))) {
+      // 3. Try to unwrap if it still looks like a JSON string
+      if (cleaned.startsWith('"') && cleaned.endsWith('"')) {
         try {
-          // Attempt to fix common escaping issues before parsing
-          const fixed = cleaned.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
-          const parsed = JSON.parse(fixed);
-          return cleanData(parsed);
-        } catch (e) {
-          // If parse fails, manually strip outer characters if they look like JSON wrappers
-          return cleaned.replace(/^["\[]+|["\]]+$/g, '').trim();
-        }
+          const parsed = JSON.parse(cleaned);
+          if (typeof parsed === 'string' || Array.isArray(parsed)) {
+            cleaned = Array.isArray(parsed) ? parsed.join('\n') : parsed;
+          }
+        } catch (e) {}
       }
-      
-      // Final pass to remove any remaining legacy noise
-      return cleaned.replace(/^["\[]+|["\]]+$/g, '').trim();
+
+      // 4. Split by newline and perform deep per-item cleaning
+      return cleaned.split('\n')
+        .map(item => item.trim())
+        .map(item => item.replace(/^[\\[\]"\/, .]+|[\\[\]"\/, .]+$/g, '').trim())
+        .filter(item => item && item.length > 2 && !/^[\\\/\[\]" \t\n\r,.]+$/.test(item));
     };
 
-    // Clean and normalize all primary text fields
-    const normalizeToString = (val) => {
-      const cleaned = cleanData(val);
-      return Array.isArray(cleaned) ? cleaned.join('\n') : (cleaned || '');
-    };
-
+    // Clean and normalize features using the ultimate cleaner
     if (t.features) {
-      const raw = cleanData(t.features);
-      let featureList = Array.isArray(raw) ? raw : (typeof raw === 'string' ? raw.split('\n') : []);
-      
-      t.features = featureList
-        .map(f => cleanData(f))
-        .map(f => typeof f === 'string' ? f.trim() : f)
-        .filter(f => f && f.length > 2 && !/^[\\\/\[\]" \t\n\r]+$/.test(f));
+      t.features = ultimateClean(t.features);
     }
     
-    if (t.description) t.description = normalizeToString(t.description);
-    if (t.title) t.title = normalizeToString(t.title);
+    // Clean description and title with basic slash removal
+    if (t.description && typeof t.description === 'string') {
+      t.description = t.description.replace(/[\\[\]"\/]{2,}/g, ' ').trim();
+    }
+    if (t.title && typeof t.title === 'string') {
+      t.title = t.title.replace(/[\\[\]"\/]{2,}/g, '').trim();
+    }
 
     return t;
   }, [initialTemplate]);
@@ -99,6 +100,9 @@ export default function TemplateClient({ initialTemplate }) {
   });
   const [userHasTemplate, setUserHasTemplate] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [replyText, setReplyText] = useState('');
+  const [isSubmittingReply, setIsSubmittingReply] = useState(false);
 
   const { showPopup, closePopup } = useRatingPopup(template, user, isAuthenticated);
 
@@ -154,22 +158,26 @@ export default function TemplateClient({ initialTemplate }) {
       if (response.data.success) {
         const t = response.data.template;
         
-        // Robust cleaning for double-encoded strings (e.g. ["[\"...\"]"])
-        const cleanData = (val) => {
-          if (!val || typeof val !== 'string') return val;
-          if ((val.startsWith('[') && val.endsWith(']')) || (val.startsWith('"') && val.endsWith('"'))) {
-            try {
-              const parsed = JSON.parse(val);
-              return cleanData(parsed); // Recursive cleaning
-            } catch (e) { return val; }
-          }
-          return val;
-        };
-
         if (t.features) {
-          const raw = cleanData(t.features);
-          t.features = Array.isArray(raw) ? raw : (typeof raw === 'string' ? raw.split('\n') : []);
-          t.features = t.features.map(f => cleanData(f)).map(f => typeof f === 'string' ? f.trim() : f).filter(Boolean);
+          const ultimateClean = (val) => {
+            if (!val) return '';
+            if (Array.isArray(val)) return val.map(v => ultimateClean(v)).flat().filter(Boolean);
+            if (typeof val !== 'string') return val;
+
+            let cleaned = val;
+            cleaned = cleaned.replace(/[.,\s]*"[\s.,]*"?[.,\s]*/g, '\n');
+            cleaned = cleaned.replace(/[\\[\]"\/]{2,}/g, ' ');
+            
+            if (cleaned.startsWith('"') && cleaned.endsWith('"')) {
+              try { cleaned = JSON.parse(cleaned); } catch (e) {}
+            }
+
+            return cleaned.split('\n')
+              .map(item => item.trim())
+              .map(item => item.replace(/^[\\[\]"\/, .]+|[\\[\]"\/, .]+$/g, '').trim())
+              .filter(item => item && item.length > 2 && !/^[\\\/\[\]" \t\n\r,.]+$/.test(item));
+          };
+          t.features = ultimateClean(t.features);
         }
         
         setTemplate(t);
@@ -253,11 +261,40 @@ export default function TemplateClient({ initialTemplate }) {
     return null;
   };
 
-  const handleLikeClick = useCallback((commentId) => {
+  const handleReplySubmit = async (e) => {
+    if (e) e.preventDefault();
+    if (!replyText.trim() || !replyingTo) return;
+
+    try {
+      setIsSubmittingReply(true);
+      const ratingId = replyingTo.ratingId || replyingTo.id || replyingTo._id;
+      const response = await api.post(`/ratings/${ratingId}/reply`, { reply: replyText });
+      
+      if (response.data.success) {
+        showSuccess('تم إضافة الرد بنجاح');
+        setReplyingTo(null);
+        setReplyText('');
+        // Refresh ratings
+        loadRatings(template._id || template.id);
+      }
+    } catch (err) {
+      showError(err.response?.data?.message || 'فشل في إضافة الرد');
+    } finally {
+      setIsSubmittingReply(false);
+    }
+  };
+
+  const isCreator = useMemo(() => {
+    if (!user || !template || !template.creator) return false;
+    const creatorId = typeof template.creator === 'object' ? (template.creator._id || template.creator.id) : template.creator;
+    return user._id === creatorId || user.id === creatorId;
+  }, [user, template]);
+
+  const handleLikeClick = async (commentId) => {
     if (!isAuthenticated) return (window.location.href = '/login');
     const tid = template._id || template.id;
     api.post(`/comments/${commentId}/like`).then(() => loadRatings(tid));
-  }, [isAuthenticated, template]);
+  };
 
   const StarRating = ({ rating }) => (
     <div className="flex items-center gap-1">
@@ -524,49 +561,21 @@ export default function TemplateClient({ initialTemplate }) {
                 </div>
 
                 {(() => {
-                  if (!template.features) return null;
+                  if (!template.features || (Array.isArray(template.features) && template.features.length === 0)) return null;
                   
-                  let features = [];
-                  const raw = Array.isArray(template.features) ? template.features.join('\n') : String(template.features);
-                  
-                  const parseRecursive = (str) => {
-                    try {
-                      const trimmed = str.trim();
-                      if ((trimmed.startsWith('[') && trimmed.endsWith(']')) || (trimmed.startsWith('"['))) {
-                        const toParse = trimmed.startsWith('"') ? JSON.parse(trimmed) : trimmed;
-                        const parsed = typeof toParse === 'string' ? JSON.parse(toParse) : toParse;
-                        if (Array.isArray(parsed)) {
-                          if (parsed.length === 1 && typeof parsed[0] === 'string' && parsed[0].includes('["')) {
-                            return parseRecursive(parsed[0]);
-                          }
-                          return parsed.map(f => String(f).trim().replace(/^[\-\*\u2022]\s*/, ''));
-                        }
-                      }
-                    } catch (e) {}
-                    return null;
-                  };
-
-                  const parsedResult = parseRecursive(raw);
-                  if (parsedResult) {
-                    features = parsedResult.filter(Boolean);
-                  } else if (raw.includes('","') || raw.includes('", "')) {
-                    features = raw
-                      .replace(/[\[\]"']/g, '')
-                      .split(/[\n,]/)
-                      .map(f => f.trim().replace(/^[\-\*\u2022]\s*/, ''))
-                      .filter(Boolean);
-                  } else {
-                    features = raw.split('\n').map(f => f.trim().replace(/^[\-\*\u2022]\s*/, '')).filter(Boolean);
-                  }
-
-                  if (features.length === 0) return null;
+                  // Ensure features is an array and filter out any last-second noise
+                  const featuresToRender = Array.isArray(template.features) ? template.features : [template.features];
 
                   return (
                     <div className="pt-10 border-t border-gray-100 dark:border-dark-card-border">
                       <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-6">المميزات الرئيسية</h3>
-                      <p className="text-lg font-bold text-gray-700 dark:text-dark-text-primary leading-relaxed whitespace-pre-wrap">
-                        {features.join('\n')}
-                      </p>
+                      <div className="space-y-6">
+                        {featuresToRender.map((feature, i) => (
+                          <p key={i} className="text-lg font-bold text-gray-700 dark:text-dark-text-primary leading-relaxed">
+                            {feature}
+                          </p>
+                        ))}
+                      </div>
                     </div>
                   );
                 })()}
@@ -628,7 +637,16 @@ export default function TemplateClient({ initialTemplate }) {
                   </div>
                 )}
 
-                <ReviewsList reviews={reviewsToShow} currentUser={currentUser} onLike={handleLikeClick} simple={true} />
+                <ReviewsList 
+                  reviews={templateRatings} 
+                  currentUser={user} 
+                  onLike={handleLikeClick} 
+                  onReply={isCreator ? (review) => {
+                    setReplyingTo(review);
+                    setReplyText(review.creatorReply || '');
+                  } : null}
+                  simple={true} 
+                />
               </div>
 
               {/* Discussion */}
@@ -743,6 +761,61 @@ export default function TemplateClient({ initialTemplate }) {
           onClose={closePopup}
           onRatingChange={() => loadRatings(template._id || template.id)}
         />
+      )}
+
+      {/* Creator Reply Modal */}
+      {replyingTo && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setReplyingTo(null)} />
+           <div className="bg-white dark:bg-dark-secondary w-full max-w-lg rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden border border-gray-100 dark:border-dark-card-border">
+              <div className="p-8 sm:p-10">
+                 <div className="flex items-center justify-between mb-8">
+                    <h3 className="text-xl font-black text-gray-900 dark:text-white">الرد على التقييم</h3>
+                    <button onClick={() => setReplyingTo(null)} className="w-10 h-10 rounded-full bg-gray-100 dark:bg-dark-tertiary flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors">
+                       <X size={20} />
+                    </button>
+                 </div>
+
+                 <div className="mb-8 p-6 bg-gray-50 dark:bg-dark-tertiary/30 rounded-2xl border border-gray-100 dark:border-dark-card-border">
+                    <div className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">تعليق المستخدم</div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 font-medium italic">
+                       "{replyingTo.review || replyingTo.comment}"
+                    </p>
+                 </div>
+
+                 <form onSubmit={handleReplySubmit} className="space-y-6">
+                    <div className="space-y-3">
+                       <label className="text-xs font-black text-gray-400 uppercase tracking-widest mr-2">ردك كمبدع للنظام</label>
+                       <textarea
+                         value={replyText}
+                         onChange={(e) => setReplyText(e.target.value)}
+                         placeholder="اكتب ردك هنا..."
+                         className="w-full h-40 bg-gray-50 dark:bg-dark-tertiary border border-gray-100 dark:border-dark-card-border rounded-2xl p-5 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/20 transition-all resize-none outline-none font-medium"
+                         required
+                       />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={isSubmittingReply || !replyText.trim()}
+                      className="w-full py-5 bg-primary text-white font-black rounded-2xl shadow-glow hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100 uppercase tracking-widest text-xs flex items-center justify-center gap-3"
+                    >
+                      {isSubmittingReply ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          جاري الإرسال...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle size={18} />
+                          حفظ الرد
+                        </>
+                      )}
+                    </button>
+                 </form>
+              </div>
+           </div>
+        </div>
       )}
     </>
   );

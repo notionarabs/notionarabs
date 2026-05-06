@@ -19,6 +19,8 @@ class Rating {
       isPublic: this.isPublic !== undefined ? this.isPublic : true,
       createdAt: this.createdAt || now,
       updatedAt: now,
+      creatorReply: this.creatorReply || null,
+      repliedAt: this.repliedAt || null,
       // Map to specific database columns
       templateId: this.targetType === 'template' ? this.targetId : null,
       blogId: this.targetType === 'blog' ? this.targetId : null,
@@ -107,6 +109,7 @@ class Rating {
 
   static findOne(query = {}) {
     let q = supabase.from('Rating').select('*');
+    if (query.id || query._id) q = q.eq('id', query.id || query._id);
     if (query.user) q = q.eq('userId', query.user);
     if (query.targetType) q = q.eq('targetType', query.targetType);
     
@@ -123,6 +126,19 @@ class Rating {
       r.targetId = data.templateId || data.blogId || data.creatorId;
       return r;
     });
+  }
+
+  static findById(id) {
+    return this.findOne({ id });
+  }
+
+  static async findByIdAndUpdate(id, updates) {
+    const { data, error } = await supabase.from('Rating').update(updates).eq('id', id).select().single();
+    if (error) throw error;
+    if (!data) return null;
+    const r = new Rating(data);
+    r.targetId = data.templateId || data.blogId || data.creatorId;
+    return r;
   }
 
   static async findOneAndDelete(query = {}) {

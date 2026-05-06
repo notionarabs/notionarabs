@@ -107,26 +107,37 @@ function CreateTemplatePageContent() {
   const formatFeaturesForInput = (data) => {
     if (!data) return '';
     
-    // Recursive cleaning function
-    const cleanDeep = (val) => {
-      if (Array.isArray(val)) {
-        return val.flatMap(item => cleanDeep(item));
-      }
-      if (typeof val === 'string' && (val.trim().startsWith('[') || val.trim().startsWith('"['))) {
+    const ultimateClean = (val) => {
+      if (!val) return [];
+      if (Array.isArray(val)) return val.map(v => ultimateClean(v)).flat().filter(Boolean);
+      if (typeof val !== 'string') return [String(val)];
+
+      let cleaned = val;
+
+      // 1. Target and remove complex artifact patterns like ." . , "
+      cleaned = cleaned.replace(/[.,\s]*"[\s.,]*"?[.,\s]*/g, '\n');
+      
+      // 2. Wipe out sequences of JSON/Escape noise characters
+      cleaned = cleaned.replace(/[\\[\]"\/]{2,}/g, ' ');
+      
+      // 3. Try to unwrap if it still looks like a JSON string
+      if (cleaned.startsWith('"') && cleaned.endsWith('"')) {
         try {
-          const toParse = val.trim().startsWith('"') ? JSON.parse(val) : val;
-          const parsed = typeof toParse === 'string' ? JSON.parse(toParse) : toParse;
-          return Array.isArray(parsed) ? cleanDeep(parsed) : [val];
-        } catch (e) { return [val]; }
+          const parsed = JSON.parse(cleaned);
+          if (typeof parsed === 'string' || Array.isArray(parsed)) {
+            cleaned = Array.isArray(parsed) ? parsed.join('\n') : parsed;
+          }
+        } catch (e) {}
       }
-      return [val];
+
+      // 4. Split by newline and perform deep per-item cleaning
+      return cleaned.split('\n')
+        .map(item => item.trim())
+        .map(item => item.replace(/^[\\[\]"\/, .]+|[\\[\]"\/, .]+$/g, '').trim())
+        .filter(item => item && item.length > 2 && !/^[\\\/\[\]" \t\n\r,.]+$/.test(item));
     };
 
-    const cleanedArray = cleanDeep(data);
-    return cleanedArray
-      .map(f => String(f).trim().replace(/^[\-\*\u2022]\s*/, ''))
-      .filter(Boolean)
-      .join('\n');
+    return ultimateClean(data).join('\n');
   };
 
   // Load draft on component mount

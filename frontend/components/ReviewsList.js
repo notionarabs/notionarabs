@@ -8,6 +8,7 @@ export default function ReviewsList({
     reviews,
     currentUser,
     onLike,
+    onReply,
     isLikeLoading,
     simple = false
 }) {
@@ -161,8 +162,31 @@ export default function ReviewsList({
                                                     </div>
                                                 )}
 
-                                                {!isRatingOnly && review.commentId && (
-                                                    <div className="mt-4 flex items-center gap-4">
+                                                {/* Creator Reply */}
+                                                {(review.creatorReply || review.reply) && (
+                                                    <div className="mt-4 bg-primary/5 dark:bg-primary/10 rounded-2xl p-4 border border-primary/10 dark:border-primary/20 relative overflow-hidden">
+                                                        <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12 blur-2xl" />
+                                                        <div className="flex items-center gap-2 mb-2 relative z-10">
+                                                            <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white">
+                                                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                                                </svg>
+                                                            </div>
+                                                            <span className="text-xs font-black text-primary uppercase tracking-widest">رد المبدع</span>
+                                                            {review.repliedAt && (
+                                                                <span className="text-[10px] text-accent-400 dark:text-dark-text-quaternary mr-auto">
+                                                                    {formatDate(new Date(review.repliedAt))}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <p className="text-sm text-accent-700 dark:text-white/80 leading-relaxed relative z-10 font-medium">
+                                                            {review.creatorReply || review.reply}
+                                                        </p>
+                                                    </div>
+                                                )}
+
+                                                <div className="mt-4 flex items-center gap-4">
+                                                    {!isRatingOnly && review.commentId && (
                                                         <button
                                                             onClick={() => onLike && onLike(review.commentId)}
                                                             className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${isLiked
@@ -179,8 +203,21 @@ export default function ReviewsList({
                                                             </svg>
                                                             <span>{likeCount > 0 ? likeCount : 'مفيد'}</span>
                                                         </button>
-                                                    </div>
-                                                )}
+                                                    )}
+
+                                                    {/* Reply Button for Creator */}
+                                                    {onReply && (
+                                                        <button 
+                                                            onClick={() => onReply(review)}
+                                                            className="text-xs font-black text-primary hover:text-primary-600 transition-colors uppercase tracking-widest flex items-center gap-2"
+                                                        >
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                                                            </svg>
+                                                            {review.creatorReply ? 'تعديل الرد' : 'الرد على التعليق'}
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

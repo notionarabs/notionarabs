@@ -874,44 +874,26 @@ export default function AdminTemplatesPage() {
                           const featuresData = selectedTemplateDetails.features;
                           if (!featuresData) return <p className="text-sm italic text-accent-300">لا يوجد مميزات مسجلة.</p>;
                           
-                          let features = [];
-                          const raw = Array.isArray(featuresData) ? featuresData.join('\n') : String(featuresData);
-                          
-                          const parseRecursive = (str) => {
-                            try {
-                              const trimmed = str.trim();
-                              if ((trimmed.startsWith('[') && trimmed.endsWith(']')) || (trimmed.startsWith('"['))) {
-                                // Clean possible double escaping
-                                const toParse = trimmed.startsWith('"') ? JSON.parse(trimmed) : trimmed;
-                                const parsed = typeof toParse === 'string' ? JSON.parse(toParse) : toParse;
-                                
-                                if (Array.isArray(parsed)) {
-                                  // If the array contains another stringified array, go deeper
-                                  if (parsed.length === 1 && typeof parsed[0] === 'string' && parsed[0].includes('["')) {
-                                    return parseRecursive(parsed[0]);
-                                  }
-                                  return parsed.map(f => String(f).trim().replace(/^[\-\*\u2022]\s*/, ''));
-                                }
-                              }
-                            } catch (e) {}
-                            return null;
+                          const ultimateClean = (val) => {
+                            if (!val) return [];
+                            if (Array.isArray(val)) return val.map(v => ultimateClean(v)).flat().filter(Boolean);
+                            if (typeof val !== 'string') return [String(val)];
+
+                            let cleaned = val;
+                            cleaned = cleaned.replace(/[.,\s]*"[\s.,]*"?[.,\s]*/g, '\n');
+                            cleaned = cleaned.replace(/[\\[\]"\/]{2,}/g, ' ');
+                            
+                            if (cleaned.startsWith('"') && cleaned.endsWith('"')) {
+                              try { cleaned = JSON.parse(cleaned); } catch (e) {}
+                            }
+
+                            return (Array.isArray(cleaned) ? cleaned : cleaned.split('\n'))
+                              .map(item => item.trim())
+                              .map(item => item.replace(/^[\\[\]"\/, .]+|[\\[\]"\/, .]+$/g, '').trim())
+                              .filter(item => item && item.length > 2 && !/^[\\\/\[\]" \t\n\r,.]+$/.test(item));
                           };
 
-                          const parsedResult = parseRecursive(raw);
-                          
-                          if (parsedResult) {
-                            features = parsedResult.filter(Boolean);
-                          } else if (raw.includes('","') || raw.includes('", "')) {
-                            // Manual split fallback
-                            features = raw
-                              .replace(/[\[\]"']/g, '')
-                              .split(/[\n,]/)
-                              .map(f => f.trim().replace(/^[\-\*\u2022]\s*/, ''))
-                              .filter(Boolean);
-                          } else {
-                            features = raw.split('\n').map(f => f.trim().replace(/^[\-\*\u2022]\s*/, '')).filter(Boolean);
-                          }
-
+                          const features = ultimateClean(featuresData);
                           if (features.length === 0) return <p className="text-sm italic text-accent-300">لا يوجد مميزات مسجلة.</p>;
 
                           return (

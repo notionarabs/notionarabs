@@ -52,7 +52,81 @@ export default function AIChat() {
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [speechStatus, setSpeechStatus] = useState(''); // 'listening', 'no-speech', 'audio-capture', 'not-allowed', 'network', 'error'
   const messagesEndRef = useRef(null);
+  const recognitionRef = useRef(null);
+
+  const getPlaceholderText = () => {
+    if (isListening) return "جاري الاستماع لصوتك، تحدث الآن... 🎙️";
+    if (speechStatus === 'no-speech') return "⚠️ لم يتم كشف أي صوت، يرجى المحاولة مجدداً...";
+    if (speechStatus === 'audio-capture') return "⚠️ خطأ: تأكد من توصيل الميكروفون وتشغيله...";
+    if (speechStatus === 'not-allowed') return "⚠️ تم حظر الميكروفون، يرجى السماح به من المتصفح...";
+    if (speechStatus === 'network') return "⚠️ خطأ في الاتصال: تأكد من اتصالك بالإنترنت...";
+    if (speechStatus === 'error') return "⚠️ حدث خطأ في النظام الصوتي، حاول مجدداً...";
+    return "كيف يمكنني مساعدتك اليوم؟...";
+  };
+
+  const toggleListening = () => {
+    if (typeof window === 'undefined') return;
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('عذراً، ميزة الإدخال الصوتي غير مدعومة على متصفحك الحالي. يرجى تجربة Google Chrome أو Safari لترجمة صوتك مباشرة.');
+      return;
+    }
+
+    if (isListening) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsListening(false);
+      setSpeechStatus('');
+      return;
+    }
+
+    try {
+      setSpeechStatus('listening');
+      const rec = new SpeechRecognition();
+      rec.continuous = false;
+      rec.interimResults = false;
+      rec.lang = 'ar-EG';
+
+      rec.onstart = () => {
+        setIsListening(true);
+        setSpeechStatus('listening');
+      };
+
+      rec.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        if (transcript) {
+          setInput(prev => (prev ? prev + ' ' : '') + transcript);
+          setSpeechStatus('');
+        }
+      };
+
+      rec.onerror = (e) => {
+        console.warn('Speech recognition error details:', e.error);
+        setSpeechStatus(e.error || 'error');
+        setIsListening(false);
+        // Reset status to normal placeholder after 4 seconds
+        setTimeout(() => {
+          setSpeechStatus('');
+        }, 4000);
+      };
+
+      rec.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = rec;
+      rec.start();
+    } catch (err) {
+      console.warn('Speech recognition failed to start:', err);
+      setSpeechStatus('error');
+      setIsListening(false);
+    }
+  };
 
   // Auto-notification after 5 seconds
   useEffect(() => {
@@ -285,9 +359,27 @@ export default function AIChat() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                  placeholder="كيف يمكنني مساعدتك اليوم؟..."
-                  className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl py-4 pr-5 pl-16 text-[15px] focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-zinc-800 dark:text-zinc-200 shadow-inner placeholder:text-zinc-400"
+                  placeholder={getPlaceholderText()}
+                  readOnly={isListening}
+                  className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl py-4 pr-5 pl-24 text-[15px] focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-zinc-800 dark:text-zinc-200 shadow-inner placeholder:text-zinc-400"
                 />
+                
+                {/* Voice Typing Trigger */}
+                <button
+                  type="button"
+                  onClick={toggleListening}
+                  style={{ left: '54px' }}
+                  className={cn(
+                    "absolute p-2.5 rounded-xl transition-all flex items-center justify-center",
+                    isListening
+                      ? "bg-red-500 text-white animate-pulse shadow-lg shadow-red-500/30"
+                      : "text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                  )}
+                  title="تحدث بالصوت للكتابة"
+                >
+                  <Mic size={20} className={cn(isListening && "scale-110")} />
+                </button>
+
                 <button
                   onClick={() => handleSend()}
                   disabled={!input.trim() || isTyping}

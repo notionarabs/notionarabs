@@ -290,14 +290,36 @@ const StatSmallCard = ({ title, value, icon, color }) => {
     purple: 'bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400',
     orange: 'bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400',
   };
+
+  const sparklinePaths = {
+    blue: 'M0,15 C20,5 40,25 60,10 C80,-5 90,20 100,8',
+    purple: 'M0,20 C15,10 30,25 50,5 C70,15 85,0 100,12',
+    orange: 'M0,10 C20,25 35,5 55,20 C75,5 90,15 100,5'
+  };
+
   return (
-    <div className="bg-white dark:bg-dark-secondary rounded-2xl p-5 border border-gray-200 dark:border-dark-card-border flex items-center gap-4">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colors[color]}`}>
-        {icon}
+    <div className="bg-white dark:bg-dark-secondary rounded-2xl p-5 border border-gray-200 dark:border-dark-card-border flex items-center justify-between gap-4 overflow-hidden relative group hover:shadow-md transition-all duration-300">
+      <div className="flex items-center gap-4">
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colors[color]}`}>
+          {icon}
+        </div>
+        <div>
+          <p className="text-xs font-bold text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">{title}</p>
+          <p className="text-xl font-black text-gray-900 dark:text-dark-text-primary">{value}</p>
+        </div>
       </div>
-      <div>
-        <p className="text-xs font-bold text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">{title}</p>
-        <p className="text-xl font-black text-gray-900 dark:text-dark-text-primary">{value}</p>
+      
+      {/* Premium Decorative Sparkline Graph */}
+      <div className="w-18 h-8 opacity-30 group-hover:opacity-60 transition-opacity duration-300 shrink-0 select-none">
+        <svg className={`w-full h-full ${colors[color].split(' ')[1]}`} viewBox="0 0 100 30" fill="none">
+          <path 
+            d={sparklinePaths[color]} 
+            stroke="currentColor" 
+            strokeWidth="3.5" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          />
+        </svg>
       </div>
     </div>
   );

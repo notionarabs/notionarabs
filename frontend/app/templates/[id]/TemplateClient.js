@@ -103,6 +103,8 @@ export default function TemplateClient({ initialTemplate }) {
   const [replyingTo, setReplyingTo] = useState(null);
   const [replyText, setReplyText] = useState('');
   const [isSubmittingReply, setIsSubmittingReply] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [shareUrl, setShareUrl] = useState('');
 
   const { showPopup, closePopup } = useRatingPopup(template, user, isAuthenticated);
 
@@ -150,6 +152,12 @@ export default function TemplateClient({ initialTemplate }) {
         fetchTemplate();
     }
   }, [templateIdentifier, isAuthenticated]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setShareUrl(window.location.href);
+    }
+  }, []);
 
   const fetchTemplate = async () => {
     try {
@@ -259,6 +267,15 @@ export default function TemplateClient({ initialTemplate }) {
       return match && match[1] ? `https://www.youtube.com/embed/${match[1]}` : null;
     }
     return null;
+  };
+
+  const handleCopyLink = () => {
+    if (typeof window !== 'undefined') {
+      navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      showSuccess('تم نسخ رابط القالب بنجاح');
+      setTimeout(() => setCopied(false), 2500);
+    }
   };
 
   const handleReplySubmit = async (e) => {
@@ -668,15 +685,15 @@ export default function TemplateClient({ initialTemplate }) {
             {/* Sidebar */}
             <div className="lg:col-span-1">
               <div className="sticky top-24 space-y-8">
-                <div className="bg-white dark:bg-dark-secondary p-10 rounded-[2.5rem] border border-gray-200 dark:border-dark-card-border shadow-sm overflow-hidden relative">
+                <div className="bg-white dark:bg-dark-secondary p-6 sm:p-8 rounded-[2.5rem] border border-gray-200 dark:border-dark-card-border shadow-sm overflow-y-auto no-scrollbar max-h-[calc(100vh-8rem)] relative">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
                   
-                  <h3 className="text-lg font-black text-gray-900 dark:text-white mb-10 flex items-center gap-3 relative z-10">
+                  <h3 className="text-lg font-black text-gray-900 dark:text-white mb-6 flex items-center gap-3 relative z-10">
                     <Layers size={22} className="text-primary" /> 
                     المواصفات الفنية
                   </h3>
                   
-                  <div className="space-y-8 relative z-10">
+                  <div className="space-y-6 relative z-10">
                     {[
                       { label: 'اللغة المعتمدة', value: template.language === 'ar' ? 'اللغة العربية' : 'ثنائي (عربي / إنجليزي)', icon: Globe },
                       { label: 'تاريخ التحديث', value: formatDate(template.updatedAt || template.createdAt), icon: Clock },
@@ -694,7 +711,7 @@ export default function TemplateClient({ initialTemplate }) {
                     ))}
                   </div>
                   
-                  <div className="mt-12 p-6 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-2xl border border-emerald-100/50 dark:border-emerald-800/30">
+                  <div className="mt-8 p-6 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-2xl border border-emerald-100/50 dark:border-emerald-800/30">
                     <div className="flex items-center gap-3 text-emerald-600 dark:text-emerald-400 mb-2">
                        <CheckCircle size={18} />
                        <span className="text-xs font-black uppercase tracking-widest">جودة مضمونة</span>
@@ -703,14 +720,110 @@ export default function TemplateClient({ initialTemplate }) {
                       "تم فحص هذا القالب تقنياً لضمان خلوه من الأخطاء وتوافقه التام مع نوشن."
                     </p>
                   </div>
-                </div>
+                  
+                  {/* Unified Share Divider & Label with explicit non-collapsing padding spacing */}
+                  <div className="pt-6 pb-5">
+                    <div className="flex items-center gap-4">
+                      <div className="h-px bg-gray-100 dark:bg-dark-card-border flex-grow" />
+                      <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] whitespace-nowrap">
+                        شارك هذا القالب
+                      </span>
+                      <div className="h-px bg-gray-100 dark:bg-dark-card-border flex-grow" />
+                    </div>
+                  </div>
 
-                {/* Social Share (Placeholder) */}
-                <div className="p-4 text-center">
-                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-4">شارك مع المجتمع</p>
-                   <div className="flex items-center justify-center gap-4">
-                      {/* We could add social buttons here */}
-                   </div>
+                  {/* Social Share */}
+                  {(() => {
+                    const shareTitle = template ? `شاهد هذا القالب المميز "${template.title}" على عرب نوشن` : 'عرب نوشن - مجتمع نوشن العربي';
+                    return (
+                      <div>
+                        
+                        <div className="flex flex-col gap-3">
+                           {/* Copy Link Button - FULL WIDTH */}
+                           <button
+                             onClick={handleCopyLink}
+                             className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border font-bold text-xs transition-all duration-300 ${
+                               copied 
+                                 ? 'bg-green-500/10 border-green-500/20 text-green-600 dark:text-green-400 scale-[1.02]' 
+                                 : 'bg-gray-50 hover:bg-gray-100 dark:bg-dark-tertiary/40 dark:hover:bg-dark-tertiary/60 border-gray-100 dark:border-dark-card-border text-gray-700 dark:text-gray-300 hover:scale-[1.02]'
+                             }`}
+                             title="نسخ الرابط"
+                           >
+                             {copied ? (
+                               <>
+                                 <svg className="w-4 h-4 animate-bounce text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                                 </svg>
+                                 <span>تم نسخ الرابط بنجاح!</span>
+                               </>
+                             ) : (
+                               <>
+                                 <svg className="w-4 h-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                 </svg>
+                                 <span>نسخ رابط القالب</span>
+                               </>
+                             )}
+                           </button>
+
+                           {/* Social Icons Row - Grid */}
+                           <div className="grid grid-cols-4 gap-2">
+                             {/* X / Twitter */}
+                             <a
+                               href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareTitle)}&url=${encodeURIComponent(shareUrl)}`}
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               className="h-11 rounded-2xl bg-gray-50 hover:bg-[#121212] dark:bg-dark-tertiary/40 border border-gray-100 dark:border-dark-card-border text-gray-600 dark:text-gray-300 hover:text-white flex items-center justify-center transition-all duration-300 hover:scale-105"
+                               title="مشاركة على X"
+                             >
+                               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                               </svg>
+                             </a>
+
+                             {/* WhatsApp */}
+                             <a
+                               href={`https://api.whatsapp.com/send?text=${encodeURIComponent(shareTitle + ' ' + shareUrl)}`}
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               className="h-11 rounded-2xl bg-gray-50 hover:bg-[#25D366] dark:bg-dark-tertiary/40 border border-gray-100 dark:border-dark-card-border text-gray-600 dark:text-gray-300 hover:text-white flex items-center justify-center transition-all duration-300 hover:scale-105"
+                               title="مشاركة على واتساب"
+                             >
+                               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.455 5.703 1.456h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413" />
+                               </svg>
+                             </a>
+
+                             {/* Telegram */}
+                             <a
+                               href={`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareTitle)}`}
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               className="h-11 rounded-2xl bg-gray-50 hover:bg-[#0088cc] dark:bg-dark-tertiary/40 border border-gray-100 dark:text-gray-300 text-gray-600 dark:border-dark-card-border hover:text-white flex items-center justify-center transition-all duration-300 hover:scale-105"
+                               title="مشاركة على تليجرام"
+                             >
+                               <svg className="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.24-5.54 3.65-.52.36-1 .53-1.42.52-.47-.01-1.37-.27-2.03-.49-.82-.27-1.47-.41-1.42-.87.03-.24.36-.49 1-.74 3.9-1.69 6.51-2.8 7.83-3.32 3.71-1.47 4.48-1.73 4.99-1.74.11 0 .36.03.52.16.14.11.18.26.2.4l-.01.12z" />
+                               </svg>
+                             </a>
+
+                             {/* LinkedIn */}
+                             <a
+                               href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               className="h-11 rounded-2xl bg-gray-50 hover:bg-[#0077b5] dark:bg-dark-tertiary/40 border border-gray-100 dark:text-gray-300 text-gray-600 dark:border-dark-card-border hover:text-white flex items-center justify-center transition-all duration-300 hover:scale-105"
+                               title="مشاركة على لينكد إن"
+                             >
+                               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                 <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                               </svg>
+                             </a>
+                           </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             </div>

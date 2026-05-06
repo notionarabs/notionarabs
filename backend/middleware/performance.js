@@ -65,7 +65,7 @@ const requestLogger = (req, res, next) => {
     // Log slow requests
     if (duration > 1000) {
       console.warn('Slow request detected:', logData);
-    } else {
+    } else if (process.env.NODE_ENV !== 'production') {
       console.log('Request:', logData);
     }
   });
@@ -88,6 +88,9 @@ const memoryMonitor = (req, res, next) => {
   // Warn if memory usage is high
   if (memUsageMB.heapUsed > 500) { // 500MB
     console.warn('High memory usage detected:', memUsageMB);
+  } else if (process.env.NODE_ENV === 'development' && req.url === '/health') {
+    // Only log periodic memory for health checks in dev
+    console.log('Memory usage:', memUsageMB);
   }
 
   next();

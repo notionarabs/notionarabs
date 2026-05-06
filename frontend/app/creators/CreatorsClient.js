@@ -157,12 +157,12 @@ export default function CreatorsClient({ initialCreators, initialPagination }) {
               </div>
 
               {/* Specialty Filter Pills */}
-              <div className="flex items-center justify-center gap-3 overflow-x-auto no-scrollbar pb-4">
+              <div className="flex items-center justify-start md:justify-center gap-3 overflow-x-auto overflow-y-visible px-4 py-4 w-full no-scrollbar scroll-smooth">
                 {['all', 'productivity', 'business', 'students', 'lifestyle', 'design'].map((spec) => (
                   <button
                     key={spec}
                     onClick={() => { setSelectedSpecialty(spec); setPagination(p => ({ ...p, current: 1 })); }}
-                    className={`px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap ${selectedSpecialty === spec
+                    className={`px-8 py-3 rounded-2xl text-sm font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap shrink-0 border-none ${selectedSpecialty === spec
                         ? 'bg-primary text-white shadow-xl shadow-primary/20 scale-105'
                         : 'bg-white/50 dark:bg-white/5 text-foreground/40 hover:bg-white/10'
                       }`}

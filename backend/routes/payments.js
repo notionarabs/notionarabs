@@ -12,10 +12,7 @@ const Template = require('../models/Template');
  */
 router.post('/create-checkout-session', auth, async (req, res) => {
     try {
-        console.log('🔔 [ROUTE START] /create-checkout-session');
         const { templateId } = req.body;
-        console.log('📦 Incoming Template ID:', templateId);
-        console.log('👤 Authenticated User:', req.user?.email || 'NOT AUTHENTICATED');
 
         // 1. Validate template
         const template = await Template.findById(templateId);
@@ -32,7 +29,6 @@ router.post('/create-checkout-session', auth, async (req, res) => {
         // Clean title for Paymob (ASCII only or fallback to ID)
         // Paymob Intention API can be picky about special chars
         const cleanTitle = template.slug || 'Template-' + templateId.substring(0, 5);
-        console.log('🆔 Cleaned Item Name for Paymob:', cleanTitle);
 
         // 2. Prepare billing data
         const billingData = {
@@ -46,8 +42,6 @@ router.post('/create-checkout-session', auth, async (req, res) => {
         const userId = req.user.id || req.user._id;
         const templateDbId = template.id || template._id;
         
-        console.log('[PAYMENTS DEBUG] Creating order for user:', userId, 'template:', templateDbId);
-
         const order = new Order({
             user: userId,
             items: [{
@@ -63,7 +57,6 @@ router.post('/create-checkout-session', auth, async (req, res) => {
 
         await order.save();
         const finalOrderId = (order.id || order._id).toString();
-        console.log('📝 Pending order saved in database:', finalOrderId);
 
         // 4. Use Paymob Intention API (new unified checkout)
         // Automatically picks TEST or LIVE integration based on NODE_ENV
@@ -119,9 +112,7 @@ router.post('/callback', async (req, res) => {
         const hmacSecret = paymobService.hmacSecret;
         const receivedHmac = req.query.hmac;
 
-        console.log(`📩 Paymob Webhook Received: Type=${type}`);
 
-        // 1. Verify HMAC for security
         if (hmacSecret && receivedHmac) {
             const calculatedHmac = paymobService.calculateHmac(obj, hmacSecret);
             if (calculatedHmac !== receivedHmac) {
@@ -150,7 +141,6 @@ router.post('/callback', async (req, res) => {
             }
 
             if (success === true || success === 'true') {
-                console.log(`✅ Payment successful for Order: ${order._id}`);
                 order.status = 'completed';
                 order.paymentId = obj.id?.toString();
                 order.paymobOrderId = paymobOrderId.toString();
@@ -177,10 +167,6 @@ router.post('/callback', async (req, res) => {
                                         balance: creatorEarnings
                                     }
                                 });
-                                console.log(`💰 Sale processed for creator ${creatorId}:`);
-                                console.log(`   - Price: ${salePrice} ج.م`);
-                                console.log(`   - Fee (${platformFeePercent}%): ${platformFee} ج.م`);
-                                console.log(`   - Added to Balance: ${creatorEarnings} ج.م`);
                             }
                         }
                     }
@@ -188,7 +174,6 @@ router.post('/callback', async (req, res) => {
                     console.error('Error updating creator earnings:', err);
                 }
             } else {
-                console.log(`⚠️  Payment failed for Order: ${order._id}`);
                 order.status = 'cancelled';
                 await order.save();
             }

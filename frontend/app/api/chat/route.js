@@ -81,7 +81,6 @@ export async function POST(req) {
 
     // --- OPTION A: MISTRAL AI (STREAMING) ---
     if (mistralKey) {
-      console.log(`Streaming with Mistral AI (Context: ${context})...`);
       const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -102,7 +101,6 @@ export async function POST(req) {
 
     // --- OPTION B: OPENAI (STREAMING) ---
     if (openaiKey) {
-      console.log(`Streaming with OpenAI (Context: ${context})...`);
       const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -121,41 +119,55 @@ export async function POST(req) {
       });
     }
 
-    // --- OPTION C: GEMINI (FALLBACK - NON-STREAMING FOR STABILITY) ---
+    // --- OPTION C: GEMINI (STREAMING) ---
     if (geminiKey) {
-      const contents = messages.map(msg => ({
-        role: msg.role === "user" ? "user" : "model",
-        parts: [{ text: msg.content }]
-      }));
-
-      const finalContents = [
-        { role: "user", parts: [{ text: `SYSTEM INSTRUCTIONS: ${SYSTEM_PROMPT}` }] },
-        { role: "model", parts: [{ text: "أفهم جيداً. أنا مساعد عرب نوشن الرسمي. كيف يمكنني مساعدتك اليوم؟" }] },
-        ...contents
-      ];
-      
       try {
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: finalContents })
+        const model = genAI.getGenerativeModel({ 
+          model: "gemini-1.5-flash",
+          systemInstruction: { parts: [{ text: fullSystemPrompt }] }
         });
 
-        const data = await response.json();
-        if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
-          // Wrap Gemini non-stream into a pseudo-stream format for frontend compatibility
-          const text = data.candidates[0].content.parts[0].text;
-          const encoder = new TextEncoder();
-          const stream = new ReadableStream({
-            start(controller) {
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: text } }, { finish_reason: "stop" }] })}\n\n`));
+        // Convert messages to Gemini format (user/model)
+        // Note: Gemini requires alternating roles. messages[0] to messages[n-1] as history.
+        const history = messages.slice(0, -1).map(msg => ({
+          role: msg.role === "user" ? "user" : "model",
+          parts: [{ text: msg.content }]
+        }));
+        
+        const currentMessage = messages[messages.length - 1].content;
+        
+        const chat = model.startChat({ history });
+        const result = await chat.sendMessageStream(currentMessage);
+        
+        const encoder = new TextEncoder();
+        const stream = new ReadableStream({
+          async start(controller) {
+            try {
+              for await (const chunk of result.stream) {
+                const chunkText = chunk.text();
+                if (chunkText) {
+                  // Format to match OpenAI/Mistral format expected by the frontend
+                  const data = JSON.stringify({ 
+                    choices: [{ delta: { content: chunkText } }] 
+                  });
+                  controller.enqueue(encoder.encode(`data: ${data}\n\n`));
+                }
+              }
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ choices: [{ finish_reason: "stop" }] })}\n\n`));
               controller.close();
+            } catch (streamErr) {
+              console.error("Gemini stream error:", streamErr);
+              controller.error(streamErr);
             }
-          });
-          return new Response(stream, { headers: { "Content-Type": "text/event-stream" } });
-        }
-      } catch (err) { console.error("Gemini failed:", err.message); }
+          }
+        });
+        
+        return new Response(stream, { 
+          headers: { "Content-Type": "text/event-stream" } 
+        });
+      } catch (err) { 
+        console.error("Gemini fallback failed:", err.message); 
+      }
     }
 
     return NextResponse.json({ error: "Missing API keys" }, { status: 500 });

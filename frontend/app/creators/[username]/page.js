@@ -1,4 +1,4 @@
-import { generateCreatorMetadata } from '../../../lib/seo';
+import { generateCreatorMetadata, generateCreatorSchema } from '../../../lib/seo';
 import CreatorProfileClient from './CreatorProfileClient';
 import { getApiUrl } from '../../../lib/apiConfig';
 
@@ -36,5 +36,19 @@ export default async function CreatorPage({ params }) {
   const { username } = await params;
   const creator = await getCreator(username);
   
-  return <CreatorProfileClient initialCreator={creator} />;
+  if (!creator) return <CreatorProfileClient initialCreator={null} />;
+
+  // Generate structured data for SEO
+  const jsonLd = generateCreatorSchema(creator);
+
+  return (
+    <>
+      {/* Google Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <CreatorProfileClient initialCreator={creator} />
+    </>
+  );
 }

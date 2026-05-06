@@ -226,6 +226,8 @@ export function generateTemplateSchema(template) {
     'name': template.title,
     'image': [fullImage],
     'description': template.description || template.title,
+    'sku': template._id || template.id,
+    'mpn': template._id || template.id,
     'brand': {
       '@type': 'Brand',
       'name': 'عرب نوشن',
@@ -237,6 +239,7 @@ export function generateTemplateSchema(template) {
       'price': isPaid ? (template.price || 0) : 0,
       'availability': 'https://schema.org/InStock',
     },
+    'category': template.category || 'Notion Templates',
   };
 
   // Add Aggregate Rating if available
@@ -254,9 +257,70 @@ export function generateTemplateSchema(template) {
   schema.author = {
     '@type': 'Person',
     'name': creatorName,
+    'url': template.creator?.username ? `${siteConfig.url}/creators/${template.creator.username}` : undefined
   };
 
   return schema;
+}
+
+// Generate JSON-LD Structured Data for Creator Profile
+export function generateCreatorSchema(creator) {
+  const displayName = creator.displayName || creator.name;
+  const fullImage = getAbsoluteImageUrl(creator.profilePicture);
+  const url = `${siteConfig.url}/creators/${creator.username || creator._id}`;
+  
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ProfilePage',
+    'mainEntity': {
+      '@type': 'Person',
+      'name': displayName,
+      'description': creator.bio || creator.experience || siteConfig.description,
+      'image': fullImage,
+      'url': url,
+      'jobTitle': 'مبدع قوالب نوشن / Notion Creator',
+      'knowsAbout': ['Notion', 'Productivity', 'Digital Organization', ...(creator.specialties || [])],
+      'sameAs': [
+        creator.twitter && (creator.twitter.startsWith('http') ? creator.twitter : `https://twitter.com/${creator.twitter}`),
+        creator.youtube && (creator.youtube.startsWith('http') ? creator.youtube : `https://youtube.com/@${creator.youtube}`),
+        creator.linkedin && (creator.linkedin.startsWith('http') ? creator.linkedin : `https://linkedin.com/in/${creator.linkedin}`),
+        creator.website
+      ].filter(Boolean)
+    }
+  };
+}
+
+// Generate JSON-LD Structured Data for Blog Post
+export function generateBlogSchema(blog) {
+  const fullImage = getAbsoluteImageUrl(blog.featuredImage);
+  const url = `${siteConfig.url}/blog/${blog.slug}`;
+  
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    'headline': blog.title,
+    'description': blog.excerpt || blog.description,
+    'image': [fullImage],
+    'datePublished': blog.publishedAt || blog.createdAt,
+    'dateModified': blog.updatedAt || blog.publishedAt || blog.createdAt,
+    'author': {
+      '@type': 'Person',
+      'name': blog.author?.name || 'عرب نوشن',
+      'url': blog.author?.username ? `${siteConfig.url}/creators/${blog.author.username}` : siteConfig.url
+    },
+    'publisher': {
+      '@type': 'Organization',
+      'name': 'عرب نوشن',
+      'logo': {
+        '@type': 'ImageObject',
+        'url': `${siteConfig.url}/brand/NotionLogo.png`
+      }
+    },
+    'mainEntityOfPage': {
+      '@type': 'WebPage',
+      '@id': url
+    }
+  };
 }
 
 // Blog-specific SEO metadata

@@ -511,14 +511,12 @@ class UserDoc {
           // Ensure updatedAt is always refreshed
           dbUpdate.updatedAt = new Date().toISOString();
 
-          console.log('[USER MODEL DEBUG] Updating user:', id, 'with:', JSON.stringify(dbUpdate));
           const { data, error } = await supabase.from('User').update(dbUpdate).eq('id', id).select();
           if (error) {
               console.error('[USER MODEL DEBUG] Supabase Update Error:', error);
               throw error;
           }
           const updated = data && data[0];
-          console.log('[USER MODEL DEBUG] Updated user resulting data:', updated ? 'FOUND' : 'NOT FOUND');
           return updated ? new UserDoc(updated) : null;
       };
       

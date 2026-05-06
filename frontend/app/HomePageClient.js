@@ -98,7 +98,7 @@ export default function HomePageClient({ initialStats }) {
   return (
     <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300 bg-mesh" dir="rtl">
       <Hero animationsPlayed={animationsPlayed} initialStats={initialStats} />
-      <HomeMarketplace />
+      <HomeMarketplace initialStats={initialStats} />
       <Integrations />
       <Testimonials />
       <FAQ />

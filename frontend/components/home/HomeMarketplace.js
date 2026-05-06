@@ -8,12 +8,12 @@ import api from '../../lib/api';
 
 import FeaturedWidgets from '../../components/widgets/FeaturedWidgets';
 
-export default function HomeMarketplace() {
+export default function HomeMarketplace({ initialStats }) {
   const sortBy = 'createdAt';
   const [allTemplates, setAllTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [topCreators, setTopCreators] = useState([]);
-  const [loadingCreators, setLoadingCreators] = useState(true);
+  const [topCreators, setTopCreators] = useState(initialStats?.topCreators || []);
+  const [loadingCreators, setLoadingCreators] = useState(!initialStats?.topCreators);
 
   const fetchTemplates = async () => {
     try {
@@ -32,21 +32,25 @@ export default function HomeMarketplace() {
 
   useEffect(() => {
     fetchTemplates();
-    const fetchTopCreators = async () => {
-      try {
-        setLoadingCreators(true);
-        const response = await api.get('/stats/homepage');
-        if (response.data.success) {
-          setTopCreators(response.data.topCreators || []);
+    
+    // Only fetch creators if they weren't provided in initialStats
+    if (!initialStats?.topCreators) {
+      const fetchTopCreators = async () => {
+        try {
+          setLoadingCreators(true);
+          const response = await api.get('/stats/homepage');
+          if (response.data.success) {
+            setTopCreators(response.data.topCreators || []);
+          }
+        } catch (error) {
+          console.error('Error fetching creators:', error);
+        } finally {
+          setLoadingCreators(false);
         }
-      } catch (error) {
-        console.error('Error fetching creators:', error);
-      } finally {
-        setLoadingCreators(false);
-      }
-    };
-    fetchTopCreators();
-  }, []);
+      };
+      fetchTopCreators();
+    }
+  }, [initialStats]);
 
   return (
     <section id="marketplace" className="py-32 bg-transparent relative overflow-hidden" dir="rtl">

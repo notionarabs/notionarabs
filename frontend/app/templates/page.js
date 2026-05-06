@@ -255,9 +255,9 @@ function TemplatesPageContent() {
                 </form>
               </div>
 
-              <div className="flex items-center justify-center gap-3 overflow-x-auto overflow-y-hidden pb-4 lg:pb-0 w-full no-scrollbar scroll-smooth">
+              <div className="flex items-center justify-start md:justify-center gap-3 overflow-x-auto overflow-y-visible px-4 py-4 w-full no-scrollbar scroll-smooth">
                 {['الكل', ...popularCategories].map((cat) => (
-                  <button key={cat} onClick={() => handleCategorySelect(cat)} className={`px-8 py-3 rounded-2xl text-sm font-black tracking-widest transition-all duration-300 whitespace-nowrap uppercase border-none ${selectedCategory === cat ? 'bg-primary text-white shadow-xl shadow-primary/20 scale-105' : 'bg-white/50 dark:bg-white/5 text-foreground/60 dark:text-white/40 hover:bg-white/10'}`}>{cat}</button>
+                  <button key={cat} onClick={() => handleCategorySelect(cat)} className={`px-8 py-3 rounded-2xl text-sm font-black tracking-widest transition-all duration-300 whitespace-nowrap uppercase border-none shrink-0 ${selectedCategory === cat ? 'bg-primary text-white shadow-xl shadow-primary/20 scale-105' : 'bg-white/50 dark:bg-white/5 text-foreground/60 dark:text-white/40 hover:bg-white/10'}`}>{cat}</button>
                 ))}
               </div>
 

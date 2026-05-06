@@ -199,16 +199,20 @@ router.post('/signup', [
     .withMessage('كلمة المرور يجب أن تكون 6 أحرف على الأقل')
 ], async (req, res) => {
   try {
-    console.log('Signup request received:', {
-      name: req.body.name,
-      email: req.body.email,
-      hasPassword: !!req.body.password
-    });
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Signup request received:', {
+        name: req.body.name,
+        email: req.body.email,
+        hasPassword: !!req.body.password
+      });
+    }
 
     // Check validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log('Validation errors:', errors.array());
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('Validation errors:', errors.array());
+      }
       return res.status(400).json({
         success: false,
         message: 'بيانات غير صحيحة',
@@ -426,11 +430,6 @@ router.post('/login', [
 // @access  Private
 router.get('/me', auth, async (req, res) => {
   try {
-    console.log('[AUTH DEBUG] /me endpoint returning user:', JSON.stringify({
-        email: req.user.email,
-        role: req.user.role,
-        id: req.user._id
-    }));
     res.json({
       success: true,
       user: req.user
@@ -693,14 +692,6 @@ router.put('/profile/settings', auth, [
       payoutMethod,
       payoutDetails
     } = req.body;
-
-    console.log('[AUTH DEBUG] PUT /profile/settings request body:', JSON.stringify({
-        userId: req.user._id,
-        username, displayName, bio, 
-        hasProfilePicture: !!profilePicture,
-        profilePictureLength: profilePicture?.length,
-        hasBackgroundImage: !!backgroundImage
-    }));
 
     const updateData = {};
 

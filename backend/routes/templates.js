@@ -27,7 +27,15 @@ async function handleOptimizedPagination(req, res, options) {
   }
   
   if (language && language !== 'all') {
-    filter.language = language;
+    if (language === 'en') {
+      filter.language = { $in: ['en', 'ar-en'] };
+    } else if (language === 'ar') {
+      filter.language = { $in: ['ar', 'ar-en', 'ar-fr'] };
+    } else if (language === 'fr') {
+      filter.language = { $in: ['fr', 'ar-fr'] };
+    } else {
+      filter.language = language;
+    }
   }
 
   if (isPinned === 'true') {
@@ -249,8 +257,6 @@ router.post('/', auth, [
       }
     })
 ], async (req, res) => {
-  console.log('>>> POST /api/templates entry');
-  console.log('User:', req.user?._id);
   try {
     // Check if user is an approved creator
     const isCreatorOrAdmin = req.user.role === 'admin' || (req.user.role === 'creator' && req.user.creatorStatus === 'approved');
@@ -569,7 +575,15 @@ router.get('/', cacheMiddleware(3600), async (req, res) => {
     }
 
     if (language && language !== 'all') {
-      filter.language = language;
+      if (language === 'en') {
+        filter.language = { $in: ['en', 'ar-en'] };
+      } else if (language === 'ar') {
+        filter.language = { $in: ['ar', 'ar-en', 'ar-fr'] };
+      } else if (language === 'fr') {
+        filter.language = { $in: ['fr', 'ar-fr'] };
+      } else {
+        filter.language = language;
+      }
     }
 
     // If search is provided, use server-side text search
@@ -628,7 +642,7 @@ router.get('/', cacheMiddleware(3600), async (req, res) => {
       }
     }
 
-    // This code is now handled by handleOptimizedPagination function above
+    // Non-search path is handled early via handleOptimizedPagination (see line 543)
   } catch (error) {
     console.error('Get templates error:', error);
     res.status(500).json({
@@ -706,7 +720,7 @@ router.get('/export', auth, async (req, res) => {
     const isAdmin = req.user.role?.toLowerCase() === 'admin';
     const creatorId = req.query.creatorId;
 
-    if (!isAdmin && creatorId && creatorId !== req.user._id) {
+    if (!isAdmin && creatorId && creatorId !== req.user._id.toString()) {
       return res.status(403).json({ success: false, message: 'غير مصرح لك بتصدير بيانات الآخرين' });
     }
 
@@ -905,7 +919,10 @@ router.get('/similar/:id', cacheMiddleware(600), async (req, res) => {
       // If not enough matches from tags, add templates from same category
       if (similarTemplates.length < parseInt(limit)) {
         const categoryTemplates = allTemplates
-          .filter(t => t.category === currentTemplate.category)
+          .filter(t =>
+            Array.isArray(t.categories) &&
+            t.categories.some(c => currentTemplate.categories?.includes(c))
+          )
           .sort((a, b) => b.downloads - a.downloads);
 
         const existingIds = new Set(similarTemplates.map(t => t._id.toString()));
@@ -927,7 +944,10 @@ router.get('/similar/:id', cacheMiddleware(600), async (req, res) => {
       console.error('Similarity matching error:', similarityError);
       // Fallback to category-based matching
       similarTemplates = allTemplates
-        .filter(t => t.category === currentTemplate.category)
+        .filter(t =>
+          Array.isArray(t.categories) &&
+          t.categories.some(c => currentTemplate.categories?.includes(c))
+        )
         .sort((a, b) => b.downloads - a.downloads)
         .slice(0, parseInt(limit));
     }
@@ -1210,6 +1230,9 @@ router.delete('/:id', auth, async (req, res) => {
 
     await Template.findByIdAndDelete(req.params.id);
 
+    // Invalidate cache so deleted template no longer appears in cached responses
+    await invalidateCache('template', req.params.id);
+
     res.json({
       success: true,
       message: 'تم حذف القالب بنجاح'
@@ -1283,7 +1306,6 @@ router.post('/:id/download', auth, async (req, res) => {
     if (!template.isPaid || template.price === 0) {
       const uid = (req.user._id || req.user.id).toString();
       const tid = (template._id || template.id).toString();
-      console.log(`[DEBUG] Attempting to create free order for template: ${template.title} (${tid}) for user: ${uid}`);
       try {
         // Robust check for existing order for this template by this user
         const supabase = require('../utils/supabase');
@@ -1302,13 +1324,12 @@ router.post('/:id/download', auth, async (req, res) => {
             .eq('userId', uid);
 
           if (userOrders && userOrders.length > 0) {
-            console.log(`[DEBUG] User already owns template: ${template.title}`);
             alreadyOwned = true;
           }
         }
 
         if (!alreadyOwned) {
-          const newOrder = await Order.create({
+          await Order.create({
             user: uid,
             items: [{
               templateId: tid,
@@ -1321,10 +1342,9 @@ router.post('/:id/download', auth, async (req, res) => {
             paymentMethod: 'free',
             notes: 'تحميل مجاني'
           });
-          console.log(`[DEBUG] Free order created successfully: ${newOrder.id}`);
         }
       } catch (orderErr) {
-        console.error('[DEBUG] Failed to create free order record:', orderErr);
+        console.error('Failed to create free order record:', orderErr);
       }
     }
 

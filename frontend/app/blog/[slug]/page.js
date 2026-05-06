@@ -102,6 +102,14 @@ export default async function BlogPostPage({ params }) {
     notFound();
   }
 
-  // Pass data to Client Component
-  return <BlogPostClient initialBlog={data.blog} initialRelatedBlogs={data.relatedBlogs} />;
+// Pass data to Client Component
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(require('../../../lib/seo').generateBlogSchema(data.blog)) }}
+      />
+      <BlogPostClient initialBlog={data.blog} initialRelatedBlogs={data.relatedBlogs} />
+    </>
+  );
 }

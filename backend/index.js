@@ -18,10 +18,12 @@ const {
 } = require('./middleware/performance');
 
 const app = express();
-app.use((req, res, next) => {
+if (process.env.NODE_ENV !== 'production') {
+  app.use((req, res, next) => {
     console.log(`[GLOBAL LOG] ${req.method} ${req.url}`);
     next();
-});
+  });
+}
 const PORT = process.env.PORT || 5000;
 
 // Middleware
@@ -85,26 +87,8 @@ app.use(responseTimeOptimization);
 // Apply CORS middleware  
 app.use(cors(corsOptions));
 
-// Additional CORS headers for preflight requests
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-
-  // Only set CORS headers if origin is in allowed list
-  if (allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
-    res.header('Access-Control-Allow-Credentials', 'true');
-  }
-
-  // Handle preflight requests
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
-
-  next();
-});
+// Note: CORS is fully handled by the cors() middleware above.
+// No manual header override needed — it would cause double-header conflicts.
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

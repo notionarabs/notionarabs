@@ -25,7 +25,7 @@ const iconMap = {
 
 function CategorySkeleton() {
     return (
-        <div className="flex items-center gap-2 overflow-x-auto pb-4 md:pb-0 w-full md:w-auto no-scrollbar scroll-smooth">
+        <div className="flex items-center gap-2 overflow-x-auto overflow-y-visible px-4 py-4 w-full md:w-auto no-scrollbar scroll-smooth">
             {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="h-11 w-24 bg-white dark:bg-dark-secondary border-none rounded-2xl animate-pulse" />
             ))}
@@ -207,7 +207,7 @@ export default function WidgetsClient() {
                         {loading ? (
                             <CategorySkeleton />
                         ) : (
-                            <div className="flex items-center gap-3 overflow-x-auto overflow-y-hidden pb-4 lg:pb-0 w-full lg:w-auto no-scrollbar scroll-smooth">
+                            <div className="flex items-center gap-3 overflow-x-auto overflow-y-visible px-4 py-4 w-full lg:w-auto no-scrollbar scroll-smooth">
                                 {categories.map((cat) => (
                                     <button
                                         key={cat}

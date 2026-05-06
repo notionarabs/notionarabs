@@ -12,7 +12,6 @@ const createTransporter = () => {
     throw new Error('Email service is not configured. Please set BREVO_API_KEY.');
   }
 
-  console.log('✅ Using Brevo for email service');
 
   return {
     sendMail: async (mailOptions) => {
@@ -33,7 +32,6 @@ const createTransporter = () => {
           }
         });
 
-        console.log('✅ Brevo email sent successfully:', response.data.messageId);
         return {
           messageId: response.data.messageId,
           response: 'Email sent via Brevo'
@@ -44,7 +42,6 @@ const createTransporter = () => {
       }
     },
     verify: (callback) => {
-      console.log('✅ Brevo API key is configured');
       if (callback) {
         callback(null, true);
       }
@@ -79,10 +76,6 @@ router.post('/creator', [
     .withMessage('معرف المبدع غير صحيح')
 ], async (req, res) => {
   try {
-    console.log('Contact creator route called with data:', {
-      body: req.body,
-      headers: req.headers
-    });
 
     // Check validation errors
     const errors = validationResult(req);
@@ -114,21 +107,6 @@ router.post('/creator', [
       });
     }
 
-    // Log the message for testing
-    console.log('=== MESSAGE TO CREATOR ===');
-    console.log('Creator:', creator.displayName || creator.name, `(${creator.email})`);
-    console.log('From:', name, `(${email})`);
-    console.log('Subject:', subject);
-    console.log('Message:', message);
-    console.log('========================');
-
-    // Log the message immediately for manual follow-up
-    console.log('=== CREATOR CONTACT MESSAGE ===');
-    console.log('Creator:', creator.displayName || creator.name, `(${creator.email})`);
-    console.log('From:', name, `(${email})`);
-    console.log('Subject:', subject);
-    console.log('Message:', message);
-    console.log('===============================');
 
     // Return success immediately - no email sending to avoid delays
     res.json({
@@ -225,9 +203,8 @@ router.post('/creator', [
           };
 
           await transporter.sendMail(mailOptions);
-          console.log('✅ Email sent successfully to creator:', creator.email);
         } catch (emailError) {
-          console.log('❌ Email sending failed (background):', emailError.message);
+          console.error('Email sending failed (background):', emailError.message);
         }
       });
     }
@@ -282,13 +259,6 @@ router.post('/general', [
 
     const { name, email, subject, message } = req.body;
 
-    // Log the general contact message immediately
-    console.log('=== GENERAL CONTACT MESSAGE ===');
-    console.log('From:', name, `(${email})`);
-    console.log('Subject:', subject);
-    console.log('Category:', req.body.category || 'عام');
-    console.log('Message:', message);
-    console.log('================================');
 
     let notionResult = null;
     if (req.body.category === 'careers') {
@@ -356,9 +326,8 @@ router.post('/general', [
           };
 
           await transporter.sendMail(mailOptions);
-          console.log('✅ Email sent successfully to support team');
         } catch (emailError) {
-          console.log('❌ Email sending failed (background):', emailError.message);
+          console.error('Email sending failed (background):', emailError.message);
         }
       });
     }
@@ -468,15 +437,8 @@ router.post('/consultation', [
         return !value || (typeof value === 'string' && value.trim().length === 0);
       });
 
-      console.log('Individual validation - received data:', {
-        serviceType: req.body.serviceType,
-        details: req.body.details,
-        budget: req.body.budget,
-        timeline: req.body.timeline
-      });
 
       if (missing.length) {
-        console.log('Missing required fields:', missing);
         return res.status(400).json({
           success: false,
           message: 'يرجى تعبئة بيانات الأفراد المطلوبة.',
@@ -618,9 +580,8 @@ router.post('/consultation', [
           };
 
           await transporter.sendMail(mailOptions);
-          console.log('✅ Consultation link email sent successfully to user:', payload.email);
         } catch (emailError) {
-          console.log('❌ Email sending failed (background consultation):', emailError.message);
+          console.error('Email sending failed (background consultation):', emailError.message);
         }
       });
     }
@@ -671,13 +632,6 @@ router.post('/submit', [
 
     const { name, email, whatsapp, details } = req.body;
 
-    // Log the contact message
-    console.log('=== CONTACT FORM SUBMISSION ===');
-    console.log('Name:', name);
-    console.log('Email:', email);
-    console.log('WhatsApp:', whatsapp);
-    console.log('Details:', details);
-    console.log('================================');
 
     // Send to Notion
     const result = await addContactToNotion({

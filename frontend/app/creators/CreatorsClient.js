@@ -180,11 +180,11 @@ export default function CreatorsClient({ initialCreators, initialPagination }) {
       <section className="py-24 relative z-10">
         <div className="container-custom">
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-              {[...Array(6)].map((_, i) => <div key={i} className="aspect-square bg-white/50 dark:bg-white/5 rounded-[4rem] animate-pulse" />)}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+              {[...Array(8)].map((_, i) => <div key={i} className="aspect-[4/5] bg-white/50 dark:bg-white/5 rounded-[2.5rem] animate-pulse" />)}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {allCreators.length > 0 ? (
                 allCreators.map((creator, i) => (
                   <Link key={creator.id} href={`/creators/${creator.username || creator.id}`} className="group">

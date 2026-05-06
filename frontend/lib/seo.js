@@ -68,7 +68,7 @@ export function generateMetadata({
   authors,
   noindex = false,
   canonical,
-  ogType = 'website',
+  ogType,
   section
 }) {
   const fullTitle = title 
@@ -80,7 +80,7 @@ export function generateMetadata({
     : `${siteConfig.keywords.join(', ')}, ${keywords}`;
   const fullImage = image 
     ? getAbsoluteImageUrl(image)
-    : `${siteConfig.url}/api/og?title=${encodeURIComponent(title || siteConfig.name)}&type=${type}`;
+    : getAbsoluteImageUrl(siteConfig.ogImage);
   const fullUrl = url ? (url.startsWith('http') ? url : `${siteConfig.url}${url}`) : siteConfig.url;
 
   const metadata = {

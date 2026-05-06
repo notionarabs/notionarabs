@@ -279,82 +279,79 @@ export default function WidgetsClient() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                         {loading ? (
-                            [1, 2, 3, 4, 5, 6].map((item) => (
-                                <div key={item} className="h-[450px] rounded-[2.5rem] bg-card border-none animate-pulse" />
+                            [1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
+                                <div key={item} className="aspect-[4/3] rounded-[3.5rem] bg-white/50 dark:bg-white/5 animate-pulse shadow-soft" />
                             ))
                         ) : displayWidgets.length > 0 ? (
                             displayWidgets.map((widget, index) => (
                                 <div
                                     key={widget.id}
                                     onClick={() => router.push(`/widgets/${widget.id}`)}
-                                    className="group relative overflow-hidden rounded-[2.5rem] bg-card border-none transition-all duration-500 shadow-2xl shadow-primary/5 cursor-pointer flex flex-col"
+                                    className="group bg-white/30 dark:bg-white/5 backdrop-blur-[40px] rounded-[2rem] sm:rounded-[3.5rem] shadow-large group-hover:shadow-glow group-hover:-translate-y-4 transition-all duration-700 flex flex-col border-none overflow-hidden isolate cursor-pointer h-full"
                                     style={{ animationDelay: `${index * 50}ms` }}
                                 >
                                     {/* Visual Foundry Segment */}
-                                    <div className={`h-52 bg-gradient-to-br ${widget.gradient} flex items-center justify-center relative overflow-hidden`}>
+                                    <div className="relative aspect-[4/3] m-2 sm:m-4 overflow-hidden rounded-2xl sm:rounded-[2.5rem] bg-gradient-to-br from-primary/20 via-primary/5 to-accent-500/10 flex items-center justify-center">
                                         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
                                         
                                         {/* Precision Glow */}
                                         <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-[80px]" />
 
                                         {/* Tech Badges */}
-                                        <div className="absolute top-6 left-6 z-20 flex flex-col gap-2">
+                                        <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20 flex flex-col gap-2">
                                             {widget.isPopular && (
-                                                <div className="px-3 py-1 bg-black/40 backdrop-blur-md border border-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-full">
+                                                <div className="px-3 py-1 bg-black/40 backdrop-blur-md border border-white/10 text-white text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-full">
                                                     الأكثر استخداماً
                                                 </div>
                                             )}
                                         </div>
 
-                                        <div className="relative z-10 p-8 bg-white/10 backdrop-blur-xl rounded-[2rem] border-none shadow-2xl group-hover:scale-110 transition-transform duration-700">
-                                            <div className="w-16 h-16 flex items-center justify-center text-white drop-shadow-glow">
+                                        <div className="relative z-10 p-6 sm:p-8 bg-white/10 backdrop-blur-xl rounded-[2rem] border-none shadow-2xl group-hover:scale-110 transition-transform duration-700">
+                                            <div className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center text-white drop-shadow-glow">
                                                 {widget.icon}
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* Intelligence Segment */}
-                                    <div className="p-8 flex-1 flex flex-col">
+                                    <div className="p-4 sm:p-6 flex-1 flex flex-col relative z-20">
                                         <div className="flex items-center justify-between mb-4">
-                                            <span className="px-4 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-full">
+                                            <span className="px-3 py-1 sm:px-4 sm:py-1.5 bg-primary/10 text-primary text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-full">
                                                 {widget.category}
                                             </span>
                                             {stats[widget.id] > 0 && (
-                                                <div className="flex items-center gap-2 text-foreground/40 dark:text-white/30 text-[10px] font-black uppercase tracking-widest">
+                                                <div className="flex items-center gap-1.5 sm:gap-2 text-foreground/40 dark:text-white/30 text-[10px] font-black uppercase tracking-widest">
                                                     <Users className="w-3.5 h-3.5" />
                                                     {widget.users}
                                                 </div>
                                             )}
                                         </div>
 
-                                        <h2 className="text-2xl font-black text-foreground dark:text-white mb-3 group-hover:text-primary transition-colors">
+                                        <h2 className="text-lg sm:text-2xl font-black text-foreground dark:text-white mb-auto group-hover:text-primary transition-colors tracking-tighter leading-tight line-clamp-1">
                                             {widget.title}
                                         </h2>
-                                        <p className="text-sm text-foreground/60 dark:text-white/40 mb-8 line-clamp-2 leading-relaxed flex-1">
-                                            {widget.description}
-                                        </p>
 
-                                        <div className="pt-6 border-none mt-auto flex gap-4">
+                                        <div className="pt-4 sm:pt-6 border-t border-accent-900/5 dark:border-white/5 mt-4 flex gap-3">
                                             {isAuthenticated ? (
                                                 <button
                                                     onClick={(e) => copyEmbed(e, widget.id)}
-                                                    className="flex-1 bg-primary text-white py-4 px-6 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20"
+                                                    className="flex-1 bg-primary text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20"
                                                 >
-                                                    {copiedId === widget.id ? 'تم النسخ!' : <><Copy className="w-4 h-4" /> نسخ الكود</>}
+                                                    {copiedId === widget.id ? 'تم النسخ!' : <><Copy className="w-4 h-4" /> نسخ</>}
                                                 </button>
                                             ) : (
                                                 <Link
                                                     href={`/widgets/${widget.id}`}
-                                                    className="flex-1 bg-primary text-white py-4 px-6 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20"
+                                                    className="flex-1 bg-primary text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20"
                                                     onClick={(e) => e.stopPropagation()}
                                                 >
-                                                    <Lock className="w-4 h-4" /> سجل للتثبيت
+                                                    <Lock className="w-4 h-4" /> سجل
                                                 </Link>
                                             )}
-                                            <div className="w-14 h-14 bg-card-border/5 rounded-2xl flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                                                <ExternalLink className="w-5 h-5 text-foreground/40 dark:text-white/40 group-hover:text-primary transition-colors" />
+                                            <div className="w-10 h-10 sm:w-14 sm:h-14 bg-card-border/5 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                                                <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 text-foreground/40 dark:text-white/40 group-hover:text-primary transition-colors" />
                                             </div>
                                         </div>
                                     </div>

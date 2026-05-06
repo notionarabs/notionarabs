@@ -345,10 +345,10 @@ function TemplatesPageContent() {
           </div>
 
           {loading ? (
-             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-16">
-               {[...Array(6)].map((_, i) => (
-                 <div key={i} className="bg-white/30 dark:bg-white/5 backdrop-blur-2xl rounded-[3.5rem] p-4 h-full animate-pulse border border-black/5 dark:border-white/5">
-                   <div className="aspect-[16/10] bg-gray-200 dark:bg-white/10 rounded-[2.5rem] mb-8" />
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+               {[...Array(8)].map((_, i) => (
+                 <div key={i} className="bg-white/30 dark:bg-white/5 backdrop-blur-2xl rounded-[2rem] sm:rounded-[3.5rem] p-4 h-full animate-pulse border border-black/5 dark:border-white/5">
+                   <div className="aspect-[4/3] bg-gray-200 dark:bg-white/10 rounded-2xl sm:rounded-[2.5rem] mb-8" />
                    <div className="px-6 space-y-6">
                      <div className="flex justify-between items-center">
                         <div className="w-20 h-6 bg-gray-200 dark:bg-white/10 rounded-full" />
@@ -375,30 +375,30 @@ function TemplatesPageContent() {
               variants={containerVariants}
               initial="hidden"
               animate="visible"
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-16"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
             >
               {allTemplates.map((rel) => (
                 <motion.div key={rel._id} variants={cardVariants}>
                   <Link href={`/templates/${rel.slug || rel._id}`} className="group relative block h-full">
-                    <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[3.5rem] shadow-large group-hover:shadow-glow group-hover:-translate-y-4 transition-all duration-700 h-full flex flex-col border-none overflow-hidden isolate">
-                      <div className="relative aspect-[16/10] m-4 overflow-hidden rounded-[2.5rem] shadow-soft">
+                    <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[2rem] sm:rounded-[3.5rem] shadow-large group-hover:shadow-glow group-hover:-translate-y-4 transition-all duration-700 h-full flex flex-col border-none overflow-hidden isolate">
+                      <div className="relative aspect-[4/3] m-2 sm:m-4 overflow-hidden rounded-2xl sm:rounded-[2.5rem] shadow-soft">
                         <Image 
                           src={rel.previewImage || '/placeholder-template.jpg'} 
                           alt={rel.title} 
                           fill 
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                           className="object-cover object-center group-hover:scale-105 transition-transform duration-1000" 
                         />
-                        <div className="absolute top-6 left-6 z-20"><div className="px-6 py-3 bg-black/40 backdrop-blur-xl rounded-2xl text-white font-black text-sm uppercase tracking-widest">{rel.isPaid ? `${rel.price} ج.م` : 'مجاني'}</div></div>
+                        <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20"><div className="px-4 py-2 sm:px-6 sm:py-3 bg-black/40 backdrop-blur-xl rounded-xl sm:rounded-2xl text-white font-black text-[10px] sm:text-sm uppercase tracking-widest">{rel.isPaid ? `${rel.price} ج.م` : 'مجاني'}</div></div>
                       </div>
-                      <div className="p-10 flex-1 flex flex-col relative z-20">
-                        <div className="flex items-center justify-between mb-6">
-                          <div className="px-4 py-1.5 bg-primary/10 rounded-full text-[10px] font-black text-primary uppercase tracking-[0.2em]">{rel.categories?.[0] || rel.category || 'عام'}</div>
-                          <div className="flex items-center gap-2"><Star size={14} className="text-yellow-500 fill-yellow-500" /><span className="text-sm font-black text-accent-900 dark:text-white">{(rel.rating || 0).toFixed(1)}</span></div>
+                      <div className="p-4 sm:p-6 flex-1 flex flex-col relative z-20">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="px-3 py-1 sm:px-4 sm:py-1.5 bg-primary/10 rounded-full text-[9px] sm:text-[10px] font-black text-primary uppercase tracking-[0.2em]">{rel.categories?.[0] || rel.category || 'عام'}</div>
+                          <div className="flex items-center gap-1.5 sm:gap-2"><Star size={12} className="text-yellow-500 fill-yellow-500" /><span className="text-xs sm:text-sm font-black text-accent-900 dark:text-white">{(rel.rating || 0).toFixed(1)}</span></div>
                         </div>
-                        <h3 className="text-3xl font-black text-accent-900 dark:text-white mb-4 group-hover:text-primary transition-colors tracking-tighter leading-tight">{rel.title}</h3>
-                        <p className="text-base text-accent-700/60 dark:text-white/40 mb-10 line-clamp-2 leading-relaxed flex-1 font-medium">{rel.description || 'نظام هندسي متكامل مخصص للارتقاء بإنتاجية المستخدم العربي.'}</p>
-                        <div className="flex items-center justify-between pt-8 border-t border-accent-900/5 dark:border-white/5">
+                        <h3 className="text-lg sm:text-2xl font-black text-accent-900 dark:text-white mb-auto group-hover:text-primary transition-colors tracking-tighter leading-tight line-clamp-1">{rel.title}</h3>
+
+                        <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-accent-900/5 dark:border-white/5">
                           <div className="flex items-center gap-4">
                             <div className="w-10 h-10 rounded-full overflow-hidden bg-primary/10 relative shadow-soft">
                               {rel.creator?.profilePicture && <Image src={rel.creator.profilePicture} alt="Cr" fill className="object-cover" />}

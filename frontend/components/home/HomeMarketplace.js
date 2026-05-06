@@ -2,14 +2,14 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
-import { LayoutDashboard, Star, ArrowRight, Download, Award, Zap } from 'lucide-react';
+import { LayoutDashboard, Star, ArrowRight, Download, Award, Zap, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import api from '../../lib/api';
 
 import FeaturedWidgets from '../../components/widgets/FeaturedWidgets';
 
 export default function HomeMarketplace({ initialStats }) {
-  const sortBy = 'createdAt';
+  const sortBy = 'popular';
   const [allTemplates, setAllTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [topCreators, setTopCreators] = useState(initialStats?.topCreators || []);
@@ -61,11 +61,11 @@ export default function HomeMarketplace({ initialStats }) {
         {/* Marketplace Section Header */}
         <div className="flex flex-col sm:flex-row items-end justify-between mb-20 gap-8">
           <div className="max-w-2xl">
-            <h2 className="text-5xl sm:text-7xl font-black text-accent-500 dark:text-white mb-6 tracking-tighter leading-none">
-              سوق <span className="text-primary">الأنظمة</span>
+            <h2 className="text-5xl sm:text-7xl font-black text-accent-900 dark:text-white mb-6 tracking-tighter leading-none">
+              الأنظمة <span className="text-primary text-gradient">الأكثر رواجاً</span>
             </h2>
             <p className="text-xl text-accent-700/60 dark:text-white/40 font-black uppercase tracking-widest">
-              نُخبة الإنتاجية العربية في متناول يدك
+              نُخبة الإنتاجية العربية الأكثر استخداماً
             </p>
           </div>
           <Link href="/templates" className="px-10 py-4 bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-2xl font-black text-accent-900 dark:text-white shadow-soft hover:shadow-large hover:scale-105 transition-all duration-500 uppercase tracking-widest border-none">
@@ -76,49 +76,44 @@ export default function HomeMarketplace({ initialStats }) {
         {/* Featured Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16 mb-32">
           {loading ? (
-            [...Array(3)].map((_, i) => (
-              <div key={i} className="aspect-[4/5] bg-white/50 dark:bg-white/5 rounded-[3.5rem] animate-pulse" />
-            ))
+              [...Array(6)].map((_, i) => <div key={i} className="aspect-[4/3] bg-white/50 dark:bg-white/5 rounded-[3.5rem] animate-pulse" />)
           ) : (
             allTemplates.slice(0, 6).map((template, index) => (
               <Link key={template._id} href={`/templates/${template.slug || template._id}`} className="group h-full">
-                <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[3.5rem] shadow-large group-hover:shadow-glow group-hover:-translate-y-4 transition-all duration-700 h-full flex flex-col border-none overflow-hidden relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-                  
-                  <div className="relative aspect-[16/10] m-4 overflow-hidden rounded-[2.5rem] shadow-soft">
-                    <Image
-                      src={template.previewImage || '/placeholder-template.jpg'}
-                      alt={template.title}
-                      fill
-                      className="object-cover object-center group-hover:scale-105 transition-transform duration-1000"
-                    />
-                    <div className="absolute top-6 left-6 z-20">
-                      <div className="px-5 py-2.5 bg-black/40 backdrop-blur-xl rounded-2xl text-white font-black text-xs uppercase tracking-widest">
-                        {template.isPaid ? `${template.price} ج.م` : 'مجاني'}
+                  <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[2rem] sm:rounded-[3.5rem] shadow-large group-hover:shadow-glow group-hover:-translate-y-4 transition-all duration-700 h-full flex flex-col border-none overflow-hidden relative">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                    
+                    <div className="relative aspect-[4/3] m-2 sm:m-4 overflow-hidden rounded-2xl sm:rounded-[2.5rem] shadow-soft">
+                      <Image
+                        src={template.previewImage || '/placeholder-template.jpg'}
+                        alt={template.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover object-center group-hover:scale-105 transition-transform duration-1000"
+                      />
+                      <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20">
+                        <div className="px-4 py-2 sm:px-5 sm:py-2.5 bg-black/40 backdrop-blur-xl rounded-xl sm:rounded-2xl text-white font-black text-[10px] sm:text-xs uppercase tracking-widest">
+                          {template.isPaid ? `${template.price} ج.م` : 'مجاني'}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="p-10 flex-1 flex flex-col relative z-10">
-                    <div className="flex items-center justify-between mb-6">
-                        <span className="px-4 py-1.5 bg-primary/10 rounded-full text-[10px] font-black text-primary uppercase tracking-widest">
-                          {template.categories?.[0] || template.category || 'عام'}
-                        </span>
-                       <div className="flex items-center gap-2">
-                         <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                         <span className="text-sm font-black text-accent-900 dark:text-white">{(template.rating || 5).toFixed(1)}</span>
-                       </div>
-                    </div>
+                    <div className="p-4 sm:p-6 flex-1 flex flex-col relative z-10">
+                      <div className="flex items-center justify-between mb-4">
+                          <span className="px-3 py-1 sm:px-4 sm:py-1.5 bg-primary/10 rounded-full text-[9px] sm:text-[10px] font-black text-primary uppercase tracking-widest">
+                            {template.categories?.[0] || template.category || 'عام'}
+                          </span>
+                         <div className="flex items-center gap-1.5 sm:gap-2">
+                           <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-500 fill-yellow-500" />
+                           <span className="text-xs sm:text-sm font-black text-accent-900 dark:text-white">{(template.rating || 5).toFixed(1)}</span>
+                         </div>
+                      </div>
 
-                    <h4 className="text-2xl font-black text-accent-900 dark:text-white mb-4 group-hover:text-primary transition-colors tracking-tighter leading-tight">
-                      {template.title}
-                    </h4>
-                    
-                    <p className="text-base text-accent-700/60 dark:text-white/40 mb-8 line-clamp-2 leading-relaxed flex-1 font-medium italic">
-                      {template.description}
-                    </p>
+                      <h4 className="text-lg sm:text-2xl font-black text-accent-900 dark:text-white mb-auto group-hover:text-primary transition-colors tracking-tighter leading-tight line-clamp-1">
+                        {template.title}
+                      </h4>
 
-                    <div className="flex items-center justify-between pt-8 border-t border-accent-900/5 dark:border-white/5">
+                      <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-accent-900/5 dark:border-white/5">
                       <div className="flex items-center gap-4">
                         <div className="w-8 h-8 rounded-full overflow-hidden bg-primary/10 relative">
                           {template.creator?.profilePicture && <Image src={template.creator.profilePicture} alt="" fill className="object-cover" />}
@@ -143,15 +138,20 @@ export default function HomeMarketplace({ initialStats }) {
         </div>
 
         {/* Creators Spotlight */}
-        <div className="mb-12">
-          <div className="flex flex-col sm:flex-row items-end justify-between mb-20 gap-8">
+        <div className="mb-32">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-16 gap-6">
             <div className="max-w-2xl">
-              <h3 className="text-4xl sm:text-6xl font-black text-accent-500 dark:text-white mb-6 tracking-tighter leading-none">
-                نخبة <span className="text-primary">المبدعين</span>
+              <h3 className="text-4xl sm:text-5xl font-black text-accent-900 dark:text-white mb-2 tracking-tight">
+                المبدعون <span className="text-primary">المتميزون</span>
               </h3>
-              <p className="text-lg text-accent-700/60 dark:text-white/40 font-black uppercase tracking-widest">خلف كل نظام عظيم.. عقل مبدع</p>
+              <p className="text-base text-accent-700/60 dark:text-white/40 font-medium">تعرف على أفضل صانعي القوالب في مجتمعنا</p>
             </div>
-            <Link href="/creators" className="px-10 py-4 bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-2xl font-black text-accent-900 dark:text-white shadow-soft transition-all duration-500 uppercase tracking-widest">تصفح المبدعين</Link>
+            <Link href="/creators" className="group flex items-center gap-3 text-sm font-black text-accent-900 dark:text-white hover:text-primary transition-all duration-300">
+              تصفح {initialStats?.stats?.creators?.toLocaleString() || '19,787'} مبدع 
+              <div className="w-8 h-8 rounded-full bg-accent-900 dark:bg-white text-white dark:text-accent-900 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500">
+                <ArrowRight size={16} />
+              </div>
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
@@ -160,16 +160,38 @@ export default function HomeMarketplace({ initialStats }) {
             ) : (
               topCreators.slice(0, 4).map((cr, idx) => (
                 <Link key={idx} href={`/creators/${cr.username || cr.id}`} className="group h-full">
-                  <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[3.5rem] p-10 shadow-large group-hover:shadow-glow group-hover:-translate-y-4 transition-all duration-700 flex flex-col items-center text-center h-full">
-                    <div className="relative w-24 h-24 mb-8 flex-shrink-0">
-                      <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-                      <Image src={cr.profilePicture || '/default-avatar.png'} width={96} height={96} className="relative w-full h-full rounded-full object-cover shadow-soft group-hover:scale-110 transition-transform duration-700 border-none" alt="" />
-                      <div className="absolute -bottom-1 -right-1 w-10 h-10 bg-primary rounded-2xl flex items-center justify-center text-white shadow-glow rotate-12">
-                         <Award size={20} />
-                      </div>
+                  <div className="bg-white/30 dark:bg-white/5 backdrop-blur-[40px] rounded-[2.5rem] p-8 shadow-large group-hover:shadow-glow group-hover:-translate-y-2 transition-all duration-700 flex flex-col items-start text-right h-full border border-black/5 dark:border-white/5 relative overflow-hidden">
+                    <div className="relative w-20 h-20 mb-6 flex-shrink-0">
+                      <Image 
+                        src={cr.profilePicture || '/default-avatar.png'} 
+                        width={80} 
+                        height={80} 
+                        className="w-full h-full rounded-full object-cover shadow-soft group-hover:scale-110 transition-transform duration-700 border-none" 
+                        alt={cr.name} 
+                      />
+                      {cr.badges?.some(b => b.type === 'verified') && (
+                        <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-primary rounded-xl flex items-center justify-center text-white shadow-glow border-2 border-white dark:border-[#0a0a0a]">
+                           <CheckCircle size={14} strokeWidth={3} />
+                        </div>
+                      )}
                     </div>
-                    <h4 className="text-2xl font-black text-accent-900 dark:text-white group-hover:text-primary transition-colors tracking-tight">{cr.name}</h4>
-                    <p className="text-[10px] font-black text-accent-900/40 dark:text-white/30 uppercase tracking-[0.2em] mt-3">{cr.templatesCount} مسار إنجاز</p>
+                    
+                    <h4 className="text-xl font-black text-accent-900 dark:text-white group-hover:text-primary transition-colors tracking-tight mb-3">
+                      {cr.name}
+                    </h4>
+                    
+                    <p className="text-sm text-accent-700/60 dark:text-white/40 font-medium leading-relaxed mb-8 line-clamp-3 flex-1">
+                      {cr.bio || cr.experience || 'مبدع مستقل يساهم في إثراء المحتوى العربي على نوشن.'}
+                    </p>
+
+                    <div className="pt-6 border-t border-accent-900/5 dark:border-white/5 w-full flex items-center justify-between">
+                       <span className="text-[11px] font-black text-accent-900/40 dark:text-white/20 uppercase tracking-[0.2em]">
+                         {cr.templatesCount} مسار إنجاز
+                       </span>
+                       <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500">
+                          <ArrowRight size={16} />
+                       </div>
+                    </div>
                   </div>
                 </Link>
               ))

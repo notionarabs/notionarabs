@@ -7,7 +7,7 @@ async function getStats() {
     // Note: On the server, we need the full URL if it's not relative.
     // Our api instance is already configured with the correct baseURL.
     const response = await api.get('/stats/homepage');
-    return response.data.success ? response.data.stats : null;
+    return response.data.success ? response.data : null;
   } catch (err) {
     console.error('Error fetching stats on server:', err.message);
     return null;

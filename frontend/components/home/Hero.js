@@ -7,7 +7,7 @@ import api from '../../lib/api';
 import Counter from '../Counter';
 
 export default function Hero({ animationsPlayed, initialStats }) {
-    const [stats, setStats] = useState(initialStats || { templates: 0, creators: 0, specialties: 0, downloads: 0 });
+    const [stats, setStats] = useState(initialStats?.stats || initialStats || { templates: 0, creators: 0, specialties: 0, downloads: 0 });
     const [loadingStats, setLoadingStats] = useState(!initialStats);
 
     useEffect(() => {

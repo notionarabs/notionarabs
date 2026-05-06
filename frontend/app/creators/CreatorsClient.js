@@ -7,7 +7,7 @@ import api from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import FollowButton from '../../components/FollowButton';
-import { Search, Star, User, CheckCircle, Heart, Crown, Award, Zap } from 'lucide-react';
+import { Search, Star, User, CheckCircle, Heart, Crown, Award, Zap, ArrowRight, XCircle } from 'lucide-react';
 import Footer from '../../components/Footer';
 import { BreadcrumbWrapper } from '../../components/Breadcrumb';
 
@@ -188,43 +188,42 @@ export default function CreatorsClient({ initialCreators, initialPagination }) {
               {allCreators.length > 0 ? (
                 allCreators.map((creator, i) => (
                   <Link key={creator.id} href={`/creators/${creator.username || creator.id}`} className="group">
-                    <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[3rem] p-8 shadow-large group-hover:shadow-glow group-hover:-translate-y-2 transition-all duration-700 flex flex-col border-none relative overflow-hidden text-center items-center h-full">
-                      <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 blur-3xl" />
-
-                      <div className="relative w-24 h-24 mb-6">
-                        <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                    <div className="bg-white/30 dark:bg-white/5 backdrop-blur-[40px] rounded-[2.5rem] p-8 shadow-large group-hover:shadow-glow group-hover:-translate-y-2 transition-all duration-700 flex flex-col items-start text-right h-full border border-black/5 dark:border-white/5 relative overflow-hidden">
+                      <div className="relative w-20 h-20 mb-6 flex-shrink-0">
                         {creator.profilePicture ? (
                           <Image src={creator.profilePicture} alt="" fill className="rounded-full object-cover shadow-soft border-none group-hover:scale-110 transition-transform duration-700" />
                         ) : (
-                          <div className="w-full h-full rounded-full bg-primary/10 flex items-center justify-center text-3xl font-black text-primary shadow-soft">{(creator.displayName || creator.name)?.charAt(0)}</div>
+                          <div className="w-full h-full rounded-full bg-primary/10 flex items-center justify-center text-3xl font-black text-primary shadow-soft">{(creator.displayName || creator.name || 'U')?.charAt(0)}</div>
                         )}
-                        {creator.badges?.length > 0 && (
-                          <div className="absolute -bottom-1 -right-1 w-10 h-10 bg-primary rounded-2xl flex items-center justify-center text-white shadow-glow rotate-12">
-                            <Award size={18} />
+                        {creator.badges?.some(b => b.type === 'verified') && (
+                          <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-primary rounded-xl flex items-center justify-center text-white shadow-glow border-2 border-white dark:border-[#0a0a0a]">
+                             <CheckCircle size={14} strokeWidth={3} />
                           </div>
                         )}
                       </div>
-
-                      <h3 className="text-2xl font-black text-accent-500 dark:text-white mb-2 group-hover:text-primary transition-colors tracking-tighter line-clamp-1">{creator.displayName || creator.name}</h3>
-                      <div className="flex items-center gap-2 mb-4"><StarRating rating={creator.rating || 5} /></div>
-
-                      <p className="text-sm text-accent-700/60 dark:text-white/40 mb-8 line-clamp-2 leading-relaxed font-medium italic flex-1">
+                      
+                      <h3 className="text-xl font-black text-accent-900 dark:text-white group-hover:text-primary transition-colors tracking-tight mb-3">
+                        {creator.displayName || creator.name}
+                      </h3>
+                      
+                      <p className="text-sm text-accent-700/60 dark:text-white/40 font-medium leading-relaxed mb-8 line-clamp-3 flex-1">
                         {creator.bio || creator.experience || 'مبدع مستقل يساهم في إثراء المحتوى العربي على نوشن.'}
                       </p>
 
-                      <div className="grid grid-cols-2 gap-4 w-full mb-8 border-y border-accent-900/5 dark:border-white/5 py-6">
-                        <div>
-                          <div className="text-xl font-black text-accent-900 dark:text-white">{creator.templatesCount || creator.templates || 0}</div>
-                          <div className="text-[9px] font-black uppercase tracking-widest text-accent-900/30 dark:text-white/20">نظام</div>
-                        </div>
-                        <div>
-                          <div className="text-xl font-black text-accent-900 dark:text-white">{creator.followersCount || creator.followers || 0}</div>
-                          <div className="text-[9px] font-black uppercase tracking-widest text-accent-900/30 dark:text-white/20">متابع</div>
-                        </div>
-                      </div>
-
-                      <div className="w-full">
-                        <button className="w-full py-4 rounded-xl bg-accent-900 dark:bg-white text-white dark:text-accent-900 font-black text-[10px] uppercase tracking-[0.2em] shadow-soft group-hover:shadow-large transition-all">الملف الشخصي</button>
+                      <div className="pt-6 border-t border-accent-900/5 dark:border-white/5 w-full flex items-center justify-between">
+                         <div className="flex gap-4">
+                           <div className="flex flex-col">
+                             <span className="text-sm font-black text-accent-900 dark:text-white">{creator.templatesCount || 0}</span>
+                             <span className="text-[9px] font-black text-accent-900/30 dark:text-white/20 uppercase tracking-widest">نظام</span>
+                           </div>
+                           <div className="flex flex-col">
+                             <span className="text-sm font-black text-accent-900 dark:text-white">{creator.followersCount || 0}</span>
+                             <span className="text-[9px] font-black text-accent-900/30 dark:text-white/20 uppercase tracking-widest">متابع</span>
+                           </div>
+                         </div>
+                         <div className="w-10 h-10 rounded-xl bg-accent-900 dark:bg-white text-white dark:text-accent-900 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500">
+                            <ArrowRight size={18} />
+                         </div>
                       </div>
                     </div>
                   </Link>

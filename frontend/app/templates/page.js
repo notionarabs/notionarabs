@@ -396,7 +396,7 @@ function TemplatesPageContent() {
                           <div className="px-3 py-1 sm:px-4 sm:py-1.5 bg-primary/10 rounded-full text-[9px] sm:text-[10px] font-black text-primary uppercase tracking-[0.2em]">{rel.categories?.[0] || rel.category || 'عام'}</div>
                           <div className="flex items-center gap-1.5 sm:gap-2"><Star size={12} className="text-yellow-500 fill-yellow-500" /><span className="text-xs sm:text-sm font-black text-accent-900 dark:text-white">{(rel.rating || 0).toFixed(1)}</span></div>
                         </div>
-                        <h3 className="text-lg sm:text-2xl font-black text-accent-900 dark:text-white mb-auto group-hover:text-primary transition-colors tracking-tighter leading-tight line-clamp-1">{rel.title}</h3>
+                        <h3 className="text-lg sm:text-2xl font-black text-accent-900 dark:text-white mb-6 group-hover:text-primary transition-colors tracking-tighter leading-relaxed line-clamp-1">{rel.title}</h3>
 
                         <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-accent-900/5 dark:border-white/5">
                           <div className="flex items-center gap-4">

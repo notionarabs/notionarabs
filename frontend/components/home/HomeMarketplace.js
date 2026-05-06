@@ -109,7 +109,7 @@ export default function HomeMarketplace({ initialStats }) {
                          </div>
                       </div>
 
-                      <h4 className="text-lg sm:text-2xl font-black text-accent-900 dark:text-white mb-auto group-hover:text-primary transition-colors tracking-tighter leading-tight line-clamp-1">
+                      <h4 className="text-lg sm:text-2xl font-black text-accent-900 dark:text-white mb-6 group-hover:text-primary transition-colors tracking-tighter leading-relaxed line-clamp-1">
                         {template.title}
                       </h4>
 

@@ -31,13 +31,13 @@ export default function Integrations() {
                 'أتمتة المهام باستخدام Zapier و Make',
                 'ربط قواعد البيانات بأدواتك الخارجية'
               ].map((item, i) => (
-                <li key={i} className="flex items-center gap-3 justify-end text-accent-800 dark:text-dark-text-primary font-medium">
-                  {item}
-                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <li key={i} className="flex items-center gap-4 justify-start text-accent-900 dark:text-white font-black text-lg transition-all hover:translate-x-[-8px] duration-500">
+                  <div className="w-8 h-8 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-sm">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
+                  <span>{item}</span>
                 </li>
               ))}
             </ul>

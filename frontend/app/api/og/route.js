@@ -1,7 +1,5 @@
 import { ImageResponse } from '@vercel/og';
 
-export const runtime = 'edge';
-
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -19,6 +17,43 @@ export async function GET(request) {
     const secondary = '#fbbf24'; // amber-400
     const dark = '#0f172a'; // slate-900
 
+    // Fetch Cairo font for Arabic rendering support (since Satori default fonts do not support Arabic characters)
+    let fontRegular = null;
+    let fontBold = null;
+    try {
+      fontRegular = await fetch(
+        'https://gwfh.mran.ch/api/fonts/cairo/v28/arabic-400-normal.woff'
+      ).then((res) => {
+        if (!res.ok) throw new Error('Font status not ok');
+        return res.arrayBuffer();
+      });
+
+      fontBold = await fetch(
+        'https://gwfh.mran.ch/api/fonts/cairo/v28/arabic-700-normal.woff'
+      ).then((res) => {
+        if (!res.ok) throw new Error('Font status not ok');
+        return res.arrayBuffer();
+      });
+    } catch (fontErr) {
+      console.warn('Failed to fetch Cairo fonts, falling back to system fonts:', fontErr.message);
+    }
+
+    // Safely pre-fetch external image as a base64 string to avoid Satori/CORS fetch failures
+    let imageBase64 = null;
+    if (image) {
+      try {
+        const imgRes = await fetch(image);
+        if (imgRes.ok) {
+          const buffer = await imgRes.arrayBuffer();
+          const base64 = Buffer.from(buffer).toString('base64');
+          const contentType = imgRes.headers.get('content-type') || 'image/jpeg';
+          imageBase64 = `data:${contentType};base64,${base64}`;
+        }
+      } catch (imgErr) {
+        console.warn('Failed to pre-fetch external preview image for OG rendering:', imgErr.message);
+      }
+    }
+
     return new ImageResponse(
       (
         <div
@@ -34,6 +69,7 @@ export async function GET(request) {
             backgroundSize: '50px 50px',
             padding: '40px 80px',
             position: 'relative',
+            fontFamily: fontRegular ? 'Cairo, sans-serif' : 'sans-serif',
           }}
         >
           {/* Decorative Gradient Orb */}
@@ -69,7 +105,7 @@ export async function GET(request) {
               }}
             >
               <span style={{ fontSize: 24, fontWeight: 'bold', color: 'white', letterSpacing: '0.1em' }}>NOTION ARABS</span>
-              <span style={{ fontSize: 18, color: primary }}>عرب نوشن</span>
+              <span style={{ fontSize: 18, color: primary, fontWeight: 'bold' }}>عرب نوشن</span>
             </div>
             <div
               style={{
@@ -112,7 +148,7 @@ export async function GET(request) {
             <h1
               style={{
                 fontSize: 64,
-                fontWeight: 'black',
+                fontWeight: 'bold',
                 color: 'white',
                 textAlign: 'right',
                 margin: '10px 0',
@@ -127,7 +163,7 @@ export async function GET(request) {
             </h1>
 
             <div style={{ display: 'flex', alignItems: 'center', marginTop: 10, width: '100%', justifyContent: 'flex-end' }}>
-               {image && (
+               {imageBase64 && (
                 <div style={{ 
                   display: 'flex', 
                   width: 120, 
@@ -137,7 +173,7 @@ export async function GET(request) {
                   border: '4px solid rgba(255,255,255,0.1)',
                   marginRight: 20
                 }}>
-                  <img src={image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={imageBase64} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
               )}
               
@@ -186,10 +222,24 @@ export async function GET(request) {
       {
         width: 1200,
         height: 630,
+        fonts: fontRegular && fontBold ? [
+          {
+            name: 'Cairo',
+            data: fontRegular,
+            weight: 400,
+            style: 'normal',
+          },
+          {
+            name: 'Cairo',
+            data: fontBold,
+            weight: 700,
+            style: 'normal',
+          }
+        ] : undefined,
       }
     );
   } catch (e) {
-    console.log(`${e.message}`);
+    console.error('OG Image generation crashed:', e.message);
     return new Response(`Failed to generate the image`, {
       status: 500,
     });

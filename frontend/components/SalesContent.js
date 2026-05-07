@@ -10,8 +10,8 @@ import api from '../lib/api';
 import ExportButton from './ExportButton';
 import Cookies from 'js-cookie';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    Download, DollarSign, Users, FileDown, 
+import {
+    Download, DollarSign, Users, FileDown,
     ChevronRight, ChevronLeft, Inbox, ArrowUpRight, HelpCircle
 } from 'lucide-react';
 
@@ -22,31 +22,30 @@ export default function SalesContent() {
     const [isLoading, setIsLoading] = useState(true);
     const [rows, setRows] = useState([]);
     const [templates, setTemplates] = useState([]);
-    const [viewMode, setViewMode] = useState('downloads'); // downloads | sales
+    const [viewMode, setViewMode] = useState('activity');
     const [pagination, setPagination] = useState({ current: 1, pages: 1, total: 0, limit: 20 });
     const [templateFilter, setTemplateFilter] = useState('all');
-
-    const fetchData = async (page = 1, templateId, mode = viewMode) => {
+ 
+    const fetchData = async (page = 1, templateId) => {
         setIsLoading(true);
         try {
             ensureTokenInHeaders();
             const params = new URLSearchParams({ page: String(page), limit: String(pagination.limit) });
             if (templateId && templateId !== 'all') params.set('templateId', templateId);
-            
-            const endpoint = mode === 'sales' ? '/creators/me/sales' : '/creators/me/downloads';
-            const res = await api.get(`${endpoint}?${params.toString()}`);
-            
+ 
+            const res = await api.get(`/creators/me/activity?${params.toString()}`);
+ 
             if (res?.data?.success) {
-                setRows(mode === 'sales' ? res.data.sales : res.data.downloads || []);
+                setRows(res.data.activity || []);
                 setPagination(res.data.pagination || { current: page, pages: 1, total: 0, limit: 20 });
             }
         } catch (error) {
-            console.error(`Error fetching ${mode}:`, error);
+            console.error(`Error fetching activity:`, error);
         } finally {
             setIsLoading(false);
         }
     };
-
+ 
     const fetchTemplates = async () => {
         try {
             ensureTokenInHeaders();
@@ -58,24 +57,24 @@ export default function SalesContent() {
             console.error('Error fetching my templates:', error);
         }
     };
-
+ 
     useEffect(() => {
         fetchTemplates();
     }, []);
-
+ 
     useEffect(() => {
-        fetchData(1, templateFilter, viewMode);
-    }, [templateFilter, viewMode]);
-
+        fetchData(1, templateFilter);
+    }, [templateFilter]);
+ 
     const handlePageChange = (newPage) => {
-        fetchData(newPage, templateFilter, viewMode);
+        fetchData(newPage, templateFilter);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
-
+ 
     // Calculate dynamic stats
     const stats = useMemo(() => {
         const total = pagination.total || 0;
-        const uniqueUsers = new Set(rows.map(r => r.userId || r.buyer?.email || r.userEmail)).size;
+        const uniqueUsers = new Set(rows.map(r => r.userId || r.userEmail)).size;
         return { total, uniqueUsers };
     }, [rows, pagination.total]);
 
@@ -111,28 +110,6 @@ export default function SalesContent() {
                         </div>
                     </div>
 
-                    <div className="flex p-1 bg-gray-50 dark:bg-dark-tertiary rounded-2xl border border-gray-100 dark:border-white/5">
-                        <button
-                            onClick={() => setViewMode('downloads')}
-                            className={`flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-black transition-all border-none cursor-pointer ${
-                                viewMode === 'downloads' 
-                                    ? 'bg-white dark:bg-dark-secondary text-primary-600 dark:text-orange-400 shadow-md' 
-                                    : 'text-gray-400 hover:text-gray-600'
-                            }`}
-                        >
-                            <Download size={14} />
-                            <span>التحميلات</span>
-                        </button>
-                        <button
-                            disabled={true}
-                            onClick={() => setViewMode('sales')}
-                            className="flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-black transition-all border-none opacity-40 cursor-not-allowed select-none text-gray-400"
-                        >
-                            <DollarSign size={14} />
-                            <span>المبيعات</span>
-                            <span className="text-[8px] font-black bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded-md mr-1.5">قريباً</span>
-                        </button>
-                    </div>
                 </div>
             </div>
 
@@ -172,9 +149,9 @@ export default function SalesContent() {
                         </div>
                     </div>
                     <ExportButton
-                        endpoint={`/creators/me/downloads/export-public?token=${Cookies.get('authToken') || ''}${templateFilter !== 'all' ? `&templateId=${templateFilter}` : ''}`}
-                        filename={`report-${viewMode}-${templateFilter === 'all' ? 'all' : 'template'}-${new Date().toISOString().split('T')[0]}.csv`}
-                        label="تصدير بصيغة CSV"
+                        endpoint={`/creators/me/activity/export-public?token=${Cookies.get('authToken') || ''}${templateFilter !== 'all' ? `&templateId=${templateFilter}` : ''}`}
+                        filename={`activity-report-${templateFilter === 'all' ? 'all' : 'template'}-${new Date().toISOString().split('T')[0]}.csv`}
+                        label="تصدير السجل الكامل بصيغة CSV"
                         direct={true}
                         className="w-full justify-center !py-2.5 !text-[10px] font-black border-none"
                     />
@@ -190,9 +167,7 @@ export default function SalesContent() {
                                 <th className="px-5 py-4 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">المشتري / المستخدم</th>
                                 <th className="px-5 py-4 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">البريد الإلكتروني</th>
                                 <th className="px-5 py-4 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">اسم القالب</th>
-                                {viewMode === 'sales' && (
-                                    <th className="px-5 py-4 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">المبلغ المدفوع</th>
-                                )}
+                                <th className="px-5 py-4 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">المبلغ / القيمة</th>
                                 <th className="px-5 py-4 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">التاريخ والوقت</th>
                             </tr>
                         </thead>
@@ -253,11 +228,9 @@ export default function SalesContent() {
                                                 </span>
                                             </Link>
                                         </td>
-                                        {viewMode === 'sales' && (
-                                            <td className="px-5 py-4 text-xs font-black text-emerald-600 dark:text-emerald-400">
-                                                {(row.price || 0).toLocaleString('ar-EG')} ج.م
-                                            </td>
-                                        )}
+                                        <td className={`px-5 py-4 text-xs font-black ${row.type === 'sale' ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400 dark:text-dark-text-tertiary'}`}>
+                                            {row.type === 'sale' ? `${(row.price || 0).toLocaleString('ar-EG')} ج.م` : 'مجاني'}
+                                        </td>
                                         <td className="px-5 py-4 text-xs text-gray-400 dark:text-dark-text-tertiary font-bold">
                                             {formatDate(row.date)}
                                         </td>
@@ -327,12 +300,12 @@ export default function SalesContent() {
                                     <span>البريد الإلكتروني</span>
                                     <span className="font-mono text-gray-700 dark:text-dark-text-secondary select-all">{row.buyer?.email || row.userEmail || 'غير متوفر'}</span>
                                 </div>
-                                {viewMode === 'sales' && (
-                                    <div className="flex items-center justify-between">
-                                        <span>المبلغ المدفوع</span>
-                                        <span className="text-emerald-600 dark:text-emerald-400 font-black">{(row.price || 0).toLocaleString('ar-EG')} ج.م</span>
-                                    </div>
-                                )}
+                                <div className="flex items-center justify-between">
+                                    <span>المبلغ / القيمة</span>
+                                    <span className={`font-black ${row.type === 'sale' ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'}`}>
+                                        {row.type === 'sale' ? `${(row.price || 0).toLocaleString('ar-EG')} ج.م` : 'مجاني'}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     ))

@@ -4,6 +4,8 @@ const paymobService = require('../services/paymobService');
 const auth = require('../middleware/auth');
 const Order = require('../models/Order');
 const Template = require('../models/Template');
+const User = require('../models/User');
+const DownloadLog = require('../models/DownloadLog');
 
 /**
  * @route   POST /api/payments/create-checkout-session
@@ -141,37 +143,61 @@ router.post('/callback', async (req, res) => {
             }
 
             if (success === true || success === 'true') {
-                order.status = 'completed';
+                order.status = 'COMPLETED'; // Use uppercase for database consistency
                 order.paymentId = obj.id?.toString();
                 order.paymobOrderId = paymobOrderId.toString();
                 order.paymentMethod = 'card';
                 await order.save();
 
-                // Update creator earnings and balance
+                // Update creator earnings, template downloads, and record logs
                 try {
                     if (order.items && order.items.length > 0) {
-                        // Default platform fee is 10% unless specified in env
                         const platformFeePercent = parseFloat(process.env.PLATFORM_FEE_PERCENTAGE || '10');
+                        
+                        // Fetch buyer for download log info
+                        const buyer = await User.findById(order.user || order.userId);
                         
                         for (const item of order.items) {
                             const template = await Template.findById(item.templateId);
-                            if (template && template.creator) {
-                                const creatorId = template.creator;
-                                const salePrice = item.price;
-                                const platformFee = (salePrice * platformFeePercent) / 100;
-                                const creatorEarnings = salePrice - platformFee;
+                            if (template) {
+                                // 1. Update creator earnings and balance
+                                if (template.creator) {
+                                    const creatorId = template.creator;
+                                    const salePrice = item.price;
+                                    const platformFee = (salePrice * platformFeePercent) / 100;
+                                    const creatorEarnings = salePrice - platformFee;
 
-                                await User.findByIdAndUpdate(creatorId, {
-                                    $inc: { 
-                                        totalEarnings: salePrice,
-                                        balance: creatorEarnings
-                                    }
-                                });
+                                    await User.findByIdAndUpdate(creatorId, {
+                                        $inc: { 
+                                            totalEarnings: salePrice,
+                                            balance: creatorEarnings
+                                        }
+                                    });
+                                }
+
+                                // 2. Increment template download count
+                                template.downloads = (template.downloads || 0) + 1;
+                                await template.save();
+
+                                // 3. Create DownloadLog entry for creator analytics
+                                try {
+                                    await DownloadLog.create({
+                                        template: template._id,
+                                        creator: template.creator,
+                                        user: order.user || order.userId,
+                                        userEmailSnapshot: buyer?.email || null,
+                                        templateTitleSnapshot: template.title || null,
+                                        userAgent: 'Paymob Webhook',
+                                        referrer: 'Paid Purchase'
+                                    });
+                                } catch (logErr) {
+                                    console.error('DownloadLog creation failed for paid sale:', logErr);
+                                }
                             }
                         }
                     }
                 } catch (err) {
-                    console.error('Error updating creator earnings:', err);
+                    console.error('Error updating creator/template stats:', err);
                 }
             } else {
                 order.status = 'cancelled';

@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     TrendingUp, Download, DollarSign, Package, Star, 
     ArrowUpRight, ArrowDownRight, Clock, Award, Eye, 
-    Calendar, ArrowLeftRight
+    Calendar, ArrowLeftRight, ChevronUp, ChevronDown
 } from 'lucide-react';
 
 export default function AnalyticsContent() {
@@ -19,15 +19,16 @@ export default function AnalyticsContent() {
     const [templates, setTemplates] = useState([]);
     const [stats, setStats] = useState(null);
     const [recentDownloads, setRecentDownloads] = useState([]);
-    const [timeRange, setTimeRange] = useState('30d'); // 30d | 90d
+    const [timeRange, setTimeRange] = useState('30'); // stored as number of days in string
     const [chartMetric, setChartMetric] = useState('downloads'); // downloads | revenue
+    const [sortConfig, setSortConfig] = useState({ key: 'downloads', direction: 'desc' });
     const [error, setError] = useState('');
 
     useEffect(() => {
-        loadData();
-    }, []);
+        loadData(timeRange);
+    }, [timeRange]);
 
-    const loadData = async () => {
+    const loadData = async (days = '30') => {
         try {
             setIsLoading(true);
             ensureTokenInHeaders();
@@ -35,7 +36,7 @@ export default function AnalyticsContent() {
             // Fetch creator templates and stats
             const [templatesRes, statsRes] = await Promise.all([
                 api.get('/templates/my-templates'),
-                api.get('/creators/me/stats')
+                api.get(`/creators/me/stats?days=${days}`)
             ]);
             
             setTemplates(Array.isArray(templatesRes.data.templates) ? templatesRes.data.templates : []);
@@ -104,9 +105,45 @@ export default function AnalyticsContent() {
             topTemplate,
             downloadTrend,
             revenueTrend,
-            approvedCount: approvedTemplates.length 
+            approvedCount: templates.filter(t => t.status?.toLowerCase() === 'approved').length 
         };
     }, [templates, stats]);
+
+    const sortedTemplates = useMemo(() => {
+        let sortableItems = [...templates];
+        if (sortConfig.key) {
+            sortableItems.sort((a, b) => {
+                let aVal = a[sortConfig.key] || 0;
+                let bVal = b[sortConfig.key] || 0;
+                
+                // For strings (title)
+                if (typeof aVal === 'string') {
+                    aVal = aVal.toLowerCase();
+                    bVal = bVal.toLowerCase();
+                }
+
+                if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+                if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+        return sortableItems;
+    }, [templates, sortConfig]);
+
+    const requestSort = (key) => {
+        let direction = 'desc';
+        if (sortConfig.key === key && sortConfig.direction === 'desc') {
+            direction = 'asc';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const SortIndicator = ({ columnKey }) => {
+        if (sortConfig.key !== columnKey) return <ArrowLeftRight size={10} className="opacity-20 mr-1.5" />;
+        return sortConfig.direction === 'asc' 
+            ? <ChevronUp size={12} className="text-primary-500 mr-1.5" /> 
+            : <ChevronDown size={12} className="text-primary-500 mr-1.5" />;
+    };
 
     // Premium Bezier line chart component with hover toolkit
     const PerformanceChart = ({ data, type = 'downloads' }) => {
@@ -369,18 +406,20 @@ export default function AnalyticsContent() {
                 
                 {/* Interval selection */}
                 <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-dark-tertiary p-1 rounded-2xl border border-gray-100 dark:border-white/5 self-start md:self-center">
-                    <button 
-                        onClick={() => setTimeRange('30d')}
-                        className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${timeRange === '30d' ? 'bg-white dark:bg-dark-secondary shadow-sm text-primary-600 dark:text-orange-400' : 'text-gray-400 hover:text-gray-600'}`}
-                    >
-                        آخر ٣٠ يوماً
-                    </button>
-                    <button 
-                        onClick={() => setTimeRange('90d')}
-                        className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${timeRange === '90d' ? 'bg-white dark:bg-dark-secondary shadow-sm text-primary-600 dark:text-orange-400' : 'text-gray-400 hover:text-gray-600'}`}
-                    >
-                        آخر ٩٠ يوماً
-                    </button>
+                    {[
+                        { label: 'يوم', val: '1' },
+                        { label: 'أسبوع', val: '7' },
+                        { label: 'شهر', val: '30' },
+                        { label: 'كل الوقت', val: '365' }
+                    ].map((range) => (
+                        <button 
+                            key={range.val}
+                            onClick={() => setTimeRange(range.val)}
+                            className={`px-4 py-2 rounded-xl text-xs font-black transition-all border-none cursor-pointer ${timeRange === range.val ? 'bg-white dark:bg-dark-secondary shadow-sm text-primary-600 dark:text-orange-400' : 'text-gray-400 hover:text-gray-600'}`}
+                        >
+                            {range.label}
+                        </button>
+                    ))}
                 </div>
             </div>
 
@@ -530,37 +569,7 @@ export default function AnalyticsContent() {
                         </div>
                     </div>
 
-                    {/* Recent downloads hub */}
-                    <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-3xl p-6 shadow-sm">
-                        <h3 className="font-black text-sm text-gray-900 dark:text-dark-text-primary mb-5 flex items-center gap-2">
-                            <Clock className="w-4.5 h-4.5 text-emerald-500 animate-pulse-slow" />
-                            <span>الأنشطة وحركة التحميلات الأخيرة</span>
-                        </h3>
-                        <div className="space-y-4">
-                            {recentDownloads.slice(0, 3).map((dl, idx) => (
-                                <div key={dl.id || idx} className="flex items-center gap-3 group">
-                                    <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-dark-tertiary flex items-center justify-center text-gray-400 group-hover:bg-primary-50 dark:group-hover:bg-orange-500/10 group-hover:text-primary-600 dark:group-hover:text-orange-400 transition-colors">
-                                        <Download className="w-4.5 h-4.5" />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-xs font-black text-gray-800 dark:text-dark-text-secondary truncate">{dl.templateTitle}</p>
-                                        <p className="text-[10px] text-gray-400 font-bold flex items-center gap-1.5 mt-0.5">
-                                            <span className="text-primary-500 dark:text-orange-400">
-                                                {dl.userName || dl.userEmail?.split('@')[0] || 'مستخدم'}
-                                            </span>
-                                            <span className="text-gray-300 dark:text-gray-600">•</span>
-                                            <span className="text-gray-400 text-[9px]">
-                                                {dl.date ? new Date(dl.date).toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' }) : 'مؤخراً'}
-                                            </span>
-                                        </p>
-                                    </div>
-                                </div>
-                            ))}
-                            {(!recentDownloads || recentDownloads.length === 0) && (
-                                <p className="text-center py-4 text-xs text-gray-400 font-bold">لا توجد عمليات تحميل مسجلة مؤخراً</p>
-                            )}
-                        </div>
-                    </div>
+
                 </div>
             </div>
 
@@ -572,16 +581,47 @@ export default function AnalyticsContent() {
                 <div className="overflow-x-auto">
                     <table className="w-full text-right">
                         <thead>
-                            <tr className="bg-gray-50/50 dark:bg-dark-tertiary/20">
-                                <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">القالب الاسم</th>
-                                <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase text-center">المشاهدات</th>
-                                <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase text-center">التحميلات</th>
-                                <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase text-center">متوسط التقييم</th>
-                                <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase text-center">حالة النشر</th>
+                            <tr className="bg-gray-50/50 dark:bg-dark-tertiary/20 border-b border-gray-100 dark:border-white/5">
+                                <th 
+                                    onClick={() => requestSort('title')}
+                                    className="px-8 py-6 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase cursor-pointer hover:text-gray-900 dark:hover:text-dark-text-primary transition-colors"
+                                >
+                                    <div className="flex items-center">
+                                        <span>القالب الاسم</span>
+                                        <SortIndicator columnKey="title" />
+                                    </div>
+                                </th>
+                                <th 
+                                    onClick={() => requestSort('views')}
+                                    className="px-8 py-6 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase text-center cursor-pointer hover:text-gray-900 dark:hover:text-dark-text-primary transition-colors"
+                                >
+                                    <div className="flex items-center justify-center">
+                                        <span>المشاهدات</span>
+                                        <SortIndicator columnKey="views" />
+                                    </div>
+                                </th>
+                                <th 
+                                    onClick={() => requestSort('downloads')}
+                                    className="px-8 py-6 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase text-center cursor-pointer hover:text-gray-900 dark:hover:text-dark-text-primary transition-colors"
+                                >
+                                    <div className="flex items-center justify-center">
+                                        <span>التحميلات</span>
+                                        <SortIndicator columnKey="downloads" />
+                                    </div>
+                                </th>
+                                <th 
+                                    onClick={() => requestSort('rating')}
+                                    className="px-8 py-6 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase text-center cursor-pointer hover:text-gray-900 dark:hover:text-dark-text-primary transition-colors"
+                                >
+                                    <div className="flex items-center justify-center">
+                                        <span>متوسط التقييم</span>
+                                        <SortIndicator columnKey="rating" />
+                                    </div>
+                                </th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 dark:divide-white/5">
-                            {templates.map(t => (
+                            {sortedTemplates.map(t => (
                                 <tr key={t._id} className="hover:bg-gray-50/30 dark:hover:bg-dark-tertiary/10 transition-colors">
                                     <td className="px-8 py-4">
                                         <div className="flex items-center gap-3">
@@ -598,15 +638,6 @@ export default function AnalyticsContent() {
                                             <span className="font-bold text-xs text-gray-900 dark:text-dark-text-primary">{(t.rating || 0).toFixed(1).toLocaleString('ar-EG')}</span>
                                             <Star className="w-3 h-3 text-yellow-500 fill-current" />
                                         </div>
-                                    </td>
-                                    <td className="px-8 py-4 text-center">
-                                        <span className={`inline-flex px-3 py-1.5 rounded-xl text-[10px] font-black uppercase ${
-                                            t.status === 'approved' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/25 dark:text-emerald-400' : 
-                                            t.status === 'pending' ? 'bg-amber-50 text-amber-600 dark:bg-amber-950/25 dark:text-amber-400' : 
-                                            'bg-red-50 text-red-600 dark:bg-red-950/25 dark:text-red-400'
-                                        }`}>
-                                            {t.status === 'approved' ? 'معتمد' : t.status === 'pending' ? 'قيد المراجعة' : 'مرفوض'}
-                                        </span>
                                     </td>
                                 </tr>
                             ))}

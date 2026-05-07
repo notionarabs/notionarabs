@@ -706,8 +706,9 @@ router.get('/me/stats', auth, async (req, res) => {
         price: t.price || 0
       }));
 
-    // 30-day historical data for charts
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    // Historical data for charts (dynamic range)
+    const days = parseInt(req.query.days) || 30;
+    const daysAgo = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
     const templateIds = templates.map(t => (t._id || t.id).toString());
     const creatorIdStr = creatorId.toString();
     
@@ -717,13 +718,13 @@ router.get('/me/stats', auth, async (req, res) => {
         .from('DownloadLog')
         .select('createdAt')
         .eq('creatorId', creatorIdStr)
-        .gte('createdAt', thirtyDaysAgo),
+        .gte('createdAt', daysAgo),
       templateIds.length > 0 ? require('../utils/supabase')
         .from('OrderItem')
         .select('price, Order!inner(createdAt)')
         .in('templateId', templateIds)
         .eq('Order.status', 'COMPLETED')
-        .gte('Order.createdAt', thirtyDaysAgo) : Promise.resolve({ data: [] })
+        .gte('Order.createdAt', daysAgo) : Promise.resolve({ data: [] })
     ]);
 
     const historicalDownloads = historicalDownloadsRes.data || [];
@@ -731,8 +732,8 @@ router.get('/me/stats', auth, async (req, res) => {
 
     // Group by day
     const dailyStatsMap = {};
-    // Pre-fill last 30 days
-    for (let i = 0; i < 30; i++) {
+    // Pre-fill days based on requested range
+    for (let i = 0; i < days; i++) {
       const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       dailyStatsMap[d] = { date: d, downloads: 0, sales: 0, revenue: 0 };
     }
@@ -1007,6 +1008,254 @@ router.get('/me/downloads/export-public', async (req, res) => {
     if (!res.headersSent) {
       return res.status(500).json({ success: false, message: 'خطأ في تصدير البيانات' });
     }
+  }
+});
+
+// @route   GET /api/creators/me/activity
+// @desc    Get unified activity feed (downloads and sales combined)
+// @access  Private (Creator)
+router.get('/me/activity', auth, async (req, res) => {
+  try {
+    if (req.user.creatorStatus !== 'approved' || req.user.role !== 'creator') {
+      return res.status(403).json({ success: false, message: 'يجب أن تكون مبدعاً معتمداً' });
+    }
+
+    const creatorId = req.user._id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+    const templateId = req.query.templateId;
+
+    // 1. Get creator's templates
+    const templates = await Template.find({ creator: creatorId }).select('_id title');
+    const templateIds = templates.map(t => t._id.toString());
+
+    if (templateIds.length === 0) {
+      return res.json({ success: true, activity: [], pagination: { current: page, pages: 0, total: 0, limit } });
+    }
+
+    // 2. Fetch Downloads
+    let downloadsFilter = { creator: creatorId };
+    if (templateId && templateId !== 'all') downloadsFilter.template = templateId;
+    
+    // We fetch a bit more for both to ensure we can merge them reasonably for the current page
+    // For a truly scalable solution, a database-level UNION or a single table would be needed.
+    // Given the context, we'll fetch the top 100 of each and merge them.
+    const [downloads, { data: sales }] = await Promise.all([
+      DownloadLog.find(downloadsFilter)
+        .populate('user', 'name email username')
+        .populate('template', 'title previewImage')
+        .sort({ createdAt: -1 })
+        .limit(200)
+        .lean(),
+      require('../utils/supabase')
+        .from('OrderItem')
+        .select('*, Order!inner(userId, status, createdAt, User(name, email, username))')
+        .in('templateId', templateIds)
+        .eq('Order.status', 'COMPLETED')
+        .order('Order(createdAt)', { ascending: false })
+        .limit(200)
+    ]);
+
+    // 3. Transform and Merge
+    const formattedDownloads = (downloads || []).map(d => ({
+      id: d._id,
+      templateId: d.template?._id || d.templateId,
+      templateTitle: d.template?.title || d.templateTitleSnapshot,
+      userName: d.user?.name || 'مستخدم',
+      userEmail: d.user?.email || d.userEmailSnapshot,
+      date: d.createdAt,
+      type: 'download',
+      price: 0
+    }));
+
+    const formattedSales = (sales || []).map(s => ({
+      id: s.id,
+      orderId: s.orderId,
+      templateId: s.templateId,
+      templateTitle: s.name,
+      userName: s.Order?.User?.name || 'مشتري',
+      userEmail: s.Order?.User?.email,
+      date: s.Order?.createdAt,
+      type: 'sale',
+      price: s.price
+    }));
+
+    // Merge and remove duplicates (if a sale was also logged as a download)
+    // We'll prioritize the 'sale' record if we find both for the same user, template and time
+    const combined = [...formattedSales];
+    const saleKeys = new Set(formattedSales.map(s => `${s.userId}_${s.templateId}_${new Date(s.date).toDateString()}`));
+
+    formattedDownloads.forEach(d => {
+      const key = `${d.userId}_${d.templateId}_${new Date(d.date).toDateString()}`;
+      // Only add if it's not already accounted for as a sale
+      if (!saleKeys.has(key)) {
+        combined.push(d);
+      }
+    });
+
+    // Final Sort
+    combined.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    // Paginate
+    const paginated = combined.slice(skip, skip + limit);
+
+    res.json({
+      success: true,
+      activity: paginated,
+      pagination: {
+        current: page,
+        pages: Math.ceil(combined.length / limit),
+        total: combined.length,
+        limit
+      }
+    });
+  } catch (error) {
+    console.error('Creator activity feed error:', error);
+    res.status(500).json({ success: false, message: 'خطأ في الخادم' });
+  }
+});
+
+// @route   GET /api/creators/me/sales/export-public?token=JWT
+// @desc    Export creator sales logs as CSV using token in query
+// @access  Public (valid token required)
+router.get('/me/sales/export-public', async (req, res) => {
+  try {
+    const { token } = req.query;
+    if (!token) {
+      return res.status(401).json({ success: false, message: 'مصادقة مطلوبة' });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    } catch (e) {
+      return res.status(401).json({ success: false, message: 'رمز غير صالح' });
+    }
+
+    const requesterId = decoded.id || decoded.userId || decoded._id;
+    if (!requesterId) {
+      return res.status(401).json({ success: false, message: 'رمز غير صالح' });
+    }
+
+    const user = await User.findById(requesterId).select('creatorStatus');
+    if (!user || user.creatorStatus !== 'approved') {
+      return res.status(403).json({ success: false, message: 'يجب أن تكون مبدعاً معتمداً' });
+    }
+
+    const templateId = req.query.templateId;
+    const templates = await Template.find({ creator: requesterId }).select('_id title');
+    const templateIds = templates.map(t => t._id.toString());
+
+    if (templateIds.length === 0) {
+      return res.status(200).send('\uFEFFاسم المشتري,البريد الإلكتروني,القالب,السعر,التاريخ\n');
+    }
+
+    let query = require('../utils/supabase')
+      .from('OrderItem')
+      .select('*, Order!inner(userId, status, createdAt, User(name, email, username))')
+      .in('templateId', templateIds)
+      .eq('Order.status', 'COMPLETED');
+    
+    if (templateId) {
+      query = query.eq('templateId', templateId);
+    }
+
+    const { data: orderItems, error } = await query.order('Order(createdAt)', { ascending: false });
+
+    if (error) throw error;
+
+    const header = 'اسم المشتري,البريد الإلكتروني,القالب,السعر,التاريخ\n';
+    const csvRows = (orderItems || []).map((item) => {
+      const name = (item.Order?.User?.name || 'مستخدم').replace(/"/g, '""');
+      const email = (item.Order?.User?.email || '').replace(/"/g, '""');
+      const templateTitle = (item.name || '').replace(/"/g, '""');
+      const price = item.price || 0;
+      const date = new Date(item.Order?.createdAt).toISOString();
+      return `"${name}","${email}","${templateTitle}","${price}","${date}"`;
+    }).join('\n');
+
+    const csv = header + csvRows;
+    const creatorUser = await User.findById(requesterId).select('username email');
+    const baseName = creatorUser?.username || (creatorUser?.email ? creatorUser.email.split('@')[0] : 'creator');
+    const filename = `${baseName}-sales-${new Date().toISOString().split('T')[0]}.csv`;
+    
+    res.set('Content-Type', 'text/csv; charset=utf-8');
+    res.set('Content-Disposition', `attachment; filename="${filename}"`);
+    return res.status(200).send(`\uFEFF${csv}`);
+  } catch (error) {
+    console.error('Creator sales export-public error:', error);
+    if (!res.headersSent) {
+      return res.status(500).json({ success: false, message: 'خطأ في تصدير البيانات' });
+    }
+  }
+});
+
+// @route   GET /api/creators/me/activity/export-public?token=JWT
+// @desc    Export combined creator activity as CSV
+// @access  Public (valid token required)
+router.get('/me/activity/export-public', async (req, res) => {
+  try {
+    const { token } = req.query;
+    if (!token) return res.status(401).json({ success: false, message: 'مصادقة مطلوبة' });
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    } catch (e) {
+      return res.status(401).json({ success: false, message: 'رمز غير صالح' });
+    }
+
+    const requesterId = decoded.id || decoded.userId || decoded._id;
+    const user = await User.findById(requesterId).select('creatorStatus');
+    if (!user || user.creatorStatus !== 'approved') {
+      return res.status(403).json({ success: false, message: 'يجب أن تكون مبدعاً معتمداً' });
+    }
+
+    const templateId = req.query.templateId;
+    const templates = await Template.find({ creator: requesterId }).select('_id');
+    const templateIds = templates.map(t => t._id.toString());
+
+    if (templateIds.length === 0) {
+      return res.status(200).send('\uFEFFاسم المستخدم,البريد الإلكتروني,القالب,النوع,السعر,التاريخ\n');
+    }
+
+    const [downloads, { data: sales }] = await Promise.all([
+      DownloadLog.find({ creator: requesterId }).sort({ createdAt: -1 }).limit(1000).lean(),
+      require('../utils/supabase').from('OrderItem').select('*, Order!inner(*)').in('templateId', templateIds).eq('Order.status', 'COMPLETED').order('Order(createdAt)', { ascending: false }).limit(1000)
+    ]);
+
+    const formattedSales = (sales || []).map(s => ({
+      name: s.Order?.User?.name || 'مشتري',
+      email: s.Order?.User?.email || '',
+      template: s.name,
+      type: 'بيع مدفوع',
+      price: s.price,
+      date: s.Order?.createdAt
+    }));
+
+    const formattedDownloads = (downloads || []).map(d => ({
+      name: d.user?.name || d.userName || 'مستخدم',
+      email: d.user?.email || d.userEmailSnapshot || '',
+      template: d.template?.title || d.templateTitleSnapshot,
+      type: 'تحميل مجاني',
+      price: 0,
+      date: d.createdAt
+    }));
+
+    const combined = [...formattedSales, ...formattedDownloads].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    const header = 'اسم المستخدم,البريد الإلكتروني,القالب,النوع,السعر,التاريخ\n';
+    const csvRows = combined.map(row => {
+      return `"${row.name}","${row.email}","${row.template}","${row.type}","${row.price}","${row.date}"`;
+    }).join('\n');
+
+    res.set('Content-Type', 'text/csv; charset=utf-8');
+    res.set('Content-Disposition', 'attachment; filename="activity-report.csv"');
+    return res.status(200).send(`\uFEFF${header}${csvRows}`);
+  } catch (error) {
+    console.error('Activity export error:', error);
+    res.status(500).json({ success: false, message: 'خطأ في تصدير البيانات' });
   }
 });
 

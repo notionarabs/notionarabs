@@ -41,7 +41,7 @@ router.post('/', [
   body('items.*.name').notEmpty().withMessage('اسم العنصر مطلوب'),
   body('items.*.price').isNumeric().withMessage('السعر يجب أن يكون رقم'),
   body('total').isNumeric().withMessage('المجموع يجب أن يكون رقم'),
-  body('status').optional().isIn(['pending', 'completed', 'cancelled', 'refunded']).withMessage('حالة غير صحيحة')
+  body('status').optional().isIn(['PENDING', 'COMPLETED', 'CANCELLED', 'REFUNDED']).withMessage('حالة غير صحيحة')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -53,7 +53,7 @@ router.post('/', [
       });
     }
 
-    const { items, total, status = 'completed', source = 'download', notes } = req.body;
+    const { items, total, status = 'COMPLETED', source = 'download', notes } = req.body;
 
     // Verify templates exist
     const templateIds = items.map(item => item.templateId);
@@ -135,7 +135,7 @@ router.get('/:id', auth, async (req, res) => {
 // @access  Private
 router.put('/:id', [
   auth,
-  body('status').optional().isIn(['pending', 'completed', 'cancelled', 'refunded']).withMessage('حالة غير صحيحة'),
+  body('status').optional().isIn(['PENDING', 'COMPLETED', 'CANCELLED', 'REFUNDED']).withMessage('حالة غير صحيحة'),
   body('notes').optional().isLength({ max: 500 }).withMessage('الملاحظات طويلة جداً')
 ], async (req, res) => {
   try {

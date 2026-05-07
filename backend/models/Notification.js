@@ -31,13 +31,14 @@ class Notification {
     const id = crypto.randomBytes(12).toString('hex');
     const now = new Date().toISOString();
     
-    // Normalize user ID to 24-char hex if it's not already
+    // Normalize user ID — null, undefined, or 'system' → system placeholder
     let userId = data.user;
-    if (!userId) {
-        // Use a generic system ID for admin/system notifications if no user is specified
+    if (!userId || userId === 'system') {
         userId = '000000000000000000000000';
     } else if (typeof userId === 'object' && userId._id) {
         userId = userId._id.toString();
+    } else {
+        userId = userId.toString();
     }
 
     const payload = {
@@ -66,9 +67,10 @@ class Notification {
   static find(query = {}) {
     let q = supabase.from('Notification').select('*');
     
-    if (query.user) q = q.eq('userId', query.user);
+    if (query.user) q = q.eq('userId', query.user.toString());
     if (query.isRead !== undefined) q = q.eq('isRead', query.isRead);
     if (query.type && query.type.$in) q = q.in('type', query.type.$in);
+    if (query.type && query.type.$nin) q = q.not('type', 'in', `(${query.type.$nin.map(t => `"${t}"`).join(',')})`);
 
     const execute = async () => {
         const { data, error } = await q;
@@ -101,9 +103,10 @@ class Notification {
   static async countDocuments(query = {}) {
     let q = supabase.from('Notification').select('*', { count: 'exact', head: true });
     
-    if (query.user) q = q.eq('userId', query.user);
+    if (query.user) q = q.eq('userId', query.user.toString());
     if (query.isRead !== undefined) q = q.eq('isRead', query.isRead);
     if (query.type && query.type.$in) q = q.in('type', query.type.$in);
+    if (query.type && query.type.$nin) q = q.not('type', 'in', `(${query.type.$nin.map(t => `"${t}"`).join(',')})`);
 
     const { count, error } = await q;
     if (error) throw error;
@@ -113,7 +116,7 @@ class Notification {
   static async updateOne(query, update) {
     let q = supabase.from('Notification').update(update.$set || update);
     if (query._id) q = q.eq('id', query._id);
-    if (query.user) q = q.eq('userId', query.user);
+    if (query.user) q = q.eq('userId', query.user.toString());
     
     const { data, error } = await q.select();
     if (error) throw error;

@@ -897,14 +897,9 @@ export default function AdminTemplatesPage() {
                           if (features.length === 0) return <p className="text-sm italic text-accent-300">لا يوجد مميزات مسجلة.</p>;
 
                           return (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                              {features.map((feature, i) => (
-                                <div key={i} className="flex items-center gap-2 p-3 bg-white dark:bg-dark-secondary rounded-xl border border-gray-100 dark:border-dark-card-border shadow-sm">
-                                  <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                                  <span className="text-xs font-bold text-accent-500 dark:text-dark-text-primary line-clamp-2">{feature}</span>
-                                </div>
-                              ))}
-                            </div>
+                            <p className="text-sm font-medium text-accent-500 dark:text-dark-text-primary whitespace-pre-wrap leading-relaxed">
+                              {features.join('\n')}
+                            </p>
                           );
                         })()}
                         

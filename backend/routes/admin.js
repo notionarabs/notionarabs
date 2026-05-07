@@ -953,7 +953,7 @@ router.put('/templates/bulk-action', auth, [
 
     const { templateIds, action, adminNotes = '' } = req.body;
     let successfulCount = 0;
-    
+
     // Process templates one by one to ensure hooks and Notion sync work
     for (const id of templateIds) {
       try {
@@ -963,9 +963,9 @@ router.put('/templates/bulk-action', auth, [
         if (action === 'approve') {
           // Check if this is a template update
           const isTemplateUpdate = template.approvedAt !== null || template.updatePending;
-          
+
           await template.approve(req.user._id, adminNotes);
-          
+
           // Clear update flags
           template.updatePending = false;
           template.previousData = null;

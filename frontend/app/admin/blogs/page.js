@@ -26,7 +26,8 @@ import {
   MoreVertical,
   Calendar,
   User as UserIcon,
-  Tag
+  Tag,
+  Mail
 } from 'lucide-react';
 import { BreadcrumbWrapper } from '../../../components/Breadcrumb.js';
 import { getApiBaseUrl } from '../../../lib/apiConfig';

@@ -9,7 +9,8 @@ import NavigationWrapper from '../components/NavigationWrapper'
 import NavigationHandler from '../components/NavigationHandler'
 import ReferralHandler from '../components/ReferralHandler'
 import LoadingIndicator from '../components/LoadingIndicator'
-import { Suspense, lazy } from 'react'
+import { Suspense } from 'react'
+import dynamic from 'next/dynamic'
 import { Almarai, Tajawal, Cairo } from 'next/font/google'
 import { OrganizationSchema, WebsiteSchema } from '../components/StructuredData'
 import { GoogleAnalytics } from '../components/SEOOptimizations'
@@ -18,8 +19,8 @@ import MaintenanceMode from '../components/MaintenanceMode'
 import TelegramPopupWrapper from '../components/TelegramPopupWrapper'
 import ScrollToTop from '../components/ScrollToTop'
 
-// Lazy load heavy components
-const AIChat = lazy(() => import('../components/AIChat'))
+// Dynamically load heavy components
+const AIChat = dynamic(() => import('../components/AIChat'))
 
 import { generateMetadata as generateBaseMetadata } from '../lib/seo'
 

@@ -1,12 +1,18 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { useToast } from '../../../../contexts/ToastContext';
 import api from '../../../../lib/api';
 import SuccessModal from '../../../../components/SuccessModal';
 import RichTextEditor from '../../../../components/RichTextEditor';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Send, Loader2, Edit3, User, Eye, 
+  FileText, ChevronRight, X, Zap, 
+  MessageSquare, Clock, ArrowLeft, Bookmark, Save
+} from 'lucide-react';
 
 const categories = [
   // الإنتاجية والتنظيم
@@ -14,240 +20,46 @@ const categories = [
   { name: "الدراسة", value: "الدراسة" },
   { name: "الأعمال", value: "الأعمال" },
   { name: "التخطيط", value: "التخطيط" },
-  { name: "إدارة المشاريع", value: "إدارة المشاريع" },
-  { name: "التنظيم", value: "التنظيم" },
   { name: "إدارة الوقت", value: "إدارة الوقت" },
   { name: "الهدف والتطوير", value: "الهدف والتطوير" },
-
-  // التقنية والتطوير
   { name: "التقنية", value: "التقنية" },
   { name: "البرمجة", value: "البرمجة" },
-  { name: "تطوير التطبيقات", value: "تطوير التطبيقات" },
-  { name: "التطوير الويب", value: "التطوير الويب" },
-  { name: "قواعد البيانات", value: "قواعد البيانات" },
-  { name: "الأمان السيبراني", value: "الأمان السيبراني" },
   { name: "الذكاء الاصطناعي", value: "الذكاء الاصطناعي" },
-  { name: "البلوك تشين", value: "البلوك تشين" },
-  { name: "التطبيقات", value: "التطبيقات" },
-  { name: "المواقع", value: "المواقع" },
-
-  // التصميم والإبداع
   { name: "تصميم", value: "تصميم" },
-  { name: "التصميم الجرافيكي", value: "التصميم الجرافيكي" },
-  { name: "التصميم المعماري", value: "التصميم المعماري" },
-  { name: "التصوير", value: "التصوير" },
-  { name: "الفيديو", value: "الفيديو" },
-  { name: "الفنون", value: "الفنون" },
-  { name: "الموسيقى", value: "الموسيقى" },
-  { name: "الرسم", value: "الرسم" },
-  { name: "النحت", value: "النحت" },
-  { name: "الإبداع", value: "الإبداع" },
-
-  // التسويق والأعمال
   { name: "التسويق", value: "التسويق" },
-  { name: "المبيعات", value: "المبيعات" },
-  { name: "خدمة العملاء", value: "خدمة العملاء" },
-  { name: "الموارد البشرية", value: "الموارد البشرية" },
-  { name: "المحاسبة", value: "المحاسبة" },
-  { name: "التجارة الإلكترونية", value: "التجارة الإلكترونية" },
-  { name: "الإعلان", value: "الإعلان" },
-  { name: "العلاقات العامة", value: "العلاقات العامة" },
-  { name: "العلامة التجارية", value: "العلامة التجارية" },
-  { name: "الاستراتيجية", value: "الاستراتيجية" },
-  { name: "القيادة", value: "القيادة" },
-  { name: "الإدارة", value: "الإدارة" },
-
-  // التعليم والتدريب
+  { name: "نوشن", value: "نوشن" },
   { name: "التعليم", value: "التعليم" },
-  { name: "التدريب", value: "التدريب" },
-  { name: "التطوير المهني", value: "التطوير المهني" },
-  { name: "التعليم الإلكتروني", value: "التعليم الإلكتروني" },
-  { name: "اللغات", value: "اللغات" },
-  { name: "الكتابة", value: "الكتابة" },
-  { name: "الترجمة", value: "الترجمة" },
-
-  // الصحة واللياقة
   { name: "الصحة", value: "الصحة" },
   { name: "اللياقة البدنية", value: "اللياقة البدنية" },
-  { name: "الرياضة", value: "الرياضة" },
-  { name: "اليوغا", value: "اليوغا" },
-  { name: "الرقص", value: "الرقص" },
-  { name: "الملاكمة", value: "الملاكمة" },
-  { name: "السباحة", value: "السباحة" },
-  { name: "الجري", value: "الجري" },
-  { name: "ركوب الدراجات", value: "ركوب الدراجات" },
-  { name: "التسلق", value: "التسلق" },
-  { name: "التغذية", value: "التغذية" },
-  { name: "الطب", value: "الطب" },
-  { name: "التمريض", value: "التمريض" },
-  { name: "العلاج الطبيعي", value: "العلاج الطبيعي" },
-
-  // المالية والاستثمار
   { name: "المالية", value: "المالية" },
   { name: "الاستثمار", value: "الاستثمار" },
-  { name: "العقارات", value: "العقارات" },
-  { name: "التأمين", value: "التأمين" },
-  { name: "القانون", value: "القانون" },
-  { name: "التجارة", value: "التجارة" },
-
-  // الحياة الشخصية
   { name: "الحياة الشخصية", value: "الحياة الشخصية" },
-  { name: "العلاقات", value: "العلاقات" },
-  { name: "الأسرة", value: "الأسرة" },
-  { name: "الأطفال", value: "الأطفال" },
-  { name: "الزواج", value: "الزواج" },
-  { name: "التربية", value: "التربية" },
-  { name: "علم النفس", value: "علم النفس" },
-  { name: "علم الاجتماع", value: "علم الاجتماع" },
-  { name: "الفلسفة", value: "الفلسفة" },
-
-  // الطعام والطبخ
   { name: "الطعام", value: "الطعام" },
-  { name: "الطبخ", value: "الطبخ" },
-  { name: "الحلويات", value: "الحلويات" },
-  { name: "المشروبات", value: "المشروبات" },
-  { name: "المطاعم", value: "المطاعم" },
-  { name: "الطبخ المنزلي", value: "الطبخ المنزلي" },
-
-  // السفر والترفيه
   { name: "السفر", value: "السفر" },
-  { name: "الترفيه", value: "الترفيه" },
-  { name: "السياحة", value: "السياحة" },
-  { name: "الفندقة", value: "الفندقة" },
-  { name: "الألعاب", value: "الألعاب" },
-  { name: "الرياضة الإلكترونية", value: "الرياضة الإلكترونية" },
-  { name: "الألعاب الجماعية", value: "الألعاب الجماعية" },
-  { name: "ألعاب الفيديو", value: "ألعاب الفيديو" },
-  { name: "ألعاب الطاولة", value: "ألعاب الطاولة" },
-  { name: "الألغاز", value: "الألغاز" },
-
-  // الموضة والجمال
   { name: "الموضة", value: "الموضة" },
-  { name: "الجمال", value: "الجمال" },
-  { name: "التجميل", value: "التجميل" },
-  { name: "العناية بالبشرة", value: "العناية بالبشرة" },
-  { name: "العناية بالشعر", value: "العناية بالشعر" },
-  { name: "الأظافر", value: "الأظافر" },
-  { name: "العطور", value: "العطور" },
-  { name: "الملابس", value: "الملابس" },
-  { name: "الأحذية", value: "الأحذية" },
-  { name: "الحقائب", value: "الحقائب" },
-  { name: "الساعات", value: "الساعات" },
-  { name: "النظارات", value: "النظارات" },
-  { name: "الإكسسوارات", value: "الإكسسوارات" },
-
-  // المنزل والحديقة
-  { name: "المنزل", value: "المنزل" },
-  { name: "الحديقة", value: "الحديقة" },
-  { name: "الزراعة المنزلية", value: "الزراعة المنزلية" },
-  { name: "الديكور", value: "الديكور" },
-  { name: "الأثاث", value: "الأثاث" },
-  { name: "الأدوات", value: "الأدوات" },
-  { name: "الأجهزة", value: "الأجهزة" },
-  { name: "الزراعة", value: "الزراعة" },
-  { name: "البيئة", value: "البيئة" },
-  { name: "الطاقة", value: "الطاقة" },
-  { name: "البناء", value: "البناء" },
-  { name: "الهندسة", value: "الهندسة" },
-  { name: "العمارة", value: "العمارة" },
-
-  // السيارات والنقل
-  { name: "السيارات", value: "السيارات" },
-  { name: "النقل", value: "النقل" },
-  { name: "الطيران", value: "الطيران" },
-  { name: "البحرية", value: "البحرية" },
-  { name: "اللوجستيات", value: "اللوجستيات" },
-
-  // العلوم والأكاديميا
   { name: "العلوم", value: "العلوم" },
-  { name: "الرياضيات", value: "الرياضيات" },
-  { name: "الفيزياء", value: "الفيزياء" },
-  { name: "الكيمياء", value: "الكيمياء" },
-  { name: "الأحياء", value: "الأحياء" },
-  { name: "التاريخ", value: "التاريخ" },
-  { name: "الجغرافيا", value: "الجغرافيا" },
-  { name: "الأدب", value: "الأدب" },
-  { name: "الشعر", value: "الشعر" },
-  { name: "المسرح", value: "المسرح" },
-  { name: "السينما", value: "السينما" },
-
-  // الحرف اليدوية
-  { name: "الحرف اليدوية", value: "الحرف اليدوية" },
-  { name: "النجارة", value: "النجارة" },
-  { name: "الخياطة", value: "الخياطة" },
-  { name: "الحياكة", value: "الحياكة" },
-  { name: "الرسم على الزجاج", value: "الرسم على الزجاج" },
-  { name: "الخزف", value: "الخزف" },
-  { name: "المجوهرات", value: "المجوهرات" },
-
-  // الحيوانات الأليفة
-  { name: "الحيوانات الأليفة", value: "الحيوانات الأليفة" },
-  { name: "القطط", value: "القطط" },
-  { name: "الكلاب", value: "الكلاب" },
-  { name: "الأسماك", value: "الأسماك" },
-  { name: "الطيور", value: "الطيور" },
-
-  // البرامج والأدوات
-  { name: "البرامج", value: "البرامج" },
-  { name: "نوشن", value: "نوشن" },
-  { name: "أدوات الإنتاجية", value: "أدوات الإنتاجية" },
-  { name: "أدوات التصميم", value: "أدوات التصميم" },
-  { name: "أدوات التطوير", value: "أدوات التطوير" },
-
-  // الأخبار والمراجعات
-  { name: "الأخبار", value: "الأخبار" },
-  { name: "المراجعات", value: "المراجعات" },
-  { name: "المراجعات التقنية", value: "المراجعات التقنية" },
-  { name: "مراجعات المنتجات", value: "مراجعات المنتجات" },
-  { name: "مراجعات الخدمات", value: "مراجعات الخدمات" },
-
-  // النصائح والتوجيه
-  { name: "نصائح", value: "نصائح" },
-  { name: "التوجيه المهني", value: "التوجيه المهني" },
-  { name: "النصائح المالية", value: "النصائح المالية" },
-  { name: "نصائح الصحة", value: "نصائح الصحة" },
-  { name: "نصائح السفر", value: "نصائح السفر" },
-  { name: "نصائح الطبخ", value: "نصائح الطبخ" },
-
-  // ديني وروحاني
-  { name: "ديني", value: "ديني" },
-  { name: "الروحانيات", value: "الروحانيات" },
-  { name: "التأمل", value: "التأمل" },
-  { name: "التطوير الذاتي", value: "التطوير الذاتي" },
-
-  // عام ومتنوع
-  { name: "عام", value: "عام" },
-  { name: "متنوع", value: "متنوع" },
-  { name: "ثقافة", value: "ثقافة" },
-  { name: "مجتمع", value: "مجتمع" },
-  { name: "أحداث", value: "أحداث" },
-  { name: "تحديات", value: "تحديات" },
-  { name: "قصص نجاح", value: "قصص نجاح" },
-  { name: "تجارب شخصية", value: "تجارب شخصية" }
+  { name: "عام", value: "عام" }
 ];
 
-export default function EditBlogPage() {
+function EditBlogPageContent() {
   const router = useRouter();
   const params = useParams();
   const blogId = params.id;
   const { user, loading: authLoading, ensureTokenInHeaders } = useAuth();
-  const { showSuccess, showError, showWarning, showInfo } = useToast();
+  const { showSuccess, showError, showWarning } = useToast();
 
   const [formData, setFormData] = useState({
     title: '',
     excerpt: '',
     content: '',
-    categories: [], // Changed to array for multi-category selection
-    tags: [], // Changed to array for tag-based input
-    featuredImage: '',
-    status: 'draft'
+    categories: [],
+    tags: [],
+    status: ''
   });
 
-  const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [uploadedImage, setUploadedImage] = useState(null);
   const [errors, setErrors] = useState({});
   const [lastSaved, setLastSaved] = useState(null);
 
@@ -258,10 +70,45 @@ export default function EditBlogPage() {
 
   // Tags state
   const [tagInput, setTagInput] = useState('');
-  const tagInputRef = useRef(null);
 
-  // Blog preview state
-  const [showPreview, setShowPreview] = useState(false);
+  // Fetch blog data
+  useEffect(() => {
+    const fetchBlog = async () => {
+      if (!blogId || !user) return;
+      try {
+        setLoading(true);
+        ensureTokenInHeaders();
+        const response = await api.get(`/blogs/by-id/${blogId}`);
+        if (response.data.success) {
+          const blog = response.data.blog;
+          setFormData({
+            title: blog.title || '',
+            excerpt: blog.excerpt || '',
+            content: blog.content || '',
+            categories: blog.categories || (blog.category ? [blog.category] : []),
+            tags: Array.isArray(blog.tags) ? blog.tags : [],
+            status: blog.status || 'draft'
+          });
+        }
+      } catch (error) {
+        showError('فشل في تحميل بيانات المقال');
+        router.push('/profile?tab=blogs');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBlog();
+  }, [blogId, user, router, ensureTokenInHeaders]);
+
+  // Redirect if not authenticated or not approved creator
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/login');
+    }
+    if (!authLoading && user && user.creatorStatus !== 'approved') {
+      router.push('/');
+    }
+  }, [authLoading, user, router]);
 
   const stripHtml = (html) => {
     if (typeof document === 'undefined') return '';
@@ -270,30 +117,12 @@ export default function EditBlogPage() {
     return tempDiv.textContent || tempDiv.innerText || '';
   };
 
-  // Helper to check if there's actual content to save/restore
-  const hasMeaningfulContent = (data) => {
-    const plainContent = stripHtml(data.content || '').trim();
-    return (
-      data.title?.trim() ||
-      plainContent ||
-      data.excerpt?.trim() ||
-      (data.categories && data.categories.length > 0) ||
-      (data.tags && data.tags.length > 0)
-    );
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Category search and selection functions
-  const filteredCategories = categories.filter(category =>
-    category.name.toLowerCase().includes(categorySearch.toLowerCase()) &&
-    !formData.categories.includes(category.value) // Don't show already selected categories
-  ).slice(0, 20); // Limit to 20 results for better performance
-
-  const handleCategorySearch = (e) => {
-    setCategorySearch(e.target.value);
-    setShowCategoryDropdown(true);
-  };
-
-  const handleCategorySelect = (category) => {
+  const addCategory = (category) => {
     if (!formData.categories.includes(category.value) && formData.categories.length < 3) {
       setFormData(prev => ({
         ...prev,
@@ -301,24 +130,22 @@ export default function EditBlogPage() {
       }));
     }
     setCategorySearch('');
-    // Keep dropdown open for multiple selections
+    setShowCategoryDropdown(false);
   };
 
-  const removeCategory = (categoryToRemove) => {
+  const removeCategory = (categoryValue) => {
     setFormData(prev => ({
       ...prev,
-      categories: prev.categories.filter(category => category !== categoryToRemove)
+      categories: prev.categories.filter(c => c !== categoryValue)
     }));
   };
 
-  // Tag management functions
   const addTag = (tag) => {
-    const trimmedTag = tag.trim();
-    const currentTags = Array.isArray(formData.tags) ? formData.tags : [];
-    if (trimmedTag && !currentTags.includes(trimmedTag) && currentTags.length < 10) {
+    const trimmed = tag.trim();
+    if (trimmed && !formData.tags.includes(trimmed) && formData.tags.length < 10) {
       setFormData(prev => ({
         ...prev,
-        tags: [...currentTags, trimmedTag]
+        tags: [...prev.tags, trimmed]
       }));
     }
     setTagInput('');
@@ -327,787 +154,343 @@ export default function EditBlogPage() {
   const removeTag = (tagToRemove) => {
     setFormData(prev => ({
       ...prev,
-      tags: Array.isArray(prev.tags) ? prev.tags.filter(tag => tag !== tagToRemove) : []
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
     }));
-  };
-
-  const handleTagInputChange = (e) => {
-    setTagInput(e.target.value);
-  };
-
-  const handleTagKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      if (tagInput.trim()) {
-        addTag(tagInput);
-      }
-    } else if (e.key === 'Backspace' && !tagInput && Array.isArray(formData.tags) && formData.tags.length > 0) {
-      // Remove last tag when backspace is pressed on empty input
-      removeTag(formData.tags[formData.tags.length - 1]);
-    }
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Escape') {
-      setShowCategoryDropdown(false);
-      setCategorySearch('');
-    }
-  };
-
-  // Redirect if not authenticated or not approved creator
-  useEffect(() => {
-    // Ensure token is set in headers when component mounts
-    ensureTokenInHeaders();
-
-    if (!authLoading && !user) {
-      router.push('/login');
-    }
-    // Redirect if user is not an approved creator
-    if (!authLoading && user && user.creatorStatus !== 'approved') {
-      router.push('/');
-    }
-  }, [authLoading, user, router, ensureTokenInHeaders]);
-
-  // Fetch blog data
-  useEffect(() => {
-    const fetchBlog = async () => {
-      if (!blogId || !user) return;
-
-      try {
-        setLoading(true);
-        const response = await api.get(`/blogs/by-id/${blogId}`);
-
-        if (response.data.success) {
-          const blog = response.data.blog;
-          const blogCategories = blog.categories || (blog.category ? [blog.category] : []);
-          const blogTags = Array.isArray(blog.tags) ? blog.tags : (blog.tags ? [blog.tags] : []);
-
-          setFormData({
-            title: blog.title || '',
-            excerpt: blog.excerpt || '',
-            content: blog.content || '',
-            categories: blogCategories.filter(Boolean),
-            tags: blogTags,
-            featuredImage: blog.featuredImage || '',
-            status: blog.status || 'draft'
-          });
-
-          if (blog.title) setShowPreview(true);
-        }
-      } catch (error) {
-        console.error('Error fetching blog:', error);
-        if (error.response?.status === 404) {
-          showError('المقال غير موجود');
-        } else if (error.response?.status === 403) {
-          showError('غير مصرح لك بتعديل هذا المقال');
-        } else {
-          showError('فشل في تحميل المقال');
-        }
-        router.push('/profile?tab=blogs');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBlog();
-  }, [blogId, user, router, showError]);
-
-  // Handle click outside to close category dropdown
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target)) {
-        setShowCategoryDropdown(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  const validateField = (name, value) => {
-    const newErrors = { ...errors };
-
-    switch (name) {
-      case 'title':
-        if (!value.trim()) {
-          newErrors.title = 'عنوان المقال مطلوب';
-        } else if (value.length > 200) {
-          newErrors.title = 'العنوان يجب أن يكون أقل من 200 حرف';
-        } else {
-          delete newErrors.title;
-        }
-        break;
-      case 'excerpt':
-        if (!value.trim()) {
-          newErrors.excerpt = 'ملخص المقال مطلوب';
-        } else if (value.length < 50) {
-          newErrors.excerpt = 'الملخص يجب أن يكون على الأقل 50 حرف';
-        } else if (value.length > 500) {
-          newErrors.excerpt = 'الملخص يجب أن يكون أقل من 500 حرف';
-        } else {
-          delete newErrors.excerpt;
-        }
-        break;
-      case 'content':
-        const textContent = stripHtml(value);
-        if (!textContent.trim()) {
-          newErrors.content = 'محتوى المقال مطلوب';
-        } else if (textContent.length < 300) {
-          newErrors.content = 'المحتوى يجب أن يكون على الأقل 300 حرف';
-        } else {
-          delete newErrors.content;
-        }
-        break;
-      case 'categories':
-        if (!value || (Array.isArray(value) && value.length === 0)) {
-          newErrors.categories = 'فئة المقال مطلوبة';
-        } else {
-          delete newErrors.categories;
-        }
-        break;
-      default:
-        break;
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-
-    // Real-time validation
-    validateField(name, value);
-
-    // Show preview when title is entered
-    if (name === 'title') {
-      setShowPreview(value.trim().length > 0);
-    }
-  };
-
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      showError('يرجى اختيار ملف صورة صالح');
-      return;
-    }
-
-    // Validate file size (5MB limit)
-    if (file.size > 5 * 1024 * 1024) {
-      showError('حجم الملف يجب أن يكون أقل من 5 ميجابايت');
-      return;
-    }
-
-    try {
-      setIsUploadingImage(true);
-      const formData = new FormData();
-      formData.append('image', file);
-
-      const response = await api.post('/upload/image', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      if (response.data.success) {
-        const imageUrl = response.data.data.imageUrl;
-        setUploadedImage(imageUrl);
-        setFormData(prev => ({
-          ...prev,
-          featuredImage: imageUrl
-        }));
-        showSuccess('تم رفع الصورة بنجاح');
-      }
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      const errorMessage = error.response?.data?.message || 'فشل في رفع الصورة';
-      showError(errorMessage);
-    } finally {
-      setIsUploadingImage(false);
-    }
   };
 
   const handleSubmit = async (e, submissionType = 'update') => {
     if (e) e.preventDefault();
+    if (!user) { showError('يجب تسجيل الدخول أولاً'); return; }
 
-    if (!user) {
-      showError('يجب تسجيل الدخول أولاً');
-      return;
-    }
-
-    // Validate fields based on submission type
-    const isTitleValid = validateField('title', formData.title);
-    const isContentValid = validateField('content', formData.content);
-
-    // For review/active update, validate all mandatory fields
-    const isExcerptValid = validateField('excerpt', formData.excerpt);
-    const isCategoryValid = validateField('categories', formData.categories);
-
-    if (!isTitleValid || !isExcerptValid || !isContentValid || !isCategoryValid) {
-      showError('يرجى تصحيح الأخطاء في النموذج');
+    const plainContent = stripHtml(formData.content);
+    
+    if (!formData.title.trim() || plainContent.length < 50) {
+      showError('يرجى إدخال عنوان ومحتوى كافٍ للمقال');
       return;
     }
 
     try {
       setSubmitting(true);
-
-      // Ensure token is set in headers before making API call
-      const hasToken = ensureTokenInHeaders();
-      if (!hasToken) {
-        showError('يجب تسجيل الدخول أولاً');
-        router.push('/login');
-        return;
-      }
+      ensureTokenInHeaders();
 
       const blogData = {
         title: formData.title.trim(),
         excerpt: formData.excerpt.trim(),
         content: formData.content.trim(),
-        category: formData.categories[0], // Send first category as single category field
-        categories: formData.categories, // Also send full array
+        category: formData.categories[0],
+        categories: formData.categories,
         tags: formData.tags,
-        featuredImage: formData.featuredImage?.trim() || undefined,
         status: submissionType === 'review' ? 'pending' : (formData.status === 'published' ? undefined : formData.status)
       };
 
-      // Remove undefined values
-      Object.keys(blogData).forEach(key => {
-        if (blogData[key] === undefined) {
-          delete blogData[key];
-        }
-      });
-
       const response = await api.put(`/blogs/${blogId}`, blogData);
-
       if (response.data.success) {
         showSuccess(response.data.message || 'تم تحديث المقال بنجاح!');
         setShowSuccessModal(true);
       }
     } catch (error) {
-      console.error('Blog update error:', error);
-
-      if (error.response?.status === 409) {
-        showError(error.response.data.message);
-      } else if (error.response?.data?.message) {
-        showError(error.response.data.message);
-      } else {
-        showError('حدث خطأ أثناء تحديث المقال. يرجى المحاولة مرة أخرى.');
-      }
+      showError(error.response?.data?.message || 'حدث خطأ أثناء تحديث المقال');
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (authLoading || loading) {
-    return (
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-accent-600 dark:text-dark-text-secondary">جاري تحميل بيانات المقال...</p>
-        </div>
+  if (authLoading || loading) return (
+    <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
+        <p className="text-sm font-black text-gray-500 animate-pulse uppercase tracking-widest">جاري تحميل بيانات المقال...</p>
       </div>
-    );
-  }
-
-  // Redirect if user is not an approved creator
-  if (!authLoading && user && user.creatorStatus !== 'approved') {
-    return null;
-  }
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
-      {/* Header */}
-      <section className="bg-gradient-to-br from-primary-500 to-primary-700 dark:from-dark-secondary dark:to-dark-tertiary text-white py-8 md:py-12 lg:py-16">
-        <div className="container-custom text-center px-4">
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 md:mb-4">تعديل المقال</h1>
-          <p className="text-sm md:text-base lg:text-lg text-primary-100 dark:text-dark-text-secondary max-w-2xl mx-auto px-4">
-            قم بتحديث محتوى مقالك وتنسيقه لتقديمه بأفضل شكل لمجتمع عرب نوشن
-          </p>
-          <div className="mt-4 md:mt-6 flex flex-col sm:flex-row items-center justify-center gap-2 md:gap-3 px-4">
-            <button
-              type="button"
-              onClick={() => router.push('/profile')}
-              className="btn-outline inline-flex items-center gap-2 w-full sm:w-auto text-sm md:text-base"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              العودة للملف الشخصي
-            </button>
-            <button
-              type="button"
-              onClick={() => router.push('/profile?tab=blogs')}
-              className="btn-secondary inline-flex items-center gap-2 w-full sm:w-auto text-sm md:text-base"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              الذهاب إلى مقالاتي
-            </button>
+    <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300 pb-20" dir="rtl">
+      {/* Executive Header */}
+      <div className="bg-white/80 dark:bg-dark-secondary/80 backdrop-blur-xl border-b border-gray-100 dark:border-white/5 sticky top-0 z-30">
+        <div className="container-custom py-4 sm:py-5">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                <Edit3 className="text-white w-6 h-6" />
+              </div>
+              <div>
+                <h1 className="text-lg sm:text-2xl font-black text-gray-900 dark:text-dark-text-primary tracking-tight">تعديل المقال</h1>
+                <div className="flex items-center gap-2 text-[10px] sm:text-xs text-gray-500 dark:text-dark-text-secondary font-bold">
+                  <span>لوحة التحكم</span>
+                  <span className="opacity-30">•</span>
+                  <span className="text-blue-600 dark:text-blue-400">تحديث المحتوى</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 sm:gap-3">
+               <button
+                onClick={() => router.push('/profile?tab=blogs')}
+                className="hidden sm:flex items-center gap-2 px-4 py-2.5 text-xs font-black text-gray-500 hover:text-gray-900 dark:text-dark-text-secondary dark:hover:text-dark-text-primary transition-colors bg-gray-50 dark:bg-dark-tertiary rounded-xl border border-gray-100 dark:border-white/5 cursor-pointer"
+              >
+                <ChevronRight size={16} />
+                مقالاتي
+              </button>
+              
+              <button
+                onClick={(e) => handleSubmit(e, formData.status === 'published' ? 'update' : 'review')}
+                disabled={submitting}
+                className="btn-primary text-xs sm:text-sm font-black px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl border-none shadow-glow flex items-center gap-2 hover:scale-105 active:scale-95 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save size={16} />}
+                <span>{formData.status === 'published' ? 'حفظ التعديلات' : 'نشر للمراجعة'}</span>
+              </button>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Blog Edit Form */}
-      <section className="py-6 md:py-8 lg:py-12 px-4">
-        <div className="container-custom max-w-4xl">
-          <div className="bg-white dark:bg-dark-secondary rounded-xl shadow-medium dark:shadow-dark-medium p-4 md:p-6 lg:p-8">
-            <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
-              {/* Title */}
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-accent-600 dark:text-dark-text-primary mb-3 flex items-center gap-2">
-                  <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10m-10 0a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2M9 4h6" />
-                  </svg>
-                  عنوان المقال *
-                </label>
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleInputChange}
-                  className={`form-input text-base md:text-lg ${errors.title ? 'border-red-500 focus:border-red-500 ring-red-200' : 'focus:ring-primary-200'}`}
-                  placeholder="اكتب عنوان المقال هنا..."
-                  required
-                  maxLength={200}
-                />
-                <div className="flex justify-between items-center mt-2">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${formData.title.length > 0 ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                    <p className="text-xs text-accent-500 dark:text-dark-text-tertiary">
-                      {formData.title.length}/200 حرف
-                    </p>
+      <div className="container-custom py-8">
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+          {/* Left Side: Form */}
+          <div className="flex-1 space-y-8">
+            <form className="space-y-8">
+              {/* Segment 1: Blog Identity */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white dark:bg-dark-secondary border border-gray-100 dark:border-white/5 rounded-[2.5rem] p-6 sm:p-8 shadow-sm relative"
+              >
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-950/20 rounded-xl flex items-center justify-center text-indigo-500">
+                    <FileText size={20} />
                   </div>
-                  {errors.title && (
-                    <p className="text-xs text-red-500 font-medium">{errors.title}</p>
-                  )}
+                  <div>
+                    <h2 className="text-xl font-black text-gray-900 dark:text-dark-text-primary tracking-tight">هوية المقال</h2>
+                    <p className="text-xs text-gray-500 dark:text-dark-text-secondary font-medium">عدل العنوان والملخص التعريفي</p>
+                  </div>
                 </div>
 
-                {/* Blog Preview Card */}
-                {showPreview && (
-                  <div className="mt-4 md:mt-6 p-3 md:p-4 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-xl border border-orange-200 dark:border-orange-800">
-                    <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
-                      <div className="w-5 h-5 md:w-6 md:h-6 bg-orange-500 rounded-lg flex items-center justify-center">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                      </div>
-                      <h3 className="text-xs md:text-sm font-semibold text-orange-700 dark:text-orange-300">معاينة المقال</h3>
-                    </div>
-
-                    {/* Blog Card Preview */}
-                    <div className="bg-white dark:bg-dark-secondary rounded-lg shadow-lg border border-gray-200 dark:border-dark-card-border overflow-hidden hover:shadow-xl transition-all duration-300">
-                      {/* Auto-Generated Featured Image */}
-                      <div className="relative w-full h-32 md:h-40 lg:h-48 bg-gradient-to-br from-orange-400 via-orange-500 to-red-500 overflow-hidden">
-                        {/* Background Pattern */}
-                        <div className="absolute inset-0 opacity-20">
-                          <div className="absolute top-4 left-4 w-16 h-16 bg-white rounded-full opacity-30"></div>
-                          <div className="absolute top-12 right-8 w-8 h-8 bg-white rounded-full opacity-20"></div>
-                          <div className="absolute bottom-8 left-12 w-12 h-12 bg-white rounded-full opacity-25"></div>
-                          <div className="absolute bottom-4 right-4 w-6 h-6 bg-white rounded-full opacity-30"></div>
-                          <div className="absolute top-1/2 left-1/4 w-4 h-4 bg-white rounded-full opacity-20"></div>
-                        </div>
-
-                        {/* Main Content Overlay */}
-                        <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-
-                        {/* Generated Image Content */}
-                        <div className="absolute inset-0 flex flex-col justify-center items-center p-3 md:p-4 lg:p-6 text-center">
-                          {/* Blog Icon */}
-                          <div className="mb-2 md:mb-3 lg:mb-4">
-                            <div className="w-10 h-10 md:w-12 md:h-12 lg:w-16 lg:h-16 bg-white bg-opacity-20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white border-opacity-30">
-                              <svg className="w-5 h-5 md:w-6 md:h-6 lg:w-8 lg:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5h-2.5" />
-                              </svg>
-                            </div>
-                          </div>
-
-                          {/* Auto-generated Title */}
-                          <h3 className="text-white text-sm md:text-base lg:text-lg font-bold leading-tight mb-1 md:mb-2 drop-shadow-lg max-w-full px-2">
-                            {formData.title || 'تعديل المقال'}
-                          </h3>
-
-                          {/* Auto-generated Subtitle */}
-                          <p className="text-white text-xs md:text-sm opacity-90 max-w-full px-2">
-                            {formData.excerpt ?
-                              (formData.excerpt.length > 80 ? formData.excerpt.substring(0, 80) + '...' : formData.excerpt) :
-                              'اكتشف المزيد في هذا المقال المميز'
-                            }
-                          </p>
-                        </div>
-
-                        {/* Bottom Info Bar */}
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 md:p-3 lg:p-4">
-                          <div className="flex items-center justify-between gap-2">
-                            {/* Categories */}
-                            {formData.categories.length > 0 && (
-                              <div className="flex flex-wrap gap-1">
-                                {formData.categories.slice(0, 2).map((categoryValue, index) => {
-                                  const category = categories.find(c => c.value === categoryValue);
-                                  return (
-                                    <span
-                                      key={index}
-                                      className="inline-flex items-center px-1.5 md:px-2 py-0.5 md:py-1 bg-white bg-opacity-20 backdrop-blur-sm text-white rounded-md text-[10px] md:text-xs font-medium border border-white border-opacity-30"
-                                    >
-                                      {category?.name || categoryValue}
-                                    </span>
-                                  );
-                                })}
-                                {formData.categories.length > 2 && (
-                                  <span className="inline-flex items-center px-1.5 md:px-2 py-0.5 md:py-1 bg-white bg-opacity-20 backdrop-blur-sm text-white rounded-md text-[10px] md:text-xs font-medium border border-white border-opacity-30">
-                                    +{formData.categories.length - 2}
-                                  </span>
-                                )}
-                              </div>
-                            )}
-
-                            {/* Author and Date */}
-                            <div className="flex items-center gap-1 md:gap-2 text-white text-xs md:text-sm opacity-90">
-                              <div className="w-5 h-5 md:w-6 md:h-6 bg-white bg-opacity-20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white border-opacity-30">
-                                <span className="text-white text-[10px] md:text-xs font-bold">
-                                  {user?.name?.charAt(0)?.toUpperCase() || 'ك'}
-                                </span>
-                              </div>
-                              <span className="hidden sm:inline">{user?.name || 'كاتب المقال'}</span>
-                              <span className="hidden sm:inline mx-1 md:mx-2">•</span>
-                              <span>الآن</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Card Content */}
-                      <div className="p-4 md:p-5 lg:p-6">
-                        {/* Read More Link */}
-                        <div className="flex items-center justify-between">
-                          <button className="inline-flex items-center gap-1 md:gap-2 text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 font-medium text-xs md:text-sm transition-colors">
-                            <span>اقرأ المزيد</span>
-                            <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    <p className="text-[10px] md:text-xs text-orange-600 dark:text-orange-400 mt-2 md:mt-3 text-center">
-                      💡 هذا هو شكل مقالك في المدونة
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Excerpt */}
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-accent-600 dark:text-dark-text-primary mb-3 flex items-center gap-2">
-                  <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  ملخص المقال *
-                </label>
-                <textarea
-                  name="excerpt"
-                  value={formData.excerpt}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className={`form-input resize-none text-sm md:text-base ${errors.excerpt ? 'border-red-500 focus:border-red-500 ring-red-200' : 'focus:ring-primary-200'}`}
-                  placeholder="اكتب ملخص مختصر للمقال..."
-                  required
-                  maxLength={500}
-                />
-                <div className="flex justify-between items-center mt-2">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${formData.excerpt.length > 0 ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                    <p className="text-xs text-accent-500 dark:text-dark-text-tertiary">
-                      {formData.excerpt.length}/500 حرف
-                    </p>
-                  </div>
-                  {errors.excerpt && (
-                    <p className="text-xs text-red-500 font-medium">{errors.excerpt}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-accent-600 dark:text-dark-text-primary mb-3 flex items-center gap-2">
-                  <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                  محتوى المقال *
-                </label>
-                <RichTextEditor
-                  content={formData.content}
-                  onChange={(content) => {
-                    setFormData(prev => ({ ...prev, content }));
-                  }}
-                  placeholder="ابدا بكتابة مقالك هنا... يمكنك استخدام العناوين والقوائم لتنسيق المحتوى."
-                />
-                <div className="flex justify-between items-center mt-2">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${stripHtml(formData.content).length >= 300 ? 'bg-green-500' : stripHtml(formData.content).length > 0 ? 'bg-yellow-500' : 'bg-gray-300'}`}></div>
-                    <p className="text-xs text-accent-500 dark:text-dark-text-tertiary">
-                      {stripHtml(formData.content).length} حرف (الحد الأدنى: 300 حرف)
-                    </p>
-                  </div>
-                  {errors.content && (
-                    <p className="text-xs text-red-500 font-medium">{errors.content}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Categories */}
-              <div className="space-y-2">
-                <label className="flex items-center justify-between text-sm font-semibold text-accent-600 dark:text-dark-text-primary mb-3">
-                  <div className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                    </svg>
-                    فئات المقال *
-                  </div>
-                  <span className="text-xs text-gray-500 dark:text-dark-text-tertiary">
-                    {formData.categories.filter(Boolean).length}/3
-                  </span>
-                </label>
-
-                {/* Category Multi-Select Input */}
-                <div className="relative" ref={categoryDropdownRef}>
-                  <div className={`form-input w-full min-h-[2.5rem] md:min-h-[3rem] px-3 md:px-4 py-2 md:py-3 pr-10 md:pr-12 border-2 border-gray-200 dark:border-dark-input-border focus-within:border-primary-500 dark:focus-within:border-primary-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-primary-400 flex flex-wrap items-center gap-1.5 md:gap-2 ${errors.categories ? 'border-red-500 focus-within:border-red-500' : ''}`}>
-                    {/* Selected Categories Inside Input */}
-                    {formData.categories.filter(Boolean).map((categoryValue, index) => {
-                      const category = categories.find(c => c.value === categoryValue);
-                      return (
-                        <span
-                          key={index}
-                          className="inline-flex items-center gap-1 px-1.5 md:px-2 py-0.5 md:py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-md text-xs md:text-sm font-medium"
-                        >
-                          {category?.name || categoryValue}
-                          <button
-                            type="button"
-                            onClick={() => removeCategory(categoryValue)}
-                            className="hover:text-primary-900 dark:hover:text-primary-100 transition-colors"
-                          >
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </button>
-                        </span>
-                      );
-                    })}
-
-                    {/* Search Input */}
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-gray-400 dark:text-dark-text-tertiary uppercase tracking-wider block mr-1">عنوان المقال *</label>
                     <input
                       type="text"
-                      value={categorySearch}
-                      onChange={handleCategorySearch}
-                      onFocus={() => formData.categories.length < 3 && setShowCategoryDropdown(true)}
-                      onKeyDown={handleKeyDown}
-                      onBlur={() => {
-                        setTimeout(() => setShowCategoryDropdown(false), 200);
-                      }}
-                      placeholder={
-                        formData.categories.length >= 3
-                          ? "تم الوصول للحد الأقصى (3 فئات)"
-                          : formData.categories.length > 0
-                            ? "أضف فئة أخرى..."
-                            : "ابحث عن الفئة..."
-                      }
-                      disabled={formData.categories.length >= 3}
-                      className="flex-1 min-w-[100px] md:min-w-[120px] bg-transparent outline-none text-sm md:text-base text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-quaternary disabled:opacity-50 disabled:cursor-not-allowed"
-                      autoComplete="off"
+                      name="title"
+                      value={formData.title}
+                      onChange={handleInputChange}
+                      placeholder="عنوان المقال..."
+                      className="w-full bg-gray-50/50 dark:bg-dark-tertiary/20 border border-gray-100 dark:border-white/5 focus:border-blue-500 rounded-2xl px-5 py-4 text-sm font-bold text-gray-900 dark:text-dark-text-primary outline-none transition-all"
                     />
                   </div>
 
-                  {/* Search/Clear icon */}
-                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                    {categorySearch ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setCategorySearch('');
-                          setShowCategoryDropdown(false);
-                        }}
-                        className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
-                        title="مسح البحث"
-                      >
-                        <svg className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    ) : (
-                      <svg className="w-5 h-5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
-                    )}
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-gray-400 dark:text-dark-text-tertiary uppercase tracking-wider block mr-1">ملخص المقال *</label>
+                    <textarea
+                      name="excerpt"
+                      value={formData.excerpt}
+                      onChange={handleInputChange}
+                      rows={3}
+                      placeholder="نبذة مختصرة عن محتوى المقال..."
+                      className="w-full bg-gray-50/50 dark:bg-dark-tertiary/20 border border-gray-100 dark:border-white/5 focus:border-blue-500 rounded-2xl px-5 py-4 text-sm font-bold text-gray-900 dark:text-dark-text-primary outline-none transition-all resize-none"
+                    />
                   </div>
-
-                  {/* Dropdown */}
-                  {showCategoryDropdown && formData.categories.length < 3 && (
-                    <div className="absolute z-[9999] w-full mt-2 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-xl shadow-2xl max-h-64 overflow-y-auto">
-                      {filteredCategories.length > 0 ? (
-                        <>
-                          {filteredCategories.map((category, index) => (
-                            <button
-                              key={index}
-                              type="button"
-                              onClick={() => handleCategorySelect(category)}
-                              onMouseDown={(e) => e.preventDefault()}
-                              className="w-full text-right px-4 py-3 hover:bg-gray-50 dark:hover:bg-dark-tertiary text-gray-900 dark:text-dark-text-primary transition-colors border-b border-gray-100 dark:border-dark-card-border last:border-b-0"
-                            >
-                              <div className="flex items-center justify-between">
-                                <span>{category.name}</span>
-                              </div>
-                            </button>
-                          ))}
-                        </>
-                      ) : (
-                        <div className="px-4 py-6 text-gray-500 dark:text-dark-text-tertiary text-center">
-                          <svg className="w-6 h-6 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                          </svg>
-                          لا توجد فئات مطابقة
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
-                {errors.categories && (
-                  <p className="text-xs text-red-500 font-medium mt-1">{errors.categories}</p>
-                )}
-              </div>
+              </motion.div>
 
-              {/* Tags */}
-              <div className="space-y-2">
-                <label className="flex items-center justify-between text-sm font-semibold text-accent-600 dark:text-dark-text-primary mb-3">
-                  <div className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                    </svg>
-                    العلامات
+              {/* Segment 2: Deep Content */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-white dark:bg-dark-secondary border border-gray-100 dark:border-white/5 rounded-[2.5rem] p-6 sm:p-8 shadow-sm"
+              >
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="w-10 h-10 bg-blue-50 dark:bg-blue-950/20 rounded-xl flex items-center justify-center text-blue-500">
+                    <Edit3 size={20} />
                   </div>
-                  <span className="text-xs text-gray-500 dark:text-dark-text-tertiary">
-                    {Array.isArray(formData.tags) ? formData.tags.length : 0}/10
-                  </span>
-                </label>
+                  <div>
+                    <h2 className="text-xl font-black text-gray-900 dark:text-dark-text-primary tracking-tight">المحتوى التفصيلي</h2>
+                    <p className="text-xs text-gray-500 dark:text-dark-text-secondary font-medium">قم بتحديث وتنسيق محتوى مقالك</p>
+                  </div>
+                </div>
 
-                {/* Tag Input */}
-                <div className="relative">
-                  <div className="form-input w-full min-h-[2.5rem] md:min-h-[3rem] px-3 md:px-4 py-2 md:py-3 pr-10 md:pr-12 border-2 border-gray-200 dark:border-dark-input-border focus-within:border-primary-500 dark:focus-within:border-primary-500 rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-primary-400 flex flex-wrap items-center gap-1.5 md:gap-2">
-                    {/* Selected Tags */}
-                    {(Array.isArray(formData.tags) ? formData.tags : []).map((tag, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center gap-1 px-1.5 md:px-2 py-0.5 md:py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-md text-xs md:text-sm font-medium"
-                      >
-                        {tag}
-                        <button
-                          type="button"
-                          onClick={() => removeTag(tag)}
-                          className="hover:text-primary-900 dark:hover:text-primary-100 transition-colors"
-                        >
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </span>
-                    ))}
+                <div className="bg-gray-50/50 dark:bg-dark-tertiary/20 rounded-3xl p-1 border border-gray-100 dark:border-white/5 min-h-[400px]">
+                  <RichTextEditor
+                    content={formData.content}
+                    onChange={(content) => setFormData(prev => ({ ...prev, content }))}
+                    placeholder="ابدأ رحلة الكتابة هنا..."
+                  />
+                </div>
+              </motion.div>
 
-                    {/* Tag Input Field */}
+              {/* Segment 3: Categorization */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-white dark:bg-dark-secondary border border-gray-100 dark:border-white/5 rounded-[2.5rem] p-6 sm:p-8 shadow-sm relative z-20 overflow-visible"
+              >
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-950/20 rounded-xl flex items-center justify-center text-emerald-500">
+                    <Zap size={20} />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-black text-gray-900 dark:text-dark-text-primary tracking-tight">التصنيفات والوسوم</h2>
+                    <p className="text-xs text-gray-500 dark:text-dark-text-secondary font-medium">تأكد من اختيار التصنيفات الصحيحة</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Categories */}
+                  <div className="space-y-4">
+                    <label className="text-xs font-black text-gray-400 dark:text-dark-text-tertiary uppercase tracking-wider block mr-1">الفئات المختارة ({formData.categories.length}/3)</label>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                       {formData.categories.map(c => (
+                         <span key={c} className="px-3 py-1 bg-blue-500 text-white rounded-lg text-[10px] font-black flex items-center gap-2">
+                           {c}
+                           <X size={12} className="cursor-pointer" onClick={() => removeCategory(c)} />
+                         </span>
+                       ))}
+                    </div>
+                    <div className="relative" ref={categoryDropdownRef}>
+                      <input
+                        type="text"
+                        value={categorySearch}
+                        onChange={(e) => { setCategorySearch(e.target.value); setShowCategoryDropdown(true); }}
+                        onFocus={() => setShowCategoryDropdown(true)}
+                        placeholder="ابحث عن فئة..."
+                        className="w-full bg-gray-50/50 dark:bg-dark-tertiary/20 border border-gray-100 dark:border-white/5 rounded-2xl px-5 py-4 text-sm font-bold text-gray-900 dark:text-dark-text-primary outline-none"
+                      />
+                      <AnimatePresence>
+                        {showCategoryDropdown && (
+                          <motion.div 
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 10 }}
+                            className="absolute z-50 w-full mt-2 bg-white dark:bg-dark-secondary border border-gray-100 dark:border-white/5 rounded-2xl shadow-2xl max-h-48 overflow-y-auto"
+                          >
+                            {categories.filter(c => c.name.includes(categorySearch)).map(cat => (
+                              <button
+                                key={cat.value}
+                                type="button"
+                                onClick={() => addCategory(cat)}
+                                className="w-full text-right px-4 py-3 hover:bg-gray-50 dark:hover:bg-dark-tertiary text-sm font-bold text-gray-700 dark:text-dark-text-primary transition-colors"
+                              >
+                                {cat.name}
+                              </button>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </div>
+
+                  {/* Tags */}
+                  <div className="space-y-4">
+                    <label className="text-xs font-black text-gray-400 dark:text-dark-text-tertiary uppercase tracking-wider block mr-1">الوسوم ({formData.tags.length}/10)</label>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                       {formData.tags.map(tag => (
+                         <span key={tag} className="px-3 py-1 bg-gray-100 dark:bg-dark-tertiary text-gray-600 dark:text-dark-text-secondary rounded-lg text-[10px] font-black flex items-center gap-2">
+                           {tag}
+                           <X size={12} className="cursor-pointer" onClick={() => removeTag(tag)} />
+                         </span>
+                       ))}
+                    </div>
                     <input
-                      ref={tagInputRef}
                       type="text"
                       value={tagInput}
-                      onChange={handleTagInputChange}
-                      onKeyDown={handleTagKeyDown}
-                      placeholder={(Array.isArray(formData.tags) ? formData.tags.length : 0) >= 10 ? "تم الوصول للحد الأقصى (10 علامات)" : (Array.isArray(formData.tags) ? formData.tags.length : 0) > 0 ? "أضف علامة..." : "اكتب علامة واضغط Enter"}
-                      disabled={(Array.isArray(formData.tags) ? formData.tags.length : 0) >= 10}
-                      className="flex-1 min-w-[140px] md:min-w-[200px] bg-transparent outline-none text-sm md:text-base text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-dark-text-quaternary disabled:opacity-50 disabled:cursor-not-allowed"
-                      autoComplete="off"
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTag(tagInput))}
+                      placeholder="اكتب ووسم واضغط Enter..."
+                      className="w-full bg-gray-50/50 dark:bg-dark-tertiary/20 border border-gray-100 dark:border-white/5 rounded-2xl px-5 py-4 text-sm font-bold text-gray-900 dark:text-dark-text-primary outline-none"
                     />
                   </div>
-
-                  <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                    </svg>
-                  </div>
                 </div>
-
-                <p className="text-xs text-accent-500 dark:text-dark-text-tertiary">
-                  اضغط Enter لإضافة علامة. الحد الأقصى 10 علامات
-                </p>
-              </div>
-
-              {/* Submit Buttons */}
-              <div className="flex flex-col gap-3 md:gap-4 pt-6 md:pt-8 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex flex-col sm:flex-row gap-2 md:gap-3">
-                  <button
-                    type="button"
-                    onClick={() => router.back()}
-                    className="px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base text-accent-600 dark:text-dark-text-secondary bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-all duration-200 font-medium hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-300"
-                  >
-                    إلغاء التعديلات
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={(e) => handleSubmit(e, 'update')}
-                    disabled={submitting}
-                    className="flex-1 px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all duration-200 font-medium hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                  >
-                    {submitting ? (
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        <span>جاري الحفظ...</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center gap-2">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                        </svg>
-                        <span>حفظ التعديلات</span>
-                      </div>
-                    )}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={(e) => handleSubmit(e, 'review')}
-                    disabled={submitting}
-                    className="flex-1 btn-primary py-2.5 md:py-3 px-4 md:px-6 text-sm md:text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                  >
-                    {submitting ? (
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        <span>جاري الإرسال...</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center gap-2">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                        </svg>
-                        <span>إرسال للمراجعة</span>
-                      </div>
-                    )}
-                  </button>
-                </div>
-              </div>
+              </motion.div>
             </form>
           </div>
-        </div>
-      </section>
 
-      {/* Success Modal */}
+          {/* Right Side: Sticky Preview */}
+          <div className="lg:w-[400px] shrink-0">
+            <div className="sticky top-28 space-y-6">
+              <div className="flex items-center justify-between px-4">
+                <h3 className="text-xs font-black text-gray-400 dark:text-dark-text-tertiary uppercase tracking-[0.2em]">معاينة مباشرة</h3>
+                <div className="flex items-center gap-1.5">
+                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                   <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">Live Preview</span>
+                </div>
+              </div>
+
+              {/* Blog Card Preview */}
+              <div className="bg-white dark:bg-dark-secondary border border-gray-100 dark:border-white/5 rounded-[2.5rem] p-4 shadow-2xl shadow-blue-500/10 transition-all group overflow-hidden">
+                <div className="aspect-video rounded-[1.5rem] overflow-hidden bg-gradient-to-br from-blue-500 to-indigo-600 relative mb-4 flex items-center justify-center">
+                   <div className="text-center p-6">
+                      <FileText size={40} className="text-white/20 mx-auto mb-2" />
+                      <h4 className="text-white text-base font-black leading-tight line-clamp-2">
+                        {formData.title || 'عنوان المقال الجديد'}
+                      </h4>
+                   </div>
+                   <div className="absolute top-4 left-4 bg-white/20 backdrop-blur-md text-white text-[9px] font-black px-2 py-0.5 rounded-md uppercase border border-white/10">
+                      {formData.status === 'published' ? 'Published' : 'Draft / Pending'}
+                   </div>
+                </div>
+
+                <div className="px-2 pb-2">
+                  <div className="flex items-center gap-2 mb-3">
+                    {formData.categories.slice(0, 1).map(cat => (
+                       <span key={cat} className="text-[9px] font-black text-blue-500 bg-blue-500/5 px-2 py-0.5 rounded-md uppercase">
+                          {cat}
+                       </span>
+                    ))}
+                  </div>
+                  
+                  <p className="text-[11px] font-bold text-gray-400 dark:text-dark-text-secondary line-clamp-3 leading-relaxed mb-6 min-h-[48px]">
+                    {formData.excerpt || 'هنا سيظهر الملخص المختصر للمقال بعد التحديث...'}
+                  </p>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-50 dark:border-white/5">
+                    <div className="flex items-center gap-2">
+                       <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-dark-tertiary flex items-center justify-center border border-gray-200 dark:border-white/10">
+                          <User size={12} className="text-gray-400" />
+                       </div>
+                       <div className="flex flex-col">
+                          <span className="text-[9px] font-black text-gray-900 dark:text-dark-text-primary uppercase tracking-tighter">
+                             {user?.name || 'المبدع'}
+                          </span>
+                          <span className="text-[8px] font-bold text-gray-400">تعديل الآن</span>
+                       </div>
+                    </div>
+                    <div className="flex items-center gap-3 text-gray-300">
+                       <div className="flex items-center gap-1">
+                          <MessageSquare size={10} />
+                          <span className="text-[8px] font-black">--</span>
+                       </div>
+                       <div className="flex items-center gap-1">
+                          <Bookmark size={10} />
+                          <span className="text-[8px] font-black">--</span>
+                       </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Status Info */}
+              <div className="bg-gray-50 dark:bg-dark-tertiary/20 border border-gray-100 dark:border-white/5 rounded-[2rem] p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className={`w-2 h-2 rounded-full ${formData.status === 'published' ? 'bg-emerald-500' : 'bg-amber-500'}`}></div>
+                  <h5 className="text-[10px] font-black text-gray-500 dark:text-dark-text-secondary uppercase tracking-widest">حالة المقال الحالية</h5>
+                </div>
+                <div className="flex items-center justify-between">
+                   <span className="text-xs font-black text-gray-900 dark:text-dark-text-primary uppercase tracking-tight">
+                      {formData.status === 'published' ? 'منشور علناً' : formData.status === 'pending' ? 'قيد المراجعة' : 'مسودة'}
+                   </span>
+                   {formData.status === 'published' && (
+                     <Eye className="w-4 h-4 text-emerald-500" />
+                   )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <SuccessModal
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
@@ -1116,9 +499,17 @@ export default function EditBlogPage() {
           router.push('/profile?tab=blogs');
         }}
         title="تم تحديث المقال بنجاح! 🎉"
-        message="تم حفظ جميع التعديلات التي قمت بها. سيتم مراجعة المقال مرة أخرى إذا اخترت إرساله للمراجعة، أو سيبقى في حالته الحالية مع المحتوى الجديد."
-        continueButtonText="العودة لمقالاتي"
+        message="لقد تم حفظ تعديلاتك بنجاح. يمكنك رؤية التحديثات في مدونتك الآن."
+        continueButtonText="الذهاب لمقالاتي"
       />
     </div>
+  );
+}
+
+export default function EditBlogPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300"></div>}>
+      <EditBlogPageContent />
+    </Suspense>
   );
 }

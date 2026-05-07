@@ -27,8 +27,8 @@ export default function UsernameSection({
                         value={profileSettings.username}
                         onChange={(e) => handleInputChange('username', e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
                         disabled={!isEditingUsername}
-                        className={`w-full pl-4 pr-10 py-3.5 bg-white dark:bg-dark-tertiary border-none rounded-2xl text-gray-900 dark:text-dark-text-primary font-bold placeholder-gray-400 focus:ring-2 transition-all duration-300 shadow-sm ${!isEditingUsername
-                            ? 'bg-gray-50/50 dark:bg-dark-tertiary/50 cursor-not-allowed text-gray-500'
+                        className={`w-full pl-4 pr-10 py-3.5 bg-gray-50/70 dark:bg-dark-tertiary border border-gray-100 dark:border-white/5 rounded-2xl text-gray-900 dark:text-dark-text-primary font-bold placeholder-gray-400 focus:ring-2 outline-none transition-all duration-300 shadow-sm ${!isEditingUsername
+                            ? 'bg-gray-100/50 dark:bg-dark-tertiary/50 cursor-not-allowed text-gray-400 border-none'
                             : usernameValidation.isValid
                                 ? 'focus:ring-primary-500 dark:focus:ring-orange-500'
                                 : 'focus:ring-red-500'
@@ -65,7 +65,7 @@ export default function UsernameSection({
                         <button
                             type="button"
                             onClick={() => setIsEditingUsername(true)}
-                            className="px-5 py-3.5 bg-white dark:bg-dark-tertiary border-none rounded-2xl text-gray-600 dark:text-dark-text-secondary hover:text-primary-600 dark:hover:text-orange-400 transition-all duration-300 shadow-sm"
+                            className="px-5 py-3.5 bg-gray-50/70 hover:bg-gray-100 dark:bg-dark-tertiary border border-gray-100 dark:border-white/5 rounded-2xl text-gray-600 dark:text-dark-text-secondary hover:text-primary-600 dark:hover:text-orange-400 transition-all duration-300 shadow-sm cursor-pointer"
                             title="تعديل اسم المستخدم"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

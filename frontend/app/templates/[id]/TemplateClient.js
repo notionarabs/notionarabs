@@ -32,7 +32,7 @@ const RatingCommentSystem = dynamic(() => import('../../../components/RatingComm
 export default function TemplateClient({ initialTemplate }) {
   const params = useParams();
   const templateIdentifier = params.id;
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, ensureTokenInHeaders } = useAuth();
   const { showSuccess, showError } = useToast();
 
   const processedInitialTemplate = useMemo(() => {
@@ -217,6 +217,7 @@ export default function TemplateClient({ initialTemplate }) {
     }
     setIsDownloading(true);
     try {
+      ensureTokenInHeaders();
       await api.post(`/templates/${tid}/download`);
       window.open(template.notionLink, '_blank');
       setUserHasTemplate(true);

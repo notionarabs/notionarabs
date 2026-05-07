@@ -9,13 +9,19 @@ import { formatDate } from '../lib/dateUtils';
 import api from '../lib/api';
 import ExportButton from './ExportButton';
 import Cookies from 'js-cookie';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+    Download, DollarSign, Users, FileDown, 
+    ChevronRight, ChevronLeft, Inbox, ArrowUpRight, HelpCircle
+} from 'lucide-react';
 
 export default function SalesContent() {
-    const { user } = useAuth();
+    const { user, ensureTokenInHeaders } = useAuth();
     const router = useRouter();
 
     const [isLoading, setIsLoading] = useState(true);
     const [rows, setRows] = useState([]);
+    const [templates, setTemplates] = useState([]);
     const [viewMode, setViewMode] = useState('downloads'); // downloads | sales
     const [pagination, setPagination] = useState({ current: 1, pages: 1, total: 0, limit: 20 });
     const [templateFilter, setTemplateFilter] = useState('all');
@@ -23,6 +29,7 @@ export default function SalesContent() {
     const fetchData = async (page = 1, templateId, mode = viewMode) => {
         setIsLoading(true);
         try {
+            ensureTokenInHeaders();
             const params = new URLSearchParams({ page: String(page), limit: String(pagination.limit) });
             if (templateId && templateId !== 'all') params.set('templateId', templateId);
             
@@ -40,6 +47,22 @@ export default function SalesContent() {
         }
     };
 
+    const fetchTemplates = async () => {
+        try {
+            ensureTokenInHeaders();
+            const res = await api.get('/templates/my-templates');
+            if (res.data.success) {
+                setTemplates(res.data.templates || []);
+            }
+        } catch (error) {
+            console.error('Error fetching my templates:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchTemplates();
+    }, []);
+
     useEffect(() => {
         fetchData(1, templateFilter, viewMode);
     }, [templateFilter, viewMode]);
@@ -52,175 +75,190 @@ export default function SalesContent() {
     // Calculate dynamic stats
     const stats = useMemo(() => {
         const total = pagination.total || 0;
-        const uniqueUsers = new Set(rows.map(r => r.userId || r.buyer?.email)).size;
+        const uniqueUsers = new Set(rows.map(r => r.userId || r.buyer?.email || r.userEmail)).size;
         return { total, uniqueUsers };
     }, [rows, pagination.total]);
 
     return (
-        <>
+        <div className="space-y-8 pb-12" dir="rtl">
             {/* Header section with Stats */}
-            <div className="mb-8">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                    <div>
-                        <h1 className="text-3xl font-black text-gray-900 dark:text-dark-text-primary mb-2">
-                            سجل المبيعات والتحميلات
-                        </h1>
-                        <p className="text-gray-500 dark:text-dark-text-secondary font-medium">
-                            تتبع جميع عمليات {viewMode === 'sales' ? 'مبيعات' : 'تحميل'} القوالب الخاصة بك
-                        </p>
-                    </div>
-
-                    <div className="flex p-1.5 bg-gray-100 dark:bg-dark-tertiary rounded-2xl border border-gray-200 dark:border-dark-card-border">
-                        <button
-                            onClick={() => setViewMode('downloads')}
-                            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black transition-all duration-300 ${viewMode === 'downloads' ? 'bg-white dark:bg-dark-secondary text-primary-600 shadow-medium dark:shadow-dark-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-dark-text-primary'}`}
-                        >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                            </svg>
-                            التحميلات المجانية
-                        </button>
-                        <button
-                            onClick={() => setViewMode('sales')}
-                            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black transition-all duration-300 ${viewMode === 'sales' ? 'bg-white dark:bg-dark-secondary text-primary-600 shadow-medium dark:shadow-dark-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-dark-text-primary'}`}
-                        >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zM12 8V7m0 1v1m0 0v1m0 0v1m0-5V5m0 5h1m-1 0H11" />
-                            </svg>
-                            المبيعات المدفوعة
-                        </button>
-                    </div>
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-gray-100 dark:border-white/5 pb-6">
+                <div>
+                    <h1 className="text-3xl font-black text-gray-900 dark:text-dark-text-primary mb-2 tracking-tight">
+                        السجلات والمبيعات
+                    </h1>
+                    <p className="text-sm text-gray-500 dark:text-dark-text-secondary font-medium">
+                        تتبع ومراجعة عمليات التحميل المجانية وصفقات مبيعات قوالبك بالتفصيل
+                    </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div className="bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 group">
-                        <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 bg-primary-50 dark:bg-primary-900/20 rounded-2xl flex items-center justify-center text-primary-600 dark:text-primary-400 group-hover:scale-110 transition-transform duration-500">
-                                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p className="text-sm font-bold text-gray-500 dark:text-dark-text-secondary mb-1">إجمالي التحميلات</p>
-                                <h3 className="text-3xl font-black text-gray-900 dark:text-dark-text-primary">{stats.total}</h3>
-                            </div>
+                {/* Mode & Filter Segment Selector */}
+                <div className="flex flex-wrap items-center gap-3">
+                    {/* Template Filter Dropdown */}
+                    <div className="relative min-w-[160px]">
+                        <select
+                            value={templateFilter}
+                            onChange={(e) => setTemplateFilter(e.target.value)}
+                            className="w-full pl-8 pr-4 py-2.5 bg-white dark:bg-dark-secondary text-gray-700 dark:text-dark-text-primary text-xs font-black rounded-xl border border-gray-100 dark:border-white/5 shadow-sm focus:ring-2 focus:ring-primary-500/20 transition-all appearance-none cursor-pointer outline-none"
+                        >
+                            <option value="all">جميع القوالب</option>
+                            {templates.map(t => (
+                                <option key={t._id} value={t._id}>{t.title}</option>
+                            ))}
+                        </select>
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                            <ChevronLeft size={14} className="transform -rotate-90" />
                         </div>
                     </div>
 
-                    <div className="bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 group">
-                        <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 bg-accent-50 dark:bg-accent-900/20 rounded-2xl flex items-center justify-center text-accent-600 dark:text-accent-400 group-hover:scale-110 transition-transform duration-500">
-                                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p className="text-sm font-bold text-gray-500 dark:text-dark-text-secondary mb-1">مستخدمون فريدون</p>
-                                <h3 className="text-3xl font-black text-gray-900 dark:text-dark-text-primary">{stats.uniqueUsers}</h3>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group">
-                        <div className="flex items-center gap-4 mb-4">
-                            <div className="w-14 h-14 bg-gray-50 dark:bg-dark-tertiary rounded-2xl flex items-center justify-center text-gray-400 dark:text-dark-text-secondary group-hover:bg-primary-50 dark:group-hover:bg-primary-900/20 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-all duration-500">
-                                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p className="text-sm font-bold text-gray-500 dark:text-dark-text-secondary mb-1">التقارير</p>
-                                <h3 className="text-lg font-black text-gray-900 dark:text-dark-text-primary">تصدير السجل</h3>
-                            </div>
-                        </div>
-                        <ExportButton
-                            endpoint={`/creators/me/downloads/export-public?token=${Cookies.get('authToken') || ''}${templateFilter !== 'all' ? `&templateId=${templateFilter}` : ''}`}
-                            filename={`sales-report-${templateFilter === 'all' ? 'all' : 'template'}-${new Date().toISOString().split('T')[0]}.csv`}
-                            label="تصدير بصيغة CSV"
-                            direct={true}
-                            className="w-full justify-center !py-2.5 !text-xs font-bold"
-                        />
+                    <div className="flex p-1 bg-gray-50 dark:bg-dark-tertiary rounded-2xl border border-gray-100 dark:border-white/5">
+                        <button
+                            onClick={() => setViewMode('downloads')}
+                            className={`flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-black transition-all border-none cursor-pointer ${
+                                viewMode === 'downloads' 
+                                    ? 'bg-white dark:bg-dark-secondary text-primary-600 dark:text-orange-400 shadow-md' 
+                                    : 'text-gray-400 hover:text-gray-600'
+                            }`}
+                        >
+                            <Download size={14} />
+                            <span>التحميلات</span>
+                        </button>
+                        <button
+                            disabled={true}
+                            onClick={() => setViewMode('sales')}
+                            className="flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-black transition-all border-none opacity-40 cursor-not-allowed select-none text-gray-400"
+                        >
+                            <DollarSign size={14} />
+                            <span>المبيعات</span>
+                            <span className="text-[8px] font-black bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded-md mr-1.5">قريباً</span>
+                        </button>
                     </div>
                 </div>
             </div>
 
-            {/* Main Content Table */}
-            <div className="bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-3xl shadow-sm overflow-hidden hidden sm:block">
+            {/* Premium Stat cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-3xl p-5 shadow-sm hover:shadow-md transition-all group">
+                    <div className="flex items-center justify-between mb-3">
+                        <span className="text-[10px] font-black text-gray-400 dark:text-dark-text-tertiary uppercase tracking-wider">
+                            {viewMode === 'sales' ? 'عدد المبيعات الكلي' : 'إجمالي التحميلات'}
+                        </span>
+                        <div className="p-2 bg-blue-50 text-blue-500 dark:bg-blue-950/20 rounded-xl group-hover:scale-110 transition-transform">
+                            <Download size={18} />
+                        </div>
+                    </div>
+                    <h3 className="text-2xl font-black text-gray-900 dark:text-dark-text-primary tracking-tight">{stats.total.toLocaleString('ar-EG')}</h3>
+                </div>
+
+                <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-3xl p-5 shadow-sm hover:shadow-md transition-all group">
+                    <div className="flex items-center justify-between mb-3">
+                        <span className="text-[10px] font-black text-gray-400 dark:text-dark-text-tertiary uppercase tracking-wider">العملاء الفريدون</span>
+                        <div className="p-2 bg-purple-50 text-purple-500 dark:bg-purple-950/20 rounded-xl group-hover:scale-110 transition-transform">
+                            <Users size={18} />
+                        </div>
+                    </div>
+                    <h3 className="text-2xl font-black text-gray-900 dark:text-dark-text-primary tracking-tight">{stats.uniqueUsers.toLocaleString('ar-EG')}</h3>
+                </div>
+
+                {/* Report Generation Center Card */}
+                <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-3xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+                    <div className="flex items-center justify-between mb-4">
+                        <div>
+                            <span className="text-[10px] font-black text-gray-400 dark:text-dark-text-tertiary uppercase tracking-wider">تنزيل التقارير</span>
+                            <h4 className="text-xs font-bold text-gray-700 dark:text-dark-text-primary mt-0.5">تصدير كامل للسجل الحركي</h4>
+                        </div>
+                        <div className="p-2 bg-gray-50 text-gray-400 dark:bg-dark-tertiary rounded-xl group-hover:bg-primary-50 dark:group-hover:bg-orange-500/10 group-hover:text-primary-600 dark:group-hover:text-orange-400 transition-colors">
+                            <FileDown size={18} />
+                        </div>
+                    </div>
+                    <ExportButton
+                        endpoint={`/creators/me/downloads/export-public?token=${Cookies.get('authToken') || ''}${templateFilter !== 'all' ? `&templateId=${templateFilter}` : ''}`}
+                        filename={`report-${viewMode}-${templateFilter === 'all' ? 'all' : 'template'}-${new Date().toISOString().split('T')[0]}.csv`}
+                        label="تصدير بصيغة CSV"
+                        direct={true}
+                        className="w-full justify-center !py-2.5 !text-[10px] font-black border-none"
+                    />
+                </div>
+            </div>
+
+            {/* Desktop View Table - Advanced Ledger layout */}
+            <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-3xl shadow-sm overflow-hidden hidden sm:block">
                 <div className="overflow-x-auto">
                     <table className="w-full text-right" dir="rtl">
                         <thead>
-                            <tr className="bg-gray-50 dark:bg-dark-tertiary/30 border-b border-gray-100 dark:border-dark-card-border">
-                                <th className="px-6 py-4 text-sm font-black text-gray-600 dark:text-dark-text-primary uppercase tracking-wider">المستخدم</th>
-                                <th className="px-6 py-4 text-sm font-black text-gray-600 dark:text-dark-text-primary uppercase tracking-wider">البريد الإلكتروني</th>
-                                <th className="px-6 py-4 text-sm font-black text-gray-600 dark:text-dark-text-primary uppercase tracking-wider">القالب</th>
+                            <tr className="bg-gray-50/50 dark:bg-dark-tertiary/20 border-b border-gray-100 dark:border-white/5">
+                                <th className="px-5 py-4 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">المشتري / المستخدم</th>
+                                <th className="px-5 py-4 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">البريد الإلكتروني</th>
+                                <th className="px-5 py-4 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">اسم القالب</th>
                                 {viewMode === 'sales' && (
-                                    <th className="px-6 py-4 text-sm font-black text-gray-600 dark:text-dark-text-primary uppercase tracking-wider">المبلغ</th>
+                                    <th className="px-5 py-4 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">المبلغ المدفوع</th>
                                 )}
-                                <th className="px-6 py-4 text-sm font-black text-gray-600 dark:text-dark-text-primary uppercase tracking-wider">التاريخ</th>
+                                <th className="px-5 py-4 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">التاريخ والوقت</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100 dark:divide-dark-card-border">
+                        <tbody className="divide-y divide-gray-100 dark:divide-white/5">
                             {isLoading ? (
-                                [...Array(5)].map((_, index) => (
-                                    <tr key={index} className="animate-pulse">
-                                        <td className="px-6 py-4"><div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div></td>
-                                        <td className="px-6 py-4"><div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div></td>
-                                        <td className="px-6 py-4"><div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div></td>
-                                        <td className="px-6 py-4"><div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div></td>
+                                [...Array(5)].map((_, idx) => (
+                                    <tr key={idx} className="animate-pulse">
+                                        <td className="px-5 py-4"><div className="h-5 bg-gray-100 dark:bg-dark-tertiary rounded-lg w-1/2"></div></td>
+                                        <td className="px-5 py-4"><div className="h-4 bg-gray-100 dark:bg-dark-tertiary rounded-lg w-3/4"></div></td>
+                                        <td className="px-5 py-4"><div className="h-5 bg-gray-100 dark:bg-dark-tertiary rounded-lg w-2/3"></div></td>
+                                        {viewMode === 'sales' && <td className="px-5 py-4"><div className="h-4 bg-gray-100 dark:bg-dark-tertiary rounded-lg w-12"></div></td>}
+                                        <td className="px-5 py-4"><div className="h-4 bg-gray-100 dark:bg-dark-tertiary rounded-lg w-24"></div></td>
                                     </tr>
                                 ))
                             ) : rows.length === 0 ? (
                                 <tr>
-                                    <td colSpan="4" className="px-6 py-12 text-center text-gray-500 dark:text-dark-text-secondary">
+                                    <td colSpan={viewMode === 'sales' ? 5 : 4} className="px-5 py-16 text-center text-gray-400 dark:text-dark-text-tertiary">
                                         <div className="flex flex-col items-center gap-3">
-                                            <div className="w-12 h-12 bg-gray-100 dark:bg-dark-tertiary rounded-full flex items-center justify-center">
-                                                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                                </svg>
+                                            <div className="w-12 h-12 bg-gray-50 dark:bg-dark-tertiary rounded-full flex items-center justify-center">
+                                                <Inbox size={20} className="opacity-40" />
                                             </div>
-                                            <p className="font-medium">لا توجد عمليات تحميل حتى الآن</p>
+                                            <p className="text-xs font-bold">لا توجد سجلات مسجلة في حسابك بعد</p>
                                         </div>
                                     </td>
                                 </tr>
                             ) : (
                                 rows.map((row) => (
-                                    <tr key={row.id} className="hover:bg-gray-50 dark:hover:bg-dark-tertiary/50 transition-colors">
-                                        <td className="px-6 py-4">
+                                    <tr key={row.id || row._id} className="hover:bg-gray-50/30 dark:hover:bg-dark-tertiary/10 transition-colors">
+                                        <td className="px-5 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 flex items-center justify-center text-sm font-black uppercase">
-                                                    {(row.buyer?.name || row.userName || row.userUsername || 'U')[0]}
+                                                {/* Circular Name Avatar */}
+                                                <div className="w-8 h-8 rounded-full bg-primary-50 dark:bg-orange-500/10 text-primary-600 dark:text-orange-400 flex items-center justify-center text-xs font-black border border-primary-500/10">
+                                                    {(row.buyer?.name || row.userName || row.userUsername || 'U')[0].toUpperCase()}
                                                 </div>
-                                                <span className="font-bold text-gray-900 dark:text-dark-text-primary text-sm">
+                                                <span className="font-bold text-gray-900 dark:text-dark-text-primary text-xs">
                                                     {row.buyer?.name || row.userName || row.userUsername || 'مستخدم'}
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-dark-text-secondary font-medium font-mono">
-                                            {row.buyer?.email || row.userEmail}
+                                        <td className="px-5 py-4 text-xs text-gray-500 dark:text-dark-text-secondary font-medium font-mono select-all">
+                                            {row.buyer?.email || row.userEmail || 'غير متوفر'}
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-5 py-4">
                                             <Link href={`/templates/${row.templateId}`} className="group flex items-center gap-3">
                                                 {row.previewImage && (
-                                                    <div className="relative w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100 dark:border-dark-card-border">
+                                                    <div className="relative w-9 h-9 rounded-xl overflow-hidden flex-shrink-0 border border-gray-100 dark:border-white/5">
                                                         <Image
                                                             src={row.previewImage}
-                                                            alt={row.templateTitle}
+                                                            alt={row.templateTitle || 'template'}
                                                             fill
                                                             className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                                            unoptimized
                                                         />
                                                     </div>
                                                 )}
-                                                <span className="font-bold text-gray-900 dark:text-dark-text-primary text-sm group-hover:text-primary-600 dark:group-hover:text-orange-400 transition-colors">
+                                                <span className="font-bold text-gray-900 dark:text-dark-text-primary text-xs group-hover:text-primary-600 dark:group-hover:text-orange-400 transition-colors line-clamp-1 max-w-[180px]">
                                                     {row.templateTitle}
                                                 </span>
                                             </Link>
                                         </td>
                                         {viewMode === 'sales' && (
-                                            <td className="px-6 py-4 text-sm font-black text-emerald-600 dark:text-emerald-400">
-                                                {row.price} ج.م
+                                            <td className="px-5 py-4 text-xs font-black text-emerald-600 dark:text-emerald-400">
+                                                {(row.price || 0).toLocaleString('ar-EG')} ج.م
                                             </td>
                                         )}
-                                        <td className="px-6 py-4 text-sm text-gray-500 dark:text-dark-text-tertiary font-medium">
+                                        <td className="px-5 py-4 text-xs text-gray-400 dark:text-dark-text-tertiary font-bold">
                                             {formatDate(row.date)}
                                         </td>
                                     </tr>
@@ -231,105 +269,100 @@ export default function SalesContent() {
                 </div>
             </div>
 
-            {/* Mobile View - Cards */}
+            {/* Mobile View - Cards with Premium Layout */}
             <div className="sm:hidden space-y-4">
                 {isLoading ? (
-                    [...Array(3)].map((_, index) => (
-                        <div key={index} className="bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl p-4 animate-pulse">
-                            <div className="flex items-center gap-4 mb-4">
-                                <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl flex-shrink-0"></div>
+                    [1, 2].map((_, index) => (
+                        <div key={index} className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-3xl p-5 animate-pulse space-y-4">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-gray-100 dark:bg-dark-tertiary rounded-xl"></div>
                                 <div className="flex-1 space-y-2">
-                                    <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-                                </div>
-                            </div>
-                            <div className="space-y-3 pt-3 border-t border-gray-100 dark:border-dark-card-border">
-                                <div className="flex justify-between items-center">
-                                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
-                                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                                    <div className="h-4 bg-gray-100 dark:bg-dark-tertiary rounded w-2/3"></div>
+                                    <div className="h-3 bg-gray-100 dark:bg-dark-tertiary rounded w-1/2"></div>
                                 </div>
                             </div>
                         </div>
                     ))
                 ) : rows.length === 0 ? (
-                    <div className="text-center py-12 px-4 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl">
-                        <div className="w-16 h-16 bg-gray-50 dark:bg-dark-tertiary rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                            </svg>
-                        </div>
-                        <p className="text-gray-500 dark:text-dark-text-secondary font-medium">لا توجد عمليات تحميل حتى الآن</p>
+                    <div className="text-center py-16 px-6 bg-white dark:bg-dark-secondary border border-gray-100/50 dark:border-white/5 shadow-sm rounded-3xl">
+                        <Inbox size={32} className="opacity-30 mx-auto mb-4" />
+                        <p className="text-xs text-gray-400 dark:text-dark-text-tertiary font-bold">لا توجد عمليات تحميل أو مبيعات مسجلة حالياً</p>
                     </div>
                 ) : (
                     rows.map((row) => (
-                        <div key={row.id} className="bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl p-4 hover:shadow-sm transition-shadow">
+                        <div key={row.id || row._id} className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-3xl p-5 shadow-sm group">
                             <div className="flex items-start gap-4 mb-4">
                                 {row.previewImage && (
-                                    <div className="relative w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border border-gray-100 dark:border-dark-card-border/50">
+                                    <div className="relative w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 border border-gray-100 dark:border-white/5">
                                         <Image
                                             src={row.previewImage}
-                                            alt={row.templateTitle}
+                                            alt={row.templateTitle || 'template'}
                                             fill
                                             className="object-cover"
+                                            unoptimized
                                         />
                                     </div>
                                 )}
                                 <div className="flex-1 min-w-0">
-                                    <h3 className="font-bold text-gray-900 dark:text-dark-text-primary line-clamp-1 mb-1">
+                                    <h3 className="font-bold text-gray-900 dark:text-dark-text-primary text-xs line-clamp-1 mb-1">
                                         {row.templateTitle}
                                     </h3>
-                                    <p className="text-sm text-gray-500 dark:text-dark-text-tertiary">
+                                    <p className="text-[10px] text-gray-400 dark:text-dark-text-tertiary font-bold">
                                         {formatDate(row.date)}
                                     </p>
                                 </div>
                             </div>
 
-                            <div className="pt-4 border-t border-gray-100 dark:border-dark-card-border space-y-3">
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="text-gray-500 dark:text-dark-text-tertiary font-medium">المستخدم</span>
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-5 h-5 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 flex items-center justify-center text-xs font-bold uppercase">
-                                            {(row.userName || row.userUsername || 'U')[0]}
+                            <div className="pt-4 border-t border-gray-50 dark:border-white/5 space-y-2.5 text-xxs font-black text-gray-400 dark:text-dark-text-tertiary">
+                                <div className="flex items-center justify-between">
+                                    <span>المشتري / المستخدم</span>
+                                    <div className="flex items-center gap-1.5 text-gray-800 dark:text-dark-text-secondary">
+                                        <div className="w-5 h-5 rounded-full bg-primary-50 dark:bg-orange-500/10 text-primary-600 dark:text-orange-400 flex items-center justify-center text-[10px] font-black border border-primary-500/10">
+                                            {(row.buyer?.name || row.userName || row.userUsername || 'U')[0].toUpperCase()}
                                         </div>
-                                        <span className="font-bold text-gray-900 dark:text-dark-text-primary">
-                                            {row.userName || row.userUsername || 'مستخدم غير معروف'}
-                                        </span>
+                                        <span>{row.buyer?.name || row.userName || row.userUsername || 'مستخدم'}</span>
                                     </div>
                                 </div>
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="text-gray-500 dark:text-dark-text-tertiary font-medium">البريد الإلكتروني</span>
-                                    <span className="font-mono text-gray-600 dark:text-dark-text-secondary truncate ml-4" title={row.userEmail}>
-                                        {row.userEmail?.split('@')[0]}@...
-                                    </span>
+                                <div className="flex items-center justify-between">
+                                    <span>البريد الإلكتروني</span>
+                                    <span className="font-mono text-gray-700 dark:text-dark-text-secondary select-all">{row.buyer?.email || row.userEmail || 'غير متوفر'}</span>
                                 </div>
+                                {viewMode === 'sales' && (
+                                    <div className="flex items-center justify-between">
+                                        <span>المبلغ المدفوع</span>
+                                        <span className="text-emerald-600 dark:text-emerald-400 font-black">{(row.price || 0).toLocaleString('ar-EG')} ج.م</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ))
                 )}
             </div>
 
-            {/* Pagination */}
+            {/* Pagination Controls */}
             {pagination.pages > 1 && (
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-2 mt-6">
+                <div className="flex items-center justify-center gap-2 mt-8">
                     <button
-                        className="btn-outline w-full sm:w-auto px-4 py-2 text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-3.5 py-2 bg-white dark:bg-dark-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary text-gray-600 dark:text-dark-text-secondary border border-gray-100 dark:border-white/5 rounded-xl text-xs font-black transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                         onClick={() => handlePageChange(pagination.current - 1)}
                         disabled={pagination.current === 1}
                     >
+                        <ChevronRight size={14} className="inline ml-1" />
                         السابق
                     </button>
-                    <span className="text-xs sm:text-sm text-gray-700 dark:text-dark-text-secondary font-medium">
+                    <span className="text-xs font-bold text-gray-500 dark:text-dark-text-secondary bg-gray-50 dark:bg-dark-tertiary border border-gray-100 dark:border-white/5 px-3 py-2 rounded-xl">
                         صفحة {pagination.current} من {pagination.pages}
                     </span>
                     <button
-                        className="btn-outline w-full sm:w-auto px-4 py-2 text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-3.5 py-2 bg-white dark:bg-dark-secondary hover:bg-gray-50 dark:hover:bg-dark-tertiary text-gray-600 dark:text-dark-text-secondary border border-gray-100 dark:border-white/5 rounded-xl text-xs font-black transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                         onClick={() => handlePageChange(pagination.current + 1)}
                         disabled={pagination.current === pagination.pages}
                     >
                         التالي
+                        <ChevronLeft size={14} className="inline mr-1" />
                     </button>
                 </div>
             )}
-        </>
+        </div>
     );
 }

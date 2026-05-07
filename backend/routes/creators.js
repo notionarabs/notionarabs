@@ -715,9 +715,9 @@ router.get('/me/stats', auth, async (req, res) => {
     const [historicalDownloadsRes, historicalSalesRes] = await Promise.all([
       require('../utils/supabase')
         .from('DownloadLog')
-        .select('downloadedAt')
+        .select('createdAt')
         .eq('creatorId', creatorIdStr)
-        .gte('downloadedAt', thirtyDaysAgo),
+        .gte('createdAt', thirtyDaysAgo),
       templateIds.length > 0 ? require('../utils/supabase')
         .from('OrderItem')
         .select('price, Order!inner(createdAt)')
@@ -738,7 +738,9 @@ router.get('/me/stats', auth, async (req, res) => {
     }
 
     historicalDownloads.forEach(dl => {
-      const d = dl.downloadedAt.split('T')[0];
+      const rawDate = dl.createdAt || dl.downloadedAt;
+      if (!rawDate) return;
+      const d = rawDate.split('T')[0];
       if (dailyStatsMap[d]) dailyStatsMap[d].downloads++;
     });
 
@@ -761,6 +763,7 @@ router.get('/me/stats', auth, async (req, res) => {
         averageRating: parseFloat(averageRating),
         totalEarnings: user.totalEarnings || 0,
         currentBalance: user.balance || 0,
+        followers: user.followers || 0,
         recentTemplates,
         dailyStats
       }

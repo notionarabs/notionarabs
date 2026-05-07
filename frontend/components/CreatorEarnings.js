@@ -7,322 +7,458 @@ import { formatDate } from '../lib/dateUtils';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../lib/api';
 import { useToast } from '../contexts/ToastContext';
-import LoadingIndicator from './LoadingIndicator';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+    DollarSign, Wallet, ShieldCheck, CheckCircle2, AlertCircle, 
+    Landmark, Phone, ArrowUpRight, Clock, Info, Check, X, Loader2, Award,
+    Download, Star
+} from 'lucide-react';
 
 const CreatorEarnings = () => {
-  const { user, ensureTokenInHeaders } = useAuth();
-  const { showSuccess, showError } = useToast();
-  const [stats, setStats] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [isWithdrawing, setIsWithdrawing] = useState(false);
-  const [payouts, setPayouts] = useState([]);
-  const router = useRouter();
+    const { user, ensureTokenInHeaders } = useAuth();
+    const { showSuccess, showError } = useToast();
+    const [stats, setStats] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [isWithdrawing, setIsWithdrawing] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [payouts, setPayouts] = useState([]);
+    const router = useRouter();
 
-  // Load creator stats
-  useEffect(() => {
-    const loadStats = async () => {
-      try {
-        setIsLoading(true);
-        ensureTokenInHeaders();
-        const response = await api.get('/creators/me/stats');
+    // Load creator stats & requests history
+    useEffect(() => {
+        const loadStats = async () => {
+            try {
+                setIsLoading(true);
+                ensureTokenInHeaders();
+                const response = await api.get('/creators/me/stats');
 
-        if (response.data.success) {
-          setStats(response.data.stats);
-        } else {
-          setError(response.data.message || 'حدث خطأ في جلب الإحصائيات');
+                if (response.data.success) {
+                    setStats(response.data.stats);
+                } else {
+                    setError(response.data.message || 'حدث خطأ في جلب الإحصائيات');
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                setError('حدث خطأ في جلب الإحصائيات');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        const loadPayouts = async () => {
+            try {
+                ensureTokenInHeaders();
+                const response = await api.get('/payouts/me');
+                if (response.data.success) {
+                    setPayouts(response.data.payouts || []);
+                }
+            } catch (err) {
+                console.error('Error loading payouts:', err);
+            }
+        };
+
+        if (user && user.creatorStatus === 'approved') {
+            loadStats();
+            loadPayouts();
         }
-      } catch (error) {
-        console.error('Error loading stats:', error);
-        setError('حدث خطأ في جلب الإحصائيات');
-      } finally {
-        setIsLoading(false);
-      }
+    }, [user, ensureTokenInHeaders]);
+
+    const triggerWithdrawalRequest = () => {
+        if (!stats?.currentBalance || stats.currentBalance < 100) return;
+
+        // Verify payment coordinates are fully set in Profile settings
+        if (!user?.payoutMethod || !user?.payoutDetails || Object.keys(user.payoutDetails).length === 0) {
+            showError('يرجى ضبط إعدادات وسيلة السحب أولاً في صفحة الإعدادات');
+            router.push('/profile?tab=settings');
+            return;
+        }
+
+        setShowConfirmModal(true);
     };
 
-    const loadPayouts = async () => {
-      try {
-        ensureTokenInHeaders();
-        const response = await api.get('/payouts/me');
-        if (response.data.success) {
-          setPayouts(response.data.payouts);
+    const confirmWithdrawal = async () => {
+        try {
+            setIsWithdrawing(true);
+            ensureTokenInHeaders();
+            const response = await api.post('/payouts/request', {
+                amount: stats.currentBalance,
+                method: user.payoutMethod,
+                accountDetails: JSON.stringify(user.payoutDetails)
+            });
+
+            if (response.data.success) {
+                showSuccess('تم تقديم طلب السحب بنجاح! سيتم تحويل الرصيد قريباً.');
+                setShowConfirmModal(false);
+                
+                // Live refresh statistics & payout lists
+                const [statsRes, payoutsRes] = await Promise.all([
+                    api.get('/creators/me/stats'),
+                    api.get('/payouts/me')
+                ]);
+                if (statsRes.data.success) setStats(statsRes.data.stats);
+                if (payoutsRes.data.success) setPayouts(payoutsRes.data.payouts || []);
+            }
+        } catch (err) {
+            console.error('Withdrawal error:', err);
+            showError(err.response?.data?.message || 'حدث خطأ أثناء تقديم الطلب');
+        } finally {
+            setIsWithdrawing(false);
         }
-      } catch (err) {
-        console.error('Error loading payouts:', err);
-      }
     };
 
-    if (user && user.creatorStatus === 'approved') {
-      loadStats();
-      loadPayouts();
+    if (!user || user.creatorStatus !== 'approved') {
+        return (
+            <div className="text-center py-16 px-6 bg-white dark:bg-dark-secondary rounded-3xl border border-gray-100/50 dark:border-white/5 shadow-sm max-w-xl mx-auto" dir="rtl">
+                <div className="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center mx-auto mb-5 border border-red-500/10 text-red-500 shadow-glow-sm">
+                    <AlertCircle className="w-8 h-8" />
+                </div>
+                <h3 className="text-lg font-black text-gray-900 dark:text-dark-text-primary mb-2">
+                    حساب غير مصرح
+                </h3>
+                <p className="text-xs text-gray-400 dark:text-dark-text-tertiary leading-relaxed max-w-sm mx-auto">
+                    يجب أن تكون مبدعاً معتمداً بالمنصة لعرض لوحة الأرباح والسحوبات المالية.
+                </p>
+            </div>
+        );
     }
-  }, [user, ensureTokenInHeaders]);
 
-  const handleWithdraw = async () => {
-    if (!stats?.currentBalance || stats.currentBalance < 100) return;
-
-    // Check if payout details are set
-    if (!user?.payoutMethod || !user?.payoutDetails || Object.keys(user.payoutDetails).length === 0) {
-      showError('يرجى ضبط إعدادات الدفع أولاً في صفحة الإعدادات');
-      router.push('/profile?section=settings');
-      return;
+    if (isLoading) {
+        return (
+            <div className="space-y-8 animate-pulse pb-12" dir="rtl">
+                <div className="h-10 bg-gray-200 dark:bg-dark-secondary rounded-xl w-48"></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="h-44 bg-gray-200 dark:bg-dark-secondary rounded-3xl"></div>
+                    <div className="h-44 bg-gray-200 dark:bg-dark-secondary rounded-3xl"></div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className="h-28 bg-gray-200 dark:bg-dark-secondary rounded-3xl"></div>
+                    ))}
+                </div>
+            </div>
+        );
     }
 
-    if (!confirm(`هل أنت متأكد من رغبتك في سحب مبلغ ${stats.currentBalance} ج.م؟`)) return;
+    const payoutDetailLabel = user?.payoutMethod === 'vodafone_cash' ? 'رقم محفظة فودافون كاش' : 'رقم الحساب البنكي (IBAN)';
+    const payoutDetailValue = user?.payoutDetails?.number || user?.payoutDetails?.iban || 'غير محدد';
 
-    try {
-      setIsWithdrawing(true);
-      ensureTokenInHeaders();
-      const response = await api.post('/payouts/request', {
-        amount: stats.currentBalance,
-        method: user.payoutMethod,
-        accountDetails: JSON.stringify(user.payoutDetails)
-      });
-
-      if (response.data.success) {
-        showSuccess('تم تقديم طلب السحب بنجاح!');
-        // Refresh stats
-        const statsRes = await api.get('/creators/me/stats');
-        if (statsRes.data.success) setStats(statsRes.data.stats);
-      }
-    } catch (err) {
-      console.error('Withdrawal error:', err);
-      showError(err.response?.data?.message || 'حدث خطأ أثناء تقديم الطلب');
-    } finally {
-      setIsWithdrawing(false);
-    }
-  };
-
-  if (!user || user.creatorStatus !== 'approved') {
     return (
-      <div className="text-center py-12">
-        <svg className="mx-auto h-12 w-12 text-gray-400 dark:text-dark-text-tertiary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-        </svg>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-dark-text-primary mb-2">
-          غير مصرح لك
-        </h3>
-        <p className="text-gray-500 dark:text-dark-text-tertiary">
-          يجب أن تكون مبدعاً معتمداً لعرض الإحصائيات
-        </p>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return <LoadingIndicator />;
-  }
-
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-text-primary">
-          إحصائيات الأرباح والأداء
-        </h2>
-        <div className="text-sm text-gray-500 dark:text-dark-text-tertiary">
-          آخر تحديث: {formatDate(new Date())}
-        </div>
-      </div>
-
-      {/* Primary Financial Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-2xl p-6 text-white shadow-lg">
-          <p className="text-emerald-100 text-sm font-medium mb-1">إجمالي الأرباح</p>
-          <div className="flex items-end gap-2">
-            <h3 className="text-4xl font-black">{stats?.totalEarnings || 0}</h3>
-            <span className="text-lg font-bold mb-1">ج.م</span>
-          </div>
-          <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center text-sm">
-            <span className="text-emerald-100">صافي المبيعات الكلي</span>
-            <svg className="w-5 h-5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zM12 8V7m0 1v1m0 0v1m0 0v1m0-5V5m0 5h1m-1 0H11" />
-            </svg>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-dark-secondary rounded-2xl p-6 shadow-medium dark:shadow-dark-medium border border-gray-200 dark:border-dark-card-border">
-          <p className="text-gray-500 dark:text-dark-text-secondary text-sm font-medium mb-1">الرصيد القابل للسحب</p>
-          <div className="flex items-end gap-2 text-gray-900 dark:text-dark-text-primary">
-            <h3 className="text-4xl font-black">{stats?.currentBalance || 0}</h3>
-            <span className="text-lg font-bold mb-1">ج.م</span>
-          </div>
-          <button 
-            onClick={handleWithdraw}
-            disabled={isWithdrawing || !stats?.currentBalance || stats.currentBalance < 100}
-            className="mt-4 w-full py-2.5 bg-gray-900 dark:bg-primary-600 text-white rounded-xl font-bold text-sm hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
-          >
-            {isWithdrawing && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>}
-            {isWithdrawing ? 'جاري المعالجة...' : 'طلب سحب الأرباح'}
-          </button>
-        </div>
-      </div>
-
-      {/* Performance Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatSmallCard 
-          title="التحميلات" 
-          value={stats?.totalDownloads || 0} 
-          icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/></svg>}
-          color="blue"
-        />
-        <StatSmallCard 
-          title="المشاهدات" 
-          value={stats?.totalViews || 0} 
-          icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" strokeWidth={2}/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/></svg>}
-          color="purple"
-        />
-        <StatSmallCard 
-          title="التقييم" 
-          value={stats?.averageRating || '0.0'} 
-          icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/></svg>}
-          color="orange"
-        />
-      </div>
-
-      {/* Recent Templates Performance */}
-      {stats?.recentTemplates && stats.recentTemplates.length > 0 && (
-        <div className="bg-white dark:bg-dark-secondary rounded-2xl shadow-medium border border-gray-200 dark:border-dark-card-border overflow-hidden">
-          <div className="p-6 border-b border-gray-100 dark:border-dark-card-border flex items-center justify-between">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-dark-text-primary">
-              أداء القوالب الأخيرة
-            </h3>
-            <Link href="/profile?section=templates" className="text-sm font-bold text-primary-600 dark:text-primary-400">عرض الكل</Link>
-          </div>
-
-          <div className="divide-y divide-gray-100 dark:divide-dark-card-border">
-            {stats.recentTemplates.map((template) => (
-              <div key={template.id} className="p-4 hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm ${template.isPaid ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
-                    {template.isPaid ? 'Paid' : 'Free'}
-                  </div>
-                  <div>
-                    <p className="font-bold text-gray-900 dark:text-dark-text-primary">{template.title}</p>
-                    <p className="text-xs text-gray-500 dark:text-dark-text-tertiary">
-                      {template.views} مشاهدة • {template.downloads} تحميل • {template.isPaid ? `${template.price} ج.م` : 'مجاني'}
+        <div className="space-y-8 pb-12" dir="rtl">
+            {/* Header Block */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 dark:border-white/5 pb-6">
+                <div>
+                    <h1 className="text-3xl font-black text-gray-900 dark:text-dark-text-primary mb-2 tracking-tight">
+                        الأرباح والمحفظة المالية
+                    </h1>
+                    <p className="text-sm text-gray-500 dark:text-dark-text-secondary font-medium">
+                        تتبع عوائد مبيعاتك وقدم طلبات سحب رصيدك بطريقة فورية وآمنة
                     </p>
-                  </div>
                 </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-1 text-orange-500">
-                    <span className="text-sm font-bold">{template.rating || '0.0'}</span>
-                    <svg className="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                  </div>
+                <div className="text-xs font-bold text-gray-400 dark:text-dark-text-tertiary bg-gray-50 dark:bg-dark-tertiary/40 border border-gray-100 dark:border-white/5 px-3 py-1.5 rounded-xl self-start sm:self-center">
+                    آخر تحديث للرصيد: {formatDate(new Date())}
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+            </div>
 
-      {/* Payout History */}
-      {payouts && payouts.length > 0 && (
-        <div className="bg-white dark:bg-dark-secondary rounded-2xl shadow-medium border border-gray-200 dark:border-dark-card-border overflow-hidden">
-          <div className="p-6 border-b border-gray-100 dark:border-dark-card-border">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-dark-text-primary">سجل السحوبات</h3>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-right" dir="rtl">
-              <thead>
-                <tr className="bg-gray-50 dark:bg-dark-tertiary/30 border-b border-gray-100 dark:border-dark-card-border">
-                  <th className="px-6 py-4 text-sm font-black text-gray-600 dark:text-dark-text-primary uppercase tracking-wider">التاريخ</th>
-                  <th className="px-6 py-4 text-sm font-black text-gray-600 dark:text-dark-text-primary uppercase tracking-wider">المبلغ</th>
-                  <th className="px-6 py-4 text-sm font-black text-gray-600 dark:text-dark-text-primary uppercase tracking-wider">الطريقة</th>
-                  <th className="px-6 py-4 text-sm font-black text-gray-600 dark:text-dark-text-primary uppercase tracking-wider">الحالة</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-dark-card-border">
-                {payouts.map((payout) => (
-                  <tr key={payout.id || payout._id} className="hover:bg-gray-50 dark:hover:bg-dark-tertiary/50 transition-colors">
-                    <td className="px-6 py-4 text-sm text-gray-900 dark:text-dark-text-primary font-medium">
-                      {formatDate(payout.createdAt)}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-black text-gray-900 dark:text-dark-text-primary">
-                      {payout.amount} ج.م
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-dark-text-secondary font-medium">
-                      {payout.method === 'vodafone_cash' ? 'فودافون كاش' : 'تحويل بنكي'}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-black ${
-                        payout.status === 'PAID' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
-                        payout.status === 'REJECTED' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
-                        'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                      }`}>
-                        {payout.status === 'PAID' ? 'تم الدفع' : 
-                         payout.status === 'REJECTED' ? 'مرفوض' : 
-                         payout.status === 'APPROVED' ? 'مقبول' : 'قيد الانتظار'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+            {error && (
+                <div className="p-4 bg-red-50 dark:bg-red-950/10 border border-red-200/20 text-red-600 dark:text-red-400 rounded-2xl font-bold text-xs">
+                    {error}
+                </div>
+            )}
 
-      {/* Payout Info Section */}
-      <div className="bg-primary-50 dark:bg-primary-900/10 rounded-2xl p-6 border border-primary-100 dark:border-primary-900/30">
-        <h4 className="font-bold text-primary-900 dark:text-primary-200 mb-3 flex items-center gap-2">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          نظام الأرباح والمدفوعات
-        </h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-primary-800 dark:text-primary-300">
-          <div className="space-y-2">
-            <p className="flex gap-2"><span>•</span> <span>يتم احتساب الأرباح بنسبة 80% للمبدع و20% عمولة المنصة.</span></p>
-            <p className="flex gap-2"><span>•</span> <span>الحد الأدنى لطلب السحب هو 100 ج.م.</span></p>
-          </div>
-          <div className="space-y-2">
-            <p className="flex gap-2"><span>•</span> <span>تتم معالجة الطلبات عبر فودافون كاش أو تحويل بنكي خلال 3 أيام عمل.</span></p>
-            <p className="flex gap-2"><span>•</span> <span>تأكد من تحديث بيانات الدفع في إعدادات ملفك الشخصي.</span></p>
-          </div>
+            {/* Financial Cards Grid - Advanced Aesthetics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Total accumulated income card */}
+                <div className="bg-gradient-to-br from-emerald-600 to-emerald-800 dark:from-emerald-950/80 dark:to-emerald-900/60 border border-emerald-500/10 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden group">
+                    <div className="absolute -top-12 -right-12 w-44 h-44 bg-white/5 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700"></div>
+                    <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
+
+                    <div className="relative z-10 flex flex-col justify-between h-full">
+                        <div>
+                            <div className="flex items-center justify-between mb-4">
+                                <span className="text-emerald-100/90 text-xs font-black uppercase tracking-wider">إجمالي صافي الأرباح</span>
+                                <div className="p-2.5 bg-white/10 rounded-2xl border border-white/10">
+                                    <Award className="w-5 h-5 text-white" />
+                                </div>
+                            </div>
+                            <div className="flex items-baseline gap-2">
+                                <h3 className="text-4xl font-black tracking-tight">{(stats?.totalEarnings || 0).toLocaleString('ar-EG')}</h3>
+                                <span className="text-base font-bold text-emerald-200">ج.م</span>
+                            </div>
+                        </div>
+                        <div className="mt-8 pt-4 border-t border-white/10 flex justify-between items-center text-xs text-emerald-100">
+                            <span>صافي العوائد بعد احتساب عمولة المنصة</span>
+                            <span className="font-bold">١٠٠٪ محمي ومصدق</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Available balance card */}
+                <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-3xl p-6 shadow-sm flex flex-col justify-between h-full relative overflow-hidden group">
+                    <div className="absolute -top-12 -right-12 w-44 h-44 bg-primary-500/5 dark:bg-orange-500/5 rounded-full blur-2xl"></div>
+
+                    <div className="relative z-10">
+                        <div className="flex items-center justify-between mb-4">
+                            <span className="text-gray-400 dark:text-dark-text-tertiary text-xs font-black uppercase tracking-wider">الرصيد المتاح للسحب حالياً</span>
+                            <div className="p-2.5 bg-gray-50 dark:bg-dark-tertiary rounded-2xl border border-gray-100 dark:border-white/5 text-gray-500 dark:text-dark-text-secondary">
+                                <Wallet className="w-5 h-5" />
+                            </div>
+                        </div>
+                        <div className="flex items-baseline gap-2 text-gray-900 dark:text-dark-text-primary">
+                            <h3 className="text-4xl font-black tracking-tight">{(stats?.currentBalance || 0).toLocaleString('ar-EG')}</h3>
+                            <span className="text-base font-bold text-gray-400 dark:text-dark-text-tertiary">ج.م</span>
+                        </div>
+                    </div>
+
+                    <div className="mt-6">
+                        <button 
+                            onClick={triggerWithdrawalRequest}
+                            disabled={!stats?.currentBalance || stats.currentBalance < 100}
+                            className="w-full py-3 bg-gray-950 hover:bg-gray-900 dark:bg-primary-500 dark:hover:bg-primary-600 text-white rounded-2xl font-black text-xs shadow-glow disabled:shadow-none disabled:bg-gray-100 dark:disabled:bg-dark-tertiary disabled:text-gray-400 dark:disabled:text-dark-text-tertiary disabled:cursor-not-allowed border-none transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                        >
+                            طلب سحب رصيد الأرباح
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Small performance metric cards with self-drawing mini charts */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <StatSmallCard 
+                    title="مجموع التحميلات" 
+                    value={stats?.totalDownloads || 0} 
+                    icon={<Download className="w-4.5 h-4.5" />}
+                    color="blue"
+                />
+                <StatSmallCard 
+                    title="الزيارات والمشاهدات" 
+                    value={stats?.totalViews || 0} 
+                    icon={<Clock className="w-4.5 h-4.5" />}
+                    color="purple"
+                />
+                <StatSmallCard 
+                    title="التقييم العام" 
+                    value={stats?.averageRating || '0.0'} 
+                    icon={<Star className="w-4.5 h-4.5 fill-current" />}
+                    color="orange"
+                />
+            </div>
+
+            {/* Payout History Section */}
+            {payouts && payouts.length > 0 && (
+                <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-3xl shadow-sm overflow-hidden">
+                    <div className="p-6 sm:p-8 border-b border-gray-100 dark:border-white/5">
+                        <h3 className="text-lg font-black text-gray-900 dark:text-dark-text-primary">
+                            سجل طلبات السحب والحركات السابقة
+                        </h3>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-right" dir="rtl">
+                            <thead>
+                                <tr className="bg-gray-50/50 dark:bg-dark-tertiary/20 border-b border-gray-100 dark:border-white/5">
+                                    <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">التاريخ والوقت</th>
+                                    <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">المبلغ المطلوب</th>
+                                    <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">وسيلة التحويل</th>
+                                    <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase text-center">حالة الطلب</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100 dark:divide-white/5">
+                                {payouts.map((payout) => (
+                                    <tr key={payout.id || payout._id} className="hover:bg-gray-50/30 dark:hover:bg-dark-tertiary/10 transition-colors">
+                                        <td className="px-8 py-4 text-xs font-bold text-gray-700 dark:text-dark-text-secondary">
+                                            {formatDate(payout.createdAt)}
+                                        </td>
+                                        <td className="px-8 py-4 text-xs font-black text-gray-900 dark:text-dark-text-primary">
+                                            {payout.amount.toLocaleString('ar-EG')} ج.م
+                                        </td>
+                                        <td className="px-8 py-4 text-xs font-bold text-gray-500 dark:text-dark-text-tertiary">
+                                            {payout.method === 'vodafone_cash' ? 'فودافون كاش' : 'تحويل بنكي IBAN'}
+                                        </td>
+                                        <td className="px-8 py-4 text-center">
+                                            <span className={`inline-flex px-3 py-1.5 rounded-xl text-[10px] font-black uppercase ${
+                                                payout.status === 'PAID' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/25 dark:text-emerald-400' :
+                                                payout.status === 'REJECTED' ? 'bg-red-50 text-red-600 dark:bg-red-950/25 dark:text-red-400' :
+                                                'bg-amber-50 text-amber-600 dark:bg-amber-950/25 dark:text-amber-400'
+                                            }`}>
+                                                {payout.status === 'PAID' ? 'تم الدفع بنجاح' : 
+                                                 payout.status === 'REJECTED' ? 'مرفوض' : 
+                                                 payout.status === 'APPROVED' ? 'مقبول وفي المعالجة' : 'قيد المراجعة والتدقيق'}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {/* Payout policies guidelines block - Structured Luxury banner */}
+            <div className="bg-primary-50/50 dark:bg-orange-500/5 rounded-3xl p-6 border border-primary-100/40 dark:border-orange-500/10">
+                <h4 className="font-black text-sm text-primary-900 dark:text-orange-400 mb-4 flex items-center gap-2">
+                    <Info className="w-5 h-5" />
+                    <span>نظام توزيع الأرباح والسياسات المالية للمبدعين</span>
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-gray-600 dark:text-dark-text-secondary leading-relaxed">
+                    <div className="space-y-3">
+                        <p className="flex items-start gap-2">
+                            <span className="p-0.5 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex-shrink-0"><Check size={12} /></span>
+                            <span>يتم احتساب الأرباح بنسبة <strong>٨٠٪</strong> كاملة للمبدع، و <strong>٢٠٪</strong> كعمولة تشغيل وصيانة للمنصة.</span>
+                        </p>
+                        <p className="flex items-start gap-2">
+                            <span className="p-0.5 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex-shrink-0"><Check size={12} /></span>
+                            <span>الحد الأدنى المقبول لتقديم طلب سحب الأرباح هو <strong>١٠٠ ج.م</strong>.</span>
+                        </p>
+                    </div>
+                    <div className="space-y-3">
+                        <p className="flex items-start gap-2">
+                            <span className="p-0.5 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex-shrink-0"><Check size={12} /></span>
+                            <span>تتم معالجة الطلبات وإرسال الأموال عبر <strong>فودافون كاش</strong> أو <strong>الحساب البنكي</strong> خلال ٣ أيام عمل.</span>
+                        </p>
+                        <p className="flex items-start gap-2">
+                            <span className="p-0.5 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex-shrink-0"><Check size={12} /></span>
+                            <span>تأكد من صحة بيانات وسيلة السحب المسجلة في إعدادات الحساب لتفادي رفض المعاملات.</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Premium Payout Glassmorphic Confirmation Modal */}
+            <AnimatePresence>
+                {showConfirmModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        {/* Backdrop Blur */}
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowConfirmModal(false)}
+                            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+                        />
+
+                        {/* Modal Box */}
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                            transition={{ type: 'spring', duration: 0.4 }}
+                            className="bg-white dark:bg-dark-secondary border border-gray-100 dark:border-white/5 w-full max-w-md rounded-3xl p-6 shadow-2xl relative z-10"
+                        >
+                            {/* Close cross */}
+                            <button 
+                                onClick={() => setShowConfirmModal(false)}
+                                className="absolute top-4 left-4 p-1.5 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-all border-none cursor-pointer"
+                            >
+                                <X size={18} />
+                            </button>
+
+                            <div className="text-center pb-4 border-b border-gray-100 dark:border-white/5 mb-6">
+                                <div className="w-12 h-12 bg-primary-500/10 dark:bg-orange-500/10 text-primary-500 dark:text-orange-400 rounded-2xl flex items-center justify-center mx-auto mb-3 border border-primary-500/10">
+                                    <ShieldCheck className="w-6 h-6 animate-pulse-slow" />
+                                </div>
+                                <h3 className="text-base font-black text-gray-900 dark:text-dark-text-primary">
+                                    تأكيد عملية السحب المالي
+                                </h3>
+                                <p className="text-xxs text-gray-400 dark:text-dark-text-tertiary mt-1">
+                                    يرجى مراجعة تفاصيل طلب التحويل بدقة قبل الموافقة
+                                </p>
+                            </div>
+
+                            <div className="space-y-4 mb-6">
+                                <div className="bg-gray-50 dark:bg-dark-tertiary/40 rounded-2xl p-4 border border-gray-100/30 dark:border-white/5 flex justify-between items-center">
+                                    <span className="text-xs font-bold text-gray-400 dark:text-dark-text-tertiary">المبلغ المطلوب سحبه:</span>
+                                    <span className="text-base font-black text-gray-900 dark:text-dark-text-primary">
+                                        {(stats?.currentBalance || 0).toLocaleString('ar-EG')} ج.م
+                                    </span>
+                                </div>
+
+                                <div className="bg-gray-50 dark:bg-dark-tertiary/40 rounded-2xl p-4 border border-gray-100/30 dark:border-white/5 space-y-3">
+                                    <div className="flex justify-between items-center text-xs">
+                                        <span className="font-bold text-gray-400 dark:text-dark-text-tertiary">وسيلة التحويل المحددة:</span>
+                                        <span className="font-black text-gray-800 dark:text-dark-text-secondary">
+                                            {user?.payoutMethod === 'vodafone_cash' ? 'فودافون كاش' : 'تحويل بنكي IBAN'}
+                                        </span>
+                                    </div>
+                                    <div className="flex flex-col gap-1 text-right border-t border-gray-100 dark:border-white/5 pt-2.5">
+                                        <span className="text-[10px] font-bold text-gray-400 dark:text-dark-text-tertiary">{payoutDetailLabel}:</span>
+                                        <span className="text-xs font-black text-gray-900 dark:text-dark-text-primary tracking-wider break-all text-left" dir="ltr">
+                                            {payoutDetailValue}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={confirmWithdrawal}
+                                    disabled={isWithdrawing}
+                                    className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-2xl shadow-glow disabled:opacity-50 border-none transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
+                                >
+                                    {isWithdrawing ? (
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                        <CheckCircle2 className="w-4 h-4" />
+                                    )}
+                                    <span>{isWithdrawing ? 'جاري تقديم الطلب...' : 'تأكيد السحب والتحويل'}</span>
+                                </button>
+                                <button
+                                    onClick={() => setShowConfirmModal(false)}
+                                    disabled={isWithdrawing}
+                                    className="px-5 py-3 bg-gray-50 dark:bg-dark-tertiary hover:bg-gray-100 dark:hover:bg-dark-tertiary/80 text-gray-500 dark:text-dark-text-secondary font-bold text-xs rounded-2xl border border-gray-100 dark:border-white/5 transition-all active:scale-[0.98] cursor-pointer"
+                                >
+                                    إلغاء
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 const StatSmallCard = ({ title, value, icon, color }) => {
-  const colors = {
-    blue: 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400',
-    purple: 'bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400',
-    orange: 'bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400',
-  };
+    const colors = {
+        blue: 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400',
+        purple: 'bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400',
+        orange: 'bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400',
+    };
 
-  const sparklinePaths = {
-    blue: 'M0,15 C20,5 40,25 60,10 C80,-5 90,20 100,8',
-    purple: 'M0,20 C15,10 30,25 50,5 C70,15 85,0 100,12',
-    orange: 'M0,10 C20,25 35,5 55,20 C75,5 90,15 100,5'
-  };
+    const sparklinePaths = {
+        blue: 'M0,15 C20,5 40,25 60,10 C80,-5 90,20 100,8',
+        purple: 'M0,20 C15,10 30,25 50,5 C70,15 85,0 100,12',
+        orange: 'M0,10 C20,25 35,5 55,20 C75,5 90,15 100,5'
+    };
 
-  return (
-    <div className="bg-white dark:bg-dark-secondary rounded-2xl p-5 border border-gray-200 dark:border-dark-card-border flex items-center justify-between gap-4 overflow-hidden relative group hover:shadow-md transition-all duration-300">
-      <div className="flex items-center gap-4">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colors[color]}`}>
-          {icon}
+    return (
+        <div className="bg-white dark:bg-dark-secondary rounded-2xl p-5 border border-gray-100/60 dark:border-white/5 flex items-center justify-between gap-4 overflow-hidden relative group hover:shadow-sm transition-all duration-300">
+            <div className="flex items-center gap-4">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${colors[color]}`}>
+                    {icon}
+                </div>
+                <div>
+                    <p className="text-[10px] font-bold text-gray-400 dark:text-dark-text-tertiary uppercase tracking-wider">{title}</p>
+                    <p className="text-xl font-black text-gray-900 dark:text-dark-text-primary">{value.toLocaleString('ar-EG')}</p>
+                </div>
+            </div>
+            
+            {/* Self-drawing micro sparkline path utilizing Framer Motion */}
+            <div className="w-18 h-8 opacity-30 group-hover:opacity-60 transition-opacity duration-300 shrink-0 select-none">
+                <svg className={`w-full h-full ${colors[color].split(' ')[1]}`} viewBox="0 0 100 30" fill="none">
+                    <motion.path 
+                        d={sparklinePaths[color]} 
+                        stroke="currentColor" 
+                        strokeWidth="3.5" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{ duration: 1.5, ease: "easeInOut" }}
+                    />
+                </svg>
+            </div>
         </div>
-        <div>
-          <p className="text-xs font-bold text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">{title}</p>
-          <p className="text-xl font-black text-gray-900 dark:text-dark-text-primary">{value}</p>
-        </div>
-      </div>
-      
-      {/* Premium Decorative Sparkline Graph */}
-      <div className="w-18 h-8 opacity-30 group-hover:opacity-60 transition-opacity duration-300 shrink-0 select-none">
-        <svg className={`w-full h-full ${colors[color].split(' ')[1]}`} viewBox="0 0 100 30" fill="none">
-          <path 
-            d={sparklinePaths[color]} 
-            stroke="currentColor" 
-            strokeWidth="3.5" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default CreatorEarnings;

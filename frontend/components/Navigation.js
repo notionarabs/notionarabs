@@ -46,17 +46,10 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
         e.preventDefault();
         setIsSearchOpen(true);
       }
-
-      // Toggle dark/light theme: Ctrl/Cmd + Shift + L (or Arabic equivalent م)
-      const isKeyL = e.key?.toLowerCase() === 'l' || e.key === 'م' || e.code === 'KeyL';
-      if ((e.metaKey || e.ctrlKey) && e.shiftKey && isKeyL) {
-        e.preventDefault();
-        toggleTheme();
-      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [toggleTheme]);
+  }, []);
 
   // Close menu when clicking outside
   useEffect(() => {

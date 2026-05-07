@@ -22,7 +22,7 @@ class DownloadLog {
         templateTitleSnapshot: data.templateTitleSnapshot,
         userAgent: data.userAgent,
         referrer: data.referrer,
-        downloadedAt: now
+        createdAt: now
     };
 
     const { data: created, error } = await supabase
@@ -80,7 +80,7 @@ class DownloadLog {
             if (s && typeof s === 'object') {
                 const key = Object.keys(s)[0];
                 const ascending = s[key] === 1;
-                q = q.order(key === 'downloadedAt' ? 'downloadedAt' : key, { ascending });
+                q = q.order(key === 'downloadedAt' || key === 'createdAt' ? 'createdAt' : key, { ascending });
                 return wrap(execute());
             }
             return wrap(p);

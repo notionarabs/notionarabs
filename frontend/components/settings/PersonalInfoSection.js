@@ -1,6 +1,6 @@
 export default function PersonalInfoSection({ profileSettings, handleInputChange }) {
     return (
-        <>
+        <div className="space-y-6">
             {/* Display Name */}
             <div className="space-y-3">
                 <label className="text-sm font-black text-gray-900 dark:text-dark-text-primary flex items-center gap-2">
@@ -13,7 +13,7 @@ export default function PersonalInfoSection({ profileSettings, handleInputChange
                     type="text"
                     value={profileSettings.displayName}
                     onChange={(e) => handleInputChange('displayName', e.target.value)}
-                    className="w-full px-5 py-3.5 bg-white dark:bg-dark-tertiary border-none rounded-2xl text-gray-900 dark:text-dark-text-primary font-bold placeholder-gray-400 focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 transition-all duration-300 shadow-sm"
+                    className="w-full px-5 py-3.5 bg-gray-50/70 dark:bg-dark-tertiary border border-gray-100 dark:border-white/5 rounded-2xl text-gray-900 dark:text-dark-text-primary font-bold placeholder-gray-400 focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 transition-all duration-300 shadow-sm outline-none"
                     placeholder="أدخل اسمك المعروض"
                 />
             </div>
@@ -29,7 +29,7 @@ export default function PersonalInfoSection({ profileSettings, handleInputChange
                 <textarea
                     value={profileSettings.bio}
                     onChange={(e) => handleInputChange('bio', e.target.value)}
-                    className="w-full px-5 py-4 bg-white dark:bg-dark-tertiary border-none rounded-2xl text-gray-900 dark:text-dark-text-primary font-medium placeholder-gray-400 focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 transition-all duration-300 min-h-[140px] resize-none shadow-sm"
+                    className="w-full px-5 py-4 bg-gray-50/70 dark:bg-dark-tertiary border border-gray-100 dark:border-white/5 rounded-2xl text-gray-900 dark:text-dark-text-primary font-medium placeholder-gray-400 focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 transition-all duration-300 min-h-[140px] resize-none shadow-sm outline-none"
                     rows={4}
                     placeholder="اكتب نبذة عن نفسك ومهاراتك..."
                 />
@@ -65,7 +65,7 @@ export default function PersonalInfoSection({ profileSettings, handleInputChange
                                     const newSpecialties = profileSettings.specialties.filter((_, i) => i !== index);
                                     handleInputChange('specialties', newSpecialties);
                                 }}
-                                className="text-gray-400 group-hover:text-red-500 transition-colors"
+                                className="text-gray-400 group-hover:text-red-500 transition-colors cursor-pointer"
                             >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -90,7 +90,7 @@ export default function PersonalInfoSection({ profileSettings, handleInputChange
                                 }
                             }
                         }}
-                        className="flex-1 px-5 py-3.5 bg-white dark:bg-dark-tertiary border-none rounded-2xl text-gray-900 dark:text-dark-text-primary font-bold placeholder-gray-400 focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 transition-all duration-300 shadow-sm"
+                        className="flex-1 px-5 py-3.5 bg-gray-50/70 dark:bg-dark-tertiary border border-gray-100 dark:border-white/5 rounded-2xl text-gray-900 dark:text-dark-text-primary font-bold placeholder-gray-400 focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 transition-all duration-300 shadow-sm outline-none"
                         placeholder="أضف مجال جديد (نوشن، تصميم...)"
                     />
                     <button
@@ -102,12 +102,12 @@ export default function PersonalInfoSection({ profileSettings, handleInputChange
                                 handleInputChange('newSpecialty', '');
                             }
                         }}
-                        className="px-6 py-3.5 bg-primary-500 dark:bg-orange-500 text-white font-bold rounded-2xl hover:bg-primary-600 transition-all duration-300 shadow-sm"
+                        className="px-6 py-3.5 bg-primary-500 dark:bg-orange-500 text-white font-bold rounded-2xl hover:bg-primary-600 transition-all duration-300 shadow-sm border-none cursor-pointer"
                     >
                         إضافة
                     </button>
                 </div>
             </div>
-        </>
+        </div>
     );
 }

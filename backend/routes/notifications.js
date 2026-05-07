@@ -6,7 +6,7 @@ const { cacheMiddleware } = require('../utils/redis-cache');
 const router = express.Router();
 
 // Get current user's notifications
-router.get('/', auth, cacheMiddleware(60), async (req, res) => {
+router.get('/', auth, async (req, res) => {
   try {
     const notifications = await Notification.find({ user: req.user._id })
       .sort({ createdAt: -1 })

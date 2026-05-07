@@ -2,20 +2,20 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import api from '../lib/api';
 import axios from 'axios';
+import { motion, AnimatePresence } from 'framer-motion';
+import { User, Wallet, Share2, Shield } from 'lucide-react';
 
-// Dynamic imports for better bundle size
-const ImageUploadSection = dynamic(() => import('./settings/ImageUploadSection'));
-const UsernameSection = dynamic(() => import('./settings/UsernameSection'));
-const PersonalInfoSection = dynamic(() => import('./settings/PersonalInfoSection'));
-const SocialLinksSection = dynamic(() => import('./settings/SocialLinksSection'));
-const PreferencesSection = dynamic(() => import('./settings/PreferencesSection'));
-const ModalsSection = dynamic(() => import('./settings/ModalsSection'));
-const PaymentSettingsSection = dynamic(() => import('./settings/PaymentSettingsSection'));
+import ImageUploadSection from './settings/ImageUploadSection';
+import UsernameSection from './settings/UsernameSection';
+import PersonalInfoSection from './settings/PersonalInfoSection';
+import SocialLinksSection from './settings/SocialLinksSection';
+import PreferencesSection from './settings/PreferencesSection';
+import ModalsSection from './settings/ModalsSection';
+import PaymentSettingsSection from './settings/PaymentSettingsSection';
 
 export default function SettingsContent() {
     const router = useRouter();
@@ -24,6 +24,7 @@ export default function SettingsContent() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(null); // 'profile' or 'cover'
+    const [activeTab, setActiveTab] = useState('profile'); // 'profile' | 'payout' | 'socials' | 'preferences'
     const [settings, setSettings] = useState({
         notifications: true,
         emailUpdates: true,
@@ -257,8 +258,6 @@ export default function SettingsContent() {
             const res = await api.put('/auth/profile/settings', cleanedSettings);
             
             if (res.data?.success) {
-                // Instantly update AuthContext by forcing a refresh
-                // This ensures that the global user state matches the newly saved data
                 await refreshUserData();
             }
 
@@ -313,22 +312,31 @@ export default function SettingsContent() {
 
     if (loading || isLoading) {
         return (
-            <div className="animate-pulse space-y-8">
-                <div className="h-20 bg-gray-100 dark:bg-dark-tertiary rounded-2xl w-full"></div>
+            <div className="animate-pulse space-y-8" dir="rtl">
+                <div className="h-20 bg-gray-100 dark:bg-dark-tertiary rounded-3xl w-full"></div>
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                    <div className="xl:col-span-2 h-96 bg-gray-100 dark:bg-dark-tertiary rounded-2xl"></div>
-                    <div className="h-96 bg-gray-100 dark:bg-dark-tertiary rounded-2xl"></div>
+                    <div className="xl:col-span-2 h-96 bg-gray-100 dark:bg-dark-tertiary rounded-3xl"></div>
+                    <div className="h-96 bg-gray-100 dark:bg-dark-tertiary rounded-3xl"></div>
                 </div>
             </div>
         );
     }
 
+    const isCreator = user?.role === 'creator' && user?.creatorStatus === 'approved';
+
+    const settingsTabs = [
+        { id: 'profile', label: 'المعلومات الشخصية', icon: User },
+        ...(isCreator ? [{ id: 'payout', label: 'إعدادات الدفع والسحب', icon: Wallet }] : []),
+        { id: 'socials', label: 'شبكات التواصل', icon: Share2 },
+        { id: 'preferences', label: 'الأمان والتفضيلات', icon: Shield },
+    ];
+
     return (
-        <>
+        <div dir="rtl">
             <div className="mb-8 border-none pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-black text-gray-900 dark:text-dark-text-primary mb-2 tracking-tight">إعدادات الحساب</h1>
-                    <p className="text-base text-gray-600 dark:text-dark-text-secondary font-medium outline-none">إدارة بياناتك الشخصية وتفضيلات حسابك في مكان واحد</p>
+                    <p className="text-base text-gray-600 dark:text-dark-text-secondary font-medium">إدارة بياناتك الشخصية وتفضيلات حسابك في مكان واحد</p>
                 </div>
                 <button
                     onClick={handleSave}
@@ -344,48 +352,117 @@ export default function SettingsContent() {
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
-                <div className="xl:col-span-2 space-y-6 lg:space-y-8">
-                    <div className="bg-white dark:bg-dark-secondary border-none rounded-2xl shadow-sm overflow-hidden">
-                        <div className="p-6 lg:p-8 bg-gray-50/50 dark:bg-dark-tertiary/20 border-none">
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-dark-text-primary">المعلومات الشخصية</h2>
-                        </div>
-                        <div className="p-6 lg:p-8 space-y-8">
-                            <ImageUploadSection profileSettings={profileSettings} uploadingImage={uploadingImage} handleImageUpload={handleImageUpload} user={user} />
-                            <div className="h-4"></div>
-                            <UsernameSection
+            {/* Premium Horizontal Navigation Tab Bar */}
+            <div className="flex gap-3 border-b border-gray-100 dark:border-white/5 pb-3 overflow-x-auto scrollbar-hide mb-8">
+                {settingsTabs.map(tab => {
+                    const isActive = activeTab === tab.id;
+                    return (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`relative px-6 py-3.5 rounded-2xl flex items-center gap-2.5 font-bold text-sm transition-all duration-300 select-none whitespace-nowrap shrink-0 ${
+                                isActive 
+                                ? 'text-primary-600 dark:text-orange-500' 
+                                : 'text-gray-500 dark:text-dark-text-secondary hover:text-gray-800 dark:hover:text-dark-text-primary'
+                            }`}
+                        >
+                            {isActive && (
+                                <motion.span
+                                    layoutId="activeSettingsTab"
+                                    className="absolute inset-0 bg-primary-50 dark:bg-orange-500/10 rounded-2xl"
+                                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                                />
+                            )}
+                            <tab.icon className={`w-4.5 h-4.5 relative z-10 ${isActive ? 'scale-110' : ''} transition-transform duration-300`} />
+                            <span className="relative z-10">{tab.label}</span>
+                        </button>
+                    );
+                })}
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 lg:gap-8">
+                <AnimatePresence mode="wait">
+                    {activeTab === 'profile' && (
+                        <motion.div
+                            key="profile"
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -15 }}
+                            transition={{ duration: 0.25 }}
+                            className="space-y-6"
+                        >
+                            <div className="bg-white dark:bg-dark-secondary border-none rounded-3xl shadow-sm overflow-hidden">
+                                <div className="p-6 lg:p-8 bg-gray-50/50 dark:bg-dark-tertiary/20 border-none">
+                                    <h2 className="text-xl font-bold text-gray-900 dark:text-dark-text-primary">المعلومات الشخصية</h2>
+                                </div>
+                                <div className="p-6 lg:p-8 space-y-8">
+                                    <ImageUploadSection profileSettings={profileSettings} uploadingImage={uploadingImage} handleImageUpload={handleImageUpload} user={user} />
+                                    <div className="h-4"></div>
+                                    <UsernameSection
+                                        profileSettings={profileSettings}
+                                        handleInputChange={handleInputChange}
+                                        isEditingUsername={isEditingUsername}
+                                        setIsEditingUsername={setIsEditingUsername}
+                                        usernameValidation={usernameValidation}
+                                        isSavingUsername={isSavingUsername}
+                                        handleSaveUsername={handleSaveUsername}
+                                        user={user}
+                                        setUsernameValidation={setUsernameValidation}
+                                    />
+                                    <PersonalInfoSection profileSettings={profileSettings} handleInputChange={handleInputChange} />
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'payout' && isCreator && (
+                        <motion.div
+                            key="payout"
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -15 }}
+                            transition={{ duration: 0.25 }}
+                        >
+                            <PaymentSettingsSection profileSettings={profileSettings} handleInputChange={handleInputChange} />
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'socials' && (
+                        <motion.div
+                            key="socials"
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -15 }}
+                            transition={{ duration: 0.25 }}
+                        >
+                            <SocialLinksSection
+                                profileSettings={profileSettings}
+                                updateSocialLink={(index, value) => setProfileSettings(prev => ({ ...prev, socialLinks: prev.socialLinks.map((l, i) => i === index ? { url: value } : l) }))}
+                                removeSocialLink={(index) => setProfileSettings(prev => ({ ...prev, socialLinks: prev.socialLinks.filter((_, i) => i !== index) }))}
+                                addSocialLink={() => setProfileSettings(prev => ({ ...prev, socialLinks: [...(prev.socialLinks || []), { url: '' }] }))}
+                            />
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'preferences' && (
+                        <motion.div
+                            key="preferences"
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -15 }}
+                            transition={{ duration: 0.25 }}
+                        >
+                            <PreferencesSection
                                 profileSettings={profileSettings}
                                 handleInputChange={handleInputChange}
-                                isEditingUsername={isEditingUsername}
-                                setIsEditingUsername={setIsEditingUsername}
-                                usernameValidation={usernameValidation}
-                                isSavingUsername={isSavingUsername}
-                                handleSaveUsername={handleSaveUsername}
-                                user={user}
-                                setUsernameValidation={setUsernameValidation}
+                                settings={settings}
+                                handleSettingChange={handleSettingChange}
+                                setShowPasswordModal={setShowPasswordModal}
+                                setShowDeleteModal={setShowDeleteModal}
                             />
-                            <PersonalInfoSection profileSettings={profileSettings} handleInputChange={handleInputChange} />
-                            {user?.role === 'creator' && user?.creatorStatus === 'approved' && (
-                                <PaymentSettingsSection profileSettings={profileSettings} handleInputChange={handleInputChange} />
-                            )}
-                        </div>
-                    </div>
-                    <SocialLinksSection
-                        profileSettings={profileSettings}
-                        updateSocialLink={(index, value) => setProfileSettings(prev => ({ ...prev, socialLinks: prev.socialLinks.map((l, i) => i === index ? { url: value } : l) }))}
-                        removeSocialLink={(index) => setProfileSettings(prev => ({ ...prev, socialLinks: prev.socialLinks.filter((_, i) => i !== index) }))}
-                        addSocialLink={() => setProfileSettings(prev => ({ ...prev, socialLinks: [...(prev.socialLinks || []), { url: '' }] }))}
-                    />
-                </div>
-
-                <PreferencesSection
-                    profileSettings={profileSettings}
-                    handleInputChange={handleInputChange}
-                    settings={settings}
-                    handleSettingChange={handleSettingChange}
-                    setShowPasswordModal={setShowPasswordModal}
-                    setShowDeleteModal={setShowDeleteModal}
-                />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
 
             <ModalsSection
@@ -398,6 +475,6 @@ export default function SettingsContent() {
                 handleChangePassword={handleChangePassword}
                 setPasswordData={setPasswordData} setPasswordErrors={setPasswordErrors}
             />
-        </>
+        </div>
     );
 }

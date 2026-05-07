@@ -47,7 +47,7 @@ export default function SocialLinksSection({
                                     type="url"
                                     value={link.url || ''}
                                     onChange={(e) => updateSocialLink(index, e.target.value)}
-                                    className={`w-full pl-4 pr-12 py-3.5 bg-white dark:bg-dark-tertiary border-none rounded-2xl text-gray-900 dark:text-dark-text-primary font-medium placeholder-gray-400 focus:ring-2 transition-all duration-300 shadow-sm ${hasError
+                                    className={`w-full pl-4 pr-12 py-3.5 bg-gray-50/70 dark:bg-dark-tertiary border border-gray-100 dark:border-white/5 rounded-2xl text-gray-900 dark:text-dark-text-primary font-medium placeholder-gray-400 focus:ring-2 outline-none transition-all duration-300 shadow-sm ${hasError
                                         ? 'focus:ring-red-500'
                                         : 'focus:ring-primary-500 dark:focus:ring-orange-500'
                                         }`}

@@ -12,13 +12,18 @@ export default function PaymentSettingsSection({ profileSettings, handleInputCha
     };
 
     return (
-        <div className="bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl overflow-hidden shadow-sm">
-            <div className="p-6 border-b border-gray-100 dark:border-dark-card-border bg-gray-50/50 dark:bg-dark-tertiary/20">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-dark-text-primary">إعدادات الدفع والسحب</h2>
-                <p className="text-sm text-gray-500 dark:text-dark-text-secondary mt-1">حدد الطريقة التي تود استلام أرباحك بها</p>
+        <div className="bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-2xl overflow-hidden shadow-sm relative">
+            <div className="p-6 border-b border-gray-100 dark:border-dark-card-border bg-gray-50/50 dark:bg-dark-tertiary/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-dark-text-primary">إعدادات الدفع والسحب</h2>
+                    <p className="text-sm text-gray-500 dark:text-dark-text-secondary mt-1">حدد الطريقة التي تود استلام أرباحك بها</p>
+                </div>
+                <span className="text-xs font-black bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 px-2.5 py-1 rounded-full border border-yellow-200 dark:border-yellow-900/30 w-fit self-start sm:self-auto select-none">
+                    ميزة قادمة
+                </span>
             </div>
             
-            <div className="p-6 space-y-6">
+            <div className="p-6 space-y-6 opacity-55 pointer-events-none select-none">
                 <div>
                     <label className="block text-sm font-bold text-gray-700 dark:text-dark-text-secondary mb-3">طريقة السحب المفضلة</label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

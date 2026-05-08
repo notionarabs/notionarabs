@@ -414,6 +414,7 @@ router.post('/login', [
         role: user.role,
         profilePicture: user.profilePicture,
         creatorStatus: user.creatorStatus,
+        googleId: user.googleId,
         createdAt: user.createdAt
       }
     });
@@ -1121,6 +1122,7 @@ router.post('/verify-email', [
           creatorStatus: user.creatorStatus,
           isEmailVerified: user.isEmailVerified,
           isActive: user.isActive,
+          googleId: user.googleId,
           createdAt: user.createdAt
         }
       });

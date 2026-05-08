@@ -283,15 +283,29 @@ export default function UserSettingsPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <button
-                onClick={() => setShowPasswordModal(true)}
-                className="p-6 flex flex-col items-center justify-center gap-4 bg-white/50 dark:bg-white/5 backdrop-blur-md rounded-2xl border-none shadow-soft hover:shadow-large transition-all group cursor-pointer active:scale-98"
-              >
-                <div className="p-3 bg-primary/10 rounded-full group-hover:scale-110 transition-transform text-primary">
-                  <Key className="w-6 h-6" />
+              {user?.googleId ? (
+                <div className="p-6 flex flex-col items-center justify-center gap-2 bg-blue-500/5 dark:bg-blue-500/10 rounded-2xl border-none shadow-soft text-center select-none">
+                  <div className="p-3 bg-blue-500/10 rounded-full text-blue-500">
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12.24 10.285V13.4h6.887C18.2 15.614 15.645 18 12.24 18c-3.86 0-7-3.14-7-7s3.14-7 7-7c1.706 0 3.277.614 4.5 1.625l2.437-2.437C17.312 1.696 14.933 1 12.24 1 6.582 1 2 5.582 2 11.24s4.582 10.24 10.24 10.24c5.795 0 10.254-4.074 10.254-10.24 0-.695-.082-1.355-.22-1.955H12.24z" />
+                    </svg>
+                  </div>
+                  <span className="font-bold text-gray-900 dark:text-white text-xs">مستمر عبر Google</span>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-normal max-w-[200px]">
+                    حسابك محمي بالكامل ومصادق عليه عبر حساب Google الخاص بك.
+                  </p>
                 </div>
-                <span className="font-bold text-gray-700 dark:text-gray-200">تغيير كلمة المرور</span>
-              </button>
+              ) : (
+                <button
+                  onClick={() => setShowPasswordModal(true)}
+                  className="p-6 flex flex-col items-center justify-center gap-4 bg-white/50 dark:bg-white/5 backdrop-blur-md rounded-2xl border-none shadow-soft hover:shadow-large transition-all group cursor-pointer active:scale-98"
+                >
+                  <div className="p-3 bg-primary/10 rounded-full group-hover:scale-110 transition-transform text-primary">
+                    <Key className="w-6 h-6" />
+                  </div>
+                  <span className="font-bold text-gray-700 dark:text-gray-200">تغيير كلمة المرور</span>
+                </button>
+              )}
 
               <button
                 onClick={() => setShowDeleteModal(true)}

@@ -360,52 +360,97 @@ export default function UserSettingsPage() {
       {/* Password Modal */}
       <AnimatePresence>
         {showPasswordModal && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-fadeIn">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white dark:bg-dark-secondary rounded-2xl w-full max-w-md overflow-hidden shadow-2xl"
+              className="bg-white/95 dark:bg-[#121318]/95 border border-gray-100 dark:border-white/10 rounded-[2.5rem] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] w-full max-w-md p-6 sm:p-8 overflow-hidden"
             >
-              <div className="px-6 py-5 border-b border-gray-100 dark:border-dark-card-border flex justify-between items-center">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">تغيير كلمة المرور</h3>
-                <button onClick={() => setShowPasswordModal(false)}><X className="w-5 h-5 text-gray-500" /></button>
+              <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-primary/10 rounded-xl text-primary">
+                    <Key className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-xl font-black text-gray-900 dark:text-white leading-none">تغيير كلمة المرور</h3>
+                </div>
+                <button 
+                  onClick={() => setShowPasswordModal(false)}
+                  className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-              <div className="p-6 space-y-4">
+
+              <div className="space-y-5">
                 {[
-                  { id: 'currentPassword', label: 'كلمة المرور الحالية', show: showCurrentPassword, setShow: setShowCurrentPassword },
-                  { id: 'newPassword', label: 'كلمة المرور الجديدة', show: showNewPassword, setShow: setShowNewPassword },
-                  { id: 'confirmPassword', label: 'تأكيد كلمة المرور', show: showConfirmPassword, setShow: setShowConfirmPassword }
+                  { id: 'currentPassword', label: 'كلمة المرور الحالية', show: showCurrentPassword, setShow: setShowCurrentPassword, placeholder: 'أدخل كلمة المرور الحالية' },
+                  { id: 'newPassword', label: 'كلمة المرور الجديدة', show: showNewPassword, setShow: setShowNewPassword, placeholder: 'أدخل كلمة المرور الجديدة' },
+                  { id: 'confirmPassword', label: 'تأكيد كلمة المرور الجديدة', show: showConfirmPassword, setShow: setShowConfirmPassword, placeholder: 'أعد إدخال كلمة المرور الجديدة' }
                 ].map((field) => (
                   <div key={field.id}>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{field.label}</label>
+                    <label className="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">{field.label}</label>
                     <div className="relative">
                       <input
                         type={field.show ? "text" : "password"}
                         value={passwordData[field.id]}
                         onChange={(e) => handlePasswordChange(field.id, e.target.value)}
-                        className={`w-full px-4 py-2.5 rounded-xl border ${passwordErrors[field.id] ? 'border-red-300' : 'border-gray-200 dark:border-dark-card-border'} bg-gray-50 dark:bg-dark-tertiary focus:ring-2 focus:ring-primary-500 outline-none`}
+                        className={`w-full pl-12 pr-4 py-3 border rounded-2xl bg-gray-50/50 dark:bg-white/5 text-gray-900 dark:text-white text-sm focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all ${passwordErrors[field.id] ? 'border-red-500 focus:ring-red-500/10' : 'border-gray-200 dark:border-white/10'}`}
+                        placeholder={field.placeholder}
+                        dir="rtl"
                       />
                       <button
                         onClick={() => field.setShow(!field.show)}
-                        className="absolute left-3 top-3 text-gray-400 hover:text-gray-600"
+                        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors cursor-pointer"
                         type="button"
                       >
                         {field.show ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
-                    {passwordErrors[field.id] && <p className="text-xs text-red-500 mt-1">{passwordErrors[field.id]}</p>}
+                    {passwordErrors[field.id] && <p className="text-xs font-bold text-red-500 mt-1.5">{passwordErrors[field.id]}</p>}
+                    
+                    {field.id === 'currentPassword' && (
+                      <p className="mt-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                        هل نسيت كلمة المرور الحالية؟{' '}
+                        <Link
+                          href="/forgot-password"
+                          className="text-primary hover:underline font-bold"
+                          onClick={() => setShowPasswordModal(false)}
+                        >
+                          انقر هنا لإعادة تعيينها
+                        </Link>
+                      </p>
+                    )}
+
+                    {field.id === 'newPassword' && (
+                      <p className="mt-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                        يجب أن تحتوي على 6 أحرف على الأقل
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
-              <div className="p-6 pt-0 flex justify-end gap-3">
-                <button onClick={() => setShowPasswordModal(false)} className="px-5 py-2 rounded-xl text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-dark-tertiary">إلغاء</button>
+
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-6 sm:mt-8">
+                <button 
+                  onClick={() => setShowPasswordModal(false)} 
+                  className="flex-1 px-4 py-3 text-sm sm:text-base font-bold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 rounded-2xl hover:bg-gray-50 dark:hover:bg-white/5 transition-all cursor-pointer active:scale-98"
+                >
+                  إلغاء
+                </button>
                 <button
                   onClick={handleChangePassword}
                   disabled={isChangingPassword}
-                  className="px-5 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 disabled:opacity-50"
+                  className="flex-1 px-4 py-3 text-sm sm:text-base font-bold text-white bg-gradient-to-r from-orange-500 to-purple-600 hover:opacity-95 disabled:opacity-30 disabled:cursor-not-allowed rounded-2xl shadow-lg shadow-orange-500/10 hover:shadow-orange-500/20 transition-all active:scale-98 cursor-pointer"
                 >
-                  {isChangingPassword ? 'جاري التغيير...' : 'حفظ التغييرات'}
+                  {isChangingPassword ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>جاري الحفظ...</span>
+                    </div>
+                  ) : (
+                    'حفظ كلمة المرور'
+                  )}
                 </button>
               </div>
             </motion.div>
@@ -416,39 +461,51 @@ export default function UserSettingsPage() {
       {/* Delete Account Modal */}
       <AnimatePresence>
         {showDeleteModal && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-fadeIn">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white dark:bg-dark-secondary rounded-2xl w-full max-w-md overflow-hidden shadow-2xl"
+              className="bg-white/95 dark:bg-[#121318]/95 border border-gray-100 dark:border-white/10 rounded-[2.5rem] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] w-full max-w-md p-6 sm:p-8 overflow-hidden text-center"
             >
-              <div className="p-6 text-center">
-                <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-500" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">حذف الحساب نهائياً</h3>
-                <p className="text-gray-500 mb-6 text-sm">
-                  هذا الإجراء سيؤدي لحذف جميع بياناتك ولا يمكن التراجع عنه. <br />
-                  يرجى كتابة كلمة <b>"حذف"</b> للتأكيد.
-                </p>
-                <input
-                  type="text"
-                  value={deleteConfirmation}
-                  onChange={(e) => setDeleteConfirmation(e.target.value)}
-                  className="w-full px-4 py-2.5 mb-6 text-center rounded-xl border border-gray-200 dark:border-dark-card-border bg-gray-50 dark:bg-dark-tertiary outline-none focus:ring-2 focus:ring-red-500"
-                  placeholder="اكتب كلمة حذف هنا"
-                />
-                <div className="flex gap-3">
-                  <button onClick={() => setShowDeleteModal(false)} className="flex-1 py-2.5 rounded-xl border border-gray-300 dark:border-dark-card-border text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-dark-tertiary">إلغاء</button>
-                  <button
-                    onClick={handleDeleteAccount}
-                    disabled={isDeleting || deleteConfirmation !== 'حذف'}
-                    className="flex-1 py-2.5 rounded-xl bg-red-600 text-white font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-red-600/20"
-                  >
-                    {isDeleting ? 'جاري الحذف...' : 'حذف الحساب'}
-                  </button>
-                </div>
+              <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 text-red-500 dark:text-red-400">
+                <AlertTriangle className="w-8 h-8" />
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white mb-2">حذف الحساب نهائياً ⚠️</h3>
+              <p className="text-gray-500 dark:text-gray-400 mb-6 text-sm leading-relaxed">
+                هذا الإجراء سيؤدي لحذف جميع بياناتك من مجتمع عرب نوشن نهائياً ولا يمكن التراجع عنه. <br />
+                لتأكيد الحذف، اكتب كلمة <span className="font-mono bg-red-500/10 text-red-600 px-2 py-1 rounded-lg">حذف</span> للتأكيد.
+              </p>
+              
+              <input
+                type="text"
+                value={deleteConfirmation}
+                onChange={(e) => setDeleteConfirmation(e.target.value)}
+                className="w-full px-4 py-3 mb-6 text-center rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 text-gray-900 dark:text-white font-bold outline-none focus:ring-4 focus:ring-red-500/10 focus:border-red-500 transition-all placeholder:text-gray-400"
+                placeholder="اكتب كلمة 'حذف' هنا"
+                dir="rtl"
+              />
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <button 
+                  onClick={() => setShowDeleteModal(false)} 
+                  className="flex-1 px-4 py-3 text-sm sm:text-base font-bold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 rounded-2xl hover:bg-gray-50 dark:hover:bg-white/5 transition-all cursor-pointer active:scale-98"
+                >
+                  إلغاء
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={isDeleting || deleteConfirmation !== 'حذف'}
+                  className="flex-1 px-4 py-3 text-sm sm:text-base font-bold text-white bg-red-600 hover:bg-red-700 disabled:opacity-30 disabled:cursor-not-allowed rounded-2xl shadow-lg shadow-red-600/10 transition-all active:scale-98 cursor-pointer"
+                >
+                  {isDeleting ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>جاري الحذف...</span>
+                    </div>
+                  ) : (
+                    'حذف الحساب نهائياً'
+                  )}
+                </button>
               </div>
             </motion.div>
           </div>

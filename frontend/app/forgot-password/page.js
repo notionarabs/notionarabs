@@ -1,21 +1,28 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Mail, Check, ArrowRight, Loader2 } from 'lucide-react';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const { forgotPassword } = useAuth();
   const { theme } = useTheme();
   const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleChange = (e) => {
     setEmail(e.target.value);
@@ -38,191 +45,174 @@ export default function ForgotPasswordPage() {
     setLoading(false);
   };
 
-  if (success) {
-    return (
-      <main className="min-h-screen bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
-        {/* Background shapes */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-          <div className="absolute w-40 h-40 sm:w-52 sm:h-52 md:w-60 md:h-60 lg:w-72 lg:h-72 bg-primary-400/20 dark:bg-primary-900/20 rounded-full -top-10 sm:-top-16 md:-top-20 -right-10 sm:-right-16 md:-right-20 animate-blob mix-blend-multiply filter blur-xl opacity-70"></div>
-          <div className="absolute w-40 h-40 sm:w-52 sm:h-52 md:w-60 md:h-60 lg:w-72 lg:h-72 bg-primary-300/20 dark:bg-primary-800/20 rounded-full -bottom-10 sm:-bottom-16 md:-bottom-20 -left-10 sm:-left-16 md:-left-20 animate-blob animation-delay-2000 mix-blend-multiply filter blur-xl opacity-70"></div>
-          <div className="absolute w-40 h-40 sm:w-52 sm:h-52 md:w-60 md:h-60 lg:w-72 lg:h-72 bg-primary-200/20 dark:bg-primary-700/20 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-blob animation-delay-4000 mix-blend-multiply filter blur-xl opacity-70"></div>
-        </div>
-
-        <div className="relative z-10 flex items-center justify-center min-h-screen px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8 md:py-10">
-          <div className="max-w-md w-full my-2 sm:my-4 md:my-6">
-            {/* Header */}
-            <div className="text-center mb-4 sm:mb-6 md:mb-8 lg:mb-10">
-              <Link href="/" className="inline-flex items-center justify-center mb-3 sm:mb-4 md:mb-6 hover:opacity-80 transition-opacity">
-                <Image
-                  src={theme === 'dark' ? "/brand/NavLogoDark.svg" : "/brand/NavLogoLight.svg"}
-                  alt="عرب نوشن"
-                  width={120}
-                  height={40}
-                  className="h-8 sm:h-10 md:h-12 w-auto"
-                  quality={100}
-                  priority
-                  unoptimized
-                />
-              </Link>
-              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-1.5 sm:mb-2 md:mb-3 text-accent-500 dark:text-dark-text-primary px-2">تم إرسال الرابط</h1>
-              <p className="text-xs sm:text-sm md:text-base lg:text-lg text-accent-600 dark:text-dark-text-secondary px-2">تحقق من بريدك الإلكتروني</p>
-            </div>
-
-            {/* Success Message */}
-            <div className="card p-4 sm:p-6 md:p-8 lg:p-10 border-primary-200 shadow-lg">
-              <div className="text-center">
-                <div className="mx-auto flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 lg:h-16 lg:w-16 rounded-full bg-green-100 dark:bg-green-900/30 mb-3 sm:mb-4 md:mb-5 lg:mb-6">
-                  <svg className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 lg:h-8 lg:w-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 md:mb-4 text-accent-500 dark:text-dark-text-primary px-1">تم إرسال رابط إعادة تعيين كلمة المرور</h3>
-                <p className="text-xs sm:text-sm md:text-base lg:text-lg text-accent-600 dark:text-dark-text-secondary mb-4 sm:mb-5 md:mb-6 lg:mb-8 leading-relaxed px-1">
-                  إذا كان البريد الإلكتروني مسجلاً في نظامنا، ستتلقى رابطاً لإعادة تعيين كلمة المرور خلال دقائق قليلة.
-                </p>
-                <div className="space-y-2.5 sm:space-y-3 md:space-y-4">
-                  <button
-                    onClick={() => {
-                      setSuccess(false);
-                      setEmail('');
-                    }}
-                    className="w-full bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white font-semibold py-2 sm:py-2.5 md:py-3 px-3 sm:px-4 md:px-6 rounded-lg md:rounded-xl transition-all duration-200 text-xs sm:text-sm md:text-base shadow-md hover:shadow-lg transform hover:scale-[1.01]"
-                  >
-                    إرسال رابط آخر
-                  </button>
-                  <Link
-                    href="/login"
-                    className="w-full bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border text-gray-700 dark:text-dark-text-primary hover:bg-gray-50 dark:hover:bg-dark-tertiary active:bg-gray-100 dark:active:bg-dark-primary font-medium py-2 sm:py-2.5 md:py-3 px-3 sm:px-4 md:px-6 rounded-lg md:rounded-xl transition-all duration-200 text-xs sm:text-sm md:text-base flex items-center justify-center shadow-sm hover:shadow-md transform hover:scale-[1.01]"
-                  >
-                    العودة لتسجيل الدخول
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            {/* Back to Home */}
-            <div className="text-center mt-4 sm:mt-5 md:mt-6 lg:mt-8">
-              <Link href="/" className="inline-flex items-center justify-center bg-transparent hover:bg-gray-50 dark:hover:bg-dark-tertiary active:bg-gray-100 dark:active:bg-dark-primary text-gray-600 dark:text-dark-text-secondary font-medium py-2 sm:py-2.5 md:py-3 px-3 sm:px-4 md:px-6 rounded-lg md:rounded-xl transition-all duration-200 text-xs sm:text-sm md:text-base">
-                <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 ml-1.5 sm:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                العودة للصفحة الرئيسية
-              </Link>
-            </div>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
   return (
-    <main className="min-h-screen bg-gradient-to-br from-secondary-50 to-accent-500 dark:from-dark-primary dark:to-dark-secondary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
-      {/* Background shapes */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute w-40 h-40 sm:w-52 sm:h-52 md:w-60 md:h-60 lg:w-72 lg:h-72 bg-primary-400/20 dark:bg-primary-900/20 rounded-full -top-10 sm:-top-16 md:-top-20 -right-10 sm:-right-16 md:-right-20 animate-blob mix-blend-multiply filter blur-xl opacity-70"></div>
-        <div className="absolute w-40 h-40 sm:w-52 sm:h-52 md:w-60 md:h-60 lg:w-72 lg:h-72 bg-primary-300/20 dark:bg-primary-800/20 rounded-full -bottom-10 sm:-bottom-16 md:-bottom-20 -left-10 sm:-left-16 md:-left-20 animate-blob animation-delay-2000 mix-blend-multiply filter blur-xl opacity-70"></div>
-        <div className="absolute w-40 h-40 sm:w-52 sm:h-52 md:w-60 md:h-60 lg:w-72 lg:h-72 bg-primary-200/20 dark:bg-primary-700/20 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-blob animation-delay-4000 mix-blend-multiply filter blur-xl opacity-70"></div>
+    <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden" dir="rtl">
+      {/* Ambient Mesh Background */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-primary/15 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
 
-      <div className="relative z-10 flex items-center justify-center min-h-screen px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8 md:py-10">
-        <div className="max-w-md w-full my-2 sm:my-4 md:my-6">
-          {/* Header */}
-          <div className="text-center mb-4 sm:mb-6 md:mb-8 lg:mb-10">
-            <Link href="/" className="inline-flex items-center justify-center mb-3 sm:mb-4 md:mb-6 hover:opacity-80 transition-opacity">
-              <Image
-                src={theme === 'dark' ? "/brand/NavLogoDark.svg" : "/brand/NavLogoLight.svg"}
-                alt="عرب نوشن"
-                width={120}
-                height={40}
-                className="h-8 sm:h-10 md:h-12 w-auto"
-                quality={100}
-                priority
-                unoptimized
-              />
-            </Link>
-            <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-1.5 sm:mb-2 md:mb-3 text-accent-500 dark:text-dark-text-primary px-2">نسيت كلمة المرور؟</h1>
-            <p className="text-xs sm:text-sm md:text-base lg:text-lg text-accent-600 dark:text-dark-text-secondary leading-relaxed px-2">أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة تعيين كلمة المرور</p>
-          </div>
+      <div className="max-w-md w-full relative z-10">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-block mb-6 transform hover:scale-105 transition-transform duration-200">
+            <Image
+              src={mounted && theme === 'dark' ? '/brand/NavLogoLight.svg' : '/brand/NavLogoDark.svg'}
+              alt="عرب نوشن"
+              width={140}
+              height={45}
+              className="h-10 sm:h-12 w-auto drop-shadow-sm"
+              quality={100}
+              priority
+              unoptimized
+            />
+          </Link>
+        </div>
 
-          {/* Forgot Password Form */}
-          <div className="card p-4 sm:p-6 md:p-8 lg:p-10 border-primary-200 shadow-lg">
-            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6">
-              {/* Email Field */}
-              <div className="form-group">
-                <label htmlFor="email" className="text-xs sm:text-sm md:text-base font-medium text-gray-700 dark:text-dark-text-primary mb-1.5 sm:mb-2 block">
-                  البريد الإلكتروني
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={email}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 md:py-3 text-xs sm:text-sm md:text-base border border-gray-200 dark:border-dark-input-border rounded-lg md:rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-dark-tertiary text-gray-900 dark:text-dark-text-primary placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-all duration-200"
-                  placeholder="أدخل بريدك الإلكتروني"
-                  dir="ltr"
-                />
+        <AnimatePresence mode="wait">
+          {success ? (
+            <motion.div
+              key="success"
+              initial={{ opacity: 0, y: 15, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -15, scale: 0.95 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white/50 dark:bg-white/5 backdrop-blur-2xl border-none shadow-large rounded-[2.5rem] p-8 sm:p-10 relative overflow-hidden text-center"
+            >
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-green-500/30 to-transparent opacity-50"></div>
+              
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 mb-6 shadow-glow shadow-green-500/10">
+                <Check className="h-8 w-8 animate-scaleIn" />
               </div>
 
-              {/* Error Message */}
-              {error && (
-                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 rounded-lg md:rounded-xl text-xs sm:text-sm leading-relaxed">
-                  {error}
-                  {error.includes('Google') && (
-                    <div className="mt-2 sm:mt-2.5 md:mt-3 p-2 sm:p-2.5 md:p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                      <p className="text-blue-800 dark:text-blue-300 font-medium text-xs sm:text-sm mb-1">💡 نصيحة:</p>
-                      <p className="text-blue-700 dark:text-blue-400 text-xs sm:text-sm leading-relaxed">
-                        إذا كان حسابك مسجل عبر Google، استخدم زر "تسجيل الدخول بـ Google" في صفحة تسجيل الدخول.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white font-semibold py-2 sm:py-2.5 md:py-3 px-3 sm:px-4 md:px-6 rounded-lg md:rounded-xl transition-all duration-200 text-xs sm:text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary-500 disabled:hover:shadow-none shadow-md hover:shadow-lg transform hover:scale-[1.01] active:scale-[0.99]"
-              >
-                {loading ? (
-                  <div className="flex items-center justify-center gap-1.5 sm:gap-2">
-                    <svg className="animate-spin h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span className="hidden sm:inline">جاري الإرسال...</span>
-                    <span className="sm:hidden">جاري الإرسال</span>
-                  </div>
-                ) : (
-                  'إرسال رابط إعادة التعيين'
-                )}
-              </button>
-            </form>
-
-            {/* Back to Login Link */}
-            <div className="mt-4 sm:mt-5 md:mt-6 lg:mt-8 text-center">
-              <p className="text-xs sm:text-sm md:text-base text-accent-600 dark:text-dark-text-secondary">
-                تذكرت كلمة المرور؟{' '}
-                <Link href="/login" className="text-primary-600 dark:text-primary-400 font-medium hover:text-primary-700 dark:hover:text-primary-300 hover:underline transition-all">
-                  تسجيل الدخول
-                </Link>
+              <h1 className="text-2xl sm:text-3xl font-black mb-3 bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-200 bg-clip-text text-transparent">
+                تم إرسال الرابط
+              </h1>
+              <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base leading-relaxed mb-8">
+                إذا كان بريدك الإلكتروني مسجلاً لدينا، ستتلقى رابطاً لإعادة تعيين كلمة المرور خلال دقائق قليلة.
               </p>
-            </div>
-          </div>
 
-          {/* Back to Home */}
-          <div className="text-center mt-4 sm:mt-5 md:mt-6 lg:mt-8">
-            <Link href="/" className="inline-flex items-center justify-center bg-transparent hover:bg-gray-50 dark:hover:bg-dark-tertiary active:bg-gray-100 dark:active:bg-dark-primary text-gray-600 dark:text-dark-text-secondary font-medium py-2 sm:py-2.5 md:py-3 px-3 sm:px-4 md:px-6 rounded-lg md:rounded-xl transition-all duration-200 text-xs sm:text-sm md:text-base">
-              <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 ml-1.5 sm:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              العودة للصفحة الرئيسية
-            </Link>
-          </div>
+              <div className="space-y-3">
+                <button
+                  onClick={() => {
+                    setSuccess(false);
+                    setEmail('');
+                  }}
+                  className="w-full bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-700 hover:to-indigo-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-primary-500/20 hover:shadow-primary-500/30 transform hover:-translate-y-0.5 transition-all duration-200 text-base cursor-pointer"
+                >
+                  إرسال رابط آخر
+                </button>
+                <Link
+                  href="/login"
+                  className="w-full flex items-center justify-center gap-2 bg-white dark:bg-dark-tertiary hover:bg-gray-50 dark:hover:bg-white/5 text-gray-700 dark:text-gray-200 font-bold py-3.5 px-6 rounded-xl transition-all duration-200 shadow-soft hover:shadow-md border-none"
+                >
+                  <ArrowRight className="w-5 h-5 rtl:rotate-180" />
+                  <span>العودة لتسجيل الدخول</span>
+                </Link>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="form"
+              initial={{ opacity: 0, y: 15, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -15, scale: 0.95 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white/50 dark:bg-white/5 backdrop-blur-2xl border-none shadow-large rounded-[2.5rem] p-8 sm:p-10 relative overflow-hidden group/card"
+            >
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-50"></div>
+
+              <div className="text-center mb-8">
+                <h1 className="text-2xl sm:text-3xl font-black mb-2 bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-200 bg-clip-text text-transparent">
+                  نسيت كلمة المرور؟
+                </h1>
+                <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base leading-relaxed px-2">
+                  أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة تعيين كلمة المرور
+                </p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Email Field */}
+                <div>
+                  <label htmlFor="email" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 mr-1">
+                    البريد الإلكتروني
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={email}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-6 py-4 bg-white/70 dark:bg-white/5 border-none text-gray-900 dark:text-white rounded-2xl focus:ring-1 focus:ring-primary/20 shadow-soft focus:shadow-glow transition-all duration-300 outline-none text-base font-medium"
+                    placeholder="name@example.com"
+                    dir="ltr"
+                  />
+                </div>
+
+                {/* Error Message */}
+                {error && (
+                  <div className="bg-red-50/80 dark:bg-red-900/20 backdrop-blur-sm border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-xl text-sm animate-fadeIn">
+                    <div className="flex items-start gap-2">
+                      <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      <div className="flex-1">
+                        <span className="font-medium">{error}</span>
+                        {error.includes('Google') && (
+                          <div className="mt-2.5 p-3 bg-blue-50/50 dark:bg-blue-900/20 border border-blue-200/50 dark:border-blue-800/50 rounded-lg">
+                            <p className="text-blue-800 dark:text-blue-300 font-bold text-xs mb-1">💡 نصيحة:</p>
+                            <p className="text-blue-700 dark:text-blue-400 text-xs leading-relaxed">
+                              إذا كان حسابك مسجلاً عبر Google، يرجى استخدام زر "تسجيل الدخول بـ Google" في صفحة تسجيل الدخول.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-700 hover:to-indigo-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-primary-500/30 hover:shadow-primary-500/40 transform hover:-translate-y-0.5 transition-all duration-200 text-base disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none cursor-pointer"
+                >
+                  {loading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>جاري إرسال الرابط...</span>
+                    </div>
+                  ) : (
+                    'إرسال رابط إعادة التعيين'
+                  )}
+                </button>
+              </form>
+
+              {/* Back to Login Link */}
+              <div className="mt-6 pt-6 border-t border-gray-200/50 dark:border-white/5 text-center">
+                <p className="text-gray-600 dark:text-gray-400 text-sm font-semibold">
+                  تذكرت كلمة المرور؟{' '}
+                  <Link href="/login" className="text-primary-600 dark:text-primary-400 font-bold hover:underline transition-all mr-1">
+                    تسجيل الدخول
+                  </Link>
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Back to Home */}
+        <div className="text-center mt-8">
+          <Link href="/" className="inline-flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors text-sm font-bold cursor-pointer">
+            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            العودة للصفحة الرئيسية
+          </Link>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

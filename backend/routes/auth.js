@@ -1500,9 +1500,7 @@ router.post('/change-password', auth, [
     .withMessage('كلمة المرور الحالية مطلوبة'),
   body('newPassword')
     .isLength({ min: 6 })
-    .withMessage('كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage('كلمة المرور الجديدة يجب أن تحتوي على حرف صغير وحرف كبير ورقم واحد على الأقل'),
+    .withMessage('كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل'),
   body('confirmPassword')
     .custom((value, { req }) => {
       if (value !== req.body.newPassword) {

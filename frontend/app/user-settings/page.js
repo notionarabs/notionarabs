@@ -116,7 +116,8 @@ export default function UserSettingsPage() {
         setPasswordErrors({});
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'حدث خطأ أثناء تغيير كلمة المرور';
+      const validationError = error.response?.data?.errors?.[0]?.msg;
+      const errorMessage = validationError || error.response?.data?.message || 'حدث خطأ أثناء تغيير كلمة المرور';
       showError(errorMessage);
     } finally {
       setIsChangingPassword(false);

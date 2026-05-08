@@ -90,6 +90,14 @@ class UserDoc {
         delete updateData.pinnedBy;
     }
 
+    // Hash password if present and not already hashed with bcrypt
+    if (updateData.password && !updateData.password.startsWith('$2a$') && !updateData.password.startsWith('$2b$') && updateData.password !== 'google-oauth-user') {
+        const bcrypt = require('bcryptjs');
+        const hashedPassword = await bcrypt.hash(updateData.password, 12);
+        updateData.password = hashedPassword;
+        this.password = hashedPassword;
+    }
+
     const filteredUpdate = {};
     Object.keys(updateData).forEach(key => {
         if (UserDoc.VALID_COLUMNS.includes(key)) {
@@ -129,7 +137,25 @@ class UserDoc {
     if (this.password === 'google-oauth-user') return false; 
     
     const bcrypt = require('bcryptjs');
-    return bcrypt.compare(candidatePassword, this.password);
+    
+    // If the password in database is already hashed with bcrypt
+    if (this.password.startsWith('$2a$') || this.password.startsWith('$2b$')) {
+        return bcrypt.compare(candidatePassword, this.password);
+    }
+    
+    // Otherwise, the password in the database is plain text! Compare directly
+    const isMatch = candidatePassword === this.password;
+    if (isMatch) {
+        // Automatically hash and upgrade the database password to bcrypt!
+        try {
+            this.password = candidatePassword; // Triggers automatic hashing inside save()
+            await this.save();
+            console.log(`[USER PASSWORD AUTO-UPGRADE] Successfully upgraded plain-text password to bcrypt hash for user: ${this.email}`);
+        } catch (upgradeErr) {
+            console.error('[USER PASSWORD AUTO-UPGRADE] Failed to auto-upgrade plain-text password:', upgradeErr);
+        }
+    }
+    return isMatch;
   }
 
   static async aggregate(pipeline) {
@@ -452,6 +478,12 @@ class UserDoc {
           // Ensure role and creatorStatus are UPPERCASE for database Enum compatibility
           if (dbUpdate.role) dbUpdate.role = dbUpdate.role.toString().toUpperCase();
           if (dbUpdate.creatorStatus) dbUpdate.creatorStatus = dbUpdate.creatorStatus.toString().toUpperCase();
+
+          // Hash password if present and not already hashed with bcrypt
+          if (dbUpdate.password && !dbUpdate.password.startsWith('$2a$') && !dbUpdate.password.startsWith('$2b$') && dbUpdate.password !== 'google-oauth-user') {
+              const bcrypt = require('bcryptjs');
+              dbUpdate.password = await bcrypt.hash(dbUpdate.password, 12);
+          }
 
           // Handle MongoDB-style operators if present
           const hasOperators = Object.keys(dbUpdate).some(k => k.startsWith('$'));

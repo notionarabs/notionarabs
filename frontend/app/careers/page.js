@@ -22,7 +22,7 @@ export default function CareersPage() {
       {/* Hero Section */}
       <section className="relative z-10 pt-32 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="container-custom max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black text-accent-900 dark:text-white mb-8 tracking-tighter leading-tight">
+          <h1 className="text-5xl sm:text-7xl lg:text-9xl font-black text-accent-900 dark:text-white mb-8 leading-normal py-2">
             انضم <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600">لفريقنا</span>
           </h1>
           <p className="text-xl sm:text-2xl text-accent-600 dark:text-gray-400 font-medium max-w-2xl mx-auto">

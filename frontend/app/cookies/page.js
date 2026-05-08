@@ -9,95 +9,101 @@ export const metadata = generateMetadata({
 });
 
 export default function CookiesPage() {
-
   return (
-    <main className="min-h-screen bg-secondary-50 dark:bg-dark-primary text-accent-500 dark:text-dark-text-primary transition-colors duration-300" dir="rtl">
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-white dark:bg-dark-secondary transition-colors duration-300">
-        <div className="container-custom max-w-4xl mx-auto">
-          <div className="mb-8 sm:mb-10 md:mb-12">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 text-accent-500 dark:text-dark-text-primary">سياسة ملفات تعريف الارتباط</h1>
-            <p className="text-base sm:text-lg md:text-xl text-accent-700 dark:text-gray-200">آخر تحديث: {formatCurrentDate()}</p>
-          </div>
+    <main className="min-h-screen bg-transparent relative overflow-x-hidden transition-colors duration-300" dir="rtl">
+      {/* Ambient Mesh Background */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-5%] w-[800px] h-[800px] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
 
-          <div className="prose prose-lg max-w-none">
-            <div className="space-y-6 sm:space-y-8 md:space-y-10">
-              <section>
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">ما هي ملفات تعريف الارتباط؟</h2>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  ملفات تعريف الارتباط (Cookies) هي ملفات نصية صغيرة يتم تخزينها على جهازك عند زيارة موقعنا.
-                  نستخدمها لضمان عمل خدماتنا الأساسية (الاستشارات، المتجر، الدورات) وتحسين تجربتك في تصفح المنصة.
-                </p>
-              </section>
+      {/* Content */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="container-custom max-w-5xl">
+          {/* Main Card */}
+          <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[3rem] p-10 sm:p-20 shadow-large border-none text-right">
+            <div className="mb-16">
+              <h1 className="text-4xl sm:text-6xl font-black text-accent-900 dark:text-white mb-6 tracking-tighter">سياسة ملفات تعريف الارتباط</h1>
+              <p className="text-base sm:text-lg text-accent-700 dark:text-gray-200">
+                آخر تحديث: {formatCurrentDate()}
+              </p>
+            </div>
 
-              <section>
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">كيف نستخدم ملفات تعريف الارتباط</h2>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  نستخدم ملفات تعريف الارتباط للأغراض التالية:
-                </p>
-
-                <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-2 sm:mb-3 mt-4 sm:mt-6 text-accent-500 dark:text-dark-text-primary">1. ملفات ضرورية جداً</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  هذه الملفات أساسية لتشغيل الموقع وتقديم الخدمات التي تطلبها، مثل:
-                </p>
-                <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base text-accent-600 dark:text-gray-100">
-                  <li><span className="font-semibold">تسجيل الدخول:</span> الحفاظ على جلسة دخولك نشطة وآمنة أثناء تصفح الموقع</li>
-                  <li><span className="font-semibold">أمان الحساب:</span> حماية حسابك وبياناتك من الوصول غير المصرح به</li>
-                  <li><span className="font-semibold">تفضيلات المستخدم:</span> تذكر إعداداتك الأساسية لتقديم تجربة تصفح سلسة</li>
-                </ul>
-
-                <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-2 sm:mb-3 mt-4 sm:mt-6 text-accent-500 dark:text-dark-text-primary">2. ملفات الأداء والتحليلات</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  تساعدنا في تحسين خدماتنا من خلال فهم كيفية استخدامك للموقع:
-                </p>
-                <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base text-accent-600 dark:text-gray-100">
-                  <li>معرفة القوالب والخدمات الأكثر طلباً</li>
-                  <li>تحليل أداء صفحات الهبوط (Landing Pages)</li>
-                  <li>رصد وتصحيح الأخطاء التقنية</li>
-                </ul>
-
-                <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-2 sm:mb-3 mt-4 sm:mt-6 text-accent-500 dark:text-dark-text-primary">3. ملفات الوظائف</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  تسمح للموقع بتذكر خياراتك لتوفير تجربة مخصصة:
-                </p>
-                <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base text-accent-600 dark:text-gray-100">
-                  <li>تذكر تفضيلات اللغة والعملة</li>
-                  <li>حفظ تقدمك في نماذج طلب الاستشارة</li>
-                  <li>تخصيص عرض القوالب حسب اهتماماتك</li>
-                </ul>
-              </section>
-
-              <section>
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">مدة الاحتفاظ بملفات تعريف الارتباط</h2>
-                <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base text-accent-600 dark:text-gray-100">
-                  <li><span className="font-semibold">ملفات الجلسة:</span> مؤقتة وتُحذف بمجرد إغلاق المتصفح (مثل تذكر حالة التصفح الحالية)</li>
-                  <li><span className="font-semibold">ملفات دائمة:</span> تبقى لفترة محددة لتذكرك عند زيارتك القادمة (مثل "تذكرني")</li>
-                </ul>
-              </section>
-
-              <section>
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">إدارة ملفات تعريف الارتباط</h2>
-
-                <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-2 sm:mb-3 mt-4 sm:mt-6 text-accent-500 dark:text-dark-text-primary">خياراتك</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  يمكنك التحكم في ملفات تعريف الارتباط أو حذفها من خلال إعدادات المتصفح. يرجى ملاحظة أن تعطيل بعض الملفات قد يؤثر على:
-                </p>
-                <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base text-accent-600 dark:text-gray-100">
-                  <li>القدرة على استخدام الميزات التفاعلية</li>
-                  <li>الوصول إلى منطقة الأعضاء أو المبدعين</li>
-                  <li>حفظ تفضيلاتك الشخصية</li>
-                </ul>
-              </section>
-
-              <section>
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">التواصل</h2>
-                <div className="bg-gray-50 dark:bg-dark-tertiary p-4 sm:p-6 rounded-lg sm:rounded-xl border border-gray-200 dark:border-dark-card-border">
-                  <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100">
-                    لأي استفسارات حول سياسة الكوكيز، يرجى التواصل معنا عبر:
-                    <br />
-                    <span className="font-semibold select-all">support@notionarabs.com</span>
+            <div className="prose prose-sm sm:prose-base md:prose-lg max-w-none">
+              <div className="space-y-16">
+                <section className="relative">
+                  <h2 className="text-3xl font-black mb-6 text-accent-900 dark:text-white relative z-10">ما هي ملفات تعريف الارتباط؟</h2>
+                  <p className="text-xl text-accent-600 dark:text-gray-300 leading-relaxed font-medium">
+                    ملفات تعريف الارتباط (Cookies) هي ملفات نصية صغيرة يتم تخزينها على جهازك عند زيارة موقعنا.
+                    نستخدمها لضمان عمل خدماتنا الأساسية (الاستشارات، المتجر، الدورات) وتحسين تجربتك في تصفح المنصة.
                   </p>
-                </div>
-              </section>
+                </section>
+
+                <section className="relative">
+                  <h2 className="text-3xl font-black mb-6 text-accent-900 dark:text-white relative z-10">كيف نستخدم ملفات تعريف الارتباط</h2>
+                  <p className="text-xl text-accent-600 dark:text-gray-300 leading-relaxed mb-8 font-medium">
+                    نستخدم ملفات تعريف الارتباط للأغراض التالية:
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {[
+                      {
+                        title: '1. ملفات ضرورية جداً',
+                        desc: 'هذه الملفات أساسية لتشغيل الموقع وتقديم الخدمات التي تطلبها، مثل الحفاظ على جلسة دخولك نشطة وآمنة، حماية حسابك، وتذكر الإعدادات الأساسية.'
+                      },
+                      {
+                        title: '2. ملفات الأداء والتحليلات',
+                        desc: 'تساعدنا في تحسين خدماتنا من خلال فهم كيفية استخدامك للموقع، ومعرفة القوالب الأكثر طلباً، وتحليل أداء صفحات الهبوط (Landing Pages).'
+                      },
+                      {
+                        title: '3. ملفات الوظائف',
+                        desc: 'تسمح للموقع بتذكر خياراتك لتوفير تجربة مخصصة وسلسة، مثل تذكر تفضيلات اللغة والعملة، وحفظ تقدمك في نماذج طلب الاستشارة.'
+                      }
+                    ].map((item, i) => (
+                      <div key={i} className="p-6 bg-white/50 dark:bg-white/5 backdrop-blur-md rounded-2xl shadow-soft">
+                        <span className="block font-black text-primary mb-3 text-lg">{item.title}</span>
+                        <span className="text-accent-600 dark:text-gray-400 font-medium leading-relaxed block text-sm sm:text-base">{item.desc}</span>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                <section>
+                  <h2 className="text-3xl font-black mb-6 text-accent-900 dark:text-white">مدة الاحتفاظ بملفات تعريف الارتباط</h2>
+                  <ul className="list-disc list-inside space-y-3 text-lg text-accent-600 dark:text-gray-300 font-medium">
+                    <li className="leading-relaxed">
+                      <span className="font-black text-accent-900 dark:text-white">ملفات الجلسة (Session Cookies):</span> هي ملفات مؤقتة وتُحذف تلقائياً بمجرد إغلاق متصفح الويب (مثل تذكر حالة التصفح الحالية).
+                    </li>
+                    <li className="leading-relaxed">
+                      <span className="font-black text-accent-900 dark:text-white">ملفات دائمة (Persistent Cookies):</span> تبقى مخزنة على جهازك لفترة محددة لتذكر تفضيلاتك وتسهيل دخولك عند زيارتك القادمة (مثل ميزة "تذكرني").
+                    </li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h2 className="text-3xl font-black mb-6 text-accent-900 dark:text-white">إدارة ملفات تعريف الارتباط</h2>
+                  <p className="text-xl text-accent-600 dark:text-gray-300 leading-relaxed mb-6 font-medium">
+                    يمكنك التحكم في ملفات تعريف الارتباط أو حذفها بالكامل من خلال إعدادات متصفحك الخاص. يرجى ملاحظة أن تعطيل بعض الملفات قد يؤثر على:
+                  </p>
+                  <ul className="list-disc list-inside space-y-2 text-lg text-accent-600 dark:text-gray-300 font-medium">
+                    <li>القدرة على استخدام الميزات التفاعلية في المتجر</li>
+                    <li>الوصول إلى منطقة الأعضاء أو المبدعين الخاصة بك</li>
+                    <li>حفظ واسترجاع تفضيلاتك الشخصية وسلة المشتريات</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h2 className="text-3xl font-black mb-6 text-accent-900 dark:text-white">التواصل</h2>
+                  <div className="bg-white/50 dark:bg-white/5 backdrop-blur-xl p-8 rounded-[2rem] shadow-soft max-w-xl">
+                    <p className="text-xl text-accent-600 dark:text-gray-300 font-medium">
+                      لأي استفسارات أو تفاصيل إضافية حول سياسة ملفات تعريف الارتباط، يرجى التواصل مع فريق الدعم الفني:
+                    </p>
+                    <p className="text-2xl text-accent-900 dark:text-white font-black mt-4 select-all">
+                      support@notionarabs.com
+                    </p>
+                  </div>
+                </section>
+              </div>
             </div>
           </div>
         </div>
@@ -107,4 +113,3 @@ export default function CookiesPage() {
     </main>
   );
 }
-

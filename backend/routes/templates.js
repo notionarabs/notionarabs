@@ -1334,12 +1334,12 @@ router.post('/:id/download', auth, async (req, res) => {
             items: [{
               templateId: tid,
               name: template.title,
-              price: 0,
-              downloaded: true
+              price: 0
             }],
             total: 0,
             status: 'completed',
             paymentMethod: 'free',
+            downloaded: true,
             notes: 'تحميل مجاني'
           });
         }

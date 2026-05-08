@@ -1,8 +1,28 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Sparkles, 
+  CheckCircle, 
+  User, 
+  Mail, 
+  Phone, 
+  Briefcase, 
+  Award, 
+  ChevronDown, 
+  ShieldCheck, 
+  AlertCircle, 
+  Check, 
+  X, 
+  Clock, 
+  RotateCw,
+  ChevronLeft,
+  Heart,
+  Globe
+} from 'lucide-react';
 
 import { useAuth } from '../../../contexts/AuthContext';
 import ReactCountryFlag from 'react-country-flag';
@@ -46,6 +66,7 @@ export default function CreatorApplyPage() {
     }
   }, [isAuthenticated, authLoading, router]);
 
+  // Load draft from localStorage on mount
   useEffect(() => {
     if (draftLoadedRef.current) {
       return;
@@ -99,8 +120,6 @@ export default function CreatorApplyPage() {
   // Monitor user creatorStatus changes to update UI
   useEffect(() => {
     if (user?.creatorStatus === 'pending' && success) {
-      // If user status is pending and we just submitted successfully, 
-      // the pending state will be shown by the conditional render below
       setSuccess(false); // Reset success state since we're showing pending
     }
   }, [user?.creatorStatus, success]);
@@ -123,12 +142,9 @@ export default function CreatorApplyPage() {
   // Close dropdowns when clicking outside or pressing escape
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Close country dropdown
       if (countryDropdownRef.current && !countryDropdownRef.current.contains(event.target)) {
         setIsCountryDropdownOpen(false);
       }
-
-      // Close specialty dropdown
       if (specialtyDropdownRef.current && !specialtyDropdownRef.current.contains(event.target)) {
         setIsSpecialtyDropdownOpen(false);
       }
@@ -141,11 +157,9 @@ export default function CreatorApplyPage() {
       }
     };
 
-    // Add event listeners
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('keydown', handleEscapeKey);
 
-    // Cleanup function
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleEscapeKey);
@@ -187,9 +201,8 @@ export default function CreatorApplyPage() {
     } catch (error) {
       console.error('Failed to save creator application draft:', error);
     }
-  }, 500); // 500ms debounce delay
+  }, 500);
 
-  // Call debounced save whenever form data changes
   useEffect(() => {
     saveDraftToLocalStorage();
   }, [formData, customSpecialty, showCustomInput, saveDraftToLocalStorage]);
@@ -210,12 +223,9 @@ export default function CreatorApplyPage() {
     'أخرى'
   ];
 
-  // Memoize selected country to avoid recalculating on every render
   const selectedCountry = useMemo(() => {
     return countryOptions.find(c => c.code === formData.countryCode) || countryOptions.find(c => c.countryCode === 'EG');
   }, [formData.countryCode]);
-
-  // Country data is now imported from separate file for better performance
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -224,7 +234,6 @@ export default function CreatorApplyPage() {
       if (value === 'أخرى') {
         setShowCustomInput(checked);
         if (!checked) {
-          // Remove custom specialty from specialties array when unchecking "أخرى"
           setCustomSpecialty('');
           setFormData(prev => ({
             ...prev,
@@ -243,12 +252,8 @@ export default function CreatorApplyPage() {
       }
     } else if (name === 'customSpecialty') {
       setCustomSpecialty(value);
-      // Only update specialties when the user finishes typing (on blur or when they stop typing)
-      // This prevents adding partial words as specialties
     } else {
-      // Handle phone number input with restrictions
       if (name === 'phone') {
-        // Only allow numbers, spaces, hyphens, parentheses, and plus signs
         const phoneRegex = /^[0-9\s\-\(\)\+]*$/;
         if (phoneRegex.test(value) || value === '') {
           setFormData(prev => ({
@@ -256,7 +261,6 @@ export default function CreatorApplyPage() {
             [name]: value
           }));
 
-          // Real-time phone validation
           if (value.trim()) {
             if (validatePhoneNumber(value, formData.countryCode)) {
               setPhoneError('');
@@ -267,7 +271,6 @@ export default function CreatorApplyPage() {
             setPhoneError('');
           }
         }
-        // If invalid characters, don't update the state
       } else {
         setFormData(prev => ({
           ...prev,
@@ -285,7 +288,6 @@ export default function CreatorApplyPage() {
     }));
     setIsCountryDropdownOpen(false);
 
-    // Re-validate phone number when country changes
     if (formData.phone.trim()) {
       if (validatePhoneNumber(formData.phone, country.code)) {
         setPhoneError('');
@@ -298,20 +300,15 @@ export default function CreatorApplyPage() {
   const handleCustomSpecialtyBlur = () => {
     if (customSpecialty.trim()) {
       const trimmedSpecialty = customSpecialty.trim();
-
-      // Split by comma and clean up each specialty
       const specialties = trimmedSpecialty
         .split(',')
         .map(s => s.trim())
         .filter(s => s.length > 0);
 
       setFormData(prev => {
-        // Remove any existing custom specialties and 'أخرى' from the array
         const filteredSpecialties = prev.specialties.filter(item =>
           item !== 'أخرى' && !specialties.includes(item)
         );
-
-        // Add the new custom specialties
         return {
           ...prev,
           specialties: [...filteredSpecialties, ...specialties]
@@ -342,16 +339,13 @@ export default function CreatorApplyPage() {
   };
 
   const handlePhoneKeyDown = (e) => {
-    // Allow: backspace, delete, tab, escape, enter, home, end, left, right, up, down
     if ([8, 9, 27, 13, 46, 35, 36, 37, 38, 39, 40].indexOf(e.keyCode) !== -1 ||
-      // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
       (e.keyCode === 65 && e.ctrlKey === true) ||
       (e.keyCode === 67 && e.ctrlKey === true) ||
       (e.keyCode === 86 && e.ctrlKey === true) ||
       (e.keyCode === 88 && e.ctrlKey === true)) {
       return;
     }
-    // Ensure that it is a number, space, hyphen, parenthesis, or plus sign and stop the keypress
     if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) &&
       (e.keyCode < 96 || e.keyCode > 105) &&
       e.keyCode !== 32 && // space
@@ -361,329 +355,6 @@ export default function CreatorApplyPage() {
       e.keyCode !== 221) { // right parenthesis
       e.preventDefault();
     }
-  };
-
-  const validatePhoneNumber = (phone, countryCode) => {
-    // Remove any non-digit characters
-    const cleanPhone = phone.replace(/\D/g, '');
-
-    // Comprehensive phone number patterns for all countries
-    const phonePatterns = {
-      // Middle East & North Africa
-      '+20': /^1[0-9]{9}$/, // Egypt: 10 digits starting with 1
-      '+966': /^5\d{8}$/, // Saudi Arabia: 9 digits starting with 5
-      '+971': /^5[0-9]{8}$/, // UAE: 9 digits starting with 5
-      '+974': /^[3-7]\d{7}$/, // Qatar: 8 digits starting with 3-7
-      '+965': /^[569]\d{7}$/, // Kuwait: 8 digits starting with 5,6,9
-      '+973': /^[3-9]\d{7}$/, // Bahrain: 8 digits starting with 3-9
-      '+968': /^[79]\d{7}$/, // Oman: 8 digits starting with 7 or 9
-      '+962': /^7[7-9]\d{7}$/, // Jordan: 9 digits starting with 77-79
-      '+961': /^[3-9]\d{7}$/, // Lebanon: 8 digits starting with 3-9
-      '+963': /^9\d{8}$/, // Syria: 9 digits starting with 9
-      '+964': /^7[3-9]\d{8}$/, // Iraq: 10 digits starting with 73-79
-      '+98': /^9[0-9]\d{8}$/, // Iran: 10 digits starting with 9
-      '+90': /^5\d{9}$/, // Turkey: 10 digits starting with 5
-      '+212': /^[6-7]\d{8}$/, // Morocco: 9 digits starting with 6 or 7
-      '+213': /^[5-7]\d{8}$/, // Algeria: 9 digits starting with 5-7
-      '+216': /^[2-5]\d{7}$/, // Tunisia: 8 digits starting with 2-5
-      '+218': /^9[1-9]\d{7}$/, // Libya: 9 digits starting with 91-99
-      '+249': /^9[0-9]\d{7}$/, // Sudan: 9 digits starting with 9
-      '+967': /^7[0-9]\d{7}$/, // Yemen: 9 digits starting with 7
-      '+970': /^5[0-9]{8}$/, // Palestine: 9 digits starting with 5
-      '+383': /^[4-6]\d{7}$/, // Kosovo: 8 digits starting with 4-6
-
-      // North America
-      '+1': /^[2-9]\d{2}[2-9]\d{2}\d{4}$/, // US/Canada: 10 digits
-
-      // Europe
-      '+44': /^[1-9]\d{8,9}$/, // UK: 9-10 digits
-      '+33': /^[1-9]\d{8}$/, // France: 9 digits
-      '+49': /^[1-9]\d{10,11}$/, // Germany: 10-11 digits
-      '+39': /^3\d{9}$/, // Italy: 10 digits starting with 3
-      '+34': /^[6-9]\d{8}$/, // Spain: 9 digits starting with 6-9
-      '+31': /^6\d{8}$/, // Netherlands: 9 digits starting with 6
-      '+32': /^4\d{8}$/, // Belgium: 9 digits starting with 4
-      '+41': /^7[5-9]\d{8}$/, // Switzerland: 10 digits starting with 75-79
-      '+43': /^6[0-9]\d{7}$/, // Austria: 9 digits starting with 6
-      '+45': /^[2-9]\d{7}$/, // Denmark: 8 digits starting with 2-9
-      '+46': /^7[0-9]\d{7}$/, // Sweden: 9 digits starting with 7
-      '+47': /^[4-9]\d{7}$/, // Norway: 8 digits starting with 4-9
-      '+48': /^[5-9]\d{8}$/, // Poland: 9 digits starting with 5-9
-      '+351': /^9[1-9]\d{7}$/, // Portugal: 9 digits starting with 91-99
-      '+420': /^[6-9]\d{8}$/, // Czech Republic: 9 digits starting with 6-9
-      '+421': /^9[0-9]\d{7}$/, // Slovakia: 9 digits starting with 9
-      '+386': /^[3-9]\d{7}$/, // Slovenia: 8 digits starting with 3-9
-      '+385': /^9[0-9]\d{7}$/, // Croatia: 9 digits starting with 9
-      '+382': /^6[0-9]\d{6}$/, // Montenegro: 8 digits starting with 6
-      '+381': /^6[0-9]\d{7}$/, // Serbia: 9 digits starting with 6
-      '+359': /^8[7-9]\d{7}$/, // Bulgaria: 9 digits starting with 87-89
-      '+40': /^7[0-9]\d{7}$/, // Romania: 9 digits starting with 7
-      '+30': /^6[0-9]\d{8}$/, // Greece: 10 digits starting with 6
-      '+36': /^[2-9]\d{8}$/, // Hungary: 9 digits starting with 2-9
-      '+370': /^6\d{7}$/, // Lithuania: 8 digits starting with 6
-      '+371': /^2\d{7}$/, // Latvia: 8 digits starting with 2
-      '+372': /^[5-9]\d{7}$/, // Estonia: 8 digits starting with 5-9
-      '+358': /^[4-5]\d{8}$/, // Finland: 9 digits starting with 4-5
-      '+354': /^[6-9]\d{7}$/, // Iceland: 8 digits starting with 6-9
-      '+353': /^[8-9]\d{8}$/, // Ireland: 9 digits starting with 8-9
-      '+352': /^6[0-9]\d{6}$/, // Luxembourg: 8 digits starting with 6
-      '+423': /^7[5-9]\d{6}$/, // Liechtenstein: 8 digits starting with 75-79
-      '+377': /^[4-6]\d{7}$/, // Monaco: 8 digits starting with 4-6
-      '+378': /^6[0-9]\d{6}$/, // San Marino: 8 digits starting with 6
-      '+376': /^[3-6]\d{6}$/, // Andorra: 7 digits starting with 3-6
-      '+355': /^6[0-9]\d{7}$/, // Albania: 9 digits starting with 6
-      '+389': /^7[0-9]\d{6}$/, // North Macedonia: 8 digits starting with 7
-      '+387': /^6[0-9]\d{6}$/, // Bosnia and Herzegovina: 8 digits starting with 6
-      '+373': /^[6-7]\d{7}$/, // Moldova: 8 digits starting with 6-7
-      '+380': /^[3-9]\d{8}$/, // Ukraine: 9 digits starting with 3-9
-      '+375': /^[2-9]\d{8}$/, // Belarus: 9 digits starting with 2-9
-      '+7': /^[3-9]\d{9}$/, // Russia/Kazakhstan: 10 digits starting with 3-9
-
-      // Asia
-      '+86': /^1[3-9]\d{9}$/, // China: 11 digits starting with 1
-      '+81': /^[7-9]\d{9}$/, // Japan: 10 digits starting with 7-9
-      '+82': /^1[0-9]\d{7,8}$/, // South Korea: 9-10 digits starting with 1
-      '+91': /^[6-9]\d{9}$/, // India: 10 digits starting with 6-9
-      '+92': /^3[0-9]\d{8}$/, // Pakistan: 10 digits starting with 3
-      '+880': /^1[3-9]\d{8}$/, // Bangladesh: 10 digits starting with 1
-      '+94': /^7[0-9]\d{7}$/, // Sri Lanka: 9 digits starting with 7
-      '+977': /^9[6-8]\d{8}$/, // Nepal: 10 digits starting with 96-98
-      '+975': /^[1-7]\d{7}$/, // Bhutan: 8 digits starting with 1-7
-      '+880': /^1[3-9]\d{8}$/, // Bangladesh: 10 digits starting with 1
-      '+93': /^7[0-9]\d{7}$/, // Afghanistan: 9 digits starting with 7
-      '+996': /^[5-7]\d{8}$/, // Kyrgyzstan: 9 digits starting with 5-7
-      '+998': /^[6-9]\d{8}$/, // Uzbekistan: 9 digits starting with 6-9
-      '+992': /^9[0-9]\d{7}$/, // Tajikistan: 9 digits starting with 9
-      '+993': /^6[0-9]\d{6}$/, // Turkmenistan: 8 digits starting with 6
-      '+850': /^1[9]\d{7}$/, // North Korea: 9 digits starting with 19
-      '+886': /^9\d{8}$/, // Taiwan: 9 digits starting with 9
-      '+852': /^[5-9]\d{7}$/, // Hong Kong: 8 digits starting with 5-9
-      '+853': /^6\d{7}$/, // Macau: 8 digits starting with 6
-      '+65': /^[8-9]\d{7}$/, // Singapore: 8 digits starting with 8-9
-      '+60': /^1[0-9]\d{7,8}$/, // Malaysia: 9-10 digits starting with 1
-      '+66': /^[6-9]\d{8}$/, // Thailand: 9 digits starting with 6-9
-      '+84': /^[3-9]\d{8}$/, // Vietnam: 9 digits starting with 3-9
-      '+855': /^[1-9]\d{7,8}$/, // Cambodia: 8-9 digits starting with 1-9
-      '+856': /^[2-9]\d{7}$/, // Laos: 8 digits starting with 2-9
-      '+95': /^9[0-9]\d{7}$/, // Myanmar: 9 digits starting with 9
-      '+63': /^9[0-9]\d{8}$/, // Philippines: 10 digits starting with 9
-      '+62': /^8[1-9]\d{7,8}$/, // Indonesia: 9-10 digits starting with 8
-      '+673': /^[7-8]\d{6}$/, // Brunei: 7 digits starting with 7-8
-      '+670': /^7[0-9]\d{6}$/, // East Timor: 8 digits starting with 7
-
-      // Africa
-      '+27': /^[6-8]\d{8}$/, // South Africa: 9 digits starting with 6-8
-      '+234': /^[7-9]\d{9}$/, // Nigeria: 10 digits starting with 7-9
-      '+254': /^[7]\d{8}$/, // Kenya: 9 digits starting with 7
-      '+256': /^[7]\d{8}$/, // Uganda: 9 digits starting with 7
-      '+255': /^[6-7]\d{8}$/, // Tanzania: 9 digits starting with 6-7
-      '+250': /^[7]\d{8}$/, // Rwanda: 9 digits starting with 7
-      '+251': /^9[0-9]\d{7}$/, // Ethiopia: 9 digits starting with 9
-      '+233': /^[2-5]\d{8}$/, // Ghana: 9 digits starting with 2-5
-      '+220': /^[2-7]\d{7}$/, // Gambia: 8 digits starting with 2-7
-      '+221': /^[7]\d{8}$/, // Senegal: 9 digits starting with 7
-      '+223': /^[6-7]\d{7}$/, // Mali: 8 digits starting with 6-7
-      '+224': /^[6]\d{8}$/, // Guinea: 9 digits starting with 6
-      '+225': /^[0-7]\d{8}$/, // Ivory Coast: 9 digits starting with 0-7
-      '+226': /^[6-7]\d{7}$/, // Burkina Faso: 8 digits starting with 6-7
-      '+227': /^[9]\d{7}$/, // Niger: 8 digits starting with 9
-      '+228': /^[9]\d{7}$/, // Togo: 8 digits starting with 9
-      '+229': /^[6-7]\d{7}$/, // Benin: 8 digits starting with 6-7
-      '+230': /^[5-7]\d{7}$/, // Mauritius: 8 digits starting with 5-7
-      '+231': /^[4-7]\d{7}$/, // Liberia: 8 digits starting with 4-7
-      '+232': /^[2-3]\d{7}$/, // Sierra Leone: 8 digits starting with 2-3
-      '+233': /^[2-5]\d{8}$/, // Ghana: 9 digits starting with 2-5
-      '+234': /^[7-9]\d{9}$/, // Nigeria: 10 digits starting with 7-9
-      '+235': /^[6-7]\d{7}$/, // Chad: 8 digits starting with 6-7
-      '+236': /^[7]\d{7}$/, // Central African Republic: 8 digits starting with 7
-      '+237': /^[6-7]\d{8}$/, // Cameroon: 9 digits starting with 6-7
-      '+238': /^[9]\d{6}$/, // Cape Verde: 7 digits starting with 9
-      '+239': /^[9]\d{6}$/, // Sao Tome and Principe: 7 digits starting with 9
-      '+240': /^[2]\d{8}$/, // Equatorial Guinea: 9 digits starting with 2
-      '+241': /^[0-1]\d{7}$/, // Gabon: 8 digits starting with 0-1
-      '+242': /^[0]\d{8}$/, // Republic of the Congo: 9 digits starting with 0
-      '+243': /^[8-9]\d{8}$/, // Democratic Republic of the Congo: 9 digits starting with 8-9
-      '+244': /^[9]\d{8}$/, // Angola: 9 digits starting with 9
-      '+245': /^[9]\d{7}$/, // Guinea-Bissau: 8 digits starting with 9
-      '+246': /^[3]\d{6}$/, // British Indian Ocean Territory: 7 digits starting with 3
-      '+248': /^[2]\d{6}$/, // Seychelles: 7 digits starting with 2
-      '+249': /^9[0-9]\d{7}$/, // Sudan: 9 digits starting with 9
-      '+250': /^[7]\d{8}$/, // Rwanda: 9 digits starting with 7
-      '+251': /^9[0-9]\d{7}$/, // Ethiopia: 9 digits starting with 9
-      '+252': /^[6-7]\d{7}$/, // Somalia: 8 digits starting with 6-7
-      '+253': /^[7]\d{7}$/, // Djibouti: 8 digits starting with 7
-      '+254': /^[7]\d{8}$/, // Kenya: 9 digits starting with 7
-      '+255': /^[6-7]\d{8}$/, // Tanzania: 9 digits starting with 6-7
-      '+256': /^[7]\d{8}$/, // Uganda: 9 digits starting with 7
-      '+257': /^[7]\d{7}$/, // Burundi: 8 digits starting with 7
-      '+258': /^[8]\d{8}$/, // Mozambique: 9 digits starting with 8
-      '+260': /^[9]\d{8}$/, // Zambia: 9 digits starting with 9
-      '+261': /^[3]\d{8}$/, // Madagascar: 9 digits starting with 3
-      '+262': /^[6]\d{8}$/, // Reunion: 9 digits starting with 6
-      '+263': /^[7]\d{8}$/, // Zimbabwe: 9 digits starting with 7
-      '+264': /^[8]\d{7}$/, // Namibia: 8 digits starting with 8
-      '+265': /^[9]\d{7}$/, // Malawi: 8 digits starting with 9
-      '+266': /^[5-6]\d{7}$/, // Lesotho: 8 digits starting with 5-6
-      '+267': /^[7]\d{7}$/, // Botswana: 8 digits starting with 7
-      '+268': /^[7]\d{7}$/, // Swaziland: 8 digits starting with 7
-      '+269': /^[3]\d{6}$/, // Comoros: 7 digits starting with 3
-      '+290': /^[8]\d{3}$/, // Saint Helena: 4 digits starting with 8
-      '+291': /^[1]\d{7}$/, // Eritrea: 8 digits starting with 1
-      '+297': /^[5]\d{6}$/, // Aruba: 7 digits starting with 5
-      '+298': /^[2]\d{6}$/, // Faroe Islands: 7 digits starting with 2
-      '+299': /^[2]\d{6}$/, // Greenland: 7 digits starting with 2
-
-      // Oceania
-      '+61': /^[4-5]\d{8}$/, // Australia: 9 digits starting with 4-5
-      '+64': /^[2]\d{7,8}$/, // New Zealand: 8-9 digits starting with 2
-      '+679': /^[7-9]\d{6}$/, // Fiji: 7 digits starting with 7-9
-      '+685': /^[6-7]\d{6}$/, // Samoa: 7 digits starting with 6-7
-      '+676': /^[7]\d{6}$/, // Tonga: 7 digits starting with 7
-      '+677': /^[7]\d{6}$/, // Solomon Islands: 7 digits starting with 7
-      '+678': /^[5-7]\d{6}$/, // Vanuatu: 7 digits starting with 5-7
-      '+680': /^[6]\d{6}$/, // Palau: 7 digits starting with 6
-      '+681': /^[4]\d{5}$/, // Wallis and Futuna: 6 digits starting with 4
-      '+682': /^[2-5]\d{5}$/, // Cook Islands: 6 digits starting with 2-5
-      '+683': /^[5]\d{5}$/, // Niue: 6 digits starting with 5
-      '+684': /^[6]\d{5}$/, // American Samoa: 6 digits starting with 6
-      '+685': /^[6-7]\d{6}$/, // Samoa: 7 digits starting with 6-7
-      '+686': /^[2-9]\d{6}$/, // Kiribati: 7 digits starting with 2-9
-      '+687': /^[7]\d{6}$/, // New Caledonia: 7 digits starting with 7
-      '+688': /^[2]\d{6}$/, // Tuvalu: 7 digits starting with 2
-      '+689': /^[8]\d{7}$/, // French Polynesia: 8 digits starting with 8
-      '+690': /^[3]\d{5}$/, // Tokelau: 6 digits starting with 3
-      '+691': /^[3]\d{6}$/, // Micronesia: 7 digits starting with 3
-      '+692': /^[2-3]\d{6}$/, // Marshall Islands: 7 digits starting with 2-3
-
-      // South America
-      '+55': /^[1-9]\d{10}$/, // Brazil: 11 digits starting with 1-9
-      '+54': /^[1-9]\d{9}$/, // Argentina: 10 digits starting with 1-9
-      '+56': /^[2-9]\d{8}$/, // Chile: 9 digits starting with 2-9
-      '+57': /^[3]\d{9}$/, // Colombia: 10 digits starting with 3
-      '+58': /^[2-4]\d{9}$/, // Venezuela: 10 digits starting with 2-4
-      '+51': /^[9]\d{8}$/, // Peru: 9 digits starting with 9
-      '+52': /^[1-9]\d{9}$/, // Mexico: 10 digits starting with 1-9
-      '+53': /^[5]\d{7}$/, // Cuba: 8 digits starting with 5
-      '+592': /^[6]\d{6}$/, // Guyana: 7 digits starting with 6
-      '+593': /^[9]\d{8}$/, // Ecuador: 9 digits starting with 9
-      '+594': /^[6]\d{8}$/, // French Guiana: 9 digits starting with 6
-      '+595': /^[9]\d{8}$/, // Paraguay: 9 digits starting with 9
-      '+596': /^[6]\d{8}$/, // Martinique: 9 digits starting with 6
-      '+597': /^[6-7]\d{6}$/, // Suriname: 7 digits starting with 6-7
-      '+598': /^[9]\d{7}$/, // Uruguay: 8 digits starting with 9
-      '+599': /^[9]\d{6}$/, // Netherlands Antilles: 7 digits starting with 9
-
-      // Central America & Caribbean
-      '+500': /^[2-9]\d{4}$/, // Falkland Islands: 5 digits starting with 2-9
-      '+501': /^[6]\d{6}$/, // Belize: 7 digits starting with 6
-      '+502': /^[4-6]\d{7}$/, // Guatemala: 8 digits starting with 4-6
-      '+503': /^[6-7]\d{7}$/, // El Salvador: 8 digits starting with 6-7
-      '+504': /^[8-9]\d{7}$/, // Honduras: 8 digits starting with 8-9
-      '+505': /^[8]\d{7}$/, // Nicaragua: 8 digits starting with 8
-      '+506': /^[6-8]\d{7}$/, // Costa Rica: 8 digits starting with 6-8
-      '+507': /^[6]\d{7}$/, // Panama: 8 digits starting with 6
-      '+508': /^[5]\d{5}$/, // Saint Pierre and Miquelon: 6 digits starting with 5
-      '+509': /^[3-4]\d{7}$/, // Haiti: 8 digits starting with 3-4
-      '+590': /^[6]\d{8}$/, // Guadeloupe: 9 digits starting with 6
-      '+591': /^[6-7]\d{7}$/, // Bolivia: 8 digits starting with 6-7
-      '+592': /^[6]\d{6}$/, // Guyana: 7 digits starting with 6
-      '+593': /^[9]\d{8}$/, // Ecuador: 9 digits starting with 9
-      '+594': /^[6]\d{8}$/, // French Guiana: 9 digits starting with 6
-      '+595': /^[9]\d{8}$/, // Paraguay: 9 digits starting with 9
-      '+596': /^[6]\d{8}$/, // Martinique: 9 digits starting with 6
-      '+597': /^[6-7]\d{6}$/, // Suriname: 7 digits starting with 6-7
-      '+598': /^[9]\d{7}$/, // Uruguay: 8 digits starting with 9
-      '+599': /^[9]\d{6}$/, // Netherlands Antilles: 7 digits starting with 9
-
-      // Special cases and territories
-      '+672': /^[1-4]\d{5}$/, // Antarctica/Norfolk Island: 6 digits starting with 1-4
-      '+290': /^[8]\d{3}$/, // Saint Helena: 4 digits starting with 8
-      '+291': /^[1]\d{7}$/, // Eritrea: 8 digits starting with 1
-      '+297': /^[5]\d{6}$/, // Aruba: 7 digits starting with 5
-      '+298': /^[2]\d{6}$/, // Faroe Islands: 7 digits starting with 2
-      '+299': /^[2]\d{6}$/, // Greenland: 7 digits starting with 2
-      '+350': /^[5]\d{7}$/, // Gibraltar: 8 digits starting with 5
-      '+351': /^[9]\d{8}$/, // Portugal: 9 digits starting with 9
-      '+352': /^[6]\d{7}$/, // Luxembourg: 8 digits starting with 6
-      '+353': /^[8]\d{8}$/, // Ireland: 9 digits starting with 8
-      '+354': /^[6]\d{7}$/, // Iceland: 8 digits starting with 6
-      '+355': /^[6]\d{7}$/, // Albania: 8 digits starting with 6
-      '+356': /^[7-9]\d{7}$/, // Malta: 8 digits starting with 7-9
-      '+357': /^[9]\d{7}$/, // Cyprus: 8 digits starting with 9
-      '+358': /^[4]\d{8}$/, // Finland: 9 digits starting with 4
-      '+359': /^[8]\d{7}$/, // Bulgaria: 8 digits starting with 8
-      '+370': /^[6]\d{7}$/, // Lithuania: 8 digits starting with 6
-      '+371': /^[2]\d{7}$/, // Latvia: 8 digits starting with 2
-      '+372': /^[5]\d{7}$/, // Estonia: 8 digits starting with 5
-      '+373': /^[6]\d{7}$/, // Moldova: 8 digits starting with 6
-      '+374': /^[4]\d{7}$/, // Armenia: 8 digits starting with 4
-      '+375': /^[2]\d{8}$/, // Belarus: 9 digits starting with 2
-      '+376': /^[3]\d{6}$/, // Andorra: 7 digits starting with 3
-      '+377': /^[4]\d{7}$/, // Monaco: 8 digits starting with 4
-      '+378': /^[6]\d{6}$/, // San Marino: 7 digits starting with 6
-      '+379': /^[6]\d{6}$/, // Vatican: 7 digits starting with 6
-      '+380': /^[3]\d{8}$/, // Ukraine: 9 digits starting with 3
-      '+381': /^[6]\d{7}$/, // Serbia: 8 digits starting with 6
-      '+382': /^[6]\d{6}$/, // Montenegro: 7 digits starting with 6
-      '+383': /^[4]\d{7}$/, // Kosovo: 8 digits starting with 4
-      '+385': /^[9]\d{7}$/, // Croatia: 8 digits starting with 9
-      '+386': /^[3]\d{7}$/, // Slovenia: 8 digits starting with 3
-      '+387': /^[6]\d{6}$/, // Bosnia and Herzegovina: 7 digits starting with 6
-      '+389': /^[7]\d{6}$/, // North Macedonia: 7 digits starting with 7
-      '+420': /^[6]\d{8}$/, // Czech Republic: 9 digits starting with 6
-      '+421': /^[9]\d{7}$/, // Slovakia: 8 digits starting with 9
-      '+423': /^[7]\d{6}$/, // Liechtenstein: 7 digits starting with 7
-      '+500': /^[2]\d{4}$/, // Falkland Islands: 5 digits starting with 2
-      '+501': /^[6]\d{6}$/, // Belize: 7 digits starting with 6
-      '+502': /^[4]\d{7}$/, // Guatemala: 8 digits starting with 4
-      '+503': /^[6]\d{7}$/, // El Salvador: 8 digits starting with 6
-      '+504': /^[8]\d{7}$/, // Honduras: 8 digits starting with 8
-      '+505': /^[8]\d{7}$/, // Nicaragua: 8 digits starting with 8
-      '+506': /^[6]\d{7}$/, // Costa Rica: 8 digits starting with 6
-      '+507': /^[6]\d{7}$/, // Panama: 8 digits starting with 6
-      '+508': /^[5]\d{5}$/, // Saint Pierre and Miquelon: 6 digits starting with 5
-      '+509': /^[3]\d{7}$/, // Haiti: 8 digits starting with 3
-      '+590': /^[6]\d{8}$/, // Guadeloupe: 9 digits starting with 6
-      '+591': /^[6]\d{7}$/, // Bolivia: 8 digits starting with 6
-      '+592': /^[6]\d{6}$/, // Guyana: 7 digits starting with 6
-      '+593': /^[9]\d{8}$/, // Ecuador: 9 digits starting with 9
-      '+594': /^[6]\d{8}$/, // French Guiana: 9 digits starting with 6
-      '+595': /^[9]\d{8}$/, // Paraguay: 9 digits starting with 9
-      '+596': /^[6]\d{8}$/, // Martinique: 9 digits starting with 6
-      '+597': /^[6]\d{6}$/, // Suriname: 7 digits starting with 6
-      '+598': /^[9]\d{7}$/, // Uruguay: 8 digits starting with 9
-      '+599': /^[9]\d{6}$/, // Netherlands Antilles: 7 digits starting with 9
-      '+670': /^[7]\d{6}$/, // East Timor: 7 digits starting with 7
-      '+672': /^[1]\d{5}$/, // Antarctica: 6 digits starting with 1
-      '+673': /^[7]\d{6}$/, // Brunei: 7 digits starting with 7
-      '+674': /^[5]\d{6}$/, // Nauru: 7 digits starting with 5
-      '+675': /^[7]\d{7}$/, // Papua New Guinea: 8 digits starting with 7
-      '+676': /^[7]\d{6}$/, // Tonga: 7 digits starting with 7
-      '+677': /^[7]\d{6}$/, // Solomon Islands: 7 digits starting with 7
-      '+678': /^[5]\d{6}$/, // Vanuatu: 7 digits starting with 5
-      '+679': /^[7]\d{6}$/, // Fiji: 7 digits starting with 7
-      '+680': /^[6]\d{6}$/, // Palau: 7 digits starting with 6
-      '+681': /^[4]\d{5}$/, // Wallis and Futuna: 6 digits starting with 4
-      '+682': /^[2]\d{5}$/, // Cook Islands: 6 digits starting with 2
-      '+683': /^[5]\d{5}$/, // Niue: 6 digits starting with 5
-      '+684': /^[6]\d{5}$/, // American Samoa: 6 digits starting with 6
-      '+685': /^[6]\d{6}$/, // Samoa: 7 digits starting with 6
-      '+686': /^[2]\d{6}$/, // Kiribati: 7 digits starting with 2
-      '+687': /^[7]\d{6}$/, // New Caledonia: 7 digits starting with 7
-      '+688': /^[2]\d{6}$/, // Tuvalu: 7 digits starting with 2
-      '+689': /^[8]\d{7}$/, // French Polynesia: 8 digits starting with 8
-      '+690': /^[3]\d{5}$/, // Tokelau: 6 digits starting with 3
-      '+691': /^[3]\d{6}$/, // Micronesia: 7 digits starting with 3
-      '+692': /^[2]\d{6}$/, // Marshall Islands: 7 digits starting with 2
-    };
-
-    const pattern = phonePatterns[countryCode];
-    if (!pattern) {
-      // For countries without specific patterns, check if it's a reasonable length (7-15 digits)
-      return cleanPhone.length >= 7 && cleanPhone.length <= 15;
-    }
-
-    return pattern.test(cleanPhone);
   };
 
   const validateForm = () => {
@@ -700,14 +371,10 @@ export default function CreatorApplyPage() {
       return false;
     }
 
-    // Validate phone number format
     if (!validatePhoneNumber(formData.phone, formData.countryCode)) {
       setError('رقم الهاتف غير صحيح. يرجى إدخال رقم هاتف صحيح');
       return false;
     }
-    // Portfolio field is now optional
-    // if (!formData.portfolio.trim()) {
-    // }
     if (!formData.experience.trim()) {
       setError('وصف الخبرة مطلوب');
       return false;
@@ -738,24 +405,19 @@ export default function CreatorApplyPage() {
     setError('');
 
     try {
-      // Import API function
       const api = (await import('../../../lib/api')).default;
-
-      // Check if we have a token and set it in API headers
       const token = document.cookie
         .split('; ')
         .find(row => row.startsWith('authToken='))
         ?.split('=')[1];
 
       if (token) {
-        // Ensure token is set in API headers
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       } else {
         setError('لم يتم العثور على رمز المصادقة. يرجى تسجيل الدخول مرة أخرى.');
         return;
       }
 
-      // Send application data to backend
       const response = await api.post('/auth/apply-creator', {
         name: formData.name,
         portfolio: formData.portfolio,
@@ -767,8 +429,7 @@ export default function CreatorApplyPage() {
       });
 
       if (response.data.success) {
-        // Update the user data in AuthContext with the new creatorStatus
-        await refreshUserData(); // Force refresh user data to get updated creatorStatus
+        await refreshUserData();
         try {
           localStorage.removeItem('creatorApplyDraft');
         } catch (storageError) {
@@ -783,11 +444,8 @@ export default function CreatorApplyPage() {
         setError(response.data.message || 'حدث خطأ أثناء إرسال الطلب');
       }
     } catch (err) {
-      // Handle validation errors specifically
       if (err.response?.status === 400 && err.response?.data?.errors) {
         const validationErrors = err.response.data.errors;
-
-        // Show the first validation error
         const firstError = validationErrors[0];
         setError(firstError.msg || 'بيانات غير صحيحة');
       } else {
@@ -798,13 +456,35 @@ export default function CreatorApplyPage() {
     setLoading(false);
   };
 
+  const benefits = [
+    {
+      icon: <Sparkles className="w-6 h-6 text-orange-500" />,
+      title: "مستقبل الإبداع العربي",
+      description: "انضم إلى أكبر منصة عربية مخصصة لتصميم ونشر قوالب نوشن الاحترافية وبناء هويتك الرقمية."
+    },
+    {
+      icon: <Award className="w-6 h-6 text-purple-500" />,
+      title: "أرباح ودخل مادي مستمر",
+      description: "اعرض قوالبك المدفوعة لآلاف المستخدمين المهتمين واحصل على عوائد مالية مجزية شهرياً."
+    },
+    {
+      icon: <ShieldCheck className="w-6 h-6 text-blue-500" />,
+      title: "دعم فني وتسويق مخصص",
+      description: "نساعدك في تسويق أعمالك، وتقديم مراجعات تقنية احترافية لضمان جودة قوالبك وتطوير مهاراتك."
+    }
+  ];
+
   // Show loading state while checking authentication
   if (authLoading || !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300 flex items-center justify-center" dir="rtl">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-accent-600 dark:text-dark-text-secondary">جاري التحقق من الحساب...</p>
+      <div className="min-h-screen bg-mesh flex items-center justify-center font-sans" dir="rtl">
+        <div className="text-center relative">
+          <div className="w-20 h-20 relative mx-auto mb-6 flex items-center justify-center">
+            <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin absolute"></div>
+            <Sparkles className="w-6 h-6 text-primary animate-pulse" />
+          </div>
+          <p className="text-xl font-bold text-accent dark:text-dark-text-primary animate-pulse">جاري التحقق من الحساب...</p>
+          <p className="text-sm text-gray-400 dark:text-dark-text-secondary mt-2">يرجى الانتظار لحظات</p>
         </div>
       </div>
     );
@@ -813,110 +493,128 @@ export default function CreatorApplyPage() {
   // Check if user already has a pending or approved creator status
   if (user?.creatorStatus === 'pending') {
     return (
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
-        {/* Pending Status */}
-        <div className="container-custom py-8 sm:py-12 md:py-16">
-          <div className="max-w-2xl mx-auto text-center px-4 sm:px-0">
-            <div className="card p-4 sm:p-6 md:p-8">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                <svg className="w-8 h-8 sm:w-10 sm:h-10 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-yellow-600 dark:text-yellow-400 mb-3 sm:mb-4">
-                طلبك قيد المراجعة
-              </h1>
-              <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary mb-6 sm:mb-8">
-                تم استلام طلبك للانضمام كمبدع وهو قيد المراجعة حالياً. سنعاود التواصل معك خلال 3-5 أيام عمل.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-                <button
-                  onClick={async () => {
-                    try {
-                      await checkAuthStatus();
-                    } catch (error) {
-                      console.error('Failed to refresh status:', error);
-                    }
-                  }}
-                  className="btn-secondary flex items-center justify-center gap-2 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  تحديث الحالة
-                </button>
-                <Link href="/creators" className="btn-secondary px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-center">
-                  تصفح المبدعين
-                </Link>
-              </div>
-            </div>
+      <div className="min-h-screen bg-mesh flex items-center justify-center p-4 font-sans" dir="rtl">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-xl w-full bg-white/40 dark:bg-dark-secondary/40 backdrop-blur-xl rounded-[2.5rem] border border-white/20 dark:border-white/5 p-8 sm:p-12 text-center shadow-2xl relative overflow-hidden"
+        >
+          {/* Subtle Ambient Light */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-yellow-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+          <div className="w-24 h-24 bg-yellow-50 dark:bg-yellow-950/20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-yellow-500/10 border border-yellow-200/50 dark:border-yellow-900/30">
+            <Clock className="w-12 h-12 text-yellow-500 dark:text-yellow-400 animate-spin-slow" style={{ animationDuration: '6s' }} />
           </div>
-        </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-yellow-600 dark:text-yellow-400 mb-4 tracking-tight">
+            طلبك قيد المراجعة والتدقيق
+          </h1>
+          <p className="text-base sm:text-lg text-accent dark:text-dark-text-secondary leading-relaxed mb-8">
+            أهلاً بك يا مبدع! لقد استلمنا طلبك للانضمام إلى نخبة مبدعي عرب نوشن. فريقنا التقني يقوم حالياً بمراجعة طلبك للتأكد من مطابقة المعايير. سنقوم بالرد عليك خلال <span className="font-bold text-yellow-600 dark:text-yellow-400">3-5 أيام عمل</span>.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={async () => {
+                try {
+                  await checkAuthStatus();
+                } catch (error) {
+                  console.error('Failed to refresh status:', error);
+                }
+              }}
+              className="btn-primary px-8 py-4 text-base flex items-center justify-center gap-3 group"
+            >
+              <RotateCw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-700" />
+              <span>تحديث حالة الطلب</span>
+            </button>
+            <Link 
+              href="/creators" 
+              className="btn-secondary px-8 py-4 text-base flex items-center justify-center gap-3 hover:-translate-y-1 transition-transform"
+            >
+              <span>تصفح المبدعين الآخرين</span>
+              <ChevronLeft className="w-5 h-5" />
+            </Link>
+          </div>
+        </motion.div>
       </div>
     );
   }
 
   if (user?.creatorStatus === 'approved') {
     return (
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
+      <div className="min-h-screen bg-mesh flex items-center justify-center p-4 font-sans" dir="rtl">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-xl w-full bg-white/40 dark:bg-dark-secondary/40 backdrop-blur-xl rounded-[2.5rem] border border-white/20 dark:border-white/5 p-8 sm:p-12 text-center shadow-2xl relative overflow-hidden"
+        >
+          {/* Subtle Ambient Light */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-green-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-
-        {/* Approved Status */}
-        <div className="container-custom py-8 sm:py-12 md:py-16">
-          <div className="max-w-2xl mx-auto text-center px-4 sm:px-0">
-            <div className="card p-4 sm:p-6 md:p-8">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                <svg className="w-8 h-8 sm:w-10 sm:h-10 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-green-600 dark:text-green-400 mb-3 sm:mb-4">
-                مبروك! أنت الآن مبدع معتمد
-              </h1>
-              <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary mb-6 sm:mb-8">
-                تم قبول طلبك للانضمام كمبدع. يمكنك الآن الوصول إلى لوحة التحكم والبدء في إنشاء وبيع قوالبك.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-                <Link href="/profile" className="btn-primary px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-center">
-                  لوحة التحكم
-                </Link>
-                <Link href="/creators" className="btn-secondary px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-center">
-                  تصفح المبدعين
-                </Link>
-              </div>
-            </div>
+          <div className="w-24 h-24 bg-green-50 dark:bg-green-950/20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-500/10 border border-green-200/50 dark:border-green-900/30 animate-bounce">
+            <CheckCircle className="w-12 h-12 text-green-500 dark:text-green-400" />
           </div>
-        </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-green-600 dark:text-green-400 mb-4 tracking-tight">
+            تهانينا الحارة! تم قبولك كمبدع
+          </h1>
+          <p className="text-base sm:text-lg text-accent dark:text-dark-text-secondary leading-relaxed mb-8">
+            أنت الآن مبدع معتمد بشكل رسمي في عرب نوشن! يمكنك الآن التوجه إلى لوحة التحكم الخاصة بك للبدء في نشر قوالبك الإبداعية وبيعها لآلاف المستخدمين.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link 
+              href="/profile" 
+              className="btn-primary px-8 py-4 text-base flex items-center justify-center gap-3 shadow-green-500/20"
+            >
+              <span>دخول لوحة التحكم</span>
+              <Sparkles className="w-5 h-5" />
+            </Link>
+            <Link 
+              href="/creators" 
+              className="btn-secondary px-8 py-4 text-base flex items-center justify-center gap-3"
+            >
+              <span>تصفح المبدعين</span>
+              <ChevronLeft className="w-5 h-5" />
+            </Link>
+          </div>
+        </motion.div>
       </div>
     );
   }
 
   if (user?.creatorStatus === 'rejected') {
     return (
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
-        {/* Rejected Status */}
-        <div className="container-custom py-8 sm:py-12 md:py-16">
-          <div className="max-w-2xl mx-auto text-center px-4 sm:px-0">
-            <div className="card p-4 sm:p-6 md:p-8">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                <svg className="w-8 h-8 sm:w-10 sm:h-10 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-red-600 dark:text-red-400 mb-3 sm:mb-4">
-                لم يتم قبول طلبك
-              </h1>
-              <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary mb-6 sm:mb-8">
-                نأسف، لم يتم قبول طلبك للانضمام كمبدع في هذا الوقت. يمكنك المحاولة مرة أخرى في المستقبل.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-                <Link href="/creators" className="btn-secondary px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-center">
-                  تصفح المبدعين
-                </Link>
-              </div>
-            </div>
+      <div className="min-h-screen bg-mesh flex items-center justify-center p-4 font-sans" dir="rtl">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-xl w-full bg-white/40 dark:bg-dark-secondary/40 backdrop-blur-xl rounded-[2.5rem] border border-white/20 dark:border-white/5 p-8 sm:p-12 text-center shadow-2xl relative overflow-hidden"
+        >
+          {/* Subtle Ambient Light */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-red-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+          <div className="w-24 h-24 bg-red-50 dark:bg-red-950/20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-red-500/10 border border-red-200/50 dark:border-red-900/30">
+            <X className="w-12 h-12 text-red-500 dark:text-red-400" />
           </div>
-        </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-red-600 dark:text-red-400 mb-4 tracking-tight">
+            نعتذر، لم يتم قبول طلبك حالياً
+          </h1>
+          <p className="text-base sm:text-lg text-accent dark:text-dark-text-secondary leading-relaxed mb-8">
+            نشكرك جزيل الشكر على وقتك واهتمامك بالانضمام إلينا. للأسف، لم تكن الشروط مستوفاة في طلبك الحالي لتصميم القوالب. لا تستسلم، يمكنك دائماً تطوير مهاراتك وإعادة المحاولة في وقت لاحق!
+          </p>
+
+          <div className="flex justify-center">
+            <Link 
+              href="/creators" 
+              className="btn-primary px-8 py-4 text-base flex items-center justify-center gap-3"
+            >
+              <span>استكشف أعمال المبدعين لإلهامك</span>
+              <ChevronLeft className="w-5 h-5" />
+            </Link>
+          </div>
+        </motion.div>
       </div>
     );
   }
@@ -924,106 +622,122 @@ export default function CreatorApplyPage() {
   // Show success state only if user doesn't have a pending status yet
   if (success && user?.creatorStatus !== 'pending') {
     return (
-      <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
-        {/* Success Message */}
-        <div className="container-custom py-8 sm:py-12 md:py-16">
-          <div className="max-w-2xl mx-auto text-center px-4 sm:px-0">
-            <div className="card p-4 sm:p-6 md:p-8">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                <svg className="w-8 h-8 sm:w-10 sm:h-10 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-green-600 dark:text-green-400 mb-3 sm:mb-4">
-                تم إرسال طلبك بنجاح!
-              </h1>
-              <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-dark-text-secondary mb-6 sm:mb-8">
-                شكراً لك على اهتمامك بالانضمام إلى مجتمع المبدعين. سنراجع طلبك وسنعاود التواصل معك خلال 3-5 أيام عمل.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-                <Link href="/creators" className="btn-secondary px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-center">
-                  تصفح المبدعين
-                </Link>
-              </div>
-            </div>
+      <div className="min-h-screen bg-mesh flex items-center justify-center p-4 font-sans" dir="rtl">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-xl w-full bg-white/40 dark:bg-dark-secondary/40 backdrop-blur-xl rounded-[2.5rem] border border-white/20 dark:border-white/5 p-8 sm:p-12 text-center shadow-2xl relative overflow-hidden"
+        >
+          <div className="w-24 h-24 bg-green-50 dark:bg-green-950/20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-500/10 border border-green-200/50 dark:border-green-900/30 animate-pulse">
+            <Check className="w-12 h-12 text-green-500 dark:text-green-400" />
           </div>
-        </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-green-600 dark:text-green-400 mb-4 tracking-tight">
+            تم إرسال طلبك بنجاح تام!
+          </h1>
+          <p className="text-base sm:text-lg text-accent dark:text-dark-text-secondary leading-relaxed mb-8">
+            نشكرك على رغبتك في الانضمام إلينا والبدء في هذه الرحلة الممتعة. لقد قمنا بتسجيل طلبك بنجاح، وسيتواصل معك أحد مراجعينا الفنيين لمراجعة تفاصيل طلبك وأعمالك قريباً.
+          </p>
+
+          <div className="flex justify-center">
+            <Link 
+              href="/creators" 
+              className="btn-primary px-8 py-4 text-base flex items-center justify-center gap-3"
+            >
+              <span>تصفح المنصة والمبدعين</span>
+              <ChevronLeft className="w-5 h-5" />
+            </Link>
+          </div>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-secondary-50 via-white to-primary-50/30 dark:from-dark-primary dark:via-dark-secondary dark:to-dark-tertiary transition-colors duration-300" dir="rtl">
-      {/* Main Content */}
-      <div className="container-custom py-8 sm:py-12 md:py-16">
-        <div className="max-w-5xl mx-auto px-4 sm:px-0">
-          {/* Header */}
-          <div className="text-center mb-8 sm:mb-12 md:mb-16">
-            <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl sm:rounded-2xl mb-4 sm:mb-6 shadow-lg">
-              <svg className="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-            </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-primary-600 to-accent-600 dark:from-orange-400 dark:to-orange-300 bg-clip-text text-transparent">
-              انضم إلى مجتمع المبدعين
-            </h1>
-            <p className="text-base sm:text-lg md:text-xl text-accent-600 dark:text-dark-text-secondary max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
-              شارك مواهبك مع العالم وابدأ في إنشاء وبيع قوالب نوشن احترافية.
-              <br className="hidden sm:block" />
-              كن جزءاً من مجتمع المبدعين الرائدين في المنطقة العربية
-            </p>
+    <div className="min-h-screen bg-mesh transition-colors duration-300 font-sans relative overflow-hidden pb-20" dir="rtl">
+      {/* Background Glows */}
+      <div className="absolute top-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
+      <div className="absolute bottom-[10%] left-[-10%] w-[40vw] h-[40vw] bg-accent-500/5 rounded-full blur-[100px] pointer-events-none"></div>
 
-            {/* Benefits Section */}
-            <div className="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6 max-w-4xl mx-auto px-4 sm:px-0">
-              <div className="flex items-center justify-center space-x-3 space-x-reverse bg-white/60 dark:bg-dark-card-bg/60 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/20 dark:border-dark-card-border">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                </div>
-                <span className="text-xs sm:text-sm font-medium text-accent-700 dark:text-dark-text-primary">دعم فني مستمر</span>
-              </div>
-              <div className="flex items-center justify-center space-x-3 space-x-reverse bg-white/60 dark:bg-dark-card-bg/60 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/20 dark:border-dark-card-border">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                </div>
-                <span className="text-xs sm:text-sm font-medium text-accent-700 dark:text-dark-text-primary">مجتمع نشط</span>
-              </div>
-              <div className="flex items-center justify-center space-x-3 space-x-reverse bg-white/60 dark:bg-dark-card-bg/60 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/20 dark:border-dark-card-border sm:col-span-2 md:col-span-1">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <span className="text-xs sm:text-sm font-medium text-accent-700 dark:text-dark-text-primary">جودة عالية</span>
-              </div>
+      <div className="container-custom py-12 sm:py-16 md:py-24 relative z-10">
+        <div className="max-w-4xl mx-auto px-4 sm:px-0">
+          
+          {/* Premium Header */}
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16 sm:mb-20"
+          >
+            {/* Pulsing Pill */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary font-bold text-xs sm:text-sm mb-6 animate-pulse">
+              <Sparkles className="w-4 h-4" />
+              <span>انضم لمستقبل الإبداع العربي الرقمي</span>
             </div>
+
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black leading-normal py-2 mb-6 bg-gradient-to-r from-primary to-orange-500 bg-clip-text text-transparent">
+              كُن من صنّاع المحتوى والنخبة
+            </h1>
+            
+            <p className="text-base sm:text-xl text-accent dark:text-dark-text-secondary max-w-2xl mx-auto leading-relaxed font-medium">
+              حوّل مهاراتك في تنظيم وتصميم قوالب نوشن الرقمية إلى عوائد مالية مستمرة وشهرة واسعة في المنطقة العربية بأكملها.
+            </p>
+          </motion.div>
+
+          {/* Premium Benefits Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mb-16 sm:mb-24">
+            {benefits.map((b, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: idx * 0.15 }}
+                className="group relative bg-white/40 dark:bg-dark-secondary/25 backdrop-blur-xl rounded-[2rem] border border-white/20 dark:border-white/5 p-8 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col h-full overflow-hidden"
+              >
+                {/* Accent glow on hover */}
+                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors duration-500"></div>
+
+                <div className="w-12 h-12 bg-gray-50 dark:bg-dark-tertiary rounded-2xl flex items-center justify-center mb-5 border border-gray-100 dark:border-white/5 shadow-sm group-hover:scale-110 group-hover:bg-primary/10 transition-all duration-300">
+                  {b.icon}
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-accent dark:text-dark-text-primary mb-3">
+                  {b.title}
+                </h3>
+                <p className="text-sm sm:text-base text-gray-500 dark:text-dark-text-secondary leading-relaxed font-medium flex-1">
+                  {b.description}
+                </p>
+              </motion.div>
+            ))}
           </div>
 
-          {/* Application Form */}
-          <div className="card p-4 sm:p-6 md:p-8 lg:p-12 shadow-xl border-0 bg-white/80 dark:bg-dark-card-bg/80 backdrop-blur-sm">
-            <form onSubmit={handleSubmit} className="space-y-8 sm:space-y-10 md:space-y-12">
-              {/* Personal Information */}
-              <div className="space-y-6 sm:space-y-8">
-                <div className="flex items-center space-x-3 space-x-reverse mb-4 sm:mb-6">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg sm:rounded-xl flex items-center justify-center">
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+          {/* Premium Form Container */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
+            className="bg-white/40 dark:bg-dark-secondary/20 backdrop-blur-2xl rounded-[3rem] border border-white/30 dark:border-white/5 p-6 sm:p-10 md:p-12 shadow-2xl relative overflow-hidden"
+          >
+            {/* Subtle glow border */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-accent-500/5 pointer-events-none rounded-[3rem]"></div>
+
+            <form onSubmit={handleSubmit} className="space-y-10 relative z-10">
+              
+              {/* SECTION: Personal Info */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 border-b border-gray-100 dark:border-white/5 pb-4 mb-8">
+                  <div className="w-10 h-10 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+                    <User className="w-5 h-5" />
                   </div>
-                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-primary-600 dark:text-orange-400">
-                    المعلومات الشخصية
+                  <h2 className="text-xl sm:text-2xl font-black text-accent dark:text-dark-text-primary">
+                    المعلومات الشخصية الأساسية
                   </h2>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
-                  <div className="space-y-2">
-                    <label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-2 sm:mb-3">
-                      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-primary-500 ml-1 sm:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+                  
+                  {/* Name field */}
+                  <div className="space-y-2 relative group">
+                    <label className="flex items-center text-sm font-bold text-accent dark:text-dark-text-primary">
                       الاسم الكامل *
                     </label>
                     <div className="relative">
@@ -1032,30 +746,18 @@ export default function CreatorApplyPage() {
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
-                        className="form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400"
+                        className="w-full px-5 py-4 pl-12 border-2 border-gray-100 dark:border-white/5 rounded-2xl bg-white/50 dark:bg-dark-tertiary/20 text-accent dark:text-white placeholder-gray-400 outline-none transition-all duration-300 focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-gray-300 dark:hover:border-white/10 font-medium"
                         placeholder="أدخل اسمك الكامل"
                         required
                       />
-                      <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                      </div>
+                      <User className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2 transition-colors group-focus-within:text-primary" />
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center">
-                      <svg className="w-3 h-3 ml-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span className="hidden sm:inline">يمكنك تعديل اسمك إذا كان مختلفاً عن الاسم المسجل في حسابك</span>
-                      <span className="sm:hidden">يمكن تعديل الاسم</span>
-                    </p>
+                    <p className="text-xs text-gray-400 mt-1">يمكنك استخدام اسمك الفني أو تعديله كما ترغب بالظهور للجمهور.</p>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-2 sm:mb-3">
-                      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-primary-500 ml-1 sm:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                      </svg>
+                  {/* Email field */}
+                  <div className="space-y-2 relative group">
+                    <label className="flex items-center text-sm font-bold text-accent dark:text-dark-text-primary">
                       البريد الإلكتروني *
                     </label>
                     <div className="relative">
@@ -1064,40 +766,75 @@ export default function CreatorApplyPage() {
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
-                        className="form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg sm:rounded-xl transition-all duration-200 cursor-not-allowed"
+                        className="w-full px-5 py-4 pl-12 border-2 border-gray-100 dark:border-white/5 rounded-2xl bg-gray-100 dark:bg-dark-tertiary/10 text-gray-500 dark:text-gray-400 placeholder-gray-400 outline-none font-medium cursor-not-allowed"
                         placeholder="example@email.com"
                         required
                         disabled={isAuthenticated}
                       />
-                      <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                      <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2">
-                        <svg className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                        </svg>
-                      </div>
+                      <Mail className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center">
-                      <svg className="w-3 h-3 ml-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span className="hidden sm:inline">هذا الحقل مملوء تلقائياً من حسابك ولا يمكن تعديله</span>
-                      <span className="sm:hidden">مملوء تلقائياً</span>
-                    </p>
+                    <p className="text-xs text-gray-400 mt-1">هذا هو البريد الإلكتروني الأساسي المرتبط بحسابك الحالي.</p>
                   </div>
 
-                  <div className="space-y-2 lg:col-span-2">
-                    <label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-2 sm:mb-3">
-                      <svg className="w-3 h-3 sm:w-4 sm:h-4 text-primary-500 ml-1 sm:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                      </svg>
-                      رقم الهاتف *
+                  {/* Phone field */}
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="flex items-center text-sm font-bold text-accent dark:text-dark-text-primary mb-1">
+                      رقم الهاتف لتواصل المشرفين *
                     </label>
                     <div className="flex flex-col sm:flex-row gap-3">
-                      {/* Phone Number Input */}
+                      
+                      {/* Dropdown for Country Code */}
+                      <div className="relative w-full sm:w-56" ref={countryDropdownRef}>
+                        <button
+                          type="button"
+                          onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
+                          className="w-full px-4 py-4 border-2 border-gray-100 dark:border-white/5 rounded-2xl bg-white/50 dark:bg-dark-tertiary/20 text-accent dark:text-white outline-none flex items-center justify-between hover:border-gray-300 dark:hover:border-white/10 transition-all duration-300 cursor-pointer"
+                        >
+                          <div className="flex items-center gap-2">
+                            <ReactCountryFlag
+                              countryCode={countryOptions.find(c => c.code === formData.countryCode)?.countryCode || 'EG'}
+                              svg
+                              style={{ width: '20px', height: '14px', borderRadius: '3px' }}
+                            />
+                            <span className="font-bold text-sm sm:text-base">({formData.countryCode})</span>
+                          </div>
+                          <span className="text-xs sm:text-sm font-bold truncate pr-2">
+                            {countryOptions.find(c => c.code === formData.countryCode)?.name || 'Egypt'}
+                          </span>
+                          <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${isCountryDropdownOpen ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        <AnimatePresence>
+                          {isCountryDropdownOpen && (
+                            <motion.div 
+                              initial={{ opacity: 0, y: 5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: 5 }}
+                              className="absolute z-50 w-full mt-2 bg-white dark:bg-dark-secondary border border-gray-100 dark:border-white/5 rounded-2xl shadow-2xl max-h-60 overflow-y-auto"
+                            >
+                              {countryOptions.map((country, index) => (
+                                <button
+                                  key={`${country.code}-${country.name}-${index}`}
+                                  type="button"
+                                  onClick={() => handleCountrySelect(country)}
+                                  className="w-full px-4 py-3 text-right flex items-center justify-between gap-3 hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200"
+                                >
+                                  <ReactCountryFlag
+                                    countryCode={country.countryCode}
+                                    svg
+                                    style={{ width: '18px', height: '12px', borderRadius: '2px' }}
+                                  />
+                                  <span className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-dark-text-secondary flex-1 text-right truncate">
+                                    {country.name} ({country.code})
+                                  </span>
+                                </button>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+
+                      {/* Phone input field */}
                       <div className="relative flex-1">
                         <input
                           type="tel"
@@ -1105,280 +842,205 @@ export default function CreatorApplyPage() {
                           value={formData.phone}
                           onChange={handleChange}
                           onKeyDown={handlePhoneKeyDown}
-                          className={`form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 rounded-lg sm:rounded-xl transition-all duration-200 w-full ${phoneError
-                            ? 'border-red-500 dark:border-red-500 focus:border-red-500 dark:focus:border-red-500'
-                            : 'border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 hover:border-primary-300 dark:hover:border-orange-400'
-                            }`}
+                          className={`w-full px-5 py-4 pl-12 border-2 rounded-2xl bg-white/50 dark:bg-dark-tertiary/20 text-accent dark:text-white placeholder-gray-400 outline-none transition-all duration-300 font-medium ${phoneError
+                            ? 'border-red-500 focus:ring-red-500/10'
+                            : 'border-gray-100 dark:border-white/5 focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-gray-300 dark:hover:border-white/10'
+                          }`}
                           placeholder="50 123 4567"
                           required
                         />
-                        <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
-                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                          </svg>
-                        </div>
-                      </div>
-
-                      {/* Country Code Dropdown */}
-                      <div className="relative w-full sm:w-48" ref={countryDropdownRef}>
-                        <button
-                          type="button"
-                          onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
-                          className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 w-full pr-3 sm:pr-4 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-gray-200 dark:border-dark-input-border rounded-lg sm:rounded-xl appearance-none text-right flex items-center"
-                        >
-                          <span className="flex-1 text-right truncate pr-2 sm:pr-8 text-xs sm:text-base">
-                            <span className="hidden sm:inline">{countryOptions.find(c => c.code === formData.countryCode)?.name || 'Egypt'} ({formData.countryCode})</span>
-                            <span className="sm:hidden">({formData.countryCode})</span>
-                          </span>
-                          <div className="flex items-center gap-1 sm:gap-2">
-                            <ReactCountryFlag
-                              countryCode={countryOptions.find(c => c.code === formData.countryCode)?.countryCode || 'EG'}
-                              svg
-                              style={{ width: '16px', height: '12px' }}
-                              className="sm:w-5 sm:h-4"
-                            />
-                          </div>
-                        </button>
-
-                        {/* Dropdown Options */}
-                        {isCountryDropdownOpen && (
-                          <div className="absolute z-50 w-full mt-1 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-lg sm:rounded-xl shadow-lg max-h-60 overflow-y-auto">
-                            {countryOptions.map((country, index) => (
-                              <button
-                                key={`${country.code}-${country.name}-${index}`}
-                                type="button"
-                                onClick={() => handleCountrySelect(country)}
-                                className="w-full px-3 sm:px-4 py-2 sm:py-3 text-right flex items-center justify-between gap-2 sm:gap-3 hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200 first:rounded-t-lg sm:first:rounded-t-xl last:rounded-b-lg sm:last:rounded-b-xl"
-                              >
-                                <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-dark-text-secondary flex-1 text-right truncate">
-                                  {country.name} ({country.code})
-                                </span>
-                                <ReactCountryFlag
-                                  countryCode={country.countryCode}
-                                  svg
-                                  style={{ width: '16px', height: '12px' }}
-                                  className="sm:w-5 sm:h-4"
-                                />
-                              </button>
-                            ))}
-                          </div>
-                        )}
+                        <Phone className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
                       </div>
                     </div>
                     {phoneError && (
-                      <p className="text-red-500 text-xs mt-2 flex items-center">
-                        <svg className="w-3 h-3 ml-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {phoneError}
+                      <p className="text-red-500 text-xs mt-2 flex items-center gap-1.5 font-semibold">
+                        <AlertCircle className="w-3.5 h-3.5" />
+                        <span>{phoneError}</span>
                       </p>
                     )}
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                      <span className="hidden sm:inline">اختر رمز البلد وأدخل رقم هاتفك بدون رمز البلد</span>
-                      <span className="sm:hidden">اختر رمز البلد وأدخل رقم الهاتف</span>
-                    </p>
                   </div>
+
                 </div>
               </div>
 
-              {/* Professional Information */}
-              <div className="space-y-6 sm:space-y-8">
-                <div className="flex items-center space-x-3 space-x-reverse mb-4 sm:mb-6">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg sm:rounded-xl flex items-center justify-center">
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6" />
-                    </svg>
+              {/* SECTION: Professional Info */}
+              <div className="space-y-6 pt-4">
+                <div className="flex items-center gap-3 border-b border-gray-100 dark:border-white/5 pb-4 mb-8">
+                  <div className="w-10 h-10 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+                    <Briefcase className="w-5 h-5" />
                   </div>
-                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-primary-600 dark:text-orange-400">
-                    المعلومات المهنية
+                  <h2 className="text-xl sm:text-2xl font-black text-accent dark:text-dark-text-primary">
+                    الخبرة المهنية وصناعة القوالب
                   </h2>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-2 sm:mb-3">
-                    <svg className="w-3 h-3 sm:w-4 sm:h-4 text-primary-500 ml-1 sm:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                    رابط المعرض أو الأعمال السابقة
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="url"
-                      name="portfolio"
-                      value={formData.portfolio}
-                      onChange={handleChange}
-                      className="form-input pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400"
-                      placeholder="https://example.com/portfolio (اختياري)"
-                    />
-                    <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                      </svg>
+                <div className="space-y-6">
+                  
+                  {/* Portfolio field */}
+                  <div className="space-y-2 relative group">
+                    <label className="flex items-center text-sm font-bold text-accent dark:text-dark-text-primary">
+                      رابط معرض أعمالك السابقة أو موقعك الشخصي
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="url"
+                        name="portfolio"
+                        value={formData.portfolio}
+                        onChange={handleChange}
+                        className="w-full px-5 py-4 pl-12 border-2 border-gray-100 dark:border-white/5 rounded-2xl bg-white/50 dark:bg-dark-tertiary/20 text-accent dark:text-white placeholder-gray-400 outline-none transition-all duration-300 focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-gray-300 dark:hover:border-white/10 font-medium"
+                        placeholder="https://example.com/portfolio (اختياري)"
+                      />
+                      <Globe className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
                     </div>
+                    <p className="text-xs text-gray-400 mt-1">يمكنك مشاركة معرض أعمالك، موقعك الشخصي، أو أي منصة عرض أخرى تدعم مهاراتك.</p>
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                    <span className="hidden sm:inline">يمكنك مشاركة موقعك الشخصي أو أي منصة أخرى تعرض أعمالك</span>
-                    <span className="sm:hidden">رابط المعرض أو الأعمال السابقة (اختياري)</span>
-                  </p>
-                </div>
 
-                <div className="space-y-2">
-                  <label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-2 sm:mb-3">
-                    <svg className="w-3 h-3 sm:w-4 sm:h-4 text-primary-500 ml-1 sm:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    وصف خبرتك في التصميم أو إنشاء القوالب *
-                  </label>
-                  <textarea
-                    name="experience"
-                    value={formData.experience}
-                    onChange={handleChange}
-                    rows={4}
-                    className="form-input px-3 sm:px-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400 resize-none"
-                    placeholder="أخبرنا عن خبرتك في مجال التصميم، عدد سنوات العمل، والمشاريع التي عملت عليها..."
-                    required
-                  />
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                    <span className="hidden sm:inline">شاركنا تفاصيل عن خبرتك، المشاريع التي عملت عليها، وأي إنجازات مهمة</span>
-                    <span className="sm:hidden">شاركنا تفاصيل عن خبرتك ومشاريعك</span>
-                  </p>
-                </div>
+                  {/* Experience description */}
+                  <div className="space-y-2">
+                    <label className="flex items-center text-sm font-bold text-accent dark:text-dark-text-primary">
+                      صف لنا خبرتك في إنشاء قوالب نوشن الرقمية أو التصميم *
+                    </label>
+                    <textarea
+                      name="experience"
+                      value={formData.experience}
+                      onChange={handleChange}
+                      rows={4}
+                      className="w-full px-5 py-4 border-2 border-gray-100 dark:border-white/5 rounded-2xl bg-white/50 dark:bg-dark-tertiary/20 text-accent dark:text-white placeholder-gray-400 outline-none transition-all duration-300 focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-gray-300 dark:hover:border-white/10 resize-none font-medium leading-relaxed"
+                      placeholder="أخبرنا عن سنوات خبرتك، نوعية المشاريع التي قمت بتطويرها، وأبرز الأدوات والميزات التي تتقن استخدامها في نوشن..."
+                      required
+                    />
+                  </div>
 
-                <div className="space-y-3 sm:space-y-4">
-                  <label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-3 sm:mb-4">
-                    <svg className="w-3 h-3 sm:w-4 sm:h-4 text-primary-500 ml-1 sm:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                    </svg>
-                    المجالات التي تختص بها *
-                  </label>
-                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-3 sm:mb-4">
-                    <span className="hidden sm:inline">اختر المجالات التي تبرع فيها (يمكنك اختيار أكثر من مجال)</span>
-                    <span className="sm:hidden">اختر المجالات التي تبرع فيها</span>
-                  </p>
+                  {/* Specialty selection */}
+                  <div className="space-y-3 relative">
+                    <label className="flex items-center text-sm font-bold text-accent dark:text-dark-text-primary">
+                      المجالات والقطاعات التي تبدع وتختص فيها *
+                    </label>
+                    <p className="text-xs text-gray-400">اختر مجالاً واحداً أو أكثر من القائمة التالية لعرضها على ملفك الشخصي.</p>
 
-                  {/* Specialty Dropdown */}
-                  <div className="relative" ref={specialtyDropdownRef}>
-                    <button
-                      type="button"
-                      onClick={() => setIsSpecialtyDropdownOpen(!isSpecialtyDropdownOpen)}
-                      className="form-select cursor-pointer hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 w-full pr-10 sm:pr-12 pl-3 sm:pl-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-gray-200 dark:border-dark-input-border rounded-lg sm:rounded-xl appearance-none text-right flex items-center"
-                    >
-                      <span className="flex-1 text-right text-sm sm:text-base">
-                        {formData.specialties.length > 0
-                          ? formData.specialties.join('، ')
-                          : 'اختر المجالات التي تختص بها'
-                        }
-                      </span>
-                    </button>
+                    <div className="relative" ref={specialtyDropdownRef}>
+                      <button
+                        type="button"
+                        onClick={() => setIsSpecialtyDropdownOpen(!isSpecialtyDropdownOpen)}
+                        className="w-full px-5 py-4 border-2 border-gray-100 dark:border-white/5 rounded-2xl bg-white/50 dark:bg-dark-tertiary/20 text-accent dark:text-white outline-none flex items-center justify-between hover:border-gray-300 dark:hover:border-white/10 transition-all duration-300 cursor-pointer text-right"
+                      >
+                        <span className="font-bold text-sm sm:text-base flex-1">
+                          {formData.specialties.length > 0
+                            ? formData.specialties.join('، ')
+                            : 'اضغط هنا لاختيار مجالات اختصاصك'
+                          }
+                        </span>
+                        <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${isSpecialtyDropdownOpen ? 'rotate-180' : ''}`} />
+                      </button>
 
-                    {/* Dropdown Options */}
-                    {isSpecialtyDropdownOpen && (
-                      <div className="absolute z-50 w-full mt-1 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-lg sm:rounded-xl shadow-lg max-h-60 overflow-y-auto">
-                        {specialtyOptions.map((specialty) => (
-                          <button
-                            key={specialty}
-                            type="button"
-                            onClick={() => handleSpecialtySelect(specialty)}
-                            className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-right flex items-center justify-between gap-2 sm:gap-3 hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200 first:rounded-t-lg sm:first:rounded-t-xl last:rounded-b-lg sm:last:rounded-b-xl ${formData.specialties.includes(specialty)
-                              ? 'bg-primary-50 dark:bg-orange-900/20 text-primary-700 dark:text-orange-300'
-                              : 'text-gray-700 dark:text-dark-text-secondary'
-                              }`}
+                      <AnimatePresence>
+                        {isSpecialtyDropdownOpen && (
+                          <motion.div 
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 5 }}
+                            className="absolute z-50 w-full mt-2 bg-white dark:bg-dark-secondary border border-gray-100 dark:border-white/5 rounded-2xl shadow-2xl max-h-60 overflow-y-auto"
                           >
-                            <span className="text-xs sm:text-sm font-medium flex-1 text-right">
-                              {specialty}
-                            </span>
-                            {formData.specialties.includes(specialty) && (
-                              <svg className="w-3 h-3 sm:w-4 sm:h-4 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                            )}
-                          </button>
+                            {specialtyOptions.map((specialty) => (
+                              <button
+                                key={specialty}
+                                type="button"
+                                onClick={() => handleSpecialtySelect(specialty)}
+                                className={`w-full px-4 py-3 text-right flex items-center justify-between gap-3 hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors duration-200 ${formData.specialties.includes(specialty)
+                                  ? 'bg-primary/5 text-primary'
+                                  : 'text-gray-700 dark:text-dark-text-secondary'
+                                }`}
+                              >
+                                <span className="text-xs sm:text-sm font-bold flex-1 text-right">
+                                  {specialty}
+                                </span>
+                                {formData.specialties.includes(specialty) && (
+                                  <Check className="w-4 h-4 text-primary" />
+                                )}
+                              </button>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+
+                    {/* Selected specialties chips */}
+                    {formData.specialties.length > 0 && (
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        {formData.specialties.map((specialty) => (
+                          <motion.span
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            key={specialty}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-primary/10 text-primary border border-primary/20"
+                          >
+                            <span>{specialty}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleSpecialtySelect(specialty)}
+                              className="hover:bg-primary/20 rounded-full p-0.5 transition-colors"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </motion.span>
                         ))}
                       </div>
                     )}
                   </div>
 
-                  {/* Selected Specialties Display */}
-                  {formData.specialties.length > 0 && (
-                    <div className="flex flex-wrap gap-1 sm:gap-2">
-                      {formData.specialties.map((specialty) => (
-                        <span
-                          key={specialty}
-                          className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-primary-100 dark:bg-orange-900/30 text-primary-800 dark:text-orange-300"
-                        >
-                          {specialty}
-                          <button
-                            type="button"
-                            onClick={() => handleSpecialtySelect(specialty)}
-                            className="mr-1 sm:mr-2 text-primary-600 dark:text-orange-400 hover:text-primary-800 dark:hover:text-orange-200"
-                          >
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                  {/* Custom Specialty input if "أخرى" checked */}
+                  <AnimatePresence>
+                    {showCustomInput && (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="space-y-2 overflow-hidden"
+                      >
+                        <label className="flex items-center text-sm font-bold text-accent dark:text-dark-text-primary">
+                          اكتب مجالك واختصاصك الخاص بشكل مخصص
+                        </label>
+                        <input
+                          type="text"
+                          name="customSpecialty"
+                          value={customSpecialty}
+                          onChange={handleChange}
+                          onBlur={handleCustomSpecialtyBlur}
+                          onKeyDown={handleCustomSpecialtyKeyDown}
+                          className="w-full px-5 py-4 border-2 border-gray-100 dark:border-white/5 rounded-2xl bg-white/50 dark:bg-dark-tertiary/20 text-accent dark:text-white placeholder-gray-400 outline-none transition-all duration-300 focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-gray-300 dark:hover:border-white/10 font-medium"
+                          placeholder="مثال: الهندسة المعمارية، الطب الوقائي، التخطيط المالي"
+                        />
+                        <p className="text-xs text-gray-400 mt-1">اكتب التخصص ثم اضغط خارج الحقل أو Enter للتأكيد. يمكنك إضافة تخصصات متعددة بفصلها بفاصلة.</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
-                  {/* Custom Specialty Input */}
-                  {showCustomInput && (
-                    <div className="mt-3 sm:mt-4">
-                      <label className="block text-xs sm:text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-2 sm:mb-3">
-                        <svg className="w-3 h-3 sm:w-4 sm:h-4 text-primary-500 ml-1 sm:ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        اكتب مجالك الخاص
-                      </label>
-                      <input
-                        type="text"
-                        name="customSpecialty"
-                        value={customSpecialty}
-                        onChange={handleChange}
-                        onBlur={handleCustomSpecialtyBlur}
-                        onKeyDown={handleCustomSpecialtyKeyDown}
-                        className="form-input px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400 w-full"
-                        placeholder="مثال: التصميم المعماري، الطب، الهندسة"
-                      />
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                        <span className="hidden sm:inline">اكتب المجال الذي تبرع فيه إذا لم يكن موجوداً في القائمة أعلاه. يمكنك إضافة عدة تخصصات مفصولة بفاصلة (مثل: الطب، الهندسة، التصميم)</span>
-                        <span className="sm:hidden">يمكنك إضافة عدة تخصصات مفصولة بفاصلة</span>
-                      </p>
-                    </div>
-                  )}
+                  {/* Motivation field */}
+                  <div className="space-y-2">
+                    <label className="flex items-center text-sm font-bold text-accent dark:text-dark-text-primary">
+                      لماذا ترغب بالانضمام كمبدع في منصة عرب نوشن؟ *
+                    </label>
+                    <textarea
+                      name="motivation"
+                      value={formData.motivation}
+                      onChange={handleChange}
+                      rows={3}
+                      className="w-full px-5 py-4 border-2 border-gray-100 dark:border-white/5 rounded-2xl bg-white/50 dark:bg-dark-tertiary/20 text-accent dark:text-white placeholder-gray-400 outline-none transition-all duration-300 focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-gray-300 dark:hover:border-white/10 resize-none font-medium leading-relaxed"
+                      placeholder="أخبرنا عن شغفك، أهدافك، وما الذي تصبو لتحقيقه كصانع قوالب ومحتوى رقمي معنا..."
+                      required
+                    />
+                  </div>
 
-                </div>
-
-                <div className="space-y-2">
-                  <label className="flex items-center text-xs sm:text-sm font-semibold text-gray-700 dark:text-dark-text-primary mb-2 sm:mb-3">
-                    <svg className="w-3 h-3 sm:w-4 sm:h-4 text-primary-500 ml-1 sm:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                    لماذا تريد الانضمام إلى مجتمع المبدعين؟ *
-                  </label>
-                  <textarea
-                    name="motivation"
-                    value={formData.motivation}
-                    onChange={handleChange}
-                    rows={3}
-                    className="form-input px-3 sm:px-4 py-3 sm:py-4 text-base sm:text-lg border-2 border-gray-200 dark:border-dark-input-border focus:border-primary-500 dark:focus:border-orange-500 rounded-lg sm:rounded-xl transition-all duration-200 hover:border-primary-300 dark:hover:border-orange-400 resize-none"
-                    placeholder="أخبرنا عن دوافعك وأهدافك من الانضمام إلى المنصة..."
-                    required
-                  />
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                    <span className="hidden sm:inline">شاركنا رؤيتك وأهدافك من الانضمام إلى مجتمع المبدعين</span>
-                    <span className="sm:hidden">شاركنا رؤيتك وأهدافك</span>
-                  </p>
                 </div>
               </div>
 
-
-
-              {/* Terms and Conditions */}
-              <div className="space-y-4 sm:space-y-6">
-                <div className="bg-gray-50 dark:bg-dark-tertiary rounded-lg sm:rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-dark-card-border">
-                  <label className="flex items-center space-x-3 sm:space-x-4 space-x-reverse cursor-pointer group text-right">
-                    <div className="relative flex-shrink-0 ml-1">
+              {/* Terms and Submission */}
+              <div className="space-y-6 pt-6">
+                
+                {/* Custom Styled Checklist box */}
+                <div className="bg-gray-50/50 dark:bg-dark-tertiary/30 rounded-3xl p-6 border border-gray-100 dark:border-white/5">
+                  <label className="flex items-start gap-4 cursor-pointer group">
+                    <div className="relative flex-shrink-0 mt-0.5">
                       <input
                         type="checkbox"
                         name="agreeToTerms"
@@ -1387,78 +1049,80 @@ export default function CreatorApplyPage() {
                         className="sr-only"
                         required
                       />
-                      <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg border-2 flex items-center justify-center transition-all duration-200 ${formData.agreeToTerms
-                        ? 'bg-primary-500 border-primary-500 text-white'
-                        : 'border-gray-300 dark:border-gray-600 group-hover:border-primary-400'
-                        }`}>
+                      <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-300 ${formData.agreeToTerms
+                        ? 'bg-primary border-primary text-white shadow-lg shadow-primary/30'
+                        : 'border-gray-300 dark:border-white/10 group-hover:border-primary bg-white dark:bg-dark-tertiary'
+                      }`}>
                         {formData.agreeToTerms && (
-                          <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
+                          <Check className="w-4 h-4 font-black" />
                         )}
                       </div>
                     </div>
-                    <div className="flex-1 text-right leading-relaxed">
-                      <span className="text-xs sm:text-sm text-gray-700 dark:text-dark-text-secondary">
-                        أوافق على{' '}
-                        <Link href="/terms" className="text-primary-600 dark:text-orange-400 hover:underline font-medium">
-                          الشروط والأحكام
+                    <div className="flex-1 text-right leading-relaxed font-semibold">
+                      <span className="text-xs sm:text-sm text-accent dark:text-dark-text-secondary select-none">
+                        أوافق بالكامل على{' '}
+                        <Link href="/terms" className="text-primary hover:underline font-bold transition-all">
+                          شروط وأحكام الانضمام
                         </Link>
                         {' '}و{' '}
-                        <Link href="/privacy" className="text-primary-600 dark:text-orange-400 hover:underline font-medium">
-                          سياسة الخصوصية
+                        <Link href="/privacy" className="text-primary hover:underline font-bold transition-all">
+                          سياسة الخصوصية للمبدعين
                         </Link>
-                        {' '}وأوافق على أن جميع المعلومات المقدمة صحيحة ومكتملة
+                        {' '}وأشهد بأن جميع المعلومات الواردة في طلبي صحيحة وموثوقة بنسبة 100%.
                       </span>
                     </div>
                   </label>
                 </div>
 
-                {/* Error Message */}
-                {error && (
-                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg sm:rounded-xl p-3 sm:p-4 flex items-start space-x-2 sm:space-x-3 space-x-reverse">
-                    <div className="flex-shrink-0">
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <p className="text-red-600 dark:text-red-400 text-xs sm:text-sm">{error}</p>
-                  </div>
-                )}
+                {/* Smooth Error animation */}
+                <AnimatePresence>
+                  {error && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="bg-red-50 dark:bg-red-950/20 border border-red-200/50 dark:border-red-900/30 rounded-2xl p-4 flex items-center gap-3"
+                    >
+                      <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                      <p className="text-red-600 dark:text-red-400 text-sm font-bold">{error}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-                {/* Submit Button */}
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center pt-4 sm:pt-6">
-                  <Link href="/" className="btn-secondary text-center px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-lg">
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5 ml-1 sm:ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    إلغاء
+                {/* Submit and Cancel Buttons */}
+                <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6 border-t border-gray-100 dark:border-white/5">
+                  <Link 
+                    href="/" 
+                    className="btn-secondary text-center px-10 py-4 text-base flex items-center justify-center gap-2"
+                  >
+                    <X className="w-5 h-5" />
+                    <span>إلغاء الطلب</span>
                   </Link>
+
                   <button
                     type="submit"
                     disabled={loading}
-                    className="btn-primary flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                    className="btn-primary flex items-center justify-center gap-3 px-10 py-4 text-base font-black shadow-xl hover:shadow-2xl transition-all duration-300"
                   >
                     {loading ? (
                       <>
-                        <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span className="hidden sm:inline">جاري الإرسال...</span>
-                        <span className="sm:hidden">جاري الإرسال</span>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>جاري إرسال طلبك...</span>
                       </>
                     ) : (
                       <>
-                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                        </svg>
-                        <span className="hidden sm:inline">إرسال الطلب</span>
-                        <span className="sm:hidden">إرسال</span>
+                        <span>إرسال طلب الانضمام</span>
+                        <Sparkles className="w-5 h-5" />
                       </>
                     )}
                   </button>
                 </div>
+
               </div>
+
             </form>
-          </div>
+          </motion.div>
+
         </div>
       </div>
     </div>

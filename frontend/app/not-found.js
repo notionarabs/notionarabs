@@ -18,7 +18,7 @@ export default function NotFound() {
                         404
                     </h1>
                     <div className="relative z-10 w-full animate-float">
-                        <div className="text-7xl sm:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600 mb-6 tracking-tighter">
+                        <div className="text-7xl sm:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600 mb-6 py-2 leading-normal">
                             عذراً!
                         </div>
                         <p className="text-2xl sm:text-4xl font-black text-accent-900 dark:text-white mb-2">

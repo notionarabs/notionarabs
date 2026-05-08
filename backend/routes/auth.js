@@ -413,7 +413,8 @@ router.post('/login', [
         email: user.email,
         role: user.role,
         profilePicture: user.profilePicture,
-        creatorStatus: user.creatorStatus
+        creatorStatus: user.creatorStatus,
+        createdAt: user.createdAt
       }
     });
   } catch (error) {
@@ -1119,7 +1120,8 @@ router.post('/verify-email', [
           profilePicture: user.profilePicture,
           creatorStatus: user.creatorStatus,
           isEmailVerified: user.isEmailVerified,
-          isActive: user.isActive
+          isActive: user.isActive,
+          createdAt: user.createdAt
         }
       });
   } catch (error) {

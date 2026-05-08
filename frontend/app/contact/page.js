@@ -82,7 +82,7 @@ export default function ContactPage() {
 
             {/* Text Content Column */}
             <div className="text-center lg:text-right order-1 relative z-10">
-              <h1 className="text-4xl sm:text-6xl lg:text-8xl font-black text-accent-500 dark:text-white mb-6 leading-[1.1] tracking-tight">
+              <h1 className="text-4xl sm:text-6xl lg:text-8xl font-black text-accent-500 dark:text-white mb-6 leading-normal py-2">
                 تواصل <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600">معنا</span>
               </h1>
               <p className="text-lg sm:text-xl text-accent-600 dark:text-gray-400 leading-relaxed mb-10 max-w-xl mx-auto lg:mx-0 font-medium opacity-80">

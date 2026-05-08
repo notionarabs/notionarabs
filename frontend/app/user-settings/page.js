@@ -16,7 +16,7 @@ import {
 
 export default function UserSettingsPage() {
   const router = useRouter();
-  const { user, isAuthenticated, loading, logout, ensureTokenInHeaders } = useAuth();
+  const { user, isAuthenticated, loading, logout, ensureTokenInHeaders, refreshUserData } = useAuth();
   const { showSuccess, showError } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -52,6 +52,12 @@ export default function UserSettingsPage() {
       setIsLoading(false);
     }
   }, [isAuthenticated, loading, user, router]);
+
+  useEffect(() => {
+    if (!loading && isAuthenticated && user && !user.createdAt && refreshUserData) {
+      refreshUserData();
+    }
+  }, [user, isAuthenticated, loading, refreshUserData]);
 
   const handleSettingChange = (key, value) => {
     setSettings(prev => ({ ...prev, [key]: value }));
@@ -162,15 +168,21 @@ export default function UserSettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" dir="rtl">
+    <div className="min-h-screen bg-transparent transition-colors duration-300 relative overflow-x-hidden" dir="rtl">
+      {/* Ambient Mesh Background */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-5%] w-[800px] h-[800px] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
+
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-dark-secondary/80 backdrop-blur-md border-b border-gray-100 dark:border-dark-card-border">
+      <header className="sticky top-0 z-40 bg-white/40 dark:bg-dark-secondary/40 backdrop-blur-xl border-b border-gray-100/50 dark:border-white/5 relative z-10">
         <div className="container-custom py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-3">
-            <Link href="/" className="p-2 hover:bg-gray-100 dark:hover:bg-dark-tertiary rounded-lg transition-colors text-gray-500">
+            <Link href="/" className="p-2 hover:bg-gray-100/50 dark:hover:bg-white/5 rounded-lg transition-colors text-gray-500">
               <Home className="w-5 h-5" />
             </Link>
-            <h1 className="text-xl font-bold bg-gradient-to-l from-primary-600 to-primary-400 bg-clip-text text-transparent">
+            <h1 className="text-xl font-black bg-gradient-to-l from-primary-600 to-primary-400 bg-clip-text text-transparent">
               إعدادات الحساب
             </h1>
           </div>
@@ -179,7 +191,7 @@ export default function UserSettingsPage() {
             <button
               onClick={handleSaveSettings}
               disabled={isSaving}
-              className="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium shadow-lg shadow-primary-600/20 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all active:scale-95 w-full sm:w-auto"
+              className="px-6 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold shadow-large disabled:opacity-75 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all active:scale-95 w-full sm:w-auto cursor-pointer"
             >
               {isSaving ? (
                 <>
@@ -201,28 +213,28 @@ export default function UserSettingsPage() {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="container-custom py-8 grid grid-cols-1 lg:grid-cols-3 gap-8"
+        className="container-custom py-12 grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10"
       >
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
 
           {/* Notifications Card */}
-          <motion.section variants={itemVariants} className="bg-white dark:bg-dark-secondary rounded-2xl shadow-sm border border-gray-100 dark:border-dark-card-border p-6 sm:p-8">
+          <motion.section variants={itemVariants} className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[2.5rem] shadow-large border-none p-6 sm:p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2.5 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-blue-600 dark:text-blue-400">
+              <div className="p-2.5 bg-primary/10 rounded-xl text-primary">
                 <Bell className="w-6 h-6" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">إعدادات الإشعارات</h2>
+              <h2 className="text-xl font-black text-gray-900 dark:text-white">إعدادات الإشعارات</h2>
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-tertiary rounded-xl">
+              <div className="flex items-center justify-between p-4 bg-white/50 dark:bg-white/5 backdrop-blur-md rounded-2xl">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-white dark:bg-dark-secondary rounded-lg shadow-sm">
+                  <div className="p-2 bg-white dark:bg-dark-secondary rounded-lg shadow-soft">
                     <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm">الإشعارات العامة</h3>
+                    <h3 className="font-bold text-gray-900 dark:text-white text-sm">الإشعارات العامة</h3>
                     <p className="text-xs text-gray-500 dark:text-gray-400">تلقي تنبيهات حول نشاطك</p>
                   </div>
                 </div>
@@ -233,17 +245,17 @@ export default function UserSettingsPage() {
                     onChange={(e) => handleSettingChange('notifications', e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
                 </label>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-tertiary rounded-xl">
+              <div className="flex items-center justify-between p-4 bg-white/50 dark:bg-white/5 backdrop-blur-md rounded-2xl">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-white dark:bg-dark-secondary rounded-lg shadow-sm">
+                  <div className="p-2 bg-white dark:bg-dark-secondary rounded-lg shadow-soft">
                     <Mail className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm">النشرة البريدية</h3>
+                    <h3 className="font-bold text-gray-900 dark:text-white text-sm">النشرة البريدية</h3>
                     <p className="text-xs text-gray-500 dark:text-gray-400">آخر الأخبار والتحديثات</p>
                   </div>
                 </div>
@@ -254,40 +266,40 @@ export default function UserSettingsPage() {
                     onChange={(e) => handleSettingChange('emailUpdates', e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
                 </label>
               </div>
             </div>
           </motion.section>
 
           {/* Security Card */}
-          <motion.section variants={itemVariants} className="bg-white dark:bg-dark-secondary rounded-2xl shadow-sm border border-gray-100 dark:border-dark-card-border p-6 sm:p-8">
+          <motion.section variants={itemVariants} className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[2.5rem] shadow-large border-none p-6 sm:p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2.5 bg-red-50 dark:bg-red-900/20 rounded-xl text-red-600 dark:text-red-400">
+              <div className="p-2.5 bg-red-500/10 rounded-xl text-red-500">
                 <Shield className="w-6 h-6" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">الأمان والحساب</h2>
+              <h2 className="text-xl font-black text-gray-900 dark:text-white">الأمان والحساب</h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button
                 onClick={() => setShowPasswordModal(true)}
-                className="p-4 flex flex-col items-center justify-center gap-3 bg-gray-50 hover:bg-gray-100 dark:bg-dark-tertiary dark:hover:bg-dark-tertiary/80 rounded-xl transition-all border border-transparent hover:border-gray-200 dark:hover:border-dark-card-border group"
+                className="p-6 flex flex-col items-center justify-center gap-4 bg-white/50 dark:bg-white/5 backdrop-blur-md rounded-2xl border-none shadow-soft hover:shadow-large transition-all group cursor-pointer active:scale-98"
               >
-                <div className="p-3 bg-white dark:bg-dark-secondary rounded-full shadow-sm group-hover:scale-110 transition-transform">
-                  <Key className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+                <div className="p-3 bg-primary/10 rounded-full group-hover:scale-110 transition-transform text-primary">
+                  <Key className="w-6 h-6" />
                 </div>
-                <span className="font-semibold text-gray-700 dark:text-gray-200">تغيير كلمة المرور</span>
+                <span className="font-bold text-gray-700 dark:text-gray-200">تغيير كلمة المرور</span>
               </button>
 
               <button
                 onClick={() => setShowDeleteModal(true)}
-                className="p-4 flex flex-col items-center justify-center gap-3 bg-red-50 hover:bg-red-100/50 dark:bg-red-900/10 dark:hover:bg-red-900/20 rounded-xl transition-all border border-red-100 dark:border-red-900/30 group"
+                className="p-6 flex flex-col items-center justify-center gap-4 bg-red-500/5 dark:bg-red-500/10 rounded-2xl border-none shadow-soft hover:shadow-large transition-all group cursor-pointer active:scale-98"
               >
-                <div className="p-3 bg-white dark:bg-dark-secondary rounded-full shadow-sm group-hover:scale-110 transition-transform">
-                  <Trash2 className="w-6 h-6 text-red-500" />
+                <div className="p-3 bg-red-500/10 rounded-full group-hover:scale-110 transition-transform text-red-500">
+                  <Trash2 className="w-6 h-6" />
                 </div>
-                <span className="font-semibold text-red-600 dark:text-red-400">حذف الحساب</span>
+                <span className="font-bold text-red-600 dark:text-red-400">حذف الحساب</span>
               </button>
             </div>
           </motion.section>
@@ -295,21 +307,30 @@ export default function UserSettingsPage() {
 
         {/* Sidebar */}
         <div className="lg:col-span-1 space-y-6">
-          <motion.div variants={itemVariants} className="bg-white dark:bg-dark-secondary rounded-2xl shadow-sm border border-gray-100 dark:border-dark-card-border p-6 sm:p-8 sticky top-28">
+          <motion.div variants={itemVariants} className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[2.5rem] shadow-large border-none p-6 sm:p-8 sticky top-28">
             <div className="flex flex-col items-center text-center">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg mb-4">
-                {user?.name?.[0].toUpperCase() || 'U'}
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{user?.name}</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{user?.email}</p>
+              {user?.profilePicture ? (
+                <img
+                  src={user.profilePicture}
+                  alt={user?.name || 'User'}
+                  className="w-20 h-20 rounded-2xl object-cover shadow-large mb-4 border border-gray-100/50 dark:border-white/5"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white text-3xl font-black shadow-large mb-4">
+                  {user?.name?.[0].toUpperCase() || 'U'}
+                </div>
+              )}
+              <h3 className="text-xl font-black text-gray-900 dark:text-white mb-1">{user?.name}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 font-bold mb-6">{user?.email}</p>
 
               <div className="w-full space-y-3">
-                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-tertiary rounded-xl text-sm">
-                  <span className="text-gray-500 dark:text-gray-400">تاريخ الانضمام</span>
-                  <span className="font-semibold text-gray-900 dark:text-white">{user?.createdAt ? formatDate(user.createdAt) : '-'}</span>
+                <div className="flex items-center justify-between p-4 bg-white/50 dark:bg-white/5 backdrop-blur-md rounded-2xl text-sm font-semibold text-gray-500 dark:text-gray-400">
+                  <span>تاريخ الانضمام</span>
+                  <span className="font-bold text-gray-900 dark:text-white">{user?.createdAt ? formatDate(user.createdAt) : '-'}</span>
                 </div>
                 {user?.creatorStatus === 'approved' && (
-                  <div className="flex items-center justify-center gap-2 p-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-xl text-sm font-medium">
+                  <div className="flex items-center justify-center gap-2 p-3 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-2xl text-sm font-black shadow-soft">
                     <CheckCircle className="w-4 h-4" />
                     حساب مبدع موثق
                   </div>

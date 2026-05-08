@@ -119,7 +119,7 @@ export default function TeamSection() {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-5xl sm:text-7xl font-black text-foreground dark:text-white mb-6 tracking-tighter leading-tight"
+                        className="text-5xl sm:text-7xl font-black text-foreground dark:text-white mb-6 leading-normal py-2"
                     >
                         مؤسسو <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600 drop-shadow-[0_0_20px_rgba(249,115,22,0.2)]">نوشن عرب</span>
                     </motion.h2>

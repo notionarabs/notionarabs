@@ -70,6 +70,7 @@ export default function PurchasesPage() {
         orderId: o.id,
         date: o.createdAt || o.date,
         status: o.status,
+        downloaded: true,
         templateId: (typeof i.templateId === 'object' && i.templateId !== null
           ? (i.templateId._id || i.templateId.id)
           : i.templateId
@@ -239,11 +240,7 @@ export default function PurchasesPage() {
             </Link>
           </motion.div>
         ) : (
-          <motion.div 
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 sm:gap-10"
-          >
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 sm:gap-10">
             {filteredItems.map((item) => (
               <motion.div
                 key={`${item.orderId}-${item.templateId || item.id}`}
@@ -322,7 +319,7 @@ export default function PurchasesPage() {
                 </div>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
         )}
       </main>
     </div>

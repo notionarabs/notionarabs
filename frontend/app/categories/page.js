@@ -177,7 +177,7 @@ export default function CategoriesPage() {
       <div className="relative z-10 bg-white/70 dark:bg-black/60 backdrop-blur-xl border-none shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20">
           <div className="text-center group">
-            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter text-accent-900 dark:text-white mb-6 animate-fade-in group-hover:scale-105 transition-transform duration-700">
+            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-normal py-2 text-accent-900 dark:text-white mb-6 animate-fade-in group-hover:scale-105 transition-transform duration-700">
               جميع <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600">التصنيفات</span>
             </h1>
             <p className="text-base sm:text-xl text-accent-700 dark:text-gray-400 max-w-2xl mx-auto font-medium opacity-80">

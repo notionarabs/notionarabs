@@ -806,19 +806,21 @@ router.put('/templates/:id/status', auth, [
       // Only send follower notifications for truly new templates, not updates
       if (!isTemplateUpdate) {
         try {
-          const creatorId = template.creator;
-          const followers = await User.find({ following: creatorId }).select('_id').lean();
-          if (followers && followers.length > 0) {
-            const creator = await User.findById(creatorId).select('name displayName profilePicture');
-            const notifications = followers.map(f => ({
-              user: f._id,
-              type: 'template_published',
-              title: 'قالب جديد من مبدع تتابعه',
-              message: `${creator?.displayName || creator?.name || 'مبدع'} نشر قالبًا جديدًا: ${template.title}`,
-              link: `/templates/${template.slug || template._id}`,
-              metadata: { templateId: template._id, creatorId, creatorProfilePicture: creator?.profilePicture || '' }
-            }));
-            await Notification.insertMany(notifications);
+          const creatorId = template.creator && template.creator._id ? template.creator._id.toString() : (template.creator ? template.creator.toString() : null);
+          if (creatorId) {
+            const followers = await User.find({ following: creatorId }).select('_id').lean();
+            if (followers && followers.length > 0) {
+              const creator = await User.findById(creatorId).select('name displayName profilePicture');
+              const notifications = followers.map(f => ({
+                user: f._id,
+                type: 'template_published',
+                title: 'قالب جديد من مبدع تتابعه',
+                message: `${creator?.displayName || creator?.name || 'مبدع'} نشر قالبًا جديدًا: ${template.title}`,
+                link: `/templates/${template.slug || template._id}`,
+                metadata: { templateId: template._id, creatorId, creatorProfilePicture: creator?.profilePicture || '' }
+              }));
+              await Notification.insertMany(notifications);
+            }
           }
         } catch (notifyErr) {
           console.error('Notify followers error:', notifyErr);
@@ -826,19 +828,21 @@ router.put('/templates/:id/status', auth, [
       } else {
         // For template updates, send a different notification to followers
         try {
-          const creatorId = template.creator;
-          const followers = await User.find({ following: creatorId }).select('_id').lean();
-          if (followers && followers.length > 0) {
-            const creator = await User.findById(creatorId).select('name displayName profilePicture');
-            const notifications = followers.map(f => ({
-              user: f._id,
-              type: 'template_updated',
-              title: 'تم تحديث قالب من مبدع تتابعه',
-              message: `${creator?.displayName || creator?.name || 'مبدع'} قام بتحديث قالب: ${template.title}`,
-              link: `/templates/${template.slug || template._id}`,
-              metadata: { templateId: template._id, creatorId, creatorProfilePicture: creator?.profilePicture || '', isUpdate: true }
-            }));
-            await Notification.insertMany(notifications);
+          const creatorId = template.creator && template.creator._id ? template.creator._id.toString() : (template.creator ? template.creator.toString() : null);
+          if (creatorId) {
+            const followers = await User.find({ following: creatorId }).select('_id').lean();
+            if (followers && followers.length > 0) {
+              const creator = await User.findById(creatorId).select('name displayName profilePicture');
+              const notifications = followers.map(f => ({
+                user: f._id,
+                type: 'template_updated',
+                title: 'تم تحديث قالب من مبدع تتابعه',
+                message: `${creator?.displayName || creator?.name || 'مبدع'} قام بتحديث قالب: ${template.title}`,
+                link: `/templates/${template.slug || template._id}`,
+                metadata: { templateId: template._id, creatorId, creatorProfilePicture: creator?.profilePicture || '', isUpdate: true }
+              }));
+              await Notification.insertMany(notifications);
+            }
           }
         } catch (notifyErr) {
           console.error('Notify followers update error:', notifyErr);

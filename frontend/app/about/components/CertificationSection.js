@@ -18,7 +18,7 @@ export default function CertificationSection() {
                                 <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
                                 اعتماد رسمي دولي
                             </div>
-                            <h2 className="text-5xl sm:text-7xl font-black text-foreground dark:text-white mb-6 leading-tight tracking-tighter">
+                            <h2 className="text-5xl sm:text-7xl font-black text-foreground dark:text-white mb-6 leading-normal py-2">
                                 كفاءة معتمدة <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600">من Notion</span>
                             </h2>
                             <p className="text-xl text-accent-600 dark:text-gray-400 leading-relaxed mb-10 max-w-lg mx-auto lg:mx-0 font-medium">

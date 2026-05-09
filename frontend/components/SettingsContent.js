@@ -322,7 +322,7 @@ export default function SettingsContent() {
         );
     }
 
-    const isCreator = user?.role === 'creator' && user?.creatorStatus === 'approved';
+    const isCreator = user?.creatorStatus?.toLowerCase() === 'approved';
 
     const settingsTabs = [
         { id: 'profile', label: 'المعلومات الشخصية', icon: User },
@@ -354,118 +354,158 @@ export default function SettingsContent() {
                 </button>
             </div>
 
-            {/* Premium Horizontal Navigation Tab Bar */}
-            <div className="flex gap-3 border-b border-gray-100 dark:border-white/5 pb-3 overflow-x-auto scrollbar-hide mb-8">
-                {settingsTabs.map(tab => {
-                    const isActive = activeTab === tab.id;
-                    return (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={`relative px-6 py-3.5 rounded-2xl flex items-center gap-2.5 font-bold text-sm transition-all duration-300 select-none whitespace-nowrap shrink-0 ${
-                                isActive 
-                                ? 'text-primary-600 dark:text-orange-500' 
-                                : 'text-gray-500 dark:text-dark-text-secondary hover:text-gray-800 dark:hover:text-dark-text-primary'
-                            }`}
-                        >
-                            {isActive && (
-                                <motion.span
-                                    layoutId="activeSettingsTab"
-                                    className="absolute inset-0 bg-primary-50 dark:bg-orange-500/10 rounded-2xl"
-                                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                                />
-                            )}
-                            <tab.icon className={`w-4.5 h-4.5 relative z-10 ${isActive ? 'scale-110' : ''} transition-transform duration-300`} />
-                            <span className="relative z-10">{tab.label}</span>
-                        </button>
-                    );
-                })}
-            </div>
+            {/* Premium Horizontal Navigation Tab Bar (Creators Only) */}
+            {isCreator && (
+                <div className="flex gap-3 border-b border-gray-100 dark:border-white/5 pb-3 overflow-x-auto scrollbar-hide mb-8">
+                    {settingsTabs.map(tab => {
+                        const isActive = activeTab === tab.id;
+                        return (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`relative px-6 py-3.5 rounded-2xl flex items-center gap-2.5 font-bold text-sm transition-all duration-300 select-none whitespace-nowrap shrink-0 ${
+                                    isActive 
+                                    ? 'text-primary-600 dark:text-orange-500' 
+                                    : 'text-gray-500 dark:text-dark-text-secondary hover:text-gray-800 dark:hover:text-dark-text-primary'
+                                }`}
+                            >
+                                {isActive && (
+                                    <motion.span
+                                        layoutId="activeSettingsTab"
+                                        className="absolute inset-0 bg-primary-50 dark:bg-orange-500/10 rounded-2xl"
+                                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                                    />
+                                )}
+                                <tab.icon className={`w-4.5 h-4.5 relative z-10 ${isActive ? 'scale-110' : ''} transition-transform duration-300`} />
+                                <span className="relative z-10">{tab.label}</span>
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
 
             <div className="grid grid-cols-1 gap-6 lg:gap-8">
-                <AnimatePresence mode="wait">
-                    {activeTab === 'profile' && (
-                        <motion.div
-                            key="profile"
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -15 }}
-                            transition={{ duration: 0.25 }}
-                            className="space-y-6"
-                        >
-                            <div className="bg-white dark:bg-dark-secondary border-none rounded-3xl shadow-sm overflow-hidden">
-                                <div className="p-6 lg:p-8 bg-gray-50/50 dark:bg-dark-tertiary/20 border-none">
-                                    <h2 className="text-xl font-bold text-gray-900 dark:text-dark-text-primary">المعلومات الشخصية</h2>
+                {isCreator ? (
+                    <AnimatePresence mode="wait">
+                        {activeTab === 'profile' && (
+                            <motion.div
+                                key="profile"
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -15 }}
+                                transition={{ duration: 0.25 }}
+                                className="space-y-6"
+                            >
+                                <div className="bg-white dark:bg-dark-secondary border-none rounded-3xl shadow-sm overflow-hidden">
+                                    <div className="p-6 lg:p-8 bg-gray-50/50 dark:bg-dark-tertiary/20 border-none">
+                                        <h2 className="text-xl font-bold text-gray-900 dark:text-dark-text-primary">المعلومات الشخصية</h2>
+                                    </div>
+                                    <div className="p-6 lg:p-8 space-y-8">
+                                        <ImageUploadSection profileSettings={profileSettings} uploadingImage={uploadingImage} handleImageUpload={handleImageUpload} user={user} isCreator={isCreator} />
+                                        <div className="h-4"></div>
+                                        <UsernameSection
+                                            profileSettings={profileSettings}
+                                            handleInputChange={handleInputChange}
+                                            isEditingUsername={isEditingUsername}
+                                            setIsEditingUsername={setIsEditingUsername}
+                                            usernameValidation={usernameValidation}
+                                            isSavingUsername={isSavingUsername}
+                                            handleSaveUsername={handleSaveUsername}
+                                            user={user}
+                                            setUsernameValidation={setUsernameValidation}
+                                        />
+                                        <PersonalInfoSection profileSettings={profileSettings} handleInputChange={handleInputChange} isCreator={isCreator} />
+                                    </div>
                                 </div>
-                                <div className="p-6 lg:p-8 space-y-8">
-                                    <ImageUploadSection profileSettings={profileSettings} uploadingImage={uploadingImage} handleImageUpload={handleImageUpload} user={user} isCreator={isCreator} />
-                                    <div className="h-4"></div>
-                                    <UsernameSection
-                                        profileSettings={profileSettings}
-                                        handleInputChange={handleInputChange}
-                                        isEditingUsername={isEditingUsername}
-                                        setIsEditingUsername={setIsEditingUsername}
-                                        usernameValidation={usernameValidation}
-                                        isSavingUsername={isSavingUsername}
-                                        handleSaveUsername={handleSaveUsername}
-                                        user={user}
-                                        setUsernameValidation={setUsernameValidation}
-                                    />
-                                    <PersonalInfoSection profileSettings={profileSettings} handleInputChange={handleInputChange} isCreator={isCreator} />
-                                </div>
+                            </motion.div>
+                        )}
+
+                        {activeTab === 'payout' && (
+                            <motion.div
+                                key="payout"
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -15 }}
+                                transition={{ duration: 0.25 }}
+                            >
+                                <PaymentSettingsSection profileSettings={profileSettings} handleInputChange={handleInputChange} />
+                            </motion.div>
+                        )}
+
+                        {activeTab === 'socials' && (
+                            <motion.div
+                                key="socials"
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -15 }}
+                                transition={{ duration: 0.25 }}
+                            >
+                                <SocialLinksSection
+                                    profileSettings={profileSettings}
+                                    updateSocialLink={(index, value) => setProfileSettings(prev => ({ ...prev, socialLinks: prev.socialLinks.map((l, i) => i === index ? { url: value } : l) }))}
+                                    removeSocialLink={(index) => setProfileSettings(prev => ({ ...prev, socialLinks: prev.socialLinks.filter((_, i) => i !== index) }))}
+                                    addSocialLink={() => setProfileSettings(prev => ({ ...prev, socialLinks: [...(prev.socialLinks || []), { url: '' }] }))}
+                                />
+                            </motion.div>
+                        )}
+
+                        {activeTab === 'preferences' && (
+                            <motion.div
+                                key="preferences"
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -15 }}
+                                transition={{ duration: 0.25 }}
+                            >
+                                <PreferencesSection
+                                    profileSettings={profileSettings}
+                                    handleInputChange={handleInputChange}
+                                    settings={settings}
+                                    handleSettingChange={handleSettingChange}
+                                    setShowPasswordModal={setShowPasswordModal}
+                                    setShowDeleteModal={setShowDeleteModal}
+                                    isCreator={isCreator}
+                                />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                ) : (
+                    <div className="space-y-8">
+                        {/* Profile Info Section Card */}
+                        <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-[2.5rem] shadow-sm overflow-hidden">
+                            <div className="p-6 lg:p-8 bg-gray-50/50 dark:bg-dark-tertiary/20 border-b border-gray-100 dark:border-white/5">
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-dark-text-primary">المعلومات الشخصية</h2>
                             </div>
-                        </motion.div>
-                    )}
+                            <div className="p-6 lg:p-8 space-y-8">
+                                <ImageUploadSection profileSettings={profileSettings} uploadingImage={uploadingImage} handleImageUpload={handleImageUpload} user={user} isCreator={isCreator} />
+                                <div className="h-4"></div>
+                                <UsernameSection
+                                    profileSettings={profileSettings}
+                                    handleInputChange={handleInputChange}
+                                    isEditingUsername={isEditingUsername}
+                                    setIsEditingUsername={setIsEditingUsername}
+                                    usernameValidation={usernameValidation}
+                                    isSavingUsername={isSavingUsername}
+                                    handleSaveUsername={handleSaveUsername}
+                                    user={user}
+                                    setUsernameValidation={setUsernameValidation}
+                                />
+                                <PersonalInfoSection profileSettings={profileSettings} handleInputChange={handleInputChange} isCreator={isCreator} />
+                            </div>
+                        </div>
 
-                    {activeTab === 'payout' && isCreator && (
-                        <motion.div
-                            key="payout"
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -15 }}
-                            transition={{ duration: 0.25 }}
-                        >
-                            <PaymentSettingsSection profileSettings={profileSettings} handleInputChange={handleInputChange} />
-                        </motion.div>
-                    )}
-
-                    {activeTab === 'socials' && isCreator && (
-                        <motion.div
-                            key="socials"
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -15 }}
-                            transition={{ duration: 0.25 }}
-                        >
-                            <SocialLinksSection
-                                profileSettings={profileSettings}
-                                updateSocialLink={(index, value) => setProfileSettings(prev => ({ ...prev, socialLinks: prev.socialLinks.map((l, i) => i === index ? { url: value } : l) }))}
-                                removeSocialLink={(index) => setProfileSettings(prev => ({ ...prev, socialLinks: prev.socialLinks.filter((_, i) => i !== index) }))}
-                                addSocialLink={() => setProfileSettings(prev => ({ ...prev, socialLinks: [...(prev.socialLinks || []), { url: '' }] }))}
-                            />
-                        </motion.div>
-                    )}
-
-                    {activeTab === 'preferences' && (
-                        <motion.div
-                            key="preferences"
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -15 }}
-                            transition={{ duration: 0.25 }}
-                        >
-                            <PreferencesSection
-                                profileSettings={profileSettings}
-                                handleInputChange={handleInputChange}
-                                settings={settings}
-                                handleSettingChange={handleSettingChange}
-                                setShowPasswordModal={setShowPasswordModal}
-                                setShowDeleteModal={setShowDeleteModal}
-                                isCreator={isCreator}
-                            />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                        {/* Security and Preferences Card */}
+                        <PreferencesSection
+                            profileSettings={profileSettings}
+                            handleInputChange={handleInputChange}
+                            settings={settings}
+                            handleSettingChange={handleSettingChange}
+                            setShowPasswordModal={setShowPasswordModal}
+                            setShowDeleteModal={setShowDeleteModal}
+                            isCreator={isCreator}
+                        />
+                    </div>
+                )}
             </div>
 
             <ModalsSection

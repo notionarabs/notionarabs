@@ -7,7 +7,8 @@ export default function UsernameSection({
     isSavingUsername,
     handleSaveUsername,
     user,
-    setUsernameValidation
+    setUsernameValidation,
+    isCreator = false
 }) {
     return (
         <div className="space-y-3">
@@ -117,10 +118,12 @@ export default function UsernameSection({
                 </p>
             )}
 
-            {/* URL preview */}
-            <p className="text-xs text-gray-500 dark:text-dark-text-tertiary mt-2">
-                سيتم استخدام هذا الاسم في رابط ملفك الشخصي: /creators/{profileSettings.username || user?.email?.split('@')[0] || 'username'}
-            </p>
+            {/* URL preview (Only for Creators) */}
+            {isCreator && (
+                <p className="text-xs text-gray-500 dark:text-dark-text-tertiary mt-2">
+                    سيتم استخدام هذا الاسم في رابط ملفك الشخصي: /creators/{profileSettings.username || user?.email?.split('@')[0] || 'username'}
+                </p>
+            )}
 
             {/* Username requirements - only show when editing */}
             {isEditingUsername && (

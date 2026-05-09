@@ -44,71 +44,73 @@ export default function PersonalInfoSection({ profileSettings, handleInputChange
                 </div>
             )}
 
-            {/* Specialties / Notion Interests (Available for everyone) */}
-            <div className="space-y-4">
-                <label className="text-sm font-black text-gray-900 dark:text-dark-text-primary flex items-center gap-2">
-                    <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                    {isCreator ? 'المجالات والاهتمامات' : 'اهتماماتك ومجالات استخدامك لنوشن'}
-                </label>
+            {/* Specialties / Notion Interests (Only for Creators) */}
+            {isCreator && (
+                <div className="space-y-4">
+                    <label className="text-sm font-black text-gray-900 dark:text-dark-text-primary flex items-center gap-2">
+                        <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        {isCreator ? 'المجالات والاهتمامات' : 'اهتماماتك ومجالات استخدامك لنوشن'}
+                    </label>
 
-                <div className="flex flex-wrap gap-2 mb-4">
-                    {(profileSettings.specialties || []).map((specialty, index) => (
-                        <span
-                            key={index}
-                            className="group inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-dark-tertiary text-gray-700 dark:text-dark-text-primary text-sm font-bold rounded-xl border-none hover:bg-primary-50 dark:hover:bg-orange-950/20 transition-all duration-300 shadow-sm"
-                        >
-                            {specialty}
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    const newSpecialties = profileSettings.specialties.filter((_, i) => i !== index);
-                                    handleInputChange('specialties', newSpecialties);
-                                }}
-                                className="text-gray-400 group-hover:text-red-500 transition-colors cursor-pointer"
+                    <div className="flex flex-wrap gap-2 mb-4">
+                        {(profileSettings.specialties || []).map((specialty, index) => (
+                            <span
+                                key={index}
+                                className="group inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-dark-tertiary text-gray-700 dark:text-dark-text-primary text-sm font-bold rounded-xl border-none hover:bg-primary-50 dark:hover:bg-orange-950/20 transition-all duration-300 shadow-sm"
                             >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </span>
-                    ))}
-                </div>
+                                {specialty}
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const newSpecialties = profileSettings.specialties.filter((_, i) => i !== index);
+                                        handleInputChange('specialties', newSpecialties);
+                                    }}
+                                    className="text-gray-400 group-hover:text-red-500 transition-colors cursor-pointer"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </span>
+                        ))}
+                    </div>
 
-                <div className="flex gap-2">
-                    <input
-                        type="text"
-                        value={profileSettings.newSpecialty || ''}
-                        onChange={(e) => handleInputChange('newSpecialty', e.target.value)}
-                        onKeyPress={(e) => {
-                            if (e.key === 'Enter') {
-                                e.preventDefault();
+                    <div className="flex gap-2">
+                        <input
+                            type="text"
+                            value={profileSettings.newSpecialty || ''}
+                            onChange={(e) => handleInputChange('newSpecialty', e.target.value)}
+                            onKeyPress={(e) => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    if (profileSettings.newSpecialty && profileSettings.newSpecialty.trim()) {
+                                        const newSpecialties = [...(profileSettings.specialties || []), profileSettings.newSpecialty.trim()];
+                                        handleInputChange('specialties', newSpecialties);
+                                        handleInputChange('newSpecialty', '');
+                                    }
+                                }
+                            }}
+                            className="flex-1 px-5 py-3.5 bg-gray-50/70 dark:bg-dark-tertiary border border-gray-100 dark:border-white/5 rounded-2xl text-gray-900 dark:text-dark-text-primary font-bold placeholder-gray-400 focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 transition-all duration-300 shadow-sm outline-none"
+                            placeholder={isCreator ? 'أضف مجال جديد (نوشن، تصميم...)' : 'أضف اهتماماً (دراسة، تنظيم شخصي، إدارة أعمال...)'}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => {
                                 if (profileSettings.newSpecialty && profileSettings.newSpecialty.trim()) {
                                     const newSpecialties = [...(profileSettings.specialties || []), profileSettings.newSpecialty.trim()];
                                     handleInputChange('specialties', newSpecialties);
                                     handleInputChange('newSpecialty', '');
                                 }
-                            }
-                        }}
-                        className="flex-1 px-5 py-3.5 bg-gray-50/70 dark:bg-dark-tertiary border border-gray-100 dark:border-white/5 rounded-2xl text-gray-900 dark:text-dark-text-primary font-bold placeholder-gray-400 focus:ring-2 focus:ring-primary-500 dark:focus:ring-orange-500 transition-all duration-300 shadow-sm outline-none"
-                        placeholder={isCreator ? 'أضف مجال جديد (نوشن، تصميم...)' : 'أضف اهتماماً (دراسة، تنظيم شخصي، إدارة أعمال...)'}
-                    />
-                    <button
-                        type="button"
-                        onClick={() => {
-                            if (profileSettings.newSpecialty && profileSettings.newSpecialty.trim()) {
-                                const newSpecialties = [...(profileSettings.specialties || []), profileSettings.newSpecialty.trim()];
-                                handleInputChange('specialties', newSpecialties);
-                                handleInputChange('newSpecialty', '');
-                            }
-                        }}
-                        className="px-6 py-3.5 bg-primary-500 dark:bg-orange-500 text-white font-bold rounded-2xl hover:bg-primary-600 transition-all duration-300 shadow-sm border-none cursor-pointer"
-                    >
-                        إضافة
-                    </button>
+                            }}
+                            className="px-6 py-3.5 bg-primary-500 dark:bg-orange-500 text-white font-bold rounded-2xl hover:bg-primary-600 transition-all duration-300 shadow-sm border-none cursor-pointer"
+                        >
+                            إضافة
+                        </button>
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 }

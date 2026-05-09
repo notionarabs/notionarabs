@@ -413,6 +413,7 @@ export default function SettingsContent() {
                                             handleSaveUsername={handleSaveUsername}
                                             user={user}
                                             setUsernameValidation={setUsernameValidation}
+                                            isCreator={isCreator}
                                         />
                                         <PersonalInfoSection profileSettings={profileSettings} handleInputChange={handleInputChange} isCreator={isCreator} />
                                     </div>
@@ -489,6 +490,7 @@ export default function SettingsContent() {
                                     handleSaveUsername={handleSaveUsername}
                                     user={user}
                                     setUsernameValidation={setUsernameValidation}
+                                    isCreator={isCreator}
                                 />
                                 <PersonalInfoSection profileSettings={profileSettings} handleInputChange={handleInputChange} isCreator={isCreator} />
                             </div>

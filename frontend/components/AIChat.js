@@ -3,9 +3,109 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
-import { MessageCircle, X, Send, Bot, User, Sparkles, Loader2, Minus, ChevronLeft, Lightbulb, Mic } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { MessageCircle, X, Send, Bot, User, Sparkles, Loader2, Minus, ChevronLeft, Lightbulb, Mic, Star, Download } from 'lucide-react';
 import { cn } from '../lib/utils';
 import ReactMarkdown from 'react-markdown';
+
+// Function to parse the assistant message content and split it into markdown and custom interactive cards
+function parseMessageContent(content) {
+  if (!content) return [];
+  
+  const regex = /:::template-recommend(\{.*?\}):::/g;
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+  
+  while ((match = regex.exec(content)) !== null) {
+    const textPart = content.substring(lastIndex, match.index);
+    if (textPart) {
+      parts.push({ type: 'text', content: textPart });
+    }
+    
+    try {
+      const templateData = JSON.parse(match[1]);
+      parts.push({ type: 'template', data: templateData });
+    } catch (e) {
+      parts.push({ type: 'text', content: match[0] });
+    }
+    
+    lastIndex = regex.lastIndex;
+  }
+  
+  let remainingText = content.substring(lastIndex);
+  
+  // Clean up any incomplete trailing tag starting with :::template-recommend
+  const incompleteTagIndex = remainingText.indexOf(':::template-recommend');
+  if (incompleteTagIndex !== -1) {
+    const cleanText = remainingText.substring(0, incompleteTagIndex);
+    if (cleanText) {
+      parts.push({ type: 'text', content: cleanText });
+    }
+  } else if (remainingText) {
+    parts.push({ type: 'text', content: remainingText });
+  }
+  
+  return parts;
+}
+
+function TemplateRecommendCard({ data }) {
+  if (!data) return null;
+
+  const { id, title, slug, category, price, rating, downloads, previewImage } = data;
+  const href = `/templates/${slug || id}`;
+  
+  return (
+    <div className="w-full bg-zinc-900/90 dark:bg-zinc-950/80 backdrop-blur-xl border border-zinc-800 rounded-3xl overflow-hidden my-4 hover:border-primary/40 hover:shadow-lg transition-all duration-300 flex flex-col group text-right" dir="rtl">
+      {/* Aspect 16:9 Image Container */}
+      <div className="relative w-full aspect-[16/9] bg-zinc-800 overflow-hidden border-b border-zinc-800">
+        <Image 
+          src={previewImage || '/placeholder-template.jpg'} 
+          alt={title || 'قالب نوشن'} 
+          fill
+          sizes="(max-width: 640px) 100vw, 360px"
+          className="object-cover group-hover:scale-105 transition-transform duration-500"
+        />
+        {/* Category Badge on Top-Right */}
+        <span className="absolute top-2.5 right-2.5 text-[9px] font-black tracking-wider text-white px-2.5 py-1 bg-primary/90 backdrop-blur-md rounded-lg shadow-sm">
+          {category || 'عام'}
+        </span>
+        {/* Price Badge on Top-Left */}
+        <span className="absolute top-2.5 left-2.5 text-[10px] font-black tracking-wider text-white px-2.5 py-1 bg-zinc-950/80 backdrop-blur-md rounded-lg shadow-sm border border-white/5">
+          {price || 'مجاني'}
+        </span>
+      </div>
+      
+      {/* Details Container */}
+      <div className="p-4 flex flex-col gap-3">
+        <h4 className="text-sm font-black text-white line-clamp-2 leading-snug">
+          {title}
+        </h4>
+        
+        <div className="flex items-center justify-between pt-2.5 border-t border-zinc-800/80">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 text-[11px] font-bold text-zinc-400">
+              <Star size={11} className="text-yellow-500 fill-yellow-500" />
+              <span>{(Number(rating) || 5.0).toFixed(1)}</span>
+            </div>
+            <div className="flex items-center gap-1 text-[11px] font-bold text-zinc-400">
+              <Download size={11} />
+              <span>{(Number(downloads) || 100).toLocaleString()}</span>
+            </div>
+          </div>
+          <Link 
+            href={href}
+            className="text-[11px] font-black text-primary flex items-center gap-0.5 hover:underline group/btn"
+          >
+            <span>عرض القالب</span>
+            <ChevronLeft size={13} className="group-hover/btn:-translate-x-0.5 transition-transform" />
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function AIChat() {
   const pathname = usePathname();
@@ -329,8 +429,17 @@ export default function AIChat() {
                         : "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-tl-none"
                     )}>
                       {msg.role === 'assistant' ? (
-                        <div className="prose-headings:text-inherit prose-p:text-inherit prose-li:text-inherit">
-                          <ReactMarkdown>{msg.content}</ReactMarkdown>
+                        <div className="prose-headings:text-inherit prose-p:text-inherit prose-li:text-inherit w-full">
+                          {parseMessageContent(msg.content).map((part, pIdx) => {
+                            if (part.type === 'template') {
+                              return <TemplateRecommendCard key={pIdx} data={part.data} />;
+                            }
+                            return (
+                              <ReactMarkdown key={pIdx}>
+                                {part.content}
+                              </ReactMarkdown>
+                            );
+                          })}
                         </div>
                       ) : (
                         msg.content

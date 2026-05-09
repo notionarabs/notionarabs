@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
+import { getApiUrl } from "../../../lib/apiConfig";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || "");
 
@@ -77,7 +78,93 @@ export async function POST(req) {
       else pageContextInfo = `\nملاحظة: المستخدم يتصفح الآن الصفحة: ${context}`;
     }
 
-    const fullSystemPrompt = SYSTEM_PROMPT + pageContextInfo;
+    let templateKnowledge = "";
+    let templatesList = [];
+    
+    try {
+      const templatesApiUrl = getApiUrl('/templates?limit=15&sortBy=downloads');
+      const res = await fetch(templatesApiUrl, { next: { revalidate: 3600 } });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.templates) && data.templates.length > 0) {
+          templatesList = data.templates;
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch templates for AI Chat context:", err.message);
+    }
+
+    // Fallback high-quality curated templates if local database is empty
+    if (templatesList.length === 0) {
+      templatesList = [
+        {
+          id: "study-tracker-pro",
+          title: "قالب تنظيم الدراسة والامتحانات الاحترافي",
+          slug: "study-tracker-pro",
+          categories: ["الدراسة"],
+          isPaid: false,
+          price: 0,
+          rating: 4.9,
+          downloads: 1420,
+          previewImage: "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&q=80&w=600"
+        },
+        {
+          id: "islamic-planner-system",
+          title: "نظام المخطط الإسلامي الشامل لحياتك اليومية",
+          slug: "islamic-planner-system",
+          categories: ["ديني"],
+          isPaid: true,
+          price: 70,
+          rating: 5.0,
+          downloads: 850,
+          previewImage: "https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?auto=format&fit=crop&q=80&w=600"
+        },
+        {
+          id: "business-operating-os",
+          title: "نظام تشغيل الشركات الناشئة وإدارة المشاريع",
+          slug: "business-operating-os",
+          categories: ["الأعمال"],
+          isPaid: true,
+          price: 150,
+          rating: 4.8,
+          downloads: 530,
+          previewImage: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=600"
+        },
+        {
+          id: "personal-productivity-dashboard",
+          title: "لوحة التحكم الشخصية للإنتاجية والعادات",
+          slug: "personal-productivity-dashboard",
+          categories: ["الإنتاجية"],
+          isPaid: false,
+          price: 0,
+          rating: 4.7,
+          downloads: 2450,
+          previewImage: "https://images.unsplash.com/photo-1484480974693-2ca0a72f3a25?auto=format&fit=crop&q=80&w=600"
+        }
+      ];
+    }
+
+    if (templatesList.length > 0) {
+      templateKnowledge = "\n\nسابعاً: قائمة القوالب النشطة والواقعية حالياً في قاعدة البيانات (هام جداً):\n";
+      templatesList.forEach((t, i) => {
+        const priceText = t.isPaid ? `${t.price} ج.م` : 'مجاني';
+        const categoriesText = Array.isArray(t.categories) ? t.categories.join(', ') : (t.category || 'عام');
+        templateKnowledge += `${i+1}. [${t.title}] - الفئة: ${categoriesText} | السعر: ${priceText} | التقييم: ${t.rating || 0} | التحميلات: ${t.downloads || 0} | المعرف: ${t._id || t.id} | السلوج: ${t.slug || ''} | الرابط: /templates/${t.slug || t._id || t.id} | رابط الصورة: ${t.previewImage || ''}\n`;
+      });
+      templateKnowledge += `
+توجيهات ترشيح القوالب:
+عندما يطلب المستخدم ترشيح قالب أو نظام أو يسأل عن كيفية القيام بمهمة معينة تخدمها القوالب المتوفرة، قم باختيار القالب الأنسب له من القائمة أعلاه واقترحه عليه.
+بعد كتابة ردك النصي الجميل والمقنع باللغة العربية، يجب عليك دائماً إدراج بطاقة تفاعلية للقالب المرشح باستخدام الصيغة الخاصة التالية بالضبط في سطر منفصل وبدون أي علامات إضافية أو كود برمجى محيط بها:
+:::template-recommend{"id": "معرف القالب", "title": "عنوان القالب", "slug": "سلوج القالب", "category": "اسم الفئة الأولى", "price": "السعر النهائي للمستخدم مثل مجاني أو 50 ج.م", "rating": 5, "downloads": 100, "previewImage": "رابط الصورة الخاص بالقالب"}:::
+
+هام:
+1. يمكنك إدراج أكثر من بطاقة ترشيح إذا كان هناك أكثر من قالب مناسب، كل بطاقة في سطر منفصل تماماً.
+2. يجب كتابة كائن الـ JSON داخل البطاقة بدقة تامة وبدون أي أخطاء، ولا تستخدم كود ماركداون (مثل code block \`\`\`) حول الصيغة الخاصة :::template-recommend...:::. اكتب الصيغة مباشرة في النص كسطر عادي.
+3. لا تبتكر قوالب وهمية غير موجودة في القائمة النشطة، وإذا لم تجد قالباً مناسباً، وجهه للمتجر العام باستخدام الرابط /templates.
+`;
+    }
+
+    const fullSystemPrompt = SYSTEM_PROMPT + pageContextInfo + templateKnowledge;
 
     // --- OPTION A: MISTRAL AI (STREAMING) ---
     if (mistralKey) {

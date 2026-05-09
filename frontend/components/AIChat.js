@@ -10,8 +10,31 @@ import ReactMarkdown from 'react-markdown';
 export default function AIChat() {
   const pathname = usePathname();
   
-  // Hide AI Chat on dashboard and profile pages as requested
-  const hiddenRoutes = ['/profile', '/user-settings', '/admin'];
+  // Hide AI Chat on pages where it adds no value
+  const hiddenRoutes = [
+    '/profile',
+    '/user-settings',
+    '/admin',
+    '/login',
+    '/signup',
+    '/forgot-password',
+    '/reset-password',
+    '/verify-email',
+    '/auth',
+    '/widgets/arabic-clock/embed',
+    '/widgets/arabic-header/embed',
+    '/widgets/athkar/embed',
+    '/widgets/countdown/embed',
+    '/widgets/cultural-timer/embed',
+    '/widgets/habit-tracker/embed',
+    '/widgets/hadith/embed',
+    '/widgets/pomodoro/embed',
+    '/widgets/prayer/embed',
+    '/widgets/quran/embed',
+    '/widgets/small-deeds/embed',
+    '/widgets/weather/embed',
+    '/widgets/zakat-calculator/embed',
+  ];
   if (hiddenRoutes.some(route => pathname?.startsWith(route))) {
     return null;
   }

@@ -1,6 +1,54 @@
 import Image from 'next/image';
 
-export default function ImageUploadSection({ profileSettings, uploadingImage, handleImageUpload, user }) {
+export default function ImageUploadSection({ profileSettings, uploadingImage, handleImageUpload, user, isCreator = false }) {
+    if (!isCreator) {
+        return (
+            <div className="flex flex-col items-center gap-4 bg-gray-50/30 dark:bg-dark-tertiary/10 p-6 rounded-3xl border border-dashed border-gray-200 dark:border-white/5 mb-8">
+                <div className="relative">
+                    <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl p-1 bg-white dark:bg-dark-secondary shadow-lg">
+                        {profileSettings.profilePicture ? (
+                            <img
+                                src={profileSettings.profilePicture}
+                                alt="صورة الملف الشخصي"
+                                className="w-full h-full rounded-xl object-cover"
+                            />
+                        ) : (
+                            <div className="w-full h-full rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 dark:from-orange-500 dark:to-orange-600 flex items-center justify-center">
+                                <span className="text-3xl sm:text-4xl font-black text-white">
+                                    {user?.name?.charAt(0)?.toUpperCase()}
+                                </span>
+                            </div>
+                        )}
+                    </div>
+
+                    <label
+                        htmlFor="profile-picture-upload"
+                        className="absolute -bottom-2 -right-2 w-9 h-9 bg-white dark:bg-dark-tertiary rounded-xl border border-gray-100 dark:border-dark-card-border shadow-lg flex items-center justify-center text-gray-500 dark:text-dark-text-secondary hover:text-primary-600 dark:hover:text-orange-400 hover:scale-110 cursor-pointer transition-all"
+                    >
+                        {uploadingImage === 'profile' ? (
+                            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                        )}
+                    </label>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleImageUpload(e, 'profile')}
+                        className="hidden"
+                        id="profile-picture-upload"
+                    />
+                </div>
+                <div className="text-center">
+                    <h3 className="text-base font-black text-gray-900 dark:text-dark-text-primary">{profileSettings.displayName || user?.name}</h3>
+                    <p className="text-xs text-gray-400 dark:text-dark-text-tertiary mt-1">{user?.email}</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="relative mb-8 group">
             {/* Cover Image */}

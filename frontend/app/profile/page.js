@@ -17,11 +17,12 @@ import AnalyticsContent from '../../components/AnalyticsContent';
 import CreatorEarnings from '../../components/CreatorEarnings';
 import AdminPayouts from '../../components/AdminPayouts';
 import NotificationsContent from '../../components/NotificationsContent';
+import PurchasesContent from '../../components/PurchasesContent';
 import { 
   Camera, Mail, User as UserIcon, AtSign, Settings, LayoutDashboard, Edit3, 
   Download, TrendingUp, DollarSign, Bell, Award, Calendar, CheckCircle2, 
   Sparkles, Star, Percent, Briefcase, Plus, Heart, Info, Shield, ExternalLink, 
-  Share2, Loader2, Check, ArrowLeft, Clock 
+  Share2, Loader2, Check, ArrowLeft, Clock, ShoppingBag, BookOpen
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SocialIcon from '../../components/settings/SocialIcon';
@@ -29,17 +30,19 @@ import { detectPlatform } from '../../lib/socialUtils';
 
 // Profile Overview Component - Turn into Executive Creator Command Center
 function ProfileOverview({ user: propUser, onNavigate }) {
+  const router = useRouter();
   const isCreator = propUser?.creatorStatus?.toLowerCase() === 'approved';
   const isAdmin = propUser?.role?.toLowerCase() === 'admin';
 
   const [liveStats, setLiveStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(isCreator);
   const [recentActivity, setRecentActivity] = useState([]);
+  const [purchasesCount, setPurchasesCount] = useState(0);
 
   useEffect(() => {
-    if (isCreator) {
-      const fetchDashboardData = async () => {
-        try {
+    const fetchDashboardData = async () => {
+      try {
+        if (isCreator) {
           const [statsRes, notificationsRes] = await Promise.all([
             api.get('/creators/me/stats'),
             api.get('/notifications')
@@ -51,14 +54,41 @@ function ProfileOverview({ user: propUser, onNavigate }) {
           if (notificationsRes.data?.success) {
             setRecentActivity((notificationsRes.data.notifications || []).slice(0, 2));
           }
-        } catch (error) {
-          console.error('Error fetching dashboard data:', error);
-        } finally {
-          setLoadingStats(false);
+        } else {
+          // Fetch purchases count and notifications for normal user
+          const [ordersRes, notificationsRes] = await Promise.all([
+            api.get('/orders/me').catch(() => null),
+            api.get('/notifications').catch(() => null)
+          ]);
+
+          if (ordersRes?.data?.success) {
+            const ordersList = ordersRes.data.orders || [];
+            const distinctTemplates = new Set();
+            ordersList.forEach(order => {
+              const status = (order.status || '').toLowerCase();
+              if (status === 'completed' || status === 'paid' || status === 'success') {
+                (order.items || []).forEach(item => {
+                  const tid = typeof item.templateId === 'object' && item.templateId !== null
+                    ? (item.templateId._id || item.templateId.id)
+                    : item.templateId;
+                  if (tid) distinctTemplates.add(tid.toString());
+                });
+              }
+            });
+            setPurchasesCount(distinctTemplates.size);
+          }
+
+          if (notificationsRes?.data?.success) {
+            setRecentActivity((notificationsRes.data.notifications || []).slice(0, 2));
+          }
         }
-      };
-      fetchDashboardData();
-    }
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setLoadingStats(false);
+      }
+    };
+    fetchDashboardData();
   }, [isCreator]);
 
   const followersCount = liveStats ? (liveStats.followers || 0) : (propUser?.followersCount || propUser?.followers || 0);
@@ -76,13 +106,39 @@ function ProfileOverview({ user: propUser, onNavigate }) {
     }
   };
 
-  const checklist = [
+  const getMembershipLevel = (count) => {
+    if (count >= 10) {
+      return {
+        level: 'خبير نوشن 🧙‍♂️',
+        desc: 'مستكشف محترف يملك مكتبة متكاملة! ✨',
+        color: 'emerald'
+      };
+    } else if (count >= 4) {
+      return {
+        level: 'هاوي نوشن 🌟',
+        desc: 'شغوف بتنظيم حياته ومشارك نشط! 📖',
+        color: 'purple'
+      };
+    } else {
+      return {
+        level: 'مستكشف نوشن 🗺️',
+        desc: 'عضو نشط يبدأ رحلته الإبداعية! 🔍',
+        color: 'amber'
+      };
+    }
+  };
+
+  const checklist = isCreator ? [
     { id: 'name', label: 'الاسم الكامل', complete: !!propUser?.name, points: 15 },
     { id: 'username', label: 'اسم المستخدم', complete: !!propUser?.username, points: 15 },
     { id: 'profilePicture', label: 'الصورة الشخصية', complete: !!propUser?.profilePicture, points: 20 },
     { id: 'backgroundImage', label: 'صورة الغلاف', complete: !!propUser?.backgroundImage, points: 15 },
     { id: 'bio', label: 'النبذة التعريفية', complete: !!propUser?.bio, points: 20 },
     { id: 'socials', label: 'روابط التواصل', complete: propUser?.socialLinks && propUser.socialLinks.length > 0, points: 15 }
+  ] : [
+    { id: 'name', label: 'الاسم الكامل', complete: !!propUser?.name, points: 30 },
+    { id: 'username', label: 'اسم المستخدم', complete: !!propUser?.username, points: 30 },
+    { id: 'profilePicture', label: 'الصورة الشخصية', complete: !!propUser?.profilePicture, points: 40 }
   ];
 
   const completionPercentage = checklist.reduce((sum, item) => sum + (item.complete ? item.points : 0), 0);
@@ -122,27 +178,31 @@ function ProfileOverview({ user: propUser, onNavigate }) {
     <div className="space-y-6 lg:space-y-8 max-w-5xl mx-auto">
       {/* 1. Executive Identity Card */}
       <div className="relative bg-white dark:bg-dark-secondary rounded-[2.5rem] border border-gray-100/60 dark:border-white/5 shadow-sm overflow-hidden">
-        <div className="h-40 sm:h-52 relative group overflow-hidden">
-          {propUser?.backgroundImage ? (
-            <Image src={propUser.backgroundImage} alt="Cover" fill className="object-cover opacity-90 group-hover:scale-105 transition-transform duration-700" priority unoptimized />
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-primary-500/20 to-accent-500/20"></div>
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-          <div className="absolute top-6 left-6 z-10">{getRoleBadge()}</div>
+        <div className={`relative overflow-hidden ${isCreator ? 'h-40 sm:h-52' : 'h-20 sm:h-24 bg-gradient-to-r from-primary-500/10 via-accent-500/10 to-primary-500/15'}`}>
+          {isCreator ? (
+            <>
+              {propUser?.backgroundImage ? (
+                <Image src={propUser.backgroundImage} alt="Cover" fill className="object-cover opacity-90 group-hover:scale-105 transition-transform duration-700" priority unoptimized />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-primary-500/20 to-accent-500/20"></div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+            </>
+          ) : null}
+          <div className="absolute top-4 left-6 z-10">{getRoleBadge()}</div>
         </div>
 
         <div className="px-8 pb-8 pt-0 relative">
-          <div className="flex flex-col sm:flex-row items-center sm:items-end gap-6 -mt-16 sm:-mt-20 relative z-20">
-            <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-[2rem] overflow-hidden border-4 border-white dark:border-dark-secondary shadow-xl bg-gradient-to-br from-primary-500 to-accent-500">
+          <div className={`flex flex-col sm:flex-row items-center sm:items-end gap-6 relative z-20 ${isCreator ? '-mt-16 sm:-mt-20' : '-mt-10 sm:-mt-12'}`}>
+            <div className={`relative rounded-[2rem] overflow-hidden border-4 border-white dark:border-dark-secondary shadow-xl bg-gradient-to-br from-primary-500 to-accent-500 shrink-0 ${isCreator ? 'w-32 h-32 sm:w-40 sm:h-40' : 'w-24 h-24 sm:w-28 sm:h-28'}`}>
               {propUser?.profilePicture ? (
                 <Image src={propUser.profilePicture} alt={propUser.name} fill className="object-cover" unoptimized />
               ) : (
-                <div className="absolute inset-0 flex items-center justify-center text-white text-5xl font-black">{propUser?.name?.charAt(0)?.toUpperCase()}</div>
+                <div className={`absolute inset-0 flex items-center justify-center text-white font-black ${isCreator ? 'text-5xl' : 'text-3xl'}`}>{propUser?.name?.charAt(0)?.toUpperCase()}</div>
               )}
             </div>
             <div className="text-center sm:text-right pb-2 flex-1">
-              <h2 className="text-3xl font-black text-gray-900 dark:text-dark-text-primary tracking-tight mb-2">{propUser?.name}</h2>
+              <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-dark-text-primary tracking-tight mb-2">{propUser?.name}</h2>
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-xs font-black text-gray-500 dark:text-dark-text-secondary uppercase tracking-wider">
                 {propUser?.username && <span className="text-primary-600 dark:text-orange-400">@{propUser.username}</span>}
                 <span className="opacity-30">•</span>
@@ -161,57 +221,125 @@ function ProfileOverview({ user: propUser, onNavigate }) {
 
       {/* 2. Real-Time Performance Matrix & Monthly Pulse */}
       <div className="space-y-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: 'المتابعون', value: followersCount, unit: 'متابع', color: 'purple', trend: null },
-            { label: 'قوالب منشورة', value: templatesCount, unit: 'قالب', color: 'orange', trend: null },
-            { label: 'التقييم العام', value: ratingValue.toFixed(1), unit: 'نجوم', color: 'amber', isStars: true },
-            { label: 'الرصيد المتاح', value: (earningsValue || 0).toLocaleString('ar-EG'), unit: 'ج.م', color: 'emerald', isLocked: true }
-          ].map((stat, i) => (
-            <div key={i} className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-3xl p-6 shadow-sm hover:translate-y-[-2px] transition-all">
+        <div className={`grid gap-4 ${isCreator ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-1 md:grid-cols-3'}`}>
+          {(isCreator 
+            ? [
+                { label: 'المتابعون', value: followersCount, unit: 'متابع', color: 'purple', trend: null },
+                { label: 'قوالب منشورة', value: templatesCount, unit: 'قالب', color: 'orange', trend: null },
+                { label: 'التقييم العام', value: ratingValue.toFixed(1), unit: 'نجوم', color: 'amber', isStars: true },
+                { label: 'الرصيد المتاح', value: (earningsValue || 0).toLocaleString('ar-EG'), unit: 'ج.م', color: 'emerald', isLocked: true }
+              ]
+            : [
+                { label: 'القوالب المقتناة', value: purchasesCount, unit: 'قالب مقتنى', color: 'orange', icon: ShoppingBag, action: () => router.push('/purchases') },
+                { label: 'التنبيهات غير المقروءة', value: recentActivity.filter(n => !n.isRead).length || 0, unit: 'تنبيه جديد', color: 'purple', icon: Bell, action: () => onNavigate?.('notifications') },
+                { 
+                  label: 'مستوى العضوية', 
+                  value: getMembershipLevel(purchasesCount).level, 
+                  unit: 'رتبة العضو', 
+                  color: getMembershipLevel(purchasesCount).color, 
+                  icon: Sparkles, 
+                  ratingDesc: getMembershipLevel(purchasesCount).desc 
+                }
+              ]
+          ).map((stat, i) => (
+            <div 
+              key={i} 
+              className={`bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-3xl p-6 shadow-sm hover:translate-y-[-2px] transition-all ${stat.action ? 'cursor-pointer hover:border-primary-500/30' : ''}`}
+              onClick={stat.action}
+            >
               <div className="flex items-center justify-between mb-3">
                 <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{stat.label}</span>
                 {stat.isLocked && <span className="text-[8px] font-black bg-gray-100 dark:bg-gray-800 text-gray-500 px-1.5 py-0.5 rounded-md">قريباً</span>}
+                {stat.icon && <stat.icon size={14} className="text-gray-400 dark:text-gray-500" />}
               </div>
               <div className="flex items-baseline gap-1">
                 <span className={`text-2xl font-black ${stat.isLocked ? 'text-gray-400' : 'text-gray-900 dark:text-dark-text-primary'}`}>{stat.value}</span>
                 <span className={`text-[10px] font-bold text-${stat.color}-500 opacity-60`}>{stat.unit}</span>
               </div>
               {stat.isStars && <div className="mt-2">{renderStars(ratingValue)}</div>}
+              {stat.ratingDesc && (
+                <span className={`text-xs font-black mt-2 block ${
+                  stat.color === 'emerald' ? 'text-emerald-500' : stat.color === 'purple' ? 'text-purple-500' : 'text-amber-500'
+                }`}>
+                  {stat.ratingDesc}
+                </span>
+              )}
             </div>
           ))}
         </div>
-        
-
       </div>
 
       {/* 3. Main Dashboard Intelligence Layer */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         {/* Left Double-Column: Primary Content & Actions */}
         <div className="lg:col-span-2 space-y-6 lg:space-y-8">
-          {/* Bio showcase - Now as a Main Featured Card */}
-          <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-[2.5rem] p-8 shadow-sm relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-primary-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-6 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <UserIcon size={16} className="text-primary-500" />
-                <span>النبذة التعريفية المبدعة</span>
+          {/* Bio showcase for Creators / Welcome Gateway for Standard Users */}
+          {isCreator ? (
+            <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-[2.5rem] p-8 shadow-sm relative overflow-hidden group">
+              <div className="absolute top-0 left-0 w-1.5 h-full bg-primary-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-6 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <UserIcon size={16} className="text-primary-500" />
+                  <span>النبذة التعريفية المبدعة</span>
+                </div>
+                <button onClick={() => onNavigate?.('settings')} className="p-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-xl transition-colors border-none bg-transparent cursor-pointer">
+                  <Edit3 size={14} className="text-primary-500" />
+                </button>
+              </h3>
+              <div className="relative">
+                <p className="text-sm text-gray-700 dark:text-dark-text-secondary leading-relaxed font-medium whitespace-pre-line bg-gray-50/50 dark:bg-dark-tertiary/20 p-6 rounded-3xl border border-gray-100/50 dark:border-white/5 shadow-inner">
+                  {propUser?.bio || 'لا توجد نبذة تعريفية مضافة حالياً لصفحتك العامة. أضف نبذة لتعريف المجتمع بك ومهاراتك المميزة!'}
+                </p>
+                {!propUser?.bio && (
+                  <div className="mt-4 flex justify-end">
+                    <button onClick={() => onNavigate?.('settings')} className="text-[10px] font-black text-primary-600 hover:underline border-none bg-transparent cursor-pointer">إضافة نبذة الآن →</button>
+                  </div>
+                )}
               </div>
-              <button onClick={() => onNavigate?.('settings')} className="p-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-xl transition-colors border-none bg-transparent cursor-pointer">
-                <Edit3 size={14} className="text-primary-500" />
-              </button>
-            </h3>
-            <div className="relative">
-              <p className="text-sm text-gray-700 dark:text-dark-text-secondary leading-relaxed font-medium whitespace-pre-line bg-gray-50/50 dark:bg-dark-tertiary/20 p-6 rounded-3xl border border-gray-100/50 dark:border-white/5 shadow-inner">
-                {propUser?.bio || 'لا توجد نبذة تعريفية مضافة حالياً لصفحتك العامة. أضف نبذة لتعريف المجتمع بك ومهاراتك المميزة!'}
+            </div>
+          ) : (
+            <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-[2.5rem] p-8 shadow-sm relative overflow-hidden group">
+              <div className="absolute top-0 left-0 w-1.5 h-full bg-primary-500"></div>
+              <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-6 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Sparkles size={16} className="text-primary-500 animate-pulse-slow" />
+                  <span>بوابتك الإبداعية في نوشن</span>
+                </div>
+              </h3>
+              <p className="text-sm text-gray-700 dark:text-dark-text-secondary leading-relaxed font-bold bg-gray-50/50 dark:bg-dark-tertiary/20 p-6 rounded-3xl border border-gray-100/50 dark:border-white/5 shadow-inner mb-6">
+                مرحباً بك في منصة عرب نوشن! وجهتك الأولى لاستكشاف واستخدام أفضل القوالب المبتكرة المصممة باللغة العربية خصيصاً لتنظيم حياتك، وزيادة إنتاجيتك، وإدارة مشاريعك بنجاح. ✨
               </p>
-              {!propUser?.bio && (
-                <div className="mt-4 flex justify-end">
-                  <button onClick={() => onNavigate?.('settings')} className="text-[10px] font-black text-primary-600 hover:underline border-none bg-transparent cursor-pointer">إضافة نبذة الآن →</button>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link href="/templates" className="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white text-xs font-black rounded-2xl shadow-lg shadow-primary-500/10 flex items-center gap-2 transition-all hover:scale-105 active:scale-95 decoration-none w-fit">
+                  <ShoppingBag size={14} />
+                  <span>استكشف قوالب المتجر</span>
+                </Link>
+                <Link href="/blog" className="px-6 py-3 bg-gray-50 hover:bg-gray-100 dark:bg-dark-tertiary dark:hover:bg-dark-tertiary/80 text-gray-700 dark:text-dark-text-primary text-xs font-black rounded-2xl flex items-center gap-2 transition-all hover:scale-105 active:scale-95 decoration-none w-fit">
+                  <BookOpen size={14} />
+                  <span>اقرأ آخر المقالات</span>
+                </Link>
+              </div>
+
+              {propUser?.specialties && propUser.specialties.length > 0 && (
+                <div className="mt-8 pt-6 border-t border-gray-100 dark:border-white/5">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-dark-text-tertiary mb-3 flex items-center gap-2">
+                    <Sparkles size={12} className="text-primary-500 animate-pulse" />
+                    <span>اهتماماتك النشطة في نوشن (مخصصة لك):</span>
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {propUser.specialties.map((s, idx) => (
+                      <span key={idx} className="px-3.5 py-2 bg-primary-50 dark:bg-orange-500/10 text-primary-600 dark:text-orange-400 rounded-xl text-xs font-bold shadow-sm">
+                        {s}
+                      </span>
+                    ))}
+                    <button onClick={() => onNavigate?.('settings')} className="px-3.5 py-2 bg-gray-100 dark:bg-dark-tertiary hover:bg-gray-200 dark:hover:bg-dark-tertiary/80 text-gray-500 dark:text-dark-text-secondary rounded-xl text-xs font-bold border-none cursor-pointer transition-colors">
+                      + تعديل الاهتمامات
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
-          </div>
+          )}
 
           {/* Quick Actions Control Center */}
           {isCreator && (
@@ -234,7 +362,7 @@ function ProfileOverview({ user: propUser, onNavigate }) {
                     <p className="text-[10px] text-gray-400 font-bold mt-0.5">نشر في المدونة</p>
                   </div>
                 </div>
-                <p className="text-xs text-gray-400 dark:text-dark-text-tertiary leading-relaxed font-medium">شارك خبراتك في نوشين وارفع من وعي مجتمع المبدعين 📚</p>
+                <p className="text-xs text-gray-400 dark:text-dark-text-tertiary leading-relaxed font-medium">شارك خبراتك في نوشن وارفع من وعي مجتمع المبدعين 📚</p>
               </Link>
             </div>
           )}
@@ -243,84 +371,90 @@ function ProfileOverview({ user: propUser, onNavigate }) {
         {/* Right Side Column: Meta & Progress */}
         <div className="space-y-6 lg:space-y-8">
           {/* Recent Activity Snapshot - Connected to Live Notifications (Filtered for Unread) */}
+          <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-[2.5rem] p-8 shadow-sm">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">آخر النشاطات</h3>
+              <button onClick={() => onNavigate?.('notifications')} className="p-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-xl transition-colors border-none bg-transparent cursor-pointer">
+                <Bell size={14} className="text-primary-500" />
+              </button>
+            </div>
+            <div className="space-y-3">
+              {(() => {
+                const unreadActivity = recentActivity.filter(n => !n.isRead);
+                return unreadActivity.length > 0 ? (
+                  unreadActivity.map((notif, idx) => (
+                    <div key={notif._id || idx} className="p-4 bg-gray-50/50 dark:bg-dark-tertiary/20 rounded-2xl border border-gray-100/50 dark:border-white/5 hover:bg-white dark:hover:bg-dark-tertiary transition-all group">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className={`w-1.5 h-1.5 rounded-full ${notif.type?.includes('follow') ? 'bg-primary-500' : 'bg-amber-500'}`}></div>
+                        <span className="text-[8px] text-gray-400 font-black uppercase tracking-wider">
+                          {notif.type?.includes('follow') ? 'متابعة جديدة' : 'تنبيه جديد'}
+                        </span>
+                        <span className="text-[8px] text-gray-300 mr-auto">{new Date(notif.createdAt).toLocaleDateString('ar-EG')}</span>
+                      </div>
+                      <p className="text-[10px] font-bold text-gray-700 dark:text-dark-text-primary line-clamp-2">{notif.message}</p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-6 opacity-40">
+                    <div className="w-12 h-12 bg-gray-50 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Check size={20} className="text-emerald-500" strokeWidth={3} />
+                    </div>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">أنت على اطلاع بكل شيء ✨</p>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+
+
+          {/* Socials Showcase (Only for Creators) */}
           {isCreator && (
             <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-[2.5rem] p-8 shadow-sm">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">آخر النشاطات</h3>
-                <button onClick={() => onNavigate?.('notifications')} className="p-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-xl transition-colors border-none bg-transparent cursor-pointer">
-                  <Bell size={14} className="text-primary-500" />
-                </button>
-              </div>
-              <div className="space-y-3">
-                {(() => {
-                  const unreadActivity = recentActivity.filter(n => !n.isRead);
-                  return unreadActivity.length > 0 ? (
-                    unreadActivity.map((notif, idx) => (
-                      <div key={notif._id || idx} className="p-4 bg-gray-50/50 dark:bg-dark-tertiary/20 rounded-2xl border border-gray-100/50 dark:border-white/5 hover:bg-white dark:hover:bg-dark-tertiary transition-all group">
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className={`w-1.5 h-1.5 rounded-full ${notif.type?.includes('follow') ? 'bg-primary-500' : 'bg-amber-500'}`}></div>
-                          <span className="text-[8px] text-gray-400 font-black uppercase tracking-wider">
-                            {notif.type?.includes('follow') ? 'متابعة جديدة' : 'تنبيه جديد'}
-                          </span>
-                          <span className="text-[8px] text-gray-300 mr-auto">{new Date(notif.createdAt).toLocaleDateString('ar-EG')}</span>
-                        </div>
-                        <p className="text-[10px] font-bold text-gray-700 dark:text-dark-text-primary line-clamp-2">{notif.message}</p>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-6 opacity-40">
-                      <div className="w-12 h-12 bg-gray-50 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <Check size={20} className="text-emerald-500" strokeWidth={3} />
-                      </div>
-                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">أنت على اطلاع بكل شيء ✨</p>
-                    </div>
-                  );
-                })()}
-              </div>
+              <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-6">شبكة التواصل</h3>
+              {propUser?.socialLinks?.length > 0 ? (
+                <div className="grid grid-cols-4 gap-3">
+                  {propUser.socialLinks.map((link, idx) => {
+                    const platform = detectPlatform(link.url);
+                    return (
+                      <a key={idx} href={link.url} target="_blank" className={`h-12 rounded-2xl bg-gray-50 dark:bg-dark-tertiary/40 hover:scale-110 transition-transform flex items-center justify-center border border-gray-100/30 dark:border-white/5 ${platform?.color || 'text-gray-400 shadow-sm'}`}>
+                        <SocialIcon platform={platform?.icon} className="w-6 h-6" />
+                      </a>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-6 bg-gray-50/50 dark:bg-dark-tertiary/10 rounded-[2rem] border border-dashed border-gray-200 dark:border-white/5">
+                  <Share2 size={24} className="text-gray-300 mb-2 mx-auto opacity-50" />
+                  <p className="text-[10px] text-gray-400 font-bold">لم تضف روابط بعد</p>
+                </div>
+              )}
             </div>
           )}
 
-
-          {/* Socials Showcase */}
-          <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-[2.5rem] p-8 shadow-sm">
-            <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-6">شبكة التواصل</h3>
-            {propUser?.socialLinks?.length > 0 ? (
-              <div className="grid grid-cols-4 gap-3">
-                {propUser.socialLinks.map((link, idx) => {
-                  const platform = detectPlatform(link.url);
-                  return (
-                    <a key={idx} href={link.url} target="_blank" className={`h-12 rounded-2xl bg-gray-50 dark:bg-dark-tertiary/40 hover:scale-110 transition-transform flex items-center justify-center border border-gray-100/30 dark:border-white/5 ${platform?.color || 'text-gray-400 shadow-sm'}`}>
-                      <SocialIcon platform={platform?.icon} className="w-6 h-6" />
-                    </a>
-                  );
-                })}
+          {/* Completion Milestone */}
+          {isCreator && (
+            completionPercentage === 100 ? (
+              <div className="bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/20 rounded-[2.5rem] p-8 shadow-sm text-center">
+                <div className="w-16 h-16 bg-emerald-500 text-white rounded-3xl flex items-center justify-center shadow-xl shadow-emerald-500/30 mx-auto mb-5 rotate-3"><Check size={36} strokeWidth={4} /></div>
+                <h4 className="text-base font-black text-emerald-800 dark:text-emerald-400 uppercase tracking-wider mb-2">الملف مكتمل</h4>
+                <p className="text-[11px] text-emerald-600/70 dark:text-emerald-500/50 font-black leading-relaxed">
+                  أنت الآن تظهر بأفضل صورة للمجتمع ✨
+                </p>
               </div>
             ) : (
-              <div className="text-center py-6 bg-gray-50/50 dark:bg-dark-tertiary/10 rounded-[2rem] border border-dashed border-gray-200 dark:border-white/5">
-                <Share2 size={24} className="text-gray-300 mb-2 mx-auto opacity-50" />
-                <p className="text-[10px] text-gray-400 font-bold">لم تضف روابط بعد</p>
+              <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-[2.5rem] p-8 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">اكتمال الملف</span>
+                  <span className="text-sm font-black text-primary-500">{completionPercentage}%</span>
+                </div>
+                <div className="h-2 bg-gray-100 dark:bg-dark-tertiary rounded-full overflow-hidden">
+                  <div className="h-full bg-primary-500 transition-all duration-1000" style={{ width: `${completionPercentage}%` }}></div>
+                </div>
+                <p className="mt-4 text-[10px] text-gray-400 font-bold text-center">
+                  أكمل ملفك لزيادة فرصة ظهورك!
+                </p>
               </div>
-            )}
-          </div>
-
-          {/* Completion Milestone */}
-          {completionPercentage === 100 ? (
-            <div className="bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/20 rounded-[2.5rem] p-8 shadow-sm text-center">
-              <div className="w-16 h-16 bg-emerald-500 text-white rounded-3xl flex items-center justify-center shadow-xl shadow-emerald-500/30 mx-auto mb-5 rotate-3"><Check size={36} strokeWidth={4} /></div>
-              <h4 className="text-base font-black text-emerald-800 dark:text-emerald-400 uppercase tracking-wider mb-2">الملف مكتمل</h4>
-              <p className="text-[11px] text-emerald-600/70 dark:text-emerald-500/50 font-black leading-relaxed">أنت الآن تظهر بأفضل صورة للمجتمع ✨</p>
-            </div>
-          ) : (
-            <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-[2.5rem] p-8 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">اكتمال الملف</span>
-                <span className="text-sm font-black text-primary-500">{completionPercentage}%</span>
-              </div>
-              <div className="h-2 bg-gray-100 dark:bg-dark-tertiary rounded-full overflow-hidden">
-                <div className="h-full bg-primary-500 transition-all duration-1000" style={{ width: `${completionPercentage}%` }}></div>
-              </div>
-              <p className="mt-4 text-[10px] text-gray-400 font-bold text-center">أكمل ملفك لزيادة فرصة ظهورك!</p>
-            </div>
+            )
           )}
         </div>
       </div>
@@ -329,15 +463,22 @@ function ProfileOverview({ user: propUser, onNavigate }) {
 }
 
 function ProfilePageContent() {
-  const { user, isAuthenticated, loading, logout } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const tabParam = searchParams.get('tab');
-  const [activeSection, setActiveSection] = useState(tabParam || 'profile');
+
+  const isCreator = user?.creatorStatus?.toLowerCase() === 'approved';
+  const defaultTab = isCreator ? 'profile' : 'settings';
+
+  const [activeSection, setActiveSection] = useState(tabParam || 'settings');
 
   useEffect(() => {
-    setActiveSection(tabParam || 'profile');
-  }, [tabParam]);
+    if (!loading) {
+      const currentDefault = isCreator ? 'profile' : 'settings';
+      setActiveSection(tabParam || currentDefault);
+    }
+  }, [tabParam, loading, isCreator]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -350,8 +491,9 @@ function ProfilePageContent() {
   // Handle section navigation
   const handleSectionChange = (section) => {
     setActiveSection(section);
-    // Update URL query parameter instantly without triggering Next.js server round-trips
-    const newPath = section === 'profile' ? '/profile' : `/profile?tab=${section}`;
+    // For creators, profile is default (represented as /profile). For standard users, settings is default.
+    const isDefault = isCreator ? section === 'profile' : section === 'settings';
+    const newPath = isDefault ? '/profile' : `/profile?tab=${section}`;
     window.history.pushState({ section }, '', newPath);
     // Scroll to top when changing sections (instant to avoid glitches with layout shifts)
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -464,11 +606,16 @@ function ProfilePageContent() {
 
   // Render content based on active section
   const renderContent = () => {
-    switch (activeSection) {
+    // If a normal user somehow ends up on 'profile' tab, render SettingsContent directly
+    const currentSection = (!isCreator && activeSection === 'profile') ? 'settings' : activeSection;
+
+    switch (currentSection) {
       case 'profile':
         return <ProfileOverview user={user} onNavigate={handleSectionChange} />;
       case 'settings':
         return <SettingsContent />;
+      case 'purchases':
+        return <PurchasesContent />;
       case 'templates':
         return <TemplatesContent />;
       case 'blogs':
@@ -484,7 +631,7 @@ function ProfilePageContent() {
       case 'admin-payouts':
         return <AdminPayouts />;
       default:
-        return <ProfileOverview user={user} />;
+        return isCreator ? <ProfileOverview user={user} /> : <SettingsContent />;
     }
   };
 

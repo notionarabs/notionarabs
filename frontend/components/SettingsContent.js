@@ -326,8 +326,10 @@ export default function SettingsContent() {
 
     const settingsTabs = [
         { id: 'profile', label: 'المعلومات الشخصية', icon: User },
-        ...(isCreator ? [{ id: 'payout', label: 'إعدادات الدفع والسحب', icon: Wallet }] : []),
-        { id: 'socials', label: 'شبكات التواصل', icon: Share2 },
+        ...(isCreator ? [
+            { id: 'payout', label: 'إعدادات الدفع والسحب', icon: Wallet },
+            { id: 'socials', label: 'شبكات التواصل', icon: Share2 }
+        ] : []),
         { id: 'preferences', label: 'الأمان والتفضيلات', icon: Shield },
     ];
 
@@ -396,7 +398,7 @@ export default function SettingsContent() {
                                     <h2 className="text-xl font-bold text-gray-900 dark:text-dark-text-primary">المعلومات الشخصية</h2>
                                 </div>
                                 <div className="p-6 lg:p-8 space-y-8">
-                                    <ImageUploadSection profileSettings={profileSettings} uploadingImage={uploadingImage} handleImageUpload={handleImageUpload} user={user} />
+                                    <ImageUploadSection profileSettings={profileSettings} uploadingImage={uploadingImage} handleImageUpload={handleImageUpload} user={user} isCreator={isCreator} />
                                     <div className="h-4"></div>
                                     <UsernameSection
                                         profileSettings={profileSettings}
@@ -409,7 +411,7 @@ export default function SettingsContent() {
                                         user={user}
                                         setUsernameValidation={setUsernameValidation}
                                     />
-                                    <PersonalInfoSection profileSettings={profileSettings} handleInputChange={handleInputChange} />
+                                    <PersonalInfoSection profileSettings={profileSettings} handleInputChange={handleInputChange} isCreator={isCreator} />
                                 </div>
                             </div>
                         </motion.div>
@@ -427,7 +429,7 @@ export default function SettingsContent() {
                         </motion.div>
                     )}
 
-                    {activeTab === 'socials' && (
+                    {activeTab === 'socials' && isCreator && (
                         <motion.div
                             key="socials"
                             initial={{ opacity: 0, y: 15 }}
@@ -459,6 +461,7 @@ export default function SettingsContent() {
                                 handleSettingChange={handleSettingChange}
                                 setShowPasswordModal={setShowPasswordModal}
                                 setShowDeleteModal={setShowDeleteModal}
+                                isCreator={isCreator}
                             />
                         </motion.div>
                     )}

@@ -868,8 +868,28 @@ function CreateTemplatePageContent() {
                 </div>
 
                 <div className="space-y-8">
+                  {/* Notion Link */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-gray-400 dark:text-dark-text-tertiary uppercase tracking-wider block mr-1">رابط نشر القالب (notion.site) *</label>
+                    <div className="relative">
+                      <div className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400">
+                        <LinkIcon size={18} />
+                      </div>
+                      <input
+                        type="url"
+                        name="notionLink"
+                        value={formData.notionLink}
+                        onChange={handleInputChange}
+                        placeholder="https://your-name.notion.site/..."
+                        required
+                        dir="ltr"
+                        className="w-full bg-gray-50/50 dark:bg-dark-tertiary/20 border border-gray-100 dark:border-white/5 focus:border-primary-500 dark:focus:border-orange-500 rounded-2xl pr-14 pl-5 py-4 text-sm font-bold text-gray-900 dark:text-dark-text-primary placeholder-gray-400 dark:placeholder-dark-text-tertiary outline-none transition-all"
+                      />
+                    </div>
+                  </div>
+
                   {/* Primary Image Upload */}
-                  <div className="space-y-4">
+                  <div className="space-y-4 pt-4 border-t border-gray-50 dark:border-white/5">
                     <label className="text-xs font-black text-gray-400 dark:text-dark-text-tertiary uppercase tracking-wider block mr-1">الصورة المصغرة الأساسية *</label>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -977,28 +997,8 @@ function CreateTemplatePageContent() {
                     </div>
                   </div>
 
-                  {/* Notion Link */}
-                  <div className="space-y-2">
-                    <label className="text-xs font-black text-gray-400 dark:text-dark-text-tertiary uppercase tracking-wider block mr-1">رابط نشر القالب (notion.site) *</label>
-                    <div className="relative">
-                      <div className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400">
-                        <LinkIcon size={18} />
-                      </div>
-                      <input
-                        type="url"
-                        name="notionLink"
-                        value={formData.notionLink}
-                        onChange={handleInputChange}
-                        placeholder="https://your-name.notion.site/..."
-                        required
-                        dir="ltr"
-                        className="w-full bg-gray-50/50 dark:bg-dark-tertiary/20 border border-gray-100 dark:border-white/5 focus:border-primary-500 dark:focus:border-orange-500 rounded-2xl pr-14 pl-5 py-4 text-sm font-bold text-gray-900 dark:text-dark-text-primary placeholder-gray-400 dark:placeholder-dark-text-tertiary outline-none transition-all"
-                      />
-                    </div>
-                  </div>
-
                   {/* Description Detail (Features) */}
-                  <div className="space-y-2">
+                  <div className="space-y-2 pt-4 border-t border-gray-50 dark:border-white/5">
                     <div className="flex items-center justify-between px-1">
                       <label className="text-xs font-black text-gray-400 dark:text-dark-text-tertiary uppercase tracking-wider block">الوصف التفصيلي (المميزات) *</label>
                       <span className={`text-[10px] font-black ${formData.features.length > 1800 ? 'text-orange-500' : 'text-gray-400'}`}>

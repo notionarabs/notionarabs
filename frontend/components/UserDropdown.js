@@ -10,7 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   User, Settings, ShoppingBag, LogOut,
   ShieldCheck, Loader2, Sparkles,
-  AlertCircle, RefreshCw
+  AlertCircle, RefreshCw, LayoutDashboard, Eye, ExternalLink, Bell
 } from 'lucide-react';
 
 export default function UserDropdown() {
@@ -202,24 +202,46 @@ export default function UserDropdown() {
 
                 {/* Primary Actions */}
                 <div className="space-y-0.5">
-                  {(isCreator || isPending) && (
-                    <MenuItem
-                      href="/profile"
-                      icon={User}
-                      label="الملف الشخصي"
-                    />
-                  )}
-                  <MenuItem
-                    href={isCreator ? "/profile?tab=settings" : "/user-settings"}
-                    icon={Settings}
-                    label="الإعدادات"
-                  />
-                  {user?.role?.toLowerCase() !== 'admin' && (
-                    <MenuItem
-                      href="/purchases"
-                      icon={ShoppingBag}
-                      label="مشترياتي"
-                    />
+                  {isCreator ? (
+                    <>
+                      <MenuItem
+                        href="/profile"
+                        icon={LayoutDashboard}
+                        label="لوحة المبدع"
+                        badge="استوديو"
+                        colorClass="text-primary-600 dark:text-orange-400"
+                      />
+                      <MenuItem
+                        href={`/creators/${user?.username || user?.id || ''}`}
+                        icon={Eye}
+                        label="صفحتي العامة"
+                      />
+                      <MenuItem
+                        href="/profile?tab=settings"
+                        icon={Settings}
+                        label="الإعدادات"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <MenuItem
+                        href="/profile"
+                        icon={Settings}
+                        label="إعدادات الحساب"
+                      />
+                      <MenuItem
+                        href="/profile?tab=notifications"
+                        icon={Bell}
+                        label="التنبيهات"
+                      />
+                      {user?.role?.toLowerCase() !== 'admin' && (
+                        <MenuItem
+                          href="/profile?tab=purchases"
+                          icon={ShoppingBag}
+                          label="مشترياتي"
+                        />
+                      )}
+                    </>
                   )}
                 </div>
 

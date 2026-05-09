@@ -113,7 +113,7 @@ export default function AIChat() {
   // Hide AI Chat on pages where it adds no value
   const hiddenRoutes = [
     '/profile',
-    '/user-settings',
+    '/settings',
     '/admin',
     '/login',
     '/signup',

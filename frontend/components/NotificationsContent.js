@@ -11,13 +11,14 @@ import {
 } from 'lucide-react';
 
 export default function NotificationsContent() {
-    const { ensureTokenInHeaders } = useAuth();
+    const { user, ensureTokenInHeaders } = useAuth();
+    const isCreator = user?.role === 'creator' && user?.creatorStatus === 'approved';
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [isActionLoading, setIsActionLoading] = useState(false);
     const [error, setError] = useState('');
-    const [activeTab, setActiveTab] = useState('all'); // 'all', 'financial', 'templates', 'system'
+    const [activeTab, setActiveTab] = useState('all'); // 'all', 'financial', 'templates', 'system', 'interactions'
 
     const fetchNotifications = async () => {
         try {
@@ -133,47 +134,77 @@ export default function NotificationsContent() {
     const filteredNotifications = notifications.filter(n => {
         if (activeTab === 'all') return true;
         
-        if (activeTab === 'financial') {
-            return n.type === 'NEW_SALE' || n.type === 'NEW_DOWNLOAD' || n.type === 'template_downloaded';
-        }
-        
-        if (activeTab === 'templates') {
-            return n.type === 'TEMPLATE_APPROVED' || n.type === 'TEMPLATE_REJECTED' || n.type === 'template_published' || n.type === 'template_rejected';
-        }
-        
-        if (activeTab === 'system') {
-            return n.type === 'SYSTEM' || n.type === 'NEW_COMMENT' || n.type === 'template_commented' || n.type === 'template_rated' || n.type === 'comment_replied' || n.type === 'creator_followed';
+        if (isCreator) {
+            if (activeTab === 'financial') {
+                return n.type === 'NEW_SALE' || n.type === 'NEW_DOWNLOAD' || n.type === 'template_downloaded';
+            }
+            if (activeTab === 'templates') {
+                return n.type === 'TEMPLATE_APPROVED' || n.type === 'TEMPLATE_REJECTED' || n.type === 'template_published' || n.type === 'template_rejected';
+            }
+            if (activeTab === 'system') {
+                return n.type === 'SYSTEM' || n.type === 'NEW_COMMENT' || n.type === 'template_commented' || n.type === 'template_rated' || n.type === 'comment_replied' || n.type === 'creator_followed';
+            }
+        } else {
+            if (activeTab === 'system') {
+                return n.type === 'SYSTEM' || n.type === 'TEMPLATE_APPROVED' || n.type === 'TEMPLATE_REJECTED';
+            }
+            if (activeTab === 'interactions') {
+                return n.type === 'NEW_COMMENT' || n.type === 'template_commented' || n.type === 'comment_replied';
+            }
         }
         
         return true;
     });
 
     const getEmptyStateDetails = () => {
-        switch (activeTab) {
-            case 'financial':
-                return {
-                    title: 'لا توجد عمليات مبيعات أو تحميل',
-                    desc: 'عندما يقوم أحد مستخدمي المنصة بتحميل أو شراء قوالبك، ستظهر إشعارات الأرباح والتحميلات هنا مباشرة.',
-                    icon: <DollarSign className="w-8 h-8 text-amber-500" />
-                };
-            case 'templates':
-                return {
-                    title: 'سجل مراجعة القوالب فارغ',
-                    desc: 'لم تتلقَ أي تحديثات بشأن مراجعة أو قبول أو رفض قوالبك المعروضة مؤخراً.',
-                    icon: <Sparkles className="w-8 h-8 text-emerald-500" />
-                };
-            case 'system':
-                return {
-                    title: 'لا توجد تعليقات أو إشعارات نظام',
-                    desc: 'كل شيء هادئ هنا! لا توجد تنبيهات بخصوص تعليقات المستخدمين أو إعلانات المنصة الإدارية حالياً.',
-                    icon: <MessageSquare className="w-8 h-8 text-purple-500" />
-                };
-            default:
-                return {
-                    title: 'لا توجد تنبيهات حالياً',
-                    desc: 'أنت مطلع على كل شيء بالكامل! سنخطرك هنا فور حدوث أي نشاط جديد متعلق بحسابك.',
-                    icon: <Bell className="w-8 h-8 text-gray-400" />
-                };
+        if (isCreator) {
+            switch (activeTab) {
+                case 'financial':
+                    return {
+                        title: 'لا توجد عمليات مبيعات أو تحميل',
+                        desc: 'عندما يقوم أحد مستخدمي المنصة بتحميل أو شراء قوالبك، ستظهر إشعارات الأرباح والتحميلات هنا مباشرة.',
+                        icon: <DollarSign className="w-8 h-8 text-amber-500" />
+                    };
+                case 'templates':
+                    return {
+                        title: 'سجل مراجعة القوالب فارغ',
+                        desc: 'لم تتلقَ أي تحديثات بشأن مراجعة أو قبول أو رفض قوالبك المعروضة مؤخراً.',
+                        icon: <Sparkles className="w-8 h-8 text-emerald-500" />
+                    };
+                case 'system':
+                    return {
+                        title: 'لا توجد تعليقات أو إشعارات نظام',
+                        desc: 'كل شيء هادئ هنا! لا توجد تنبيهات بخصوص تعليقات المستخدمين أو إعلانات المنصة الإدارية حالياً.',
+                        icon: <MessageSquare className="w-8 h-8 text-purple-500" />
+                    };
+                default:
+                    return {
+                        title: 'لا توجد تنبيهات حالياً',
+                        desc: 'أنت مطلع على كل شيء بالكامل! سنخطرك هنا فور حدوث أي نشاط جديد متعلق بحسابك.',
+                        icon: <Bell className="w-8 h-8 text-gray-400" />
+                    };
+            }
+        } else {
+            switch (activeTab) {
+                case 'system':
+                    return {
+                        title: 'لا توجد تنبيهات نظام',
+                        desc: 'لم تتلقَ أي إشعارات إدارية أو إعلانات عامة من منصة عرب نوشن حالياً.',
+                        icon: <Info className="w-8 h-8 text-blue-500" />
+                    };
+                case 'interactions':
+                    return {
+                        title: 'لا توجد تفاعلات أو ردود',
+                        desc: 'عندما يقوم أحد المبدعين أو الأعضاء بالرد على تعليقاتك في المنتدى أو على القوالب والمقالات، ستظهر الردود هنا.',
+                        icon: <MessageSquare className="w-8 h-8 text-purple-500" />
+                    };
+                default:
+                    return {
+                        title: 'علبة الوارد فارغة ✨',
+                        desc: 'أنت مطلع على جميع التحديثات بالكامل! سنخطرك هنا فور ورود أي ردود على تعليقاتك أو تنبيهات تخص حسابك.',
+                        icon: <Bell className="w-8 h-8 text-gray-400" />
+                    };
+            }
         }
     };
 
@@ -222,7 +253,9 @@ export default function NotificationsContent() {
                         <span>مركز التنبيهات</span>
                     </h1>
                     <p className="text-gray-500 dark:text-dark-text-secondary font-medium text-sm">
-                        متابعة حية وشاملة لكل ما يدور بحسابك ومبيعاتك وقوالبك
+                        {isCreator 
+                            ? 'متابعة حية وشاملة لكل ما يدور بحسابك ومبيعاتك وقوالبك' 
+                            : 'متابعة حية وشاملة لجميع تنبيهاتك ونشاطاتك في عرب نوشن ✨'}
                     </p>
                 </div>
 
@@ -251,12 +284,16 @@ export default function NotificationsContent() {
 
             {/* Dashboard Category Navigation Tabs */}
             <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                {[
+                {(isCreator ? [
                     { id: 'all', label: 'الكل', count: notifications.length },
                     { id: 'financial', label: 'المالية والتحميلات', count: notifications.filter(n => ['NEW_SALE', 'NEW_DOWNLOAD', 'template_downloaded'].includes(n.type)).length },
                     { id: 'templates', label: 'حالة القوالب', count: notifications.filter(n => ['TEMPLATE_APPROVED', 'TEMPLATE_REJECTED', 'template_published', 'template_rejected'].includes(n.type)).length },
                     { id: 'system', label: 'التعليقات والنظام', count: notifications.filter(n => ['SYSTEM', 'NEW_COMMENT', 'template_commented', 'template_rated', 'comment_replied', 'creator_followed'].includes(n.type)).length },
-                ].map(tab => (
+                ] : [
+                    { id: 'all', label: 'الكل', count: notifications.length },
+                    { id: 'system', label: 'تنبيهات النظام', count: notifications.filter(n => ['SYSTEM', 'TEMPLATE_APPROVED', 'TEMPLATE_REJECTED'].includes(n.type)).length },
+                    { id: 'interactions', label: 'الردود والتفاعلات', count: notifications.filter(n => ['NEW_COMMENT', 'template_commented', 'comment_replied'].includes(n.type)).length },
+                ]).map(tab => (
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}

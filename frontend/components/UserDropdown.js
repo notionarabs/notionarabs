@@ -188,62 +188,61 @@ export default function UserDropdown() {
               </div>
 
               <div className="p-2 space-y-1">
-                {/* Admin Access inside Dropdown */}
-                {user?.role?.toLowerCase() === 'admin' && (
-                  <div className="mb-2 p-1 bg-gray-50 dark:bg-dark-tertiary/30 rounded-xl border border-gray-100 dark:border-dark-card-border/50">
+                {user?.role?.toLowerCase() === 'admin' ? (
+                  <>
+                    <div className="mb-2 p-1 bg-gray-50 dark:bg-dark-tertiary/30 rounded-xl border border-gray-100 dark:border-dark-card-border/50">
+                      <MenuItem
+                        href="/admin"
+                        icon={ShieldCheck}
+                        label="لوحة الإدارة"
+                        colorClass="text-green-600 dark:text-green-400"
+                      />
+                    </div>
                     <MenuItem
-                      href="/admin"
-                      icon={ShieldCheck}
-                      label="لوحة الإدارة"
-                      colorClass="text-green-600 dark:text-green-400"
+                      href="/admin/settings"
+                      icon={Settings}
+                      label="إعدادات المنصة"
+                    />
+                  </>
+                ) : isCreator ? (
+                  <div className="space-y-0.5">
+                    <MenuItem
+                      href="/profile"
+                      icon={LayoutDashboard}
+                      label="لوحة المبدع"
+                      badge="استوديو"
+                      colorClass="text-primary-600 dark:text-orange-400"
+                    />
+                    <MenuItem
+                      href={`/creators/${user?.username || user?.id || ''}`}
+                      icon={Eye}
+                      label="صفحتي العامة"
+                    />
+                    <MenuItem
+                      href="/profile?tab=settings"
+                      icon={Settings}
+                      label="الإعدادات"
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-0.5">
+                    <MenuItem
+                      href="/profile"
+                      icon={Settings}
+                      label="إعدادات الحساب"
+                    />
+                    <MenuItem
+                      href="/profile?tab=notifications"
+                      icon={Bell}
+                      label="التنبيهات"
+                    />
+                    <MenuItem
+                      href="/profile?tab=purchases"
+                      icon={ShoppingBag}
+                      label="مشترياتي"
                     />
                   </div>
                 )}
-
-                {/* Primary Actions */}
-                <div className="space-y-0.5">
-                  {isCreator ? (
-                    <>
-                      <MenuItem
-                        href="/profile"
-                        icon={LayoutDashboard}
-                        label="لوحة المبدع"
-                        badge="استوديو"
-                        colorClass="text-primary-600 dark:text-orange-400"
-                      />
-                      <MenuItem
-                        href={`/creators/${user?.username || user?.id || ''}`}
-                        icon={Eye}
-                        label="صفحتي العامة"
-                      />
-                      <MenuItem
-                        href="/profile?tab=settings"
-                        icon={Settings}
-                        label="الإعدادات"
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <MenuItem
-                        href="/profile"
-                        icon={Settings}
-                        label="إعدادات الحساب"
-                      />
-                      <MenuItem
-                        href="/profile?tab=notifications"
-                        icon={Bell}
-                        label="التنبيهات"
-                      />
-                      {user?.role?.toLowerCase() !== 'admin' && (
-                        <MenuItem
-                          href="/profile?tab=purchases"
-                          icon={ShoppingBag}
-                          label="مشترياتي"
-                        />
-                      )}
-                    </>
-                  )}
-                </div>
 
                 {/* Creator Status Section */}
                 {user?.role?.toLowerCase() !== 'admin' && !isCreator && (

@@ -485,8 +485,10 @@ function ProfilePageContent() {
 
     if (!loading && !isAuthenticated) {
       router.push('/login');
+    } else if (!loading && isAuthenticated && user?.role?.toLowerCase() === 'admin') {
+      router.push('/admin');
     }
-  }, [isAuthenticated, loading, router]);
+  }, [isAuthenticated, loading, user, router]);
 
   // Handle section navigation
   const handleSectionChange = (section) => {

@@ -74,7 +74,7 @@ const ProfileSidebar = ({ userStatus, onNavigate, activeSection, role }) => {
         : [
             { section: 'settings', href: '/profile', label: 'إعدادات الحساب', icon: Settings },
             { section: 'notifications', href: '/profile?tab=notifications', label: 'التنبيهات', icon: Bell },
-            { section: 'purchases', href: '/profile?tab=purchases', label: 'مشترياتي', icon: Download },
+            ...(!isAdmin ? [{ section: 'purchases', href: '/profile?tab=purchases', label: 'مشترياتي', icon: Download }] : []),
           ];
 
     const adminLinks = isAdmin ? [

@@ -764,7 +764,7 @@ export default function AnalyticsContent() {
 
                     <div className="mt-6 border-t border-gray-100 dark:border-white/5 pt-5 flex items-center justify-between text-xs font-black text-gray-500 dark:text-dark-text-secondary">
                         <span>نوع حركة المرور:</span>
-                        <span className="text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-lg">متجاوب 📱💻</span>
+                        <span className="text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-lg">متجاوب</span>
                     </div>
                 </div>
             </div>

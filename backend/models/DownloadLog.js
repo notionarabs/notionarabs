@@ -42,9 +42,22 @@ class DownloadLog {
     if (query.user) q = q.eq('userId', query.user);
 
     let populatePaths = [];
+    let limitVal = null;
+    let skipVal = null;
 
     const execute = async () => {
-        const { data, error } = await q;
+        // Apply range/limit at execution time so skip+limit are both known
+        let chain = q;
+        if (skipVal !== null && limitVal !== null) {
+            chain = chain.range(skipVal, skipVal + limitVal - 1);
+        } else if (skipVal !== null) {
+            // skip without explicit limit — default to 20
+            chain = chain.range(skipVal, skipVal + 19);
+        } else if (limitVal !== null) {
+            chain = chain.limit(limitVal);
+        }
+
+        const { data, error } = await chain;
         if (error) throw error;
         
         let results = (data || []).map(item => new DownloadLog(item));
@@ -86,12 +99,11 @@ class DownloadLog {
             return wrap(p);
         };
         p.skip = (n) => {
-            const limitValue = 50; 
-            q = q.range(n, n + limitValue - 1);
+            skipVal = n;
             return wrap(execute());
         };
         p.limit = (num) => {
-            q = q.limit(num);
+            limitVal = num;
             return wrap(execute());
         };
         p.populate = (path) => {

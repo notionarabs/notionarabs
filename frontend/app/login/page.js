@@ -15,6 +15,7 @@ function LoginForm() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [showVerificationOptions, setShowVerificationOptions] = useState(false);
   const [userEmail, setUserEmail] = useState('');
   const [redirectPath, setRedirectPath] = useState('/');
@@ -156,17 +157,38 @@ function LoginForm() {
                   نسيت كلمة المرور؟
                 </Link>
               </div>
+              <div className="relative">
                <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 id="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className="w-full px-6 py-4 bg-white/70 dark:bg-white/5 border-none text-gray-900 dark:text-white rounded-2xl focus:ring-1 focus:ring-primary/20 shadow-soft focus:shadow-glow transition-all duration-300 outline-none text-base font-medium"
+                className="w-full px-6 py-4 bg-white/70 dark:bg-white/5 border-none text-gray-900 dark:text-white rounded-2xl focus:ring-1 focus:ring-primary/20 shadow-soft focus:shadow-glow transition-all duration-300 outline-none text-base font-medium pr-14"
                 placeholder="••••••"
                 dir="ltr"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(v => !v)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 transition-colors focus:outline-none"
+                tabIndex={-1}
+                aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
+              >
+                {showPassword ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9-4-9-7s4-7 9-7a9.95 9.95 0 016.375 2.325M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 3l18 18" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                )}
+              </button>
+              </div>
             </div>
 
             {/* Error Message */}

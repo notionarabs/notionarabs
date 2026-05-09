@@ -192,7 +192,8 @@ const invalidateCache = async (resource, id = null) => {
       `cache:*/${resource}*`,
       `cache:*templates*`,
       `cache:*blogs*`,
-      `cache:*creators*`
+      `cache:*creators*`,
+      `cache:*stats*`
     ];
 
     if (id) {

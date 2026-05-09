@@ -1265,9 +1265,12 @@ router.post('/:id/download', auth, async (req, res) => {
       });
     }
 
-    // Increment download count
+    // Atomically increment download count to prevent race conditions
+    await Template.findByIdAndUpdate(id, { $inc: { downloads: 1 } });
     template.downloads = (template.downloads || 0) + 1;
-    await template.save();
+
+    // Invalidate stats cache so homepage counter reflects the new download
+    try { await invalidateCache('template', id); } catch (_) {}
 
     // Persist a download log entry for creator analytics
     try {

@@ -21,7 +21,8 @@ import {
     Home,
     DollarSign,
     Bell,
-    LogOut
+    LogOut,
+    Package
 } from 'lucide-react';
 
 const ProfileSidebar = ({ userStatus, onNavigate, activeSection, role }) => {
@@ -65,7 +66,8 @@ const ProfileSidebar = ({ userStatus, onNavigate, activeSection, role }) => {
     }, [ensureTokenInHeaders]);
 
     const generalLinks = [
-        { section: 'profile', href: '/profile', label: 'الملف الشخصي', icon: User },
+        { section: 'profile', href: '/profile', label: isCreator ? 'نظرة عامة' : 'الملف الشخصي', icon: LayoutDashboard },
+        { section: 'notifications', href: '/profile?tab=notifications', label: 'التنبيهات', icon: Bell },
         { section: 'settings', href: isCreator ? '/profile?tab=settings' : '/user-settings', label: 'الإعدادات', icon: Settings },
     ];
 
@@ -78,15 +80,14 @@ const ProfileSidebar = ({ userStatus, onNavigate, activeSection, role }) => {
     ] : [];
 
     const contentLinks = isCreator ? [
-        { section: 'templates', href: '/profile?tab=templates', label: 'قوالبي', icon: LayoutDashboard },
+        { section: 'templates', href: '/profile?tab=templates', label: 'قوالبي', icon: Package },
         { section: 'blogs', href: '/profile?tab=blogs', label: 'مقالاتي', icon: Edit3 },
     ] : [];
 
     const analyticsLinks = isCreator ? [
-        { section: 'earnings', href: '/profile?tab=earnings', label: 'الأرباح', icon: DollarSign, disabled: true },
+        { section: 'analytics', href: '/profile?tab=analytics', label: 'تحليلات الأداء', icon: TrendingUp },
         { section: 'sales', href: '/profile?tab=sales', label: 'سجلات التحميل', icon: Download },
-        { section: 'notifications', href: '/profile?tab=notifications', label: 'التنبيهات', icon: Bell },
-        { section: 'analytics', href: '/profile?tab=analytics', label: 'التحليلات', icon: TrendingUp },
+        { section: 'earnings', href: '/profile?tab=earnings', label: 'الأرباح والسحوبات', icon: DollarSign, disabled: true },
     ] : [];
 
     const NavSection = ({ title, links }) => {
@@ -224,11 +225,11 @@ const ProfileSidebar = ({ userStatus, onNavigate, activeSection, role }) => {
 
                 <div className="h-px bg-gray-100/50 dark:bg-white/5 mb-4 mx-3" />
 
-                <NavSection title="عام" links={generalLinks} />
+                <NavSection title="لوحة التحكم" links={generalLinks} />
                 {isCreator && (
                     <>
                         <NavSection title="المحتوى" links={contentLinks} />
-                        <NavSection title="التحليلات" links={analyticsLinks} />
+                        <NavSection title="الأداء والمالية" links={analyticsLinks} />
                     </>
                 )}
 

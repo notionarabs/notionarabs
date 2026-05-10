@@ -1236,6 +1236,9 @@ function CreateTemplatePageContent() {
           setShowSuccessModal(false);
           router.push('/profile?tab=templates');
         }}
+        title={isEditMode ? "تم تحديث القالب بنجاح! 🎉" : "تم إرسال القالب بنجاح! 🎉"}
+        message={isEditMode ? "لقد تم حفظ تعديلات قالبك بنجاح. يمكنك رؤية التحديثات الآن." : "شكراً لك على مشاركة قالبك المبتكر مع مجتمع عرب نوشن. سيتم مراجعة القالب واللقطة المرفقة من قبل فريقنا المتخصص وسيتم إشعارك بالنتيجة قريباً."}
+        showWhatNext={!isEditMode}
       />
     </div>
   );

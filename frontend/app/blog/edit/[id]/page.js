@@ -506,6 +506,7 @@ function EditBlogPageContent() {
         title="تم تحديث المقال بنجاح! 🎉"
         message="لقد تم حفظ تعديلاتك بنجاح. يمكنك رؤية التحديثات في مدونتك الآن."
         continueButtonText="الذهاب لمقالاتي"
+        showWhatNext={false}
       />
     </div>
   );

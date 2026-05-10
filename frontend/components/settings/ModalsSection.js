@@ -16,7 +16,8 @@ export default function ModalsSection({
     isChangingPassword,
     handleChangePassword,
     setPasswordData,
-    setPasswordErrors
+    setPasswordErrors,
+    isCreator = false
 }) {
     // Password visibility states
     const [showCurrent, setShowCurrent] = useState(false);
@@ -70,14 +71,18 @@ export default function ModalsSection({
                                         <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
                                         الملف الشخصي والمعلومات الشخصية
                                     </li>
-                                    <li className="flex items-center gap-2 font-semibold">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
-                                        جميع المقالات والمدونات المنشورة
-                                    </li>
-                                    <li className="flex items-center gap-2 font-semibold">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
-                                        جميع القوالب والمحتوى المنشور
-                                    </li>
+                                    {isCreator && (
+                                        <>
+                                            <li className="flex items-center gap-2 font-semibold">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                                                جميع المقالات والمدونات المنشورة
+                                            </li>
+                                            <li className="flex items-center gap-2 font-semibold">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                                                جميع القوالب والمحتوى المنشور
+                                            </li>
+                                        </>
+                                    )}
                                     <li className="flex items-center gap-2 font-semibold">
                                         <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
                                         جميع التقييمات والتعليقات والمتابعات
@@ -91,7 +96,7 @@ export default function ModalsSection({
                                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                                     </svg>
                                     <span className="leading-relaxed">
-                                        <strong>اقتراح آمن:</strong> يمكنك إيقاف حسابك مؤقتاً بدلاً من حذفه نهائياً. هذا سيخفي ملفك وقوالبك مع الحفاظ التام على بياناتك.
+                                        <strong>اقتراح آمن:</strong> يمكنك إيقاف حسابك مؤقتاً بدلاً من حذفه نهائياً. {isCreator ? 'هذا سيخفي ملفك وقوالبك مع الحفاظ التام على بياناتك.' : 'هذا سيخفي ملفك الشخصي مع الحفاظ التام على بياناتك.'}
                                     </span>
                                 </p>
                             </div>

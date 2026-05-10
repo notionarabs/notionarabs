@@ -519,6 +519,7 @@ export default function SettingsContent() {
                 passwordErrors={passwordErrors} isChangingPassword={isChangingPassword}
                 handleChangePassword={handleChangePassword}
                 setPasswordData={setPasswordData} setPasswordErrors={setPasswordErrors}
+                isCreator={isCreator}
             />
         </div>
     );

@@ -241,8 +241,82 @@ export default function CreatorProfileClient({ initialCreator }) {
         {/* Profile Header Section */}
         <div className="container-custom max-w-7xl relative z-10">
           {/* Force column placement like Notion (layout LTR, content RTL) */}
-          <div className="flex flex-col md:flex-row gap-12 items-start w-full -mt-4 sm:-mt-6" dir="ltr">
+          <div className="flex flex-col md:flex-row gap-12 items-start w-full -mt-4 sm:-mt-6" dir="rtl">
             
+            {/* Main (Notion-like) */}
+            <section className="relative z-10 space-y-12 w-full md:flex-1 min-w-0" dir="rtl">
+              <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6 -mt-16 sm:-mt-20 relative z-20 px-4 sm:px-0">
+                {/* Avatar */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  className="relative group flex-shrink-0"
+                >
+                  <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-[2rem] border-[6px] border-white dark:border-[#0a0a0a] bg-zinc-100 dark:bg-zinc-800 shadow-xl overflow-hidden group-hover:scale-[1.02] transition-transform duration-500">
+                    {creator.profilePicture && !profileImageError ? (
+                      <Image
+                        src={creator.profilePicture}
+                        alt={creator.name}
+                        width={128}
+                        height={128}
+                        className="w-full h-full object-cover"
+                        onError={() => setProfileImageError(true)}
+                        priority
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-zinc-400">
+                        {(creator.displayName || creator.name)?.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+                  {creator.badges?.some(b => b.type === 'verified') && (
+                    <motion.div
+                      initial={{ scale: 0, rotate: -20 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                      className="absolute -bottom-1 -right-1 bg-primary text-white p-2.5 rounded-2xl border-[4px] border-white dark:border-[#0a0a0a] shadow-lg z-30 flex items-center justify-center"
+                      title="مبدع معتمد"
+                    >
+                      <CheckCircle className="w-4 h-4" strokeWidth={3} />
+                    </motion.div>
+                  )}
+                </motion.div>
+
+                {/* Identity */}
+                <div className="min-w-0 pb-1">
+                  <h1 className={`text-3xl sm:text-4xl font-black tracking-tight truncate transition-colors duration-500 ${isCoverDark ? 'text-white drop-shadow-md' : 'text-zinc-900'} dark:text-white`}>
+                    {creator.displayName || creator.name}
+                  </h1>
+                  <p className="text-sm text-zinc-500 dark:text-white/40 font-black uppercase tracking-widest truncate mt-1">
+                    @{creator.username}
+                  </p>
+                </div>
+              </div>
+
+              {/* Bio */}
+              <div className="max-w-2xl">
+                <p className="text-[15px] sm:text-[16px] leading-8 text-foreground/70 dark:text-white/55 font-medium whitespace-pre-wrap mt-6">
+                  {creator.bio || creator.experience || 'مبدع مستقل يساهم في إثراء المحتوى العربي على نوشن.'}
+                </p>
+              </div>
+
+                {/* Stats (calm, Notion-like) */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mt-12 pt-10 border-t border-card-border">
+                  {[
+                    { label: 'قالب', value: pagination.total || 0 },
+                    { label: 'متابع', value: creator.followers || 0 },
+                    { label: 'تحميل', value: (creator.stats?.totalDownloads || 0).toLocaleString() },
+                    { label: 'تقييم', value: typeof creator.rating === 'number' ? creator.rating.toFixed(1) : (creator.rating || '5.0') }
+                  ].map((s) => (
+                    <div key={s.label} className="text-right">
+                      <div className="text-3xl font-black text-foreground dark:text-white">{s.value}</div>
+                      <div className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/40 dark:text-white/25 mt-2">{s.label}</div>
+                    </div>
+                  ))}
+                </div>
+            </section>
+
             {/* Sidebar (actions + meta) */}
             <aside className="md:mt-8 w-full md:w-80 md:flex-none md:sticky md:top-28" dir="rtl">
               {/* No more card box here - open layout */}
@@ -326,80 +400,6 @@ export default function CreatorProfileClient({ initialCreator }) {
                 </div>
               </div>
             </aside>
-
-            {/* Main (Notion-like) */}
-            <section className="relative z-10 space-y-12 w-full md:flex-1 min-w-0" dir="rtl">
-              <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6 -mt-16 sm:-mt-20 relative z-20 px-4 sm:px-0">
-                {/* Avatar */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, ease: "easeOut" }}
-                  className="relative group flex-shrink-0"
-                >
-                  <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-[2rem] border-[6px] border-white dark:border-[#0a0a0a] bg-zinc-100 dark:bg-zinc-800 shadow-xl overflow-hidden group-hover:scale-[1.02] transition-transform duration-500">
-                    {creator.profilePicture && !profileImageError ? (
-                      <Image
-                        src={creator.profilePicture}
-                        alt={creator.name}
-                        width={128}
-                        height={128}
-                        className="w-full h-full object-cover"
-                        onError={() => setProfileImageError(true)}
-                        priority
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-3xl font-bold text-zinc-400">
-                        {(creator.displayName || creator.name)?.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                  {creator.badges?.some(b => b.type === 'verified') && (
-                    <motion.div
-                      initial={{ scale: 0, rotate: -20 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
-                      className="absolute -bottom-1 -right-1 bg-primary text-white p-2.5 rounded-2xl border-[4px] border-white dark:border-[#0a0a0a] shadow-lg z-30 flex items-center justify-center"
-                      title="مبدع معتمد"
-                    >
-                      <CheckCircle className="w-4 h-4" strokeWidth={3} />
-                    </motion.div>
-                  )}
-                </motion.div>
-
-                {/* Identity */}
-                <div className="min-w-0 pb-1">
-                  <h1 className={`text-3xl sm:text-4xl font-black tracking-tight truncate transition-colors duration-500 ${isCoverDark ? 'text-white drop-shadow-md' : 'text-zinc-900'} dark:text-white`}>
-                    {creator.displayName || creator.name}
-                  </h1>
-                  <p className="text-sm text-zinc-500 dark:text-white/40 font-black uppercase tracking-widest truncate mt-1">
-                    @{creator.username}
-                  </p>
-                </div>
-              </div>
-
-              {/* Bio */}
-              <div className="max-w-2xl">
-                <p className="text-[15px] sm:text-[16px] leading-8 text-foreground/70 dark:text-white/55 font-medium whitespace-pre-wrap mt-6">
-                  {creator.bio || creator.experience || 'مبدع مستقل يساهم في إثراء المحتوى العربي على نوشن.'}
-                </p>
-              </div>
-
-                {/* Stats (calm, Notion-like) */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mt-12 pt-10 border-t border-card-border">
-                  {[
-                    { label: 'قالب', value: pagination.total || 0 },
-                    { label: 'متابع', value: creator.followers || 0 },
-                    { label: 'تحميل', value: (creator.stats?.totalDownloads || 0).toLocaleString() },
-                    { label: 'تقييم', value: typeof creator.rating === 'number' ? creator.rating.toFixed(1) : (creator.rating || '5.0') }
-                  ].map((s) => (
-                    <div key={s.label} className="text-right">
-                      <div className="text-3xl font-black text-foreground dark:text-white">{s.value}</div>
-                      <div className="text-[11px] font-black uppercase tracking-[0.2em] text-foreground/40 dark:text-white/25 mt-2">{s.label}</div>
-                    </div>
-                  ))}
-                </div>
-            </section>
           </div>
         </div>
         {/* Content Section (Templates) */}

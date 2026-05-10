@@ -712,15 +712,7 @@ export default function TemplateClient({ initialTemplate }) {
                     ))}
                   </div>
                   
-                  <div className="mt-8 p-6 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-2xl border border-emerald-100/50 dark:border-emerald-800/30">
-                    <div className="flex items-center gap-3 text-emerald-600 dark:text-emerald-400 mb-2">
-                       <CheckCircle size={18} />
-                       <span className="text-xs font-black uppercase tracking-widest">جودة مضمونة</span>
-                    </div>
-                    <p className="text-[11px] text-emerald-700/70 dark:text-emerald-400/70 leading-relaxed font-bold italic">
-                      "تم فحص هذا القالب تقنياً لضمان خلوه من الأخطاء وتوافقه التام مع نوشن."
-                    </p>
-                  </div>
+
                   
                   {/* Unified Share Divider & Label with explicit non-collapsing padding spacing */}
                   <div className="pt-6 pb-5">

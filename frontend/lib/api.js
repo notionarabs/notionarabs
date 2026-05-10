@@ -224,18 +224,18 @@ api.interceptors.response.use(
         }
       }
     } else if (response?.status === 403) {
-      toast.error('ليس لديك صلاحية للوصول إلى هذا المورد');
+      if (typeof window !== 'undefined') toast.error('ليس لديك صلاحية للوصول إلى هذا المورد');
     } else if (response?.status === 404) {
-      toast.error('المورد المطلوب غير موجود');
+      if (typeof window !== 'undefined') toast.error('المورد المطلوب غير موجود');
     } else if (response?.status === 503) {
       // Don't show toast for maintenance mode - the MaintenanceMode component handles this
       if (!response.data?.maintenanceMode) {
-        toast.error('الموقع في وضع الصيانة حالياً');
+        if (typeof window !== 'undefined') toast.error('الموقع في وضع الصيانة حالياً');
       }
     } else if (response?.status >= 500) {
-      toast.error('خطأ في الخادم. يرجى المحاولة مرة أخرى');
+      if (typeof window !== 'undefined') toast.error('خطأ في الخادم. يرجى المحاولة مرة أخرى');
     } else if (!response) {
-      toast.error('خطأ في الاتصال. تحقق من اتصالك بالإنترنت');
+      if (typeof window !== 'undefined') toast.error('خطأ في الاتصال. تحقق من اتصالك بالإنترنت');
     }
 
     return Promise.reject(error);
@@ -291,18 +291,18 @@ emailApi.interceptors.response.use(
         }
       }
     } else if (response?.status === 403) {
-      toast.error('ليس لديك صلاحية للوصول إلى هذا المورد');
+      if (typeof window !== 'undefined') toast.error('ليس لديك صلاحية للوصول إلى هذا المورد');
     } else if (response?.status === 404) {
-      toast.error('المورد المطلوب غير موجود');
+      if (typeof window !== 'undefined') toast.error('المورد المطلوب غير موجود');
     } else if (response?.status === 503) {
       // Don't show toast for maintenance mode - the MaintenanceMode component handles this
       if (!response.data?.maintenanceMode) {
-        toast.error('الموقع في وضع الصيانة حالياً');
+        if (typeof window !== 'undefined') toast.error('الموقع في وضع الصيانة حالياً');
       }
     } else if (response?.status >= 500) {
-      toast.error('خطأ في الخادم. يرجى المحاولة مرة أخرى');
+      if (typeof window !== 'undefined') toast.error('خطأ في الخادم. يرجى المحاولة مرة أخرى');
     } else if (!response) {
-      toast.error('خطأ في الاتصال. تحقق من اتصالك بالإنترنت');
+      if (typeof window !== 'undefined') toast.error('خطأ في الاتصال. تحقق من اتصالك بالإنترنت');
     }
 
     return Promise.reject(error);

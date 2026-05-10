@@ -206,8 +206,8 @@ class UserDoc {
 
       // Special Case 2: Top Creators ($addFields: { fameScore: ... })
       if (addFieldsStage && addFieldsStage.$addFields?.fameScore) {
-          // Fetch base creators
-          let q = supabase.from('User').select('*');
+          // Fetch base creators with limited columns for memory efficiency
+          let q = supabase.from('User').select('id, name, username, displayName, profilePicture, rating, followers, isPinned, pinnedAt, templatesCount, email');
           if (matchStage) q = this._applyQuery(q, matchStage.$match);
           
           const { data: users, error } = await q;
@@ -563,7 +563,7 @@ class UserDoc {
   }
 
   static async countDocuments(query = {}) {
-    let q = supabase.from('User').select('*', { count: 'exact', head: true });
+    let q = supabase.from('User').select('id', { count: 'exact', head: true });
     q = this._applyQuery(q, query);
     
     return q.then(({ count, error }) => {

@@ -6,7 +6,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useToast } from '../../../contexts/ToastContext';
 import api from '../../../lib/api';
 import SuccessModal from '../../../components/SuccessModal';
-import RichTextEditor from '../../../components/RichTextEditor';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -14,6 +14,11 @@ import {
   Download, FileText, ChevronRight, X, Zap, 
   MessageSquare, Clock, ArrowLeft, Bookmark
 } from 'lucide-react';
+
+const RichTextEditor = dynamic(() => import('../../../components/RichTextEditor'), {
+  ssr: false,
+  loading: () => <div className="animate-pulse bg-gray-50/50 dark:bg-dark-tertiary/20 h-[400px] rounded-2xl w-full flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-blue-500" /></div>
+});
 
 const categories = [
   // الإنتاجية والتنظيم

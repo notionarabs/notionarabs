@@ -250,6 +250,8 @@ router.get('/', cacheMiddleware(3600), async (req, res) => {
     }
 
     // Creators are already sorted and paginated by the database query
+    // Add edge caching for CDN (1 hour fresh, 24 hours stale-while-revalidate)
+    res.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
     res.json({
       success: true,
       creators: creatorsWithStats,

@@ -1,104 +1,41 @@
 const express = require('express');
-const Template = require('../models/Template');
-const User = require('../models/User');
 const { cacheMiddleware } = require('../utils/redis-cache');
+const supabase = require('../utils/supabase');
 
 const router = express.Router();
 
 // @route   GET /api/stats/homepage
-// @desc    Get all homepage statistics in a single request
+// @desc    Get all homepage statistics via Supabase RPCs (zero in-memory aggregation)
 // @access  Public
 router.get('/homepage', cacheMiddleware(3600), async (req, res) => {
   try {
-    // Parallel execution of all queries
-    // Get all approved template data in ONE query to minimize round-trips
-    const { data: templates, error: templateError } = await require('../utils/supabase')
-      .from('Template')
-      .select('downloads, categories')
-      .eq('status', 'APPROVED');
-      
-    if (templateError) throw templateError;
-
-    const totalTemplates = templates.length;
-    let totalDownloads = 0;
-    const categoryCounts = {};
-    
-    templates.forEach(t => {
-      totalDownloads += (t.downloads || 0);
-      if (t.categories && Array.isArray(t.categories)) {
-        t.categories.forEach(cat => {
-          if (cat) categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
-        });
-      }
-    });
-
-    const categoryStats = Object.keys(categoryCounts).map(cat => ({
-      category: cat,
-      count: categoryCounts[cat]
-    }));
-
-    const [
-      totalCreatorsResult,
-      topCreatorsResult,
-      totalUsers
-    ] = await Promise.all([
-      // Total creators count (approved creators)
-      User.aggregate([
-        {
-          $match: {
-            role: 'creator',
-            creatorStatus: 'approved',
-            isActive: true,
-            isEmailVerified: true
-          }
-        },
-        { $count: 'total' }
-      ]),
-
-      // Top creators with their stats (prioritizing pinned creators)
-      User.aggregate([
-        {
-          $match: {
-            role: 'creator',
-            creatorStatus: 'approved',
-            isActive: true,
-            isEmailVerified: true
-          }
-        },
-        {
-          $addFields: {
-            fameScore: 1 // Trigger Special Case 2 in User.js which calculates everything efficiently
-          }
-        },
-        { $limit: 4 }
-      ]),
-      
-      // Total users count
-      User.countDocuments({ isActive: true, isEmailVerified: true })
+    // Fire both RPCs in parallel — all math happens inside PostgreSQL
+    const [statsResult, creatorsResult] = await Promise.all([
+      supabase.rpc('get_homepage_stats'),
+      supabase.rpc('get_top_creators', { p_limit: 4 })
     ]);
 
-    // Count unique specialties (categories with at least 1 template)
-    const specialtiesCount = categoryStats.filter(stat => stat.count > 0).length;
+    if (statsResult.error) throw statsResult.error;
+    if (creatorsResult.error) throw creatorsResult.error;
 
-    // Format category stats
-    const categoryTotals = {};
-    categoryStats.forEach(({ category, count }) => {
-      categoryTotals[category] = count;
-    });
+    const stats = statsResult.data;
+    const topCreators = creatorsResult.data || [];
+
+    // Edge + CDN caching (1 hour fresh, 24 hours stale)
+    res.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
 
     res.json({
       success: true,
       stats: {
-        templates: totalTemplates,
-        creators: totalCreatorsResult[0]?.total || 0,
-        downloads: totalDownloads || 0,
-        users: totalUsers || 0,
-        specialties: specialtiesCount
+        templates:  stats.templates  || 0,
+        creators:   stats.creators   || 0,
+        downloads:  stats.downloads  || 0,
+        specialties: stats.specialties || 0,
       },
       status: 'operational',
-      categoryTotals,
-      topCreators: topCreatorsResult
+      topCreators
     });
+
   } catch (error) {
     console.error('Get homepage stats error:', error);
     res.status(500).json({
@@ -110,4 +47,3 @@ router.get('/homepage', cacheMiddleware(3600), async (req, res) => {
 });
 
 module.exports = router;
-

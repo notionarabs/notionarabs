@@ -528,7 +528,8 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
     }
 
 
-    // Blogs are already paginated and sorted by the database query
+    // Edge + CDN caching (5 minutes fresh, 24 hours stale)
+    res.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400');
 
     res.json({
       success: true,
@@ -797,6 +798,9 @@ router.get('/:slug', cacheMiddleware(600), async (req, res) => {
         blog.totalRatings = ratingData.totalRatings;
       });
     }
+
+    // Edge + CDN caching (10 minutes fresh, 24 hours stale)
+    res.set('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=86400');
 
     res.json({
       success: true,

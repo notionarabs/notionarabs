@@ -626,6 +626,8 @@ router.get('/', cacheMiddleware(3600), async (req, res) => {
           Template.countDocuments(regexQuery)
         ]);
 
+        // Edge cache the public search results
+        res.set('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=3600');
         return res.json({
           success: true,
           templates,
@@ -698,6 +700,8 @@ router.get('/creator/:creatorId', cacheMiddleware(600), async (req, res) => {
       .populate('creator', 'name username displayName profilePicture badges')
       .sort({ createdAt: -1 });
 
+    // Edge cache public creator templates
+    res.set('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=3600');
     res.json({
       success: true,
       templates
@@ -952,6 +956,8 @@ router.get('/similar/:id', cacheMiddleware(600), async (req, res) => {
         .slice(0, parseInt(limit));
     }
 
+    // Edge cache similar templates (10 min)
+    res.set('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=3600');
     res.json({
       success: true,
       templates: similarTemplates

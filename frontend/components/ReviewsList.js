@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { formatDate } from '../lib/dateUtils';
 
@@ -13,7 +13,20 @@ export default function ReviewsList({
     simple = false
 }) {
     const [showAll, setShowAll] = useState(false);
-    const displayedReviews = showAll ? reviews : reviews.slice(0, 3);
+    
+    const { displayedReviews, totalReviews, averageRating, hasRatings } = useMemo(() => {
+        if (!reviews) return { displayedReviews: [], totalReviews: 0, averageRating: 0, hasRatings: false };
+        const displayed = showAll ? reviews : reviews.slice(0, 3);
+        const total = reviews.length;
+        const ratingsList = reviews.filter(r => r.rating);
+        const avg = ratingsList.length ? ratingsList.reduce((acc, review) => acc + review.rating, 0) / ratingsList.length : 0;
+        return {
+            displayedReviews: displayed,
+            totalReviews: total,
+            averageRating: avg,
+            hasRatings: ratingsList.length > 0
+        };
+    }, [reviews, showAll]);
 
     const StarRating = ({ rating, size = "small" }) => {
         return (
@@ -33,11 +46,6 @@ export default function ReviewsList({
     };
 
     if (!reviews || reviews.length === 0) return null;
-
-    // Calculate stats
-    const totalReviews = reviews.length;
-    const averageRating = reviews.reduce((acc, review) => acc + (review.rating || 0), 0) / (reviews.filter(r => r.rating).length || 1);
-    const hasRatings = reviews.some(r => r.rating);
 
     const content = (
         <div className={`flex flex-col ${simple ? '' : 'md:flex-row gap-8 md:gap-12'}`}>

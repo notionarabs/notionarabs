@@ -447,7 +447,7 @@ class Template {
   }
 
   static async countDocuments(query = {}) {
-    let q = supabase.from('Template').select('*', { count: 'exact', head: true });
+    let q = supabase.from('Template').select('id', { count: 'exact', head: true });
     q = this._applyQuery(q, query);
     const { count, error } = await q;
     if (error) throw error;

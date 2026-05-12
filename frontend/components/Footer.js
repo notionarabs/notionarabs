@@ -18,6 +18,7 @@ const FOOTER_LINKS = {
   support: [
     { href: '/contact', label: 'اتصل بنا' },
     { href: '/creators/apply', label: 'انضم كمبدع' },
+    { href: '/testimonials', label: 'آراء العملاء وقصص النجاح' },
   ],
   legal: [
     { href: '/privacy', label: 'الخصوصية' },

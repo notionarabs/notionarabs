@@ -9,7 +9,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useLoading } from '../contexts/LoadingContext';
 import ThemeToggle from './ThemeToggle';
 import UserDropdown from './UserDropdown';
-import { Layout, Zap, BookOpen, Users, Compass, Home, Calendar, Search, User as UserIcon, Command, Briefcase, ShoppingBag } from 'lucide-react';
+import { Layout, Zap, BookOpen, Users, Compass, Home, Calendar, Search, User as UserIcon, Command, Briefcase, ShoppingBag, MessageSquare } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { AnimatePresence } from 'framer-motion';
 import SearchPalette from './SearchPalette';
@@ -97,7 +97,8 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
     { href: '/creators', label: 'المبدعين', key: 'creators', icon: <Users className="w-5 h-5" />, color: 'hover:text-purple-400' },
     { href: '/blog', label: 'المدونة', key: 'blog', icon: <BookOpen className="w-5 h-5" />, color: 'hover:text-blue-400' },
     { href: '/widgets', label: 'الأدوات', key: 'widgets', icon: <Zap className="w-5 h-5" />, color: 'hover:text-orange-400' },
-    { href: '/about', label: 'عن المجتمع', key: 'about', icon: <Compass className="w-5 h-5" />, color: 'hover:text-cyan-400' }
+    { href: '/about', label: 'عن المجتمع', key: 'about', icon: <Compass className="w-5 h-5" />, color: 'hover:text-cyan-400' },
+    { href: '/testimonials', label: 'الآراء', key: 'testimonials', icon: <MessageSquare className="w-5 h-5" />, color: 'hover:text-amber-400' }
   ], []);
 
   return (
@@ -137,7 +138,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex gap-1 lg:gap-2 xl:gap-3 items-center">
+          <nav className="hidden lg:flex gap-1 xl:gap-3 items-center">
             <div className={`transition-all duration-300 ease-in-out overflow-hidden flex items-center ${activePage !== 'home' ? 'max-w-24 opacity-100' : 'max-w-0 opacity-0'}`}>
               <Link
                 href="/"
@@ -174,7 +175,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
           </nav>
 
           {/* Auth Buttons / User Menu */}
-          <div className="hidden md:flex items-center gap-2 lg:gap-3 xl:gap-4">
+          <div className="hidden lg:flex items-center gap-2 xl:gap-4">
 
             {/* Auth section */}
             <div className="flex items-center gap-3 justify-end">
@@ -211,7 +212,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center gap-2">
+          <div className="lg:hidden flex items-center gap-2">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className={`p-3 transition-all duration-300 border rounded-xl flex-shrink-0 ${isMenuOpen ? 'bg-white/10 border-white/20' : 'border-gray-600 dark:border-dark-card-border hover:bg-white/10 dark:hover:bg-dark-tertiary hover:border-gray-500 dark:hover:border-dark-text-tertiary'}`}
@@ -225,7 +226,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
         </div>
 
         {/* Mobile Menu - Enhanced with Glassmorphism */}
-        <div className={`md:hidden absolute top-full left-0 right-0 z-40 bg-accent-600/95 dark:bg-dark-secondary/95 backdrop-blur-xl shadow-2xl transition-all duration-300 ease-in-out origin-top ${isMenuOpen ? 'opacity-100 visible scale-y-100' : 'opacity-0 invisible scale-y-95 pointer-events-none'}`}>
+        <div className={`lg:hidden absolute top-full left-0 right-0 z-40 bg-accent-600/95 dark:bg-dark-secondary/95 backdrop-blur-xl shadow-2xl transition-all duration-300 ease-in-out origin-top ${isMenuOpen ? 'opacity-100 visible scale-y-100' : 'opacity-0 invisible scale-y-95 pointer-events-none'}`}>
           <div className="container-custom py-6 flex flex-col h-[calc(100vh-80px)] overflow-y-auto">
             {/* Mobile Navigation Links */}
             <nav className="space-y-2 mb-6" aria-label="Mobile navigation">

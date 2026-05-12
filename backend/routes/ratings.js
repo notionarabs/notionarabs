@@ -12,12 +12,12 @@ const supabase = require('../utils/supabase');
 const router = express.Router();
 
 // @route   POST /api/ratings
-// @desc    Submit a rating for a template or creator
+// @desc    Submit a rating for a template, creator, blog, or the platform
 // @access  Private
 router.post('/', auth, [
   body('targetType')
-    .isIn(['template', 'creator', 'blog'])
-    .withMessage('نوع الهدف يجب أن يكون template أو creator أو blog'),
+    .isIn(['template', 'creator', 'blog', 'platform'])
+    .withMessage('نوع الهدف يجب أن يكون template أو creator أو blog أو platform'),
   body('targetId')
     .isString()
     .notEmpty()
@@ -51,12 +51,14 @@ router.post('/', auth, [
       target = await User.findById(targetId);
     } else if (targetType === 'blog') {
       target = await Blog.findById(targetId);
+    } else if (targetType === 'platform') {
+      target = { _id: 'platform' };
     }
 
     if (!target) {
       return res.status(404).json({
         success: false,
-        message: targetType === 'template' ? 'القالب غير موجود' : targetType === 'blog' ? 'المقال غير موجود' : 'المبدع غير موجود'
+        message: targetType === 'template' ? 'القالب غير موجود' : targetType === 'blog' ? 'المقال غير موجود' : targetType === 'platform' ? 'المنصة غير موجودة' : 'المبدع غير موجود'
       });
     }
 
@@ -186,6 +188,86 @@ router.post('/', auth, [
   }
 });
 
+// @route   GET /api/ratings/public/featured
+// @desc    Get top featured public ratings/reviews (e.g. 4 and 5 stars) across all targets
+// @access  Public
+router.get('/public/featured', cacheMiddleware(120), async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    // Find all public template ratings
+    const ratings = await Rating.find({
+      isPublic: true,
+      targetType: 'template'
+    })
+      .populate('user', 'name username displayName profilePicture')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    // We populate templates if they are templates
+    const populatedRatings = await Promise.all(ratings.map(async (r) => {
+      let targetDetails = null;
+      if (r.targetType === 'template' && r.targetId) {
+        try {
+          const template = await Template.findById(r.targetId);
+          if (template) {
+            targetDetails = {
+              title: template.title,
+              slug: template.slug,
+              previewImage: template.previewImage,
+              price: template.price,
+              isPaid: template.isPaid
+            };
+          }
+        } catch (e) {
+          console.error('Error fetching template details for review:', e);
+        }
+      } else if (r.targetType === 'blog' && r.targetId) {
+        try {
+          const blog = await Blog.findById(r.targetId);
+          if (blog) {
+            targetDetails = {
+              title: blog.title,
+              slug: blog.slug,
+              previewImage: blog.featuredImage
+            };
+          }
+        } catch (e) {
+          console.error('Error fetching blog details for review:', e);
+        }
+      }
+      
+      return {
+        id: r.id || r._id,
+        user: r.user,
+        rating: r.rating,
+        review: r.review,
+        targetType: r.targetType,
+        targetId: r.targetId,
+        targetDetails,
+        createdAt: r.createdAt
+      };
+    }));
+
+    // Filter to only include reviews that have a written comment (not just blank stars)
+    const filteredRatings = populatedRatings.filter(r => r.review && r.review.trim().length > 1);
+
+    res.json({
+      success: true,
+      ratings: filteredRatings
+    });
+  } catch (error) {
+    console.error('Get featured ratings error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
 // @route   GET /api/ratings/:targetType/:targetId
 // @desc    Get ratings for a specific template or creator
 // @access  Public
@@ -196,7 +278,7 @@ router.get('/:targetType/:targetId', cacheMiddleware(300), async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
 
     // Validate targetType
-    if (!['template', 'creator', 'blog'].includes(targetType)) {
+    if (!['template', 'creator', 'blog', 'platform'].includes(targetType)) {
       return res.status(400).json({
         success: false,
         message: 'نوع الهدف غير صحيح'
@@ -211,12 +293,14 @@ router.get('/:targetType/:targetId', cacheMiddleware(300), async (req, res) => {
       target = await User.findById(targetId);
     } else if (targetType === 'blog') {
       target = await Blog.findById(targetId);
+    } else if (targetType === 'platform') {
+      target = { _id: 'platform' };
     }
 
     if (!target) {
       return res.status(404).json({
         success: false,
-        message: targetType === 'template' ? 'القالب غير موجود' : targetType === 'blog' ? 'المقال غير موجود' : 'المبدع غير موجود'
+        message: targetType === 'template' ? 'القالب غير موجود' : targetType === 'blog' ? 'المقال غير موجود' : targetType === 'platform' ? 'المنصة غير موجودة' : 'المبدع غير موجود'
       });
     }
 
@@ -287,7 +371,7 @@ router.get('/user/:targetType/:targetId', auth, async (req, res) => {
     const userId = req.user._id;
 
     // Validate targetType
-    if (!['template', 'creator'].includes(targetType)) {
+    if (!['template', 'creator', 'platform'].includes(targetType)) {
       return res.status(400).json({
         success: false,
         message: 'نوع الهدف غير صحيح'
@@ -319,7 +403,7 @@ router.delete('/:targetType/:targetId', auth, async (req, res) => {
     const userId = req.user._id;
 
     // Validate targetType
-    if (!['template', 'creator'].includes(targetType)) {
+    if (!['template', 'creator', 'platform'].includes(targetType)) {
       return res.status(400).json({
         success: false,
         message: 'نوع الهدف غير صحيح'

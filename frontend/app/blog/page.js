@@ -26,6 +26,8 @@ async function getBlogPosts() {
   }
 }
 
+export const revalidate = 60;
+
 export default async function BlogPage() {
   const { blogs, pagination } = await getBlogPosts();
   

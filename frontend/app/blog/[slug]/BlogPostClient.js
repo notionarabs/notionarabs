@@ -77,7 +77,7 @@ const normalizeProfilePictureUrl = (url) => {
 export default function BlogPostClient({ initialBlog, initialRelatedBlogs }) {
     const params = useParams();
     const router = useRouter();
-    const { showError } = useToast();
+    const { showError, showSuccess } = useToast();
     const { isAuthenticated, user } = useAuth();
     const { scrollYProgress } = useScroll();
     const scaleX = useSpring(scrollYProgress, {

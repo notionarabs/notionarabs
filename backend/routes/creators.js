@@ -205,9 +205,11 @@ router.get('/', cacheMiddleware(3600), async (req, res) => {
         username: creator.username || creator.email?.split('@')[0],
         displayName: creator.displayName || creator.name,
         templates: stats.totalTemplates,
-        templatesCount: stats.totalTemplates ?? creator.templatesCount ?? 0,
+        templatesCount: stats.totalTemplates > 0 ? stats.totalTemplates : (creator.templatesCount || 0),
         downloads: stats.totalDownloads,
         rating: stats.medianRating || creator.rating || 0,
+        followers: creator.followers || 0,
+        followersCount: creator.followers || 0,
         earnings: creator.totalEarnings || 0,
         badges: creator.badges || []
       };

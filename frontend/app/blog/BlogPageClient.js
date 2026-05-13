@@ -96,7 +96,7 @@ export default function BlogPageClient({ initialBlogs, initialPagination }) {
 
   useEffect(() => {
     // Skip first load if we have initial data
-    if (initialBlogs && pagination.current === initialPagination.current && !searchTerm && selectedCategory === 'all' && sortBy === 'newest') {
+    if (initialBlogs && initialBlogs.length > 0 && pagination.current === initialPagination.current && !searchTerm && selectedCategory === 'all' && sortBy === 'newest') {
       return;
     }
     fetchBlogPosts();
@@ -187,11 +187,15 @@ export default function BlogPageClient({ initialBlogs, initialPagination }) {
                   <div className="flex flex-col lg:flex-row min-h-[500px]">
                     <div className="w-full lg:w-1/2 relative overflow-hidden h-64 lg:h-auto">
                        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/80 to-blue-600 opacity-90 group-hover:scale-110 transition-transform duration-1000" />
-                       <div className="absolute inset-0 flex items-center justify-center text-white/10">
-                          <svg className="w-64 h-64" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5h-2.5" />
-                          </svg>
-                       </div>
+                       {post.featuredImage ? (
+                         <Image src={post.featuredImage} alt={post.title} fill className="object-cover transition-transform duration-1000 group-hover:scale-110" />
+                       ) : (
+                         <div className="absolute inset-0 flex items-center justify-center text-white/10">
+                            <svg className="w-64 h-64" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5h-2.5" />
+                            </svg>
+                         </div>
+                       )}
                        <div className="absolute top-8 right-8 px-6 py-2 bg-white/20 backdrop-blur-md rounded-full border border-white/5 text-white font-black text-xs uppercase tracking-widest">
                         نظام مختار
                        </div>
@@ -311,13 +315,17 @@ export default function BlogPageClient({ initialBlogs, initialPagination }) {
                   >
                     <div className="relative h-56 overflow-hidden">
                        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/90 to-blue-600 opacity-90 transition-transform duration-700 group-hover:scale-110" />
-                       <div className="absolute inset-0 flex items-center justify-center text-white/10 group-hover:rotate-12 transition-transform duration-700">
-                          <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5h-2.5" />
-                          </svg>
-                          <div className="absolute top-6 left-6 z-20 px-3 py-1 bg-black/40 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-widest rounded-full">
-                            {post.category || post.categories?.[0] || "مقال"}
-                          </div>
+                       {post.featuredImage ? (
+                         <Image src={post.featuredImage} alt={post.title} fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
+                       ) : (
+                         <div className="absolute inset-0 flex items-center justify-center text-white/10 group-hover:rotate-12 transition-transform duration-700">
+                            <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5h-2.5" />
+                            </svg>
+                         </div>
+                       )}
+                       <div className="absolute top-6 left-6 z-20 px-3 py-1 bg-black/40 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-widest rounded-full">
+                         {post.category || post.categories?.[0] || "مقال"}
                        </div>
                     </div>
 

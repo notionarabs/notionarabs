@@ -171,14 +171,16 @@ class Template {
         const isArrayCol = ['categories', 'tags', 'features'].includes(dbKey);
 
         if (dbKey === 'status' && typeof val === 'string') {
-            val = val.toUpperCase();
+            chain = chain.eq('status', val.toUpperCase());
+            return;
         }
         
         if (val && typeof val === 'object') {
             if (val.$ne !== undefined) {
                 let normalizedNe = val.$ne;
                 if (dbKey === 'status' && typeof normalizedNe === 'string') {
-                    normalizedNe = normalizedNe.toUpperCase();
+                    chain = chain.neq('status', normalizedNe.toUpperCase());
+                    return;
                 }
                 chain = chain.neq(dbKey, normalizedNe);
             }

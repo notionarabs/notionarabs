@@ -74,7 +74,7 @@ export default function CreatorsClient({ initialCreators, initialPagination }) {
 
   useEffect(() => {
     // Skip first load if we have initial data
-    if (initialCreators && pagination.current === initialPagination.current && !searchTerm && selectedSpecialty === 'all' && sortBy === 'popular') {
+    if (initialCreators && initialCreators.length > 0 && pagination.current === initialPagination.current && !searchTerm && selectedSpecialty === 'all' && sortBy === 'popular') {
       return;
     }
     const timer = setTimeout(fetchCreators, 500);

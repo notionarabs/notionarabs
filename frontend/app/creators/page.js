@@ -32,6 +32,8 @@ async function getCreators() {
   }
 }
 
+export const revalidate = 60;
+
 export default async function CreatorsPage() {
   const { creators, pagination } = await getCreators();
   

@@ -165,6 +165,23 @@ router.post('/', auth, [
       await User.findByIdAndUpdate(targetId, {
         rating: averageRating
       });
+    } else if (targetType === 'blog') {
+      const blog = await Blog.findById(targetId);
+      if (blog && blog.author && blog.author.toString() !== req.user._id.toString()) {
+        try {
+          const raterName = req.user.displayName || req.user.name || 'مستخدم';
+          await Notification.create({
+            user: blog.author,
+            type: 'blog_rated',
+            title: 'تم تقييم مقالك',
+            message: `${raterName} قيّم مقالك ${rating} نجوم${review ? `: ${review}` : ''}`,
+            link: `/blog/${blog.slug || targetId}`,
+            metadata: { blogId: targetId, ratingId: (existingRating?._id || savedRating?._id) || null, raterId: req.user._id, actorProfilePicture: req.user.profilePicture || '' }
+          });
+        } catch (notifyErr) {
+          console.error('Create blog rating notification error:', notifyErr?.message || notifyErr);
+        }
+      }
     }
 
     res.json({
@@ -371,7 +388,7 @@ router.get('/user/:targetType/:targetId', auth, async (req, res) => {
     const userId = req.user._id;
 
     // Validate targetType
-    if (!['template', 'creator', 'platform'].includes(targetType)) {
+    if (!['template', 'creator', 'blog', 'platform'].includes(targetType)) {
       return res.status(400).json({
         success: false,
         message: 'نوع الهدف غير صحيح'
@@ -403,7 +420,7 @@ router.delete('/:targetType/:targetId', auth, async (req, res) => {
     const userId = req.user._id;
 
     // Validate targetType
-    if (!['template', 'creator', 'platform'].includes(targetType)) {
+    if (!['template', 'creator', 'blog', 'platform'].includes(targetType)) {
       return res.status(400).json({
         success: false,
         message: 'نوع الهدف غير صحيح'

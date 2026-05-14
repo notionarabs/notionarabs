@@ -13,7 +13,7 @@ const router = express.Router();
 // @access  Private
 router.get('/me', auth, async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user.id })
+    const orders = await Order.find({ user: req.user.id, status: 'COMPLETED' })
       .populate('items.templateId', 'title slug previewImage notionLink')
       .sort({ createdAt: -1 })
       .lean();

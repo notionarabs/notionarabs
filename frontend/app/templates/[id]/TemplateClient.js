@@ -114,7 +114,7 @@ export default function TemplateClient({ initialTemplate }) {
       const response = await api.get('/orders/me');
       if (response?.data?.success && response.data.orders) {
         const hasTemplate = response.data.orders.some(order =>
-          order.items && order.items.some(item => {
+          order.status === 'COMPLETED' && order.items && order.items.some(item => {
             const itemTid = (item.templateId && typeof item.templateId === 'object') 
               ? (item.templateId._id || item.templateId.id) 
               : item.templateId;

@@ -107,30 +107,30 @@ function SuccessContent() {
                     
                     <Link
                         href="/#marketplace"
-                        className="flex items-center justify-center gap-3 py-5 px-8 bg-gray-50 dark:bg-dark-tertiary hover:bg-gray-100 dark:hover:bg-dark-tertiary/80 text-gray-700 dark:text-gray-200 text-base font-black rounded-2xl transition-all duration-300 border border-gray-200/80 dark:border-white/10 hover:scale-[1.02] active:scale-95 group/store decoration-none"
+                        className="flex items-center justify-center gap-3 py-5 px-8 bg-gray-50 dark:bg-white/[0.05] hover:bg-gray-100 dark:hover:bg-white/[0.08] text-gray-700 dark:text-gray-200 text-base font-black rounded-2xl transition-all duration-300 border border-gray-200/80 dark:border-white/10 hover:scale-[1.02] active:scale-95 group/store decoration-none"
                     >
-                        <ShoppingBag size={22} className="group-hover/store:rotate-12 transition-transform text-gray-400 dark:text-gray-500" />
+                        <ShoppingBag size={22} className="group-hover/store:rotate-12 transition-transform text-gray-400 dark:text-gray-400" />
                         <span>تصفح المزيد من القوالب</span>
                     </Link>
                 </div>
 
                 {/* Onboarding Roadmap Tip */}
-                <div className="bg-primary-50/50 dark:bg-primary-950/20 rounded-3xl p-6 border border-primary-100/60 dark:border-primary-900/30 text-right space-y-3">
-                    <h3 className="text-xs font-black text-primary-600 dark:text-primary-400 uppercase tracking-widest flex items-center gap-2">
-                        <Sparkles size={14} />
+                <div className="bg-primary-50/40 dark:bg-white/[0.03] backdrop-blur-xl rounded-3xl p-6 border border-primary-100/60 dark:border-white/10 text-right space-y-3 shadow-inner">
+                    <h3 className="text-xs font-black text-primary-600 dark:text-orange-400 uppercase tracking-widest flex items-center gap-2">
+                        <Sparkles size={14} className="text-primary-500 dark:text-orange-400" />
                         ماذا بعد التحميل؟
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-bold text-gray-600 dark:text-gray-300">
-                        <div className="bg-white dark:bg-dark-secondary p-3 rounded-xl shadow-xs border border-gray-100 dark:border-white/5">
-                            <span className="text-primary font-black block mb-1">١. التوجه لمشترياتك</span>
+                        <div className="bg-white dark:bg-white/[0.06] p-3.5 rounded-2xl shadow-xs border border-gray-100 dark:border-white/10 hover:border-primary/30 transition-colors">
+                            <span className="text-primary-600 dark:text-orange-400 font-black block mb-1">١. التوجه لمشترياتك</span>
                             ستجد القالب متاحاً فوراً
                         </div>
-                        <div className="bg-white dark:bg-dark-secondary p-3 rounded-xl shadow-xs border border-gray-100 dark:border-white/5">
-                            <span className="text-primary font-black block mb-1">٢. النقر على نوشن</span>
+                        <div className="bg-white dark:bg-white/[0.06] p-3.5 rounded-2xl shadow-xs border border-gray-100 dark:border-white/10 hover:border-primary/30 transition-colors">
+                            <span className="text-primary-600 dark:text-orange-400 font-black block mb-1">٢. النقر على نوشن</span>
                             اضغط على فتح في نوشن
                         </div>
-                        <div className="bg-white dark:bg-dark-secondary p-3 rounded-xl shadow-xs border border-gray-100 dark:border-white/5">
-                            <span className="text-primary font-black block mb-1">٣. تكرار القالب</span>
+                        <div className="bg-white dark:bg-white/[0.06] p-3.5 rounded-2xl shadow-xs border border-gray-100 dark:border-white/10 hover:border-primary/30 transition-colors">
+                            <span className="text-primary-600 dark:text-orange-400 font-black block mb-1">٣. تكرار القالب</span>
                             اضغط Duplicate بالأعلى
                         </div>
                     </div>

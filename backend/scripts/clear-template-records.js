@@ -3,18 +3,18 @@ const supabase = require('../utils/supabase');
 
 async function clearTemplateRecords() {
     try {
-        console.log('🔍 Searching for exact template "العقل الثاني + مركز المال - النسخة المتقدمة"...');
+        console.log('🔍 Searching for all paid templates...');
         const { data: templates, error: searchErr } = await supabase
             .from('Template')
             .select('*')
-            .eq('title', 'العقل الثاني + مركز المال - النسخة المتقدمة');
+            .eq('isPaid', true);
 
         if (searchErr) {
             throw searchErr;
         }
 
         if (!templates || templates.length === 0) {
-            console.log('⚠️ No matching template found.');
+            console.log('⚠️ No matching paid templates found.');
             return;
         }
 

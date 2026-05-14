@@ -230,7 +230,7 @@ function ProfileOverview({ user: propUser, onNavigate }) {
                 { label: 'الرصيد المتاح', value: (earningsValue || 0).toLocaleString('ar-EG'), unit: 'ج.م', color: 'emerald', isLocked: true }
               ]
             : [
-                { label: 'القوالب المقتناة', value: purchasesCount, unit: 'قالب مقتنى', color: 'orange', icon: ShoppingBag, action: () => router.push('/purchases') },
+                { label: 'القوالب المقتناة', value: purchasesCount, unit: 'قالب مقتنى', color: 'orange', icon: ShoppingBag, action: () => onNavigate?.('purchases') },
                 { label: 'التنبيهات غير المقروءة', value: recentActivity.filter(n => !n.isRead).length || 0, unit: 'تنبيه جديد', color: 'purple', icon: Bell, action: () => onNavigate?.('notifications') },
                 { 
                   label: 'مستوى العضوية', 

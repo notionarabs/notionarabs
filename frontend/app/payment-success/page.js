@@ -98,7 +98,7 @@ function SuccessContent() {
                 {/* Action Buttons */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
                     <Link
-                        href="/purchases"
+                        href="/profile?tab=purchases"
                         className="flex items-center justify-center gap-3 py-5 px-8 bg-gradient-to-r from-primary-600 via-primary-500 to-primary-600 hover:bg-[length:200%_auto] text-white text-base font-black rounded-2xl transition-all duration-500 shadow-xl shadow-primary-500/20 hover:shadow-primary-500/40 hover:scale-[1.02] active:scale-95 group/main decoration-none"
                     >
                         <Download size={22} className="group-hover/main:-translate-y-1 transition-transform" />

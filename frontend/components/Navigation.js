@@ -312,8 +312,8 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
                   {/* Mobile User Menu Links */}
                   <div className="grid grid-cols-2 gap-2">
                     <Link
-                      href={user?.role?.toLowerCase() === 'admin' ? "/admin" : (user?.creatorStatus === 'approved' ? "/profile" : "/purchases")}
-                      onClick={() => handleNavigation(user?.role?.toLowerCase() === 'admin' ? "/admin" : (user?.creatorStatus === 'approved' ? "/profile" : "/purchases"))}
+                      href={user?.role?.toLowerCase() === 'admin' ? "/admin" : (user?.creatorStatus === 'approved' ? "/profile" : "/profile?tab=purchases")}
+                      onClick={() => handleNavigation(user?.role?.toLowerCase() === 'admin' ? "/admin" : (user?.creatorStatus === 'approved' ? "/profile" : "/profile?tab=purchases"))}
                       className="flex flex-col items-center justify-center gap-2 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-colors"
                     >
                       <svg className="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>

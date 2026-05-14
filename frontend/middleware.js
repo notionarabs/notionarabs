@@ -64,7 +64,7 @@ export function middleware(request) {
     '/consultation', '/careers', '/testimonials', '/success-stories',
     '/privacy', '/terms', '/cookies', '/templates',
     '/categories', '/creators', '/blog', '/widgets', '/projects',
-    '/refund-policy', '/payment/callback', '/payment-success', '/purchases'
+    '/refund-policy'
   ];
 
   const isPublicRoute = publicRoutes.some(route => pathname === route);

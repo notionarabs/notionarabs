@@ -6,33 +6,13 @@ const Order = require('../models/Order');
 const Template = require('../models/Template');
 const User = require('../models/User');
 const DownloadLog = require('../models/DownloadLog');
-const jwt = require('jsonwebtoken');
-
-const authOptional = async (req, res, next) => {
-    try {
-        const authHeader = req.header('Authorization');
-        const token = authHeader?.replace('Bearer ', '');
-        if (!token || token === 'null' || token === 'undefined') {
-            req.user = null;
-            return next();
-        }
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-        const userId = decoded.userId || decoded.id;
-        const user = await User.findById(userId).select('-password');
-        req.user = user || null;
-        next();
-    } catch (err) {
-        req.user = null;
-        next();
-    }
-};
 
 /**
  * @route   POST /api/payments/create-checkout-session
  * @desc    Create a Paymob Unified Checkout session via Intention API
- * @access  Public / Optional Auth
+ * @access  Private
  */
-router.post('/create-checkout-session', authOptional, async (req, res) => {
+router.post('/create-checkout-session', auth, async (req, res) => {
     try {
         const { templateId } = req.body;
 
@@ -46,20 +26,22 @@ router.post('/create-checkout-session', authOptional, async (req, res) => {
             return res.status(400).json({ success: false, message: 'This template is free' });
         }
 
-        const amountCents = Math.round(template.price * 100);
-
+        const amountCents = Math.round(template.price * 100); // Paymob works in cents
+ 
+        // Clean title for Paymob (ASCII only or fallback to ID)
+        // Paymob Intention API can be picky about special chars
         const cleanTitle = template.slug || 'Template-' + templateId.substring(0, 5);
 
-        // 2. Prepare billing data for guest or user
+        // 2. Prepare billing data
         const billingData = {
-            firstName: req.user?.name?.split(' ')[0] || 'Notion',
-            lastName: req.user?.name?.split(' ').slice(1).join(' ') || 'Member',
-            email: req.user?.email || 'guest@notionarabs.com',
-            phone: req.user?.phone || '01012345678'
+            firstName: req.user.name?.split(' ')[0] || 'Notion',
+            lastName: req.user.name?.split(' ').slice(1).join(' ') || 'Member',
+            email: req.user.email,
+            phone: req.user.phone || '01012345678'
         };
 
-        // 3. Create order in our DB (pending)
-        const userId = req.user?.id || req.user?._id || 'guest_user';
+        // 3. Create order in our DB (pending) before redirecting to payment
+        const userId = req.user.id || req.user._id;
         const templateDbId = template.id || template._id;
         
         const order = new Order({
@@ -78,6 +60,9 @@ router.post('/create-checkout-session', authOptional, async (req, res) => {
         const savedOrder = await order.save();
         const finalOrderId = (savedOrder.id || savedOrder._id || order.id || order._id).toString();
 
+        // 4. Use Paymob Intention API (new unified checkout)
+        // Automatically picks TEST or LIVE integration based on NODE_ENV
+
         const frontendUrl = process.env.FRONTEND_URL || 'https://www.notionarabs.com';
 
         const { clientSecret, publicKey } = await paymobService.createIntention({
@@ -88,6 +73,7 @@ router.post('/create-checkout-session', authOptional, async (req, res) => {
             redirectionUrl: `${frontendUrl}/payment/callback`
         });
 
+        // 5. Build the Unified Checkout URL
         const checkoutUrl = `https://accept.paymob.com/unifiedcheckout/?publicKey=${publicKey}&clientSecret=${clientSecret}`;
 
         res.json({
@@ -195,7 +181,7 @@ router.post('/callback', async (req, res) => {
                                             template: template._id,
                                             creator: template.creator,
                                             user: order.user || order.userId,
-                                            userEmailSnapshot: buyer?.email || 'guest@notionarabs.com',
+                                            userEmailSnapshot: buyer?.email || null,
                                             templateTitleSnapshot: template.title || null,
                                             userAgent: 'Paymob Webhook',
                                             referrer: 'Paid Purchase'
@@ -224,17 +210,18 @@ router.post('/callback', async (req, res) => {
 /**
  * @route   POST /api/payments/confirm-redirect
  * @desc    Immediate verification when user returns from Paymob checkout
- * @access  Public / Optional Auth
+ * @access  Private
  */
-router.post('/confirm-redirect', authOptional, async (req, res) => {
+router.post('/confirm-redirect', auth, async (req, res) => {
     try {
         const { orderId, txnId } = req.body;
-        const userId = req.user?.id || req.user?._id || 'guest_user';
+        const userId = req.user.id || req.user._id;
 
-        // Find latest pending order for this user or guest
+        // Find latest pending order for this user
         const order = await Order.findOne({ user: userId, status: 'PENDING' });
         
         if (!order) {
+            // Already completed or not found
             return res.json({ success: true, message: 'No pending orders found or already completed' });
         }
 
@@ -274,7 +261,7 @@ router.post('/confirm-redirect', authOptional, async (req, res) => {
                                 template: template._id,
                                 creator: template.creator,
                                 user: userId,
-                                userEmailSnapshot: buyer?.email || 'guest@notionarabs.com',
+                                userEmailSnapshot: buyer?.email || null,
                                 templateTitleSnapshot: template.title || null,
                                 userAgent: 'Paymob Redirect Verification',
                                 referrer: 'Paid Purchase Redirect'
@@ -284,9 +271,6 @@ router.post('/confirm-redirect', authOptional, async (req, res) => {
                 }
             }
         } catch (err) {}
-
-        // Return populated order so frontend localStorage can save items
-        await order.populate('items.templateId', 'title slug previewImage notionLink');
 
         res.json({ success: true, order });
     } catch (error) {

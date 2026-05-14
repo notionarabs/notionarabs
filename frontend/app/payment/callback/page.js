@@ -18,7 +18,7 @@ function PaymentCallbackHandler() {
             router.replace(`/payment-success?id=${orderId || txnId || ''}`);
         } else {
             // Payment failed or pending → redirect to store with error
-            router.replace(`/store?payment=failed`);
+            router.replace(`/templates?payment=failed`);
         }
     }, [searchParams, router]);
 

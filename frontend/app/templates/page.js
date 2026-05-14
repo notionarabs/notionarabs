@@ -93,6 +93,7 @@ function TemplatesPageContent() {
   const [allTemplates, setAllTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showPaymentError, setShowPaymentError] = useState(false);
   const [pagination, setPagination] = useState({
     current: 1,
     pages: 1,
@@ -107,12 +108,14 @@ function TemplatesPageContent() {
     const language = searchParams.get('language');
     const search = searchParams.get('search');
     const sort = searchParams.get('sort');
+    const payment = searchParams.get('payment');
 
     if (category) setSelectedCategory(category);
     if (price) setPriceFilter(price);
     if (language) setLanguageFilter(language);
     if (search) setSearchTerm(search);
     if (sort) setSortBy(sort);
+    if (payment === 'failed') setShowPaymentError(true);
   }, [searchParams]);
 
   // Update URL when filters change
@@ -221,6 +224,37 @@ function TemplatesPageContent() {
       <main className="relative z-10">
         <BreadcrumbWrapper items={[{ name: 'المتجر', url: '/templates' }]} />
         
+        <AnimatePresence>
+          {showPaymentError && (
+            <motion.div
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="container-custom mt-8 relative z-50"
+            >
+              <div className="bg-red-500/10 backdrop-blur-2xl border border-red-500/30 rounded-3xl p-6 flex items-center justify-between gap-4 shadow-xl shadow-red-500/10">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-red-500/20 text-red-500 flex items-center justify-center shrink-0">
+                    <XCircle className="w-6 h-6 animate-pulse" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black text-red-600 dark:text-red-400 mb-1">تعذر إتمام عملية الدفع</h3>
+                    <p className="text-sm font-medium text-red-700/80 dark:text-red-300/80 leading-relaxed">
+                      يرجى التحقق من صحة بيانات البطاقة أو المحفظة الإلكترونية والرصيد المتاح، ثم المحاولة مجدداً.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowPaymentError(false)}
+                  className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-black text-xs rounded-xl shadow-md transition-all cursor-pointer shrink-0 border-none"
+                >
+                  حسناً، فهمت
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Premium Atmospheric Hero */}
         <section className="relative overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-24">
           <div className="absolute inset-0 pointer-events-none">

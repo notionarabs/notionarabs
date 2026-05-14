@@ -80,14 +80,19 @@ class Order {
     let q = supabase.from('Order').select('*');
     if (query.paymobOrderId) q = q.eq('paymobOrderId', query.paymobOrderId);
     if (query._id || query.id) q = q.eq('id', query._id || query.id);
+    if (query.status) q = q.eq('status', query.status.toUpperCase());
+    if (query.user) q = q.eq('userId', query.user);
     
-    return q.maybeSingle().then(async ({ data, error }) => {
+    // Always get the latest matching order
+    q = q.order('createdAt', { ascending: false }).limit(1).maybeSingle();
+    
+    const execute = async () => {
+      const { data, error } = await q;
       if (error) throw error;
       if (!data) return null;
       
       const { data: items } = await supabase.from('OrderItem').select('*').eq('orderId', data.id);
       
-      // Populate items
       let populatedItems = items || [];
       if (items && items.length > 0) {
           const Template = require('./Template');
@@ -99,9 +104,17 @@ class Order {
               };
           }));
       }
-      
       return new Order({ ...data, items: populatedItems });
-    });
+    };
+
+    const promise = execute();
+    const wrap = (p) => {
+        p.sort = (s) => wrap(p);
+        p.populate = (path) => wrap(p);
+        p.lean = () => wrap(p);
+        return p;
+    };
+    return wrap(promise);
   }
 
   static async countDocuments(query = {}) {

@@ -57,8 +57,8 @@ router.post('/create-checkout-session', auth, async (req, res) => {
             paymentMethod: 'CARD'
         });
 
-        await order.save();
-        const finalOrderId = (order.id || order._id).toString();
+        const savedOrder = await order.save();
+        const finalOrderId = (savedOrder.id || savedOrder._id || order.id || order._id).toString();
 
         // 4. Use Paymob Intention API (new unified checkout)
         // Automatically picks TEST or LIVE integration based on NODE_ENV
@@ -85,7 +85,7 @@ router.post('/create-checkout-session', auth, async (req, res) => {
     } catch (error) {
         console.error('Checkout Session Error:', JSON.stringify(error, null, 2) || error.message);
 
-        let reason = 'Unknown error';
+        let reason = error.message || 'Unknown error';
         const detailedError = error.response?.data || error.details;
         if (detailedError) {
             if (Array.isArray(detailedError)) reason = detailedError.join(', ');

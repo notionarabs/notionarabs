@@ -12,7 +12,11 @@ class Order {
     const { id, _id, items, ...updateData } = this;
     const dbId = id || _id;
     if (!dbId) {
-        return Order.create(this);
+        const created = await Order.create(this);
+        Object.assign(this, created);
+        this.id = created.id || created._id;
+        this._id = this.id;
+        return this;
     }
     const { data, error } = await supabase
       .from('Order')
@@ -22,7 +26,12 @@ class Order {
       .maybeSingle();
     
     if (error) throw error;
-    return data ? new Order(data) : null;
+    if (data) {
+        Object.assign(this, data);
+        this.id = data.id || data._id;
+        this._id = this.id;
+    }
+    return this;
   }
 
   static find(query = {}) {

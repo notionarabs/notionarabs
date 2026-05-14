@@ -12,24 +12,13 @@ const crypto = require('crypto');
 class PaymobService {
 
     constructor() {
-        // Reverting to Test Mode for now (Ticket #1976916 needs further merchant verification)
-        const isLive = false;
-        this.secretKey = isLive
-            ? process.env.PAYMOB_SECRET_KEY_LIVE
-            : (process.env.PAYMOB_SECRET_KEY_TEST || 'egy_sk_test_8b1bd62800c456156d4f199f8e5ef2ddb5eafa744d47c18a5f376b41871c4097');
-        this.publicKey = isLive
-            ? process.env.PAYMOB_PUBLIC_KEY_LIVE
-            : (process.env.PAYMOB_PUBLIC_KEY_TEST || 'egy_pk_test_YL3u4OZI0Q5tiCc3CNt4ZglCD2BKxhK0');
-        this.cardIntegrationId = isLive
-            ? parseInt(process.env.PAYMOB_CARD_INTEGRATION_ID_LIVE || '5550521', 10)
-            : parseInt(process.env.PAYMOB_CARD_INTEGRATION_ID_TEST || '5555012', 10);
-        this.walletIntegrationId = isLive
-            ? parseInt(process.env.PAYMOB_WALLET_INTEGRATION_ID_LIVE || '5550523', 10)
-            : parseInt(process.env.PAYMOB_WALLET_INTEGRATION_ID_TEST || '5560369', 10);
-        this.hmacSecret = isLive
-            ? process.env.PAYMOB_HMAC_SECRET_LIVE
-            : (process.env.PAYMOB_HMAC_SECRET_TEST || 'F90FD1AA9AAA628C36F247CA0914EDD3');
-        this.isLive = isLive;
+        this.apiKey = process.env.PAYMOB_API_KEY_TEST || 'ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2ljSEp2Wm1sc1pWOXdheUk2TVRFek16VTRPU3dpYm1GdFpTSTZJbWx1YVhScFlXd2lmUS5ycHRPMmU0eF9Ja09VdlpFbmFHOTBXZFhual9UVWp4SFRXN2pRck1yVU9oWTlLUXF4RjNGbzE5WFR1blYwVVEwam0tTkxxaXZUTzZpYkZ3X1Jfc1huQQ==';
+        this.secretKey = process.env.PAYMOB_SECRET_KEY_TEST || 'egy_sk_test_8b1bd62800c456156d4f199f8e5ef2ddb5eafa744d47c18a5f376b41871c4097';
+        this.publicKey = process.env.PAYMOB_PUBLIC_KEY_TEST || 'egy_pk_test_YL3u4OZI0Q5tiCc3CNt4ZglCD2BKxhK0';
+        this.cardIntegrationId = parseInt(process.env.PAYMOB_CARD_INTEGRATION_ID_TEST || '5555012', 10);
+        this.walletIntegrationId = parseInt(process.env.PAYMOB_WALLET_INTEGRATION_ID_TEST || '5560369', 10);
+        this.hmacSecret = process.env.PAYMOB_HMAC_SECRET_TEST || 'F90FD1AA9AAA628C36F247CA0914EDD3';
+        this.isLive = false;
         this.intentionBaseUrl = 'https://accept.paymob.com/v1/intention/';
     }
 
@@ -93,11 +82,7 @@ class PaymobService {
                 first_name: firstName,
                 last_name: lastName,
                 email: email
-            },
-            redirection_url: redirectionUrl || 'https://www.notionarabs.com/payment/callback',
-            notification_url: process.env.BACKEND_URL
-                ? `${process.env.BACKEND_URL}/api/payments/callback`
-                : 'https://notion-arabs-fe5b3f214071.herokuapp.com/api/payments/callback'
+            }
         };
 
         // Paymob Intention API (v1) REQUIRES payment_methods to be an array of integration IDs.
@@ -157,8 +142,9 @@ class PaymobService {
             } else {
                 console.error('🔹 Error:', error.message);
             }
-            const apiError = new Error('Failed to create Paymob payment intention');
+            const apiError = new Error(error.message || 'Failed to create Paymob payment intention');
             apiError.response = error.response;
+            apiError.details = error.response?.data || error.message;
             throw apiError;
         }
     }

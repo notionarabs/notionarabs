@@ -8,7 +8,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 function PaymentCallbackHandler() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { ensureTokenInHeaders } = useAuth();
+    const { ensureTokenInHeaders, isAuthenticated } = useAuth();
 
     useEffect(() => {
         const success = searchParams.get('success');
@@ -19,8 +19,17 @@ function PaymentCallbackHandler() {
         const verifyAndRedirect = async () => {
             if (success === 'true' && pending === 'false') {
                 try {
-                    ensureTokenInHeaders();
-                    await api.post('/payments/confirm-redirect', { orderId, txnId });
+                    if (isAuthenticated) {
+                        ensureTokenInHeaders();
+                    }
+                    const res = await api.post('/payments/confirm-redirect', { orderId, txnId });
+                    if (res.data?.order) {
+                        try {
+                            const existing = JSON.parse(localStorage.getItem('orders') || '[]');
+                            const updated = existing.filter(o => o._id !== res.data.order._id && o.id !== res.data.order.id);
+                            localStorage.setItem('orders', JSON.stringify([...updated, res.data.order]));
+                        } catch (storageErr) {}
+                    }
                 } catch (err) {
                     console.error('Redirect confirmation call error:', err);
                 }
@@ -31,7 +40,7 @@ function PaymentCallbackHandler() {
         };
 
         verifyAndRedirect();
-    }, [searchParams, router]);
+    }, [searchParams, router, isAuthenticated]);
 
     // Show spinner while redirecting
     return (

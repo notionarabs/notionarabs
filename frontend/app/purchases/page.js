@@ -31,12 +31,14 @@ export default function PurchasesPage() {
       try {
         setIsLoading(true);
         let fetched = [];
-        try {
-          const res = await api.get('/orders/me');
-          if (res?.data?.success) {
-            fetched = res.data.orders || [];
-          }
-        } catch (_) {}
+        if (isAuthenticated) {
+          try {
+            const res = await api.get('/orders/me');
+            if (res?.data?.success) {
+              fetched = res.data.orders || [];
+            }
+          } catch (_) {}
+        }
 
         try {
           const localOrdersRaw = typeof window !== 'undefined' ? localStorage.getItem('orders') : null;
@@ -55,10 +57,8 @@ export default function PurchasesPage() {
       }
     };
 
-    if (!loading && isAuthenticated) {
+    if (!loading) {
       fetchOrders();
-    } else if (!loading) {
-      setIsLoading(false);
     }
   }, [loading, isAuthenticated]);
 
@@ -148,7 +148,7 @@ export default function PurchasesPage() {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated && orders.length === 0) {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-dark-primary flex items-center justify-center p-4">
         <motion.div 

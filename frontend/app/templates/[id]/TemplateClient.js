@@ -230,23 +230,18 @@ export default function TemplateClient({ initialTemplate }) {
   };
 
   const handlePurchase = async () => {
-    if (!template || !isAuthenticated) {
-      if (!isAuthenticated) {
-        console.log('Redirecting to login first...');
-        window.location.href = `/login?redirect=/templates/${templateIdentifier}`;
-      }
-      return;
-    }
+    if (!template) return;
     const tid = template._id || template.id;
     setIsPurchasing(true);
     try {
       console.log('Creating checkout session for:', tid);
-      ensureTokenInHeaders();
+      if (isAuthenticated) {
+        ensureTokenInHeaders();
+      }
       const res = await api.post('/payments/create-checkout-session', { templateId: tid });
       
       if (res.data.success && res.data.checkoutUrl) {
         console.log('Redirecting to Paymob:', res.data.checkoutUrl);
-        // Direct assignment to window.location.href for maximum reliability
         window.location.href = res.data.checkoutUrl;
       } else {
         console.error('Payment failed to initialize:', res.data);

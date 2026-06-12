@@ -268,6 +268,10 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Server listening on port ${PORT}`);
 
+  // Expire any overdue template boosts, then check daily at 00:05
+  const { scheduleBoostExpiry } = require('./jobs/expireBoosts');
+  scheduleBoostExpiry();
+
   // Optional: Sync widgets to Notion on startup
   // This makes it "automatic" as soon as the server runs/restarts
   if (process.env.NODE_ENV === 'production' || process.env.SYNC_WIDGETS_ON_START === 'true') {

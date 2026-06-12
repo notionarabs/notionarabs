@@ -12,14 +12,25 @@ const crypto = require('crypto');
 class PaymobService {
 
     constructor() {
-        this.apiKey = process.env.PAYMOB_API_KEY_TEST || 'ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2ljSEp2Wm1sc1pWOXdheUk2TVRFek16VTRPU3dpYm1GdFpTSTZJbWx1YVhScFlXd2lmUS5ycHRPMmU0eF9Ja09VdlpFbmFHOTBXZFhual9UVWp4SFRXN2pRck1yVU9oWTlLUXF4RjNGbzE5WFR1blYwVVEwam0tTkxxaXZUTzZpYkZ3X1Jfc1huQQ==';
-        this.secretKey = process.env.PAYMOB_SECRET_KEY_TEST || 'egy_sk_test_8b1bd62800c456156d4f199f8e5ef2ddb5eafa744d47c18a5f376b41871c4097';
-        this.publicKey = process.env.PAYMOB_PUBLIC_KEY_TEST || 'egy_pk_test_YL3u4OZI0Q5tiCc3CNt4ZglCD2BKxhK0';
-        this.cardIntegrationId = parseInt(process.env.PAYMOB_CARD_INTEGRATION_ID_TEST || '5555012', 10);
-        this.walletIntegrationId = parseInt(process.env.PAYMOB_WALLET_INTEGRATION_ID_TEST || '5560369', 10);
-        this.hmacSecret = process.env.PAYMOB_HMAC_SECRET_TEST || 'F90FD1AA9AAA628C36F247CA0914EDD3';
-        this.isLive = false;
+        const isLive = process.env.NODE_ENV === 'production';
+        const suffix = isLive ? 'LIVE' : 'TEST';
+
+        this.apiKey = process.env[`PAYMOB_API_KEY_${suffix}`];
+        this.secretKey = process.env[`PAYMOB_SECRET_KEY_${suffix}`];
+        this.publicKey = process.env[`PAYMOB_PUBLIC_KEY_${suffix}`];
+        this.cardIntegrationId = parseInt(process.env[`PAYMOB_CARD_INTEGRATION_ID_${suffix}`] || '0', 10);
+        this.walletIntegrationId = parseInt(process.env[`PAYMOB_WALLET_INTEGRATION_ID_${suffix}`] || '0', 10);
+        this.hmacSecret = process.env[`PAYMOB_HMAC_SECRET_${suffix}`];
+        this.isLive = isLive;
         this.intentionBaseUrl = 'https://accept.paymob.com/v1/intention/';
+
+        console.log(`💳 Paymob initialised in ${isLive ? '🟢 LIVE' : '🔵 TEST'} mode`);
+
+        const required = [`PAYMOB_SECRET_KEY_${suffix}`, `PAYMOB_PUBLIC_KEY_${suffix}`, `PAYMOB_HMAC_SECRET_${suffix}`];
+        const missing = required.filter(k => !process.env[k]);
+        if (missing.length) {
+            console.error(`❌ Missing required Paymob env vars: ${missing.join(', ')}`);
+        }
     }
 
     /**
@@ -35,7 +46,7 @@ class PaymobService {
      * @param {Object} options
      * @returns {Promise<string>} client_secret for the unified checkout URL
      */
-    async createIntention({ amountCents, currency = 'EGP', integrationIds = [], billingData = {}, itemName = 'Purchase', redirectionUrl }) {
+    async createIntention({ amountCents, currency = 'EGP', integrationIds = [], billingData = {}, itemName = 'Purchase', redirectionUrl, extras }) {
         if (!this.secretKey) {
             console.error('❌ PAYMOB_SECRET_KEY is missing in environment variables');
             throw new Error('Paymob configuration error: Secret Key missing');
@@ -55,6 +66,7 @@ class PaymobService {
         const requestBody = {
             amount: amount,
             currency: currency,
+            redirection_url: redirectionUrl,
             items: [
                 {
                     name: (itemName || 'Purchase').substring(0, 50),
@@ -82,7 +94,8 @@ class PaymobService {
                 first_name: firstName,
                 last_name: lastName,
                 email: email
-            }
+            },
+            extras: extras || {}
         };
 
         // Paymob Intention API (v1) REQUIRES payment_methods to be an array of integration IDs.
@@ -100,53 +113,67 @@ class PaymobService {
             throw new Error('Payment configuration error: No integration IDs');
         }
 
-        try {
-            console.log('📤 Sending Intention API request to Paymob...');
-            console.log('🔹 Environment:', process.env.NODE_ENV || 'development');
+        const logSafe = (val) => {
+            if (!val) return 'MISSING';
+            const s = String(val);
+            if (s.length <= 8) return s;
+            return `${s.substring(0, 4)}...${s.substring(s.length - 4)}`;
+        };
 
-            const logSafe = (val) => {
-                if (!val) return 'MISSING';
-                const s = String(val);
-                if (s.length <= 8) return s;
-                return `${s.substring(0, 4)}...${s.substring(s.length - 4)}`;
-            };
+        console.log('📤 Sending Intention API request to Paymob...');
+        console.log('🔹 Environment:', process.env.NODE_ENV || 'development');
+        console.log('🔹 Config Debug:');
+        console.log('  - Secret Key:', logSafe(this.secretKey));
+        console.log('  - Public Key:', logSafe(this.publicKey));
+        console.log('  - Card ID:', this.cardIntegrationId);
+        console.log('  - Wallet ID:', this.walletIntegrationId);
+        console.log('  - HMAC Secret:', logSafe(this.hmacSecret));
+        console.log('  - Integration IDs sent:', requestBody.payment_methods);
 
-            console.log('🔹 Config Debug:');
-            console.log('  - Secret Key:', logSafe(this.secretKey));
-            console.log('  - Public Key:', logSafe(this.publicKey));
-            console.log('  - Card ID:', this.cardIntegrationId);
-            console.log('  - Wallet ID:', this.walletIntegrationId);
-            console.log('  - HMAC Secret:', logSafe(this.hmacSecret));
-            console.log('  - Integration IDs sent:', requestBody.payment_methods);
+        const MAX_RETRIES = 2;
+        let lastError;
 
-            const response = await axios.post(this.intentionBaseUrl, requestBody, {
-                headers: {
-                    'Authorization': `Token ${this.secretKey}`,
-                    'Content-Type': 'application/json'
+        for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+            if (attempt > 0) {
+                await new Promise(r => setTimeout(r, 500 * attempt));
+                console.warn(`⚠️ Paymob retry attempt ${attempt}/${MAX_RETRIES}...`);
+            }
+            try {
+                const response = await axios.post(this.intentionBaseUrl, requestBody, {
+                    headers: {
+                        'Authorization': `Token ${this.secretKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const clientSecret = response.data.client_secret;
+                if (!clientSecret) {
+                    throw new Error('client_secret not found in Paymob Intention API response');
                 }
-            });
 
-            const clientSecret = response.data.client_secret;
-            if (!clientSecret) {
-                throw new Error('client_secret not found in Paymob Intention API response');
+                console.log('✅ Paymob Intention created. client_secret received.');
+                return { clientSecret, publicKey: this.publicKey };
+
+            } catch (error) {
+                lastError = error;
+                // Don't retry on 4xx — those are configuration/auth errors that won't recover
+                if (error.response && error.response.status >= 400 && error.response.status < 500) {
+                    break;
+                }
             }
-
-            console.log('✅ Paymob Intention created. client_secret received.');
-            return { clientSecret, publicKey: this.publicKey };
-
-        } catch (error) {
-            console.error('❌ Paymob Intention API Failed');
-            if (error.response) {
-                console.error('🔹 Status:', error.response.status);
-                console.error('🔹 Response Data:', JSON.stringify(error.response.data, null, 2));
-            } else {
-                console.error('🔹 Error:', error.message);
-            }
-            const apiError = new Error(error.message || 'Failed to create Paymob payment intention');
-            apiError.response = error.response;
-            apiError.details = error.response?.data || error.message;
-            throw apiError;
         }
+
+        console.error('❌ Paymob Intention API Failed');
+        if (lastError.response) {
+            console.error('🔹 Status:', lastError.response.status);
+            console.error('🔹 Response Data:', JSON.stringify(lastError.response.data, null, 2));
+        } else {
+            console.error('🔹 Error:', lastError.message);
+        }
+        const apiError = new Error(lastError.message || 'Failed to create Paymob payment intention');
+        apiError.response = lastError.response;
+        apiError.details = lastError.response?.data || lastError.message;
+        throw apiError;
     }
 
     /**

@@ -9,6 +9,8 @@ import { useSearchParams } from 'next/navigation';
 function SuccessContent() {
     const searchParams = useSearchParams();
     const orderId = searchParams.get('id');
+    const type = searchParams.get('type');
+    const isBoost = type === 'boost';
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -57,10 +59,12 @@ function SuccessContent() {
                 {/* Main Heading & Message */}
                 <div className="space-y-4 mb-10">
                     <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">
-                        شكراً لثقتك في عرب نوشن!
+                        {isBoost ? 'تم تفعيل ترويج قالبك بنجاح!' : 'شكراً لثقتك في عرب نوشن!'}
                     </h1>
                     <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 font-medium leading-relaxed max-w-lg mx-auto">
-                        تم تأكيد عملية الدفع بنجاح. القالب الخاص بك تم إضافته إلى مكتبتك وهو جاهز الآن لتبدأ رحلة تنظيم عملك وحياتك.
+                        {isBoost 
+                            ? 'تم تأكيد عملية الدفع بنجاح. قالبك تم ترويجه وتثبيته في المعرض بنجاح وسيظهر للمستخدمين لزيادة مشاهداته وتحميلاته.'
+                            : 'تم تأكيد عملية الدفع بنجاح. القالب الخاص بك تم إضافته إلى مكتبتك وهو جاهز الآن لتبدأ رحلة تنظيم عملك وحياتك.'}
                     </p>
                 </div>
 
@@ -79,7 +83,9 @@ function SuccessContent() {
                             <Rocket size={18} className="text-primary-500" />
                             طريقة التسليم
                         </span>
-                        <span className="text-gray-900 dark:text-white font-black">فوري عبر مكتبة مقتنياتك</span>
+                        <span className="text-gray-900 dark:text-white font-black">
+                            {isBoost ? 'تفعيل فوري وتثبيت بالمعرض' : 'فوري عبر مكتبة مقتنياتك'}
+                        </span>
                     </div>
 
                     {orderId && (
@@ -97,13 +103,23 @@ function SuccessContent() {
 
                 {/* Action Buttons */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
-                    <Link
-                        href="/profile?tab=purchases"
-                        className="flex items-center justify-center gap-3 py-5 px-8 bg-gradient-to-r from-primary-600 via-primary-500 to-primary-600 hover:bg-[length:200%_auto] text-white text-base font-black rounded-2xl transition-all duration-500 shadow-xl shadow-primary-500/20 hover:shadow-primary-500/40 hover:scale-[1.02] active:scale-95 group/main decoration-none"
-                    >
-                        <Download size={22} className="group-hover/main:-translate-y-1 transition-transform" />
-                        <span>فتح وتحميل القالب</span>
-                    </Link>
+                    {isBoost ? (
+                        <Link
+                            href="/profile?tab=templates"
+                            className="flex items-center justify-center gap-3 py-5 px-8 bg-gradient-to-r from-primary-600 via-primary-500 to-primary-600 hover:bg-[length:200%_auto] text-white text-base font-black rounded-2xl transition-all duration-500 shadow-xl shadow-primary-500/20 hover:shadow-primary-500/40 hover:scale-[1.02] active:scale-95 group/main decoration-none"
+                        >
+                            <ArrowLeft size={22} className="group-hover/main:-translate-x-1 transition-transform" />
+                            <span>العودة لإدارة القوالب</span>
+                        </Link>
+                    ) : (
+                        <Link
+                            href="/profile?tab=purchases"
+                            className="flex items-center justify-center gap-3 py-5 px-8 bg-gradient-to-r from-primary-600 via-primary-500 to-primary-600 hover:bg-[length:200%_auto] text-white text-base font-black rounded-2xl transition-all duration-500 shadow-xl shadow-primary-500/20 hover:shadow-primary-500/40 hover:scale-[1.02] active:scale-95 group/main decoration-none"
+                        >
+                            <Download size={22} className="group-hover/main:-translate-y-1 transition-transform" />
+                            <span>فتح وتحميل القالب</span>
+                        </Link>
+                    )}
                     
                     <Link
                         href="/#marketplace"
@@ -118,22 +134,39 @@ function SuccessContent() {
                 <div className="bg-primary-50/40 dark:bg-white/[0.03] backdrop-blur-xl rounded-3xl p-6 border border-primary-100/60 dark:border-white/10 text-right space-y-3 shadow-inner">
                     <h3 className="text-xs font-black text-primary-600 dark:text-orange-400 uppercase tracking-widest flex items-center gap-2">
                         <Sparkles size={14} className="text-primary-500 dark:text-orange-400" />
-                        ماذا بعد التحميل؟
+                        {isBoost ? 'تفاصيل باقة الترويج' : 'ماذا بعد التحميل؟'}
                     </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-bold text-gray-600 dark:text-gray-300">
-                        <div className="bg-white dark:bg-white/[0.06] p-3.5 rounded-2xl shadow-xs border border-gray-100 dark:border-white/10 hover:border-primary/30 transition-colors">
-                            <span className="text-primary-600 dark:text-orange-400 font-black block mb-1">١. التوجه لمشترياتك</span>
-                            ستجد القالب متاحاً فوراً
+                    {isBoost ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-bold text-gray-600 dark:text-gray-300">
+                            <div className="bg-white dark:bg-white/[0.06] p-3.5 rounded-2xl shadow-xs border border-gray-100 dark:border-white/10 hover:border-primary/30 transition-colors">
+                                <span className="text-primary-600 dark:text-orange-400 font-black block mb-1">١. تثبيت فوري</span>
+                                يظهر قالبك في أعلى المعرض لجميع الزوار
+                            </div>
+                            <div className="bg-white dark:bg-white/[0.06] p-3.5 rounded-2xl shadow-xs border border-gray-100 dark:border-white/10 hover:border-primary/30 transition-colors">
+                                <span className="text-primary-600 dark:text-orange-400 font-black block mb-1">٢. زيادة التحميلات</span>
+                                يجذب الترويج المزيد من المهتمين بقالبك
+                            </div>
+                            <div className="bg-white dark:bg-white/[0.06] p-3.5 rounded-2xl shadow-xs border border-gray-100 dark:border-white/10 hover:border-primary/30 transition-colors">
+                                <span className="text-primary-600 dark:text-orange-400 font-black block mb-1">٣. إحصائيات دقيقة</span>
+                                راقب التفاعل والمشاهدات من لوحة التحكم
+                            </div>
                         </div>
-                        <div className="bg-white dark:bg-white/[0.06] p-3.5 rounded-2xl shadow-xs border border-gray-100 dark:border-white/10 hover:border-primary/30 transition-colors">
-                            <span className="text-primary-600 dark:text-orange-400 font-black block mb-1">٢. النقر على نوشن</span>
-                            اضغط على فتح في نوشن
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-bold text-gray-600 dark:text-gray-300">
+                            <div className="bg-white dark:bg-white/[0.06] p-3.5 rounded-2xl shadow-xs border border-gray-100 dark:border-white/10 hover:border-primary/30 transition-colors">
+                                <span className="text-primary-600 dark:text-orange-400 font-black block mb-1">١. التوجه لمشترياتك</span>
+                                ستجد القالب متاحاً فوراً
+                            </div>
+                            <div className="bg-white dark:bg-white/[0.06] p-3.5 rounded-2xl shadow-xs border border-gray-100 dark:border-white/10 hover:border-primary/30 transition-colors">
+                                <span className="text-primary-600 dark:text-orange-400 font-black block mb-1">٢. النقر على نوشن</span>
+                                اضغط على فتح في نوشن
+                            </div>
+                            <div className="bg-white dark:bg-white/[0.06] p-3.5 rounded-2xl shadow-xs border border-gray-100 dark:border-white/10 hover:border-primary/30 transition-colors">
+                                <span className="text-primary-600 dark:text-orange-400 font-black block mb-1">٣. تكرار القالب</span>
+                                اضغط Duplicate بالأعلى
+                            </div>
                         </div>
-                        <div className="bg-white dark:bg-white/[0.06] p-3.5 rounded-2xl shadow-xs border border-gray-100 dark:border-white/10 hover:border-primary/30 transition-colors">
-                            <span className="text-primary-600 dark:text-orange-400 font-black block mb-1">٣. تكرار القالب</span>
-                            اضغط Duplicate بالأعلى
-                        </div>
-                    </div>
+                    )}
                 </div>
 
                 {/* Support Footer */}

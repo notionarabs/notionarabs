@@ -93,7 +93,7 @@ const ProfileSidebar = ({ userStatus, onNavigate, activeSection, role }) => {
     const analyticsLinks = isCreator ? [
         { section: 'analytics', href: '/profile?tab=analytics', label: 'تحليلات الأداء', icon: TrendingUp },
         { section: 'sales', href: '/profile?tab=sales', label: 'سجلات التحميل', icon: Download },
-        { section: 'earnings', href: '/profile?tab=earnings', label: 'الأرباح والسحوبات', icon: DollarSign, disabled: true },
+        { section: 'earnings', href: '/profile?tab=earnings', label: 'الأرباح والسحوبات', icon: DollarSign },
     ] : [];
 
     const NavSection = ({ title, links }) => {

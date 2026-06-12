@@ -8,90 +8,9 @@ const Notification = require('../models/Notification');
 const auth = require('../middleware/auth');
 const { generateTemplateSlug } = require('../utils/slugGenerator');
 const { cacheMiddleware, invalidateCache } = require('../utils/redis-cache');
+const { checkAndExpireBoosts, handleOptimizedPagination } = require('../services/templateService');
 
 const router = express.Router();
-
-// Optimized pagination handler for templates without search
-async function handleOptimizedPagination(req, res, options) {
-  const { category, creator, isPinned, sortBy, sortOrder, page, limit, isPaid, minRating, language } = options;
-  
-  // Build filter object
-  const filter = { status: 'approved' };
-  
-  if (category && category !== 'all') {
-    filter.categories = category;
-  }
-  
-  if (creator) {
-    filter.creator = creator;
-  }
-  
-  if (language && language !== 'all') {
-    if (language === 'en') {
-      filter.language = { $in: ['en', 'ar-en'] };
-    } else if (language === 'ar') {
-      filter.language = { $in: ['ar', 'ar-en', 'ar-fr'] };
-    } else if (language === 'fr') {
-      filter.language = { $in: ['fr', 'ar-fr'] };
-    } else {
-      filter.language = language;
-    }
-  }
-
-  if (isPinned === 'true') {
-    filter.isPinned = true;
-  } else if (isPinned === 'false') {
-    filter.isPinned = false;
-  }
-
-  if (isPaid === 'true') {
-    filter.isPaid = true;
-  } else if (isPaid === 'false') {
-    filter.isPaid = false;
-  }
-
-  if (minRating) {
-    filter.rating = { $gte: Number(minRating) };
-  }
-
-  // Build sort object with pinning priority
-  const sort = { isPinned: -1, pinnedAt: -1 };
-  
-  // Map friendly sort keys to actual DB fields
-  const sortFieldMap = {
-    'newest': 'createdAt',
-    'popular': 'downloads',
-    'rating': 'rating'
-  };
-  const actualSortBy = sortFieldMap[sortBy] || sortBy;
-  
-  sort[actualSortBy] = sortOrder === 'desc' ? -1 : 1;
-
-  const skip = (parseInt(page) - 1) * parseInt(limit);
-
-  // Use aggregation for better performance with pagination
-  const [templates, totalCount] = await Promise.all([
-    Template.find(filter)
-      .select('title description categories tags creator previewImage slug rating reviewsCount downloads views isPaid price purchaseLink isPinned pinnedAt pinnedById')
-      .populate('creator', 'name username displayName profilePicture badges')
-      .sort(sort)
-      .skip(skip)
-      .limit(parseInt(limit))
-      .lean(),
-    Template.countDocuments(filter)
-  ]);
-
-  res.json({
-    success: true,
-    templates,
-    pagination: {
-      current: parseInt(page),
-      pages: Math.ceil(totalCount / parseInt(limit)),
-      total: totalCount,
-      limit: parseInt(limit)
-    }
-  });
-}
 
 // @route   POST /api/templates
 // @desc    Create a new template
@@ -523,6 +442,9 @@ router.post('/bulk-import', auth, async (req, res) => {
 // @access  Public
 router.get('/', cacheMiddleware(3600), async (req, res) => {
   try {
+    // Check and expire any active template boosts
+    await checkAndExpireBoosts();
+
     const {
       category,
       search,

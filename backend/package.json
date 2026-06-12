@@ -6,8 +6,15 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "test": "jest --testEnvironment node --runInBand",
+    "test:watch": "jest --testEnvironment node --watch",
     "sync-widgets": "node scripts/sync-widgets.js",
     "generate-screenshots": "node scripts/generate-widget-screenshots.js"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["**/__tests__/**/*.test.js"],
+    "clearMocks": true
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.103.3",
@@ -25,6 +32,7 @@
     "ioredis": "^5.8.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
+    "node-cron": "^4.2.1",
     "node-fetch": "^3.3.2",
     "nodemailer": "^6.9.16",
     "passport": "^0.7.0",
@@ -37,6 +45,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.5.2",
+    "jest": "^30.4.2",
     "nodemon": "^3.1.10"
   },
   "keywords": [

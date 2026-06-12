@@ -1,8 +1,30 @@
 'use client';
 
+const EGYPTIAN_MOBILE = /^(010|011|012|015)\d{8}$/;
+
+function validatePayoutDetails(method, details) {
+    const errors = {};
+    if (method === 'vodafone_cash') {
+        const phone = (details.walletNumber || '').replace(/\s/g, '');
+        if (!phone) {
+            errors.walletNumber = 'رقم المحفظة مطلوب';
+        } else if (!EGYPTIAN_MOBILE.test(phone)) {
+            errors.walletNumber = 'رقم غير صحيح — يجب أن يبدأ بـ 010 أو 011 أو 012 أو 015 ومكون من 11 رقمًا';
+        }
+    } else if (method === 'bank_transfer') {
+        if (!details.bankName || details.bankName.trim().length < 2) errors.bankName = 'اسم البنك مطلوب';
+        if (!details.accountName || details.accountName.trim().length < 3) errors.accountName = 'اسم صاحب الحساب مطلوب';
+        if (!details.accountNumber || details.accountNumber.trim().length < 10) errors.accountNumber = 'رقم الحساب يجب أن يكون 10 أرقام على الأقل';
+    }
+    return errors;
+}
+
+export { validatePayoutDetails };
+
 export default function PaymentSettingsSection({ profileSettings, handleInputChange }) {
     const payoutMethod = profileSettings.payoutMethod || 'vodafone_cash';
     const payoutDetails = profileSettings.payoutDetails || {};
+    const errors = validatePayoutDetails(payoutMethod, payoutDetails);
 
     const handleDetailChange = (field, value) => {
         handleInputChange('payoutDetails', {
@@ -18,12 +40,9 @@ export default function PaymentSettingsSection({ profileSettings, handleInputCha
                     <h2 className="text-xl font-bold text-gray-900 dark:text-dark-text-primary">إعدادات الدفع والسحب</h2>
                     <p className="text-sm text-gray-500 dark:text-dark-text-secondary mt-1">حدد الطريقة التي تود استلام أرباحك بها</p>
                 </div>
-                <span className="text-xs font-black bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 px-2.5 py-1 rounded-full border border-yellow-200 dark:border-yellow-900/30 w-fit self-start sm:self-auto select-none">
-                    ميزة قادمة
-                </span>
             </div>
-            
-            <div className="p-6 space-y-6 opacity-55 pointer-events-none select-none">
+
+            <div className="p-6 space-y-6">
                 <div>
                     <label className="block text-sm font-bold text-gray-700 dark:text-dark-text-secondary mb-3">طريقة السحب المفضلة</label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -67,9 +86,14 @@ export default function PaymentSettingsSection({ profileSettings, handleInputCha
                             value={payoutDetails.walletNumber || ''}
                             onChange={(e) => handleDetailChange('walletNumber', e.target.value)}
                             placeholder="01xxxxxxxxx"
-                            className="w-full px-4 py-3 bg-gray-50 dark:bg-dark-tertiary border border-gray-200 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-dark-text-primary"
+                            maxLength={11}
+                            className={`w-full px-4 py-3 bg-gray-50 dark:bg-dark-tertiary border rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-dark-text-primary ${errors.walletNumber ? 'border-red-400 dark:border-red-500' : 'border-gray-200 dark:border-dark-card-border'}`}
                         />
-                        <p className="text-xs text-gray-400 mt-2">يرجى التأكد من أن الرقم يدعم استقبال الأموال عبر المحافظ الإلكترونية</p>
+                        {errors.walletNumber ? (
+                            <p className="text-xs text-red-500 mt-2">{errors.walletNumber}</p>
+                        ) : (
+                            <p className="text-xs text-gray-400 mt-2">يرجى التأكد من أن الرقم يدعم استقبال الأموال عبر المحافظ الإلكترونية</p>
+                        )}
                     </div>
                 ) : (
                     <div className="space-y-4 animate-fadeIn">
@@ -81,8 +105,9 @@ export default function PaymentSettingsSection({ profileSettings, handleInputCha
                                     value={payoutDetails.bankName || ''}
                                     onChange={(e) => handleDetailChange('bankName', e.target.value)}
                                     placeholder="مثلاً: بنك مصر"
-                                    className="w-full px-4 py-3 bg-gray-50 dark:bg-dark-tertiary border border-gray-200 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-dark-text-primary"
+                                    className={`w-full px-4 py-3 bg-gray-50 dark:bg-dark-tertiary border rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-dark-text-primary ${errors.bankName ? 'border-red-400 dark:border-red-500' : 'border-gray-200 dark:border-dark-card-border'}`}
                                 />
+                                {errors.bankName && <p className="text-xs text-red-500 mt-1">{errors.bankName}</p>}
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 dark:text-dark-text-secondary mb-2">اسم صاحب الحساب</label>
@@ -91,8 +116,9 @@ export default function PaymentSettingsSection({ profileSettings, handleInputCha
                                     value={payoutDetails.accountName || ''}
                                     onChange={(e) => handleDetailChange('accountName', e.target.value)}
                                     placeholder="الاسم الكامل كما في البنك"
-                                    className="w-full px-4 py-3 bg-gray-50 dark:bg-dark-tertiary border border-gray-200 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-dark-text-primary"
+                                    className={`w-full px-4 py-3 bg-gray-50 dark:bg-dark-tertiary border rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-dark-text-primary ${errors.accountName ? 'border-red-400 dark:border-red-500' : 'border-gray-200 dark:border-dark-card-border'}`}
                                 />
+                                {errors.accountName && <p className="text-xs text-red-500 mt-1">{errors.accountName}</p>}
                             </div>
                         </div>
                         <div>
@@ -102,8 +128,9 @@ export default function PaymentSettingsSection({ profileSettings, handleInputCha
                                 value={payoutDetails.accountNumber || ''}
                                 onChange={(e) => handleDetailChange('accountNumber', e.target.value)}
                                 placeholder="EG00xxxxxxxxxxxxxxxxxxxx"
-                                className="w-full px-4 py-3 bg-gray-50 dark:bg-dark-tertiary border border-gray-200 dark:border-dark-card-border rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-dark-text-primary"
+                                className={`w-full px-4 py-3 bg-gray-50 dark:bg-dark-tertiary border rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-dark-text-primary ${errors.accountNumber ? 'border-red-400 dark:border-red-500' : 'border-gray-200 dark:border-dark-card-border'}`}
                             />
+                            {errors.accountNumber && <p className="text-xs text-red-500 mt-1">{errors.accountNumber}</p>}
                         </div>
                     </div>
                 )}

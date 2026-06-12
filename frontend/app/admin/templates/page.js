@@ -192,7 +192,7 @@ export default function AdminTemplatesPage() {
   };
 
   const handleBulkAction = async () => {
-    if (!bulkAction || selectedTemplates.length === 0) return;
+    if (!bulkAction || selectedTemplates.length === 0 || actionLoading) return;
 
     try {
       setActionLoading(true);
@@ -219,7 +219,7 @@ export default function AdminTemplatesPage() {
   };
 
   const confirmStatusChange = async () => {
-    if (!selectedTemplate || !selectedAction) return;
+    if (!selectedTemplate || !selectedAction || actionLoading) return;
 
     setActionLoading(true);
     try {

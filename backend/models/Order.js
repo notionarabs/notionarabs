@@ -117,6 +117,26 @@ class Order {
     return wrap(promise);
   }
 
+  static async existsForTemplate(userId, templateId) {
+    const { data: orders } = await supabase
+      .from('Order')
+      .select('id')
+      .eq('userId', userId)
+      .eq('status', 'COMPLETED');
+
+    if (!orders || orders.length === 0) return false;
+
+    const orderIds = orders.map(o => o.id);
+    const { data: items } = await supabase
+      .from('OrderItem')
+      .select('id')
+      .in('orderId', orderIds)
+      .eq('templateId', templateId)
+      .limit(1);
+
+    return !!(items && items.length > 0);
+  }
+
   static async countDocuments(query = {}) {
     let q = supabase.from('Order').select('*', { count: 'exact', head: true });
     if (query.status) q = q.eq('status', query.status.toUpperCase());
@@ -169,8 +189,9 @@ class Order {
         
         if (itemsError) {
             console.error('[ORDER MODEL ERROR] OrderItems Insert failed:', JSON.stringify(itemsError, null, 2));
-            // We don't throw here to avoid failing the whole order creation if just items fail, 
-            // but in a production app you might want to roll back the order.
+            // Roll back the parent order so we never have an orphaned orderless payment
+            await supabase.from('Order').delete().eq('id', dbId);
+            throw new Error('Failed to create order items: ' + (itemsError.message || JSON.stringify(itemsError)));
         }
     }
 

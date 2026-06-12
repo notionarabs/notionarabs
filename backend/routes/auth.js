@@ -1,9 +1,7 @@
 const express = require('express');
-const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const passport = require('passport');
 const crypto = require('crypto');
-const dns = require('dns').promises;
 const User = require('../models/User');
 const Blog = require('../models/Blog');
 const Template = require('../models/Template');
@@ -16,52 +14,9 @@ const {
   sendWelcomeEmail
 } = require('../services/emailService');
 const { isDisposableEmail, hasValidMXRecord } = require('../utils/disposableEmailChecker');
+const { tempUserStorage, validateEmailDomain, generateToken } = require('../utils/authHelpers');
 
 const router = express.Router();
-
-// Temporary storage for unverified users (in production, use Redis or database)
-const tempUserStorage = new Map();
-
-// Rate limiting for signup attempts
-const signupAttempts = new Map();
-const MAX_ATTEMPTS = 3;
-const ATTEMPT_WINDOW = 15 * 60 * 1000; // 15 minutes
-
-// Clean up expired tokens every hour
-setInterval(() => {
-  const now = new Date();
-  for (const [token, userData] of tempUserStorage.entries()) {
-    if (userData.emailVerificationExpiry < now) {
-      tempUserStorage.delete(token);
-    }
-  }
-}, 60 * 60 * 1000); // 1 hour
-
-// Function to validate email domain
-const validateEmailDomain = async (email) => {
-  try {
-    const domain = email.split('@')[1];
-    if (!domain) return false;
-
-    // Check MX record for the domain
-    const mxRecords = await dns.resolveMx(domain);
-    return mxRecords && mxRecords.length > 0;
-  } catch (error) {
-    return false;
-  }
-};
-
-// Generate JWT token
-const generateToken = (userId, email = null) => {
-  const payload = { userId };
-  if (email) payload.email = email;
-  
-  return jwt.sign(
-    payload,
-    process.env.JWT_SECRET || 'your-secret-key',
-    { expiresIn: '7d' }
-  );
-};
 
 // @route   POST /api/auth/signup
 // @desc    Register a new user

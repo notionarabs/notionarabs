@@ -25,12 +25,14 @@ export default function PrayerWidget({
     };
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [resolvedAddress, setResolvedAddress] = useState(city);
 
     useEffect(() => {
         const fetchTimes = async () => {
             try {
                 setLoading(true);
+                setError(null);
 
                 // Single proxy call — geocoding + prayer times handled server-side
                 const res = await fetch(`/api/prayer/times?city=${encodeURIComponent(city)}&method=${method}`);
@@ -39,9 +41,12 @@ export default function PrayerWidget({
                 if (result.code === 200) {
                     setData(result.data);
                     setResolvedAddress(result.resolvedAddress || city);
+                } else {
+                    setError(result.message || 'تعذّر تحميل مواقيت الصلاة');
                 }
             } catch (err) {
                 console.error(err);
+                setError('تعذّر الاتصال بالخادم');
             } finally {
                 setLoading(false);
             }
@@ -54,6 +59,31 @@ export default function PrayerWidget({
     if (loading) return (
         <div className="flex items-center justify-center p-12">
             <div className="w-8 h-8 rounded-full border-2 border-primary-500 border-t-transparent animate-spin"></div>
+        </div>
+    );
+
+    if (error) return (
+        <div className={`w-full p-8 rounded-[2.5rem] text-center ${theme === 'dark' ? 'bg-[#191919] border border-[#2f2f2f] text-white' : 'bg-white border border-gray-100 shadow-xl text-accent-900'}`}>
+            <Moon className="w-8 h-8 mx-auto mb-3 opacity-30" />
+            <p className="font-bold text-sm mb-1 opacity-70">تعذّر تحميل مواقيت الصلاة</p>
+            <p className="text-xs opacity-40 mb-4">{error}</p>
+            <button
+                onClick={() => {
+                    setLoading(true);
+                    setError(null);
+                    fetch(`/api/prayer/times?city=${encodeURIComponent(city)}&method=${method}`)
+                        .then(r => r.json())
+                        .then(result => {
+                            if (result.code === 200) { setData(result.data); setResolvedAddress(result.resolvedAddress || city); }
+                            else setError(result.message || 'تعذّر التحميل');
+                        })
+                        .catch(() => setError('تعذّر الاتصال بالخادم'))
+                        .finally(() => setLoading(false));
+                }}
+                className="text-[10px] font-bold uppercase tracking-widest text-primary-500 hover:text-primary-400 underline"
+            >
+                إعادة المحاولة
+            </button>
         </div>
     );
 

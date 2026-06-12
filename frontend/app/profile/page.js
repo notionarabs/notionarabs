@@ -227,7 +227,7 @@ function ProfileOverview({ user: propUser, onNavigate }) {
                 { label: 'المتابعون', value: followersCount, unit: 'متابع', color: 'purple', trend: null },
                 { label: 'قوالب منشورة', value: templatesCount, unit: 'قالب', color: 'orange', trend: null },
                 { label: 'التقييم العام', value: ratingValue.toFixed(1), unit: 'نجوم', color: 'amber', isStars: true },
-                { label: 'الرصيد المتاح', value: (earningsValue || 0).toLocaleString('ar-EG'), unit: 'ج.م', color: 'emerald', isLocked: true }
+                { label: 'الرصيد المتاح', value: (earningsValue || 0).toLocaleString('ar-EG'), unit: 'ج.م', color: 'emerald' }
               ]
             : [
                 { label: 'القوالب المقتناة', value: purchasesCount, unit: 'قالب مقتنى', color: 'orange', icon: ShoppingBag, action: () => onNavigate?.('purchases') },

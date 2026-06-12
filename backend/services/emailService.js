@@ -545,6 +545,43 @@ const sendPayoutApprovedEmail = async (user, payout) => {
 };
 
 /**
+ * Send an email when a payment fails
+ */
+const sendPaymentFailedEmail = async (user, order) => {
+  if (!user || !user.email) return;
+
+  const subject = `تنبيه: لم تكتمل عملية الدفع`;
+  const supportLink = `https://www.notionarabs.com/contact`;
+  const templatesLink = `https://www.notionarabs.com/templates`;
+  const itemName = order?.items?.[0]?.name || 'القالب';
+
+  const html = getMasterTemplate(`
+    <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">مرحباً ${user.name || 'عزيزنا'}،</h2>
+    <p style="font-size: 16px;">نود إعلامك بأن عملية الدفع المتعلقة بـ <strong>"${itemName}"</strong> لم تكتمل بنجاح.</p>
+
+    <div style="background-color: #fff8e1; border-right: 4px solid #ffc107; padding: 20px; border-radius: 12px; margin: 25px 0; color: #856404;">
+      <strong>ماذا يمكنك فعله؟</strong>
+      <ul style="padding-right: 20px; margin: 10px 0;">
+        <li>تأكد من صحة بيانات بطاقتك وتوفر الرصيد الكافي</li>
+        <li>حاول مرة أخرى من صفحة القالب</li>
+        <li>إذا استمرت المشكلة، تواصل مع الدعم الفني</li>
+      </ul>
+    </div>
+
+    <p style="font-size: 16px;">لم يتم خصم أي مبلغ من حسابك.</p>
+
+    <div style="text-align: center;">
+      <a href="${templatesLink}" class="button">العودة للمتجر</a>
+      <a href="${supportLink}" class="secondary-button">الدعم الفني</a>
+    </div>
+  `, 'تنبيه بشأن عملية الدفع');
+
+  const text = `مرحباً ${user.name || 'عزيزنا'},\n\nلم تكتمل عملية الدفع الخاصة بـ "${itemName}".\n\nلم يتم خصم أي مبلغ من حسابك. يمكنك المحاولة مرة أخرى أو التواصل مع الدعم: ${supportLink}\n\nعرب نوشن`;
+
+  await sendEmail({ to: user.email, subject, html, text });
+};
+
+/**
  * Send an email when a payout is rejected
  */
 const sendPayoutRejectedEmail = async (user, payout, reason) => {
@@ -583,6 +620,7 @@ module.exports = {
   sendWelcomeEmail,
   sendResetPasswordEmail,
   sendOrderConfirmationEmail,
+  sendPaymentFailedEmail,
   sendPayoutRequestedEmail,
   sendPayoutApprovedEmail,
   sendPayoutRejectedEmail

@@ -79,10 +79,26 @@ const apiRateLimit = createRateLimit(
   'تم تجاوز الحد المسموح من طلبات API. يرجى المحاولة مرة أخرى لاحقاً'
 );
 
+// Per-user purchase rate limit — keyed on user ID (set by auth middleware before this runs)
+const purchaseRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10,
+  keyGenerator: (req) => (req.user?._id || req.user?.id || req.ip)?.toString(),
+  message: { error: 'تم تجاوز الحد المسموح من محاولات الشراء. يرجى المحاولة لاحقاً' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => {
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    const isLocalhost = req.ip === '127.0.0.1' || req.ip === '::1' || req.ip === '::ffff:127.0.0.1';
+    return isDevelopment || isLocalhost;
+  }
+});
+
 module.exports = {
   securityHeaders,
   compressionMiddleware,
   generalRateLimit,
   authRateLimit,
   apiRateLimit,
+  purchaseRateLimit,
 };

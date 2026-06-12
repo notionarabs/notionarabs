@@ -43,6 +43,8 @@ function VerifyEmailForm() {
   const [token, setToken] = useState('');
   const [initialLoad, setInitialLoad] = useState(true);
   const [hasAttemptedVerification, setHasAttemptedVerification] = useState(false);
+  const [resendEmail, setResendEmail] = useState('');
+  const [resendSent, setResendSent] = useState(false);
   const hasInitialized = useRef(false);
 
   const { verifyEmail, resendVerification, user, isAuthenticated } = useAuth();
@@ -133,15 +135,14 @@ function VerifyEmailForm() {
     }
   }, [success, isAuthenticated, user, router]);
 
-  const handleResendVerification = async () => {
+  const handleResendVerification = async (emailOverride) => {
     setLoading(true);
     setError('');
     setErrorType('');
 
-    // Get email from URL params or prompt user
-    const email = searchParams.get('email');
-    if (!email) {
-      setError('يرجى إدخال بريدك الإلكتروني');
+    const email = emailOverride || searchParams.get('email') || resendEmail;
+    if (!email || !email.includes('@')) {
+      setError('يرجى إدخال بريدك الإلكتروني الصحيح');
       setErrorType('NO_EMAIL');
       setLoading(false);
       return;
@@ -151,7 +152,7 @@ function VerifyEmailForm() {
       const result = await resendVerification(email);
 
       if (result.success) {
-        setSuccess(true);
+        setResendSent(true);
         setError('');
         setErrorType('');
       } else {
@@ -435,26 +436,39 @@ function VerifyEmailForm() {
                   </div>
                 ) : errorType === 'EXPIRED_TOKEN' || errorType === 'INVALID_TOKEN' ? (
                   <div className="space-y-4">
-                    <button
-                      onClick={handleResendVerification}
-                      disabled={loading}
-                      className="w-full btn-primary text-base py-4 rounded-2xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-large"
-                    >
-                      {loading ? 'جاري الإرسال...' : 'إعادة إرسال رابط التأكيد'}
-                    </button>
+                    {resendSent ? (
+                      <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl border border-emerald-100 dark:border-emerald-800/30 text-emerald-700 dark:text-emerald-400 text-sm font-bold">
+                        تم إرسال رابط تأكيد جديد! تحقق من بريدك الإلكتروني.
+                      </div>
+                    ) : (
+                      <>
+                        {!searchParams.get('email') && (
+                          <div>
+                            <label className="block text-sm font-bold text-accent-600 dark:text-gray-400 mb-2 text-right">
+                              البريد الإلكتروني المسجل
+                            </label>
+                            <input
+                              type="email"
+                              value={resendEmail}
+                              onChange={(e) => setResendEmail(e.target.value)}
+                              placeholder="example@email.com"
+                              className="w-full px-4 py-3 bg-white/70 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-primary/30 text-accent-900 dark:text-white font-medium"
+                              dir="ltr"
+                            />
+                          </div>
+                        )}
+                        <button
+                          onClick={() => handleResendVerification()}
+                          disabled={loading || (!searchParams.get('email') && !resendEmail)}
+                          className="w-full btn-primary text-base py-4 rounded-2xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-large"
+                        >
+                          {loading ? 'جاري الإرسال...' : 'إعادة إرسال رابط التأكيد'}
+                        </button>
+                      </>
+                    )}
                     <div className="text-center flex justify-center gap-4">
-                      <Link
-                        href="/login"
-                        className="btn-ghost text-sm font-bold"
-                      >
-                        تسجيل الدخول
-                      </Link>
-                      <Link
-                        href="/signup"
-                        className="btn-ghost text-sm font-bold"
-                      >
-                        إنشاء حساب جديد
-                      </Link>
+                      <Link href="/login" className="btn-ghost text-sm font-bold">تسجيل الدخول</Link>
+                      <Link href="/signup" className="btn-ghost text-sm font-bold">إنشاء حساب جديد</Link>
                     </div>
                   </div>
                 ) : (

@@ -17,6 +17,7 @@ import { useRatingPopup } from '../../../hooks/useRatingPopup';
 import { getCategorySlug } from '../../../lib/categoryMapping';
 import Counter from '../../../components/Counter';
 import ReviewsList from '../../../components/ReviewsList';
+import PaymentErrorBoundary from '../../../components/PaymentErrorBoundary';
 
 // Dynamically import heavy components
 const RatingCommentSystem = dynamic(() => import('../../../components/RatingCommentSystem'), {
@@ -246,6 +247,15 @@ export default function TemplateClient({ initialTemplate }) {
       
       if (res.data.success && res.data.checkoutUrl) {
         console.log('Redirecting to Paymob:', res.data.checkoutUrl);
+        try {
+          localStorage.setItem('pending_payment', JSON.stringify({
+            type: 'purchase',
+            templateId: tid,
+            dbOrderId: res.data.orderId
+          }));
+        } catch (e) {
+          console.error('Error saving pending payment to localStorage:', e);
+        }
         // Direct assignment to window.location.href for maximum reliability
         window.location.href = res.data.checkoutUrl;
       } else {
@@ -372,6 +382,7 @@ export default function TemplateClient({ initialTemplate }) {
   }
 
   return (
+    <PaymentErrorBoundary supportLink>
     <>
       <main className="min-h-screen bg-gray-50/50 dark:bg-dark-primary pt-12 pb-24" dir="rtl">
         <div className="container-custom">
@@ -925,5 +936,6 @@ export default function TemplateClient({ initialTemplate }) {
         </div>
       )}
     </>
+    </PaymentErrorBoundary>
   );
 }

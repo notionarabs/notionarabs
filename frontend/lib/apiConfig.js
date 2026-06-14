@@ -9,7 +9,7 @@ export function getApiBaseUrl() {
     return process.env.NEXT_PUBLIC_API_URL;
   }
   return process.env.NODE_ENV === 'production'
-    ? 'https://notion-arabs-fe5b3f214071.herokuapp.com/api'
+    ? 'https://api.notionarabs.com/api'
     : 'http://127.0.0.1:5000/api';
 }
 

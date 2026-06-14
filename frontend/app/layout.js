@@ -150,8 +150,8 @@ export default function RootLayout({ children }) {
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://www.google-analytics.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://notion-arabs-fe5b3f214071.herokuapp.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://notion-arabs-fe5b3f214071.herokuapp.com" />
+        <link rel="preconnect" href="https://api.notionarabs.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://api.notionarabs.com" />
 
         <QueryProvider>
           <ThemeProvider>

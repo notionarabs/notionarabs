@@ -38,7 +38,7 @@ export function getAbsoluteImageUrl(imageUrl) {
   if (!imageUrl) return `${siteConfig.url}/images/og-image.png`;
   if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) return imageUrl;
 
-  const backendUrl = 'https://notion-arabs-fe5b3f214071.herokuapp.com';
+  const backendUrl = 'https://api.notionarabs.com';
   const trimmed = imageUrl.trim();
   const separator = trimmed.startsWith('/') ? '' : '/';
 

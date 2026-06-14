@@ -1,7 +1,7 @@
 'use client';
 
 import Navigation from './Navigation';
-import AnnouncementBanner from './AnnouncementBanner';
+
 import { usePathname } from 'next/navigation';
 
 export default function NavigationWrapper() {
@@ -48,7 +48,7 @@ export default function NavigationWrapper() {
 
   return (
     <>
-      <AnnouncementBanner />
+
       <Navigation activePage={getActivePage()} />
     </>
   );

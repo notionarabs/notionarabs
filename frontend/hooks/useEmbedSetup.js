@@ -21,8 +21,9 @@ export function useEmbedSetup(widgetId, themeParam) {
         mq.addEventListener('change', handler);
 
         const base = process.env.NEXT_PUBLIC_API_URL || 'https://api.notionarabs.com/api';
-        const apiUrl = base.endsWith('/api') ? base.slice(0, -4) : base;
-        fetch(`${apiUrl}/api/widgets/track`, {
+        const cleanedBase = base.trim().replace(/\/+$/, '');
+        const trackUrl = cleanedBase.endsWith('/api') ? `${cleanedBase}/widgets/track` : `${cleanedBase}/api/widgets/track`;
+        fetch(trackUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ widgetId })

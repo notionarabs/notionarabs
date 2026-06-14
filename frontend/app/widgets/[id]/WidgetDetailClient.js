@@ -446,8 +446,9 @@ export default function WidgetDetailClient() {
         const fetchStats = async () => {
             try {
                 const base = process.env.NEXT_PUBLIC_API_URL || 'https://api.notionarabs.com/api';
-                const apiUrl = base.endsWith('/api') ? base.slice(0, -4) : base;
-                const res = await fetch(`${apiUrl}/api/widgets/stats`);
+                const cleanedBase = base.trim().replace(/\/+$/, '');
+                const statsUrl = cleanedBase.endsWith('/api') ? `${cleanedBase}/widgets/stats` : `${cleanedBase}/api/widgets/stats`;
+                const res = await fetch(statsUrl);
                 const data = await res.json();
                 if (data.success) {
                     setStats({

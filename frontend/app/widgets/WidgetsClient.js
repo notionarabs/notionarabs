@@ -61,12 +61,14 @@ export default function WidgetsClient() {
         const fetchData = async () => {
             try {
                 const base = process.env.NEXT_PUBLIC_API_URL || 'https://api.notionarabs.com/api';
-                const apiUrl = base.endsWith('/api') ? base.slice(0, -4) : base;
+                const cleanedBase = base.trim().replace(/\/+$/, '');
+                const widgetsUrl = cleanedBase.endsWith('/api') ? `${cleanedBase}/widgets` : `${cleanedBase}/api/widgets`;
+                const statsUrl = cleanedBase.endsWith('/api') ? `${cleanedBase}/widgets/stats` : `${cleanedBase}/api/widgets/stats`;
 
                 // Fetch both widgets and stats
                 const [widgetsRes, statsRes] = await Promise.all([
-                    fetch(`${apiUrl}/api/widgets`),
-                    fetch(`${apiUrl}/api/widgets/stats`)
+                    fetch(widgetsUrl),
+                    fetch(statsUrl)
                 ]);
 
                 const widgetsData = await widgetsRes.json();

@@ -120,4 +120,23 @@ describe('createIntention() retry logic', () => {
         await expect(paymobService.createIntention(baseArgs)).rejects.toThrow();
         expect(axios.post).toHaveBeenCalledTimes(3);
     });
+
+    it('includes applePayIntegrationId in payment_methods if configured', async () => {
+        paymobService.applePayIntegrationId = 5723715;
+        axios.post.mockResolvedValueOnce({ data: { client_secret: 'cs_test_apple' } });
+
+        await paymobService.createIntention(baseArgs);
+
+        expect(axios.post).toHaveBeenCalledWith(
+            expect.any(String),
+            expect.objectContaining({
+                payment_methods: expect.arrayContaining([123456, 5723715])
+            }),
+            expect.any(Object)
+        );
+
+        // Reset it back to 0
+        paymobService.applePayIntegrationId = 0;
+    });
 });
+

@@ -20,6 +20,7 @@ class PaymobService {
         this.publicKey = process.env[`PAYMOB_PUBLIC_KEY_${suffix}`];
         this.cardIntegrationId = parseInt(process.env[`PAYMOB_CARD_INTEGRATION_ID_${suffix}`] || '0', 10);
         this.walletIntegrationId = parseInt(process.env[`PAYMOB_WALLET_INTEGRATION_ID_${suffix}`] || '0', 10);
+        this.applePayIntegrationId = parseInt(process.env[`PAYMOB_APPLE_PAY_INTEGRATION_ID_${suffix}`] || '0', 10);
         this.hmacSecret = process.env[`PAYMOB_HMAC_SECRET_${suffix}`];
         this.isLive = isLive;
         this.intentionBaseUrl = 'https://accept.paymob.com/v1/intention/';
@@ -102,10 +103,11 @@ class PaymobService {
         // If integrationIds are passed to this function, use them. Otherwise use the defaults from constructor.
         if (integrationIds && integrationIds.length > 0) {
             requestBody.payment_methods = integrationIds.map(Number);
-        } else if (this.cardIntegrationId || this.walletIntegrationId) {
+        } else if (this.cardIntegrationId || this.walletIntegrationId || this.applePayIntegrationId) {
             requestBody.payment_methods = [];
             if (this.cardIntegrationId) requestBody.payment_methods.push(Number(this.cardIntegrationId));
             if (this.walletIntegrationId) requestBody.payment_methods.push(Number(this.walletIntegrationId));
+            if (this.applePayIntegrationId) requestBody.payment_methods.push(Number(this.applePayIntegrationId));
         }
 
         if (!requestBody.payment_methods || requestBody.payment_methods.length === 0) {
@@ -127,6 +129,7 @@ class PaymobService {
         console.log('  - Public Key:', logSafe(this.publicKey));
         console.log('  - Card ID:', this.cardIntegrationId);
         console.log('  - Wallet ID:', this.walletIntegrationId);
+        console.log('  - Apple Pay ID:', this.applePayIntegrationId);
         console.log('  - HMAC Secret:', logSafe(this.hmacSecret));
         console.log('  - Integration IDs sent:', requestBody.payment_methods);
 

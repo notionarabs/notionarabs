@@ -687,11 +687,25 @@ export default function TemplateClient({ initialTemplate }) {
                   </div>
                   <h2 className="text-2xl font-black text-gray-900 dark:text-white">أسئلة ونقاشات</h2>
                 </div>
-                <RatingCommentSystem 
-                  targetType="template" 
-                  targetId={template._id || template.id} 
-                  onRatingChange={() => loadRatings(template._id || template.id)}
-                />
+                {isCreator ? (
+                  <div className="p-4 bg-gray-50 dark:bg-dark-tertiary/20 border border-gray-200 dark:border-dark-card-border rounded-2xl text-center">
+                    <p className="text-sm text-accent-600 dark:text-gray-400 font-medium">
+                      بصفتك مصمم هذا القالب، يمكنك الرد مباشرة على تقييمات المشترين أدناه.
+                    </p>
+                  </div>
+                ) : userHasTemplate ? (
+                  <RatingCommentSystem 
+                    targetType="template" 
+                    targetId={template._id || template.id} 
+                    onRatingChange={() => loadRatings(template._id || template.id)}
+                  />
+                ) : (
+                  <div className="p-6 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200/60 dark:border-yellow-900/40 rounded-2xl text-center shadow-inner">
+                    <p className="text-base text-yellow-800 dark:text-yellow-400 font-medium">
+                      يجب عليك تحميل هذا القالب أو شراؤه أولاً لتتمكن من تقييمه أو كتابة تعليق.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 

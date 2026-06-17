@@ -91,31 +91,7 @@ export default function Footer() {
                 مجتمعك العربي الأول لاحتراف نوشن، نوفر لك أرقى القوالب الرقمية والأدوات المبتكرة لتمكينك من تنظيم حياتك وإدارة مشاريعك بإبداع.
               </p>
 
-              <div className="pt-8 border-t border-foreground/5 dark:border-white/5">
-                <Link
-                  href="https://arab-os.com"
-                  target="_blank"
-                  className="group block space-y-3"
-                >
-                  <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-foreground/20 dark:text-white/10 block">
-                    إحدى مبادرات
-                  </span>
-                  <div className="flex items-center gap-4">
-                    <Image
-                      src="/ArabOS.svg"
-                      alt="Arab-OS"
-                      width={90}
-                      height={22}
-                      className="h-5 w-auto opacity-50 group-hover:opacity-100 transition-all"
-                      unoptimized
-                    />
-                    <div className="h-4 w-px bg-foreground/10 dark:bg-white/10" />
-                    <span className="text-[11px] text-foreground/40 dark:text-white/30 font-medium">
-                      نحو بناء بيئة رقمية عربية ذكية
-                    </span>
-                  </div>
-                </Link>
-              </div>
+
             </div>
 
             {/* Links Grid */}
@@ -175,15 +151,7 @@ export default function Footer() {
                     </Link>
                   ))}
                 </div>
-                <Link
-                  href="mailto:support@notionarabs.com"
-                  className="inline-flex items-center gap-4 p-4 rounded-2xl bg-foreground/5 dark:bg-white/5 border-none group transition-all w-full md:w-auto shadow-sm"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300">
-                    <Mail className="w-5 h-5" />
-                  </div>
-                  <span className="text-sm font-bold text-foreground/70 dark:text-white/70">support@notionarabs.com</span>
-                </Link>
+
               </div>
             </div>
           </div>

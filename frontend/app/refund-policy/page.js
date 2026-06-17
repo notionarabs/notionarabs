@@ -4,7 +4,7 @@ import Footer from '../../components/Footer';
 
 export const metadata = generateMetadata({
     title: 'سياسة الاسترجاع',
-    description: 'سياسة الاسترجاع والاسترداد الخاصة بخدمات ومنتجات عرب نوشن',
+    description: 'سياسة الاسترجاع والاسترداد الخاصة بالمنتجات الرقمية وقوالب متجر عرب نوشن',
     url: '/refund-policy'
 });
 
@@ -33,59 +33,38 @@ export default function RefundPolicyPage() {
                             <section>
                                 <h2 className="text-xl sm:text-2xl md:text-3xl font-black mb-6 text-accent-900 dark:text-white tracking-widest uppercase">1. المنتجات الرقمية وقوالب المتجر</h2>
                                 <p className="text-xl text-accent-700 dark:text-gray-300 leading-relaxed font-medium">
-                                    نظراً لطبيعة المنتجات الرقمية (مثل قوالب نوشن والأدوات) والتي يمكن نسخها فوراً بمجرد الشراء، فإن المشتريات من متجرنا غير قابلة للاسترداد بشكل عام.
+                                    نظراً لطبيعة المنتجات الرقمية (مثل قوالب نوشن والأدوات) والتي يمكن نسخها واستنساخها فوراً بمجرد الشراء، فإن المشتريات من متجرنا غير قابلة للاسترداد بشكل تلقائي.
                                 </p>
                                 <p className="text-xl text-accent-700 dark:text-gray-300 leading-relaxed font-medium mt-4">
-                                    ومع ذلك، يحق للمشتري طلب استرداد المبلغ خلال 14 يوماً من تاريخ الشراء في الحالات الاستثنائية التالية فقط:
+                                    ومع ذلك، يحق للمشتري تقديم طلب استرداد المبلغ خلال 14 يوماً من تاريخ الشراء في الحالات الاستثنائية التالية فقط:
                                 </p>
                                 <ul className="space-y-4 text-xl text-accent-700 dark:text-gray-300 font-medium list-none pr-0 mt-4">
                                     <li className="flex items-start gap-4">
                                         <div className="w-2 h-2 bg-primary rounded-full mt-3 flex-shrink-0" />
-                                        <span>وجود خطأ تقني جوهري في القالب يمنع استخدامه كما تم وصفه.</span>
+                                        <span>وجود خطأ تقني جوهري ودائم في القالب يمنع استخدامه كما تم وصفه، ولم يتمكن المبدع من إصلاحه.</span>
                                     </li>
                                     <li className="flex items-start gap-4">
                                         <div className="w-2 h-2 bg-primary rounded-full mt-3 flex-shrink-0" />
-                                        <span>الاختلاف الجذري بين محتوى القالب الفعلي والوصف المقدم من المبدع في صفحة المنتج.</span>
+                                        <span>الاختلاف الجذري والكامل بين محتوى القالب الفعلي والوصف المقدم من المبدع في صفحة المنتج.</span>
                                     </li>
                                     <li className="flex items-start gap-4">
                                         <div className="w-2 h-2 bg-primary rounded-full mt-3 flex-shrink-0" />
-                                        <span>في حال الموافقة على الاسترداد، سيتم خصم قيمة المنتج المسترد من رصيد المبدع (البائع).</span>
+                                        <span>في حال الموافقة على طلب الاسترداد الاستثنائي، سيتم خصم قيمة المنتج المسترد من رصيد المبدع (البائع).</span>
                                     </li>
                                 </ul>
                             </section>
 
                             <section>
-                                <h2 className="text-xl sm:text-2xl md:text-3xl font-black mb-6 text-accent-900 dark:text-white tracking-widest uppercase">2. الخدمات الاستشارية وبناء الأنظمة</h2>
-                                <p className="text-xl text-accent-700 dark:text-gray-300 leading-relaxed font-medium mb-6">
-                                    بالنسبة للخدمات المخصصة والمشاريع:
-                                </p>
-                                <ul className="space-y-4 text-xl text-accent-700 dark:text-gray-300 font-medium list-none pr-0">
-                                    <li className="flex items-start gap-4">
-                                        <div className="w-2 h-2 bg-primary rounded-full mt-3 flex-shrink-0" />
-                                        <span>الدفعات المقدمة (العربون) غير قابلة للاسترداد بعد بدء العمل في المشروع.</span>
-                                    </li>
-                                    <li className="flex items-start gap-4">
-                                        <div className="w-2 h-2 bg-primary rounded-full mt-3 flex-shrink-0" />
-                                        <span>في حال إلغاء المشروع من طرفك قبل الانتهاء منه، سيتم احتساب التكلفة بناءً على نسبة العمل المنجز.</span>
-                                    </li>
-                                    <li className="flex items-start gap-4">
-                                        <div className="w-2 h-2 bg-primary rounded-full mt-3 flex-shrink-0" />
-                                        <span>إذا لم نتمكن من إتمام المشروع لأسباب تعود إلينا، سيتم رد المبلغ المدفوع بشكل نسبي.</span>
-                                    </li>
-                                </ul>
-                            </section>
-
-                            <section>
-                                <h2 className="text-xl sm:text-2xl md:text-3xl font-black mb-6 text-accent-900 dark:text-white tracking-widest uppercase">3. آلية وإجراءات الاسترداد</h2>
+                                <h2 className="text-xl sm:text-2xl md:text-3xl font-black mb-6 text-accent-900 dark:text-white tracking-widest uppercase">2. آلية وإجراءات الاسترداد</h2>
                                 <p className="text-xl text-accent-700 dark:text-gray-300 leading-relaxed font-medium">
-                                    في حال الموافقة على طلب الاسترداد، سيتم إرجاع المبلغ بنفس طريقة الدفع الأصلية. قد يستغرق ظهور المبلغ في حسابك من 7 إلى 14 يوم عمل.
+                                    في حال الموافقة على طلب الاسترداد المستوفي للشروط، سيتم إرجاع المبلغ بنفس طريقة الدفع الأصلية (عبر بوابة الدفع المعتمدة Paymob). قد يستغرق ظهور المبلغ في حسابك البنكي أو محفظتك الإلكترونية من 7 إلى 14 يوم عمل وفقاً للإجراءات البنكية المعمول بها.
                                 </p>
                             </section>
 
                             <section>
-                                <h2 className="text-xl sm:text-2xl md:text-3xl font-black mb-6 text-accent-900 dark:text-white tracking-widest uppercase">4. التواصل لطلبات الاسترجاع</h2>
+                                <h2 className="text-xl sm:text-2xl md:text-3xl font-black mb-6 text-accent-900 dark:text-white tracking-widest uppercase">3. التواصل لطلبات الاسترجاع</h2>
                                 <p className="text-xl text-accent-700 dark:text-gray-300 mb-8 font-medium">
-                                    لتقديم طلب استرجاع، يرجى التواصل معنا عبر القنوات النخبوية:
+                                    لتقديم طلب استرجاع، يرجى التواصل معنا عبر القنوات الرسمية:
                                 </p>
                                 <div className="bg-white/50 dark:bg-white/5 backdrop-blur-xl p-8 rounded-[2rem] shadow-soft space-y-4">
                                     <p className="text-xl text-accent-900 dark:text-white font-black">

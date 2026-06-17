@@ -5,6 +5,7 @@ const Template = require('../models/Template');
 const User = require('../models/User');
 const Blog = require('../models/Blog');
 const Notification = require('../models/Notification');
+const Order = require('../models/Order');
 const auth = require('../middleware/auth');
 const { cacheMiddleware } = require('../utils/redis-cache');
 const supabase = require('../utils/supabase');
@@ -76,6 +77,17 @@ router.post('/', auth, [
         success: false,
         message: 'لا يمكنك تقييم قوالبك الخاصة'
       });
+    }
+
+    // Check if user has downloaded or purchased the template
+    if (targetType === 'template') {
+      const hasPurchased = await Order.existsForTemplate(userId, targetId);
+      if (!hasPurchased) {
+        return res.status(403).json({
+          success: false,
+          message: 'يجب تحميل القالب أو شراؤه أولاً لتتمكن من تقييمه أو التعليق عليه'
+        });
+      }
     }
 
     // Check if user is trying to rate their own blog

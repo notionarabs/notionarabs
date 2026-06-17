@@ -4,7 +4,7 @@ import Footer from '../../components/Footer';
 
 export const metadata = generateMetadata({
   title: 'شروط الاستخدام',
-  description: 'شروط وأحكام استخدام خدمات عرب نوشن الاستشارية وأنظمة نوشن المخصصة - قم بقراءة الشروط قبل استخدام خدماتنا',
+  description: 'شروط وأحكام استخدام منصة عرب نوشن، متجر القوالب، والأدوات الذكية (الودجتس).',
   url: '/terms'
 });
 
@@ -21,42 +21,38 @@ export default function TermsPage() {
       <section className="py-24 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="container-custom max-w-5xl">
           {/* Main Card */}
-          <div className="bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-[3rem] p-10 sm:p-20 shadow-large border-none">
+          <div className="bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-[3rem] p-10 sm:p-20 shadow-large border-none text-right">
             <div className="mb-16">
               <h1 className="text-4xl sm:text-6xl font-black text-accent-900 dark:text-white mb-6 tracking-tighter">شروط الاستخدام</h1>
-            <p className="text-base sm:text-lg text-accent-700 dark:text-gray-200">
-              آخر تحديث: {formatCurrentDate()}
-            </p>
-          </div>
+              <p className="text-base sm:text-lg text-accent-700 dark:text-gray-200 font-medium">
+                آخر تحديث: {formatCurrentDate()}
+              </p>
+            </div>
 
-          <div className="prose prose-sm sm:prose-base md:prose-lg max-w-none">
             <div className="space-y-16">
+              {/* 1. قبول الشروط */}
               <section className="relative">
-                <h2 className="text-3xl font-black mb-6 text-accent-900 dark:text-white relative z-10">1. قبول الشروط</h2>
+                <h2 className="text-2xl sm:text-3xl font-black mb-6 text-accent-900 dark:text-white relative z-10">1. قبول الشروط</h2>
                 <div className="space-y-4">
-                  <p className="text-xl text-accent-600 dark:text-gray-300 leading-relaxed font-medium">
-                    مرحباً بك في عرب نوشن. هذه الشروط والأحكام تحكم استخدامك لخدماتنا الاستشارية، أنظمة نوشن المخصصة، خدمات الأتمتة والتكاملات، التدريب، الخدمات البرمجية، ومتجر القوالب.
-                    باستخدامك لخدماتنا، فإنك توافق على الالتزام بهذه الشروط.
+                  <p className="text-base sm:text-lg text-accent-600 dark:text-gray-300 leading-relaxed font-medium">
+                    مرحباً بك في عرب نوشن (Notion Arabs)، المنصة والمجتمع الإقليمي الأول المتخصص في تمكين المبدعين وصناع المحتوى العرب. تحكم هذه الشروط والأحكام استخدامك لموقعنا الإلكتروني، بما في ذلك متجر قوالب نوشن، والأدوات الذكية (الودجتس)، والمحتوى التعليمي والمجتمعي.
                   </p>
-                  <p className="text-lg text-accent-600/70 dark:text-gray-400 leading-relaxed font-medium">
-                    إذا كنت لا توافق على أي جزء من هذه الشروط، فيرجى عدم استخدام خدماتنا.
+                  <p className="text-base sm:text-lg text-accent-600/80 dark:text-gray-400 leading-relaxed font-medium">
+                    باستخدامك لمنصتنا أو تحميلك للقوالب أو تضمينك للأدوات، فإنك توافق على الالتزام الكامل بهذه الشروط والأحكام وسياستنا للخصوصية. إذا كنت لا توافق على أي جزء منها، يرجى عدم استخدام المنصة.
                   </p>
                 </div>
               </section>
 
+              {/* 2. وصف الخدمات والمنصة */}
               <section className="relative">
-                <h2 className="text-3xl font-black mb-6 text-accent-900 dark:text-white relative z-10">2. وصف الخدمات</h2>
-                <p className="text-xl text-accent-600 dark:text-gray-300 leading-relaxed mb-8 font-medium">
-                  عرب نوشن تقدم مجموعة متكاملة من الخدمات الاحترافية:
+                <h2 className="text-2xl sm:text-3xl font-black mb-6 text-accent-900 dark:text-white relative z-10">2. وصف خدمات المنصة</h2>
+                <p className="text-base sm:text-lg text-accent-600 dark:text-gray-300 leading-relaxed mb-8 font-medium">
+                  عرب نوشن هي مجتمع رقمي يوفر الأدوات والوسائل المساعدة لتحسين الإنتاجية والتنظيم باستخدام Notion:
                 </p>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   {[
-                    { label: 'الاستشارات', desc: 'استشارات متخصصة في تصميم وتطوير أنظمة نوشن' },
-                    { label: 'بناء أنظمة مخصصة', desc: 'تصميم وتطوير مساحات عمل متكاملة حسب احتياجاتك' },
-                    { label: 'الأتمتة والتكاملات', desc: 'ربط نوشن مع الأدوات الأخرى وأتمتة العمليات' },
-                    { label: 'التدريب والدعم الفني', desc: 'تدريب فريقك على استخدام نوشن بكفاءة' },
-                    { label: 'الخدمات البرمجية', desc: 'تطوير حلول برمجية مخصصة ومتكاملة' },
-                    { label: 'متجر القوالب', desc: 'تصفح وتحميل قوالب نوشن من مبدعين معتمدين' }
+                    { label: 'متجر القوالب', desc: 'تصفح وتحميل وشراء قوالب نوشن مبتكرة صممها مبدعون وصناع محتوى معتمدون.' },
+                    { label: 'الأدوات الذكية والودجتس', desc: 'ودجتس تفاعلية مخصصة (مواقيت الصلاة، الأذكار، الساعة العربية، الطقس، حاسبة الزكاة، Pomodoro) للتضمين المباشر.' }
                   ].map((item, i) => (
                     <li key={i} className="p-6 bg-white/50 dark:bg-white/5 backdrop-blur-md rounded-2xl shadow-soft">
                       <span className="block font-black text-primary mb-2 text-lg">{item.label}</span>
@@ -66,264 +62,191 @@ export default function TermsPage() {
                 </ul>
               </section>
 
-              <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">3. طلب الخدمات الاستشارية</h2>
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">3.1 عملية الطلب</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  لطلب خدمة استشارية أو مشروع مخصص:
-                </p>
-                <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100">
-                  <li>املأ نموذج الاستشارة بمعلومات دقيقة عن مشروعك</li>
-                  <li>حدد نوع الخدمة المطلوبة والميزانية التقديرية</li>
-                  <li>سيتم التواصل معك خلال 24-48 ساعة لمناقشة التفاصيل</li>
-                  <li>سنقدم لك عرض سعر مفصل ونطاق العمل</li>
-                  <li>بعد الموافقة، سيتم البدء في المشروع حسب الجدول الزمني المتفق عليه</li>
-                </ul>
-
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">3.2 اتفاقية الخدمة</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  لكل مشروع، سيتم توقيع اتفاقية خدمة تحدد:
-                </p>
-                <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100">
-                  <li>نطاق العمل والمخرجات المتوقعة</li>
-                  <li>الجدول الزمني ومراحل التسليم</li>
-                  <li>التكلفة وشروط الدفع</li>
-                  <li>مسؤوليات كل طرف</li>
-                  <li>شروط التعديلات والمراجعات</li>
-                </ul>
-              </section>
-
-              <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">4. الدفع والفواتير</h2>
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">4.1 شروط الدفع</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  شروط الدفع للمشاريع:
-                </p>
-                <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100">
-                  <li>دفعة مقدمة 50% عند بدء المشروع</li>
-                  <li>الدفعة المتبقية 50% عند التسليم النهائي</li>
-                  <li>للمشاريع الكبيرة، يمكن تقسيم الدفع على مراحل</li>
-                  <li>جميع الأسعار بالجنيه المصري ما لم يُذكر خلاف ذلك</li>
-                  <li>الأسعار لا تشمل ضريبة القيمة المضافة (إن وجدت)</li>
-                </ul>
-
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">4.2 طرق الدفع</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  نقبل الدفع عبر التحويل البنكي، البطاقات الائتمانية، أو أي طريقة متفق عليها.
-                </p>
-
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">4.3 استرداد الأموال</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  الدفعات المقدمة غير قابلة للاسترداد بعد بدء العمل. في حالة إلغاء المشروع، سيتم احتساب التكلفة بناءً على العمل المنجز.
-                </p>
-              </section>
-
-              <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">5. التسليم والمراجعات</h2>
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">5.1 التسليم</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  سيتم تسليم المشروع حسب الجدول الزمني المتفق عليه. قد تتأثر المواعيد بـ:
-                </p>
-                <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100">
-                  <li>تأخر في تقديم المعلومات أو المحتوى من العميل</li>
-                  <li>تغييرات كبيرة في نطاق العمل</li>
-                  <li>ظروف خارجة عن إرادتنا</li>
-                </ul>
-
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">5.2 المراجعات والتعديلات</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  يشمل كل مشروع جولتين من المراجعات المجانية. التعديلات الإضافية أو التغييرات الكبيرة في النطاق ستكون بتكلفة إضافية.
-                </p>
-              </section>
-
-              <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">6. حقوق الملكية الفكرية</h2>
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">6.1 ملكية المشروع</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  بعد استلام الدفعة النهائية كاملة، تنتقل ملكية نظام نوشن المخصص إليك. تحتفظ عرب نوشن بالحق في:
-                </p>
-                <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100">
-                  <li>عرض المشروع في معرض الأعمال (بعد موافقتك)</li>
-                  <li>استخدام المفاهيم العامة في مشاريع أخرى</li>
-                  <li>الاحتفاظ بنسخة للأرشفة والدعم الفني</li>
-                </ul>
-
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">6.2 قوالب المتجر</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  القوالب المتاحة في المتجر مملوكة للمبدعين. عند تحميل قالب، تحصل على رخصة للاستخدام الشخصي والتجاري دون إعادة البيع.
-                </p>
-              </section>
-
-              <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">7. الضمانات والدعم</h2>
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">7.1 ضمان الجودة</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  نضمن أن جميع المشاريع المسلمة:
-                </p>
-                <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100">
-                  <li>تعمل بشكل صحيح حسب المواصفات المتفق عليها</li>
-                  <li>خالية من الأخطاء الفنية الكبيرة</li>
-                  <li>متوافقة مع منصة Notion</li>
-                </ul>
-
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">7.2 الدعم الفني</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  نقدم دعماً فنياً مجانياً لمدة 30 يوماً بعد التسليم لإصلاح أي أخطاء. الدعم الممتد والتدريب الإضافي متاح بتكلفة منفصلة.
-                </p>
-
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">7.3 الصيانة</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  يمكنك الاشتراك في خطة صيانة شهرية للحصول على تحديثات دورية، دعم فني مستمر، وتحسينات.
-                </p>
-              </section>
-
-              <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">8. إنشاء الحساب (للمنصة)</h2>
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">8.1 متطلبات الحساب</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  لاستخدام منصتنا وتصفح القوالب، يجب أن:
-                </p>
-                <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100">
-                  <li>تكون عمرك 18 عاماً أو أكثر</li>
-                  <li>تقديم معلومات صحيحة ومحدثة</li>
-                  <li>تحتفظ بأمان حسابك وكلمة المرور</li>
-                  <li>تكون مسؤولاً عن جميع الأنشطة في حسابك</li>
-                </ul>
-
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">8.2 حساب المبدع والبيع في المتجر</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  لرفع ومشاركة القوالب المدفوعة أو المجانية في المتجر، يجب التقدم بطلب انضمام كمبدع والحصول على موافقة. بصفتك مبدعاً، أنت توافق على:
-                </p>
-                <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100">
-                  <li>امتلاك جميع حقوق الملكية الفكرية للقوالب التي ترفعها</li>
-                  <li>تقديم قوالب تعمل بكفاءة وخالية من المحتوى الخبيث</li>
-                  <li>توفير دعم فني أساسي للمشترين في حالة وجود مشاكل تقنية</li>
-                  <li>قبول نسبة العمولة التي تقتطعها المنصة مقابل معالجة المدفوعات والاستضافة</li>
-                </ul>
-              </section>
-
-              <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">9. متجر القوالب والمدفوعات والأرباح</h2>
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">9.1 عمليات الشراء والعمولات</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  عند قيام مستخدم بشراء قالب مدفوع عبر المتجر، تتم معالجة الدفع عبر بوابات دفع آمنة (مثل Paymob). تقتطع المنصة عمولة تشغيلية (يتم توضيحها في لوحة تحكم المبدع) وتُضاف الأرباح الصافية إلى رصيد المبدع.
-                </p>
-
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">9.2 سحب الأرباح للمبدعين</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  يمكن للمبدعين طلب سحب الأرباح المتاحة وفق الشروط التالية:
-                </p>
-                <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100">
-                  <li>الوصول إلى الحد الأدنى للسحب المحدد في لوحة التحكم</li>
-                  <li>توفير بيانات دفع صحيحة (مثل رقم فودافون كاش، عنوان إنستاباي، أو بيانات الحساب البنكي)</li>
-                  <li>تتم معالجة الطلبات خلال مدة زمنية محددة (عادة 3 إلى 7 أيام عمل)</li>
-                </ul>
-
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">9.3 استرداد المشتريات (للمشترين)</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  بما أن القوالب هي منتجات رقمية قابلة للنسخ فوراً، فإن المشتريات غير قابلة للاسترداد بشكل عام، إلا في حالات الخلل التقني الجسيم أو الاحتيال. في حال الموافقة على الاسترداد، سيتم خصم المبلغ من رصيد المبدع.
-                </p>
-              </section>
-
-              <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">10. الاستخدام المقبول</h2>
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">9.1 الاستخدام المحظور</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  يحظر عليك:
-                </p>
-                <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100">
-                  <li>انتهاك أي قوانين أو لوائح</li>
-                  <li>انتهاك حقوق الملكية الفكرية</li>
-                  <li>نشر محتوى ضار أو مسيء</li>
-                  <li>محاولة اختراق أو إتلاف النظام</li>
-                  <li>استخدام الخدمة لأغراض احتيالية</li>
-                  <li>إعادة بيع القوالب المجانية</li>
-                  <li>مشاركة بيانات الدخول مع الآخرين</li>
-                </ul>
-              </section>
-
-              <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">11. المسؤولية والضمانات</h2>
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">11.1 إخلاء المسؤولية</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  بينما نبذل قصارى جهدنا لتقديم خدمات عالية الجودة، لا نضمن:
-                </p>
-                <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100">
-                  <li>عدم انقطاع الخدمة أو خلوها من الأخطاء</li>
-                  <li>توافق الحلول مع جميع احتياجاتك المستقبلية</li>
-                  <li>استمرار عمل التكاملات مع خدمات الطرف الثالث</li>
-                </ul>
-
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">11.2 حدود المسؤولية</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  مسؤوليتنا محدودة بقيمة المشروع المدفوع. لن نكون مسؤولين عن أي أضرار غير مباشرة، تبعية، أو خسائر في الأرباح.
-                </p>
-
-                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 sm:mb-3 text-accent-600 dark:text-gray-100">11.3 مسؤولية العميل والمبدع</h3>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  العميل مسؤول عن:
-                </p>
-                <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100">
-                  <li>النسخ الاحتياطي لبياناته</li>
-                  <li>توفير المعلومات والمحتوى الدقيق</li>
-                  <li>الامتثال لشروط استخدام Notion</li>
-                  <li>تدريب فريقه على استخدام النظام</li>
-                </ul>
-              </section>
-
-              <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">12. السرية</h2>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  نلتزم بالحفاظ على سرية جميع المعلومات التي تشاركها معنا أثناء المشروع. لن نكشف عن معلومات مشروعك لأي طرف ثالث دون موافقتك الكتابية.
-                </p>
-              </section>
-
-              <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">13. إنهاء الخدمة</h2>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  يمكن لأي طرف إنهاء المشروع بإشعار كتابي. في حالة الإنهاء:
-                </p>
-                <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100">
-                  <li>سيتم احتساب التكلفة بناءً على العمل المنجز</li>
-                  <li>ستتلقى جميع الملفات والوثائق المكتملة حتى تاريخ الإنهاء</li>
-                  <li>الدفعات المقدمة غير قابلة للاسترداد</li>
-                  <li>تبقى التزامات السرية سارية</li>
-                </ul>
-              </section>
-
-              <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">14. تعديل الشروط</h2>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  نحتفظ بالحق في تعديل هذه الشروط في أي وقت. التعديلات ستصبح سارية فور نشرها على المنصة.
-                </p>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 leading-relaxed">
-                  استمرار استخدامك لخدماتنا بعد التعديلات يعني موافقتك على الشروط الجديدة. المشاريع الجارية تبقى خاضعة للشروط المتفق عليها عند بدء المشروع.
-                </p>
-              </section>
-
-              <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">15. القانون المطبق</h2>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  هذه الشروط تحكمها قوانين جمهورية مصر العربية. أي نزاعات تخضع لاختصاص محاكم القاهرة.
-                </p>
-              </section>
-
-              <section>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 text-accent-500 dark:text-dark-text-primary">16. التواصل معنا</h2>
-                <p className="text-sm sm:text-base md:text-lg text-accent-600 dark:text-gray-100 mb-3 sm:mb-4 leading-relaxed">
-                  إذا كان لديك أي أسئلة حول هذه الشروط، يرجى التواصل معنا:
-                </p>
-                <div className="bg-gray-50 dark:bg-dark-tertiary p-4 sm:p-5 md:p-6 rounded-lg sm:rounded-xl border border-gray-200 dark:border-dark-card-border">
-                  <p className="text-sm sm:text-base text-accent-600 dark:text-gray-100 mb-2 sm:mb-3">
-                    <span className="font-semibold">البريد الإلكتروني:</span> support@notionarabs.com
+              {/* 3. شروط استخدام الأدوات الذكية والودجتس */}
+              <section className="relative">
+                <h2 className="text-2xl sm:text-3xl font-black mb-6 text-accent-900 dark:text-white relative z-10">3. شروط استخدام الأدوات الذكية والودجتس</h2>
+                <div className="space-y-4">
+                  <p className="text-base sm:text-lg text-accent-600 dark:text-gray-300 leading-relaxed font-medium">
+                    توفر المنصة ودجتس وأدوات برمجية ذكية مصممة خصيصاً للتضمين (Embed) داخل صفحات نوشن والمواقع الشخصية. يخضع استخدام هذه الأدوات للبنود التالية:
                   </p>
-                  <p className="text-sm sm:text-base text-accent-600 dark:text-gray-100 mb-2 sm:mb-3">
-                    <span className="font-semibold">العنوان:</span> القاهرة، جمهورية مصر العربية
+                  <ul className="space-y-3 text-base sm:text-lg text-accent-600 dark:text-gray-300 font-medium">
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2.5 flex-shrink-0" />
+                      <span><strong>الترخيص والاستخدام:</strong> نمنحك رخصة مجانية أو مدفوعة (حسب الأداة) للتضمين الشخصي أو التجاري داخل مساحات العمل الخاصة بك.</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2.5 flex-shrink-0" />
+                      <span><strong>القيود البرمجية:</strong> يمنع تماماً محاولة فك تشفير الأدوات، أو نسخ الأكواد المصدرية، أو استضافة الودجتس على خوادم خاصة بك، أو إعادة توجيه الروابط وتوزيعها بشكل مستقل دون إذن كتابي.</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2.5 flex-shrink-0" />
+                      <span><strong>مصادر البيانات الخارجية:</strong> يتم تقديم الودجتس "كما هي" وعبر الاتصال بالإنترنت. قد تتأثر دقة أو استمرارية بعض الأدوات بالخدمات الخارجية المعتمدة عليها (مثل حسابات الفلك لجدول مواقيت الصلاة أو بيانات الطقس).</span>
+                    </li>
+                  </ul>
+                </div>
+              </section>
+
+              {/* 4. تراخيص واستخدام القوالب */}
+              <section className="relative">
+                <h2 className="text-2xl sm:text-3xl font-black mb-6 text-accent-900 dark:text-white relative z-10">4. تراخيص واستخدام القوالب</h2>
+                <div className="space-y-4">
+                  <p className="text-base sm:text-lg text-accent-600 dark:text-gray-300 leading-relaxed font-medium">
+                    عند تحميلك لقالب (سواء كان مجانياً أو مدفوعاً) من متجر المنصة، فإنك توافق على رخصة الاستخدام التالية:
+                  </p>
+                  <ul className="space-y-3 text-base sm:text-lg text-accent-600 dark:text-gray-300 font-medium">
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2.5 flex-shrink-0" />
+                      <span><strong>رخصة مستخدم واحد:</strong> يُمنح المشتري رخصة غير حصرية لاستخدام القالب وتخصيصه وتطويره داخل مساحة عمله الخاصة أو مساحة عمل شركته.</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2.5 flex-shrink-0" />
+                      <span><strong>حظر إعادة التوزيع والبيع:</strong> يمنع منعاً باتاً بيع القالب، أو ترخيصه من الباطن، أو إتاحته مجاناً للعامة، أو ترويجه كمشروع خاص بك لإعادة التوزيع التجاري، حتى وإن قمت بتعديل أجزاء منه.</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2.5 flex-shrink-0" />
+                      <span><strong>الملكية الفكرية:</strong> تعود ملكية تصميم وهيكل القالب للمبدع الذي صممه والمسجل رسمياً بالمنصة.</span>
+                    </li>
+                  </ul>
+                </div>
+              </section>
+
+              {/* 5. سياسة المشتريات وأرباح المبدعين */}
+              <section className="relative">
+                <h2 className="text-2xl sm:text-3xl font-black mb-6 text-accent-900 dark:text-white relative z-10">5. سياسة المشتريات وأرباح المبدعين</h2>
+                <div className="space-y-4">
+                  <h3 className="text-lg sm:text-xl font-bold text-primary">5.1 عمليات الشراء الآمنة</h3>
+                  <p className="text-base sm:text-lg text-accent-600 dark:text-gray-300 leading-relaxed font-medium">
+                    تتم معالجة كافة المدفوعات لشراء القوالب بشكل آمن عبر بوابات الدفع المعتمدة (مثل Paymob). نحن لا نحتفظ ببيانات بطاقات الائتمان على خوادمنا.
+                  </p>
+                  <h3 className="text-lg sm:text-xl font-bold text-primary">5.2 سحب الأرباح للمبدعين</h3>
+                  <p className="text-base sm:text-lg text-accent-600 dark:text-gray-300 leading-relaxed font-medium">
+                    بصفتك مبدعاً مسجلاً في متجر عرب نوشن، تخضع عمليات البيع للقواعد التالية:
+                  </p>
+                  <ul className="space-y-3 text-base sm:text-lg text-accent-600 dark:text-gray-300 font-medium">
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2.5 flex-shrink-0" />
+                      <span>تقتطع المنصة نسبة عمولة تشغيلية محددة مقابل معالجة المدفوعات واستضافة وإدارة القالب بالمتجر، ويتم توضيح صافي الأرباح في لوحة التحكم.</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2.5 flex-shrink-0" />
+                      <span>يمكن للمبدع طلب سحب أرباحه المتاحة عند تخطي الحد الأدنى للسحب، وتتم المعالجة عبر قنوات الدفع المفضلة (مثل Vodafone Cash، Instapay، أو التحويل البنكي) خلال فترة تتراوح بين 3 إلى 7 أيام عمل.</span>
+                    </li>
+                  </ul>
+                </div>
+              </section>
+
+              {/* 6. سياسة الاسترجاع */}
+              <section className="relative">
+                <h2 className="text-2xl sm:text-3xl font-black mb-6 text-accent-900 dark:text-white relative z-10">6. سياسة الاسترجاع</h2>
+                <div className="space-y-4">
+                  <p className="text-base sm:text-lg text-accent-600 dark:text-gray-300 leading-relaxed font-medium">
+                    نظراً لأن القوالب والودجتس هي منتجات رقمية قابلة للاستنساخ الفوري بمجرد إتمام الشراء، فإن سياسة الاسترجاع محددة بالآتي:
+                  </p>
+                  <ul className="space-y-3 text-base sm:text-lg text-accent-600 dark:text-gray-300 font-medium">
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2.5 flex-shrink-0" />
+                      <span>المشتريات غير قابلة للاسترداد بشكل تلقائي بمجرد استلام رابط القالب.</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2.5 flex-shrink-0" />
+                      <span>يحق للمشترين طلب الاسترداد خلال 14 يوماً من الشراء في حالتين فقط: وجود خلل تقني تام يمنع استخدام القالب وعجز المبدع عن حله، أو وجود تعارض جذري كامل بين محتوى القالب الفعلي والوصف التوضيحي المدرج بصفحة المنتج.</span>
+                    </li>
+                  </ul>
+                </div>
+              </section>
+
+              {/* 7. العضوية وحماية الحساب */}
+              <section className="relative">
+                <h2 className="text-2xl sm:text-3xl font-black mb-6 text-accent-900 dark:text-white relative z-10">7. العضوية وحماية الحساب</h2>
+                <div className="space-y-4">
+                  <p className="text-base sm:text-lg text-accent-600 dark:text-gray-300 leading-relaxed font-medium">
+                    لتحميل القوالب أو التسجيل كمبدع، يجب توفير معلومات حقيقية وصحيحة. أنت مسؤول مسؤولية تامة عن حفظ بيانات الدخول وسرية كلمة المرور الخاصة بحسابك، ولا نتحمل أي مسؤولية عن أي سوء استخدام ناتج عن مشاركة بيانات حسابك مع أطراف أخرى. ويشترط ألا يقل العمر عن 18 عاماً للاشتراك والبيع بالمنصة.
+                  </p>
+                </div>
+              </section>
+
+              {/* 8. الاستخدام المقبول والمحظور */}
+              <section className="relative">
+                <h2 className="text-2xl sm:text-3xl font-black mb-6 text-accent-900 dark:text-white relative z-10">8. الاستخدام المقبول والمحظور</h2>
+                <div className="space-y-4">
+                  <p className="text-base sm:text-lg text-accent-600 dark:text-gray-300 leading-relaxed font-medium">
+                    يُلتزم جميع أعضاء المنصة بالاستخدام البناء للموقع، ويمنع منعاً باتاً القيام بالتالي:
+                  </p>
+                  <ul className="space-y-3 text-base sm:text-lg text-accent-600 dark:text-gray-300 font-medium">
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2.5 flex-shrink-0" />
+                      <span>استخدام المنصة أو القوالب أو الودجتس في انتهاك أي قوانين معمول بها.</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2.5 flex-shrink-0" />
+                      <span>محاولة اختراق النظام، أو استغلال ثغرات، أو رفع ملفات برمجية ضارة وخبيثة للموقع.</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2.5 flex-shrink-0" />
+                      <span>مشاركة روابط تحميل القوالب المدفوعة مع غير المشترين للتهرب من الرسوم المفروضة.</span>
+                    </li>
+                  </ul>
+                </div>
+              </section>
+
+              {/* 9. إخلاء المسؤولية وحدود المسؤولية */}
+              <section className="relative">
+                <h2 className="text-2xl sm:text-3xl font-black mb-6 text-accent-900 dark:text-white relative z-10">9. إخلاء المسؤولية وحدود المسؤولية</h2>
+                <div className="space-y-4">
+                  <p className="text-base sm:text-lg text-accent-600 dark:text-gray-300 leading-relaxed font-medium">
+                    نحن في عرب نوشن نقدم منصة مجتمعية وأدوات لمساعدتك، ولكننا نخلي مسؤوليتنا عن التالي:
+                  </p>
+                  <ul className="space-y-3 text-base sm:text-lg text-accent-600 dark:text-gray-300 font-medium">
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2.5 flex-shrink-0" />
+                      <span>أي توقف للأعمال، أو تلف/خسارة في البيانات بمساحة عملك على Notion بسبب الاستخدام الخاطئ للقوالب أو الودجتس.</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2.5 flex-shrink-0" />
+                      <span>أي تغييرات فنية مفاجئة تجريها شركة Notion الأم قد تؤثر مؤقتاً أو دائماً على تفعيل القوالب أو الودجتس.</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2.5 flex-shrink-0" />
+                      <span>تقتصر مسؤوليتنا المالية القصوى تجاهك عن أي أضرار أو مطالبات على المبلغ المالي الفعلي الذي دفعته عبر المنصة لقاء شراء المنتج الرقمي ذي الصلة.</span>
+                    </li>
+                  </ul>
+                </div>
+              </section>
+
+              {/* 10. تعديل الشروط والأحكام */}
+              <section className="relative">
+                <h2 className="text-2xl sm:text-3xl font-black mb-6 text-accent-900 dark:text-white relative z-10">10. تعديل الشروط والأحكام</h2>
+                <p className="text-base sm:text-lg text-accent-600 dark:text-gray-300 leading-relaxed font-medium">
+                  نحتفظ بالحق في تعديل أو تحديث هذه الشروط في أي وقت. وتصبح التعديلات سارية المفعول فور نشرها على الموقع. استمرار استخدامك للمنصة وتحميل المنتجات بعد التعديل يعني قبولك الضمني للشروط المحدثة.
+                </p>
+              </section>
+
+              {/* 11. القانون المطبق */}
+              <section className="relative">
+                <h2 className="text-2xl sm:text-3xl font-black mb-6 text-accent-900 dark:text-white relative z-10">11. القانون المطبق والنزاعات</h2>
+                <p className="text-base sm:text-lg text-accent-600 dark:text-gray-300 leading-relaxed font-medium">
+                  تخضع هذه الشروط والأحكام وتفسر وفقاً لقوانين جمهورية مصر العربية، وتخضع أي نزاعات قضائية تنشأ عنها ولا تسوى ودياً لاختصاص محاكم القاهرة الحصري.
+                </p>
+              </section>
+
+              {/* 12. التواصل معنا */}
+              <section className="relative">
+                <h2 className="text-2xl sm:text-3xl font-black mb-6 text-accent-900 dark:text-white relative z-10">12. التواصل معنا</h2>
+                <p className="text-base sm:text-lg text-accent-600 dark:text-gray-300 leading-relaxed mb-6 font-medium">
+                  لأي استفسار أو لتقديم طلبات الاسترداد والشكاوى، يمكنك التواصل مع الدعم الفني للمنصة عبر القنوات التالية:
+                </p>
+                <div className="bg-white/50 dark:bg-white/5 backdrop-blur-xl p-8 rounded-[2rem] shadow-soft space-y-4">
+                  <p className="text-lg sm:text-xl text-accent-900 dark:text-white font-black">
+                    <span className="opacity-40 uppercase tracking-widest text-xs block mb-2">البريد الإلكتروني</span>
+                    support@notionarabs.com
+                  </p>
+                  <p className="text-lg sm:text-xl text-accent-900 dark:text-white font-black">
+                    <span className="opacity-40 uppercase tracking-widest text-xs block mb-2">الخط الساخن</span>
+                    <span dir="ltr">+20 114 509 6563</span>
                   </p>
                 </div>
               </section>
             </div>
-          </div>
           </div>
         </div>
       </section>
@@ -332,8 +255,3 @@ export default function TermsPage() {
     </main>
   );
 }
-
-
-
-
-

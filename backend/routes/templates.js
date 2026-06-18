@@ -456,7 +456,8 @@ router.get('/', cacheMiddleware(3600), async (req, res) => {
       limit = 12,
       isPaid,
       minRating,
-      language
+      language,
+      ids
     } = req.query;
 
     // If no search term, use optimized server-side pagination
@@ -471,7 +472,8 @@ router.get('/', cacheMiddleware(3600), async (req, res) => {
         limit,
         isPaid,
         minRating,
-        language
+        language,
+        ids
       });
     }
 

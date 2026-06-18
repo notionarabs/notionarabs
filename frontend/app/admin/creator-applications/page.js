@@ -4,31 +4,24 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import api from '../../../lib/api';
 import { useToast } from '../../../contexts/ToastContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Star, Zap, Crown, Award, CheckCircle, Heart, Pin, PinOff,
-  Layout, Clock, ThumbsUp, Trash2, AlertCircle, Eye, Download,
-  ExternalLink, Calendar, Tag, CreditCard, ChevronLeft, Search,
-  Filter, XCircle, User as UserIcon, Mail, Phone, Briefcase,
-  GraduationCap, MessageSquare, Medal, PlusCircle, ArrowRight, ArrowLeft, TrendingUp, Activity
+  Clock,
+  CheckCircle,
+  XCircle,
+  Layout,
+  ArrowRight,
+  User as UserIcon,
+  Activity
 } from 'lucide-react';
 import { BreadcrumbWrapper } from '../../../components/Breadcrumb.js';
 
-// Map badge types to Lucide icons
-const getBadgeIcon = (badgeType) => {
-  const iconMap = {
-    'verified': CheckCircle,
-    'top-creator': Star,
-    'best-creator': Crown,
-    'active': Zap,
-    'community-favorite': Heart,
-    'trusted': Award
-  };
-  return iconMap[badgeType] || Star;
-};
+// Import subcomponents
+import ApplicationFilters from './components/ApplicationFilters';
+import ApplicationCard from './components/ApplicationCard';
+import BadgeModal from './components/BadgeModal';
 
 export default function CreatorApplicationsPage() {
   const [applications, setApplications] = useState([]);
@@ -45,7 +38,6 @@ export default function CreatorApplicationsPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [badgeFilter, setBadgeFilter] = useState('all');
   const [sortBy, setSortBy] = useState('date-desc');
-  const [showFilters, setShowFilters] = useState(false);
   const [imageErrors, setImageErrors] = useState({});
   const [pinLoading, setPinLoading] = useState(null);
   const { user, isAuthenticated, loading: authLoading, refreshUserData, ensureTokenInHeaders } = useAuth();
@@ -328,9 +320,9 @@ export default function CreatorApplicationsPage() {
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="space-y-2"
+              className="space-y-2 text-right"
             >
-              <div className="flex items-center gap-3 mb-1">
+              <div className="flex items-center gap-3 mb-1 justify-start">
                 <div className="p-2 bg-orange-500/10 rounded-xl">
                   <UserIcon className="w-5 h-5 text-orange-500" />
                 </div>
@@ -373,13 +365,13 @@ export default function CreatorApplicationsPage() {
                 <div className="h-full bg-white dark:bg-dark-secondary rounded-3xl p-6 border border-gray-100 dark:border-dark-card-border shadow-soft hover:shadow-large transition-all duration-300">
                   <div className={`absolute -right-4 -bottom-4 w-24 h-24 bg-gradient-to-br ${stat.gradient} opacity-[0.03] group-hover:opacity-[0.08] transition-opacity rounded-full`} />
 
-                  <div className="flex flex-col gap-4 relative z-10">
+                  <div className="flex flex-col gap-4 relative z-10 text-right">
                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br ${stat.gradient} text-white shadow-glow-${stat.color === 'amber' ? 'orange' : stat.color} group-hover:scale-110 transition-transform duration-300`}>
                       <stat.icon className="w-6 h-6" />
                     </div>
                     <div>
                       <h3 className="text-accent-400 dark:text-dark-text-tertiary text-xs font-black uppercase tracking-widest mb-1">{stat.label}</h3>
-                      <div className="flex items-end gap-2">
+                      <div className="flex items-end gap-2 justify-start">
                         <span className="text-3xl font-black text-accent-500 dark:text-dark-text-primary">{stat.value}</span>
                         {stat.id === 'pending' && stat.value > 0 && (
                           <span className="flex h-2 w-2 mb-2 relative">
@@ -401,110 +393,24 @@ export default function CreatorApplicationsPage() {
             <h2 className="text-2xl font-black text-accent-500 dark:text-dark-text-primary">طلبات الانضمام</h2>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white/70 dark:bg-dark-secondary/70 backdrop-blur-md rounded-[2rem] border border-gray-100 dark:border-dark-card-border p-6 mb-10 shadow-medium"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
-              <div className="md:col-span-12 lg:col-span-4 relative">
-                <label className="text-[10px] font-black text-accent-300 uppercase tracking-widest mb-2 flex items-center gap-2 pr-1">
-                  <Search className="w-3 h-3" />
-                  البحث عن مبدع
-                </label>
-                <div className="relative group">
-                  <input
-                    type="text"
-                    placeholder="الاسم، البريد أو التخصص..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full bg-gray-50/50 dark:bg-dark-tertiary/50 border border-gray-100 dark:border-dark-card-border pr-12 pl-4 py-4 rounded-2xl text-sm font-bold outline-none transition-all focus:bg-white dark:focus:bg-dark-tertiary ring-2 ring-transparent focus:ring-orange-500/10 text-right"
-                  />
-                  <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-accent-300 group-focus-within:text-orange-500 transition-colors" />
-                </div>
-              </div>
-
-              <div className="md:col-span-6 lg:col-span-2">
-                <label className="text-[10px] font-black text-accent-300 uppercase tracking-widest mb-2 flex items-center gap-2 pr-1">
-                  <Filter className="w-3 h-3" />
-                  حالة الطلب
-                </label>
-                <div className="relative">
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="w-full bg-gray-50/50 dark:bg-dark-tertiary/50 border border-gray-100 dark:border-dark-card-border appearance-none pr-12 pl-10 py-4 rounded-2xl text-sm font-bold outline-none cursor-pointer transition-all hover:bg-white dark:hover:bg-dark-tertiary ring-2 ring-transparent hover:ring-orange-500/5 text-right"
-                  >
-                    <option value="all">كل الحالات</option>
-                    <option value="pending">قيد المراجعة</option>
-                    <option value="approved">مقبولة</option>
-                    <option value="rejected">مرفوضة</option>
-                  </select>
-                  <Filter className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-accent-300 pointer-events-none" />
-                  <ChevronLeft className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-accent-300 pointer-events-none -rotate-90" />
-                </div>
-              </div>
-
-              <div className="md:col-span-6 lg:col-span-2">
-                <label className="text-[10px] font-black text-accent-300 uppercase tracking-widest mb-2 flex items-center gap-2 pr-1">
-                  <Medal className="w-3 h-3" />
-                  تصفية الشارات
-                </label>
-                <div className="relative">
-                  <select
-                    value={badgeFilter}
-                    onChange={(e) => setBadgeFilter(e.target.value)}
-                    className="w-full bg-gray-50/50 dark:bg-dark-tertiary/50 border border-gray-100 dark:border-dark-card-border appearance-none pr-12 pl-10 py-4 rounded-2xl text-sm font-bold outline-none cursor-pointer transition-all hover:bg-white dark:hover:bg-dark-tertiary ring-2 ring-transparent hover:ring-orange-500/5 text-right"
-                  >
-                    <option value="all">كل الشارات</option>
-                    <option value="with-badges">المزود بشارات</option>
-                    <option value="no-badges">بدون شارات</option>
-                    {badgePresets?.userBadges?.map(badge => (
-                      <option key={badge.type} value={badge.type}>{badge.label}</option>
-                    ))}
-                  </select>
-                  <Medal className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-accent-300 pointer-events-none" />
-                  <ChevronLeft className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-accent-300 pointer-events-none -rotate-90" />
-                </div>
-              </div>
-
-              <div className="md:col-span-6 lg:col-span-3">
-                <label className="text-[10px] font-black text-accent-300 uppercase tracking-widest mb-2 flex items-center gap-2 pr-1">
-                  <TrendingUp className="w-3 h-3" />
-                  ترتيب النتائج
-                </label>
-                <div className="relative">
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="w-full bg-gray-50/50 dark:bg-dark-tertiary/50 border border-gray-100 dark:border-dark-card-border appearance-none pr-12 pl-10 py-4 rounded-2xl text-sm font-bold outline-none cursor-pointer transition-all hover:bg-white dark:hover:bg-dark-tertiary ring-2 ring-transparent hover:ring-orange-500/5 text-right"
-                  >
-                    <option value="date-desc">الأحدث أولاً</option>
-                    <option value="date-asc">الأقدم أولاً</option>
-                    <option value="name-asc">الاسم (أ - ي)</option>
-                    <option value="name-desc">الاسم (ي - أ)</option>
-                  </select>
-                  <TrendingUp className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-accent-300 pointer-events-none" />
-                  <ChevronLeft className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-accent-300 pointer-events-none -rotate-90" />
-                </div>
-              </div>
-
-              <div className="md:col-span-1 lg:col-span-1">
-                <button
-                  onClick={() => {
-                    setSearchTerm('');
-                    setStatusFilter('all');
-                    setBadgeFilter('all');
-                    setSortBy('date-desc');
-                  }}
-                  className="w-full h-[54px] flex items-center justify-center bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 text-rose-500 rounded-2xl transition-all border border-rose-100/50"
-                  title="إعادة ضبط الفلاتر"
-                >
-                  <XCircle className="w-6 h-6" />
-                </button>
-              </div>
-            </div>
-          </motion.div>
+          {/* Filters Component */}
+          <ApplicationFilters
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            badgeFilter={badgeFilter}
+            setBadgeFilter={setBadgeFilter}
+            badgePresets={badgePresets}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            resetFilters={() => {
+              setSearchTerm('');
+              setStatusFilter('all');
+              setBadgeFilter('all');
+              setSortBy('date-desc');
+            }}
+          />
 
           {/* Results Info */}
           <div className="flex items-center justify-between mb-8 px-4">
@@ -543,241 +449,20 @@ export default function CreatorApplicationsPage() {
                   <p className="text-accent-400 dark:text-dark-text-tertiary font-bold italic">لم نتمكن من العثور على أي طلبات تطابق معايير البحث</p>
                 </motion.div>
               ) : (
-                sortedApplications.map((app, index) => (
-                  <motion.div
-                    layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
+                sortedApplications.map((app) => (
+                  <ApplicationCard
                     key={app.id}
-                    className={`group bg-white dark:bg-dark-secondary rounded-[2.5rem] border transition-all duration-500 shadow-soft ${expandedApplications[app.id] ? 'ring-4 ring-orange-500/10 border-orange-500/30 shadow-large' : 'border-gray-100 dark:border-dark-card-border hover:border-orange-500/20 hover:translate-y-[-4px]'}`}
-                  >
-                    {/* Compact Header */}
-                    <div
-                      onClick={() => toggleApplicationDetails(app.id)}
-                      className="p-6 flex flex-col md:flex-row items-center gap-6 cursor-pointer"
-                    >
-                      <div className="flex items-center gap-5 flex-1 w-full">
-                        <div className="relative w-16 h-16 rounded-[1.5rem] overflow-hidden bg-primary-100 dark:bg-primary-500/10 flex-shrink-0 border-2 border-white dark:border-dark-secondary shadow-soft group-hover:scale-110 transition-transform duration-500">
-                          {app.profilePicture && !imageErrors[app.id] ? (
-                            <Image
-                              src={app.profilePicture}
-                              alt={app.name || 'User'}
-                              width={64}
-                              height={64}
-                              className="w-full h-full object-cover"
-                              onError={() => handleImageError(app.id)}
-                              unoptimized={app.profilePicture.startsWith('http')}
-                            />
-                          ) : (
-                            <UserIcon className="w-8 h-8 text-primary-500 m-auto" />
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </div>
-                        <div className="flex flex-col min-w-0">
-                          <div className="flex items-center gap-3">
-                            <h3 className="text-lg font-black text-gray-900 dark:text-white truncate">
-                              {app.name}
-                            </h3>
-                            {app.isPinned && (
-                              <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} className="p-1 bg-orange-500 rounded-lg shadow-glow-orange">
-                                <Pin className="w-3 h-3 text-white fill-current" />
-                              </motion.span>
-                            )}
-                          </div>
-                          <div className="flex flex-wrap items-center gap-4 mt-1.5">
-                            <span className="flex items-center gap-2 text-[11px] font-bold text-accent-300 dark:text-dark-text-tertiary">
-                              <Mail className="w-3.5 h-3.5 text-primary-500" />
-                              {app.email}
-                            </span>
-                            <span className="flex items-center gap-2 text-[11px] font-bold text-accent-300 dark:text-dark-text-tertiary">
-                              <Calendar className="w-3.5 h-3.5 text-amber-500" />
-                              {new Date(app.appliedAt).toLocaleDateString('ar-EG')}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
-                        <div className="flex flex-wrap gap-2 items-center">
-                          <span className={`px-5 py-2 rounded-2xl text-[11px] font-black uppercase tracking-widest ${app.creatorStatus === 'pending'
-                            ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-800/30'
-                            : app.creatorStatus === 'approved'
-                              ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800/30'
-                              : 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-800/30'
-                            }`}>
-                            {app.creatorStatus === 'pending' ? 'قيد المراجعة' : app.creatorStatus === 'approved' ? 'مقبول' : 'مرفوض'}
-                          </span>
-
-                          <div className="flex -space-x-2 space-x-reverse">
-                            {app.badges?.slice(0, 3).map((badge, bIdx) => (
-                              <div
-                                key={bIdx}
-                                className="w-9 h-9 rounded-xl flex items-center justify-center border-2 border-white dark:border-dark-secondary shadow-soft bg-white dark:bg-dark-tertiary transform hover:scale-125 hover:z-10 transition-all cursor-help"
-                                title={badge.label}
-                              >
-                                <span className="text-base">{badge.icon || '⭐'}</span>
-                              </div>
-                            ))}
-                            {app.badges?.length > 3 && (
-                              <div className="w-9 h-9 rounded-xl flex items-center justify-center border-2 border-white dark:border-dark-secondary bg-gray-50 dark:bg-dark-tertiary text-[10px] font-black text-accent-300">
-                                +{app.badges.length - 3}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        <button className={`p-3 bg-gray-50 dark:bg-dark-tertiary rounded-2xl text-accent-300 transition-all duration-500 ${expandedApplications[app.id] ? 'rotate-180 bg-orange-500/10 text-orange-500' : 'group-hover:bg-orange-500/5 group-hover:text-orange-500'}`}>
-                          <ChevronLeft className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Expanded Body */}
-                    <AnimatePresence>
-                      {expandedApplications[app.id] && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.4, ease: "easeInOut" }}
-                          className="overflow-hidden"
-                        >
-                          <div className="px-8 pb-8 pt-2 border-t border-gray-50 dark:border-dark-card-border">
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-8">
-                              <div className="space-y-8">
-                                <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
-                                  <label className="flex items-center gap-2 text-[11px] font-black text-accent-300 uppercase tracking-widest mb-3">
-                                    <div className="p-1.5 bg-orange-50 dark:bg-orange-500/10 rounded-lg">
-                                      <Briefcase className="w-3.5 h-3.5 text-orange-500" />
-                                    </div>
-                                    رابط المعرض / الأعمال
-                                  </label>
-                                  <a
-                                    href={app.portfolio}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="group inline-flex items-center gap-3 text-sm font-black text-primary-500 hover:text-white transition-all bg-primary-50 dark:bg-primary-500/10 hover:bg-primary-500 px-6 py-3.5 rounded-[1.25rem] shadow-soft hover:shadow-glow-primary"
-                                  >
-                                    <ExternalLink className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                                    مشاهدة المعرض
-                                    <ArrowLeft className="w-4 h-4 mr-1 opacity-0 group-hover:opacity-100 group-hover:translate-x-[-4px] transition-all" />
-                                  </a>
-                                </motion.div>
-
-                                <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2 }}>
-                                  <label className="flex items-center gap-2 text-[11px] font-black text-accent-300 uppercase tracking-widest mb-3">
-                                    <div className="p-1.5 bg-emerald-50 dark:bg-emerald-500/10 rounded-lg">
-                                      <Phone className="w-3.5 h-3.5 text-emerald-500" />
-                                    </div>
-                                    رقم الهاتف
-                                  </label>
-                                  <p className="text-base font-black text-accent-500 dark:text-dark-text-primary px-5 py-3.5 bg-gray-50/80 dark:bg-dark-tertiary rounded-2xl inline-flex items-center gap-3">
-                                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                    {app.phone || 'غير متوفر'}
-                                  </p>
-                                </motion.div>
-
-                                <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.3 }}>
-                                  <label className="flex items-center gap-2 text-[11px] font-black text-accent-300 uppercase tracking-widest mb-3">
-                                    <div className="p-1.5 bg-purple-50 dark:bg-purple-500/10 rounded-lg">
-                                      <GraduationCap className="w-3.5 h-3.5 text-purple-500" />
-                                    </div>
-                                    تخصصات المبدع
-                                  </label>
-                                  <div className="flex flex-wrap gap-2.5">
-                                    {app.specialties?.length > 0 ? (
-                                      app.specialties.map((spec, sIdx) => (
-                                        <span key={sIdx} className="px-5 py-2.5 bg-white dark:bg-dark-tertiary border border-gray-100 dark:border-dark-card-border text-xs font-black text-accent-400 dark:text-dark-text-tertiary rounded-[1rem] shadow-soft hover:scale-105 transition-transform duration-300">
-                                          {spec}
-                                        </span>
-                                      ))
-                                    ) : (
-                                      <span className="text-xs italic text-accent-200">لم يتم تحديد تخصصات</span>
-                                    )}
-                                  </div>
-                                </motion.div>
-                              </div>
-
-                              <div className="space-y-8">
-                                <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2 }}>
-                                  <label className="flex items-center gap-2 text-[11px] font-black text-accent-300 uppercase tracking-widest mb-3">
-                                    <div className="p-1.5 bg-blue-50 dark:bg-blue-500/10 rounded-lg">
-                                      <MessageSquare className="w-3.5 h-3.5 text-blue-500" />
-                                    </div>
-                                    عن المبدع وخبرته
-                                  </label>
-                                  <div className="bg-gray-50/50 dark:bg-dark-tertiary/50 p-6 rounded-[2rem] border border-gray-100 dark:border-dark-card-border shadow-inner">
-                                    <p className="text-sm font-medium text-accent-400 dark:text-dark-text-secondary leading-loose mb-6">{app.experience}</p>
-                                    <div className="mt-6 pt-6 border-t border-gray-200/50 dark:border-dark-input-border/30">
-                                      <label className="block text-[10px] font-black text-accent-300 uppercase tracking-widest mb-3">الدافع للانضمام</label>
-                                      <div className="relative">
-                                        <p className="text-sm font-black text-accent-500 dark:text-dark-text-primary italic leading-relaxed pl-4">
-                                          "{app.motivation}"
-                                        </p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </motion.div>
-                              </div>
-                            </div>
-
-                            <motion.div
-                              initial={{ y: 20, opacity: 0 }}
-                              animate={{ y: 0, opacity: 1 }}
-                              transition={{ delay: 0.4 }}
-                              className="flex flex-wrap items-center gap-4 mt-12 pt-8 border-t border-gray-100 dark:border-dark-card-border"
-                            >
-                              {app.creatorStatus === 'pending' && (
-                                <>
-                                  <button
-                                    onClick={() => updateApplicationStatus(app.id, 'approved')}
-                                    className="group flex items-center gap-3 px-8 py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs hover:bg-emerald-600 transition-all shadow-glow-emerald hover:scale-105 active:scale-95"
-                                  >
-                                    <CheckCircle className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                                    الموافقة على الطلب
-                                  </button>
-                                  <button
-                                    onClick={() => updateApplicationStatus(app.id, 'rejected')}
-                                    className="group flex items-center gap-3 px-8 py-4 bg-rose-500 text-white rounded-2xl font-black text-xs hover:bg-rose-600 transition-all shadow-glow-rose hover:scale-105 active:scale-95"
-                                  >
-                                    <XCircle className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                                    رفض الطلب
-                                  </button>
-                                </>
-                              )}
-
-                              <button
-                                onClick={() => handleManageBadges(app)}
-                                className="group flex items-center gap-3 px-8 py-4 bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border text-accent-500 dark:text-dark-text-primary rounded-2xl font-black text-xs hover:border-orange-500/30 transition-all shadow-soft hover:scale-105 active:scale-95"
-                              >
-                                <Crown className="w-4 h-4 text-orange-500 group-hover:rotate-12 transition-transform" />
-                                إدارة الشارات والجوائز
-                              </button>
-
-                              {app.creatorStatus === 'approved' && (
-                                <button
-                                  onClick={() => handlePinCreator(app.id)}
-                                  disabled={pinLoading === app.id}
-                                  className={`group flex items-center gap-3 px-8 py-4 rounded-2xl font-black text-xs transition-all shadow-soft hover:scale-105 active:scale-95 ${app.isPinned
-                                    ? 'bg-orange-500 text-white shadow-glow-orange'
-                                    : 'bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border text-accent-500 dark:text-dark-text-primary hover:border-orange-500'
-                                    }`}
-                                >
-                                  {pinLoading === app.id ? (
-                                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                                  ) : (
-                                    app.isPinned ? <PinOff className="w-4 h-4 group-hover:rotate-12 transition-transform" /> : <Pin className="w-4 h-4 group-hover:rotate-12 transition-transform" />
-                                  )}
-                                  {app.isPinned ? 'إلغاء التثبيت من الرئيسية' : 'تثبيت بالصفحة الرئيسية'}
-                                </button>
-                              )}
-                            </motion.div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
+                    app={app}
+                    expanded={expandedApplications[app.id]}
+                    onToggle={() => toggleApplicationDetails(app.id)}
+                    imageError={imageErrors[app.id]}
+                    onImageError={() => handleImageError(app.id)}
+                    onUpdateStatus={updateApplicationStatus}
+                    onManageBadges={handleManageBadges}
+                    onPinCreator={handlePinCreator}
+                    pinLoading={pinLoading === app.id}
+                    user={user}
+                  />
                 ))
               )}
             </AnimatePresence>
@@ -785,131 +470,18 @@ export default function CreatorApplicationsPage() {
         </div>
       </div>
 
-      {/* Badge Management Modal */}
-      <AnimatePresence>
-        {showBadgeModal && selectedCreator && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-accent-900/60 backdrop-blur-md flex items-center justify-center z-[100] p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.9, y: 20, opacity: 0 }}
-              className="bg-white dark:bg-dark-secondary rounded-[2.5rem] shadow-2xl p-8 sm:p-10 max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-white/20 dark:border-dark-card-border relative"
-            >
-              <button
-                onClick={() => {
-                  setShowBadgeModal(false);
-                  setSelectedCreator(null);
-                  setSelectedBadgeType('');
-                }}
-                className="absolute top-8 left-8 p-2 bg-gray-50 dark:bg-dark-tertiary text-accent-300 hover:text-rose-500 rounded-full transition-colors"
-              >
-                <XCircle className="w-6 h-6" />
-              </button>
-
-              <div className="mb-10">
-                <h3 className="text-3xl font-black text-accent-500 dark:text-dark-text-primary mb-2">إدارة الشارات</h3>
-                <p className="text-accent-400 dark:text-dark-text-tertiary font-bold flex items-center gap-2">
-                  <UserIcon className="w-4 h-4 text-orange-500" />
-                  {selectedCreator.name}
-                </p>
-              </div>
-
-              {/* Current Badges */}
-              <div className="mb-10">
-                <h4 className="flex items-center gap-2 text-xs font-black text-accent-300 uppercase tracking-widest mb-4">
-                  <Medal className="w-4 h-4 text-amber-500" />
-                  الشارات الحالية
-                </h4>
-                {selectedCreator.badges && selectedCreator.badges.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {selectedCreator.badges.map((badge) => (
-                      <div
-                        key={badge._id || badge.type || `badge-${badge.label}`}
-                        className="group flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-dark-tertiary border border-gray-100 dark:border-dark-card-border rounded-xl shadow-soft transition-all hover:scale-105"
-                      >
-                        <span className="text-sm">{badge.icon || '⭐'}</span>
-                        <span className="text-[11px] font-black text-accent-400" style={{ color: badge.color }}>{badge.label}</span>
-                        <button
-                          onClick={() => handleRemoveBadge(selectedCreator.id, badge._id)}
-                          className="p-1 text-accent-200 hover:text-rose-500 transition-colors"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-8 bg-gray-50 dark:bg-dark-tertiary/50 border border-dashed border-gray-200 dark:border-dark-card-border rounded-2xl text-center italic text-accent-200 text-xs">
-                    لا توجد شارات نشطة حالياً
-                  </div>
-                )}
-              </div>
-
-              {/* Add New Badge */}
-              <div className="bg-gray-50 dark:bg-dark-tertiary/30 rounded-3xl p-8 border border-gray-100 dark:border-dark-card-border">
-                <h4 className="flex items-center gap-2 text-xs font-black text-accent-300 uppercase tracking-widest mb-6">
-                  <PlusCircle className="w-4 h-4 text-primary-500" />
-                  إضافة شارة جديدة
-                </h4>
-                {badgePresets ? (
-                  <div className="space-y-6">
-                    <div className="relative">
-                      <select
-                        value={selectedBadgeType}
-                        onChange={(e) => setSelectedBadgeType(e.target.value)}
-                        className="w-full bg-white dark:bg-dark-secondary border border-gray-100 dark:border-dark-card-border px-6 py-4 rounded-2xl text-sm font-bold text-accent-400 outline-none focus:ring-2 focus:ring-primary-500/20 appearance-none shadow-soft"
-                      >
-                        <option value="">اختر شارة من القائمة...</option>
-                        {badgePresets.userBadges
-                          .filter(badge => !selectedCreator.badges?.some(b => b.type === badge.type))
-                          .map((badge) => (
-                            <option key={badge.type} value={badge.type}>
-                              {badge.icon} {badge.label}
-                            </option>
-                          ))}
-                      </select>
-                      <ChevronLeft className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-accent-200 pointer-events-none -rotate-90" />
-                    </div>
-
-                    {selectedBadgeType && (
-                      <div className="p-6 bg-white dark:bg-dark-secondary rounded-2xl border border-gray-100 dark:border-dark-card-border">
-                        <p className="text-[10px] font-black text-accent-300 uppercase mb-3">معاينة الشارة</p>
-                        {badgePresets.userBadges
-                          .filter(badge => badge.type === selectedBadgeType)
-                          .map((badge) => (
-                            <div key={badge.type} className="inline-flex items-center gap-3 px-6 py-3 bg-gray-50 dark:bg-dark-tertiary rounded-2xl border border-gray-100 dark:border-dark-card-border shadow-soft">
-                              <span className="text-xl">{badge.icon}</span>
-                              <span className="text-sm font-black" style={{ color: badge.color }}>{badge.label}</span>
-                            </div>
-                          ))}
-                      </div>
-                    )}
-
-                    <div className="flex gap-4 pt-2">
-                      <button
-                        onClick={handleAddBadge}
-                        disabled={!selectedBadgeType || actionLoading}
-                        className="flex-1 py-4 bg-primary-500 text-white font-black text-xs rounded-2xl hover:bg-primary-600 transition-all disabled:opacity-50 shadow-glow-primary uppercase tracking-widest"
-                      >
-                        {actionLoading ? 'جاري الإضافة...' : 'تأكيد الإضافة'}
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center py-8">
-                    <div className="w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Badge Modal Component */}
+      <BadgeModal
+        isOpen={showBadgeModal}
+        onClose={() => setShowBadgeModal(false)}
+        creator={selectedCreator}
+        badgePresets={badgePresets}
+        selectedBadgeType={selectedBadgeType}
+        setSelectedBadgeType={setSelectedBadgeType}
+        onAddBadge={handleAddBadge}
+        onRemoveBadge={handleRemoveBadge}
+        actionLoading={actionLoading}
+      />
     </div>
   );
 }

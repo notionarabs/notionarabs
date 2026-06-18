@@ -16,9 +16,6 @@ export const useAppStore = create(
         sortOrder: 'desc',
       },
       
-      // Cart/Favorites State
-      favoriteTemplates: [],
-      
       // User Preferences
       userPreferences: {
         language: 'ar',
@@ -48,21 +45,6 @@ export const useAppStore = create(
         }
       }),
       
-      addToFavorites: (templateId) => set((state) => ({
-        favoriteTemplates: [...state.favoriteTemplates, templateId]
-      })),
-      removeFromFavorites: (templateId) => set((state) => ({
-        favoriteTemplates: state.favoriteTemplates.filter(id => id !== templateId)
-      })),
-      toggleFavorite: (templateId) => set((state) => {
-        const isFavorite = state.favoriteTemplates.includes(templateId);
-        return {
-          favoriteTemplates: isFavorite
-            ? state.favoriteTemplates.filter(id => id !== templateId)
-            : [...state.favoriteTemplates, templateId]
-        };
-      }),
-      
       updateUserPreferences: (preferences) => set((state) => ({
         userPreferences: { ...state.userPreferences, ...preferences }
       })),
@@ -71,7 +53,6 @@ export const useAppStore = create(
       name: 'notion-arabs-store',
       partialize: (state) => ({
         theme: state.theme,
-        favoriteTemplates: state.favoriteTemplates,
         userPreferences: state.userPreferences,
         searchFilters: state.searchFilters,
       }),

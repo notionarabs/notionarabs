@@ -47,9 +47,27 @@ async function checkAndExpireBoosts() {
  * Applies pinning priority, filters, and sorting in a single DB pass.
  */
 async function handleOptimizedPagination(req, res, options) {
-  const { category, creator, isPinned, sortBy, sortOrder, page, limit, isPaid, minRating, language } = options;
+  const { category, creator, isPinned, sortBy, sortOrder, page, limit, isPaid, minRating, language, ids } = options;
 
   const filter = { status: 'approved' };
+
+  if (ids) {
+    const idArray = ids.split(',').map(id => id.trim()).filter(id => id);
+    if (idArray.length > 0) {
+      filter.id = { $in: idArray };
+    } else {
+      return res.json({
+        success: true,
+        templates: [],
+        pagination: {
+          current: parseInt(page),
+          pages: 0,
+          total: 0,
+          limit: parseInt(limit)
+        }
+      });
+    }
+  }
 
   if (category && category !== 'all') filter.categories = category;
   if (creator) filter.creator = creator;

@@ -132,6 +132,30 @@ router.get('/users', auth, async (req, res) => {
         .lean()
     ]);
 
+    // Populate templatesCount dynamically for creators
+    const creatorIds = users.filter(u => u.role?.toLowerCase() === 'creator').map(u => (u._id || u.id || '').toString()).filter(Boolean);
+    if (creatorIds.length > 0) {
+      try {
+        const Template = require('../models/Template');
+        const templateStats = await Template.aggregate([
+          { $match: { creator: { $in: creatorIds } } },
+          { $group: { _id: '$creator', totalTemplates: { $sum: 1 } } }
+        ]);
+        const statsMap = {};
+        (templateStats || []).forEach(s => {
+          if (s._id) statsMap[s._id.toString()] = s.totalTemplates || 0;
+        });
+        users.forEach(u => {
+          if (u.role?.toLowerCase() === 'creator') {
+            const uid = (u._id || u.id || '').toString();
+            u.templatesCount = statsMap[uid] || 0;
+          }
+        });
+      } catch (err) {
+        console.error('Error populating templatesCount for admin users list:', err);
+      }
+    }
+
     res.json({
       success: true,
       count: totalCount,

@@ -167,10 +167,25 @@ const CreatorEarnings = () => {
                         </div>
                     </div>
 
-                    <div className="mt-4">
+                    <div className="mt-4 space-y-3">
                         <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/20 px-3.5 py-3 rounded-2xl flex items-center gap-2 border border-emerald-100/50 dark:border-emerald-900/10">
                             <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping shrink-0"></span>
                             <span>السحب التلقائي مفعل عند وصول رصيدك إلى {parseFloat(user?.payoutDetails?.autoPayoutThreshold || 500).toLocaleString('ar-EG')} ج.م. يتم تحويل الرصيد تلقائياً.</span>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-3 mt-2">
+                            <div className="bg-gray-50 dark:bg-dark-tertiary/20 p-3 rounded-2xl border border-gray-100/50 dark:border-white/5">
+                                <p className="text-[9px] text-gray-400 font-black uppercase mb-1">وسيلة السحب</p>
+                                <p className="text-xs font-black text-gray-900 dark:text-dark-text-primary">
+                                    {user?.payoutMethod === 'vodafone_cash' ? 'فودافون كاش' : 'تحويل بنكي IBAN'}
+                                </p>
+                            </div>
+                            <div className="bg-gray-50 dark:bg-dark-tertiary/20 p-3 rounded-2xl border border-gray-100/50 dark:border-white/5 overflow-hidden">
+                                <p className="text-[9px] text-gray-400 font-black uppercase mb-1">{payoutDetailLabel}</p>
+                                <p className="text-xs font-black text-gray-900 dark:text-dark-text-primary truncate font-mono select-all">
+                                    {payoutDetailValue}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -199,25 +214,28 @@ const CreatorEarnings = () => {
             </div>
 
             {/* Payout History Section */}
-            {payouts && payouts.length > 0 && (
-                <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-3xl shadow-sm overflow-hidden">
-                    <div className="p-6 sm:p-8 border-b border-gray-100 dark:border-white/5">
-                        <h3 className="text-lg font-black text-gray-900 dark:text-dark-text-primary">
-                            سجل طلبات السحب والحركات السابقة
-                        </h3>
-                    </div>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-right" dir="rtl">
-                            <thead>
-                                <tr className="bg-gray-50/50 dark:bg-dark-tertiary/20 border-b border-gray-100 dark:border-white/5">
-                                    <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">التاريخ والوقت</th>
-                                    <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">المبلغ المطلوب</th>
-                                    <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">وسيلة التحويل</th>
-                                    <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase text-center">حالة الطلب</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100 dark:divide-white/5">
-                                {payouts.map((payout) => (
+            <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-3xl shadow-sm overflow-hidden">
+                <div className="p-6 sm:p-8 border-b border-gray-100 dark:border-white/5">
+                    <h3 className="text-lg font-black text-gray-900 dark:text-dark-text-primary">
+                        سجل طلبات السحب والحركات السابقة
+                    </h3>
+                    <p className="text-[11px] text-gray-400 dark:text-dark-text-tertiary mt-0.5">
+                        سجل بكافة عمليات السحب والتحويلات المالية الصادرة لحسابك
+                    </p>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-right" dir="rtl">
+                        <thead>
+                            <tr className="bg-gray-50/50 dark:bg-dark-tertiary/20 border-b border-gray-100 dark:border-white/5">
+                                <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">التاريخ والوقت</th>
+                                <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">المبلغ المطلوب</th>
+                                <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">وسيلة التحويل</th>
+                                <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase text-center">حالة الطلب</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 dark:divide-white/5">
+                            {payouts && payouts.length > 0 ? (
+                                payouts.map((payout) => (
                                     <tr key={payout.id || payout._id} className="hover:bg-gray-50/30 dark:hover:bg-dark-tertiary/10 transition-colors">
                                         <td className="px-8 py-4 text-xs font-bold text-gray-700 dark:text-dark-text-secondary">
                                             {formatDate(payout.createdAt)}
@@ -240,12 +258,18 @@ const CreatorEarnings = () => {
                                             </span>
                                         </td>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="4" className="px-8 py-10 text-center text-xs font-bold text-gray-400 dark:text-dark-text-tertiary">
+                                        لا توجد طلبات سحب سابقة مسجلة في حسابك حتى الآن.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
-            )}
+            </div>
 
             {/* Payout policies guidelines block - Structured Luxury banner */}
             <div className="bg-primary-50/50 dark:bg-orange-500/5 rounded-3xl p-6 border border-primary-100/40 dark:border-orange-500/10">

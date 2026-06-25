@@ -25,6 +25,7 @@ export default function SalesContent() {
     const [viewMode, setViewMode] = useState('activity');
     const [pagination, setPagination] = useState({ current: 1, pages: 1, total: 0, limit: 20 });
     const [templateFilter, setTemplateFilter] = useState('all');
+    const [uniqueUsers, setUniqueUsers] = useState(0);
  
     const fetchData = async (page = 1, templateId) => {
         setIsLoading(true);
@@ -38,6 +39,7 @@ export default function SalesContent() {
             if (res?.data?.success) {
                 setRows(res.data.activity || []);
                 setPagination(res.data.pagination || { current: page, pages: 1, total: 0, limit: 20 });
+                setUniqueUsers(res.data.uniqueUsersCount || 0);
             }
         } catch (error) {
             console.error(`Error fetching activity:`, error);
@@ -74,9 +76,8 @@ export default function SalesContent() {
     // Calculate dynamic stats
     const stats = useMemo(() => {
         const total = pagination.total || 0;
-        const uniqueUsers = new Set(rows.map(r => r.userId || r.userEmail)).size;
         return { total, uniqueUsers };
-    }, [rows, pagination.total]);
+    }, [pagination.total, uniqueUsers]);
 
     return (
         <div className="space-y-8 pb-12" dir="rtl">

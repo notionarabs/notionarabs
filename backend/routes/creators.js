@@ -1069,6 +1069,7 @@ router.get('/me/activity', auth, async (req, res) => {
     // 3. Transform and Merge
     const formattedDownloads = (downloads || []).map(d => ({
       id: d._id,
+      userId: d.user?._id || d.userId || '',
       templateId: d.template?._id || d.templateId,
       templateTitle: d.template?.title || d.templateTitleSnapshot,
       userName: d.user?.name || 'مستخدم',
@@ -1081,6 +1082,7 @@ router.get('/me/activity', auth, async (req, res) => {
     const formattedSales = (sales || []).map(s => ({
       id: s.id,
       orderId: s.orderId,
+      userId: s.Order?.userId || '',
       templateId: s.templateId,
       templateTitle: s.name,
       userName: s.Order?.User?.name || 'مشتري',
@@ -1093,15 +1095,19 @@ router.get('/me/activity', auth, async (req, res) => {
     // Merge and remove duplicates (if a sale was also logged as a download)
     // We'll prioritize the 'sale' record if we find both for the same user, template and time
     const combined = [...formattedSales];
-    const saleKeys = new Set(formattedSales.map(s => `${s.userId}_${s.templateId}_${new Date(s.date).toDateString()}`));
+    const saleKeys = new Set(formattedSales.map(s => `${s.userId || s.userEmail}_${s.templateId}_${new Date(s.date).toDateString()}`));
 
     formattedDownloads.forEach(d => {
-      const key = `${d.userId}_${d.templateId}_${new Date(d.date).toDateString()}`;
+      const key = `${d.userId || d.userEmail}_${d.templateId}_${new Date(d.date).toDateString()}`;
       // Only add if it's not already accounted for as a sale
       if (!saleKeys.has(key)) {
         combined.push(d);
       }
     });
+
+    // Calculate unique users across all combined activity records
+    const uniqueUsersSet = new Set(combined.map(item => item.userEmail || item.userId).filter(Boolean));
+    const uniqueUsersCount = uniqueUsersSet.size;
 
     // Final Sort
     combined.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -1112,6 +1118,7 @@ router.get('/me/activity', auth, async (req, res) => {
     res.json({
       success: true,
       activity: paginated,
+      uniqueUsersCount,
       pagination: {
         current: page,
         pages: Math.ceil(combined.length / limit),

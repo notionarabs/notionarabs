@@ -66,9 +66,12 @@ export default function PaymentSettingsSection({ profileSettings, handleInputCha
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                                 </svg>
                             </div>
-                            <div className="text-right">
-                                <p className="font-bold text-gray-900 dark:text-dark-text-primary text-sm">فودافون كاش / محفظة إلكترونية</p>
-                                <p className="text-xs text-gray-500 dark:text-dark-text-secondary">تحويل سريع ومباشر</p>
+                            <div className="text-right flex-1">
+                                <div className="flex items-center justify-between gap-2 flex-wrap">
+                                    <p className="font-bold text-gray-900 dark:text-dark-text-primary text-sm">فودافون كاش / محفظة إلكترونية</p>
+                                    <span className="text-[10px] font-black bg-amber-500/15 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full select-none shrink-0">مصر فقط</span>
+                                </div>
+                                <p className="text-xs text-gray-500 dark:text-dark-text-secondary mt-0.5">تحويل سريع ومباشر</p>
                             </div>
                         </button>
 
@@ -81,9 +84,12 @@ export default function PaymentSettingsSection({ profileSettings, handleInputCha
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                                 </svg>
                             </div>
-                            <div className="text-right">
-                                <p className="font-bold text-gray-900 dark:text-dark-text-primary text-sm">تحويل بنكي</p>
-                                <p className="text-xs text-gray-500 dark:text-dark-text-secondary">للمبالغ الكبيرة (3-5 أيام)</p>
+                            <div className="text-right flex-1">
+                                <div className="flex items-center justify-between gap-2 flex-wrap">
+                                    <p className="font-bold text-gray-900 dark:text-dark-text-primary text-sm">تحويل بنكي</p>
+                                    <span className="text-[10px] font-black bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full select-none shrink-0">جميع الدول</span>
+                                </div>
+                                <p className="text-xs text-gray-500 dark:text-dark-text-secondary mt-0.5">للمبالغ الكبيرة (3-5 أيام)</p>
                             </div>
                         </button>
                     </div>

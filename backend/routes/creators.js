@@ -721,22 +721,65 @@ router.get('/me/stats', auth, async (req, res) => {
     const creatorIdStr = creatorId.toString();
     
     // Parallelize historical data gathering
-    const [historicalDownloadsRes, historicalSalesRes] = await Promise.all([
-      require('../utils/supabase')
+    let historicalDownloadsRes;
+    let historicalSalesData = [];
+
+    if (templateIds.length > 0) {
+      const supabase = require('../utils/supabase');
+      const [downloadsRes, orderItemsRes] = await Promise.all([
+        supabase
+          .from('DownloadLog')
+          .select('createdAt')
+          .eq('creatorId', creatorIdStr)
+          .gte('createdAt', daysAgo),
+        supabase
+          .from('OrderItem')
+          .select('price, orderId')
+          .in('templateId', templateIds)
+      ]);
+
+      historicalDownloadsRes = downloadsRes;
+      const orderItems = orderItemsRes.data || [];
+
+      const orderIds = orderItems.map(item => item.orderId).filter(Boolean);
+      if (orderIds.length > 0) {
+        const { data: orders, error: ordersErr } = await supabase
+          .from('Order')
+          .select('id, createdAt')
+          .in('id', orderIds)
+          .eq('status', 'COMPLETED')
+          .gte('createdAt', daysAgo);
+
+        if (ordersErr) throw ordersErr;
+
+        const ordersMap = {};
+        (orders || []).forEach(o => {
+          ordersMap[o.id] = o;
+        });
+
+        orderItems.forEach(item => {
+          const order = ordersMap[item.orderId];
+          if (order) {
+            historicalSalesData.push({
+              price: item.price,
+              Order: {
+                createdAt: order.createdAt
+              }
+            });
+          }
+        });
+      }
+    } else {
+      const supabase = require('../utils/supabase');
+      historicalDownloadsRes = await supabase
         .from('DownloadLog')
         .select('createdAt')
         .eq('creatorId', creatorIdStr)
-        .gte('createdAt', daysAgo),
-      templateIds.length > 0 ? require('../utils/supabase')
-        .from('OrderItem')
-        .select('price, Order!inner(createdAt)')
-        .in('templateId', templateIds)
-        .eq('Order.status', 'COMPLETED')
-        .gte('Order.createdAt', daysAgo) : Promise.resolve({ data: [] })
-    ]);
+        .gte('createdAt', daysAgo);
+    }
 
-    const historicalDownloads = historicalDownloadsRes.data || [];
-    const historicalSales = historicalSalesRes.data || [];
+    const historicalDownloads = historicalDownloadsRes?.data || [];
+    const historicalSales = historicalSalesData;
 
     // Group by day
     const dailyStatsMap = {};
@@ -866,35 +909,81 @@ router.get('/me/sales', auth, async (req, res) => {
     }
 
     // 2. Find OrderItems for these templates where parent order is COMPLETED
-    const { data: orderItems, error, count } = await require('../utils/supabase')
+    const supabase = require('../utils/supabase');
+    const { data: orderItems, error: itemsErr } = await supabase
       .from('OrderItem')
-      .select('*, Order!inner(userId, status, createdAt, User(name, email, username))', { count: 'exact' })
-      .in('templateId', templateIds)
-      .eq('Order.status', 'COMPLETED')
-      .order('Order(createdAt)', { ascending: false })
-      .range(skip, skip + limit - 1);
+      .select('id, orderId, templateId, name, price')
+      .in('templateId', templateIds);
 
-    if (error) throw error;
+    if (itemsErr) throw itemsErr;
+
+    const orderIds = orderItems ? orderItems.map(item => item.orderId).filter(Boolean) : [];
+    let orders = [];
+    if (orderIds.length > 0) {
+      const { data, error: ordersErr } = await supabase
+        .from('Order')
+        .select('id, userId, status, createdAt')
+        .in('id', orderIds)
+        .eq('status', 'COMPLETED');
+      if (ordersErr) throw ordersErr;
+      orders = data || [];
+    }
+
+    const ordersMap = {};
+    orders.forEach(o => {
+      ordersMap[o.id] = o;
+    });
+
+    const validItems = orderItems ? orderItems.filter(item => !!ordersMap[item.orderId]) : [];
+    
+    // Sort in-memory by order's createdAt descending
+    validItems.sort((a, b) => {
+      const dateA = new Date(ordersMap[a.orderId].createdAt);
+      const dateB = new Date(ordersMap[b.orderId].createdAt);
+      return dateB - dateA;
+    });
+
+    const count = validItems.length;
+    const paginatedItems = validItems.slice(skip, skip + limit);
+
+    const paginatedOrderIds = paginatedItems.map(item => item.orderId);
+    const paginatedUserIds = [...new Set(paginatedOrderIds.map(oid => ordersMap[oid].userId).filter(Boolean))];
+    
+    let usersMap = {};
+    if (paginatedUserIds.length > 0) {
+      const { data: users, error: usersErr } = await supabase
+        .from('User')
+        .select('id, name, email, username')
+        .in('id', paginatedUserIds);
+      if (usersErr) throw usersErr;
+      (users || []).forEach(u => {
+        usersMap[u.id] = u;
+      });
+    }
 
     res.json({
       success: true,
-      sales: (orderItems || []).map(item => ({
-        id: item.id,
-        orderId: item.orderId,
-        templateId: item.templateId,
-        templateTitle: item.name,
-        price: item.price,
-        buyer: {
-          name: item.Order?.User?.name || 'مستخدم',
-          username: item.Order?.User?.username,
-          email: item.Order?.User?.email
-        },
-        date: item.Order?.createdAt
-      })),
+      sales: paginatedItems.map(item => {
+        const order = ordersMap[item.orderId];
+        const buyerUser = usersMap[order.userId];
+        return {
+          id: item.id,
+          orderId: item.orderId,
+          templateId: item.templateId,
+          templateTitle: item.name,
+          price: item.price,
+          buyer: {
+            name: buyerUser?.name || 'مستخدم',
+            username: buyerUser?.username,
+            email: buyerUser?.email
+          },
+          date: order.createdAt
+        };
+      }),
       pagination: {
         current: page,
-        pages: Math.ceil((count || 0) / limit),
-        total: count || 0,
+        pages: Math.ceil(count / limit),
+        total: count,
         limit
       }
     });
@@ -1050,21 +1139,55 @@ router.get('/me/activity', auth, async (req, res) => {
     // We fetch a bit more for both to ensure we can merge them reasonably for the current page
     // For a truly scalable solution, a database-level UNION or a single table would be needed.
     // Given the context, we'll fetch the top 100 of each and merge them.
-    const [downloads, { data: sales }] = await Promise.all([
+    const supabase = require('../utils/supabase');
+    const [downloads, { data: orderItems, error: itemsErr }] = await Promise.all([
       DownloadLog.find(downloadsFilter)
         .populate('user', 'name email username')
         .populate('template', 'title previewImage')
         .sort({ createdAt: -1 })
         .limit(200)
         .lean(),
-      require('../utils/supabase')
+      supabase
         .from('OrderItem')
-        .select('*, Order!inner(userId, status, createdAt, User(name, email, username))')
+        .select('id, orderId, templateId, name, price')
         .in('templateId', templateIds)
-        .eq('Order.status', 'COMPLETED')
-        .order('Order(createdAt)', { ascending: false })
-        .limit(200)
     ]);
+
+    if (itemsErr) throw itemsErr;
+
+    const orderIds = orderItems ? orderItems.map(item => item.orderId).filter(Boolean) : [];
+    let orders = [];
+    if (orderIds.length > 0) {
+      const { data, error: ordersErr } = await supabase
+        .from('Order')
+        .select('id, userId, status, createdAt')
+        .in('id', orderIds)
+        .eq('status', 'COMPLETED');
+      if (ordersErr) throw ordersErr;
+      orders = data || [];
+    }
+
+    const ordersMap = {};
+    orders.forEach(o => {
+      ordersMap[o.id] = o;
+    });
+
+    const validItems = orderItems ? orderItems.filter(item => !!ordersMap[item.orderId]) : [];
+    validItems.sort((a, b) => new Date(ordersMap[b.orderId].createdAt) - new Date(ordersMap[a.orderId].createdAt));
+    const topSalesItems = validItems.slice(0, 200);
+
+    const userIds = [...new Set(topSalesItems.map(item => ordersMap[item.orderId].userId).filter(Boolean))];
+    let usersMap = {};
+    if (userIds.length > 0) {
+      const { data: users, error: usersErr } = await supabase
+        .from('User')
+        .select('id, name, email, username')
+        .in('id', userIds);
+      if (usersErr) throw usersErr;
+      (users || []).forEach(u => {
+        usersMap[u.id] = u;
+      });
+    }
 
     // 3. Transform and Merge
     const formattedDownloads = (downloads || []).map(d => ({
@@ -1079,18 +1202,22 @@ router.get('/me/activity', auth, async (req, res) => {
       price: 0
     }));
 
-    const formattedSales = (sales || []).map(s => ({
-      id: s.id,
-      orderId: s.orderId,
-      userId: s.Order?.userId || '',
-      templateId: s.templateId,
-      templateTitle: s.name,
-      userName: s.Order?.User?.name || 'مشتري',
-      userEmail: s.Order?.User?.email,
-      date: s.Order?.createdAt,
-      type: 'sale',
-      price: s.price
-    }));
+    const formattedSales = topSalesItems.map(s => {
+      const order = ordersMap[s.orderId];
+      const buyerUser = usersMap[order.userId];
+      return {
+        id: s.id,
+        orderId: s.orderId,
+        userId: order.userId || '',
+        templateId: s.templateId,
+        templateTitle: s.name,
+        userName: buyerUser?.name || 'مشتري',
+        userEmail: buyerUser?.email,
+        date: order.createdAt,
+        type: 'sale',
+        price: s.price
+      };
+    });
 
     // Merge and remove duplicates (if a sale was also logged as a download)
     // We'll prioritize the 'sale' record if we find both for the same user, template and time
@@ -1167,27 +1294,67 @@ router.get('/me/sales/export-public', async (req, res) => {
       return res.status(200).send('\uFEFFاسم المشتري,البريد الإلكتروني,القالب,السعر,التاريخ\n');
     }
 
-    let query = require('../utils/supabase')
+    const supabase = require('../utils/supabase');
+    let itemsQuery = supabase
       .from('OrderItem')
-      .select('*, Order!inner(userId, status, createdAt, User(name, email, username))')
-      .in('templateId', templateIds)
-      .eq('Order.status', 'COMPLETED');
+      .select('id, orderId, templateId, name, price')
+      .in('templateId', templateIds);
     
     if (templateId) {
-      query = query.eq('templateId', templateId);
+      itemsQuery = itemsQuery.eq('templateId', templateId);
     }
 
-    const { data: orderItems, error } = await query.order('Order(createdAt)', { ascending: false });
+    const { data: orderItems, error: itemsErr } = await itemsQuery;
+    if (itemsErr) throw itemsErr;
 
-    if (error) throw error;
+    const orderIds = orderItems ? orderItems.map(item => item.orderId).filter(Boolean) : [];
+    let orders = [];
+    if (orderIds.length > 0) {
+      const { data, error: ordersErr } = await supabase
+        .from('Order')
+        .select('id, userId, status, createdAt')
+        .in('id', orderIds)
+        .eq('status', 'COMPLETED');
+      if (ordersErr) throw ordersErr;
+      orders = data || [];
+    }
+
+    const ordersMap = {};
+    orders.forEach(o => {
+      ordersMap[o.id] = o;
+    });
+
+    const validItems = orderItems ? orderItems.filter(item => !!ordersMap[item.orderId]) : [];
+    
+    // Sort in-memory by order's createdAt descending
+    validItems.sort((a, b) => {
+      const dateA = new Date(ordersMap[a.orderId].createdAt);
+      const dateB = new Date(ordersMap[b.orderId].createdAt);
+      return dateB - dateA;
+    });
+
+    const userIds = [...new Set(validItems.map(item => ordersMap[item.orderId].userId).filter(Boolean))];
+    let usersMap = {};
+    if (userIds.length > 0) {
+      const { data: users, error: usersErr } = await supabase
+        .from('User')
+        .select('id, name, email, username')
+        .in('id', userIds);
+      if (usersErr) throw usersErr;
+      (users || []).forEach(u => {
+        usersMap[u.id] = u;
+      });
+    }
 
     const header = 'اسم المشتري,البريد الإلكتروني,القالب,السعر,التاريخ\n';
-    const csvRows = (orderItems || []).map((item) => {
-      const name = (item.Order?.User?.name || 'مستخدم').replace(/"/g, '""');
-      const email = (item.Order?.User?.email || '').replace(/"/g, '""');
+    const csvRows = validItems.map((item) => {
+      const order = ordersMap[item.orderId];
+      const buyerUser = usersMap[order.userId];
+      const name = (buyerUser?.name || 'مستخدم').replace(/"/g, '""');
+      const email = (buyerUser?.email || '').replace(/"/g, '""');
       const templateTitle = (item.name || '').replace(/"/g, '""');
       const price = item.price || 0;
-      const date = new Date(item.Order?.createdAt).toISOString();
+      const date = new Date(order.createdAt).toISOString();
       return `"${name}","${email}","${templateTitle}","${price}","${date}"`;
     }).join('\n');
 
@@ -1236,19 +1403,60 @@ router.get('/me/activity/export-public', async (req, res) => {
       return res.status(200).send('\uFEFFاسم المستخدم,البريد الإلكتروني,القالب,النوع,السعر,التاريخ\n');
     }
 
-    const [downloads, { data: sales }] = await Promise.all([
+    const supabase = require('../utils/supabase');
+    const [downloads, { data: orderItems, error: itemsErr }] = await Promise.all([
       DownloadLog.find({ creator: requesterId }).sort({ createdAt: -1 }).limit(1000).lean(),
-      require('../utils/supabase').from('OrderItem').select('*, Order!inner(*)').in('templateId', templateIds).eq('Order.status', 'COMPLETED').order('Order(createdAt)', { ascending: false }).limit(1000)
+      supabase.from('OrderItem').select('id, orderId, templateId, name, price').in('templateId', templateIds)
     ]);
 
-    const formattedSales = (sales || []).map(s => ({
-      name: s.Order?.User?.name || 'مشتري',
-      email: s.Order?.User?.email || '',
-      template: s.name,
-      type: 'بيع مدفوع',
-      price: s.price,
-      date: s.Order?.createdAt
-    }));
+    if (itemsErr) throw itemsErr;
+
+    const orderIds = orderItems ? orderItems.map(item => item.orderId).filter(Boolean) : [];
+    let orders = [];
+    if (orderIds.length > 0) {
+      const { data, error: ordersErr } = await supabase
+        .from('Order')
+        .select('id, userId, status, createdAt')
+        .in('id', orderIds)
+        .eq('status', 'COMPLETED');
+      if (ordersErr) throw ordersErr;
+      orders = data || [];
+    }
+
+    const ordersMap = {};
+    orders.forEach(o => {
+      ordersMap[o.id] = o;
+    });
+
+    const validItems = orderItems ? orderItems.filter(item => !!ordersMap[item.orderId]) : [];
+    validItems.sort((a, b) => new Date(ordersMap[b.orderId].createdAt) - new Date(ordersMap[a.orderId].createdAt));
+    const topSalesItems = validItems.slice(0, 1000);
+
+    const userIds = [...new Set(topSalesItems.map(item => ordersMap[item.orderId].userId).filter(Boolean))];
+    let usersMap = {};
+    if (userIds.length > 0) {
+      const { data: users, error: usersErr } = await supabase
+        .from('User')
+        .select('id, name, email, username')
+        .in('id', userIds);
+      if (usersErr) throw usersErr;
+      (users || []).forEach(u => {
+        usersMap[u.id] = u;
+      });
+    }
+
+    const formattedSales = topSalesItems.map(s => {
+      const order = ordersMap[s.orderId];
+      const buyerUser = usersMap[order.userId];
+      return {
+        name: buyerUser?.name || 'مشتري',
+        email: buyerUser?.email || '',
+        template: s.name,
+        type: 'بيع مدفوع',
+        price: s.price,
+        date: order.createdAt
+      };
+    });
 
     const formattedDownloads = (downloads || []).map(d => ({
       name: d.user?.name || d.userName || 'مستخدم',

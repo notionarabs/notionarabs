@@ -352,15 +352,24 @@ router.get('/:targetType/:targetId', cacheMiddleware(300), async (req, res) => {
     const ratingsWithVerification = await Promise.all(ratings.map(async (r) => {
       let isVerified = false;
       if (targetType === 'template') {
-        const { data: orderItem } = await supabase
+        const { data: orderItems } = await supabase
           .from('OrderItem')
-          .select('id, Order!inner(status, userId)')
-          .eq('templateId', targetId)
-          .eq('Order.userId', r.user?._id || r.userId)
-          .eq('Order.status', 'COMPLETED')
-          .maybeSingle();
-        
-        isVerified = !!orderItem;
+          .select('orderId')
+          .eq('templateId', targetId);
+
+        if (orderItems && orderItems.length > 0) {
+          const orderIds = orderItems.map(item => item.orderId);
+          const userId = r.user?._id || r.userId;
+          const { data: order } = await supabase
+            .from('Order')
+            .select('id')
+            .in('id', orderIds)
+            .eq('userId', userId)
+            .eq('status', 'COMPLETED')
+            .limit(1)
+            .maybeSingle();
+          isVerified = !!order;
+        }
       }
       return { ...r, isVerified };
     }));

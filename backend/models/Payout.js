@@ -47,7 +47,10 @@ class Payout {
             payouts = await Promise.all(payouts.map(async (p) => {
                 if (p.creatorId) {
                     const creator = await User.findById(p.creatorId);
-                    if (creator) p.creator = creator;
+                    if (creator) {
+                        p.creator = creator;
+                        p.creatorId = creator;
+                    }
                 }
                 return p;
             }));

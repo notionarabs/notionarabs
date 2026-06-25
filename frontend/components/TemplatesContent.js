@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { 
     CheckCircle, Clock, XCircle, Plus, FileDown, FileUp, 
     Trash2, Edit, ExternalLink, Star, Eye, Calendar, 
-    Package, Filter, Loader2, RefreshCw, Sparkles
+    Package, Filter, Loader2, RefreshCw, Sparkles, Search
 } from 'lucide-react';
 import Image from 'next/image';
 import { useAuth } from '../contexts/AuthContext';
@@ -26,6 +26,7 @@ export default function TemplatesContent() {
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [isExportModalOpen, setIsExportModalOpen] = useState(false);
     const [isActionLoading, setIsActionLoading] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
     const router = useRouter();
 
 
@@ -98,9 +99,13 @@ export default function TemplatesContent() {
         }
     };
 
-    const filteredTemplates = selectedStatus === 'all'
-        ? templates
-        : templates.filter(template => template.status?.toLowerCase() === selectedStatus.toLowerCase());
+    const filteredTemplates = templates.filter(template => {
+        const matchesStatus = selectedStatus === 'all' || template.status?.toLowerCase() === selectedStatus.toLowerCase();
+        const matchesSearch = !searchQuery.trim() || 
+            template.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+            template.description?.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesStatus && matchesSearch;
+    });
 
     return (
         <div className="space-y-8 pb-12" dir="rtl">
@@ -166,32 +171,46 @@ export default function TemplatesContent() {
             </div>
 
             {/* Interactive Filters Bar */}
-            <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-3xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
-                <div className="flex items-center gap-2">
-                    <Filter size={16} className="text-primary-500" />
-                    <span className="text-xs font-black text-gray-700 dark:text-dark-text-primary">تصفية القوالب المعروضة:</span>
+            <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-3xl p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 shadow-sm">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full lg:w-auto">
+                    <div className="flex items-center gap-2">
+                        <Filter size={16} className="text-primary-500" />
+                        <span className="text-xs font-black text-gray-700 dark:text-dark-text-primary">تصفية القوالب المعروضة:</span>
+                    </div>
+                    
+                    {/* Horizontal Segment Switcher */}
+                    <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0 w-full sm:w-auto scrollbar-hide">
+                        {[
+                            { id: 'all', label: 'جميع الحالات' },
+                            { id: 'pending', label: 'قيد المراجعة' },
+                            { id: 'approved', label: 'موافق عليها' },
+                            { id: 'rejected', label: 'مرفوضة' }
+                        ].map(tab => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setSelectedStatus(tab.id)}
+                                className={`px-4 py-2 rounded-xl text-xs font-black transition-all border-none relative flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0 ${
+                                    selectedStatus === tab.id
+                                        ? 'bg-primary-500 text-white shadow-glow'
+                                        : 'bg-gray-50 dark:bg-dark-tertiary text-gray-500 dark:text-dark-text-secondary hover:bg-gray-100 dark:hover:bg-dark-tertiary/80'
+                                }`}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
-                
-                {/* Horizontal Segment Switcher */}
-                <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0 w-full sm:w-auto scrollbar-hide">
-                    {[
-                        { id: 'all', label: 'جميع الحالات' },
-                        { id: 'pending', label: 'قيد المراجعة' },
-                        { id: 'approved', label: 'موافق عليها' },
-                        { id: 'rejected', label: 'مرفوضة' }
-                    ].map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setSelectedStatus(tab.id)}
-                            className={`px-4 py-2 rounded-xl text-xs font-black transition-all border-none relative flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0 ${
-                                selectedStatus === tab.id
-                                    ? 'bg-primary-500 text-white shadow-glow'
-                                    : 'bg-gray-50 dark:bg-dark-tertiary text-gray-500 dark:text-dark-text-secondary hover:bg-gray-100 dark:hover:bg-dark-tertiary/80'
-                            }`}
-                        >
-                            {tab.label}
-                        </button>
-                    ))}
+
+                {/* Search Bar Input */}
+                <div className="relative w-full lg:w-72">
+                    <input
+                        type="text"
+                        placeholder="ابحث باسم القالب أو وصفه..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-dark-tertiary text-gray-900 dark:text-dark-text-primary text-xs font-bold rounded-xl border border-gray-100 dark:border-white/5 focus:outline-none focus:border-primary-500 transition-colors"
+                    />
+                    <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                 </div>
             </div>
 
@@ -368,12 +387,18 @@ export default function TemplatesContent() {
                         <Package className="w-8 h-8 text-primary-500" />
                     </div>
                     <h3 className="text-lg font-black text-gray-900 dark:text-dark-text-primary mb-2">
-                        {selectedStatus === 'all' ? 'لم تقم بإرسال أي قوالب بعد' : 'لا توجد قوالب بهذه الحالة'}
+                        {searchQuery.trim() 
+                            ? 'لا توجد نتائج تطابق بحثك' 
+                            : (selectedStatus === 'all' ? 'لم تقم بإرسال أي قوالب بعد' : 'لا توجد قوالب بهذه الحالة')
+                        }
                     </h3>
                     <p className="text-xs text-gray-400 dark:text-dark-text-tertiary max-w-sm mx-auto leading-relaxed mb-6">
-                        {selectedStatus === 'all'
-                            ? 'ابدأ برفع وتصميم قالبك الأول، وشاركه مع عائلة عرب نوشن والآلاف من المستخدمين.'
-                            : 'جرب تصفح حالة فلترة أخرى لعرض بقية قوالبك المضافة.'
+                        {searchQuery.trim() 
+                            ? 'تأكد من كتابة الكلمات بشكل صحيح، أو جرب مصطلحات بحث أخرى.'
+                            : (selectedStatus === 'all'
+                                ? 'ابدأ برفع وتصميم قالبك الأول، وشاركه مع عائلة عرب نوشن والآلاف من المستخدمين.'
+                                : 'جرب تصفح حالة فلترة أخرى لعرض بقية قوالبك المضافة.'
+                            )
                         }
                     </p>
                     {selectedStatus === 'all' && (

@@ -271,7 +271,6 @@ const CreatorEarnings = () => {
                         <thead>
                             <tr className="bg-gray-50/50 dark:bg-dark-tertiary/20 border-b border-gray-100 dark:border-white/5">
                                 <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">التاريخ</th>
-                                <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">الحالة</th>
                                 <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">النوع</th>
                                 <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase text-left">القيمة</th>
                                 <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase text-left">الصافي</th>
@@ -283,15 +282,6 @@ const CreatorEarnings = () => {
                                     <tr key={tx.id} className="hover:bg-gray-50/30 dark:hover:bg-dark-tertiary/10 transition-colors">
                                         <td className="px-8 py-4 text-xs font-bold text-gray-700 dark:text-dark-text-secondary">
                                             {formatTransactionDate(tx.date)}
-                                        </td>
-                                        <td className="px-8 py-4">
-                                            <span className={`inline-flex px-2.5 py-1 rounded-lg text-[10px] font-black border ${
-                                                tx.status === 'Succeeded' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' :
-                                                tx.status === 'Failed' ? 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20' :
-                                                'bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20'
-                                            }`}>
-                                                {tx.statusName}
-                                            </span>
                                         </td>
                                         <td className="px-8 py-4 text-xs font-bold text-gray-500 dark:text-dark-text-tertiary">
                                             {tx.type}
@@ -306,7 +296,7 @@ const CreatorEarnings = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="5" className="px-8 py-10 text-center text-xs font-bold text-gray-400 dark:text-dark-text-tertiary">
+                                    <td colSpan="4" className="px-8 py-10 text-center text-xs font-bold text-gray-400 dark:text-dark-text-tertiary">
                                         لا توجد معاملات مسجلة حالياً.
                                     </td>
                                 </tr>

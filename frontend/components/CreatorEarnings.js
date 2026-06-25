@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { formatDate } from '../lib/dateUtils';
@@ -21,6 +21,7 @@ const CreatorEarnings = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
     const [payouts, setPayouts] = useState([]);
+    const [sales, setSales] = useState([]);
     const router = useRouter();
 
     // Load creator stats & requests history
@@ -56,11 +57,71 @@ const CreatorEarnings = () => {
             }
         };
 
+        const loadSales = async () => {
+            try {
+                ensureTokenInHeaders();
+                const response = await api.get('/creators/me/sales?limit=100');
+                if (response.data.success) {
+                    setSales(response.data.sales || []);
+                }
+            } catch (err) {
+                console.error('Error loading sales:', err);
+            }
+        };
+
         if (user && user.creatorStatus === 'approved') {
             loadStats();
             loadPayouts();
+            loadSales();
         }
     }, [user, ensureTokenInHeaders]);
+
+    const transactions = useMemo(() => {
+        const list = [];
+        
+        // Add payouts
+        (payouts || []).forEach(p => {
+            list.push({
+                id: p.id || p._id,
+                date: new Date(p.createdAt),
+                type: 'سحب رصيد',
+                amount: -p.amount,
+                net: -p.amount,
+                status: p.status === 'PAID' ? 'Succeeded' : p.status === 'REJECTED' ? 'Failed' : 'Pending',
+                statusName: p.status === 'PAID' ? 'تم بنجاح' : p.status === 'REJECTED' ? 'فشلت' : 'قيد الانتظار'
+            });
+        });
+        
+        // Add sales (Payments)
+        (sales || []).forEach(s => {
+            list.push({
+                id: s.id || s._id,
+                date: new Date(s.date),
+                type: 'أرباح مبيعات',
+                amount: s.price,
+                net: s.price * 0.8, // after 20% platform fee
+                status: 'Succeeded',
+                statusName: 'تم بنجاح'
+            });
+        });
+        
+        return list.sort((a, b) => b.date - a.date);
+    }, [payouts, sales]);
+
+    const formatTransactionDate = (dateObj) => {
+        try {
+            return dateObj.toLocaleDateString('ar-EG', { month: 'long', day: 'numeric' });
+        } catch (e) {
+            return '';
+        }
+    };
+
+    const formatAmount = (amount) => {
+        const isNegative = amount < 0;
+        const absoluteVal = Math.abs(amount);
+        const formattedVal = absoluteVal.toLocaleString('ar-EG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        return `${isNegative ? '-' : '+'}${formattedVal} ج.م`;
+    };
 
 
 
@@ -192,56 +253,61 @@ const CreatorEarnings = () => {
             </div>
 
 
-            {/* Payout History Section */}
-            <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-3xl shadow-sm overflow-hidden">
-                <div className="p-6 sm:p-8 border-b border-gray-100 dark:border-white/5">
-                    <h3 className="text-lg font-black text-gray-900 dark:text-dark-text-primary">
-                        سجل طلبات السحب والحركات السابقة
-                    </h3>
-                    <p className="text-[11px] text-gray-400 dark:text-dark-text-tertiary mt-0.5">
-                        سجل بكافة عمليات السحب والتحويلات المالية الصادرة لحسابك
-                    </p>
+            {/* Recent Transactions Section */}
+            <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-3xl shadow-sm overflow-hidden" dir="rtl">
+                <div className="p-6 sm:p-8 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+                    <div>
+                        <h3 className="text-lg font-black text-gray-900 dark:text-dark-text-primary">
+                            أحدث العمليات والحركات المالية
+                        </h3>
+                        <p className="text-[11px] text-gray-400 dark:text-dark-text-tertiary mt-0.5">
+                            سجل بكافة الحركات المالية من عمليات بيع القوالب وسحوبات الرصيد الصادرة لحسابك
+                        </p>
+                    </div>
+
                 </div>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-right" dir="rtl">
+                    <table className="w-full text-right border-collapse">
                         <thead>
                             <tr className="bg-gray-50/50 dark:bg-dark-tertiary/20 border-b border-gray-100 dark:border-white/5">
-                                <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">التاريخ والوقت</th>
-                                <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">المبلغ المطلوب</th>
-                                <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">وسيلة التحويل</th>
-                                <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase text-center">حالة الطلب</th>
+                                <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">التاريخ</th>
+                                <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">الحالة</th>
+                                <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase">النوع</th>
+                                <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase text-left">القيمة</th>
+                                <th className="px-8 py-4.5 text-xs font-black text-gray-500 dark:text-dark-text-tertiary uppercase text-left">الصافي</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 dark:divide-white/5">
-                            {payouts && payouts.length > 0 ? (
-                                payouts.map((payout) => (
-                                    <tr key={payout.id || payout._id} className="hover:bg-gray-50/30 dark:hover:bg-dark-tertiary/10 transition-colors">
+                            {transactions && transactions.length > 0 ? (
+                                transactions.map((tx) => (
+                                    <tr key={tx.id} className="hover:bg-gray-50/30 dark:hover:bg-dark-tertiary/10 transition-colors">
                                         <td className="px-8 py-4 text-xs font-bold text-gray-700 dark:text-dark-text-secondary">
-                                            {formatDate(payout.createdAt)}
+                                            {formatTransactionDate(tx.date)}
                                         </td>
-                                        <td className="px-8 py-4 text-xs font-black text-gray-900 dark:text-dark-text-primary">
-                                            {payout.amount.toLocaleString('ar-EG')} ج.م
+                                        <td className="px-8 py-4">
+                                            <span className={`inline-flex px-2.5 py-1 rounded-lg text-[10px] font-black border ${
+                                                tx.status === 'Succeeded' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' :
+                                                tx.status === 'Failed' ? 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20' :
+                                                'bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20'
+                                            }`}>
+                                                {tx.statusName}
+                                            </span>
                                         </td>
                                         <td className="px-8 py-4 text-xs font-bold text-gray-500 dark:text-dark-text-tertiary">
-                                            {payout.method === 'vodafone_cash' ? 'فودافون كاش' : 'تحويل بنكي IBAN'}
+                                            {tx.type}
                                         </td>
-                                        <td className="px-8 py-4 text-center">
-                                            <span className={`inline-flex px-3 py-1.5 rounded-xl text-[10px] font-black uppercase ${
-                                                payout.status === 'PAID' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/25 dark:text-emerald-400' :
-                                                payout.status === 'REJECTED' ? 'bg-red-50 text-red-600 dark:bg-red-950/25 dark:text-red-400' :
-                                                'bg-amber-50 text-amber-600 dark:bg-amber-950/25 dark:text-amber-400'
-                                            }`}>
-                                                {payout.status === 'PAID' ? 'تم الدفع بنجاح' : 
-                                                 payout.status === 'REJECTED' ? 'مرفوض' : 
-                                                 payout.status === 'APPROVED' ? 'مقبول وفي المعالجة' : 'قيد المراجعة والتدقيق'}
-                                            </span>
+                                        <td className="px-8 py-4 text-xs font-black text-gray-900 dark:text-dark-text-primary text-left font-mono">
+                                            {formatAmount(tx.amount)}
+                                        </td>
+                                        <td className="px-8 py-4 text-xs font-black text-gray-900 dark:text-dark-text-primary text-left font-mono">
+                                            {formatAmount(tx.net)}
                                         </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="4" className="px-8 py-10 text-center text-xs font-bold text-gray-400 dark:text-dark-text-tertiary">
-                                        لا توجد طلبات سحب سابقة مسجلة في حسابك حتى الآن.
+                                    <td colSpan="5" className="px-8 py-10 text-center text-xs font-bold text-gray-400 dark:text-dark-text-tertiary">
+                                        لا توجد معاملات مسجلة حالياً.
                                     </td>
                                 </tr>
                             )}

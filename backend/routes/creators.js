@@ -715,7 +715,8 @@ router.get('/me/stats', auth, async (req, res) => {
       }));
 
     // Historical data for charts (dynamic range)
-    const days = parseInt(req.query.days) || 30;
+    const requestedDays = parseInt(req.query.days) || 30;
+    const days = Math.max(2, requestedDays);
     const daysAgo = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
     const templateIds = templates.map(t => (t._id || t.id).toString());
     const creatorIdStr = creatorId.toString();
@@ -729,12 +730,12 @@ router.get('/me/stats', auth, async (req, res) => {
       const [downloadsRes, orderItemsRes] = await Promise.all([
         supabase
           .from('DownloadLog')
-          .select('createdAt')
+          .select('createdAt, templateId')
           .eq('creatorId', creatorIdStr)
           .gte('createdAt', daysAgo),
         supabase
           .from('OrderItem')
-          .select('price, orderId')
+          .select('price, orderId, templateId')
           .in('templateId', templateIds)
       ]);
 
@@ -762,6 +763,7 @@ router.get('/me/stats', auth, async (req, res) => {
           if (order) {
             historicalSalesData.push({
               price: item.price,
+              templateId: item.templateId,
               Order: {
                 createdAt: order.createdAt
               }
@@ -773,7 +775,7 @@ router.get('/me/stats', auth, async (req, res) => {
       const supabase = require('../utils/supabase');
       historicalDownloadsRes = await supabase
         .from('DownloadLog')
-        .select('createdAt')
+        .select('createdAt, templateId')
         .eq('creatorId', creatorIdStr)
         .gte('createdAt', daysAgo);
     }
@@ -806,6 +808,26 @@ router.get('/me/stats', auth, async (req, res) => {
 
     const dailyStats = Object.values(dailyStatsMap).sort((a, b) => a.date.localeCompare(b.date));
 
+    // Calculate template-specific downloads in the range
+    const templateDownloads = {};
+    templates.forEach(t => {
+      templateDownloads[t._id.toString()] = 0;
+    });
+
+    historicalDownloads.forEach(dl => {
+      if (dl.templateId) {
+        const tid = dl.templateId.toString();
+        templateDownloads[tid] = (templateDownloads[tid] || 0) + 1;
+      }
+    });
+
+    historicalSales.forEach(sale => {
+      if (sale.templateId) {
+        const tid = sale.templateId.toString();
+        templateDownloads[tid] = (templateDownloads[tid] || 0) + 1;
+      }
+    });
+
     res.json({
       success: true,
       stats: {
@@ -818,7 +840,8 @@ router.get('/me/stats', auth, async (req, res) => {
         currentBalance: user.balance || 0,
         followers: user.followers || 0,
         recentTemplates,
-        dailyStats
+        dailyStats,
+        templateDownloads
       }
     });
 

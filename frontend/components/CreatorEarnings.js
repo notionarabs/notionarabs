@@ -94,15 +94,17 @@ const CreatorEarnings = () => {
         
         // Add sales (Payments)
         (sales || []).forEach(s => {
-            list.push({
-                id: s.id || s._id,
-                date: new Date(s.date),
-                type: 'أرباح مبيعات',
-                amount: s.price,
-                net: s.price * 0.8, // after 20% platform fee
-                status: 'Succeeded',
-                statusName: 'تم بنجاح'
-            });
+            if (s.price > 0) {
+                list.push({
+                    id: s.id || s._id,
+                    date: new Date(s.date),
+                    type: 'أرباح مبيعات',
+                    amount: s.price,
+                    net: s.price * 0.8, // after 20% platform fee
+                    status: 'Succeeded',
+                    statusName: 'تم بنجاح'
+                });
+            }
         });
         
         return list.sort((a, b) => b.date - a.date);

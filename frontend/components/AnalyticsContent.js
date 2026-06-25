@@ -97,7 +97,15 @@ export default function AnalyticsContent() {
         }
 
         // Find top template
-        const topTemplate = [...approvedTemplates].sort((a, b) => (b.downloads || 0) - (a.downloads || 0))[0];
+        const topTemplate = [...approvedTemplates].sort((a, b) => {
+            let downloadsA = a.downloads || 0;
+            let downloadsB = b.downloads || 0;
+            if (timeRange !== '365' && stats?.templateDownloads) {
+                downloadsA = stats.templateDownloads[a._id] || 0;
+                downloadsB = stats.templateDownloads[b._id] || 0;
+            }
+            return downloadsB - downloadsA;
+        })[0];
 
         return { 
             totalTemplates, 
@@ -108,7 +116,18 @@ export default function AnalyticsContent() {
             revenueTrend,
             approvedCount: templates.filter(t => t.status?.toLowerCase() === 'approved').length 
         };
-    }, [templates, stats]);
+    }, [templates, stats, timeRange]);
+
+    const displayDownloads = useMemo(() => {
+        if (timeRange === '365') {
+            return metrics.totalDownloads;
+        }
+        if (!stats?.dailyStats || stats.dailyStats.length === 0) return 0;
+        if (timeRange === '1') {
+            return stats.dailyStats[stats.dailyStats.length - 1]?.downloads || 0;
+        }
+        return stats.dailyStats.reduce((sum, d) => sum + (d.downloads || 0), 0);
+    }, [stats, timeRange, metrics.totalDownloads]);
 
     const sortedTemplates = useMemo(() => {
         let sortableItems = [...templates];
@@ -117,6 +136,11 @@ export default function AnalyticsContent() {
                 let aVal = a[sortConfig.key] || 0;
                 let bVal = b[sortConfig.key] || 0;
                 
+                if (sortConfig.key === 'downloads' && timeRange !== '365' && stats?.templateDownloads) {
+                    aVal = stats.templateDownloads[a._id] || 0;
+                    bVal = stats.templateDownloads[b._id] || 0;
+                }
+
                 // For strings (title)
                 if (typeof aVal === 'string') {
                     aVal = aVal.toLowerCase();
@@ -129,7 +153,7 @@ export default function AnalyticsContent() {
             });
         }
         return sortableItems;
-    }, [templates, sortConfig]);
+    }, [templates, sortConfig, stats, timeRange]);
 
     const ratingDistribution = useMemo(() => {
         const dist = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
@@ -505,7 +529,7 @@ export default function AnalyticsContent() {
                 />
                 <KpiCard 
                     title="التحميلات الناجحة" 
-                    value={metrics.totalDownloads} 
+                    value={displayDownloads} 
                     icon={<Download className="w-5 h-5" />} 
                     trend={metrics.downloadTrend} 
                     color="emerald"
@@ -594,7 +618,14 @@ export default function AnalyticsContent() {
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="bg-white/5 rounded-2xl p-3 border border-white/5">
                                             <p className="text-[9px] text-gray-400 font-bold uppercase mb-1">مرات التحميل</p>
-                                            <p className="text-base font-black">{(metrics.topTemplate.downloads || 0).toLocaleString('ar-EG')}</p>
+                                            <p className="text-base font-black">
+                                                {(timeRange === '365' 
+                                                    ? (metrics.topTemplate.downloads || 0) 
+                                                    : (stats?.templateDownloads?.[metrics.topTemplate._id] !== undefined 
+                                                        ? stats.templateDownloads[metrics.topTemplate._id] 
+                                                        : (metrics.topTemplate.downloads || 0))
+                                                ).toLocaleString('ar-EG')}
+                                            </p>
                                         </div>
                                         <div className="bg-white/5 rounded-2xl p-3 border border-white/5">
                                             <p className="text-[9px] text-gray-400 font-bold uppercase mb-1">تقييم العملاء</p>
@@ -799,7 +830,14 @@ export default function AnalyticsContent() {
                                         </div>
                                     </td>
                                     <td className="px-8 py-4 text-center font-bold text-xs text-gray-700 dark:text-dark-text-secondary">{(t.views || 0).toLocaleString('ar-EG')}</td>
-                                    <td className="px-8 py-4 text-center font-bold text-xs text-gray-700 dark:text-dark-text-secondary">{(t.downloads || 0).toLocaleString('ar-EG')}</td>
+                                    <td className="px-8 py-4 text-center font-bold text-xs text-gray-700 dark:text-dark-text-secondary">
+                                        {(timeRange === '365' 
+                                            ? (t.downloads || 0) 
+                                            : (stats?.templateDownloads?.[t._id] !== undefined 
+                                                ? stats.templateDownloads[t._id] 
+                                                : (t.downloads || 0))
+                                        ).toLocaleString('ar-EG')}
+                                    </td>
                                     <td className="px-8 py-4 text-center">
                                         <div className="flex items-center justify-center gap-1">
                                             <span className="font-bold text-xs text-gray-900 dark:text-dark-text-primary">{(t.rating || 0).toFixed(1).toLocaleString('ar-EG')}</span>

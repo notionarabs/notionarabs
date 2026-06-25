@@ -191,27 +191,6 @@ const CreatorEarnings = () => {
                 </div>
             </div>
 
-            {/* Small performance metric cards with self-drawing mini charts */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <StatSmallCard 
-                    title="مجموع التحميلات" 
-                    value={stats?.totalDownloads || 0} 
-                    icon={<Download className="w-4.5 h-4.5" />}
-                    color="blue"
-                />
-                <StatSmallCard 
-                    title="الزيارات والمشاهدات" 
-                    value={stats?.totalViews || 0} 
-                    icon={<Clock className="w-4.5 h-4.5" />}
-                    color="purple"
-                />
-                <StatSmallCard 
-                    title="التقييم العام" 
-                    value={stats ? `${stats.averageRating.toFixed(1)} (${stats.totalRatings || 0})` : '0.0'} 
-                    icon={<Star className="w-4.5 h-4.5 fill-current" />}
-                    color="orange"
-                />
-            </div>
 
             {/* Payout History Section */}
             <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-3xl shadow-sm overflow-hidden">

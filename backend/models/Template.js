@@ -551,16 +551,19 @@ class Template {
       if (groupStage && groupStage.$group?._id === null && (groupStage.$group?.ratings?.$push || groupStage.$group?.totalDownloads)) {
           const cid = matchStage?.$match?.creator || matchStage?.$match?.creatorId;
           if (cid) {
-              const { data, error } = await supabase.from('Template').select('rating, downloads, price').eq('creatorId', cid).eq('status', 'APPROVED');
+              const { data, error } = await supabase.from('Template').select('rating, downloads, price, reviewsCount').eq('creatorId', cid).eq('status', 'APPROVED');
               if (error) throw error;
               
               const ratings = (data || []).map(item => item.rating || 0);
+              const totalRatings = (data || []).reduce((sum, item) => sum + (item.reviewsCount || 0), 0);
               const totalDownloads = (data || []).reduce((sum, item) => sum + (item.downloads || 0), 0);
               const totalRevenue = (data || []).reduce((sum, item) => sum + ((Number(item.price) || 0) * (item.downloads || 0)), 0);
               
               return [{ 
                   _id: null, 
                   ratings, 
+                  templateRatings: ratings,
+                  totalRatings,
                   totalDownloads,
                   totalRevenue,
                   totalTemplates: data?.length || 0

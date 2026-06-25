@@ -192,7 +192,7 @@ const CreatorEarnings = () => {
                 />
                 <StatSmallCard 
                     title="التقييم العام" 
-                    value={stats?.averageRating || '0.0'} 
+                    value={stats ? `${stats.averageRating.toFixed(1)} (${stats.totalRatings || 0})` : '0.0'} 
                     icon={<Star className="w-4.5 h-4.5 fill-current" />}
                     color="orange"
                 />
@@ -303,7 +303,7 @@ const StatSmallCard = ({ title, value, icon, color }) => {
                 </div>
                 <div>
                     <p className="text-[10px] font-bold text-gray-400 dark:text-dark-text-tertiary uppercase tracking-wider">{title}</p>
-                    <p className="text-xl font-black text-gray-900 dark:text-dark-text-primary">{value.toLocaleString('ar-EG')}</p>
+                    <p className="text-xl font-black text-gray-900 dark:text-dark-text-primary">{typeof value === 'number' ? value.toLocaleString('ar-EG') : value}</p>
                 </div>
             </div>
             

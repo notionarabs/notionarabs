@@ -109,7 +109,8 @@ function ProfileOverview({ user: propUser, onNavigate }) {
   const followersCount = liveStats ? (liveStats.followers || 0) : (propUser?.followersCount || propUser?.followers || 0);
   const templatesCount = liveStats ? (liveStats.totalTemplates || 0) : (propUser?.templatesCount || 0);
   const ratingValue = liveStats ? (liveStats.averageRating || 0) : (propUser?.rating || 0);
-  const earningsValue = liveStats ? (liveStats.currentBalance || 0) : (propUser?.totalEarnings || propUser?.balance || 0);
+  const ratingsCount = liveStats ? (liveStats.totalRatings || 0) : (propUser?.ratingsCount || propUser?.reviewsCount || 0);
+  const downloadsValue = liveStats ? (liveStats.totalDownloads || 0) : (propUser?.totalDownloads || propUser?.downloads || 0);
 
   const getJoinedDate = () => {
     if (!propUser?.createdAt) return 'عضو جديد';
@@ -181,6 +182,14 @@ function ProfileOverview({ user: propUser, onNavigate }) {
     return <div className="flex gap-0.5">{stars}</div>;
   };
 
+  const formatRatingsCount = (count) => {
+    if (count === 0) return 'لا توجد تقييمات';
+    if (count === 1) return 'تقييم واحد';
+    if (count === 2) return 'تقييمين';
+    if (count >= 3 && count <= 10) return `${count} تقييمات`;
+    return `${count} تقييم`;
+  };
+
   const getRoleBadge = () => {
     if (isAdmin) return <span className="bg-red-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-tighter">مدير المنصة</span>;
     if (isCreator) return <span className="bg-primary-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-tighter">مبدع معتمد</span>;
@@ -242,7 +251,7 @@ function ProfileOverview({ user: propUser, onNavigate }) {
                 { label: 'المتابعون', value: followersCount, unit: 'متابع', color: 'purple', trend: null },
                 { label: 'قوالب منشورة', value: templatesCount, unit: 'قالب', color: 'orange', trend: null },
                 { label: 'التقييم العام', value: ratingValue.toFixed(1), unit: 'نجوم', color: 'amber', isStars: true },
-                { label: 'الرصيد المتاح', value: (earningsValue || 0).toLocaleString('ar-EG'), unit: 'ج.م', color: 'emerald' }
+                { label: 'إجمالي التحميلات', value: downloadsValue || 0, unit: 'تحميل', color: 'emerald' }
               ]
             : [
                 { label: 'القوالب المقتناة', value: purchasesCount, unit: 'قالب مقتنى', color: 'orange', icon: ShoppingBag, action: () => onNavigate?.('purchases') },
@@ -271,7 +280,12 @@ function ProfileOverview({ user: propUser, onNavigate }) {
                 <span className={`text-2xl font-black ${stat.isLocked ? 'text-gray-400' : 'text-gray-900 dark:text-dark-text-primary'}`}>{stat.value}</span>
                 <span className={`text-[10px] font-bold text-${stat.color}-500 opacity-60`}>{stat.unit}</span>
               </div>
-              {stat.isStars && <div className="mt-2">{renderStars(ratingValue)}</div>}
+              {stat.isStars && (
+                <div className="mt-2 flex items-center gap-2">
+                  {renderStars(ratingValue)}
+                  <span className="text-[10px] font-bold text-gray-400">({formatRatingsCount(ratingsCount)})</span>
+                </div>
+              )}
               {stat.ratingDesc && (
                 <span className={`text-xs font-black mt-2 block ${
                   stat.color === 'emerald' ? 'text-emerald-500' : stat.color === 'purple' ? 'text-purple-500' : 'text-amber-500'

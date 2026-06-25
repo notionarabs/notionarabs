@@ -307,7 +307,7 @@ export default function CreatorProfileClient({ initialCreator }) {
                     { label: 'قالب', value: pagination.total || 0 },
                     { label: 'متابع', value: creator.followers || 0 },
                     { label: 'تحميل', value: (creator.stats?.totalDownloads || 0).toLocaleString() },
-                    { label: 'تقييم', value: typeof creator.rating === 'number' ? creator.rating.toFixed(1) : (creator.rating || '5.0') }
+                    { label: 'تقييم', value: `${typeof creator.rating === 'number' ? creator.rating.toFixed(1) : (creator.rating || '5.0')} (${creator.stats?.totalRatings || 0})` }
                   ].map((s) => (
                     <div key={s.label} className="text-right">
                       <div className="text-3xl font-black text-foreground dark:text-white">{s.value}</div>

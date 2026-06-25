@@ -435,7 +435,8 @@ router.get('/:id', cacheMiddleware(600), async (req, res) => {
         badges: creator.badges || [],
         stats: {
           totalDownloads: creatorStats.totalDownloads,
-          averageRating: creatorStats.averageRating || 0,
+          averageRating: creatorStats.medianRating || creatorStats.averageRating || 0,
+          totalRatings: creatorStats.totalRatings || 0,
           responseTime: 'ساعتين', // Default value
           completionRate: '98%' // Default value
         },
@@ -692,6 +693,9 @@ router.get('/me/stats', auth, async (req, res) => {
     const averageRating = ratings.length > 0 
       ? (ratings.reduce((sum, r) => sum + r, 0) / ratings.length).toFixed(1)
       : 0;
+      
+    // Calculate total reviews/ratings count
+    const totalRatings = templates.reduce((sum, t) => sum + (t.reviewsCount || 0), 0);
 
     // Get current user data for live earnings/balance
     const user = await User.findById(creatorId);
@@ -766,6 +770,7 @@ router.get('/me/stats', auth, async (req, res) => {
         totalDownloads,
         totalViews,
         averageRating: parseFloat(averageRating),
+        totalRatings,
         totalEarnings: user.totalEarnings || 0,
         currentBalance: user.balance || 0,
         followers: user.followers || 0,

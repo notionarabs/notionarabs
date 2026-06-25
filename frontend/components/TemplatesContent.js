@@ -290,20 +290,6 @@ export default function TemplatesContent() {
                                                         {template.price > 0 ? `${template.price.toLocaleString('ar-EG')} ج.م` : 'مجاني'}
                                                     </span>
                                                     <span>•</span>
-                                                    <span className="bg-gray-50 dark:bg-dark-tertiary/40 px-2 py-0.5 rounded-md border border-gray-100/30 dark:border-white/5">
-                                                        {template.categories && template.categories.length > 0 ? template.categories.join('، ') : (template.category || 'غير مصنف')}
-                                                    </span>
-                                                    <span>•</span>
-                                                    <span className="flex items-center gap-1">
-                                                        <Eye size={12} />
-                                                        <span>{(template.views || 0).toLocaleString('ar-EG')} زيارة</span>
-                                                    </span>
-                                                    <span>•</span>
-                                                    <span className="flex items-center gap-1">
-                                                        <FileDown size={12} />
-                                                        <span>{(template.downloads || 0).toLocaleString('ar-EG')} تحميل</span>
-                                                    </span>
-                                                    <span>•</span>
                                                     <span className="flex items-center gap-1">
                                                         <Calendar size={12} />
                                                         <span>{formatDate(template.createdAt)}</span>

@@ -690,6 +690,12 @@ router.put('/profile/settings', auth, [
       { new: true, runValidators: true }
     ).select('-password');
 
+    // Trigger automatic payout check if settings were updated
+    const { checkAndTriggerAutoPayout } = require('../services/payoutService');
+    checkAndTriggerAutoPayout(req.user._id).catch(err => {
+      console.error('[Settings AutoPayout Trigger] Error running check:', err);
+    });
+
     res.json({
       success: true,
       message: 'تم حفظ إعدادات الملف الشخصي بنجاح! 🎉',

@@ -58,6 +58,12 @@ async function _fulfillOrder(order, userId) {
                 await User.findByIdAndUpdate(template.creator, {
                     $inc: { totalEarnings: salePrice, balance: creatorEarnings }
                 });
+
+                // Trigger automatic payout check
+                const { checkAndTriggerAutoPayout } = require('../services/payoutService');
+                checkAndTriggerAutoPayout(template.creator).catch(err => {
+                    console.error('[Payment AutoPayout Trigger] Error running check:', err);
+                });
             }
 
             template.downloads = (template.downloads || 0) + 1;

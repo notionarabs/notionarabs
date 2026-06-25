@@ -16,6 +16,11 @@ function validatePayoutDetails(method, details) {
         if (!details.accountName || details.accountName.trim().length < 3) errors.accountName = 'اسم صاحب الحساب مطلوب';
         if (!details.accountNumber || details.accountNumber.trim().length < 10) errors.accountNumber = 'رقم الحساب يجب أن يكون 10 أرقام على الأقل';
     }
+
+    const threshold = parseFloat(details.autoPayoutThreshold);
+    if (isNaN(threshold) || threshold < 100) {
+        errors.autoPayoutThreshold = 'الحد الأدنى لتفعيل السحب التلقائي هو 100 ج.م';
+    }
     return errors;
 }
 
@@ -134,6 +139,35 @@ export default function PaymentSettingsSection({ profileSettings, handleInputCha
                         </div>
                     </div>
                 )}
+
+                {/* Automatic Payout Settings */}
+                <div className="border-t border-gray-100 dark:border-dark-card-border pt-6 mt-6">
+                    <h3 className="text-md font-bold text-gray-900 dark:text-dark-text-primary mb-3">إعدادات السحب التلقائي</h3>
+                    
+                    <div className="p-4 bg-gray-50 dark:bg-dark-tertiary/20 rounded-xl mb-6">
+                        <p className="font-bold text-sm text-gray-900 dark:text-dark-text-primary">نظام السحب التلقائي للأرباح</p>
+                        <p className="text-xs text-gray-500 dark:text-dark-text-secondary mt-1">
+                            يتم الآن سحب الأرباح وتجهيز الطلب تلقائياً فور وصول رصيدك للحد المحدد أدناه. تم إلغاء السحوبات اليدوية لتبسيط العمليات.
+                        </p>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="block text-sm font-bold text-gray-700 dark:text-dark-text-secondary">حد السحب التلقائي (ج.م)</label>
+                        <input
+                            type="number"
+                            value={payoutDetails.autoPayoutThreshold !== undefined ? payoutDetails.autoPayoutThreshold : 500}
+                            onChange={(e) => handleDetailChange('autoPayoutThreshold', parseInt(e.target.value, 10) || '')}
+                            min={100}
+                            placeholder="500"
+                            className={`w-full sm:w-1/2 px-4 py-3 bg-gray-50 dark:bg-dark-tertiary border rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-dark-text-primary text-sm ${errors.autoPayoutThreshold ? 'border-red-400 dark:border-red-500' : 'border-gray-200 dark:border-dark-card-border'}`}
+                        />
+                        {errors.autoPayoutThreshold ? (
+                            <p className="text-xs text-red-500 mt-1">{errors.autoPayoutThreshold}</p>
+                        ) : (
+                            <p className="text-xs text-gray-400">الحد الأدنى لتفعيل السحب التلقائي هو 100 ج.م</p>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );

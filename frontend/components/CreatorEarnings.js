@@ -20,8 +20,6 @@ const CreatorEarnings = () => {
     const [stats, setStats] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
-    const [isWithdrawing, setIsWithdrawing] = useState(false);
-    const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [payouts, setPayouts] = useState([]);
     const router = useRouter();
 
@@ -64,48 +62,7 @@ const CreatorEarnings = () => {
         }
     }, [user, ensureTokenInHeaders]);
 
-    const triggerWithdrawalRequest = () => {
-        if (!stats?.currentBalance || stats.currentBalance < 100) return;
 
-        // Verify payment coordinates are fully set in Profile settings
-        if (!user?.payoutMethod || !user?.payoutDetails || Object.keys(user.payoutDetails).length === 0) {
-            showError('يرجى ضبط إعدادات وسيلة السحب أولاً في صفحة الإعدادات');
-            router.push('/profile?tab=settings');
-            return;
-        }
-
-        setShowConfirmModal(true);
-    };
-
-    const confirmWithdrawal = async () => {
-        try {
-            setIsWithdrawing(true);
-            ensureTokenInHeaders();
-            const response = await api.post('/payouts/request', {
-                amount: stats.currentBalance,
-                method: user.payoutMethod,
-                accountDetails: JSON.stringify(user.payoutDetails)
-            });
-
-            if (response.data.success) {
-                showSuccess('تم تقديم طلب السحب بنجاح! سيتم تحويل الرصيد قريباً.');
-                setShowConfirmModal(false);
-                
-                // Live refresh statistics & payout lists
-                const [statsRes, payoutsRes] = await Promise.all([
-                    api.get('/creators/me/stats'),
-                    api.get('/payouts/me')
-                ]);
-                if (statsRes.data.success) setStats(statsRes.data.stats);
-                if (payoutsRes.data.success) setPayouts(payoutsRes.data.payouts || []);
-            }
-        } catch (err) {
-            console.error('Withdrawal error:', err);
-            showError(err.response?.data?.message || 'حدث خطأ أثناء تقديم الطلب');
-        } finally {
-            setIsWithdrawing(false);
-        }
-    };
 
     if (!user || user.creatorStatus !== 'approved') {
         return (
@@ -210,14 +167,11 @@ const CreatorEarnings = () => {
                         </div>
                     </div>
 
-                    <div className="mt-6">
-                        <button 
-                            onClick={triggerWithdrawalRequest}
-                            disabled={!stats?.currentBalance || stats.currentBalance < 100}
-                            className="w-full py-3 bg-gray-950 hover:bg-gray-900 dark:bg-primary-500 dark:hover:bg-primary-600 text-white rounded-2xl font-black text-xs shadow-glow disabled:shadow-none disabled:bg-gray-100 dark:disabled:bg-dark-tertiary disabled:text-gray-400 dark:disabled:text-dark-text-tertiary disabled:cursor-not-allowed border-none transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-                        >
-                            طلب سحب رصيد الأرباح
-                        </button>
+                    <div className="mt-4">
+                        <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/20 px-3.5 py-3 rounded-2xl flex items-center gap-2 border border-emerald-100/50 dark:border-emerald-900/10">
+                            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping shrink-0"></span>
+                            <span>السحب التلقائي مفعل عند وصول رصيدك إلى {parseFloat(user?.payoutDetails?.autoPayoutThreshold || 500).toLocaleString('ar-EG')} ج.م. يتم تحويل الرصيد تلقائياً.</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -323,96 +277,7 @@ const CreatorEarnings = () => {
                 </div>
             </div>
 
-            {/* Premium Payout Glassmorphic Confirmation Modal */}
-            <AnimatePresence>
-                {showConfirmModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                        {/* Backdrop Blur */}
-                        <motion.div 
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setShowConfirmModal(false)}
-                            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
-                        />
 
-                        {/* Modal Box */}
-                        <motion.div 
-                            initial={{ opacity: 0, scale: 0.95, y: 15 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                            transition={{ type: 'spring', duration: 0.4 }}
-                            className="bg-white dark:bg-dark-secondary border border-gray-100 dark:border-white/5 w-full max-w-md rounded-3xl p-6 shadow-2xl relative z-10"
-                        >
-                            {/* Close cross */}
-                            <button 
-                                onClick={() => setShowConfirmModal(false)}
-                                className="absolute top-4 left-4 p-1.5 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-all border-none cursor-pointer"
-                            >
-                                <X size={18} />
-                            </button>
-
-                            <div className="text-center pb-4 border-b border-gray-100 dark:border-white/5 mb-6">
-                                <div className="w-12 h-12 bg-primary-500/10 dark:bg-orange-500/10 text-primary-500 dark:text-orange-400 rounded-2xl flex items-center justify-center mx-auto mb-3 border border-primary-500/10">
-                                    <ShieldCheck className="w-6 h-6 animate-pulse-slow" />
-                                </div>
-                                <h3 className="text-base font-black text-gray-900 dark:text-dark-text-primary">
-                                    تأكيد عملية السحب المالي
-                                </h3>
-                                <p className="text-xxs text-gray-400 dark:text-dark-text-tertiary mt-1">
-                                    يرجى مراجعة تفاصيل طلب التحويل بدقة قبل الموافقة
-                                </p>
-                            </div>
-
-                            <div className="space-y-4 mb-6">
-                                <div className="bg-gray-50 dark:bg-dark-tertiary/40 rounded-2xl p-4 border border-gray-100/30 dark:border-white/5 flex justify-between items-center">
-                                    <span className="text-xs font-bold text-gray-400 dark:text-dark-text-tertiary">المبلغ المطلوب سحبه:</span>
-                                    <span className="text-base font-black text-gray-900 dark:text-dark-text-primary">
-                                        {(stats?.currentBalance || 0).toLocaleString('ar-EG')} ج.م
-                                    </span>
-                                </div>
-
-                                <div className="bg-gray-50 dark:bg-dark-tertiary/40 rounded-2xl p-4 border border-gray-100/30 dark:border-white/5 space-y-3">
-                                    <div className="flex justify-between items-center text-xs">
-                                        <span className="font-bold text-gray-400 dark:text-dark-text-tertiary">وسيلة التحويل المحددة:</span>
-                                        <span className="font-black text-gray-800 dark:text-dark-text-secondary">
-                                            {user?.payoutMethod === 'vodafone_cash' ? 'فودافون كاش' : 'تحويل بنكي IBAN'}
-                                        </span>
-                                    </div>
-                                    <div className="flex flex-col gap-1 text-right border-t border-gray-100 dark:border-white/5 pt-2.5">
-                                        <span className="text-[10px] font-bold text-gray-400 dark:text-dark-text-tertiary">{payoutDetailLabel}:</span>
-                                        <span className="text-xs font-black text-gray-900 dark:text-dark-text-primary tracking-wider break-all text-left" dir="ltr">
-                                            {payoutDetailValue}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={confirmWithdrawal}
-                                    disabled={isWithdrawing}
-                                    className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-2xl shadow-glow disabled:opacity-50 border-none transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
-                                >
-                                    {isWithdrawing ? (
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                    ) : (
-                                        <CheckCircle2 className="w-4 h-4" />
-                                    )}
-                                    <span>{isWithdrawing ? 'جاري تقديم الطلب...' : 'تأكيد السحب والتحويل'}</span>
-                                </button>
-                                <button
-                                    onClick={() => setShowConfirmModal(false)}
-                                    disabled={isWithdrawing}
-                                    className="px-5 py-3 bg-gray-50 dark:bg-dark-tertiary hover:bg-gray-100 dark:hover:bg-dark-tertiary/80 text-gray-500 dark:text-dark-text-secondary font-bold text-xs rounded-2xl border border-gray-100 dark:border-white/5 transition-all active:scale-[0.98] cursor-pointer"
-                                >
-                                    إلغاء
-                                </button>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
         </div>
     );
 };

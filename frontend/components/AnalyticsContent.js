@@ -804,6 +804,9 @@ export default function AnalyticsContent() {
                                         <div className="flex items-center justify-center gap-1">
                                             <span className="font-bold text-xs text-gray-900 dark:text-dark-text-primary">{(t.rating || 0).toFixed(1).toLocaleString('ar-EG')}</span>
                                             <Star className="w-3 h-3 text-yellow-500 fill-current" />
+                                            <span className="text-[10px] text-gray-400 font-bold dark:text-dark-text-tertiary">
+                                                ({(t.reviewsCount || 0).toLocaleString('ar-EG')})
+                                            </span>
                                         </div>
                                     </td>
                                 </tr>

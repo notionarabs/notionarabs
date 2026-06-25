@@ -22,7 +22,7 @@ import {
   Camera, Mail, User as UserIcon, AtSign, Settings, LayoutDashboard, Edit3, 
   Download, TrendingUp, DollarSign, Bell, Award, Calendar, CheckCircle2, 
   Sparkles, Star, Percent, Briefcase, Plus, Heart, Info, Shield, ExternalLink, 
-  Share2, Loader2, Check, ArrowLeft, Clock, ShoppingBag, BookOpen
+  Share2, Loader2, Check, ArrowLeft, Clock, ShoppingBag, BookOpen, Package, Eye
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SocialIcon from '../../components/settings/SocialIcon';
@@ -285,11 +285,11 @@ function ProfileOverview({ user: propUser, onNavigate }) {
       </div>
 
       {/* 3. Main Dashboard Intelligence Layer */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-        {/* Left Double-Column: Primary Content & Actions */}
-        <div className="lg:col-span-2 space-y-6 lg:space-y-8">
-          {/* Bio showcase for Creators / Welcome Gateway for Standard Users */}
-          {!isCreator && (
+      {!isCreator && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+          {/* Left Double-Column: Primary Content & Actions */}
+          <div className="lg:col-span-2 space-y-6 lg:space-y-8">
+            {/* Bio showcase for Creators / Welcome Gateway for Standard Users */}
             <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-[2.5rem] p-8 shadow-sm relative overflow-hidden group">
               <div className="absolute top-0 left-0 w-1.5 h-full bg-primary-500"></div>
               <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-6 flex items-center justify-between">
@@ -331,119 +331,52 @@ function ProfileOverview({ user: propUser, onNavigate }) {
                 </div>
               )}
             </div>
-          )}
-
-          {/* Quick Actions Control Center */}
-          {isCreator && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Link href="/templates/create" className="p-7 bg-white dark:bg-dark-secondary rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm hover:translate-y-[-4px] transition-all group decoration-none border-b-4 border-b-primary-500/20">
-                <div className="flex items-center gap-5 mb-5">
-                  <div className="w-14 h-14 rounded-2xl bg-primary-500 text-white flex items-center justify-center shadow-xl shadow-primary-500/30 group-hover:rotate-6 transition-transform"><Plus size={28} /></div>
-                  <div>
-                    <h4 className="text-base font-black text-gray-900 dark:text-dark-text-primary uppercase tracking-wider">إنشاء قالب</h4>
-                    <p className="text-[10px] text-gray-400 font-bold mt-0.5">نشر في المتجر</p>
-                  </div>
-                </div>
-                <p className="text-xs text-gray-400 dark:text-dark-text-tertiary leading-relaxed font-medium">حوّل تصاميمك المميزة إلى مصدر إلهام للمجتمع العربي ✨</p>
-              </Link>
-              <Link href="/blog/create" className="p-7 bg-white dark:bg-dark-secondary rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-sm hover:translate-y-[-4px] transition-all group decoration-none border-b-4 border-b-amber-500/20">
-                <div className="flex items-center gap-5 mb-5">
-                  <div className="w-14 h-14 rounded-2xl bg-amber-500 text-white flex items-center justify-center shadow-xl shadow-amber-500/30 group-hover:-rotate-6 transition-transform"><Edit3 size={28} /></div>
-                  <div>
-                    <h4 className="text-base font-black text-gray-900 dark:text-dark-text-primary uppercase tracking-wider">كتابة مقال</h4>
-                    <p className="text-[10px] text-gray-400 font-bold mt-0.5">نشر في المدونة</p>
-                  </div>
-                </div>
-                <p className="text-xs text-gray-400 dark:text-dark-text-tertiary leading-relaxed font-medium">شارك خبراتك في نوشن وارفع من وعي مجتمع المبدعين 📚</p>
-              </Link>
-            </div>
-          )}
-        </div>
-
-        {/* Right Side Column: Meta & Progress */}
-        <div className="space-y-6 lg:space-y-8">
-          {/* Recent Activity Snapshot - Connected to Live Notifications (Filtered for Unread) */}
-          <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-[2.5rem] p-8 shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">آخر النشاطات</h3>
-              <button onClick={() => onNavigate?.('notifications')} className="p-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-xl transition-colors border-none bg-transparent cursor-pointer">
-                <Bell size={14} className="text-primary-500" />
-              </button>
-            </div>
-            <div className="space-y-3">
-              {(() => {
-                const unreadActivity = recentActivity.filter(n => !n.isRead);
-                return unreadActivity.length > 0 ? (
-                  unreadActivity.map((notif, idx) => (
-                    <div 
-                      key={notif._id || idx} 
-                      onClick={() => handleNotificationClick(notif)}
-                      className="p-4 bg-gray-50/50 dark:bg-dark-tertiary/20 rounded-2xl border border-gray-100/50 dark:border-white/5 hover:bg-white dark:hover:bg-dark-tertiary transition-all group cursor-pointer"
-                    >
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className={`w-1.5 h-1.5 rounded-full ${notif.type?.includes('follow') ? 'bg-primary-500' : 'bg-amber-500'}`}></div>
-                        <span className="text-[8px] text-gray-400 font-black uppercase tracking-wider">
-                          {notif.type?.includes('follow') ? 'متابعة جديدة' : 'تنبيه جديد'}
-                        </span>
-                        <span className="text-[8px] text-gray-300 mr-auto">{new Date(notif.createdAt).toLocaleDateString('ar-EG')}</span>
-                      </div>
-                      <p className="text-[10px] font-bold text-gray-700 dark:text-dark-text-primary line-clamp-2">{notif.message}</p>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-6 opacity-40">
-                    <div className="w-12 h-12 bg-gray-50 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <Check size={20} className="text-emerald-500" strokeWidth={3} />
-                    </div>
-                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">أنت على اطلاع بكل شيء ✨</p>
-                  </div>
-                );
-              })()}
-            </div>
           </div>
 
-
-          {/* Socials Showcase (Only for Creators) */}
-          {isCreator && (
+          {/* Right Side Column: Meta & Progress */}
+          <div className="space-y-6 lg:space-y-8">
+            {/* Recent Activity Snapshot - Connected to Live Notifications (Filtered for Unread) */}
             <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-[2.5rem] p-8 shadow-sm">
-              <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-6">شبكة التواصل</h3>
-              {propUser?.socialLinks?.length > 0 ? (
-                <div className="grid grid-cols-4 gap-3">
-                  {propUser.socialLinks.map((link, idx) => {
-                    const platform = detectPlatform(link.url);
-                    return (
-                      <a key={idx} href={link.url} target="_blank" className={`h-12 rounded-2xl bg-gray-50 dark:bg-dark-tertiary/40 hover:scale-110 transition-transform flex items-center justify-center border border-gray-100/30 dark:border-white/5 ${platform?.color || 'text-gray-400 shadow-sm'}`}>
-                        <SocialIcon platform={platform?.icon} className="w-6 h-6" />
-                      </a>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="text-center py-6 bg-gray-50/50 dark:bg-dark-tertiary/10 rounded-[2rem] border border-dashed border-gray-200 dark:border-white/5">
-                  <Share2 size={24} className="text-gray-300 mb-2 mx-auto opacity-50" />
-                  <p className="text-[10px] text-gray-400 font-bold">لم تضف روابط بعد</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Completion Milestone */}
-          {isCreator && completionPercentage < 100 && (
-            <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-[2.5rem] p-8 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">اكتمال الملف</span>
-                <span className="text-sm font-black text-primary-500">{completionPercentage}%</span>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">آخر النشاطات</h3>
+                <button onClick={() => onNavigate?.('notifications')} className="p-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-xl transition-colors border-none bg-transparent cursor-pointer">
+                  <Bell size={14} className="text-primary-500" />
+                </button>
               </div>
-              <div className="h-2 bg-gray-100 dark:bg-dark-tertiary rounded-full overflow-hidden">
-                <div className="h-full bg-primary-500 transition-all duration-1000" style={{ width: `${completionPercentage}%` }}></div>
+              <div className="space-y-3">
+                {(() => {
+                  const unreadActivity = recentActivity.filter(n => !n.isRead);
+                  return unreadActivity.length > 0 ? (
+                    unreadActivity.map((notif, idx) => (
+                      <div 
+                        key={notif._id || idx} 
+                        onClick={() => handleNotificationClick(notif)}
+                        className="p-4 bg-gray-50/50 dark:bg-dark-tertiary/20 rounded-2xl border border-gray-100/50 dark:border-white/5 hover:bg-white dark:hover:bg-dark-tertiary transition-all group cursor-pointer"
+                      >
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className={`w-1.5 h-1.5 rounded-full ${notif.type?.includes('follow') ? 'bg-primary-500' : 'bg-amber-500'}`}></div>
+                          <span className="text-[8px] text-gray-400 font-black uppercase tracking-wider">
+                            {notif.type?.includes('follow') ? 'متابعة جديدة' : 'تنبيه جديد'}
+                          </span>
+                          <span className="text-[8px] text-gray-300 mr-auto">{new Date(notif.createdAt).toLocaleDateString('ar-EG')}</span>
+                        </div>
+                        <p className="text-[10px] font-bold text-gray-700 dark:text-dark-text-primary line-clamp-2">{notif.message}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-6 opacity-40">
+                      <div className="w-12 h-12 bg-gray-50 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <Check size={20} className="text-emerald-500" strokeWidth={3} />
+                      </div>
+                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">أنت على اطلاع بكل شيء ✨</p>
+                    </div>
+                  );
+                })()}
               </div>
-              <p className="mt-4 text-[10px] text-gray-400 font-bold text-center">
-                أكمل ملفك لزيادة فرصة ظهورك!
-              </p>
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

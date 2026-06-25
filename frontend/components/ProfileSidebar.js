@@ -69,7 +69,6 @@ const ProfileSidebar = ({ userStatus, onNavigate, activeSection, role }) => {
         ? [
             { section: 'profile', href: '/profile', label: 'نظرة عامة', icon: LayoutDashboard },
             { section: 'notifications', href: '/profile?tab=notifications', label: 'التنبيهات', icon: Bell },
-            { section: 'settings', href: '/profile?tab=settings', label: 'الإعدادات', icon: Settings },
           ]
         : [
             { section: 'settings', href: '/profile', label: 'إعدادات الحساب', icon: Settings },

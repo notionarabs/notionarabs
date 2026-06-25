@@ -21,7 +21,7 @@ export default function AnalyticsContent() {
     const [stats, setStats] = useState(null);
     const [recentDownloads, setRecentDownloads] = useState([]);
     const [timeRange, setTimeRange] = useState('30'); // stored as number of days in string
-    const [chartMetric, setChartMetric] = useState('downloads'); // downloads | revenue
+
     const [sortConfig, setSortConfig] = useState({ key: 'downloads', direction: 'desc' });
     const [error, setError] = useState('');
 
@@ -262,8 +262,8 @@ export default function AnalyticsContent() {
             areaD = `${pathD} L ${points[points.length - 1].x},${height - padding} L ${points[0].x},${height - padding} Z`;
         }
 
-        const metricColor = type === 'revenue' ? '#f59e0b' : '#f97316';
-        const metricGradient = type === 'revenue' ? 'revenueGradient' : 'downloadGradient';
+        const metricColor = '#f97316';
+        const metricGradient = 'downloadGradient';
 
         const handleMouseMove = (e) => {
             const svg = e.currentTarget;
@@ -313,9 +313,7 @@ export default function AnalyticsContent() {
                             <div className="flex items-center gap-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: metricColor }} />
                                 <span className="text-xs font-black text-gray-900 dark:text-dark-text-primary">
-                                    {type === 'revenue' 
-                                        ? `${points[hoveredIndex].value.toLocaleString('ar-EG')} ج.م` 
-                                        : `${points[hoveredIndex].value.toLocaleString('ar-EG')} تحميل`}
+                                    {`${points[hoveredIndex].value.toLocaleString('ar-EG')} تحميل`}
                                 </span>
                             </div>
                         </motion.div>
@@ -333,10 +331,6 @@ export default function AnalyticsContent() {
                         <linearGradient id="downloadGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                             <stop offset="0%" stopColor="#f97316" stopOpacity="0.25" />
                             <stop offset="100%" stopColor="#f97316" stopOpacity="0" />
-                        </linearGradient>
-                        <linearGradient id="revenueGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.25" />
-                            <stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
                         </linearGradient>
                     </defs>
 
@@ -362,7 +356,7 @@ export default function AnalyticsContent() {
                                     textAnchor="end"
                                     className="fill-gray-400 dark:fill-dark-text-tertiary text-[10px] font-black"
                                 >
-                                    {type === 'revenue' ? `${val.toLocaleString('ar-EG')} ج.م` : val.toLocaleString('ar-EG')}
+                                    {val.toLocaleString('ar-EG')}
                                 </text>
                             </g>
                         );
@@ -501,7 +495,7 @@ export default function AnalyticsContent() {
             )}
 
             {/* Premium Stat KPI cards with beautiful layout */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <KpiCard 
                     title="إجمالي القوالب المعروضة" 
                     value={metrics.totalTemplates} 
@@ -523,13 +517,6 @@ export default function AnalyticsContent() {
                     trend={null} 
                     color="purple"
                 />
-                <KpiCard 
-                    title="صافي الأرباح المحققة" 
-                    value={`${(stats?.totalEarnings || 0).toLocaleString('ar-EG')} ج.م`} 
-                    icon={<DollarSign className="w-5 h-5" />} 
-                    trend={metrics.revenueTrend} 
-                    color="amber"
-                />
             </div>
 
             {/* Advanced Curved Line Chart & Activities panels */}
@@ -539,32 +526,16 @@ export default function AnalyticsContent() {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                         <div>
                             <h3 className="text-lg font-black text-gray-900 dark:text-dark-text-primary flex items-center gap-2">
-                                <TrendingUp className={`w-5 h-5 ${chartMetric === 'downloads' ? 'text-primary-500' : 'text-amber-500'}`} />
-                                {chartMetric === 'downloads' ? 'مخطط التحميلات والنشاط' : 'مخطط المبيعات والأرباح'}
+                                <TrendingUp className="w-5 h-5 text-primary-500" />
+                                مخطط التحميلات والنشاط
                             </h3>
                             <p className="text-xs text-gray-400 dark:text-dark-text-tertiary">
-                                {chartMetric === 'downloads' ? 'التحميلات اليومية المسجلة على كافة ملفاتك وقوالبك' : 'منحنى تراكم الأرباح والمبيعات اليومية المحصلة'}
+                                التحميلات اليومية المسجلة على كافة ملفاتك وقوالبك
                             </p>
-                        </div>
-
-                        {/* Metric selection buttons */}
-                        <div className="flex items-center gap-1 bg-gray-50 dark:bg-dark-tertiary p-1 rounded-2xl border border-gray-100/40 dark:border-white/5 self-start sm:self-center">
-                            <button 
-                                onClick={() => setChartMetric('downloads')}
-                                className={`px-4 py-1.5 rounded-xl text-xs font-black transition-all border-none cursor-pointer ${chartMetric === 'downloads' ? 'bg-white dark:bg-dark-secondary shadow-md text-primary-600 dark:text-orange-400' : 'text-gray-400 hover:text-gray-600'}`}
-                            >
-                                تحميلات
-                            </button>
-                            <button 
-                                onClick={() => setChartMetric('revenue')}
-                                className={`px-4 py-1.5 rounded-xl text-xs font-black transition-all border-none cursor-pointer ${chartMetric === 'revenue' ? 'bg-white dark:bg-dark-secondary shadow-md text-amber-500' : 'text-gray-400 hover:text-gray-600'}`}
-                            >
-                                أرباح
-                            </button>
                         </div>
                     </div>
 
-                    <PerformanceChart data={stats?.dailyStats || []} type={chartMetric} />
+                    <PerformanceChart data={stats?.dailyStats || []} type="downloads" />
                     
                     {/* Foot metrics analysis summary */}
                     <div className="mt-8 flex items-center justify-between pt-6 border-t border-gray-100 dark:border-white/5">
@@ -573,7 +544,7 @@ export default function AnalyticsContent() {
                                 <p className="text-[10px] font-bold text-gray-400 mb-1 uppercase tracking-wider">أعلى سقف يومي</p>
                                 <p className="text-base font-black text-gray-900 dark:text-dark-text-primary">
                                     {stats?.dailyStats?.length > 0 
-                                        ? Math.max(...stats.dailyStats.map(d => d[chartMetric])).toLocaleString('ar-EG') 
+                                        ? Math.max(...stats.dailyStats.map(d => d.downloads || 0)).toLocaleString('ar-EG') 
                                         : 0}
                                 </p>
                             </div>
@@ -581,7 +552,7 @@ export default function AnalyticsContent() {
                                 <p className="text-[10px] font-bold text-gray-400 mb-1 uppercase tracking-wider">متوسط الأداء اليومي</p>
                                 <p className="text-base font-black text-gray-900 dark:text-dark-text-primary">
                                     {stats?.dailyStats?.length > 0 
-                                        ? (stats.dailyStats.reduce((s, d) => s + (d[chartMetric] || 0), 0) / stats.dailyStats.length).toFixed(1).toLocaleString('ar-EG') 
+                                        ? (stats.dailyStats.reduce((s, d) => s + (d.downloads || 0), 0) / stats.dailyStats.length).toFixed(1).toLocaleString('ar-EG') 
                                         : 0}
                                 </p>
                             </div>

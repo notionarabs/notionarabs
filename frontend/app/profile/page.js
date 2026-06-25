@@ -289,30 +289,7 @@ function ProfileOverview({ user: propUser, onNavigate }) {
         {/* Left Double-Column: Primary Content & Actions */}
         <div className="lg:col-span-2 space-y-6 lg:space-y-8">
           {/* Bio showcase for Creators / Welcome Gateway for Standard Users */}
-          {isCreator ? (
-            <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-[2.5rem] p-8 shadow-sm relative overflow-hidden group">
-              <div className="absolute top-0 left-0 w-1.5 h-full bg-primary-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-6 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <UserIcon size={16} className="text-primary-500" />
-                  <span>النبذة التعريفية المبدعة</span>
-                </div>
-                <button onClick={() => onNavigate?.('settings')} className="p-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-xl transition-colors border-none bg-transparent cursor-pointer">
-                  <Edit3 size={14} className="text-primary-500" />
-                </button>
-              </h3>
-              <div className="relative">
-                <p className="text-sm text-gray-700 dark:text-dark-text-secondary leading-relaxed font-medium whitespace-pre-line bg-gray-50/50 dark:bg-dark-tertiary/20 p-6 rounded-3xl border border-gray-100/50 dark:border-white/5 shadow-inner">
-                  {propUser?.bio || 'لا توجد نبذة تعريفية مضافة حالياً لصفحتك العامة. أضف نبذة لتعريف المجتمع بك ومهاراتك المميزة!'}
-                </p>
-                {!propUser?.bio && (
-                  <div className="mt-4 flex justify-end">
-                    <button onClick={() => onNavigate?.('settings')} className="text-[10px] font-black text-primary-600 hover:underline border-none bg-transparent cursor-pointer">إضافة نبذة الآن →</button>
-                  </div>
-                )}
-              </div>
-            </div>
-          ) : (
+          {!isCreator && (
             <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-[2.5rem] p-8 shadow-sm relative overflow-hidden group">
               <div className="absolute top-0 left-0 w-1.5 h-full bg-primary-500"></div>
               <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-6 flex items-center justify-between">

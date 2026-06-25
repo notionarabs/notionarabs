@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 const EGYPTIAN_MOBILE = /^(010|011|012|015)\d{8}$/;
 
 function validatePayoutDetails(method, details) {
@@ -17,10 +19,6 @@ function validatePayoutDetails(method, details) {
         if (!details.accountNumber || details.accountNumber.trim().length < 10) errors.accountNumber = 'رقم الحساب يجب أن يكون 10 أرقام على الأقل';
     }
 
-    const threshold = parseFloat(details.autoPayoutThreshold);
-    if (isNaN(threshold) || threshold < 100) {
-        errors.autoPayoutThreshold = 'الحد الأدنى لتفعيل السحب التلقائي هو 100 ج.م';
-    }
     return errors;
 }
 
@@ -30,12 +28,20 @@ export default function PaymentSettingsSection({ profileSettings, handleInputCha
     const payoutMethod = profileSettings.payoutMethod || 'vodafone_cash';
     const payoutDetails = profileSettings.payoutDetails || {};
     const errors = validatePayoutDetails(payoutMethod, payoutDetails);
+    
+    // Local state to track which fields the user has touched/interacted with
+    const [touched, setTouched] = useState({});
 
     const handleDetailChange = (field, value) => {
+        setTouched(prev => ({ ...prev, [field]: true }));
         handleInputChange('payoutDetails', {
             ...payoutDetails,
             [field]: value
         });
+    };
+
+    const handleBlur = (field) => {
+        setTouched(prev => ({ ...prev, [field]: true }));
     };
 
     return (
@@ -90,11 +96,12 @@ export default function PaymentSettingsSection({ profileSettings, handleInputCha
                             type="text"
                             value={payoutDetails.walletNumber || ''}
                             onChange={(e) => handleDetailChange('walletNumber', e.target.value)}
+                            onBlur={() => handleBlur('walletNumber')}
                             placeholder="01xxxxxxxxx"
                             maxLength={11}
-                            className={`w-full px-4 py-3 bg-gray-50 dark:bg-dark-tertiary border rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-dark-text-primary ${errors.walletNumber ? 'border-red-400 dark:border-red-500' : 'border-gray-200 dark:border-dark-card-border'}`}
+                            className={`w-full px-4 py-3 bg-gray-50 dark:bg-dark-tertiary border rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-dark-text-primary ${touched.walletNumber && errors.walletNumber ? 'border-red-400 dark:border-red-500' : 'border-gray-200 dark:border-dark-card-border'}`}
                         />
-                        {errors.walletNumber ? (
+                        {touched.walletNumber && errors.walletNumber ? (
                             <p className="text-xs text-red-500 mt-2">{errors.walletNumber}</p>
                         ) : (
                             <p className="text-xs text-gray-400 mt-2">يرجى التأكد من أن الرقم يدعم استقبال الأموال عبر المحافظ الإلكترونية</p>
@@ -109,10 +116,11 @@ export default function PaymentSettingsSection({ profileSettings, handleInputCha
                                     type="text"
                                     value={payoutDetails.bankName || ''}
                                     onChange={(e) => handleDetailChange('bankName', e.target.value)}
+                                    onBlur={() => handleBlur('bankName')}
                                     placeholder="مثلاً: بنك مصر"
-                                    className={`w-full px-4 py-3 bg-gray-50 dark:bg-dark-tertiary border rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-dark-text-primary ${errors.bankName ? 'border-red-400 dark:border-red-500' : 'border-gray-200 dark:border-dark-card-border'}`}
+                                    className={`w-full px-4 py-3 bg-gray-50 dark:bg-dark-tertiary border rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-dark-text-primary ${touched.bankName && errors.bankName ? 'border-red-400 dark:border-red-500' : 'border-gray-200 dark:border-dark-card-border'}`}
                                 />
-                                {errors.bankName && <p className="text-xs text-red-500 mt-1">{errors.bankName}</p>}
+                                {touched.bankName && errors.bankName && <p className="text-xs text-red-500 mt-1">{errors.bankName}</p>}
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 dark:text-dark-text-secondary mb-2">اسم صاحب الحساب</label>
@@ -120,10 +128,11 @@ export default function PaymentSettingsSection({ profileSettings, handleInputCha
                                     type="text"
                                     value={payoutDetails.accountName || ''}
                                     onChange={(e) => handleDetailChange('accountName', e.target.value)}
+                                    onBlur={() => handleBlur('accountName')}
                                     placeholder="الاسم الكامل كما في البنك"
-                                    className={`w-full px-4 py-3 bg-gray-50 dark:bg-dark-tertiary border rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-dark-text-primary ${errors.accountName ? 'border-red-400 dark:border-red-500' : 'border-gray-200 dark:border-dark-card-border'}`}
+                                    className={`w-full px-4 py-3 bg-gray-50 dark:bg-dark-tertiary border rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-dark-text-primary ${touched.accountName && errors.accountName ? 'border-red-400 dark:border-red-500' : 'border-gray-200 dark:border-dark-card-border'}`}
                                 />
-                                {errors.accountName && <p className="text-xs text-red-500 mt-1">{errors.accountName}</p>}
+                                {touched.accountName && errors.accountName && <p className="text-xs text-red-500 mt-1">{errors.accountName}</p>}
                             </div>
                         </div>
                         <div>
@@ -132,42 +141,16 @@ export default function PaymentSettingsSection({ profileSettings, handleInputCha
                                 type="text"
                                 value={payoutDetails.accountNumber || ''}
                                 onChange={(e) => handleDetailChange('accountNumber', e.target.value)}
+                                onBlur={() => handleBlur('accountNumber')}
                                 placeholder="EG00xxxxxxxxxxxxxxxxxxxx"
-                                className={`w-full px-4 py-3 bg-gray-50 dark:bg-dark-tertiary border rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-dark-text-primary ${errors.accountNumber ? 'border-red-400 dark:border-red-500' : 'border-gray-200 dark:border-dark-card-border'}`}
+                                className={`w-full px-4 py-3 bg-gray-50 dark:bg-dark-tertiary border rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-dark-text-primary ${touched.accountNumber && errors.accountNumber ? 'border-red-400 dark:border-red-500' : 'border-gray-200 dark:border-dark-card-border'}`}
                             />
-                            {errors.accountNumber && <p className="text-xs text-red-500 mt-1">{errors.accountNumber}</p>}
+                            {touched.accountNumber && errors.accountNumber && <p className="text-xs text-red-500 mt-1">{errors.accountNumber}</p>}
                         </div>
                     </div>
                 )}
 
-                {/* Automatic Payout Settings */}
-                <div className="border-t border-gray-100 dark:border-dark-card-border pt-6 mt-6">
-                    <h3 className="text-md font-bold text-gray-900 dark:text-dark-text-primary mb-3">إعدادات السحب التلقائي</h3>
-                    
-                    <div className="p-4 bg-gray-50 dark:bg-dark-tertiary/20 rounded-xl mb-6">
-                        <p className="font-bold text-sm text-gray-900 dark:text-dark-text-primary">نظام السحب التلقائي للأرباح</p>
-                        <p className="text-xs text-gray-500 dark:text-dark-text-secondary mt-1">
-                            يتم الآن سحب الأرباح وتجهيز الطلب تلقائياً فور وصول رصيدك للحد المحدد أدناه. تم إلغاء السحوبات اليدوية لتبسيط العمليات.
-                        </p>
-                    </div>
 
-                    <div className="space-y-2">
-                        <label className="block text-sm font-bold text-gray-700 dark:text-dark-text-secondary">حد السحب التلقائي (ج.م)</label>
-                        <input
-                            type="number"
-                            value={payoutDetails.autoPayoutThreshold !== undefined ? payoutDetails.autoPayoutThreshold : 500}
-                            onChange={(e) => handleDetailChange('autoPayoutThreshold', parseInt(e.target.value, 10) || '')}
-                            min={100}
-                            placeholder="500"
-                            className={`w-full sm:w-1/2 px-4 py-3 bg-gray-50 dark:bg-dark-tertiary border rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-dark-text-primary text-sm ${errors.autoPayoutThreshold ? 'border-red-400 dark:border-red-500' : 'border-gray-200 dark:border-dark-card-border'}`}
-                        />
-                        {errors.autoPayoutThreshold ? (
-                            <p className="text-xs text-red-500 mt-1">{errors.autoPayoutThreshold}</p>
-                        ) : (
-                            <p className="text-xs text-gray-400">الحد الأدنى لتفعيل السحب التلقائي هو 100 ج.م</p>
-                        )}
-                    </div>
-                </div>
             </div>
         </div>
     );

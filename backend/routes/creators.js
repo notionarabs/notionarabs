@@ -9,6 +9,42 @@ const { cacheMiddleware, invalidateCache } = require('../utils/redis-cache');
 
 const router = express.Router();
 
+// Helper to fetch orders in chunks to avoid Supabase URL length limit (HeadersOverflowError)
+async function fetchOrdersInChunks(supabase, orderIds, selectFields, statusFilter = 'COMPLETED', dateFilter = null) {
+  if (!orderIds || orderIds.length === 0) return [];
+  
+  const chunkSize = 100;
+  const chunks = [];
+  for (let i = 0; i < orderIds.length; i += chunkSize) {
+    chunks.push(orderIds.slice(i, i + chunkSize));
+  }
+
+  const promises = chunks.map(chunk => {
+    let q = supabase
+      .from('Order')
+      .select(selectFields)
+      .in('id', chunk);
+      
+    if (statusFilter) {
+      q = q.eq('status', statusFilter);
+    }
+    if (dateFilter) {
+      q = q.gte('createdAt', dateFilter);
+    }
+    return q;
+  });
+
+  const results = await Promise.all(promises);
+  let allOrders = [];
+  for (const res of results) {
+    if (res.error) throw res.error;
+    if (res.data) {
+      allOrders = allOrders.concat(res.data);
+    }
+  }
+  return allOrders;
+}
+
 const ALLOWED_SORT_KEYS = new Set([
   'popular',
   'newest',
@@ -744,15 +780,7 @@ router.get('/me/stats', auth, async (req, res) => {
 
       const orderIds = orderItems.map(item => item.orderId).filter(Boolean);
       if (orderIds.length > 0) {
-        const { data: orders, error: ordersErr } = await supabase
-          .from('Order')
-          .select('id, createdAt')
-          .in('id', orderIds)
-          .eq('status', 'COMPLETED')
-          .gte('createdAt', daysAgo);
-
-        if (ordersErr) throw ordersErr;
-
+        const orders = await fetchOrdersInChunks(supabase, orderIds, 'id, createdAt', 'COMPLETED', daysAgo);
         const ordersMap = {};
         (orders || []).forEach(o => {
           ordersMap[o.id] = o;
@@ -943,13 +971,7 @@ router.get('/me/sales', auth, async (req, res) => {
     const orderIds = orderItems ? orderItems.map(item => item.orderId).filter(Boolean) : [];
     let orders = [];
     if (orderIds.length > 0) {
-      const { data, error: ordersErr } = await supabase
-        .from('Order')
-        .select('id, userId, status, createdAt')
-        .in('id', orderIds)
-        .eq('status', 'COMPLETED');
-      if (ordersErr) throw ordersErr;
-      orders = data || [];
+      orders = await fetchOrdersInChunks(supabase, orderIds, 'id, userId, status, createdAt', 'COMPLETED');
     }
 
     const ordersMap = {};
@@ -1181,13 +1203,7 @@ router.get('/me/activity', auth, async (req, res) => {
     const orderIds = orderItems ? orderItems.map(item => item.orderId).filter(Boolean) : [];
     let orders = [];
     if (orderIds.length > 0) {
-      const { data, error: ordersErr } = await supabase
-        .from('Order')
-        .select('id, userId, status, createdAt')
-        .in('id', orderIds)
-        .eq('status', 'COMPLETED');
-      if (ordersErr) throw ordersErr;
-      orders = data || [];
+      orders = await fetchOrdersInChunks(supabase, orderIds, 'id, userId, status, createdAt', 'COMPLETED');
     }
 
     const ordersMap = {};
@@ -1333,13 +1349,7 @@ router.get('/me/sales/export-public', async (req, res) => {
     const orderIds = orderItems ? orderItems.map(item => item.orderId).filter(Boolean) : [];
     let orders = [];
     if (orderIds.length > 0) {
-      const { data, error: ordersErr } = await supabase
-        .from('Order')
-        .select('id, userId, status, createdAt')
-        .in('id', orderIds)
-        .eq('status', 'COMPLETED');
-      if (ordersErr) throw ordersErr;
-      orders = data || [];
+      orders = await fetchOrdersInChunks(supabase, orderIds, 'id, userId, status, createdAt', 'COMPLETED');
     }
 
     const ordersMap = {};
@@ -1437,13 +1447,7 @@ router.get('/me/activity/export-public', async (req, res) => {
     const orderIds = orderItems ? orderItems.map(item => item.orderId).filter(Boolean) : [];
     let orders = [];
     if (orderIds.length > 0) {
-      const { data, error: ordersErr } = await supabase
-        .from('Order')
-        .select('id, userId, status, createdAt')
-        .in('id', orderIds)
-        .eq('status', 'COMPLETED');
-      if (ordersErr) throw ordersErr;
-      orders = data || [];
+      orders = await fetchOrdersInChunks(supabase, orderIds, 'id, userId, status, createdAt', 'COMPLETED');
     }
 
     const ordersMap = {};

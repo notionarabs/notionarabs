@@ -360,15 +360,28 @@ router.get('/:targetType/:targetId', cacheMiddleware(300), async (req, res) => {
         if (orderItems && orderItems.length > 0) {
           const orderIds = orderItems.map(item => item.orderId);
           const userId = r.user?._id || r.userId;
-          const { data: order } = await supabase
-            .from('Order')
-            .select('id')
-            .in('id', orderIds)
-            .eq('userId', userId)
-            .eq('status', 'COMPLETED')
-            .limit(1)
-            .maybeSingle();
-          isVerified = !!order;
+          
+          // Chunk order IDs to prevent Supabase headers overflow
+          const chunkSize = 100;
+          let hasOrder = false;
+          for (let i = 0; i < orderIds.length; i += chunkSize) {
+            const chunk = orderIds.slice(i, i + chunkSize);
+            const { data: order, error: orderErr } = await supabase
+              .from('Order')
+              .select('id')
+              .in('id', chunk)
+              .eq('userId', userId)
+              .eq('status', 'COMPLETED')
+              .limit(1)
+              .maybeSingle();
+            
+            if (orderErr) throw orderErr;
+            if (order) {
+              hasOrder = true;
+              break;
+            }
+          }
+          isVerified = hasOrder;
         }
       }
       return { ...r, isVerified };

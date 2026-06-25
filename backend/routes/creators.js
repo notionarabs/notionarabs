@@ -372,7 +372,8 @@ router.get('/:id', cacheMiddleware(600), async (req, res) => {
       totalTemplates: 0,
       totalDownloads: 0,
       medianRating: 0,
-      totalRevenue: 0
+      totalRevenue: 0,
+      totalRatings: 0
     };
 
     try {
@@ -432,7 +433,8 @@ router.get('/:id', cacheMiddleware(600), async (req, res) => {
           totalTemplates: rawStats.totalTemplates || 0,
           totalDownloads: rawStats.totalDownloads || 0,
           medianRating: averageRating,
-          totalRevenue: rawStats.totalRevenue || 0
+          totalRevenue: rawStats.totalRevenue || 0,
+          totalRatings: rawStats.totalRatings || 0
         };
       }
     } catch (error) {

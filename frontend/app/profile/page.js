@@ -91,6 +91,21 @@ function ProfileOverview({ user: propUser, onNavigate }) {
     fetchDashboardData();
   }, [isCreator]);
 
+  const handleNotificationClick = async (notif) => {
+    const uniqueId = notif._id || notif.id;
+    try {
+      await api.put(`/notifications/${uniqueId}/read`);
+      setRecentActivity(prev => prev.filter(n => n._id !== uniqueId && n.id !== uniqueId));
+      window.dispatchEvent(new CustomEvent('notificationsMarkedRead'));
+      window.dispatchEvent(new CustomEvent('notifications:refresh'));
+    } catch (err) {
+      console.error('Error marking notification as read:', err);
+    }
+    if (notif.link) {
+      router.push(notif.link);
+    }
+  };
+
   const followersCount = liveStats ? (liveStats.followers || 0) : (propUser?.followersCount || propUser?.followers || 0);
   const templatesCount = liveStats ? (liveStats.totalTemplates || 0) : (propUser?.templatesCount || 0);
   const ratingValue = liveStats ? (liveStats.averageRating || 0) : (propUser?.rating || 0);
@@ -383,7 +398,11 @@ function ProfileOverview({ user: propUser, onNavigate }) {
                 const unreadActivity = recentActivity.filter(n => !n.isRead);
                 return unreadActivity.length > 0 ? (
                   unreadActivity.map((notif, idx) => (
-                    <div key={notif._id || idx} className="p-4 bg-gray-50/50 dark:bg-dark-tertiary/20 rounded-2xl border border-gray-100/50 dark:border-white/5 hover:bg-white dark:hover:bg-dark-tertiary transition-all group">
+                    <div 
+                      key={notif._id || idx} 
+                      onClick={() => handleNotificationClick(notif)}
+                      className="p-4 bg-gray-50/50 dark:bg-dark-tertiary/20 rounded-2xl border border-gray-100/50 dark:border-white/5 hover:bg-white dark:hover:bg-dark-tertiary transition-all group cursor-pointer"
+                    >
                       <div className="flex items-center gap-3 mb-2">
                         <div className={`w-1.5 h-1.5 rounded-full ${notif.type?.includes('follow') ? 'bg-primary-500' : 'bg-amber-500'}`}></div>
                         <span className="text-[8px] text-gray-400 font-black uppercase tracking-wider">
@@ -432,29 +451,19 @@ function ProfileOverview({ user: propUser, onNavigate }) {
           )}
 
           {/* Completion Milestone */}
-          {isCreator && (
-            completionPercentage === 100 ? (
-              <div className="bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/20 rounded-[2.5rem] p-8 shadow-sm text-center">
-                <div className="w-16 h-16 bg-emerald-500 text-white rounded-3xl flex items-center justify-center shadow-xl shadow-emerald-500/30 mx-auto mb-5 rotate-3"><Check size={36} strokeWidth={4} /></div>
-                <h4 className="text-base font-black text-emerald-800 dark:text-emerald-400 uppercase tracking-wider mb-2">الملف مكتمل</h4>
-                <p className="text-[11px] text-emerald-600/70 dark:text-emerald-500/50 font-black leading-relaxed">
-                  أنت الآن تظهر بأفضل صورة للمجتمع ✨
-                </p>
+          {isCreator && completionPercentage < 100 && (
+            <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-[2.5rem] p-8 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">اكتمال الملف</span>
+                <span className="text-sm font-black text-primary-500">{completionPercentage}%</span>
               </div>
-            ) : (
-              <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-[2.5rem] p-8 shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">اكتمال الملف</span>
-                  <span className="text-sm font-black text-primary-500">{completionPercentage}%</span>
-                </div>
-                <div className="h-2 bg-gray-100 dark:bg-dark-tertiary rounded-full overflow-hidden">
-                  <div className="h-full bg-primary-500 transition-all duration-1000" style={{ width: `${completionPercentage}%` }}></div>
-                </div>
-                <p className="mt-4 text-[10px] text-gray-400 font-bold text-center">
-                  أكمل ملفك لزيادة فرصة ظهورك!
-                </p>
+              <div className="h-2 bg-gray-100 dark:bg-dark-tertiary rounded-full overflow-hidden">
+                <div className="h-full bg-primary-500 transition-all duration-1000" style={{ width: `${completionPercentage}%` }}></div>
               </div>
-            )
+              <p className="mt-4 text-[10px] text-gray-400 font-bold text-center">
+                أكمل ملفك لزيادة فرصة ظهورك!
+              </p>
+            </div>
           )}
         </div>
       </div>

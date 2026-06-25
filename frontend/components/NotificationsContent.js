@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 import api from '../lib/api';
 import { formatDate } from '../lib/dateUtils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,6 +13,7 @@ import {
 
 export default function NotificationsContent() {
     const { user, ensureTokenInHeaders } = useAuth();
+    const router = useRouter();
     const isCreator = user?.role === 'creator' && user?.creatorStatus === 'approved';
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
@@ -351,7 +353,14 @@ export default function NotificationsContent() {
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, scale: 0.95 }}
                                     transition={{ duration: 0.25 }}
-                                    onClick={() => isUnread && markAsRead(uniqueId)}
+                                    onClick={async () => {
+                                        if (isUnread) {
+                                            await markAsRead(uniqueId);
+                                        }
+                                        if (notification.link) {
+                                            router.push(notification.link);
+                                        }
+                                    }}
                                     className={`flex items-start gap-5 p-5 sm:p-6 rounded-3xl border transition-all cursor-pointer group relative overflow-hidden ${
                                         isUnread 
                                         ? 'bg-gradient-to-l from-primary-500/[0.07] to-transparent dark:from-orange-500/[0.06] border-primary-500/20 dark:border-orange-500/20 shadow-lg shadow-primary-500/[0.02]' 

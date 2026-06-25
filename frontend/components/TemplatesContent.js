@@ -28,42 +28,7 @@ export default function TemplatesContent() {
     const [isActionLoading, setIsActionLoading] = useState(false);
     const router = useRouter();
 
-    const [selectedBoostTemplate, setSelectedBoostTemplate] = useState(null);
-    const [selectedBoostPlan, setSelectedBoostPlan] = useState(7);
-    const [isBoostLoading, setIsBoostLoading] = useState(false);
 
-    const handleConfirmBoost = async () => {
-        if (!selectedBoostTemplate) return;
-        try {
-            setIsBoostLoading(true);
-            ensureTokenInHeaders();
-            const res = await api.post('/payments/create-boost-session', {
-                templateId: selectedBoostTemplate._id || selectedBoostTemplate.id,
-                duration: selectedBoostPlan
-            });
-            if (res.data?.success && res.data.checkoutUrl) {
-                console.log('Redirecting to Paymob Boost Checkout:', res.data.checkoutUrl);
-                try {
-                    localStorage.setItem('pending_payment', JSON.stringify({
-                        type: 'boost',
-                        templateId: selectedBoostTemplate._id || selectedBoostTemplate.id,
-                        dbOrderId: res.data.orderId
-                    }));
-                } catch (e) {
-                    console.error('Error saving pending payment to localStorage:', e);
-                }
-                window.location.href = res.data.checkoutUrl;
-            } else {
-                showError('تعذر إنشاء جلسة الدفع، يرجى المحاولة لاحقاً.');
-            }
-        } catch (error) {
-            console.error('Error creating boost session:', error);
-            const msg = error.response?.data?.message || 'حدث خطأ أثناء الاتصال ببوابة الدفع.';
-            showError(msg);
-        } finally {
-            setIsBoostLoading(false);
-        }
-    };
 
     useEffect(() => {
         fetchTemplates();
@@ -376,15 +341,7 @@ export default function TemplatesContent() {
                                                             <Edit size={12} />
                                                             <span>تعديل التفاصيل</span>
                                                         </button>
-                                                        {template.status?.toLowerCase() === 'approved' && (
-                                                            <button
-                                                                onClick={() => setSelectedBoostTemplate(template)}
-                                                                className="w-full py-2.5 bg-primary-500 hover:bg-primary-600 text-white font-black text-xs rounded-xl cursor-pointer transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-1 border-none shadow-glow-sm"
-                                                            >
-                                                                <Sparkles size={12} />
-                                                                <span>ترويج القالب</span>
-                                                            </button>
-                                                        )}
+
                                                         <button
                                                             onClick={() => setConfirmingDeleteId(template._id)}
                                                             className="w-full py-2.5 bg-red-500/5 hover:bg-red-500/10 text-red-500 dark:text-red-400 border border-red-500/10 font-bold text-xs rounded-xl cursor-pointer transition-all active:scale-95 flex items-center justify-center gap-1"
@@ -442,93 +399,7 @@ export default function TemplatesContent() {
                 user={user}
             />
 
-            {/* Boost/Promotion Modal */}
-            <AnimatePresence>
-                {selectedBoostTemplate && (
-                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" dir="rtl">
-                        <motion.div 
-                            initial={{ opacity: 0, scale: 0.95, y: 15 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                            className="bg-white dark:bg-dark-secondary rounded-[2.5rem] p-8 max-w-md w-full shadow-2xl border border-gray-100 dark:border-white/5 relative overflow-hidden"
-                        >
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-primary-500/10 rounded-full blur-2xl pointer-events-none" />
-                            <div className="absolute bottom-0 left-0 w-24 h-24 bg-accent-500/10 rounded-full blur-xl pointer-events-none" />
 
-                            <h3 className="text-xl font-black text-gray-900 dark:text-dark-text-primary mb-2 flex items-center gap-2">
-                                <Sparkles className="text-primary-500 animate-pulse" size={22} />
-                                <span>ترويج وتمييز القالب</span>
-                            </h3>
-                            <p className="text-xs text-gray-500 dark:text-dark-text-secondary leading-relaxed mb-6">
-                                قم بترويج قالبك **"{selectedBoostTemplate?.title}"** ليظهر في أعلى صفحة المعرض الرئيسية وقائمة البحث لزيادة عدد التحميلات والمبيعات بشكل كبير! 🚀
-                            </p>
-
-                            <div className="space-y-3 mb-6">
-                                {[
-                                    { days: 3, price: 100, label: 'ترويج أساسي 🥉', desc: 'مثالي للتجربة السريعة' },
-                                    { days: 7, price: 200, label: 'ترويج مميز 🥈 (موصى به)', desc: 'أفضل توازن للظهور المستمر' },
-                                    { days: 30, price: 500, label: 'ترويج احترافي 🥇', desc: 'ظهور دائم على مدار شهر كامل' }
-                                ].map((plan) => (
-                                    <label 
-                                        key={plan.days}
-                                        onClick={() => setSelectedBoostPlan(plan.days)}
-                                        className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all cursor-pointer ${
-                                            selectedBoostPlan === plan.days 
-                                                ? 'border-primary-500 bg-primary-50/20 dark:bg-orange-500/5' 
-                                                : 'border-gray-100 dark:border-white/5 hover:border-gray-200 dark:hover:border-white/10'
-                                        }`}
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <input 
-                                                type="radio" 
-                                                name="boost-plan" 
-                                                checked={selectedBoostPlan === plan.days} 
-                                                onChange={() => setSelectedBoostPlan(plan.days)}
-                                                className="accent-primary-500 w-4 h-4 cursor-pointer" 
-                                            />
-                                            <div className="text-right">
-                                                <span className="text-xs font-black text-gray-900 dark:text-dark-text-primary block">{plan.label}</span>
-                                                <span className="text-[10px] text-gray-400 dark:text-dark-text-secondary">{plan.desc}</span>
-                                            </div>
-                                        </div>
-                                        <div className="text-left shrink-0">
-                                            <span className="text-base font-black text-primary-600 dark:text-orange-400">{plan.price}</span>
-                                            <span className="text-[10px] text-gray-400 dark:text-dark-text-secondary mr-1">ج.م</span>
-                                        </div>
-                                    </label>
-                                ))}
-                            </div>
-
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={handleConfirmBoost}
-                                    disabled={isBoostLoading}
-                                    className="flex-1 py-3 bg-primary-500 hover:bg-primary-600 text-white font-black text-xs rounded-2xl shadow-glow cursor-pointer transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-1.5 border-none"
-                                >
-                                    {isBoostLoading ? (
-                                        <>
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                            <span>جاري التوجيه للدفع...</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Sparkles size={14} />
-                                            <span>تأكيد والذهاب للدفع</span>
-                                        </>
-                                    )}
-                                </button>
-                                <button
-                                    onClick={() => setSelectedBoostTemplate(null)}
-                                    disabled={isBoostLoading}
-                                    className="px-5 py-3 bg-gray-50 hover:bg-gray-100 dark:bg-dark-tertiary dark:hover:bg-dark-tertiary/80 text-gray-500 dark:text-dark-text-secondary font-bold text-xs rounded-2xl cursor-pointer border border-gray-100 dark:border-white/5"
-                                >
-                                    إلغاء
-                                </button>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
         </div>
     );
 }

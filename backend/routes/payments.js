@@ -31,7 +31,7 @@ const optionalAuth = async (req, res, next) => {
 async function _fulfillOrder(order, userId) {
     if (!order.items || order.items.length === 0) return;
 
-    const platformFeePercent = parseFloat(process.env.PLATFORM_FEE_PERCENTAGE || '10');
+    const platformFeePercent = parseFloat(process.env.PLATFORM_FEE_PERCENTAGE || '20');
     const buyer = userId ? await User.findById(userId) : null;
 
     if (order.source && order.source.startsWith('boost_')) {

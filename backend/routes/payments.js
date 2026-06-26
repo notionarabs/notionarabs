@@ -49,7 +49,10 @@ async function _fulfillOrder(order, userId) {
         }
     } else {
         for (const item of order.items) {
-            const template = await Template.findById(item.templateId);
+            const templateId = item.templateId?._id || item.templateId?.id || item.templateId;
+            const template = (item.templateId && typeof item.templateId === 'object')
+                ? item.templateId
+                : await Template.findById(templateId);
             if (!template) continue;
 
             if (template.creator) {

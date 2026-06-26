@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import api from '../../../lib/api';
 import { formatDate } from '../../../lib/dateUtils';
 import LoadingIndicator from '../../../components/LoadingIndicator';
-import { DollarSign, CheckCircle, XCircle, Clock, Search, ExternalLink, CreditCard } from 'lucide-react';
+import { DollarSign, CheckCircle, XCircle, Clock, Search, ExternalLink, CreditCard, Eye } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { BreadcrumbWrapper } from '../../../components/Breadcrumb.js';

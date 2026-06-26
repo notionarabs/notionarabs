@@ -331,7 +331,7 @@ router.post('/callback', async (req, res) => {
             const calculatedHmac = paymobService.calculateHmac(obj, hmacSecret);
             if (calculatedHmac !== receivedHmac) {
                 console.warn('⚠️ Paymob HMAC verification mismatch (Forgiving in Test Mode)');
-                if (process.env.NODE_ENV === 'production') {
+                if (paymobService.isLive) {
                     return res.status(401).json({ success: false, message: 'Invalid HMAC signature' });
                 }
             }
@@ -413,13 +413,13 @@ router.post('/confirm-redirect', optionalAuth, async (req, res) => {
             const isSignatureValid = paymobService.verifyTransactionHmac(queryData, hmac);
             if (!isSignatureValid) {
                 console.warn('⚠️ Paymob HMAC verification mismatch in confirm-redirect (Forgiving in Test Mode)');
-                if (process.env.NODE_ENV === 'production') {
+                if (paymobService.isLive) {
                     return res.status(400).json({ success: false, message: 'Invalid payment signature' });
                 }
             }
         } else {
             console.warn('⚠️ Missing HMAC in confirm-redirect request');
-            if (process.env.NODE_ENV === 'production') {
+            if (paymobService.isLive) {
                 return res.status(400).json({ success: false, message: 'Missing payment signature' });
             }
         }

@@ -12,7 +12,8 @@ const crypto = require('crypto');
 class PaymobService {
 
     constructor() {
-        const isLive = process.env.NODE_ENV === 'production';
+        const forceTest = process.env.PAYMOB_FORCE_TEST === 'true';
+        const isLive = process.env.NODE_ENV === 'production' && !forceTest;
         const suffix = isLive ? 'LIVE' : 'TEST';
 
         this.apiKey = process.env[`PAYMOB_API_KEY_${suffix}`];
@@ -25,7 +26,7 @@ class PaymobService {
         this.isLive = isLive;
         this.intentionBaseUrl = 'https://accept.paymob.com/v1/intention/';
 
-        console.log(`💳 Paymob initialised in ${isLive ? '🟢 LIVE' : '🔵 TEST'} mode`);
+        console.log(`💳 Paymob initialised in ${isLive ? '🟢 LIVE' : '🔵 TEST'} mode (forced test: ${forceTest})`);
 
         const required = [`PAYMOB_SECRET_KEY_${suffix}`, `PAYMOB_PUBLIC_KEY_${suffix}`, `PAYMOB_HMAC_SECRET_${suffix}`];
         const missing = required.filter(k => !process.env[k]);

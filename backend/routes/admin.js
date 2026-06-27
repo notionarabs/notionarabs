@@ -2380,8 +2380,7 @@ router.post('/creators/:id/clear-balance', auth, async (req, res) => {
       amount: currentBalance,
       status: 'PAID',
       method: creator.payoutMethod || 'manual',
-      accountDetails: creator.payoutDetails || {},
-      notes: 'تحويل يدوي وتصفير الرصيد من لوحة الإدارة'
+      accountDetails: JSON.stringify(creator.payoutDetails || {})
     });
 
     // Invalidate cache

@@ -20,7 +20,7 @@ export default function AdminPayouts() {
   
   const [payouts, setPayouts] = useState([]);
   const [creators, setCreators] = useState([]);
-  const [activeTab, setActiveTab] = useState('payouts');
+  const [activeTab, setActiveTab] = useState('creators');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
@@ -34,6 +34,14 @@ export default function AdminPayouts() {
     id: null,
     status: '',
     reason: ''
+  });
+
+  // Clear balance modal state
+  const [clearBalanceModal, setClearBalanceModal] = useState({
+    isOpen: false,
+    creatorId: null,
+    creatorName: '',
+    balance: 0
   });
 
   useEffect(() => {
@@ -82,6 +90,22 @@ export default function AdminPayouts() {
     }
   };
 
+  const handleClearBalance = async (creatorId) => {
+    setIsProcessing(true);
+    try {
+      const res = await api.post(`/admin/creators/${creatorId}/clear-balance`);
+      if (res.data.success) {
+        showSuccess(res.data.message || 'تم تصفير الرصيد وتسجيل التحويل بنجاح');
+        setClearBalanceModal({ isOpen: false, creatorId: null, creatorName: '', balance: 0 });
+        fetchPayouts();
+      }
+    } catch (err) {
+      showError(err.response?.data?.message || 'حدث خطأ أثناء تصفير الرصيد');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   if (authLoading || loading) return <div className="min-h-screen flex items-center justify-center"><LoadingIndicator /></div>;
 
   return (
@@ -122,16 +146,6 @@ export default function AdminPayouts() {
 
         {/* Tab Switcher */}
         <div className="flex gap-6 mb-6 border-b border-gray-200 dark:border-dark-card-border pb-px">
-          <button
-            onClick={() => setActiveTab('payouts')}
-            className={`pb-4 px-2 text-sm font-black transition-all border-b-2 uppercase tracking-wider ${
-              activeTab === 'payouts'
-                ? 'border-orange-500 text-orange-500 dark:text-orange-400'
-                : 'border-transparent text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-400'
-            }`}
-          >
-            طلبات السحب ({payouts.length})
-          </button>
           <button
             onClick={() => setActiveTab('creators')}
             className={`pb-4 px-2 text-sm font-black transition-all border-b-2 uppercase tracking-wider ${
@@ -345,7 +359,7 @@ export default function AdminPayouts() {
                     <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">إجمالي الأرباح</th>
                     <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">عدد القوالب</th>
                     <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">بيانات الدفع المسجلة</th>
-                    <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">الملف الشخصي</th>
+                    <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">حالة التحويل</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-dark-card-border">
@@ -410,13 +424,24 @@ export default function AdminPayouts() {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <Link
-                            href={`/creators/${creator.username || creator.id || creator._id || ''}`}
-                            target="_blank"
-                            className="inline-flex items-center gap-1.5 py-2 px-3 bg-zinc-100 hover:bg-orange-500/10 dark:bg-zinc-800 dark:hover:bg-orange-500/20 text-zinc-700 dark:text-zinc-300 hover:text-orange-500 dark:hover:text-orange-400 text-xs font-black rounded-xl transition-all shadow-sm"
-                          >
-                            عرض الملف <ExternalLink size={12} />
-                          </Link>
+                          {creator.balance > 0 ? (
+                            <button
+                              onClick={() => setClearBalanceModal({
+                                isOpen: true,
+                                creatorId: creator.id || creator._id,
+                                creatorName: creator.name || 'مجهول',
+                                balance: creator.balance
+                              })}
+                              disabled={isProcessing}
+                              className="inline-flex items-center gap-1.5 py-2 px-3 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black rounded-xl transition-all shadow-sm disabled:opacity-50"
+                            >
+                              تأكيد التحويل
+                            </button>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/5 dark:text-emerald-500">
+                              <CheckCircle size={12} /> تم التحويل
+                            </span>
+                          )}
                         </td>
                       </tr>
                     ))
@@ -441,6 +466,18 @@ export default function AdminPayouts() {
         }
         confirmText={confirmModal.status === 'PAID' ? 'تأكيد الدفع' : 'تأكيد الرفض'}
         variant={confirmModal.status === 'PAID' ? 'success' : 'danger'}
+        isLoading={isProcessing}
+      />
+
+      {/* Clear Balance Confirmation Modal */}
+      <ConfirmModal
+        isOpen={clearBalanceModal.isOpen}
+        onClose={() => setClearBalanceModal({ isOpen: false, creatorId: null, creatorName: '', balance: 0 })}
+        onConfirm={() => handleClearBalance(clearBalanceModal.creatorId)}
+        title="تأكيد تحويل الرصيد"
+        message={`هل أنت متأكد من رغبتك في تصفير رصيد المبدع "${clearBalanceModal.creatorName}" وتسجيل تحويل مبلغ ${clearBalanceModal.balance} ج.م له؟`}
+        confirmText="تأكيد التحويل"
+        variant="success"
         isLoading={isProcessing}
       />
     </div>

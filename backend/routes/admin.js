@@ -2340,4 +2340,66 @@ router.post('/test-notion', auth, async (req, res) => {
   }
 });
 
+// @route   POST /api/admin/creators/:id/clear-balance
+// @desc    Clear creator's balance (mark as transferred)
+// @access  Private (Admin only)
+router.post('/creators/:id/clear-balance', auth, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (req.user.role?.toLowerCase() !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin role required.'
+      });
+    }
+
+    const creatorId = req.params.id;
+    const creator = await User.findById(creatorId);
+
+    if (!creator) {
+      return res.status(404).json({
+        success: false,
+        message: 'صانع المحتوى غير موجود'
+      });
+    }
+
+    const currentBalance = creator.balance || 0;
+    if (currentBalance <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'رصيد صانع المحتوى صفر بالفعل'
+      });
+    }
+
+    // Update creator's balance to 0
+    await User.findByIdAndUpdate(creatorId, { balance: 0 });
+
+    // Record as PAID payout for transaction history
+    await Payout.create({
+      creatorId: creator.id,
+      amount: currentBalance,
+      status: 'PAID',
+      method: creator.payoutMethod || 'manual',
+      accountDetails: creator.payoutDetails || {},
+      notes: 'تحويل يدوي وتصفير الرصيد من لوحة الإدارة'
+    });
+
+    // Invalidate cache
+    await invalidateCache('stats');
+    await invalidateCache('creators');
+    await invalidateCache('user', creatorId);
+
+    res.json({
+      success: true,
+      message: `تم تحويل مبلغ ${currentBalance} ج.م وتصفير رصيد ${creator.name} بنجاح`
+    });
+  } catch (error) {
+    console.error('Clear balance error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'خطأ في الخادم'
+    });
+  }
+});
+
 module.exports = router;

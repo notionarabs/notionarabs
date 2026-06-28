@@ -14,6 +14,15 @@ import {
     Download, Star
 } from 'lucide-react';
 
+const parseUTCDate = (dateStr) => {
+    if (!dateStr) return new Date();
+    if (dateStr instanceof Date) return dateStr;
+    if (typeof dateStr === 'string' && !dateStr.endsWith('Z') && !/[+-]\d{2}:\d{2}$/.test(dateStr)) {
+        return new Date(dateStr + 'Z');
+    }
+    return new Date(dateStr);
+};
+
 const CreatorEarnings = () => {
     const { user, ensureTokenInHeaders } = useAuth();
     const { showSuccess, showError } = useToast();
@@ -83,7 +92,7 @@ const CreatorEarnings = () => {
         (payouts || []).forEach(p => {
             list.push({
                 id: p.id || p._id,
-                date: new Date(p.createdAt),
+                date: parseUTCDate(p.createdAt),
                 type: 'سحب رصيد',
                 amount: -p.amount,
                 net: -p.amount,
@@ -97,7 +106,7 @@ const CreatorEarnings = () => {
             if (s.price > 0) {
                 list.push({
                     id: s.id || s._id,
-                    date: new Date(s.date),
+                    date: parseUTCDate(s.date),
                     type: 'أرباح مبيعات',
                     amount: s.price,
                     net: s.price * 0.8, // after 20% platform fee

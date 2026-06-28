@@ -67,6 +67,31 @@ async function _fulfillOrder(order, userId) {
                 checkAndTriggerAutoPayout(template.creator).catch(err => {
                     console.error('[Payment AutoPayout Trigger] Error running check:', err);
                 });
+
+                // Create notification for the creator about the purchase (non-blocking)
+                try {
+                    const creatorId = template.creator.id || template.creator._id || template.creator;
+                    if (creatorId && String(creatorId) !== String(userId)) {
+                        const buyerName = buyer?.displayName || buyer?.name || 'مستخدم';
+                        const Notification = require('../models/Notification');
+                        await Notification.create({
+                            user: creatorId,
+                            type: 'template_purchased',
+                            title: 'مبيعة جديدة! 🎉',
+                            message: `${buyerName} قام بشراء قالبك: ${template.title} بقيمة ${salePrice} ج.م`,
+                            link: `/profile?tab=earnings`,
+                            metadata: { 
+                                templateId: template._id, 
+                                buyerId: userId, 
+                                price: salePrice, 
+                                actorProfilePicture: buyer?.profilePicture || '' 
+                            }
+                        });
+                        console.log(`🔔 Purchase notification sent to creator ${creatorId} for template ${template._id}`);
+                    }
+                } catch (notifyErr) {
+                    console.error('[Fulfillment Notification Error]:', notifyErr?.message || notifyErr);
+                }
             }
 
             template.downloads = (template.downloads || 0) + 1;

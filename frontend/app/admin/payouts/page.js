@@ -171,12 +171,12 @@ export default function AdminPayouts() {
               <table className="w-full text-right">
                 <thead className="bg-gray-50 dark:bg-dark-tertiary border-b border-gray-200 dark:border-dark-card-border">
                   <tr>
-                    <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">المبدع</th>
-                    <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">الرصيد الحالي</th>
-                    <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">إجمالي الأرباح</th>
-                    <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">عدد القوالب</th>
-                    <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">بيانات الدفع المسجلة</th>
-                    <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">حالة التحويل</th>
+                    <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest min-w-[200px]">المبدع</th>
+                    <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest min-w-[120px]">الرصيد الحالي</th>
+                    <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest min-w-[120px]">إجمالي الأرباح</th>
+                    <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest min-w-[100px]">عدد القوالب</th>
+                    <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest min-w-[180px]">بيانات الدفع المسجلة</th>
+                    <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest min-w-[245px]">حالة التحويل</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-dark-card-border">
@@ -251,12 +251,12 @@ export default function AdminPayouts() {
                                   balance: creator.balance
                                 })}
                                 disabled={isProcessing}
-                                className="inline-flex items-center gap-1.5 py-2 px-3 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black rounded-xl transition-all shadow-sm disabled:opacity-50"
+                                className="inline-flex items-center gap-1.5 py-2 px-3 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black rounded-xl transition-all shadow-sm disabled:opacity-50 whitespace-nowrap"
                               >
                                 تأكيد التحويل
                               </button>
                             ) : (
-                              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/5 dark:text-emerald-500">
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/5 dark:text-emerald-500 whitespace-nowrap">
                                 <CheckCircle size={12} /> تم التحويل
                               </span>
                             )}
@@ -266,7 +266,7 @@ export default function AdminPayouts() {
                                 creatorId: creator.id || creator._id,
                                 creatorName: creator.name || 'مجهول'
                               })}
-                              className="inline-flex items-center gap-1.5 py-2 px-3 bg-gray-100 hover:bg-gray-200 dark:bg-dark-tertiary dark:hover:bg-dark-card-border text-gray-700 dark:text-dark-text-secondary text-xs font-black rounded-xl transition-all active:scale-95 cursor-pointer border border-transparent dark:border-white/5 outline-none"
+                              className="inline-flex items-center gap-1.5 py-2 px-3 bg-gray-100 hover:bg-gray-200 dark:bg-dark-tertiary dark:hover:bg-dark-card-border text-gray-700 dark:text-dark-text-secondary text-xs font-black rounded-xl transition-all active:scale-95 cursor-pointer border border-transparent dark:border-white/5 outline-none whitespace-nowrap"
                             >
                               <Clock size={12} /> سجل التحويلات
                             </button>
@@ -342,10 +342,10 @@ export default function AdminPayouts() {
                   <table className="w-full text-right border-collapse">
                     <thead>
                       <tr className="border-b border-gray-100 dark:border-white/5 pb-2 text-xs font-black text-gray-400 uppercase tracking-widest">
-                        <th className="pb-3 text-right">التاريخ</th>
-                        <th className="pb-3 text-right">المبلغ</th>
-                        <th className="pb-3 text-right">وسيلة التحويل</th>
-                        <th className="pb-3 text-right">حالة التحويل</th>
+                        <th className="pb-3 text-right whitespace-nowrap">التاريخ</th>
+                        <th className="pb-3 text-right whitespace-nowrap">المبلغ</th>
+                        <th className="pb-3 text-right whitespace-nowrap">وسيلة التحويل</th>
+                        <th className="pb-3 text-right whitespace-nowrap">حالة التحويل</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-white/5">
@@ -354,8 +354,8 @@ export default function AdminPayouts() {
                         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                         .map(payout => (
                           <tr key={payout.id || payout._id} className="text-xs text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50/50 dark:hover:bg-dark-tertiary/20">
-                            <td className="py-4 font-bold">{formatTransactionDate(payout.createdAt)}</td>
-                            <td className="py-4 font-black text-sm text-emerald-600 dark:text-emerald-400">{payout.amount} ج.م</td>
+                            <td className="py-4 font-bold whitespace-nowrap">{formatTransactionDate(payout.createdAt)}</td>
+                            <td className="py-4 font-black text-sm text-emerald-600 dark:text-emerald-400 whitespace-nowrap">{payout.amount} ج.م</td>
                             <td className="py-4">
                               <span className="font-bold text-[11px] text-primary-500">
                                 {payout.paymentMethod === 'vodafone_cash' ? 'فودافون كاش' :

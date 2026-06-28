@@ -31,6 +31,7 @@ const CreatorEarnings = () => {
     const [error, setError] = useState('');
     const [payouts, setPayouts] = useState([]);
     const [sales, setSales] = useState([]);
+    const [timeFilter, setTimeFilter] = useState('all');
     const router = useRouter();
 
     // Load creator stats & requests history
@@ -118,6 +119,24 @@ const CreatorEarnings = () => {
         
         return list.sort((a, b) => b.date - a.date);
     }, [payouts, sales]);
+
+    const filteredTransactions = useMemo(() => {
+        const now = new Date();
+        return transactions.filter(tx => {
+            if (timeFilter === 'this_month') {
+                return tx.date.getFullYear() === now.getFullYear() && tx.date.getMonth() === now.getMonth();
+            }
+            if (timeFilter === 'last_3_months') {
+                const threeMonthsAgo = new Date();
+                threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+                return tx.date >= threeMonthsAgo;
+            }
+            if (timeFilter === 'this_year') {
+                return tx.date.getFullYear() === now.getFullYear();
+            }
+            return true; // 'all'
+        });
+    }, [transactions, timeFilter]);
 
     const formatTransactionDate = (dateObj) => {
         try {
@@ -280,7 +299,7 @@ const CreatorEarnings = () => {
 
             {/* Recent Transactions Section */}
             <div className="bg-white dark:bg-dark-secondary border border-gray-100/60 dark:border-white/5 rounded-3xl shadow-sm overflow-hidden" dir="rtl">
-                <div className="p-6 sm:p-8 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+                <div className="p-6 sm:p-8 border-b border-gray-100 dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <h3 className="text-lg font-black text-gray-900 dark:text-dark-text-primary">
                             أحدث العمليات والحركات المالية
@@ -289,7 +308,19 @@ const CreatorEarnings = () => {
                             سجل بكافة الحركات المالية من عمليات بيع القوالب وسحوبات الرصيد الصادرة لحسابك
                         </p>
                     </div>
-
+                    <div className="flex items-center gap-2">
+                        <label className="text-xs text-gray-400 dark:text-dark-text-secondary font-bold whitespace-nowrap">تصفية:</label>
+                        <select
+                            value={timeFilter}
+                            onChange={(e) => setTimeFilter(e.target.value)}
+                            className="bg-gray-50 dark:bg-dark-tertiary border border-gray-100 dark:border-white/5 text-gray-750 dark:text-dark-text-primary text-xs font-bold rounded-xl px-3 py-2.5 outline-none focus:ring-2 focus:ring-primary-500 transition-all cursor-pointer"
+                        >
+                            <option value="all">الكل</option>
+                            <option value="this_month">هذا الشهر</option>
+                            <option value="last_3_months">آخر ٣ أشهر</option>
+                            <option value="this_year">هذا العام</option>
+                        </select>
+                    </div>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-right border-collapse">
@@ -302,8 +333,8 @@ const CreatorEarnings = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 dark:divide-white/5">
-                            {transactions && transactions.length > 0 ? (
-                                transactions.map((tx) => (
+                            {filteredTransactions && filteredTransactions.length > 0 ? (
+                                filteredTransactions.map((tx) => (
                                     <tr key={tx.id} className="hover:bg-gray-50/30 dark:hover:bg-dark-tertiary/10 transition-colors">
                                         <td className="px-8 py-4 text-xs font-bold text-gray-700 dark:text-dark-text-secondary">
                                             {formatTransactionDate(tx.date)}
@@ -322,7 +353,7 @@ const CreatorEarnings = () => {
                             ) : (
                                 <tr>
                                     <td colSpan="4" className="px-8 py-10 text-center text-xs font-bold text-gray-400 dark:text-dark-text-tertiary">
-                                        لا توجد معاملات مسجلة حالياً.
+                                        لا توجد معاملات مسجلة في هذه الفترة.
                                     </td>
                                 </tr>
                             )}

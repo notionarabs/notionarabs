@@ -7,11 +7,33 @@ import { useRouter } from 'next/navigation';
 import api from '../../../lib/api';
 import { formatDate } from '../../../lib/dateUtils';
 import LoadingIndicator from '../../../components/LoadingIndicator';
-import { DollarSign, CheckCircle, XCircle, Clock, Search, ExternalLink, CreditCard, Eye } from 'lucide-react';
+import { DollarSign, CheckCircle, XCircle, Clock, Search, ExternalLink, CreditCard, Eye, X } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { BreadcrumbWrapper } from '../../../components/Breadcrumb.js';
 import ConfirmModal from '../../../components/ConfirmModal';
+
+const parseUTCDate = (dateStr) => {
+    if (!dateStr) return new Date();
+    if (dateStr instanceof Date) return dateStr;
+    if (typeof dateStr === 'string' && !dateStr.endsWith('Z') && !/[+-]\d{2}:\d{2}$/.test(dateStr)) {
+        return new Date(dateStr + 'Z');
+    }
+    return new Date(dateStr);
+};
+
+const formatTransactionDate = (dateStr) => {
+    if (!dateStr) return '';
+    const date = parseUTCDate(dateStr);
+    return date.toLocaleString('ar-EG', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
+};
 
 export default function AdminPayouts() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
@@ -23,6 +45,7 @@ export default function AdminPayouts() {
   const [activeTab, setActiveTab] = useState('creators');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [historyModal, setHistoryModal] = useState({ isOpen: false, creatorId: null, creatorName: '' });
   
   const [isProcessing, setIsProcessing] = useState(false);
   const [rejectingId, setRejectingId] = useState(null);
@@ -143,223 +166,7 @@ export default function AdminPayouts() {
             {error}
           </div>
         )}
-
-        {/* Tab Switcher */}
-        <div className="flex gap-6 mb-6 border-b border-gray-200 dark:border-dark-card-border pb-px">
-          <button
-            onClick={() => setActiveTab('creators')}
-            className={`pb-4 px-2 text-sm font-black transition-all border-b-2 uppercase tracking-wider ${
-              activeTab === 'creators'
-                ? 'border-orange-500 text-orange-500 dark:text-orange-400'
-                : 'border-transparent text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-400'
-            }`}
-          >
-            حسابات وأرصدة المبدعين ({creators.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('payouts')}
-            className={`pb-4 px-2 text-sm font-black transition-all border-b-2 uppercase tracking-wider ${
-              activeTab === 'payouts'
-                ? 'border-orange-500 text-orange-500 dark:text-orange-400'
-                : 'border-transparent text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-400'
-            }`}
-          >
-            عمليات التحويل السابقة ({payouts.length})
-          </button>
-        </div>
-
-        {activeTab === 'payouts' ? (
-          <div className="bg-white dark:bg-dark-secondary rounded-2xl shadow-sm border border-gray-200 dark:border-dark-card-border overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-right">
-                <thead className="bg-gray-50 dark:bg-dark-tertiary border-b border-gray-200 dark:border-dark-card-border">
-                  <tr>
-                    <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">صانع المحتوى</th>
-                    <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">المبلغ</th>
-                    <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">وسيلة الدفع</th>
-                    <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">التاريخ</th>
-                    <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">الحالة</th>
-                    <th className="px-6 py-4 text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">الإجراءات</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-dark-card-border">
-                  {payouts.length === 0 ? (
-                    <tr>
-                      <td colSpan="6" className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
-                        لا توجد طلبات سحب حالياً
-                      </td>
-                    </tr>
-                  ) : (
-                    payouts.map((payout) => (
-                      <tr key={payout.id || payout._id} className="hover:bg-gray-50 dark:hover:bg-dark-tertiary transition-colors">
-                        <td className="px-6 py-4">
-                          <Link 
-                            href={`/creators/${payout.creatorId?.username || payout.creatorId?.id || payout.creatorId?._id || ''}`}
-                            target="_blank"
-                            className="flex items-center gap-3 hover:opacity-85 transition-opacity group"
-                          >
-                            <div className="w-10 h-10 rounded-full bg-gray-200 relative overflow-hidden shrink-0 ring-2 ring-transparent group-hover:ring-orange-500 transition-all">
-                              <Image 
-                                src={payout.creatorId?.profilePicture || '/default-avatar.png'} 
-                                alt="" 
-                                fill 
-                                className="object-cover" 
-                              />
-                            </div>
-                            <div>
-                              <div className="font-black text-gray-900 dark:text-white text-sm group-hover:text-orange-500 transition-colors flex items-center gap-1">
-                                {payout.creatorId?.name || 'مجهول'}
-                                <ExternalLink size={12} className="opacity-0 group-hover:opacity-60 transition-opacity" />
-                              </div>
-                              <div className="text-xs font-bold text-gray-400 dark:text-gray-500">{payout.creatorId?.email}</div>
-                            </div>
-                          </Link>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="font-black text-lg text-emerald-600 dark:text-emerald-400">{payout.amount} ج.م</div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex flex-col gap-3">
-                            {/* Data from the actual Request */}
-                            <div className="p-3 bg-gray-50 dark:bg-dark-tertiary rounded-xl border border-gray-100 dark:border-dark-card-border">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="text-[10px] font-black uppercase text-gray-400">بيانات الطلب:</span>
-                                <span className="text-[11px] font-black text-primary-500">
-                                  {payout.method === 'vodafone_cash' ? 'فودافون كاش' : 
-                                   payout.method === 'instapay' ? 'إنستاباي' : 
-                                   payout.method === 'bank_transfer' ? 'تحويل بنكي' : payout.method}
-                                </span>
-                              </div>
-                              <div className="text-xs font-bold text-gray-700 dark:text-gray-300 break-all">
-                                {payout.method === 'vodafone_cash' ? payout.accountDetails?.walletNumber :
-                                 payout.method === 'instapay' ? payout.accountDetails?.ipa :
-                                 payout.method === 'bank_transfer' ? `${payout.accountDetails?.bankName} - ${payout.accountDetails?.accountNumber}` :
-                                 JSON.stringify(payout.accountDetails || {})}
-                              </div>
-                            </div>
-
-                            {/* Reference from Profile */}
-                            <div className="p-3 bg-blue-50/50 dark:bg-blue-500/5 rounded-xl border border-blue-100/50 dark:border-blue-500/10">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="text-[10px] font-black uppercase text-blue-400">المرجع من الملف الشخصي:</span>
-                                <span className="text-[11px] font-black text-blue-600 dark:text-blue-400">
-                                  {payout.creatorId?.payoutMethod === 'vodafone_cash' ? 'فودافون كاش' : 
-                                   payout.creatorId?.payoutMethod === 'instapay' ? 'إنستاباي' : 
-                                   payout.creatorId?.payoutMethod === 'bank_transfer' ? 'تحويل بنكي' : 'غير محدد'}
-                                </span>
-                              </div>
-                              <div className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
-                                {payout.creatorId?.payoutDetails?.walletNumber || 
-                                 payout.creatorId?.payoutDetails?.ipa || 
-                                 (payout.creatorId?.payoutDetails?.accountNumber ? `${payout.creatorId?.payoutDetails?.bankName}: ${payout.creatorId?.payoutDetails?.accountNumber}` : 'لا توجد بيانات مسجلة')}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                            {formatDate(payout.createdAt)}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          {payout.status === 'PENDING' && (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                              <Clock size={12} /> قيد المراجعة
-                            </span>
-                          )}
-                          {payout.status === 'PAID' && (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                              <CheckCircle size={12} /> تم الدفع
-                            </span>
-                          )}
-                          {payout.status === 'REJECTED' && (
-                            <div className="flex flex-col gap-1">
-                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full w-fit text-xs font-black bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
-                                <XCircle size={12} /> مرفوض
-                              </span>
-                              <span className="text-[10px] text-gray-500 max-w-[150px] line-clamp-2" title={payout.rejectionReason}>
-                                {payout.rejectionReason}
-                              </span>
-                            </div>
-                          )}
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex flex-col gap-2">
-                            {payout.status === 'PENDING' && (
-                              <>
-                                {rejectingId === (payout.id || payout._id) ? (
-                                  <div className="flex flex-col gap-2 min-w-[200px] bg-white dark:bg-dark-secondary p-3 rounded-lg border border-gray-200 shadow-lg absolute z-10 -ml-32">
-                                    <textarea 
-                                      placeholder="سبب الرفض (إلزامي)" 
-                                      className="form-input text-xs h-16 resize-none"
-                                      value={rejectionReason}
-                                      onChange={(e) => setRejectionReason(e.target.value)}
-                                    />
-                                    <div className="flex gap-2">
-                                      <button 
-                                        disabled={!rejectionReason.trim() || isProcessing}
-                                        onClick={() => setConfirmModal({ 
-                                          isOpen: true, 
-                                          id: payout._id || payout.id, 
-                                          status: 'REJECTED', 
-                                          reason: rejectionReason 
-                                        })}
-                                        className="flex-1 bg-red-500 text-white text-xs font-bold py-1.5 rounded hover:bg-red-600 disabled:opacity-50"
-                                      >
-                                        تأكيد الرفض
-                                      </button>
-                                      <button 
-                                        onClick={() => setRejectingId(null)}
-                                        className="flex-1 bg-gray-200 text-gray-800 text-xs font-bold py-1.5 rounded hover:bg-gray-300"
-                                      >
-                                        إلغاء
-                                      </button>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <div className="flex items-center gap-2">
-                                    <button
-                                      onClick={() => setConfirmModal({ 
-                                        isOpen: true, 
-                                        id: payout.id || payout._id, 
-                                        status: 'PAID', 
-                                        reason: '' 
-                                      })}
-                                      disabled={isProcessing}
-                                      className="flex items-center gap-1 bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500 hover:text-white px-3 py-1.5 rounded-lg text-xs font-black transition-colors"
-                                    >
-                                      <CheckCircle size={14} /> اعتماد
-                                    </button>
-                                    <button
-                                      onClick={() => setRejectingId(payout.id || payout._id)}
-                                      disabled={isProcessing}
-                                      className="flex items-center gap-1 bg-red-500/10 text-red-600 hover:bg-red-500 hover:text-white px-3 py-1.5 rounded-lg text-xs font-black transition-colors"
-                                    >
-                                      <XCircle size={14} /> رفض
-                                    </button>
-                                  </div>
-                                )}
-                              </>
-                            )}
-
-                            <Link 
-                              href={`/creators/${payout.creatorId?.username || ''}`}
-                              target="_blank"
-                              className="flex items-center justify-center gap-2 py-1.5 bg-gray-50 dark:bg-dark-tertiary hover:bg-orange-500/10 text-gray-400 hover:text-orange-500 rounded-lg text-[10px] font-black transition-all border border-transparent hover:border-orange-500/20"
-                            >
-                              <Eye size={12} /> عرض ملف المبدع
-                            </Link>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        ) : (
-          <div className="bg-white dark:bg-dark-secondary rounded-2xl shadow-sm border border-gray-200 dark:border-dark-card-border overflow-hidden">
+        <div className="bg-white dark:bg-dark-secondary rounded-2xl shadow-sm border border-gray-200 dark:border-dark-card-border overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-right">
                 <thead className="bg-gray-50 dark:bg-dark-tertiary border-b border-gray-200 dark:border-dark-card-border">
@@ -434,24 +241,36 @@ export default function AdminPayouts() {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          {creator.balance > 0 ? (
+                          <div className="flex items-center gap-2">
+                            {creator.balance > 0 ? (
+                              <button
+                                onClick={() => setClearBalanceModal({
+                                  isOpen: true,
+                                  creatorId: creator.id || creator._id,
+                                  creatorName: creator.name || 'مجهول',
+                                  balance: creator.balance
+                                })}
+                                disabled={isProcessing}
+                                className="inline-flex items-center gap-1.5 py-2 px-3 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black rounded-xl transition-all shadow-sm disabled:opacity-50"
+                              >
+                                تأكيد التحويل
+                              </button>
+                            ) : (
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/5 dark:text-emerald-500">
+                                <CheckCircle size={12} /> تم التحويل
+                              </span>
+                            )}
                             <button
-                              onClick={() => setClearBalanceModal({
+                              onClick={() => setHistoryModal({
                                 isOpen: true,
                                 creatorId: creator.id || creator._id,
-                                creatorName: creator.name || 'مجهول',
-                                balance: creator.balance
+                                creatorName: creator.name || 'مجهول'
                               })}
-                              disabled={isProcessing}
-                              className="inline-flex items-center gap-1.5 py-2 px-3 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-black rounded-xl transition-all shadow-sm disabled:opacity-50"
+                              className="inline-flex items-center gap-1.5 py-2 px-3 bg-gray-100 hover:bg-gray-200 dark:bg-dark-tertiary dark:hover:bg-dark-card-border text-gray-700 dark:text-dark-text-secondary text-xs font-black rounded-xl transition-all active:scale-95 cursor-pointer border border-transparent dark:border-white/5 outline-none"
                             >
-                              تأكيد التحويل
+                              <Clock size={12} /> سجل التحويلات
                             </button>
-                          ) : (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/5 dark:text-emerald-500">
-                              <CheckCircle size={12} /> تم التحويل
-                            </span>
-                          )}
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -460,7 +279,7 @@ export default function AdminPayouts() {
               </table>
             </div>
           </div>
-        )}
+
       </div>
 
       {/* Confirmation Modal */}
@@ -490,6 +309,103 @@ export default function AdminPayouts() {
         variant="success"
         isLoading={isProcessing}
       />
+
+      {/* Creator History Modal */}
+      {historyModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-sm transition-all duration-300">
+          <div className="bg-white dark:bg-dark-secondary w-full max-w-3xl rounded-3xl border border-gray-100 dark:border-white/5 shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-scale-up">
+            {/* Header */}
+            <div className="p-6 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
+                  <Clock className="text-primary-500 w-5 h-5" />
+                  سجل التحويلات لـ {historyModal.creatorName}
+                </h3>
+                <p className="text-xs text-gray-400 dark:text-dark-text-tertiary mt-1">عرض جميع عمليات السحب السابقة والمدفوعة لهذا المبدع</p>
+              </div>
+              <button
+                onClick={() => setHistoryModal({ isOpen: false, creatorId: null, creatorName: '' })}
+                className="p-2 bg-gray-50 dark:bg-dark-tertiary text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-xl transition-all cursor-pointer outline-none border-none"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 overflow-y-auto flex-1">
+              {payouts.filter(p => (p.creatorId?._id || p.creatorId?.id || p.creatorId) === historyModal.creatorId).length === 0 ? (
+                <div className="text-center py-12 text-gray-400 dark:text-dark-text-tertiary font-bold">
+                  لا توجد تحويلات سابقة مسجلة لهذا المبدع.
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-right border-collapse">
+                    <thead>
+                      <tr className="border-b border-gray-100 dark:border-white/5 pb-2 text-xs font-black text-gray-400 uppercase tracking-widest">
+                        <th className="pb-3 text-right">التاريخ</th>
+                        <th className="pb-3 text-right">المبلغ</th>
+                        <th className="pb-3 text-right">وسيلة التحويل</th>
+                        <th className="pb-3 text-right">حالة التحويل</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 dark:divide-white/5">
+                      {payouts
+                        .filter(p => (p.creatorId?._id || p.creatorId?.id || p.creatorId) === historyModal.creatorId)
+                        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                        .map(payout => (
+                          <tr key={payout.id || payout._id} className="text-xs text-gray-600 dark:text-dark-text-secondary hover:bg-gray-50/50 dark:hover:bg-dark-tertiary/20">
+                            <td className="py-4 font-bold">{formatTransactionDate(payout.createdAt)}</td>
+                            <td className="py-4 font-black text-sm text-emerald-600 dark:text-emerald-400">{payout.amount} ج.م</td>
+                            <td className="py-4">
+                              <span className="font-bold text-[11px] text-primary-500">
+                                {payout.paymentMethod === 'vodafone_cash' ? 'فودافون كاش' :
+                                 payout.paymentMethod === 'instapay' ? 'إنستاباي' :
+                                 payout.paymentMethod === 'bank_transfer' ? 'تحويل بنكي' : payout.paymentMethod || 'غير محدد'}
+                              </span>
+                              {payout.paymentDetails && (
+                                <div className="text-[10px] text-gray-400 dark:text-zinc-500 font-mono mt-0.5">
+                                  {payout.paymentMethod === 'vodafone_cash' && payout.paymentDetails.walletNumber}
+                                  {payout.paymentMethod === 'instapay' && payout.paymentDetails.ipa}
+                                  {payout.paymentMethod === 'bank_transfer' && `${payout.paymentDetails.bankName} - ${payout.paymentDetails.accountNumber}`}
+                                </div>
+                              )}
+                            </td>
+                            <td className="py-4">
+                              <div className="flex flex-col gap-1">
+                                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full w-fit font-black ${
+                                  payout.status === 'PAID'
+                                    ? 'bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/5 dark:text-emerald-500'
+                                    : payout.status === 'REJECTED'
+                                    ? 'bg-red-500/10 text-red-600 dark:bg-red-500/5 dark:text-red-500'
+                                    : 'bg-amber-500/10 text-amber-600 dark:bg-amber-500/5 dark:text-amber-500'
+                                }`}>
+                                  {payout.status === 'PAID' ? 'تم التحويل' : payout.status === 'REJECTED' ? 'مرفوض' : 'معلق'}
+                                </span>
+                                {payout.status === 'REJECTED' && payout.rejectionReason && (
+                                  <span className="text-[10px] text-red-500 font-semibold max-w-xs">{payout.rejectionReason}</span>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="p-6 bg-gray-50 dark:bg-dark-tertiary border-t border-gray-100 dark:border-white/5 flex justify-end">
+              <button
+                onClick={() => setHistoryModal({ isOpen: false, creatorId: null, creatorName: '' })}
+                className="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 dark:bg-dark-card-border dark:hover:bg-zinc-700 text-gray-700 dark:text-white text-xs font-black rounded-xl transition-all cursor-pointer outline-none border-none"
+              >
+                إغلاق
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

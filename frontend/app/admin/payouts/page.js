@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import api from '../../../lib/api';
 import { formatDate } from '../../../lib/dateUtils';
 import LoadingIndicator from '../../../components/LoadingIndicator';
-import { DollarSign, CheckCircle, XCircle, Clock, Search, ExternalLink, CreditCard, Eye, X } from 'lucide-react';
+import { DollarSign, CheckCircle, XCircle, Clock, Search, ExternalLink, CreditCard, Eye, X, Copy } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { BreadcrumbWrapper } from '../../../components/Breadcrumb.js';
@@ -129,6 +129,12 @@ export default function AdminPayouts() {
     }
   };
 
+  const handleCopyCredentials = (text) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    showSuccess('تم نسخ البيانات بنجاح');
+  };
+
   if (authLoading || loading) return <div className="min-h-screen flex items-center justify-center"><LoadingIndicator /></div>;
 
   return (
@@ -148,8 +154,10 @@ export default function AdminPayouts() {
           </div>
           <div className="bg-white dark:bg-dark-secondary p-4 rounded-xl border border-gray-200 dark:border-dark-card-border shadow-sm flex items-center gap-4">
             <div className="text-center">
-              <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest font-black">طلبات معلقة</div>
-              <div className="text-2xl font-black text-amber-500">{payouts.filter(p => p.status === 'PENDING').length}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest font-black">أرصدة مستحقة للتحويل</div>
+              <div className="text-2xl font-black text-amber-500">
+                {creators.reduce((sum, c) => sum + (c.balance || 0), 0)} ج.م
+              </div>
             </div>
             <div className="w-px h-10 bg-gray-200 dark:bg-dark-card-border"></div>
             <div className="text-center">
@@ -229,11 +237,24 @@ export default function AdminPayouts() {
                                    creator.payoutMethod === 'instapay' ? 'إنستاباي' :
                                    creator.payoutMethod === 'bank_transfer' ? 'تحويل بنكي' : creator.payoutMethod}
                                 </span>
-                                <span className="font-mono text-zinc-500 dark:text-zinc-500">
-                                  {creator.payoutMethod === 'vodafone_cash' ? creator.payoutDetails?.walletNumber :
-                                   creator.payoutMethod === 'instapay' ? creator.payoutDetails?.ipa :
-                                   creator.payoutMethod === 'bank_transfer' ? `${creator.payoutDetails?.bankName} - ${creator.payoutDetails?.accountNumber}` : ''}
-                                </span>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  <span className="font-mono text-zinc-500 dark:text-zinc-500">
+                                    {creator.payoutMethod === 'vodafone_cash' ? creator.payoutDetails?.walletNumber :
+                                     creator.payoutMethod === 'instapay' ? creator.payoutDetails?.ipa :
+                                     creator.payoutMethod === 'bank_transfer' ? `${creator.payoutDetails?.bankName} - ${creator.payoutDetails?.accountNumber}` : ''}
+                                  </span>
+                                  <button
+                                    onClick={() => handleCopyCredentials(
+                                      creator.payoutMethod === 'vodafone_cash' ? creator.payoutDetails?.walletNumber :
+                                      creator.payoutMethod === 'instapay' ? creator.payoutDetails?.ipa :
+                                      creator.payoutMethod === 'bank_transfer' ? `${creator.payoutDetails?.bankName} - ${creator.payoutDetails?.accountNumber}` : ''
+                                    )}
+                                    title="نسخ بيانات الدفع"
+                                    className="p-1 hover:bg-gray-100 dark:hover:bg-dark-tertiary rounded text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors flex items-center justify-center border-none outline-none bg-transparent cursor-pointer active:scale-90"
+                                  >
+                                    <Copy size={11} />
+                                  </button>
+                                </div>
                               </div>
                             ) : (
                               <span className="text-zinc-400 dark:text-zinc-600 font-medium">لا توجد بيانات مسجلة</span>

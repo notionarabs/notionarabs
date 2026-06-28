@@ -2375,13 +2375,23 @@ router.post('/creators/:id/clear-balance', auth, async (req, res) => {
     await User.findByIdAndUpdate(creatorId, { balance: 0 });
 
     // Record as PAID payout for transaction history
-    await Payout.create({
+    const payoutRecord = await Payout.create({
       creatorId: creator.id,
       amount: currentBalance,
       status: 'PAID',
       method: creator.payoutMethod || 'manual',
       accountDetails: JSON.stringify(creator.payoutDetails || {})
     });
+
+    // Send email notification to creator
+    try {
+      const emailService = require('../services/emailService');
+      emailService.sendPayoutApprovedEmail(creator, payoutRecord).catch(emailErr => {
+        console.error('[Payout Clear Balance] Failed to send email to creator:', emailErr.message);
+      });
+    } catch (emailServiceErr) {
+      console.error('[Payout Clear Balance] Email service loading failed:', emailServiceErr.message);
+    }
 
     // Invalidate cache
     await invalidateCache('stats');

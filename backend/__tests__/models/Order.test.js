@@ -117,3 +117,36 @@ describe('Order.create() rollback', () => {
         })).rejects.toThrow(/Failed to create order items/);
     });
 });
+
+// ---------------------------------------------------------------------------
+// Order.completePending()
+// ---------------------------------------------------------------------------
+describe('Order.completePending()', () => {
+    it('returns null if order is not found in PENDING status', async () => {
+        queueResult('Order', { data: null, error: null });
+
+        const result = await Order.completePending('non-existent-order', {
+            paymentId: 'pay-1',
+            paymobOrderId: 'paymob-1'
+        });
+
+        expect(result).toBeNull();
+    });
+
+    it('updates status and returns a populated Order instance on success', async () => {
+        const orderData = { id: 'order-123', userId: 'user-1', status: 'COMPLETED' };
+        const itemData = [{ id: 'item-1', orderId: 'order-123', templateId: 'tmpl-1', name: 'Test', price: 10 }];
+        
+        queueResult('Order', { data: orderData, error: null });
+        queueResult('OrderItem', { data: itemData, error: null });
+
+        const result = await Order.completePending('order-123', {
+            paymentId: 'pay-123',
+            paymobOrderId: 'paymob-123'
+        });
+
+        expect(result).toBeInstanceOf(Order);
+        expect(result.status).toBe('COMPLETED');
+        expect(result.items).toHaveLength(1);
+    });
+});

@@ -31,7 +31,7 @@ const optionalAuth = async (req, res, next) => {
 async function _fulfillOrder(order, userId) {
     if (!order.items || order.items.length === 0) return;
 
-    const platformFeePercent = parseFloat(process.env.PLATFORM_FEE_PERCENTAGE || '20');
+    const platformFeePercent = parseFloat(process.env.PLATFORM_FEE_PERCENTAGE || '9');
     const buyer = userId ? await User.findById(userId) : null;
 
     if (order.source && order.source.startsWith('boost_')) {
@@ -350,46 +350,75 @@ router.post('/callback', async (req, res) => {
                 return res.status(200).json({ success: true });
             }
 
-            // Try to find order by internal dbOrderId (from extras), then by Paymob order ID
+            // Try to resolve target order ID
             const dbOrderId = obj.extras?.dbOrderId || obj.extras?.db_order_id;
-            let order;
-            if (dbOrderId) {
-                order = await Order.findOne({ id: dbOrderId });
-            }
-            if (!order && paymobOrderId) {
-                order = await Order.findOne({ paymobOrderId: paymobOrderId.toString() });
+            let targetOrderId = dbOrderId;
+            if (!targetOrderId && paymobOrderId) {
+                const foundOrder = await Order.findOne({ paymobOrderId: paymobOrderId.toString() });
+                if (foundOrder) {
+                    targetOrderId = foundOrder.id;
+                }
             }
 
-            if (!order) {
+            if (!targetOrderId) {
                 console.error(`❌ Order not found for Webhook (dbOrderId: ${dbOrderId || 'none'}, paymobOrderId: ${paymobOrderId})`);
                 return res.status(200).json({ success: true, note: 'Ignored unmatched order' });
             }
 
-            if (success === true || success === 'true') {
-                if (order.status !== 'COMPLETED') {
-                    order.status = 'COMPLETED';
-                    order.paymentId = obj.id?.toString();
-                    order.paymobOrderId = paymobOrderId.toString();
-                    order.paymentMethod = 'CARD';
-                    await order.save();
+            const supabase = require('../utils/supabase');
 
+            if (success === true || success === 'true') {
+                // Determine payment method dynamically from Paymob transaction source_data
+                let paymentMethod = 'CARD';
+                if (obj && obj.source_data) {
+                    const srcType = String(obj.source_data.type || '').toUpperCase();
+                    if (srcType === 'WALLET') {
+                        paymentMethod = 'WALLET';
+                    } else if (srcType === 'CASH') {
+                        paymentMethod = 'FAWRY';
+                    } else if (srcType) {
+                        paymentMethod = srcType;
+                    }
+                }
+
+                // Atomically complete order only if it's PENDING
+                const completedOrder = await Order.completePending(targetOrderId, {
+                    paymentId: obj.id,
+                    paymobOrderId: paymobOrderId,
+                    paymentMethod: paymentMethod
+                });
+
+                if (completedOrder) {
                     try {
-                        await _fulfillOrder(order, order.user || order.userId);
+                        await _fulfillOrder(completedOrder, completedOrder.userId || completedOrder.user);
                     } catch (err) {
                         console.error('Error fulfilling order via webhook:', err);
                     }
+                } else {
+                    console.log(`[Webhook] Order ${targetOrderId} already processed or status is not PENDING. Skipping fulfillment.`);
                 }
             } else {
-                order.status = 'CANCELLED';
-                await order.save();
+                // Atomically transition to CANCELLED only if it's PENDING
+                const { data: cancelledData } = await supabase
+                    .from('Order')
+                    .update({ status: 'CANCELLED', updatedAt: new Date().toISOString() })
+                    .eq('id', targetOrderId)
+                    .eq('status', 'PENDING')
+                    .select()
+                    .maybeSingle();
 
-                const failedUserId = order.user || order.userId;
-                PaymentLog.record({ event: 'FAILED', userId: failedUserId, orderId: order.id || order._id, amount: order.total, reason: 'Paymob webhook: success=false' }).catch(() => {});
-                if (failedUserId) {
-                    try {
-                        const failedUser = await User.findById(failedUserId);
-                        if (failedUser) await sendPaymentFailedEmail(failedUser, order);
-                    } catch (_) {}
+                if (cancelledData) {
+                    const failedUserId = cancelledData.userId;
+                    PaymentLog.record({ event: 'FAILED', userId: failedUserId, orderId: targetOrderId, amount: cancelledData.total, reason: 'Paymob webhook: success=false' }).catch(() => {});
+                    if (failedUserId) {
+                        try {
+                            const failedUser = await User.findById(failedUserId);
+                            if (failedUser) {
+                                const cancelledOrder = new Order(cancelledData);
+                                await sendPaymentFailedEmail(failedUser, cancelledOrder);
+                            }
+                        } catch (_) {}
+                    }
                 }
             }
         }
@@ -427,59 +456,81 @@ router.post('/confirm-redirect', optionalAuth, async (req, res) => {
             }
         }
 
-        // 2. Verify payment success status
+        // 2. Resolve target order ID
+        let targetOrderId = dbOrderId;
+        if (!targetOrderId && userId) {
+            console.log(`[Confirm Redirect] Missing dbOrderId. Falling back to latest order for user ${userId}`);
+            const foundOrder = await Order.findOne({ user: userId });
+            if (foundOrder) {
+                targetOrderId = foundOrder.id;
+            }
+        }
+
+        if (!targetOrderId) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        const supabase = require('../utils/supabase');
+
+        // 3. Verify payment success status
         const isSuccess = queryData.success === 'true' || queryData.success === true;
         const isPending = queryData.pending === 'true' || queryData.pending === true;
 
         if (!isSuccess || isPending) {
-            if (dbOrderId && userId) {
-                try {
-                    const failedOrder = await Order.findOne({ id: dbOrderId, user: userId });
-                    if (failedOrder && failedOrder.status !== 'CANCELLED') {
-                        failedOrder.status = 'CANCELLED';
-                        await failedOrder.save();
-                        PaymentLog.record({ event: 'FAILED', userId, orderId: dbOrderId, amount: failedOrder.total, reason: 'confirm-redirect: success=false' }).catch(() => {});
-                        const failedUser = await User.findById(userId);
-                        if (failedUser) await sendPaymentFailedEmail(failedUser, failedOrder);
-                    }
-                } catch (_) {}
+            // Atomically cancel order only if it's currently PENDING
+            const { data: cancelledData } = await supabase
+                .from('Order')
+                .update({ status: 'CANCELLED', updatedAt: new Date().toISOString() })
+                .eq('id', targetOrderId)
+                .eq('status', 'PENDING')
+                .select()
+                .maybeSingle();
+
+            if (cancelledData) {
+                PaymentLog.record({ 
+                    event: 'FAILED', 
+                    userId: userId || cancelledData.userId, 
+                    orderId: targetOrderId, 
+                    amount: cancelledData.total, 
+                    reason: 'confirm-redirect: success=false' 
+                }).catch(() => {});
+
+                const failedUserId = userId || cancelledData.userId;
+                if (failedUserId) {
+                    try {
+                        const failedUser = await User.findById(failedUserId);
+                        if (failedUser) {
+                            await sendPaymentFailedEmail(failedUser, new Order(cancelledData));
+                        }
+                    } catch (_) {}
+                }
             }
             return res.status(400).json({ success: false, message: 'Payment is unsuccessful or pending' });
         }
 
-        // 3. Find target order — guests have no userId so search by id only
-        let order;
-        if (dbOrderId) {
-            const query = { id: dbOrderId };
-            if (userId) query.user = userId;
-            order = await Order.findOne(query);
-        } else if (userId) {
-            console.log(`[Confirm Redirect] Missing dbOrderId. Falling back to latest order for user ${userId}`);
-            order = await Order.findOne({ user: userId });
-        }
-        
-        if (!order) {
-            return res.status(404).json({ success: false, message: 'Order not found' });
-        }
+        // 4. Atomically complete order only if it's currently PENDING
+        const completedOrder = await Order.completePending(targetOrderId, {
+            paymentId: queryData.id,
+            paymobOrderId: queryData.order,
+            paymentMethod: 'CARD'
+        });
 
-        // If already completed (e.g. by Webhook callback running first), just return success
-        if (order.status === 'COMPLETED') {
-            return res.json({ success: true, message: 'Order already completed', order });
-        }
-
-        order.status = 'COMPLETED';
-        if (queryData.order) order.paymobOrderId = queryData.order.toString();
-        if (queryData.id) order.paymentId = queryData.id.toString();
-        order.paymentMethod = 'CARD';
-        await order.save();
-
-        try {
-            await _fulfillOrder(order, userId);
-        } catch (err) {
-            console.error('Error fulfilling order via redirect:', err);
+        if (completedOrder) {
+            try {
+                await _fulfillOrder(completedOrder, userId || completedOrder.userId);
+            } catch (err) {
+                console.error('Error fulfilling order via redirect:', err);
+            }
+            return res.json({ success: true, order: completedOrder });
+        } else {
+            // If the order wasn't in PENDING status, it might have been completed already (e.g. by Webhook)
+            const existingOrder = await Order.findOne({ id: targetOrderId });
+            if (existingOrder && existingOrder.status === 'COMPLETED') {
+                return res.json({ success: true, message: 'Order already completed', order: existingOrder });
+            }
+            return res.status(404).json({ success: false, message: 'Order not found or not completed' });
         }
 
-        res.json({ success: true, order });
     } catch (error) {
         console.error('Confirm redirect error:', error);
         res.status(500).json({ success: false, message: 'Error confirming payment' });

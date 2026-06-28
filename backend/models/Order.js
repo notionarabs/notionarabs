@@ -117,6 +117,41 @@ class Order {
     return wrap(promise);
   }
 
+  static async completePending(orderId, { paymentId, paymobOrderId, paymentMethod = 'CARD' } = {}) {
+    const now = new Date().toISOString();
+    const { data, error } = await supabase
+      .from('Order')
+      .update({
+        status: 'COMPLETED',
+        paymentId: paymentId ? paymentId.toString() : null,
+        paymobOrderId: paymobOrderId ? paymobOrderId.toString() : null,
+        paymentMethod: paymentMethod.toUpperCase(),
+        updatedAt: now
+      })
+      .eq('id', orderId)
+      .eq('status', 'PENDING')
+      .select()
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!data) return null;
+
+    const { data: items } = await supabase.from('OrderItem').select('*').eq('orderId', data.id);
+    let populatedItems = items || [];
+    if (items && items.length > 0) {
+      const Template = require('./Template');
+      populatedItems = await Promise.all(items.map(async (item) => {
+        const template = await Template.findById(item.templateId);
+        return {
+          ...item,
+          templateId: template || item.templateId
+        };
+      }));
+    }
+
+    return new Order({ ...data, items: populatedItems });
+  }
+
   static async existsForTemplate(userId, templateId) {
     const { data: orders } = await supabase
       .from('Order')

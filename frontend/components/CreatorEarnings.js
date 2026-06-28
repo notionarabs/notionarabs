@@ -109,7 +109,7 @@ const CreatorEarnings = () => {
                     date: parseUTCDate(s.date),
                     type: 'أرباح مبيعات',
                     amount: s.price,
-                    net: s.price * 0.8, // after 20% platform fee
+                    net: s.price * 0.91, // after 9% platform fee
                     status: 'Succeeded',
                     statusName: 'تم بنجاح'
                 });
@@ -341,7 +341,7 @@ const CreatorEarnings = () => {
                     <div className="space-y-3">
                         <p className="flex items-start gap-2">
                             <span className="p-0.5 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex-shrink-0"><Check size={12} /></span>
-                            <span>يتم احتساب الأرباح بنسبة <strong>٨٠٪</strong> كاملة للمبدع، و <strong>٢٠٪</strong> كعمولة تشغيل وصيانة للمنصة.</span>
+                            <span>يتم احتساب الأرباح بنسبة <strong>٩١٪</strong> كاملة للمبدع، و <strong>٩٪</strong> كعمولة تشغيل وصيانة للمنصة.</span>
                         </p>
                         <p className="flex items-start gap-2">
                             <span className="p-0.5 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex-shrink-0"><Check size={12} /></span>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import api from '../lib/api';
@@ -19,12 +19,20 @@ import PaymentSettingsSection from './settings/PaymentSettingsSection';
 
 export default function SettingsContent() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const subtabParam = searchParams.get('subtab');
     const { user, isAuthenticated, loading, logout, ensureTokenInHeaders, refreshUserData } = useAuth();
     const { showSuccess, showError, showWarning } = useToast();
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(null); // 'profile' or 'cover'
-    const [activeTab, setActiveTab] = useState('profile'); // 'profile' | 'payout' | 'socials' | 'preferences'
+    const [activeTab, setActiveTab] = useState(subtabParam || 'profile'); // 'profile' | 'payout' | 'socials' | 'preferences'
+
+    useEffect(() => {
+        if (subtabParam) {
+            setActiveTab(subtabParam);
+        }
+    }, [subtabParam]);
     const [settings, setSettings] = useState({
         notifications: true,
         emailUpdates: true,

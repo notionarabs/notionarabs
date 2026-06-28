@@ -112,7 +112,13 @@ const CreatorEarnings = () => {
 
     const formatTransactionDate = (dateObj) => {
         try {
-            return dateObj.toLocaleDateString('ar-EG', { month: 'long', day: 'numeric' });
+            return dateObj.toLocaleString('ar-EG', { 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: true
+            });
         } catch (e) {
             return '';
         }
@@ -161,7 +167,11 @@ const CreatorEarnings = () => {
     }
 
     const payoutDetailLabel = user?.payoutMethod === 'vodafone_cash' ? 'رقم محفظة فودافون كاش' : 'رقم الحساب البنكي (IBAN)';
-    const payoutDetailValue = user?.payoutDetails?.number || user?.payoutDetails?.iban || 'غير محدد';
+    const payoutDetailValue = user?.payoutMethod === 'vodafone_cash'
+        ? (user?.payoutDetails?.walletNumber || user?.payoutDetails?.number || 'غير محدد')
+        : (user?.payoutDetails?.accountNumber || user?.payoutDetails?.iban 
+            ? `${user?.payoutDetails?.bankName ? user.payoutDetails.bankName + ' - ' : ''}${user?.payoutDetails?.accountNumber || user?.payoutDetails?.iban}`
+            : 'غير محدد');
 
     return (
         <div className="space-y-8 pb-12" dir="rtl">
@@ -220,9 +230,13 @@ const CreatorEarnings = () => {
                     <div className="relative z-10">
                         <div className="flex items-center justify-between mb-4">
                             <span className="text-gray-400 dark:text-dark-text-tertiary text-xs font-black uppercase tracking-wider">الرصيد المتاح للسحب حالياً</span>
-                            <div className="p-2.5 bg-gray-50 dark:bg-dark-tertiary rounded-2xl border border-gray-100 dark:border-white/5 text-gray-500 dark:text-dark-text-secondary">
+                            <button
+                                onClick={() => router.push('/profile?tab=settings&subtab=payout')}
+                                title="إعدادات الدفع"
+                                className="p-2.5 bg-gray-50 dark:bg-dark-tertiary rounded-2xl border border-gray-100 dark:border-white/5 text-gray-500 dark:text-dark-text-secondary hover:bg-primary-50 dark:hover:bg-orange-500/10 hover:text-primary-600 dark:hover:text-orange-400 hover:border-primary-100 dark:hover:border-orange-500/20 transition-all active:scale-95 cursor-pointer outline-none focus:ring-2 focus:ring-primary-500"
+                            >
                                 <Wallet className="w-5 h-5" />
-                            </div>
+                            </button>
                         </div>
                         <div className="flex items-baseline gap-2 text-gray-900 dark:text-dark-text-primary">
                             <h3 className="text-4xl font-black tracking-tight">{(stats?.currentBalance || 0).toLocaleString('ar-EG')}</h3>
@@ -232,8 +246,8 @@ const CreatorEarnings = () => {
 
                     <div className="mt-4 space-y-3">
                         <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/20 px-3.5 py-3 rounded-2xl flex items-center gap-2 border border-emerald-100/50 dark:border-emerald-900/10">
-                            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping shrink-0"></span>
-                            <span>السحب التلقائي مفعل عند وصول رصيدك إلى {parseFloat(user?.payoutDetails?.autoPayoutThreshold || 500).toLocaleString('ar-EG')} ج.م. يتم تحويل الرصيد تلقائياً.</span>
+                            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0"></span>
+                            <span>يتم مراجعة وتحويل الأرباح يدوياً من قبل الإدارة إلى وسيلة السحب الخاصة بك.</span>
                         </div>
                         
                         <div className="grid grid-cols-2 gap-3 mt-2">
@@ -322,13 +336,13 @@ const CreatorEarnings = () => {
                         </p>
                         <p className="flex items-start gap-2">
                             <span className="p-0.5 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex-shrink-0"><Check size={12} /></span>
-                            <span>الحد الأدنى المقبول لتقديم طلب سحب الأرباح هو <strong>١٠٠ ج.م</strong>.</span>
+                            <span>يتم تحويل الأرباح المتراكمة في رصيدك يدوياً بواسطة الإدارة دون الحاجة لتقديم طلب.</span>
                         </p>
                     </div>
                     <div className="space-y-3">
                         <p className="flex items-start gap-2">
                             <span className="p-0.5 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex-shrink-0"><Check size={12} /></span>
-                            <span>تتم معالجة الطلبات وإرسال الأموال عبر <strong>فودافون كاش</strong> أو <strong>الحساب البنكي</strong> خلال ٣ أيام عمل.</span>
+                            <span>يتم تحويل الأموال وتصفير الرصيد عبر <strong>فودافون كاش</strong> أو <strong>الحساب البنكي</strong> المسجل.</span>
                         </p>
                         <p className="flex items-start gap-2">
                             <span className="p-0.5 rounded bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex-shrink-0"><Check size={12} /></span>

@@ -10,6 +10,9 @@ const emailService = require('./emailService');
  * @param {string} userId - The ID of the creator/user to check
  */
 async function checkAndTriggerAutoPayout(userId) {
+  // Automatic payouts are disabled. Payouts must be processed manually by admins.
+  return;
+
   try {
     if (!userId) return;
 

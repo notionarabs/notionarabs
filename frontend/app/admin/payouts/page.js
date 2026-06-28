@@ -156,6 +156,16 @@ export default function AdminPayouts() {
           >
             حسابات وأرصدة المبدعين ({creators.length})
           </button>
+          <button
+            onClick={() => setActiveTab('payouts')}
+            className={`pb-4 px-2 text-sm font-black transition-all border-b-2 uppercase tracking-wider ${
+              activeTab === 'payouts'
+                ? 'border-orange-500 text-orange-500 dark:text-orange-400'
+                : 'border-transparent text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:hover:text-zinc-400'
+            }`}
+          >
+            عمليات التحويل السابقة ({payouts.length})
+          </button>
         </div>
 
         {activeTab === 'payouts' ? (

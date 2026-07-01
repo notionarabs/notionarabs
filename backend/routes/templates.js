@@ -592,7 +592,7 @@ router.get('/my-templates', auth, async (req, res) => {
     }
 
     const templates = await Template.find({ creator: req.user._id })
-      .select('title description categories tags previewImage slug rating reviewsCount downloads views isPaid price purchaseLink status adminNotes approvedAt rejectedAt approvedBy rejectedBy createdAt updatedAt')
+      .select('title description categories tags previewImage previewImages slug rating reviewsCount downloads views isPaid price purchaseLink status adminNotes approvedAt rejectedAt approvedBy rejectedBy createdAt updatedAt features notionLink language explanationVideo')
       .sort({ createdAt: -1 });
 
     res.json({

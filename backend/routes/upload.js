@@ -194,9 +194,13 @@ router.post('/image', auth, upload.single('image'), async (req, res) => {
   }
 });
 
-// Delete image endpoint
+// Delete image endpoint — admin only (no client UI calls this endpoint)
 router.delete('/image/:publicId', auth, async (req, res) => {
   try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'غير مسموح' });
+    }
+
     const { publicId } = req.params;
 
     if (!publicId) {

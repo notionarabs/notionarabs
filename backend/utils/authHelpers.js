@@ -44,7 +44,7 @@ const validateEmailDomain = async (email) => {
 const generateToken = (userId, email = null) => {
     const payload = { userId };
     if (email) payload.email = email;
-    return jwt.sign(payload, process.env.JWT_SECRET || 'your-secret-key', { expiresIn: '7d' });
+    return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
 };
 
 module.exports = {

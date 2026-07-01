@@ -32,16 +32,13 @@ router.get('/me', auth, async (req, res) => {
 });
 
 // @route   POST /api/orders
-// @desc    Create a new order
+// @desc    Create a new order for free template downloads only
 // @access  Private
 router.post('/', [
   auth,
-  body('items').isArray().withMessage('العناصر مطلوبة'),
+  body('items').isArray({ min: 1 }).withMessage('العناصر مطلوبة'),
   body('items.*.templateId').isString().notEmpty().withMessage('معرف القالب غير صحيح'),
-  body('items.*.name').notEmpty().withMessage('اسم العنصر مطلوب'),
-  body('items.*.price').isNumeric().withMessage('السعر يجب أن يكون رقم'),
-  body('total').isNumeric().withMessage('المجموع يجب أن يكون رقم'),
-  body('status').optional().isIn(['PENDING', 'COMPLETED', 'CANCELLED', 'REFUNDED']).withMessage('حالة غير صحيحة')
+  body('notes').optional().isLength({ max: 500 }).withMessage('الملاحظات طويلة جداً')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -53,7 +50,7 @@ router.post('/', [
       });
     }
 
-    const { items, total, status = 'COMPLETED', source = 'download', notes } = req.body;
+    const { items, notes } = req.body;
 
     // Verify templates exist
     const templateIds = items.map(item => item.templateId);
@@ -66,23 +63,33 @@ router.post('/', [
       });
     }
 
-    // Create order
+    // This endpoint is for free templates only — paid templates go through the payment flow
+    const hasPaidTemplate = templates.some(t => t.isPaid && t.price > 0);
+    if (hasPaidTemplate) {
+      return res.status(400).json({
+        success: false,
+        message: 'القوالب المدفوعة تتطلب إتمام الدفع أولاً'
+      });
+    }
+
+    // Compute total from actual DB prices — never trust client-provided values
+    const total = templates.reduce((sum, t) => sum + (t.price || 0), 0);
+
     const order = new Order({
       user: req.user.id,
-      items,
+      items: items.map(item => {
+        const template = templates.find(t => t._id.toString() === item.templateId);
+        return { templateId: item.templateId, name: template?.title || '', price: template?.price || 0 };
+      }),
       total,
-      status,
-      source,
+      status: 'COMPLETED',
+      source: 'download',
       notes,
-      downloaded: true // Since this is typically called after download
+      downloaded: true
     });
 
     await order.save();
-
-    // Populate the order for response
     await order.populate('items.templateId', 'title slug previewImage notionLink');
-
-
 
     res.status(201).json({
       success: true,
@@ -131,11 +138,10 @@ router.get('/:id', auth, async (req, res) => {
 });
 
 // @route   PUT /api/orders/:id
-// @desc    Update order
+// @desc    Update order notes (status is managed by the payment system only)
 // @access  Private
 router.put('/:id', [
   auth,
-  body('status').optional().isIn(['PENDING', 'COMPLETED', 'CANCELLED', 'REFUNDED']).withMessage('حالة غير صحيحة'),
   body('notes').optional().isLength({ max: 500 }).withMessage('الملاحظات طويلة جداً')
 ], async (req, res) => {
   try {
@@ -160,9 +166,7 @@ router.put('/:id', [
       });
     }
 
-    // Update allowed fields
-    const { status, notes } = req.body;
-    if (status) order.status = status;
+    const { notes } = req.body;
     if (notes !== undefined) order.notes = notes;
 
     await order.save();

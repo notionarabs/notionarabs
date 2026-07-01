@@ -83,22 +83,20 @@ export function middleware(request) {
     pathname.startsWith('/static') ||
     pathname.includes('.');
 
-  const isAdminRoute = pathname.startsWith('/admin');
-
-  // Allow access if public, static, or admin
-  if (isPublicRoute || isDynamicPublicRoute || isStaticAsset || isAdminRoute) {
+  // Allow access if public or static asset
+  if (isPublicRoute || isDynamicPublicRoute || isStaticAsset) {
     return NextResponse.next();
   }
 
-  // 6. Handle other protected routes
+  // 6. Handle protected routes — require auth token
   if (!token) {
-    if (process.env.NODE_ENV !== 'production' && pathname.startsWith('/admin')) {
-      return NextResponse.next();
-    }
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }
+
+  // Admin role verification happens server-side in each admin page/API call.
+  // Middleware only checks token presence to gate the route.
 
   return NextResponse.next();
 }

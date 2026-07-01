@@ -272,6 +272,10 @@ app.listen(PORT, () => {
   const { scheduleBoostExpiry } = require('./jobs/expireBoosts');
   scheduleBoostExpiry();
 
+  // Cancel PENDING orders that never received a payment after 2 hours
+  const { scheduleOrderExpiry } = require('./jobs/expirePendingOrders');
+  scheduleOrderExpiry();
+
   // Optional: Sync widgets to Notion on startup
   // This makes it "automatic" as soon as the server runs/restarts
   if (process.env.NODE_ENV === 'production' || process.env.SYNC_WIDGETS_ON_START === 'true') {

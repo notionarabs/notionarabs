@@ -7,6 +7,7 @@ const Blog = require('../models/Blog');
 const Payout = require('../models/Payout');
 const auth = require('../middleware/auth');
 const { cacheMiddleware, invalidateCache } = require('../utils/redis-cache');
+const supabase = require('../utils/supabase');
 
 const router = express.Router();
 
@@ -2371,8 +2372,21 @@ router.post('/creators/:id/clear-balance', auth, async (req, res) => {
       });
     }
 
-    // Update creator's balance to 0
-    await User.findByIdAndUpdate(creatorId, { balance: 0 });
+    // Atomically zero the balance only if it hasn't changed since we read it.
+    // This prevents a concurrent payment from being silently erased.
+    const { data: atomicResult, error: atomicError } = await supabase
+      .from('User')
+      .update({ balance: 0, updatedAt: new Date().toISOString() })
+      .eq('id', creatorId)
+      .eq('balance', currentBalance)
+      .select();
+
+    if (atomicError || !atomicResult || atomicResult.length === 0) {
+      return res.status(409).json({
+        success: false,
+        message: 'تغير رصيد المبدع أثناء المعالجة، يرجى المحاولة مرة أخرى'
+      });
+    }
 
     // Record as PAID payout for transaction history
     const payoutRecord = await Payout.create({
@@ -2392,6 +2406,18 @@ router.post('/creators/:id/clear-balance', auth, async (req, res) => {
     } catch (emailServiceErr) {
       console.error('[Payout Clear Balance] Email service loading failed:', emailServiceErr.message);
     }
+
+    // In-app notification for the creator
+    Notification.create({
+      user: creator.id,
+      type: 'payout_completed',
+      title: 'تم تحويل أرباحك! 💸',
+      message: `تم تحويل مبلغ ${currentBalance} ج.م إلى حسابك بنجاح.`,
+      link: '/profile?tab=earnings',
+      metadata: { amount: currentBalance, payoutId: payoutRecord.id }
+    }).catch(notifErr => {
+      console.error('[Payout Clear Balance] Failed to create notification:', notifErr.message);
+    });
 
     // Invalidate cache
     await invalidateCache('stats');

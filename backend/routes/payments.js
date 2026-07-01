@@ -11,6 +11,7 @@ const { invalidateCache } = require('../utils/redis-cache');
 const { sendOrderConfirmationEmail, sendPaymentFailedEmail } = require('../services/emailService');
 const PaymentLog = require('../models/PaymentLog');
 const { purchaseRateLimit } = require('../middleware/security');
+const supabase = require('../utils/supabase');
 
 // Sets req.user if a valid token is present, continues without error if not.
 const optionalAuth = async (req, res, next) => {
@@ -58,15 +59,27 @@ async function _fulfillOrder(order, userId) {
             if (template.creator) {
                 const salePrice = item.price;
                 const creatorEarnings = salePrice - (salePrice * platformFeePercent) / 100;
-                await User.findByIdAndUpdate(template.creator, {
-                    $inc: { totalEarnings: salePrice, balance: creatorEarnings }
+                const creatorIdStr = String(template.creator?._id || template.creator?.id || template.creator);
+                // Atomic SQL-level increment avoids the read-modify-write race condition.
+                // Required Postgres function (run once in Supabase SQL editor):
+                //   CREATE OR REPLACE FUNCTION increment_user_earnings(p_user_id TEXT, p_sale_price NUMERIC, p_creator_earnings NUMERIC)
+                //   RETURNS void LANGUAGE sql SECURITY DEFINER AS $$
+                //     UPDATE "User" SET "totalEarnings" = "totalEarnings" + p_sale_price,
+                //       balance = balance + p_creator_earnings, "updatedAt" = NOW()
+                //     WHERE id = p_user_id;
+                //   $$;
+                const { error: rpcError } = await supabase.rpc('increment_user_earnings', {
+                    p_user_id: creatorIdStr,
+                    p_sale_price: salePrice,
+                    p_creator_earnings: creatorEarnings
                 });
+                if (rpcError) {
+                    console.error('[Payment Fulfillment] Atomic RPC not available, using non-atomic fallback:', rpcError.message);
+                    await User.findByIdAndUpdate(creatorIdStr, {
+                        $inc: { totalEarnings: salePrice, balance: creatorEarnings }
+                    });
+                }
 
-                // Trigger automatic payout check
-                const { checkAndTriggerAutoPayout } = require('../services/payoutService');
-                checkAndTriggerAutoPayout(template.creator).catch(err => {
-                    console.error('[Payment AutoPayout Trigger] Error running check:', err);
-                });
 
                 // Create notification for the creator about the purchase (non-blocking)
                 try {
@@ -251,7 +264,7 @@ router.post('/create-checkout-session', auth, purchaseRateLimit, async (req, res
  * @desc    Create a Paymob checkout session for paid template boosting
  * @access  Private (Approved Creator)
  */
-router.post('/create-boost-session', auth, async (req, res) => {
+router.post('/create-boost-session', auth, purchaseRateLimit, async (req, res) => {
     try {
         const { templateId, duration } = req.body;
         const userId = req.user.id || req.user._id;
@@ -318,14 +331,23 @@ router.post('/create-boost-session', auth, async (req, res) => {
         // 5. Use Paymob Intention API
         const frontendUrl = process.env.FRONTEND_URL || 'https://www.notionarabs.com';
 
-        const { clientSecret, publicKey } = await paymobService.createIntention({
-            amountCents,
-            currency: 'EGP',
-            billingData,
-            itemName: cleanTitle,
-            redirectionUrl: `${frontendUrl}/payment/callback?dbOrderId=${finalOrderId}&type=boost`,
-            extras: { dbOrderId: finalOrderId }
-        });
+        let clientSecret, publicKey;
+        try {
+            ({ clientSecret, publicKey } = await paymobService.createIntention({
+                amountCents,
+                currency: 'EGP',
+                billingData,
+                itemName: cleanTitle,
+                redirectionUrl: `${frontendUrl}/payment/callback?dbOrderId=${finalOrderId}&type=boost`,
+                extras: { dbOrderId: finalOrderId }
+            }));
+        } catch (intentionError) {
+            try {
+                savedOrder.status = 'CANCELLED';
+                await savedOrder.save();
+            } catch (_) {}
+            throw intentionError;
+        }
 
         const checkoutUrl = `https://accept.paymob.com/unifiedcheckout/?publicKey=${publicKey}&clientSecret=${clientSecret}`;
 
@@ -355,12 +377,19 @@ router.post('/callback', async (req, res) => {
         const hmacSecret = paymobService.hmacSecret;
         const receivedHmac = req.query.hmac;
 
-        if (hmacSecret && receivedHmac) {
-            const calculatedHmac = paymobService.calculateHmac(obj, hmacSecret);
-            if (calculatedHmac !== receivedHmac) {
-                console.warn('⚠️ Paymob HMAC verification mismatch (Forgiving in Test Mode)');
+        if (hmacSecret) {
+            if (!receivedHmac) {
+                console.warn('⚠️ Paymob webhook received without HMAC signature');
                 if (paymobService.isLive) {
-                    return res.status(401).json({ success: false, message: 'Invalid HMAC signature' });
+                    return res.status(401).json({ success: false, message: 'Missing HMAC signature' });
+                }
+            } else {
+                const calculatedHmac = paymobService.calculateHmac(obj, hmacSecret);
+                if (calculatedHmac === null || calculatedHmac !== receivedHmac) {
+                    console.warn('⚠️ Paymob HMAC verification mismatch (Forgiving in Test Mode)');
+                    if (paymobService.isLive) {
+                        return res.status(401).json({ success: false, message: 'Invalid HMAC signature' });
+                    }
                 }
             }
         }
@@ -389,8 +418,6 @@ router.post('/callback', async (req, res) => {
                 console.error(`❌ Order not found for Webhook (dbOrderId: ${dbOrderId || 'none'}, paymobOrderId: ${paymobOrderId})`);
                 return res.status(200).json({ success: true, note: 'Ignored unmatched order' });
             }
-
-            const supabase = require('../utils/supabase');
 
             if (success === true || success === 'true') {
                 // Determine payment method dynamically from Paymob transaction source_data
@@ -482,20 +509,11 @@ router.post('/confirm-redirect', optionalAuth, async (req, res) => {
         }
 
         // 2. Resolve target order ID
-        let targetOrderId = dbOrderId;
-        if (!targetOrderId && userId) {
-            console.log(`[Confirm Redirect] Missing dbOrderId. Falling back to latest order for user ${userId}`);
-            const foundOrder = await Order.findOne({ user: userId });
-            if (foundOrder) {
-                targetOrderId = foundOrder.id;
-            }
+        if (!dbOrderId) {
+            console.warn('[Confirm Redirect] Missing dbOrderId — cannot safely identify order');
+            return res.status(400).json({ success: false, message: 'Order ID missing from redirect' });
         }
-
-        if (!targetOrderId) {
-            return res.status(404).json({ success: false, message: 'Order not found' });
-        }
-
-        const supabase = require('../utils/supabase');
+        const targetOrderId = dbOrderId;
 
         // 3. Verify payment success status
         const isSuccess = queryData.success === 'true' || queryData.success === true;
@@ -534,10 +552,17 @@ router.post('/confirm-redirect', optionalAuth, async (req, res) => {
         }
 
         // 4. Atomically complete order only if it's currently PENDING
+        // Paymob sends source_data_type / source_data.type in the redirect query params
+        let redirectPaymentMethod = 'CARD';
+        const rdSrcType = String(queryData.source_data_type || queryData['source_data.type'] || '').toUpperCase();
+        if (rdSrcType === 'WALLET') redirectPaymentMethod = 'WALLET';
+        else if (rdSrcType === 'CASH') redirectPaymentMethod = 'FAWRY';
+        else if (rdSrcType) redirectPaymentMethod = rdSrcType;
+
         const completedOrder = await Order.completePending(targetOrderId, {
             paymentId: queryData.id,
             paymobOrderId: queryData.order,
-            paymentMethod: 'CARD'
+            paymentMethod: redirectPaymentMethod
         });
 
         if (completedOrder) {

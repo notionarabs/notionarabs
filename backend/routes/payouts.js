@@ -43,7 +43,7 @@ router.get('/admin/all', auth, async (req, res) => {
             return res.status(403).json({ success: false, message: 'غير مصرح لك' });
         }
 
-        const payouts = await Payout.find({}).populate('creatorId');
+        const payouts = await Payout.find({}).limit(500).populate('creatorId');
         res.json({ success: true, payouts });
     } catch (error) {
         console.error('Admin fetch payouts error:', error);
@@ -70,13 +70,18 @@ router.patch('/admin/:id', auth, async (req, res) => {
         }
 
         const oldStatus = payout.status;
+
+        if (oldStatus === 'PAID') {
+            return res.status(400).json({ success: false, message: 'لا يمكن تغيير حالة طلب تم دفعه بالفعل' });
+        }
+
         payout.status = status.toUpperCase();
         if (rejectionReason) payout.rejectionReason = rejectionReason;
 
         const creator = await User.findById(payout.creatorId);
 
-        // If rejecting, return balance to user
-        if (status.toUpperCase() === 'REJECTED' && oldStatus !== 'REJECTED') {
+        // If rejecting, return balance to user (only if not already paid out)
+        if (status.toUpperCase() === 'REJECTED' && oldStatus !== 'REJECTED' && oldStatus !== 'PAID') {
             await User.findByIdAndUpdate(payout.creatorId, {
                 $inc: { balance: payout.amount }
             });

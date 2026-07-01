@@ -187,6 +187,8 @@ class PaymobService {
      * @returns {string} The calculated HMAC
      */
     calculateHmac(data, hmacSecret) {
+        if (!data || !data.order || !data.source_data) return null;
+
         const {
             amount_cents,
             created_at,

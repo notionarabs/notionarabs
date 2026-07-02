@@ -1220,8 +1220,12 @@ router.post('/create-admin', [
     .isLength({ min: 6 })
     .withMessage('كلمة المرور يجب أن تكون 6 أحرف على الأقل'),
   body('adminSecret')
-    .equals(process.env.ADMIN_SECRET || 'admin-secret-2024')
-    .withMessage('Admin secret is required')
+    .custom((value) => {
+      if (!process.env.ADMIN_SECRET || value !== process.env.ADMIN_SECRET) {
+        throw new Error('Admin secret is required');
+      }
+      return true;
+    })
 ], async (req, res) => {
   try {
     // Only allow in development

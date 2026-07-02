@@ -4,6 +4,8 @@ const Blog = require('../models/Blog');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 const { cacheMiddleware, invalidateCache } = require('../utils/redis-cache');
+const { sanitizeBlogContent } = require('../utils/sanitizeHtml');
+const { sanitizeSearchTerm } = require('../utils/sanitizeSearchTerm');
 
 const router = express.Router();
 
@@ -333,7 +335,7 @@ router.post('/', auth, [
     const blog = new Blog({
       title: title.trim(),
       excerpt: excerpt.trim(),
-      content: content.trim(),
+      content: sanitizeBlogContent(content.trim()),
       author: req.user._id,
       category: category || (categories && categories[0]), // Use first category as primary
       categories: categories || (category ? [category] : []), // Store all categories
@@ -455,12 +457,13 @@ router.get('/', cacheMiddleware(300), async (req, res) => {
       } catch (textSearchError) {
         // Fallback to regex search if text search fails
         console.warn('Text search failed, falling back to regex search:', textSearchError.message);
+        const safeSearch = sanitizeSearchTerm(search);
         const regexQuery = {
           ...query,
           $or: [
-            { title: { $regex: search.trim(), $options: 'i' } },
-            { excerpt: { $regex: search.trim(), $options: 'i' } },
-            { tags: { $in: [new RegExp(search.trim(), 'i')] } }
+            { title: { $regex: safeSearch, $options: 'i' } },
+            { excerpt: { $regex: safeSearch, $options: 'i' } },
+            { tags: { $in: [new RegExp(safeSearch, 'i')] } }
           ]
         };
 
@@ -1137,15 +1140,18 @@ router.put('/:id', auth, [
       });
     }
 
-    // Update blog
-    const updateData = { ...req.body };
-
-    // Remove undefined values
-    Object.keys(updateData).forEach(key => {
-      if (updateData[key] === undefined) {
-        delete updateData[key];
+    // Update blog (whitelist fields to prevent mass assignment of author/status/views/etc.)
+    const ALLOWED_UPDATE_FIELDS = ['title', 'excerpt', 'content', 'category', 'categories', 'tags', 'featuredImage', 'status'];
+    const updateData = {};
+    ALLOWED_UPDATE_FIELDS.forEach(field => {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field];
       }
     });
+
+    if (updateData.title !== undefined) updateData.title = updateData.title.trim();
+    if (updateData.excerpt !== undefined) updateData.excerpt = updateData.excerpt.trim();
+    if (updateData.content !== undefined) updateData.content = sanitizeBlogContent(updateData.content.trim());
 
     const updatedBlog = await Blog.findByIdAndUpdate(
       req.params.id,

@@ -8,6 +8,7 @@ const Payout = require('../models/Payout');
 const auth = require('../middleware/auth');
 const { cacheMiddleware, invalidateCache } = require('../utils/redis-cache');
 const supabase = require('../utils/supabase');
+const { sanitizeSearchTerm } = require('../utils/sanitizeSearchTerm');
 
 const router = express.Router();
 
@@ -98,9 +99,10 @@ router.get('/users', auth, async (req, res) => {
 
     // Search filter (name or email)
     if (search) {
+      const safeSearch = sanitizeSearchTerm(search);
       filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } }
+        { name: { $regex: safeSearch, $options: 'i' } },
+        { email: { $regex: safeSearch, $options: 'i' } }
       ];
     }
 
@@ -596,7 +598,7 @@ router.get('/templates', auth, async (req, res) => {
     }
 
     if (search) {
-      const searchRegex = { $regex: search, $options: 'i' };
+      const searchRegex = { $regex: sanitizeSearchTerm(search), $options: 'i' };
 
       // We need to handle search for creator fields too
       // Since creator is a reference, we might need a more complex query or first find users matching search

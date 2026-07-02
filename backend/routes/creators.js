@@ -6,6 +6,7 @@ const DownloadLog = require('../models/DownloadLog');
 const jwt = require('jsonwebtoken');
 const auth = require('../middleware/auth');
 const { cacheMiddleware, invalidateCache } = require('../utils/redis-cache');
+const { sanitizeSearchTerm } = require('../utils/sanitizeSearchTerm');
 
 const router = express.Router();
 
@@ -151,14 +152,15 @@ router.get('/', cacheMiddleware(3600), async (req, res) => {
         // Fallback to regex search if text search fails
         console.warn('Text search failed, falling back to regex search:', textSearchError.message);
 
+        const safeSearch = sanitizeSearchTerm(search);
         const searchQuery = {
           ...query,
           $or: [
-            { name: { $regex: search.trim(), $options: 'i' } },
-            { username: { $regex: search.trim(), $options: 'i' } },
-            { displayName: { $regex: search.trim(), $options: 'i' } },
-            { bio: { $regex: search.trim(), $options: 'i' } },
-            { specialties: { $in: [new RegExp(search.trim(), 'i')] } }
+            { name: { $regex: safeSearch, $options: 'i' } },
+            { username: { $regex: safeSearch, $options: 'i' } },
+            { displayName: { $regex: safeSearch, $options: 'i' } },
+            { bio: { $regex: safeSearch, $options: 'i' } },
+            { specialties: { $in: [new RegExp(safeSearch, 'i')] } }
           ]
         };
 

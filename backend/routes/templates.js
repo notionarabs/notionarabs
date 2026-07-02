@@ -9,6 +9,7 @@ const auth = require('../middleware/auth');
 const { generateTemplateSlug } = require('../utils/slugGenerator');
 const { cacheMiddleware, invalidateCache } = require('../utils/redis-cache');
 const { checkAndExpireBoosts, handleOptimizedPagination } = require('../services/templateService');
+const { sanitizeSearchTerm } = require('../utils/sanitizeSearchTerm');
 
 const router = express.Router();
 
@@ -232,7 +233,18 @@ router.post('/', auth, [
     const autoApprove = await shouldAutoApproveTemplates();
 
     const templateData = {
-      ...req.body,
+      title: req.body.title,
+      description: req.body.description,
+      categories: req.body.categories,
+      language: req.body.language,
+      isPaid: req.body.isPaid,
+      price: req.body.price,
+      purchaseLink: req.body.purchaseLink,
+      notionLink: req.body.notionLink,
+      previewImages: req.body.previewImages,
+      features: req.body.features,
+      tags: req.body.tags,
+      explanationVideo: req.body.explanationVideo,
       creator: req.user._id,
       status: autoApprove ? 'approved' : 'pending',
       previewImage: previewImageUrl,
@@ -513,13 +525,14 @@ router.get('/', cacheMiddleware(3600), async (req, res) => {
     // If search is provided, use server-side text search
     if (search && search.trim()) {
       try {
+        const safeSearch = sanitizeSearchTerm(search);
         const regexQuery = {
           ...filter,
           $or: [
-            { title: { $regex: search.trim() } },
-            { description: { $regex: search.trim() } },
-            { tags: search.trim() },
-            { categories: search.trim() }
+            { title: { $regex: safeSearch } },
+            { description: { $regex: safeSearch } },
+            { tags: safeSearch },
+            { categories: safeSearch }
           ]
         };
 
@@ -1089,7 +1102,16 @@ router.put('/:id', auth, [
       template.adminNotes = '';
     }
 
-    Object.assign(template, req.body);
+    const ALLOWED_UPDATE_FIELDS = [
+      'title', 'description', 'categories', 'language', 'isPaid', 'price',
+      'purchaseLink', 'notionLink', 'previewImage', 'previewImages',
+      'features', 'tags', 'explanationVideo'
+    ];
+    ALLOWED_UPDATE_FIELDS.forEach(field => {
+      if (Object.prototype.hasOwnProperty.call(req.body, field)) {
+        template[field] = req.body[field];
+      }
+    });
     await template.save();
 
     // Invalidate templates cache

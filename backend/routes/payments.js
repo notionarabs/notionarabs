@@ -32,7 +32,7 @@ const optionalAuth = async (req, res, next) => {
 async function _fulfillOrder(order, userId) {
     if (!order.items || order.items.length === 0) return;
 
-    const platformFeePercent = parseFloat(process.env.PLATFORM_FEE_PERCENTAGE || '9');
+    const platformFeePercent = parseFloat(process.env.PLATFORM_FEE_PERCENTAGE || '20');
     const buyer = userId ? await User.findById(userId) : null;
 
     if (order.source && order.source.startsWith('boost_')) {
@@ -162,6 +162,11 @@ router.post('/create-checkout-session', auth, purchaseRateLimit, async (req, res
         // 2a. Prevent duplicate purchases
         const userId = req.user.id || req.user._id;
         const templateDbId = template.id || template._id;
+
+        const templateCreatorId = String(template.creator?._id || template.creator?.id || template.creator || '');
+        if (templateCreatorId && templateCreatorId === String(userId)) {
+            return res.status(400).json({ success: false, message: 'لا يمكنك شراء قالبك الخاص' });
+        }
 
         const alreadyPurchased = await Order.existsForTemplate(userId.toString(), templateDbId.toString());
         if (alreadyPurchased) {

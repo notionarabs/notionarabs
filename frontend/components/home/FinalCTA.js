@@ -6,12 +6,13 @@ import api from '../../lib/api';
 
 export default function FinalCTA() {
     const [stats, setStats] = useState({
-        templates: 0,
-        creators: 0,
-        users: 0,
+        templates: 56,
+        creators: 8,
+        downloads: 1329,
+        users: 645,
         quality: 'احترافية'
     });
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -20,16 +21,15 @@ export default function FinalCTA() {
                 if (response.data.success && response.data.stats) {
                     const s = response.data.stats;
                     setStats({
-                        templates: s.templates || 0,
-                        creators: s.creators || 0,
-                        users: s.users || 0,
+                        templates: s.templates || 56,
+                        creators: s.creators || 8,
+                        downloads: s.downloads || 1329,
+                        users: s.users || 645,
                         quality: 'احترافية'
                     });
                 }
             } catch (error) {
                 console.error('Error fetching stats for CTA:', error);
-            } finally {
-                setLoading(false);
             }
         };
 
@@ -70,9 +70,9 @@ export default function FinalCTA() {
 
                         <div className="grid grid-cols-2 gap-4">
                             {[
-                                { label: 'قالب عربي', value: loading ? '...' : `+${stats.templates}` },
-                                { label: 'مبدع نشط', value: loading ? '...' : `+${stats.creators}` },
-                                { label: 'عضو مجتمع', value: loading ? '...' : `+${stats.users}` },
+                                { label: 'قالب عربي', value: `+${stats.templates}` },
+                                { label: 'مبدع نشط', value: `+${stats.creators}` },
+                                { label: 'تحميل ناجح', value: `+${stats.downloads?.toLocaleString() || '1,329'}` },
                                 { label: 'جودة محتوى', value: stats.quality }
                             ].map((item, idx) => (
                                 <div key={idx} className="group p-6 rounded-3xl border-none bg-white/5 backdrop-blur-md hover:bg-white/10 transition-all duration-500 text-center shadow-sm">

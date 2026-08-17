@@ -78,53 +78,56 @@ export default function Testimonials() {
   ];
 
   return (
-    <section className="py-20 bg-secondary-50 dark:bg-dark-secondary overflow-hidden relative" data-reveal-section>
+    <section className="py-24 sm:py-32 bg-transparent overflow-hidden relative" data-reveal-section>
       {/* Decorative background element */}
-      <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
       
       <div className="container-custom relative z-10">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-black mb-4 text-foreground dark:text-white">
-            قصص نجاح <span className="text-gradient">مجتمعنا</span>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-black uppercase tracking-wider mb-4">
+            آراء المجتمع
+          </div>
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-4 text-accent-900 dark:text-white tracking-tight">
+            قصص نجاح <span className="text-primary text-gradient">مجتمعنا</span>
           </h2>
-          <p className="text-accent-600 dark:text-dark-text-secondary max-w-2xl mx-auto text-lg">
+          <p className="text-accent-700/60 dark:text-white/40 max-w-2xl mx-auto text-base sm:text-lg font-medium">
             انضم إلى مجتمعنا من المستخدمين الذين طوروا إنتاجيتهم باستخدام حلولنا المبتكرة في نوشن.
           </p>
         </div>
 
         {/* Infinite Marquee Wrapper */}
-        <div className="relative flex overflow-hidden py-10 mask-fade-edges mt-8" dir="ltr">
+        <div className="relative flex overflow-hidden py-6 mask-fade-edges mt-4" dir="ltr">
           <div className="flex gap-8 whitespace-nowrap animate-marquee hover:pause">
             {/* Triple the items to create a seamless loop */}
             {[...combinedTestimonials, ...combinedTestimonials, ...combinedTestimonials].map((t, i) => (
               <div 
                 key={i} 
-                className="inline-block w-[350px] sm:w-[450px] bg-white dark:bg-dark-tertiary p-8 rounded-3xl shadow-xl dark:shadow-dark-medium border border-transparent hover:border-primary/20 transition-all duration-300 group relative whitespace-normal flex-shrink-0"
+                className="inline-block w-[340px] sm:w-[420px] bg-white/40 dark:bg-white/5 backdrop-blur-xl p-8 rounded-[2.5rem] border border-black/5 dark:border-white/5 hover:border-primary/20 hover:shadow-glow transition-all duration-500 group relative whitespace-normal flex-shrink-0"
                 dir="rtl"
               >
-                <Quote size={24} className="absolute top-8 left-8 text-primary/10 group-hover:text-primary/20 transition-all" />
+                <Quote size={28} className="absolute top-8 left-8 text-primary/10 group-hover:text-primary/20 transition-all" />
                 
-                <div className="flex gap-1 mb-4">
+                <div className="flex gap-1 mb-5">
                   {[...Array(t.rating)].map((_, idx) => (
-                    <Star key={idx} size={16} className="fill-orange-400 text-orange-400" />
+                    <Star key={idx} size={15} className="fill-amber-400 text-amber-400" />
                   ))}
                 </div>
                 
                 <div className="relative mb-6">
-                  <p className="text-accent-800 dark:text-dark-text-primary text-lg leading-relaxed font-medium">
+                  <p className="text-accent-900/80 dark:text-white/80 text-base sm:text-lg leading-relaxed font-medium line-clamp-3">
                     "{t.content}"
                   </p>
                 </div>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 pt-4 border-t border-accent-900/5 dark:border-white/5">
                   <img 
                     src={t.avatar} 
                     alt={t.name} 
-                    className="w-12 h-12 rounded-full bg-secondary-100 dark:bg-dark-primary p-1 shadow-sm"
+                    className="w-11 h-11 rounded-full bg-white/20 dark:bg-white/10 object-cover shadow-soft border border-white/10" 
                   />
                   <div className="text-right">
-                    <h4 className="font-bold text-foreground dark:text-white">{t.name}</h4>
-                    <p className="text-sm text-accent-500 dark:text-dark-text-secondary">{t.role}</p>
+                    <h4 className="font-black text-sm text-accent-900 dark:text-white">{t.name}</h4>
+                    <p className="text-xs text-accent-700/60 dark:text-white/40 font-medium">{t.role}</p>
                   </div>
                 </div>
               </div>
@@ -133,13 +136,13 @@ export default function Testimonials() {
         </div>
 
         {/* View All Testimonials CTA */}
-        <div className="text-center mt-12 animate-fade-in relative z-20">
+        <div className="text-center mt-12 relative z-20">
           <Link
             href="/testimonials"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-white font-black rounded-2xl shadow-large hover:scale-105 transition-all text-lg group cursor-pointer"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-white/50 dark:bg-white/5 backdrop-blur-2xl text-accent-900 dark:text-white font-black rounded-2xl shadow-soft hover:shadow-large hover:scale-105 transition-all text-xs uppercase tracking-wider border border-black/5 dark:border-white/5 group cursor-pointer"
           >
             <span>اقرأ جميع قصص النجاح والآراء</span>
-            <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           </Link>
         </div>
       </div>

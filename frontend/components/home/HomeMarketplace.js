@@ -1,25 +1,51 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { LayoutDashboard, Star, ArrowRight, Download, Award, Zap, CheckCircle } from 'lucide-react';
+import { ArrowRight, CheckCircle, Search } from 'lucide-react';
 import Link from 'next/link';
 import api from '../../lib/api';
 
 import FeaturedWidgets from '../../components/widgets/FeaturedWidgets';
 import TemplateCard from '../TemplateCard';
 
+const HOME_TABS = [
+  { id: 'popular', label: 'الأكثر رواجاً', type: 'sort', value: 'popular' },
+  { id: 'newest', label: 'الأحدث', type: 'sort', value: 'createdAt' },
+  { id: 'productivity', label: 'الإنتاجية', type: 'category', value: 'الإنتاجية' },
+  { id: 'religious', label: 'ديني', type: 'category', value: 'ديني' },
+  { id: 'business', label: 'الأعمال', type: 'category', value: 'الأعمال' },
+  { id: 'free', label: 'قوالب مجانية', type: 'price', value: 'free' }
+];
+
 export default function HomeMarketplace({ initialStats }) {
-  const sortBy = 'popular';
+  const [activeTab, setActiveTab] = useState('popular');
   const [allTemplates, setAllTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [topCreators, setTopCreators] = useState(initialStats?.topCreators || []);
   const [loadingCreators, setLoadingCreators] = useState(!initialStats?.topCreators);
 
-  const fetchTemplates = async () => {
+  const fetchTemplates = async (tabId) => {
     try {
       setLoading(true);
-      const params = new URLSearchParams({ page: '1', limit: '6', sortBy, sortOrder: 'desc' });
+      const currentTab = HOME_TABS.find(t => t.id === tabId) || HOME_TABS[0];
+      
+      const params = new URLSearchParams({
+        page: '1',
+        limit: '12',
+        sortOrder: 'desc'
+      });
+
+      if (currentTab.type === 'sort') {
+        params.set('sortBy', currentTab.value);
+      } else if (currentTab.type === 'category') {
+        params.set('sortBy', 'popular');
+        params.set('category', currentTab.value);
+      } else if (currentTab.type === 'price') {
+        params.set('sortBy', 'popular');
+        params.set('isPaid', 'false');
+      }
+
       const response = await api.get(`/templates?${params.toString()}`);
       if (response.data.success) {
         setAllTemplates(response.data.templates || []);
@@ -32,8 +58,10 @@ export default function HomeMarketplace({ initialStats }) {
   };
 
   useEffect(() => {
-    fetchTemplates();
-    
+    fetchTemplates(activeTab);
+  }, [activeTab]);
+
+  useEffect(() => {
     // Only fetch creators if they weren't provided in initialStats
     if (!initialStats?.topCreators) {
       const fetchTopCreators = async () => {
@@ -60,38 +88,69 @@ export default function HomeMarketplace({ initialStats }) {
       
       <div className="container-custom relative z-10">
         {/* Marketplace Section Header */}
-        <div className="flex flex-col sm:flex-row items-end justify-between mb-20 gap-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-12 gap-8">
           <div className="max-w-2xl">
             <h2 className="text-5xl sm:text-7xl font-black text-accent-900 dark:text-white mb-6 tracking-tighter leading-none">
-              الأنظمة <span className="text-primary text-gradient">الأكثر رواجاً</span>
+              الأنظمة <span className="text-primary text-gradient">المميزة</span>
             </h2>
             <p className="text-xl text-accent-700/60 dark:text-white/40 font-black uppercase tracking-widest">
               نُخبة الإنتاجية العربية الأكثر استخداماً
             </p>
           </div>
-          <Link href="/templates" className="px-10 py-4 bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-2xl font-black text-accent-900 dark:text-white shadow-soft hover:shadow-large hover:scale-105 transition-all duration-500 uppercase tracking-widest border-none">
+          <Link 
+            href="/templates" 
+            className="px-8 py-4 bg-white/50 dark:bg-white/5 backdrop-blur-2xl rounded-2xl font-black text-accent-900 dark:text-white shadow-soft hover:shadow-large hover:scale-105 transition-all duration-500 uppercase tracking-wider text-xs border border-black/5 dark:border-white/5 shrink-0"
+          >
             استكشف المتجر بالكامل
           </Link>
         </div>
 
-        {/* Featured Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16 mb-32">
+        {/* Quick Tabs (No emojis) */}
+        <div className="flex items-center gap-2.5 overflow-x-auto pb-4 mb-12 scrollbar-hide">
+          {HOME_TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-6 py-3 rounded-2xl text-xs font-black transition-all whitespace-nowrap cursor-pointer shrink-0 border border-transparent ${
+                activeTab === tab.id
+                  ? 'bg-primary text-white shadow-glow scale-105'
+                  : 'bg-white/50 dark:bg-white/5 text-accent-900/60 dark:text-white/40 hover:text-accent-900 dark:hover:text-white hover:bg-white/80 dark:hover:bg-white/10 border-black/5 dark:border-white/5'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Featured Grid (12 items) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-32">
           {loading ? (
-              [...Array(6)].map((_, i) => <div key={i} className="aspect-[4/3] bg-white/50 dark:bg-white/5 rounded-[3.5rem] animate-pulse" />)
-          ) : (
-            allTemplates.slice(0, 6).map((template) => (
+            [...Array(12)].map((_, i) => (
+              <div key={i} className="aspect-[4/5] bg-white/30 dark:bg-white/5 rounded-[2.5rem] animate-pulse border border-black/5 dark:border-white/5" />
+            ))
+          ) : allTemplates.length > 0 ? (
+            allTemplates.slice(0, 12).map((template) => (
               <div key={template._id || template.id} className="h-full">
                 <TemplateCard template={template} />
               </div>
             ))
+          ) : (
+            <div className="col-span-full text-center py-24 bg-white/30 dark:bg-white/5 backdrop-blur-2xl rounded-[3rem] border border-black/5 dark:border-white/5">
+              <Search className="w-12 h-12 text-primary/40 mx-auto mb-4" />
+              <h4 className="text-xl font-black text-accent-900 dark:text-white mb-2">لا توجد قوالب في هذا التصنيف حالياً</h4>
+              <p className="text-sm text-accent-700/60 dark:text-white/40 mb-6">يمكنك استكشاف باقي الأقسام أو الاطلاع على المتجر بالكامل</p>
+              <Link href="/templates" className="px-8 py-3.5 bg-primary text-white rounded-xl font-black text-xs shadow-glow uppercase tracking-wider inline-block">
+                تصفح جميع القوالب
+              </Link>
+            </div>
           )}
         </div>
 
         {/* Featured Widgets with Glass Container */}
         <div className="mb-40">
-           <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[4rem] p-12 sm:p-20 shadow-large relative overflow-hidden">
+           <div className="bg-white/30 dark:bg-white/5 backdrop-blur-[40px] rounded-[3.5rem] p-8 sm:p-14 shadow-large relative overflow-hidden border border-black/5 dark:border-white/5">
               <div className="absolute top-0 right-0 w-1/2 h-full bg-primary/5 blur-[100px] -z-10" />
-              <FeaturedWidgets />
+              <FeaturedWidgets embedded={true} />
            </div>
         </div>
 

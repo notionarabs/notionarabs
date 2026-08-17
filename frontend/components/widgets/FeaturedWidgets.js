@@ -20,7 +20,7 @@ const iconMap = {
     landmark: <Landmark className="w-6 h-6 text-emerald-600" />
 };
 
-export default function FeaturedWidgets() {
+export default function FeaturedWidgets({ embedded = false }) {
     const { isAuthenticated } = useAuth();
     const router = useRouter();
     const [copiedId, setCopiedId] = useState(null);
@@ -70,9 +70,9 @@ export default function FeaturedWidgets() {
     };
 
     const categoryGradients = {
-        'إسلاميات': 'from-emerald-100 to-emerald-50 dark:from-emerald-950/40 dark:to-dark-primary',
-        'إنتاجية': 'from-blue-100 to-blue-50 dark:from-blue-950/40 dark:to-dark-primary',
-        'جماليات': 'from-purple-100 to-purple-50 dark:from-purple-950/40 dark:to-dark-primary',
+        'إسلاميات': 'from-emerald-500/20 to-emerald-950/20',
+        'إنتاجية': 'from-blue-500/20 to-blue-950/20',
+        'جماليات': 'from-purple-500/20 to-purple-950/20',
     };
 
     // Top 3 widgets by stats
@@ -91,7 +91,7 @@ export default function FeaturedWidgets() {
                 users: (stats[w.id] || 0).toLocaleString() + '+',
                 isPopular: true,
                 isNew,
-                gradient: categoryGradients[w.category] || 'from-orange-100 to-orange-50 dark:from-orange-950/40 dark:to-dark-primary'
+                gradient: categoryGradients[w.category] || 'from-orange-500/20 to-orange-950/20'
             };
         });
 
@@ -102,114 +102,114 @@ export default function FeaturedWidgets() {
             users: '0+',
             isPopular: false,
             isNew: false,
-            gradient: categoryGradients[w.category] || 'from-orange-100 to-orange-50 dark:from-orange-950/40 dark:to-dark-primary'
+            gradient: categoryGradients[w.category] || 'from-orange-500/20 to-orange-950/20'
         }));
     }
 
-    return (
-        <section className="section-reveal py-12 sm:py-16 md:py-20 lg:py-24 bg-secondary-50 dark:bg-dark-primary transition-colors duration-300" data-reveal-section>
-            <div className="container-custom">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 sm:mb-12">
-                     <div>
-                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-accent-500 dark:text-dark-text-primary mb-3 sm:mb-4">
-                            الأدوات الأكثر استخداماً
-                        </h2>
-                        <p className="text-base sm:text-lg text-accent-600 dark:text-dark-text-secondary max-w-xl">
-                            اكتشف الأدوات الأكثر شيوعاً بين مستخدمينا والتي ستساعدك في تخصيص مساحة عملك.
-                        </p>
-                    </div>
-                    <Link
-                        href="/widgets"
-                        className="inline-flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-3 bg-primary-50 dark:bg-orange-900/20 text-primary-600 dark:text-orange-400 font-semibold rounded-xl hover:bg-primary-100 dark:hover:bg-orange-900/40 transition-colors"
-                    >
-                        تصفح كل الأدوات
-                        <ArrowLeft className="w-4 h-4" />
-                    </Link>
+    const content = (
+        <div>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 sm:mb-12">
+                 <div>
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-accent-900 dark:text-white mb-3">
+                        الأدوات <span className="text-primary text-gradient">التفاعلية</span>
+                    </h2>
+                    <p className="text-base sm:text-lg text-accent-700/60 dark:text-white/40 max-w-xl font-medium">
+                        عزز صفحات نوشن بأدوات عربية تفاعلية جاهزة للتضمين فوراً.
+                    </p>
                 </div>
+                <Link
+                    href="/widgets"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-white/50 dark:bg-white/5 text-accent-900 dark:text-white font-bold rounded-2xl hover:bg-primary hover:text-white dark:hover:bg-primary transition-all duration-300 text-xs uppercase tracking-wider border border-black/5 dark:border-white/5 shadow-soft"
+                >
+                    تصفح كل الأدوات
+                    <ArrowLeft className="w-4 h-4" />
+                </Link>
+            </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                    {loading ? (
-                        [1, 2, 3].map((item) => (
-                            <div key={item} className="h-[450px] rounded-[2.5rem] bg-card border-none animate-pulse" />
-                        ))
-                    ) : (
-                        displayWidgets.map((widget, index) => (
-                            <div
-                                key={widget.id}
-                                onClick={() => router.push(`/widgets/${widget.id}`)}
-                                className="group relative overflow-hidden rounded-[2.5rem] bg-card border-none hover:shadow-xl transition-all duration-500 shadow-2xl shadow-primary/5 cursor-pointer flex flex-col"
-                                style={{ animationDelay: `${index * 50}ms` }}
-                            >
-                                {/* Visual Foundry Segment */}
-                                <div className={`h-52 bg-gradient-to-br ${widget.gradient} flex items-center justify-center relative overflow-hidden shrink-0`}>
-                                    <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
-                                    
-                                    {/* Precision Glow */}
-                                    <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-[80px]" />
-
-                                    {/* Tech Badges */}
-                                    <div className="absolute top-6 left-6 z-20 flex flex-col gap-2">
-                                        {widget.isPopular && (
-                                            <div className="px-3 py-1 bg-black/40 backdrop-blur-md border-none text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-sm">
-                                                الأكثر استخداماً
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="relative z-10 p-8 bg-white/10 backdrop-blur-xl rounded-[2rem] border-none shadow-2xl group-hover:scale-110 transition-transform duration-700">
-                                        <div className="w-16 h-16 flex items-center justify-center text-white drop-shadow-glow">
-                                            {widget.icon}
-                                        </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {loading ? (
+                    [1, 2, 3].map((item) => (
+                        <div key={item} className="h-[420px] rounded-[2.5rem] bg-white/30 dark:bg-white/5 animate-pulse border border-black/5 dark:border-white/5" />
+                    ))
+                ) : (
+                    displayWidgets.map((widget) => (
+                        <div
+                            key={widget.id}
+                            onClick={() => router.push(`/widgets/${widget.id}`)}
+                            className="group relative overflow-hidden rounded-[2.5rem] bg-white/40 dark:bg-white/5 border border-black/5 dark:border-white/5 hover:border-primary/20 backdrop-blur-xl hover:shadow-glow hover:-translate-y-2 transition-all duration-500 shadow-soft cursor-pointer flex flex-col"
+                        >
+                            {/* Visual Foundry Segment */}
+                            <div className={`h-48 bg-gradient-to-br ${widget.gradient} flex items-center justify-center relative overflow-hidden shrink-0`}>
+                                <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+                                
+                                <div className="absolute top-4 left-4 z-20">
+                                    <div className="px-3 py-1 bg-black/50 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-wider rounded-xl">
+                                        تفاعلي
                                     </div>
                                 </div>
 
-                                {/* Intelligence Segment */}
-                                <div className="p-8 flex-1 flex flex-col">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <span className="px-4 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-full">
-                                            {widget.category}
-                                        </span>
-                                        {stats[widget.id] > 0 && (
-                                            <div className="flex items-center gap-2 text-foreground/40 dark:text-white/30 text-[10px] font-black uppercase tracking-widest">
-                                                <Users className="w-3.5 h-3.5" />
-                                                {widget.users}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <h2 className="text-2xl font-black text-foreground dark:text-white mb-3 group-hover:text-primary transition-colors line-clamp-1">
-                                        {widget.title}
-                                    </h2>
-                                    <p className="text-sm text-foreground/60 dark:text-white/40 mb-8 line-clamp-2 leading-relaxed flex-1">
-                                        {widget.description}
-                                    </p>
-
-                                    <div className="pt-6 border-t border-card-border/50 dark:border-white/5 mt-auto flex gap-4">
-                                        {isAuthenticated ? (
-                                            <button
-                                                onClick={(e) => copyEmbed(e, widget.id)}
-                                                className="flex-1 bg-primary text-white py-4 px-6 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20"
-                                            >
-                                                {copiedId === widget.id ? 'تم النسخ!' : <><Copy className="w-4 h-4" /> نسخ الكود</>}
-                                            </button>
-                                        ) : (
-                                            <Link
-                                                href={`/widgets/${widget.id}`}
-                                                className="flex-1 bg-primary text-white py-4 px-6 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20"
-                                                onClick={(e) => e.stopPropagation()}
-                                            >
-                                                <Lock className="w-4 h-4" /> سجل للتثبيت
-                                            </Link>
-                                        )}
-                                        <div className="w-14 h-14 bg-card-border/5 rounded-2xl flex items-center justify-center group-hover:bg-primary/10 transition-colors">
-                                            <ExternalLink className="w-5 h-5 text-foreground/40 dark:text-white/40 group-hover:text-primary transition-colors" />
-                                        </div>
+                                <div className="relative z-10 p-6 bg-white/10 dark:bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/10 shadow-large group-hover:scale-110 transition-transform duration-500">
+                                    <div className="w-14 h-14 flex items-center justify-center text-white drop-shadow-glow">
+                                        {widget.icon}
                                     </div>
                                 </div>
                             </div>
-                        ))
-                    )}
-                </div>
+
+                            {/* Intelligence Segment */}
+                            <div className="p-6 sm:p-8 flex-1 flex flex-col">
+                                <div className="flex items-center justify-between mb-3">
+                                    <span className="px-3.5 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-wider rounded-full">
+                                        {widget.category}
+                                    </span>
+                                    {stats[widget.id] > 0 && (
+                                        <div className="flex items-center gap-1.5 text-accent-900/40 dark:text-white/30 text-[10px] font-black uppercase tracking-wider">
+                                            <Users className="w-3.5 h-3.5" />
+                                            {widget.users}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <h3 className="text-xl font-black text-accent-900 dark:text-white mb-2 group-hover:text-primary transition-colors line-clamp-1">
+                                    {widget.title}
+                                </h3>
+                                <p className="text-xs sm:text-sm text-accent-700/60 dark:text-white/40 mb-6 line-clamp-2 leading-relaxed flex-1">
+                                    {widget.description}
+                                </p>
+
+                                <div className="pt-4 border-t border-accent-900/5 dark:border-white/5 mt-auto flex gap-3">
+                                    {isAuthenticated ? (
+                                        <button
+                                            onClick={(e) => copyEmbed(e, widget.id)}
+                                            className="flex-1 bg-primary text-white py-3.5 px-5 rounded-2xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all shadow-md shadow-primary/20"
+                                        >
+                                            {copiedId === widget.id ? 'تم النسخ!' : <><Copy className="w-4 h-4" /> نسخ رابط التضمين</>}
+                                        </button>
+                                    ) : (
+                                        <Link
+                                            href={`/widgets/${widget.id}`}
+                                            className="flex-1 bg-primary text-white py-3.5 px-5 rounded-2xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all shadow-md shadow-primary/20"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            <ExternalLink className="w-4 h-4" /> معاينة وتضمين
+                                        </Link>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                )}
+            </div>
+        </div>
+    );
+
+    if (embedded) {
+        return content;
+    }
+
+    return (
+        <section className="section-reveal py-16 sm:py-24 transition-colors duration-300" data-reveal-section>
+            <div className="container-custom">
+                {content}
             </div>
         </section>
     );

@@ -7,6 +7,8 @@ import api from '../../../lib/api';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { Search, Star, LayoutDashboard, Download, Globe, Calendar, Zap, Filter } from 'lucide-react';
+import LoadingIndicator from '../../../components/LoadingIndicator';
+import TemplateCard from '../../../components/TemplateCard';
 import Footer from '../../../components/Footer';
 
 const sortOptions = [
@@ -105,8 +107,8 @@ export default function CategoryTemplatesClient({ categoryId, categoryName }) {
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                 {/* Stats Pill */}
-                <div className="px-8 py-4 rounded-2xl bg-white/50 dark:bg-white/5 backdrop-blur-xl border border-card-border shadow-xl text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40 dark:text-white/30">
-                  تم رصد <span className="text-primary">{pagination.total}</span> مسار نجاح
+                <div className="px-8 py-4 rounded-2xl bg-white/50 dark:bg-white/5 backdrop-blur-xl border border-card-border shadow-xl text-[10px] font-black uppercase tracking-wider text-foreground/50 dark:text-white/40">
+                  إجمالي <span className="text-primary">{pagination.total}</span> قالب
                 </div>
 
                 {/* Sort Dropdown */}
@@ -146,46 +148,11 @@ export default function CategoryTemplatesClient({ categoryId, categoryName }) {
                 {[...Array(6)].map((_, i) => <div key={i} className="aspect-[4/5] bg-white/50 dark:bg-white/5 rounded-[3.5rem] animate-pulse" />)}
               </div>
             ) : templates.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-16">
-                {templates.map((rel, i) => (
-                  <Link key={rel._id} href={`/templates/${rel.slug || rel._id}`} className="group">
-                    <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[3.5rem] shadow-large group-hover:shadow-glow group-hover:-translate-y-4 transition-all duration-700 h-full flex flex-col border-none overflow-hidden isolate relative">
-                       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-                       <div className="relative aspect-[16/10] m-4 overflow-hidden rounded-[2.5rem] shadow-soft">
-                         <Image src={rel.previewImage || '/placeholder-template.jpg'} alt={rel.title} fill className="object-cover object-center group-hover:scale-105 transition-transform duration-1000" />
-                         <div className="absolute top-6 left-6 z-20">
-                            <div className="px-6 py-3 bg-black/40 backdrop-blur-xl rounded-[1.2rem] text-white font-black text-xs uppercase tracking-widest shadow-glow">
-                              {rel.isPaid ? `${rel.price} ج.م` : 'مجاني'}
-                            </div>
-                         </div>
-                       </div>
-                       <div className="p-10 flex-1 flex flex-col relative z-20">
-                          <div className="flex items-center justify-between mb-8">
-                             <div className="flex items-center gap-2">
-                               <Star size={16} className="text-yellow-500 fill-yellow-500" />
-                               <span className="text-sm font-black text-accent-900 dark:text-white">{(rel.rating || 5).toFixed(1)}</span>
-                             </div>
-                             <div className="flex items-center gap-2 text-accent-900/30 dark:text-white/20 font-black text-xs uppercase tracking-widest">
-                               <Download size={14} />
-                               {(rel.downloads || 0).toLocaleString()}
-                             </div>
-                          </div>
-                          <h3 className="text-3xl font-black text-accent-900 dark:text-white mb-4 group-hover:text-primary transition-colors tracking-tighter leading-tight">{rel.title}</h3>
-                          <p className="text-base text-accent-700/60 dark:text-white/40 mb-10 line-clamp-2 leading-relaxed flex-1 font-medium italic">{rel.description}</p>
-                          <div className="flex items-center justify-between pt-8 border-t border-accent-900/5 dark:border-white/5">
-                             <div className="flex items-center gap-4">
-                               <div className="w-8 h-8 rounded-full overflow-hidden bg-primary/10 relative shadow-soft">
-                                 {rel.creator?.profilePicture && <Image src={rel.creator.profilePicture} alt="" fill className="object-cover" />}
-                               </div>
-                               <span className="text-xs font-black text-accent-900/50 dark:text-white/30 uppercase tracking-widest transition-colors group-hover:text-primary">{rel.creator?.name || 'مبدع مستقل'}</span>
-                             </div>
-                             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-500">
-                               <Zap size={20} />
-                             </div>
-                          </div>
-                       </div>
-                    </div>
-                  </Link>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {templates.map((rel) => (
+                  <div key={rel._id || rel.id} className="h-full">
+                    <TemplateCard template={rel} />
+                  </div>
                 ))}
               </div>
             ) : (

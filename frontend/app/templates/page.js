@@ -12,6 +12,7 @@ import { getCategorySlug } from '../../lib/categoryMapping';
 import Footer from '../../components/Footer';
 import { ItemListSchema } from '../../components/StructuredData';
 import { BreadcrumbWrapper } from '../../components/Breadcrumb';
+import TemplateCard from '../../components/TemplateCard';
 
 const sortOptions = [
   { name: "الأحدث", value: "createdAt" },
@@ -303,8 +304,8 @@ function TemplatesPageContent() {
                 </div>
 
                 <div className="flex bg-white/50 dark:bg-white/5 backdrop-blur-xl p-1.5 rounded-2xl border border-black/5 dark:border-white/5">
-                  {[{ id: 'all', label: 'كل اللغات' }, { id: 'ar', label: 'العربية' }, { id: 'en', label: 'English' }].map((l) => (
-                    <button key={l.id} onClick={() => { setLanguageFilter(l.id); setPagination(prev => ({ ...prev, current: 1 })); }} className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all ${languageFilter === l.id ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-foreground/40 dark:text-white/30 hover:text-primary'}`}>{l.label}</button>
+                  {[{ id: 'all', label: 'كل اللغات' }, { id: 'ar', label: 'العربية' }, { id: 'en', label: 'English' }, { id: 'ar-en', label: 'ثنائي اللغة' }].map((l) => (
+                    <button key={l.id} onClick={() => { setLanguageFilter(l.id); setPagination(prev => ({ ...prev, current: 1 })); }} className={`px-5 py-2.5 rounded-xl text-xs font-black transition-all ${languageFilter === l.id ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-foreground/40 dark:text-white/30 hover:text-primary'}`}>{l.label}</button>
                   ))}
                 </div>
                 
@@ -338,7 +339,7 @@ function TemplatesPageContent() {
                       <Chip label={priceFilter === 'free' ? 'مجاني' : 'مدفوع'} onRemove={() => setPriceFilter('all')} />
                     )}
                     {languageFilter !== 'all' && (
-                      <Chip label={languageFilter === 'ar' ? 'العربية' : 'English'} onRemove={() => setLanguageFilter('all')} />
+                      <Chip label={languageFilter === 'ar' ? 'العربية' : languageFilter === 'en' ? 'English' : 'ثنائي اللغة'} onRemove={() => setLanguageFilter('all')} />
                     )}
                     {minRating > 0 && (
                       <Chip label={`تقييم +${minRating}`} onRemove={() => setMinRating(0)} />
@@ -360,7 +361,7 @@ function TemplatesPageContent() {
         <div ref={templatesRef} className="container-custom pb-32">
           <div className="relative z-50 flex items-center justify-between py-12 border-none gap-8">
             <div className="px-8 py-4 rounded-full bg-white/50 dark:bg-white/5 backdrop-blur-2xl shadow-soft">
-               <p className="text-xs font-black uppercase tracking-[0.2em] text-accent-900/40 dark:text-white/20">تم تحليل <span className="text-primary">{pagination.total}</span> مسار نجاح</p>
+               <p className="text-xs font-black uppercase tracking-wider text-accent-900/50 dark:text-white/40">إجمالي <span className="text-primary">{pagination.total}</span> قالب</p>
             </div>
 
             <div className="relative w-full sm:w-80">
@@ -412,38 +413,8 @@ function TemplatesPageContent() {
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
             >
               {allTemplates.map((rel) => (
-                <motion.div key={rel._id} variants={cardVariants}>
-                  <Link href={`/templates/${rel.slug || rel._id}`} className="group relative block h-full">
-                    <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[2rem] sm:rounded-[3.5rem] shadow-large group-hover:shadow-glow group-hover:-translate-y-4 transition-all duration-700 h-full flex flex-col border-none overflow-hidden isolate">
-                      <div className="relative aspect-[4/3] m-2 sm:m-4 overflow-hidden rounded-2xl sm:rounded-[2.5rem] shadow-soft">
-                        <Image 
-                          src={rel.previewImage || '/placeholder-template.jpg'} 
-                          alt={rel.title} 
-                          fill 
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-                          className="object-cover object-center group-hover:scale-105 transition-transform duration-1000" 
-                        />
-                        <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20"><div className="px-4 py-2 sm:px-6 sm:py-3 bg-black/40 backdrop-blur-xl rounded-xl sm:rounded-2xl text-white font-black text-[10px] sm:text-sm uppercase tracking-widest">{rel.isPaid ? `${rel.price} ج.م` : 'مجاني'}</div></div>
-                      </div>
-                      <div className="p-4 sm:p-6 flex-1 flex flex-col relative z-20">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="px-3 py-1 sm:px-4 sm:py-1.5 bg-primary/10 rounded-full text-[9px] sm:text-[10px] font-black text-primary uppercase tracking-[0.2em]">{rel.categories?.[0] || rel.category || 'عام'}</div>
-                          <div className="flex items-center gap-1.5 sm:gap-2"><Star size={12} className="text-yellow-500 fill-yellow-500" /><span className="text-xs sm:text-sm font-black text-accent-900 dark:text-white">{(rel.rating || 0).toFixed(1)}</span></div>
-                        </div>
-                        <h3 className="text-lg sm:text-2xl font-black text-accent-900 dark:text-white mb-6 group-hover:text-primary transition-colors tracking-tighter leading-relaxed line-clamp-1">{rel.title}</h3>
-
-                        <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-accent-900/5 dark:border-white/5">
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-full overflow-hidden bg-primary/10 relative shadow-soft">
-                              {rel.creator?.profilePicture && <Image src={rel.creator.profilePicture} alt="Cr" fill className="object-cover" />}
-                            </div>
-                            <span className="text-sm font-black text-accent-900 dark:text-white/80 group-hover:text-primary transition-colors">{rel.creator?.name || 'نُخبة المبدعين'}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-accent-900/20 dark:text-white/10 font-black text-xs uppercase tracking-widest"><Download size={14} />{(rel.downloads || 0).toLocaleString()}</div>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
+                <motion.div key={rel._id || rel.id} variants={cardVariants} className="h-full">
+                  <TemplateCard template={rel} />
                 </motion.div>
               ))}
             </motion.div>

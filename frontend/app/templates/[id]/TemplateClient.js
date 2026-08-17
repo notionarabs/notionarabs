@@ -18,6 +18,7 @@ import { getCategorySlug } from '../../../lib/categoryMapping';
 import Counter from '../../../components/Counter';
 import ReviewsList from '../../../components/ReviewsList';
 import PaymentErrorBoundary from '../../../components/PaymentErrorBoundary';
+import { resolveTemplateLanguage } from '../../../components/TemplateCard';
 
 // Dynamically import heavy components
 const RatingCommentSystem = dynamic(() => import('../../../components/RatingCommentSystem'), {
@@ -585,7 +586,7 @@ export default function TemplateClient({ initialTemplate }) {
                 </div>
                 
                 <div className="prose prose-lg dark:prose-invert max-w-none mb-12">
-                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed font-medium whitespace-pre-wrap text-lg">
+                  <p dir="auto" className="text-gray-600 dark:text-gray-300 leading-relaxed font-medium whitespace-pre-wrap text-lg">
                     {template.description}
                   </p>
                 </div>
@@ -601,7 +602,7 @@ export default function TemplateClient({ initialTemplate }) {
                       <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-6">المميزات الرئيسية</h3>
                       <div className="space-y-6">
                         {featuresToRender.map((feature, i) => (
-                          <p key={i} className="text-lg font-bold text-gray-700 dark:text-dark-text-primary leading-relaxed">
+                          <p key={i} dir="auto" className="text-lg font-bold text-gray-700 dark:text-dark-text-primary leading-relaxed">
                             {feature}
                           </p>
                         ))}
@@ -721,21 +722,29 @@ export default function TemplateClient({ initialTemplate }) {
                   </h3>
                   
                   <div className="space-y-6 relative z-10">
-                    {[
-                      { label: 'اللغة المعتمدة', value: template.language === 'ar' ? 'اللغة العربية' : 'ثنائي (عربي / إنجليزي)', icon: Globe },
-                      { label: 'تاريخ التحديث', value: formatDate(template.updatedAt || template.createdAt), icon: Clock },
-                      { label: 'فئة النظام', value: template.categories?.[0] || 'عام', icon: Rocket },
-                    ].map((item, i) => (
-                      <div key={i} className="flex gap-4 group">
-                        <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-dark-tertiary flex items-center justify-center text-gray-400 group-hover:text-primary group-hover:bg-primary/10 transition-all">
-                           <item.icon size={18} />
+                    {(() => {
+                      const langInfo = resolveTemplateLanguage(template.language, template.title, template.description);
+                      const languageDisplayName = 
+                        langInfo.code === 'en' ? 'اللغة الإنجليزية' :
+                        langInfo.code === 'both' ? 'ثنائي (عربي / إنجليزي)' :
+                        langInfo.code === 'fr' ? 'اللغة الفرنسية' : 'اللغة العربية';
+
+                      return [
+                        { label: 'اللغة المعتمدة', value: languageDisplayName, icon: Globe },
+                        { label: 'تاريخ التحديث', value: formatDate(template.updatedAt || template.createdAt), icon: Clock },
+                        { label: 'فئة النظام', value: template.categories?.[0] || 'عام', icon: Rocket },
+                      ].map((item, i) => (
+                        <div key={i} className="flex gap-4 group">
+                          <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-dark-tertiary flex items-center justify-center text-gray-400 group-hover:text-primary group-hover:bg-primary/10 transition-all">
+                             <item.icon size={18} />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <div className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">{item.label}</div>
+                            <div className="text-sm font-black text-gray-900 dark:text-white">{item.value}</div>
+                          </div>
                         </div>
-                        <div className="flex flex-col gap-1">
-                          <div className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">{item.label}</div>
-                          <div className="text-sm font-black text-gray-900 dark:text-white">{item.value}</div>
-                        </div>
-                      </div>
-                    ))}
+                      ));
+                    })()}
                   </div>
                   
 

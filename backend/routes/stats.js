@@ -19,7 +19,30 @@ router.get('/homepage', cacheMiddleware(3600), async (req, res) => {
     if (creatorsResult.error) throw creatorsResult.error;
 
     const stats = statsResult.data;
-    const topCreators = creatorsResult.data || [];
+    let topCreators = creatorsResult.data || [];
+
+    if (topCreators.length > 0) {
+      const creatorIds = topCreators.map(c => c.id).filter(Boolean);
+      if (creatorIds.length > 0) {
+        const { data: templates } = await supabase
+          .from('Template')
+          .select('creatorId, status')
+          .in('creatorId', creatorIds);
+
+        if (templates) {
+          const counts = {};
+          templates.forEach(t => {
+            if (!t.status || t.status.toUpperCase() === 'APPROVED') {
+              counts[t.creatorId] = (counts[t.creatorId] || 0) + 1;
+            }
+          });
+          topCreators = topCreators.map(c => ({
+            ...c,
+            templatesCount: counts[c.id] ?? c.templatesCount ?? 0
+          }));
+        }
+      }
+    }
 
     // Edge + CDN caching (1 hour fresh, 24 hours stale)
     res.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');

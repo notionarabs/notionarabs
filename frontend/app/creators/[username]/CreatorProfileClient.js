@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import Footer from '../../../components/Footer';
 import LoadingIndicator from '../../../components/LoadingIndicator';
+import TemplateCard from '../../../components/TemplateCard';
 import { formatDate } from '../../../lib/dateUtils';
 import api from '../../../lib/api';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -579,43 +580,3 @@ export default function CreatorProfileClient({ initialCreator }) {
   );
 }
 
-function TemplateCard({ template }) {
-  return (
-    <Link href={`/templates/${template.slug || template.id}`} className="group relative block h-full">
-      <div className="bg-white/50 dark:bg-white/5 backdrop-blur-[40px] rounded-[2rem] sm:rounded-[3.5rem] shadow-large group-hover:shadow-glow group-hover:-translate-y-4 transition-all duration-700 h-full flex flex-col border-none overflow-hidden isolate">
-        <div className="relative aspect-[4/3] m-2 sm:m-4 overflow-hidden rounded-2xl sm:rounded-[2.5rem] shadow-soft">
-          <Image 
-            src={template.previewImage || '/placeholder-template.jpg'} 
-            alt={template.title} 
-            fill 
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-            className="object-cover group-hover:scale-[1.04] transition-transform duration-700" 
-          />
-          <div className="absolute top-4 left-4 sm:top-6 sm:left-6 z-20">
-            <div className="px-4 py-2 sm:px-5 sm:py-2 bg-black/40 backdrop-blur-xl rounded-xl sm:rounded-2xl text-white font-black text-[10px] sm:text-xs uppercase tracking-widest">
-              {template.isPaid ? `${template.price} ج.م` : 'مجاني'}
-            </div>
-          </div>
-        </div>
-        <div className="p-4 sm:p-6 lg:p-8 flex-1 flex flex-col relative z-20">
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-primary">
-              {template.categories?.[0] || template.category || 'عام'}
-            </span>
-            <div className="flex items-center gap-2 sm:gap-3 text-foreground/50 dark:text-white/40 text-[10px] sm:text-xs font-black uppercase tracking-widest">
-              <span className="inline-flex items-center gap-1 sm:gap-1.5">
-                <Download size={12} className="sm:w-3.5 sm:h-3.5" /> {(template.downloads || 0).toLocaleString()}
-              </span>
-              <span className="inline-flex items-center gap-1 sm:gap-1.5">
-                <Star size={12} className="fill-yellow-400 text-yellow-400 sm:w-3.5 sm:h-3.5" /> {(template.rating || 0).toFixed(1)}
-              </span>
-            </div>
-          </div>
-          <h3 className="text-lg sm:text-2xl font-black text-foreground dark:text-white group-hover:text-primary transition-colors line-clamp-1 mb-auto">
-            {template.title}
-          </h3>
-        </div>
-      </div>
-    </Link>
-  );
-}

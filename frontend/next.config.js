@@ -453,6 +453,15 @@ const nextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: '/user-settings',
+        destination: '/profile?tab=settings',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 module.exports = withPWA(nextConfig);

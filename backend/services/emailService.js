@@ -531,7 +531,8 @@ const getMasterTemplate = (content, title = 'عرب نوشن', preheader = '') =
                 </p>
                 <p style="margin: 0; font-size: 11px; color: #94a3b8;">
                   تصلك هذه الرسالة لأنك مسجل في منصة عرب نوشن. 
-                  <a href="https://www.notionarabs.com/user-settings" style="color: #64748b; text-decoration: underline;">إدارة التفضيلات</a>
+                  <a href="https://www.notionarabs.com/settings" style="color: #64748b; text-decoration: underline;">إعدادات الحساب</a> • 
+                  <a href="https://www.notionarabs.com/unsubscribe" style="color: #64748b; text-decoration: underline;">إلغاء الاشتراك</a>
                 </p>
               </div>
             </div>

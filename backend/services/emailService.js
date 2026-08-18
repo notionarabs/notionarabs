@@ -520,10 +520,36 @@ const getMasterTemplate = (content, title = 'عرب نوشن', preheader = '') =
                   <a href="https://www.notionarabs.com/contact">الدعم الفني</a> • 
                   <a href="https://www.notionarabs.com/about">من نحن</a>
                 </div>
-                <div class="social-links">
-                  <a href="https://twitter.com/notionarabs" target="_blank">منصة X (تويتر)</a> •
-                  <a href="https://instagram.com/notionarabs" target="_blank">انستجرام</a> •
-                  <a href="https://www.notionarabs.com" target="_blank">الموقع الرسمي</a>
+                <div style="margin: 18px auto 14px auto; text-align: center;">
+                  <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto; display: inline-table;">
+                    <tr>
+                      <td style="padding: 0 5px;">
+                        <a href="https://twitter.com/notionarabs" target="_blank" title="منصة X" style="display: inline-block; text-decoration: none;">
+                          <img src="https://www.notionarabs.com/icons/social-x.png" alt="X" width="28" height="28" style="display: block; border-radius: 50%; border: 0;" />
+                        </a>
+                      </td>
+                      <td style="padding: 0 5px;">
+                        <a href="https://instagram.com/notionarabs" target="_blank" title="انستجرام" style="display: inline-block; text-decoration: none;">
+                          <img src="https://www.notionarabs.com/icons/social-instagram.png" alt="Instagram" width="28" height="28" style="display: block; border-radius: 50%; border: 0;" />
+                        </a>
+                      </td>
+                      <td style="padding: 0 5px;">
+                        <a href="https://youtube.com/@notionarabs" target="_blank" title="يوتيوب" style="display: inline-block; text-decoration: none;">
+                          <img src="https://www.notionarabs.com/icons/social-youtube.png" alt="YouTube" width="28" height="28" style="display: block; border-radius: 50%; border: 0;" />
+                        </a>
+                      </td>
+                      <td style="padding: 0 5px;">
+                        <a href="https://t.me/Notion_Arabs" target="_blank" title="تيليجرام" style="display: inline-block; text-decoration: none;">
+                          <img src="https://www.notionarabs.com/icons/social-telegram.png" alt="Telegram" width="28" height="28" style="display: block; border-radius: 50%; border: 0;" />
+                        </a>
+                      </td>
+                      <td style="padding: 0 5px;">
+                        <a href="https://www.notionarabs.com" target="_blank" title="الموقع الرسمي" style="display: inline-block; text-decoration: none;">
+                          <img src="https://www.notionarabs.com/icons/social-web.png" alt="الموقع" width="28" height="28" style="display: block; border-radius: 50%; border: 0;" />
+                        </a>
+                      </td>
+                    </tr>
+                  </table>
                 </div>
                 <div class="divider" style="margin: 20px 0;"></div>
                 <p style="margin: 0 0 6px 0; font-size: 12px; color: #64748b;">

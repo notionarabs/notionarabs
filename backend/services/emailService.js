@@ -491,7 +491,7 @@ const getMasterTemplate = (content, title = 'عرب نوشن', preheader = '') =
                               <img src="https://www.notionarabs.com/icons/icon-192x192.png" alt="عرب نوشن" width="38" height="38" style="display: block; border-radius: 10px; border: 1.5px solid rgba(255, 255, 255, 0.2);" />
                             </td>
                             <td style="vertical-align: middle;">
-                              <span class="brand-title">عرب نوشن<span class="brand-dot">.</span></span>
+                              <span class="brand-title">عرب نوشن</span>
                             </td>
                           </tr>
                         </table>
@@ -549,7 +549,7 @@ const getMasterTemplate = (content, title = 'عرب نوشن', preheader = '') =
 const sendTemplateApprovedEmail = async (user, template) => {
   if (!user || !user.email) return;
 
-  const subject = `🚀 مبروك! تم قبول قالبك: ${template.title}`;
+  const subject = `مبروك! تم قبول قالبك: ${template.title}`;
   const templateLink = `https://www.notionarabs.com/templates/${template.slug || template._id}`;
 
   const html = getMasterTemplate(`
@@ -762,7 +762,7 @@ const sendWelcomeEmail = async (user) => {
     <p style="font-size: 16px;">سعداء جداً بانضمامك إلينا! تم تفعيل حسابك بنجاح وأصبحت الآن جزءاً من مجتمع عرب نوشن.</p>
     
     <div class="feature-box">
-      <strong style="font-size: 18px;">ماذا يمكنك أن تفعل الآن؟ 🚀</strong>
+      <strong style="font-size: 18px;">ماذا يمكنك أن تفعل الآن؟</strong>
       <ul style="padding-right: 20px; line-height: 2;">
         <li>تصفح مئات القوالب العربية المميزة.</li>
         <li>تحميل القوالب المجانية والمدفوعة.</li>
@@ -890,7 +890,7 @@ const sendPayoutRequestedEmail = async (user, payout) => {
 const sendPayoutApprovedEmail = async (user, payout) => {
   if (!user || !user.email) return;
 
-  const subject = `✅ تم تحويل أرباحك بنجاح!`;
+  const subject = `تم تحويل أرباحك بنجاح!`;
 
   const html = getMasterTemplate(`
     <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">مبروك ${user.name}!</h2>

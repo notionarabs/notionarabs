@@ -1,50 +1,26 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
-const { addConsultationToNotion, addCareerApplicationToNotion, addContactToNotion } = require('../services/notionService');
+const { sendEmail, getMasterTemplate } = require('../services/emailService');
 
 const router = express.Router();
 
-// Email configuration - Brevo only
-const createTransporter = () => {
-  if (!process.env.BREVO_API_KEY) {
-    console.error('❌ BREVO_API_KEY is not configured!');
-    throw new Error('Email service is not configured. Please set BREVO_API_KEY.');
-  }
-
-
+// Email transporter adapter delegating to unified emailService (Resend & Brevo)
+const createTransporter = (defaultCategory = 'support') => {
   return {
     sendMail: async (mailOptions) => {
-      try {
-        const axios = require('axios');
-        const response = await axios.post('https://api.brevo.com/v3/smtp/email', {
-          sender: {
-            email: process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL
-          },
-          to: [{ email: mailOptions.to }],
-          subject: mailOptions.subject,
-          htmlContent: mailOptions.html
-        }, {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'api-key': process.env.BREVO_API_KEY
-          }
-        });
-
-        return {
-          messageId: response.data.messageId,
-          response: 'Email sent via Brevo'
-        };
-      } catch (error) {
-        console.error('❌ Brevo error:', error.response?.data || error.message);
-        throw error;
-      }
+      return await sendEmail({
+        to: mailOptions.to,
+        subject: mailOptions.subject,
+        html: mailOptions.html,
+        text: mailOptions.text,
+        from: mailOptions.from,
+        replyTo: mailOptions.replyTo,
+        category: mailOptions.category || defaultCategory
+      });
     },
     verify: (callback) => {
-      if (callback) {
-        callback(null, true);
-      }
+      if (callback) callback(null, true);
       return Promise.resolve(true);
     }
   };
@@ -115,93 +91,39 @@ router.post('/creator', [
     });
 
     // Try to send email in background (non-blocking)
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+    if (process.env.RESEND_API_KEY || process.env.BREVO_API_KEY || (process.env.EMAIL_USER && process.env.EMAIL_PASS)) {
       setImmediate(async () => {
         try {
           const transporter = createTransporter();
           await transporter.verify();
 
-          const mailOptions = {
-            from: `"فريق عرب نوشن" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
-            to: creator.email,
-            subject: `رسالة جديدة من ${name} - ${subject}`,
-            html: `
-            <!DOCTYPE html>
-            <html lang="ar" dir="rtl">
-            <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>رسالة جديدة من موقع عرب نوشن</title>
-              <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-            </head>
-            <body style="margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; background-color: #f8f9fa;">
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f8f9fa;">
-                <tr>
-                  <td align="center" style="padding: 40px 20px;">
-                    <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
-                      
-                      <!-- Header -->
-                      <tr>
-                      <td style="padding: 40px; text-align: center; background-color: #f5631e; border-radius: 12px 12px 0 0;">
-                        <img src="https://www.notionarabs.com/icons/favicon.png" alt="عرب نوشن" style="height: 60px; width: auto;" />
-                        <h1 style="color: #ffffff; margin: 20px 0 10px; font-size: 24px; font-weight: 700;">رسالة جديدة</h1>
-                        <p style="color: #ffffff; margin: 0; font-size: 16px;">من موقع عرب نوشن</p>
-                      </td>
-                      </tr>
-                      
-                      <!-- Body -->
-                      <tr>
-                        <td style="padding: 40px; text-align: right; direction: rtl;">
-                          <h2 style="color: #132859; font-size: 20px; margin: 0 0 20px; font-weight: 600; text-align: right;">تفاصيل الرسالة</h2>
-                          
-                          <!-- Message Details -->
-                          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: right;">
-                            <div style="margin-bottom: 15px;">
-                              <p style="color: #5f6368; font-size: 14px; margin: 0 0 5px; font-weight: 500; text-align: right;">المرسل:</p>
-                              <p style="color: #132859; font-size: 16px; margin: 0; font-weight: 600; text-align: right;">${name}</p>
-                            </div>
-                            <div style="margin-bottom: 15px;">
-                              <p style="color: #5f6368; font-size: 14px; margin: 0 0 5px; font-weight: 500; text-align: right;">البريد الإلكتروني:</p>
-                              <p style="color: #132859; font-size: 16px; margin: 0; font-weight: 600; text-align: right;"><a href="mailto:${email}" style="color: #f5631e; text-decoration: none;">${email}</a></p>
-                            </div>
-                            <div>
-                              <p style="color: #5f6368; font-size: 14px; margin: 0 0 5px; font-weight: 500; text-align: right;">الموضوع:</p>
-                              <p style="color: #132859; font-size: 16px; margin: 0; font-weight: 600; text-align: right;">${subject}</p>
-                            </div>
-                          </div>
-                          
-                          <!-- Message Content -->
-                          <h2 style="color: #132859; font-size: 20px; margin: 20px 0; font-weight: 600; text-align: right;">محتوى الرسالة</h2>
-                          <div style="background-color: #ffffff; border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: right;">
-                            <p style="line-height: 1.6; color: #132859; font-size: 16px; margin: 0; text-align: right;">${message.replace(/\n/g, '<br>')}</p>
-                          </div>
-                          
-                          <!-- Reply Button -->
-                          <div style="text-align: center; margin: 30px 0;">
-                            <a href="mailto:${email}" style="display: inline-block; background-color: #f5631e; color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-size: 16px; font-weight: 600;">
-                              الرد على الرسالة
-                            </a>
-                          </div>
-                        </td>
-                      </tr>
-                      
-                      <!-- Footer -->
-                      <tr>
-                        <td style="padding: 30px; background-color: #132859; text-align: center; border-radius: 0 0 12px 12px;">
-                          <h3 style="color: #ffffff; font-size: 18px; margin: 0 0 10px; font-weight: 700;">عرب نوشن</h3>
-                          <p style="color: #9aa0a6; font-size: 14px; margin: 0 0 15px;">نصمم أنظمة عمل ذكية للفرق العربية</p>
-                          <a href="https://www.notionarabs.com" style="color: #f5631e; text-decoration: none; font-weight: 600;">www.notionarabs.com</a>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-            </body>
-            </html>
-          `
-          };
+          const mailContent = `
+            <h2>رسالة جديدة من: ${name}</h2>
+            <div class="feature-box">
+              <p style="margin: 6px 0;"><strong>المرسل:</strong> ${name}</p>
+              <p style="margin: 6px 0;"><strong>البريد الإلكتروني:</strong> <a href="mailto:${email}" style="color: #f5631e; text-decoration: none;">${email}</a></p>
+              <p style="margin: 6px 0;"><strong>الموضوع:</strong> ${subject}</p>
+            </div>
+            
+            <h3 style="color: #0f172a; font-size: 16px; margin: 24px 0 10px 0;">محتوى الرسالة:</h3>
+            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 12px; margin: 15px 0; color: #334155; line-height: 1.8;">
+              ${message.replace(/\n/g, "<br>")}
+            </div>
+            
+            <div style="text-align: center; margin: 28px 0 10px 0;">
+              <a href="mailto:${email}" class="button">الرد المباشر على المرسل</a>
+            </div>
+          `;
 
+          const mailOptions = {
+            from: process.env.EMAIL_FROM_SUPPORT || "support@notionarabs.com",
+            replyTo: email,
+            to: creator.email,
+            subject: `رسالة جديدة من ${name}: ${subject}`,
+            html: getMasterTemplate(mailContent, "رسالة جديدة من موقع عرب نوشن"),
+            text: `رسالة جديدة من: ${name} (${email})\nالموضوع: ${subject}\n\n${message}`,
+            category: "support"
+          };
           await transporter.sendMail(mailOptions);
         } catch (emailError) {
           console.error('Email sending failed (background):', emailError.message);
@@ -292,37 +214,39 @@ router.post('/general', [
     });
 
     // Try to send email in background (non-blocking)
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+    if (process.env.RESEND_API_KEY || process.env.BREVO_API_KEY || (process.env.EMAIL_USER && process.env.EMAIL_PASS)) {
       setImmediate(async () => {
         try {
           const transporter = createTransporter();
           await transporter.verify();
 
-          const mailOptions = {
-            from: `"فريق عرب نوشن" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
-            to: process.env.SUPPORT_EMAIL || process.env.EMAIL_USER,
-            subject: `رسالة جديدة من موقع عرب نوشن - ${subject}`,
-            html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">
-              <h2 style="color: #333; text-align: center;">رسالة جديدة من موقع عرب نوشن</h2>
-              <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                <h3 style="color: #495057; margin-bottom: 15px;">تفاصيل الرسالة:</h3>
-                <p><strong>المرسل:</strong> ${name}</p>
-                <p><strong>البريد الإلكتروني:</strong> <a href="mailto:${email}" style="color: #007bff;">${email}</a></p>
-                <p><strong>الموضوع:</strong> ${subject}</p>
-                <p><strong>نوع الاستفسار:</strong> ${req.body.category || 'عام'}</p>
-              </div>
-              <div style="background-color: #ffffff; padding: 20px; border: 1px solid #dee2e6; border-radius: 8px; margin: 20px 0;">
-                <h3 style="color: #495057; margin-bottom: 15px;">محتوى الرسالة:</h3>
-                <p style="line-height: 1.6; color: #333;">${message.replace(/\n/g, '<br>')}</p>
-              </div>
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="mailto:${email}" style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">الرد على الرسالة</a>
-              </div>
-              <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-              <p style="color: #666; font-size: 12px; text-align: center;">عرب نوشن - منصة القوالب العربية</p>
+          const mailContent = `
+            <h2>استفسار جديد عبر نموذج التواصل</h2>
+            <div class="feature-box">
+              <p style="margin: 6px 0;"><strong>المرسل:</strong> ${name}</p>
+              <p style="margin: 6px 0;"><strong>البريد الإلكتروني:</strong> <a href="mailto:${email}" style="color: #f5631e; text-decoration: none;">${email}</a></p>
+              <p style="margin: 6px 0;"><strong>الموضوع:</strong> ${subject}</p>
+              <p style="margin: 6px 0;"><strong>نوع الاستفسار:</strong> ${req.body.category || 'عام'}</p>
             </div>
-          `
+            
+            <h3 style="color: #0f172a; font-size: 16px; margin: 24px 0 10px 0;">محتوى الاستفسار:</h3>
+            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 12px; margin: 15px 0; color: #334155; line-height: 1.8;">
+              ${message.replace(/\n/g, '<br>')}
+            </div>
+            
+            <div style="text-align: center; margin: 28px 0 10px 0;">
+              <a href="mailto:${email}" class="button">الرد على العميل</a>
+            </div>
+          `;
+
+          const mailOptions = {
+            from: process.env.EMAIL_FROM_SUPPORT || 'support@notionarabs.com',
+            replyTo: email,
+            to: process.env.SUPPORT_EMAIL || 'support@notionarabs.com',
+            subject: `[تواصل] ${subject} - ${name}`,
+            html: getMasterTemplate(mailContent, 'رسالة تواصل جديدة'),
+            text: `استفسار جديد من: ${name} (${email})\nالموضوع: ${subject}\nالنوع: ${req.body.category || 'عام'}\n\n${message}`,
+            category: 'support'
           };
 
           await transporter.sendMail(mailOptions);
@@ -504,79 +428,40 @@ router.post('/consultation', [
     }
 
     // Try to send email to the user with the booking link
-    if (process.env.BREVO_API_KEY) {
+    if (process.env.RESEND_API_KEY || process.env.BREVO_API_KEY) {
       setImmediate(async () => {
         try {
           const transporter = createTransporter();
           await transporter.verify();
 
+          const bookingContent = `
+            <h2>أهلاً بك ${payload.name}،</h2>
+            <p>شكراً لطلبك الحصول على استشارة مخصصة من فريق عرب نوشن. نحن متحمسون لمساعدتك في بناء وتطوير نظام عملك على نوشن!</p>
+            
+            <div class="feature-box">
+              <strong>تفاصيل الاستشارة:</strong>
+              <p style="margin: 6px 0;">جلسة استكشافية وتخطيطية مع مستشار معتمد في نوشن.</p>
+              <p style="margin: 6px 0;">يرجى اختيار الموعد المناسب لجدولك من الرابط أدناه.</p>
+            </div>
+            
+            <div style="text-align: center; margin: 28px 0;">
+              <a href="https://calendar.notion.so/meet/notionarabs/discovery-call" class="button">
+                احجز موعد الاستشارة الآن
+              </a>
+            </div>
+
+            <p class="secondary-text" style="margin-top: 20px;">
+              إذا واجهت أي استفسار أو رغبت في تعديل الموعد، يمكنك الرد على هذه الرسالة مباشرة وسيقوم فريقنا بمساعدتك.
+            </p>
+          `;
+
           const mailOptions = {
-            from: `"فريق عرب نوشن" <${process.env.EMAIL_FROM || process.env.EMAIL_USER || 'no-reply@notionarabs.com'}>`,
+            from: process.env.EMAIL_FROM_SUPPORT || 'support@notionarabs.com',
             to: payload.email,
             subject: `حجز موعد الاستشارة - عرب نوشن`,
-            html: `
-            <!DOCTYPE html>
-            <html lang="ar" dir="rtl">
-            <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>حجز موعد استشارة - عرب نوشن</title>
-              <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-            </head>
-            <body style="margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; background-color: #f8f9fa;">
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f8f9fa;">
-                <tr>
-                  <td align="center" style="padding: 40px 20px;">
-                    <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
-                      
-                      <!-- Header -->
-                      <tr>
-                      <td style="padding: 40px; text-align: center; background-color: #f5631e; border-radius: 12px 12px 0 0;">
-                        <img src="https://www.notionarabs.com/icons/favicon.png" alt="عرب نوشن" style="height: 60px; width: auto;" />
-                        <h1 style="color: #ffffff; margin: 20px 0 10px; font-size: 24px; font-weight: 700;">حجز موعد استشارة</h1>
-                      </td>
-                      </tr>
-                      
-                      <!-- Body -->
-                      <tr>
-                        <td style="padding: 40px; text-align: right; direction: rtl;">
-                          <h2 style="color: #132859; font-size: 20px; margin: 0 0 20px; font-weight: 600; text-align: right;">أهلاً بك ${payload.name}،</h2>
-                          
-                          <p style="color: #333; font-size: 16px; line-height: 1.6; text-align: right;">
-                            شكراً لطلبك الحصول على استشارة من فريق عرب نوشن. نحن متحمسون للعمل معك!
-                          </p>
-                          <p style="color: #333; font-size: 16px; line-height: 1.6; text-align: right;">
-                            لاستكمال طلبك، يرجى اختيار الوقت المناسب للاجتماع من خلال الرابط أدناه:
-                          </p>
-                          
-                          <!-- Button -->
-                          <div style="text-align: center; margin: 30px 0;">
-                            <a href="https://calendar.notion.so/meet/notionarabs/discovery-call" style="display: inline-block; background-color: #f5631e; color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-size: 16px; font-weight: 600;">
-                              احجز موعد الاستشارة الآن
-                            </a>
-                          </div>
-
-                          <p style="color: #777; font-size: 14px; line-height: 1.6; text-align: right; margin-top: 20px;">
-                            في حال واجهت أي مشكلة، يمكنك الرد على هذه الرسالة وسنقوم بمساعدتك في أسرع وقت.
-                          </p>
-                        </td>
-                      </tr>
-                      
-                      <!-- Footer -->
-                      <tr>
-                        <td style="padding: 30px; background-color: #132859; text-align: center; border-radius: 0 0 12px 12px;">
-                          <h3 style="color: #ffffff; font-size: 18px; margin: 0 0 10px; font-weight: 700;">عرب نوشن</h3>
-                          <p style="color: #9aa0a6; font-size: 14px; margin: 0 0 15px;">استشارات • بناء أنظمة • قوالب احترافية • تدريب</p>
-                          <a href="https://www.notionarabs.com" style="color: #f5631e; text-decoration: none; font-weight: 600;">www.notionarabs.com</a>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-            </body>
-            </html>
-            `
+            html: getMasterTemplate(bookingContent, 'تأكيد حجز موعد الاستشارة'),
+            text: `أهلاً ${payload.name}،\n\nشكراً لطلبك الحصول على استشارة من عرب نوشن.\nيرجى اختيار الموعد المناسب من الرابط:\nhttps://calendar.notion.so/meet/notionarabs/discovery-call\n\nعرب نوشن`,
+            category: 'support'
           };
 
           await transporter.sendMail(mailOptions);

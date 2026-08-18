@@ -1,176 +1,543 @@
 const axios = require('axios');
 
 /**
- * Send an email using Brevo API
+ * Resolves sender email, name, and reply-to based on category or explicit overrides
+ */
+const getSenderDetails = ({ from, fromName, replyTo, category } = {}) => {
+  const accounts = {
+    auth: {
+      name: 'عرب نوشن - الحسابات',
+      email: process.env.EMAIL_FROM_AUTH || process.env.EMAIL_FROM || 'noreply@notionarabs.com',
+      replyTo: process.env.SUPPORT_EMAIL || 'support@notionarabs.com'
+    },
+    orders: {
+      name: 'عرب نوشن - الطلبات والمدفوعات',
+      email: process.env.EMAIL_FROM_ORDERS || process.env.EMAIL_FROM || 'orders@notionarabs.com',
+      replyTo: process.env.SUPPORT_EMAIL || 'support@notionarabs.com'
+    },
+    creators: {
+      name: 'عرب نوشن - فريق المبدعين',
+      email: process.env.EMAIL_FROM_CREATORS || process.env.EMAIL_FROM || 'creators@notionarabs.com',
+      replyTo: process.env.SUPPORT_EMAIL || 'support@notionarabs.com'
+    },
+    support: {
+      name: 'عرب نوشن - الدعم والتواصل',
+      email: process.env.EMAIL_FROM_SUPPORT || process.env.SUPPORT_EMAIL || 'support@notionarabs.com',
+      replyTo: process.env.SUPPORT_EMAIL || 'support@notionarabs.com'
+    },
+    newsletter: {
+      name: 'عرب نوشن - النشرة الإخبارية',
+      email: process.env.EMAIL_FROM_NEWSLETTER || process.env.EMAIL_FROM || 'newsletter@notionarabs.com',
+      replyTo: process.env.SUPPORT_EMAIL || 'support@notionarabs.com'
+    },
+    default: {
+      name: 'عرب نوشن',
+      email: process.env.EMAIL_FROM || 'support@notionarabs.com',
+      replyTo: process.env.SUPPORT_EMAIL || 'support@notionarabs.com'
+    }
+  };
+
+  const account = (category && accounts[category]) ? accounts[category] : accounts.default;
+  const name = fromName || account.name;
+  const email = from || account.email;
+  const reply = replyTo || account.replyTo;
+
+  return { name, email, replyTo: reply };
+};
+
+/**
+ * Send an email using Resend API
  * @param {Object} options - Email options
- * @param {string} options.to - Recipient email
+ * @param {string|Array} options.to - Recipient email(s)
  * @param {string} options.subject - Email subject
  * @param {string} options.html - HTML content
  * @param {string} options.text - Text content
+ * @param {string} options.from - Optional custom sender email
+ * @param {string} options.fromName - Optional custom sender name
+ * @param {string} options.replyTo - Optional custom reply-to
+ * @param {string} options.category - Email category ('auth', 'orders', 'creators', 'support', 'newsletter')
+ * @returns {Promise<Object>} - Response from Resend
+ */
+const sendViaResend = async ({ to, subject, html, text, from, fromName, replyTo, category }) => {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY is not configured.');
+  }
+
+  const sender = getSenderDetails({ from, fromName, replyTo, category });
+  const fromField = sender.email.includes('<') ? sender.email : `${sender.name} <${sender.email}>`;
+  const primaryRecipient = Array.isArray(to) ? (typeof to[0] === 'string' ? to[0] : to[0].email) : to;
+
+  const toList = Array.isArray(to)
+    ? to.map(item => (typeof item === 'string' ? item : item.email))
+    : [to];
+
+  const payload = {
+    from: fromField,
+    to: toList,
+    subject: subject,
+    html: html,
+    ...(text ? { text } : {}),
+    reply_to: sender.replyTo,
+    headers: {
+      'List-Unsubscribe': `<https://www.notionarabs.com/unsubscribe?email=${encodeURIComponent(primaryRecipient)}>`,
+      'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click'
+    },
+    tags: [
+      { name: 'category', value: category || 'general' }
+    ]
+  };
+
+  const response = await axios.post('https://api.resend.com/emails', payload, {
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.RESEND_API_KEY}`
+    }
+  });
+
+  console.log(`✅ Resend [${category || 'default'}] email sent to ${primaryRecipient}:`, response.data.id);
+  return {
+    messageId: response.data.id,
+    provider: 'resend',
+    response: 'Email sent via Resend'
+  };
+};
+
+/**
+ * Send an email using Brevo API
+ * @param {Object} options - Email options
+ * @param {string|Array} options.to - Recipient email(s)
+ * @param {string} options.subject - Email subject
+ * @param {string} options.html - HTML content
+ * @param {string} options.text - Text content
+ * @param {string} options.from - Optional custom sender email
+ * @param {string} options.fromName - Optional custom sender name
+ * @param {string} options.replyTo - Optional custom reply-to
+ * @param {string} options.category - Email category ('auth', 'orders', 'creators', 'support', 'newsletter')
  * @returns {Promise<Object>} - Response from Brevo
  */
-const sendEmail = async ({ to, subject, html, text }) => {
+const sendViaBrevo = async ({ to, subject, html, text, from, fromName, replyTo, category }) => {
   if (!process.env.BREVO_API_KEY) {
-    console.warn('⚠️ BREVO_API_KEY is not configured! Email will not be sent.');
-    // In development, just log the email content
+    throw new Error('BREVO_API_KEY is not configured.');
+  }
+
+  const sender = getSenderDetails({ from, fromName, replyTo, category });
+  const primaryRecipient = Array.isArray(to) ? (typeof to[0] === 'string' ? to[0] : to[0].email) : to;
+  const toList = Array.isArray(to)
+    ? to.map(item => (typeof item === 'string' ? { email: item } : item))
+    : [{ email: to }];
+
+  const response = await axios.post(
+    'https://api.brevo.com/v3/smtp/email',
+    {
+      sender: {
+        name: sender.name,
+        email: sender.email
+      },
+      to: toList,
+      subject: subject,
+      htmlContent: html,
+      textContent: text,
+      headers: {
+        'List-Unsubscribe': '<https://www.notionarabs.com/unsubscribe?email=' + encodeURIComponent(primaryRecipient) + '>',
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        'X-Mailer': 'Microsoft Outlook 16.0',
+        'Reply-To': sender.replyTo
+      },
+      tags: ['notionarabs', category || 'notification']
+    },
+    {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'api-key': process.env.BREVO_API_KEY
+      }
+    }
+  );
+
+  console.log(`✅ Brevo [${category || 'default'}] email sent to ${primaryRecipient}:`, response.data.messageId);
+  return {
+    messageId: response.data.messageId,
+    provider: 'brevo',
+    response: 'Email sent via Brevo'
+  };
+};
+
+/**
+ * Universal email dispatcher with automatic fallback support
+ * @param {Object} options - Email options
+ * @param {string|Array} options.to - Recipient email(s)
+ * @param {string} options.subject - Email subject
+ * @param {string} options.html - HTML content
+ * @param {string} options.text - Text content
+ * @param {string} options.from - Optional custom sender email
+ * @param {string} options.fromName - Optional custom sender name
+ * @param {string} options.replyTo - Optional custom reply-to
+ * @param {string} options.category - Email category ('auth', 'orders', 'creators', 'support', 'newsletter')
+ * @returns {Promise<Object>} - Delivery response
+ */
+const sendEmail = async ({ to, subject, html, text, from, fromName, replyTo, category }) => {
+  const provider = (process.env.EMAIL_PROVIDER || 'auto').toLowerCase();
+  const hasResend = Boolean(process.env.RESEND_API_KEY);
+  const hasBrevo = Boolean(process.env.BREVO_API_KEY);
+
+  if (!hasResend && !hasBrevo) {
+    console.warn('⚠️ Neither RESEND_API_KEY nor BREVO_API_KEY is configured!');
     if (process.env.NODE_ENV === 'development') {
+      const sender = getSenderDetails({ from, fromName, replyTo, category });
       console.log('--- EMAIL MOCK ---');
-      console.log(`To: ${to}`);
+      console.log(`From: ${sender.name} <${sender.email}> (Reply-To: ${sender.replyTo})`);
+      console.log(`To: ${JSON.stringify(to)}`);
+      console.log(`Category: ${category || 'general'}`);
       console.log(`Subject: ${subject}`);
       console.log(`Text Content: ${text}`);
       if (html) {
-          // Extract link for convenience if possible, or just log first 200 chars
-          const linkMatch = html.match(/href="([^"]+)"/);
-          if (linkMatch) console.log(`Detected Link: ${linkMatch[1]}`);
+        const linkMatch = html.match(/href="([^"]+)"/);
+        if (linkMatch) console.log(`Detected Link: ${linkMatch[1]}`);
       }
       console.log('--- END EMAIL MOCK ---');
-      return { messageId: 'mock-id', response: 'Email logged (dev mode)' };
+      return { messageId: 'mock-id', provider: 'mock', response: 'Email logged (dev mode)' };
     }
-    throw new Error('Email service is not configured. Please set BREVO_API_KEY.');
+    throw new Error('Email service is not configured. Please set RESEND_API_KEY or BREVO_API_KEY.');
   }
 
-  try {
-    const response = await axios.post(
-      'https://api.brevo.com/v3/smtp/email',
-      {
-        sender: {
-          name: 'عرب نوشن',
-          email: process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL || 'noreply@notionarabs.com'
-        },
-        to: [{ email: to }],
-        subject: subject,
-        htmlContent: html,
-        textContent: text,
-        headers: {
-          'List-Unsubscribe': '<https://www.notionarabs.com/unsubscribe?email=' + encodeURIComponent(to) + '>',
-          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-          'X-Mailer': 'Microsoft Outlook 16.0',
-          'Reply-To': process.env.EMAIL_FROM || process.env.BREVO_FROM_EMAIL || 'support@notionarabs.com'
-        },
-        tags: ['notionarabs', 'notification']
-      },
-      {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'api-key': process.env.BREVO_API_KEY
-        }
+  // Explicit provider choice
+  if (provider === 'resend') {
+    if (!hasResend) throw new Error('EMAIL_PROVIDER is set to resend, but RESEND_API_KEY is not configured.');
+    try {
+      return await sendViaResend({ to, subject, html, text, from, fromName, replyTo, category });
+    } catch (err) {
+      if (hasBrevo) {
+        console.warn('⚠️ Resend failed, falling back to Brevo:', err.response?.data || err.message);
+        return await sendViaBrevo({ to, subject, html, text, from, fromName, replyTo, category });
       }
-    );
-
-    console.log('✅ Brevo email sent successfully:', response.data.messageId);
-    return {
-      messageId: response.data.messageId,
-      response: 'Email sent via Brevo'
-    };
-  } catch (error) {
-    console.error('❌ Brevo error:', error.response?.data || error.message);
-    throw error;
+      throw err;
+    }
   }
+
+  if (provider === 'brevo') {
+    if (!hasBrevo) throw new Error('EMAIL_PROVIDER is set to brevo, but BREVO_API_KEY is not configured.');
+    try {
+      return await sendViaBrevo({ to, subject, html, text, from, fromName, replyTo, category });
+    } catch (err) {
+      if (hasResend) {
+        console.warn('⚠️ Brevo failed, falling back to Resend:', err.response?.data || err.message);
+        return await sendViaResend({ to, subject, html, text, from, fromName, replyTo, category });
+      }
+      throw err;
+    }
+  }
+
+  // Auto mode: prioritize Resend if available, fallback to Brevo
+  if (hasResend) {
+    try {
+      return await sendViaResend({ to, subject, html, text, from, fromName, replyTo, category });
+    } catch (err) {
+      if (hasBrevo) {
+        console.warn('⚠️ Resend failed in auto mode, falling back to Brevo:', err.response?.data || err.message);
+        return await sendViaBrevo({ to, subject, html, text, from, fromName, replyTo, category });
+      }
+      throw err;
+    }
+  }
+
+  return await sendViaBrevo({ to, subject, html, text, from, fromName, replyTo, category });
 };
 
 /**
  * Master HTML Template for all emails
- * Ensures consistent branding and premium design
+ * Aligned with Notion Arabs official website identity & brand aesthetics
  */
-const getMasterTemplate = (content, title = 'عرب نوشن') => `
+const getMasterTemplate = (content, title = 'عرب نوشن', preheader = '') => `
   <!DOCTYPE html>
   <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="color-scheme" content="light">
+    <meta name="supported-color-schemes" content="light">
+    <title>${title}</title>
+    <!--[if mso]>
+    <noscript>
+      <xml>
+        <o:OfficeDocumentSettings>
+          <o:PixelsPerInch>96</o:PixelsPerInch>
+        </o:OfficeDocumentSettings>
+      </xml>
+    </noscript>
+    <![endif]-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     <style>
+      :root {
+        color-scheme: light;
+      }
       body { 
-        font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-        background-color: #f0f2f5; 
+        font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; 
+        background-color: #f1f5f9; 
         margin: 0; 
         padding: 0; 
         -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
         direction: rtl;
         text-align: right;
+        width: 100% !important;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
       }
-      .wrapper { padding: 40px 20px; direction: rtl; }
+      table {
+        border-collapse: collapse;
+        mso-table-lspace: 0pt;
+        mso-table-rspace: 0pt;
+      }
+      img {
+        border: 0;
+        height: auto;
+        line-height: 100%;
+        outline: none;
+        text-decoration: none;
+        -ms-interpolation-mode: bicubic;
+      }
+      .wrapper { 
+        padding: 40px 16px; 
+        direction: rtl;
+        background-color: #f1f5f9;
+      }
       .container { 
         max-width: 600px; 
         margin: 0 auto; 
         background-color: #ffffff; 
-        border-radius: 24px; 
+        border-radius: 20px; 
         overflow: hidden;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.05);
-        border: 1px solid #eef0f2;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
+        border: 1px solid #e2e8f0;
         direction: rtl;
       }
       .header { 
-        background: linear-gradient(135deg, #f5631e 0%, #ff8c52 100%); 
-        padding: 40px 30px; 
+        background: linear-gradient(160deg, #0d1527 0%, #132859 60%, #1a3675 100%); 
+        padding: 36px 30px; 
         text-align: center; 
         color: #ffffff;
+        border-top: 5px solid #f5631e;
+        position: relative;
       }
-      .header h1 { margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
-      .body { padding: 40px 30px; text-align: right; color: #1a1d21; line-height: 1.8; direction: rtl; }
-      .footer { 
-        background-color: #f8f9fa; 
-        padding: 30px; 
-        text-align: center; 
-        color: #8b949e; 
+      .brand-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        padding: 8px 18px;
+        border-radius: 9999px;
+        margin-bottom: 18px;
+        text-decoration: none;
+      }
+      .brand-title {
+        color: #ffffff;
+        font-size: 20px;
+        font-weight: 800;
+        margin: 0;
+        letter-spacing: -0.3px;
+        vertical-align: middle;
+      }
+      .brand-dot {
+        color: #f5631e;
+      }
+      .header h1 { 
+        margin: 0; 
+        font-size: 24px; 
+        font-weight: 800; 
+        letter-spacing: -0.5px; 
+        color: #ffffff;
+        line-height: 1.4;
+      }
+      .header-subtitle {
+        margin: 8px 0 0;
         font-size: 13px;
-        border-top: 1px solid #eef0f2;
+        color: #94a3b8;
+        font-weight: 500;
+      }
+      .body { 
+        padding: 36px 32px; 
+        text-align: right; 
+        color: #1e293b; 
+        line-height: 1.85; 
+        direction: rtl; 
+        font-size: 15px;
+      }
+      .body h2 {
+        color: #0f172a;
+        font-size: 20px;
+        font-weight: 800;
+        margin-top: 0;
+        margin-bottom: 16px;
+      }
+      .body p {
+        margin: 0 0 16px 0;
+        color: #334155;
+      }
+      .footer { 
+        background-color: #f8fafc; 
+        padding: 32px 30px; 
+        text-align: center; 
+        color: #64748b; 
+        font-size: 13px;
+        border-top: 1px solid #e2e8f0;
         direction: rtl;
+        line-height: 1.7;
       }
       .button { 
         display: inline-block; 
-        background-color: #f5631e; 
+        background: linear-gradient(135deg, #f5631e 0%, #ff7a3d 100%); 
         color: #ffffff !important; 
-        text-decoration: none; 
-        padding: 16px 32px; 
-        border-radius: 14px; 
+        text-decoration: none !important; 
+        padding: 14px 34px; 
+        border-radius: 12px; 
         font-weight: 700; 
-        margin: 25px 0;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(245, 99, 30, 0.2);
+        font-size: 15px;
+        margin: 20px 0;
+        transition: all 0.25s ease;
+        box-shadow: 0 4px 14px rgba(245, 99, 30, 0.3);
+        text-align: center;
       }
       .secondary-button {
         display: inline-block;
         background-color: #ffffff;
-        color: #f5631e !important;
-        text-decoration: none;
-        padding: 14px 28px;
-        border-radius: 14px;
+        color: #1e293b !important;
+        text-decoration: none !important;
+        padding: 12px 26px;
+        border-radius: 12px;
         font-weight: 700;
-        margin: 25px 10px;
-        border: 2px solid #f5631e;
+        font-size: 14px;
+        margin: 20px 8px;
+        border: 1.5px solid #cbd5e1;
+        text-align: center;
       }
-      .secondary-text { color: #6e7681; font-size: 14px; }
-      .divider { height: 1px; background-color: #eef0f2; margin: 30px 0; }
-      .social-links { margin-top: 20px; }
-      .social-links a { color: #f5631e; text-decoration: none; margin: 0 10px; font-weight: 600; }
-      .feature-box { background-color: #f8f9fa; padding: 25px; border-radius: 18px; margin: 25px 0; border: 1px solid #eef0f2; direction: rtl; text-align: right; }
-      .feature-box strong { display: block; margin-bottom: 10px; color: #1a1d21; }
-      .feature-box ul { padding: 0 20px 0 0; margin: 0; list-style-position: inside; }
-      .feature-box li { margin-bottom: 8px; }
-      .price-tag { color: #f5631e; font-weight: 900; font-size: 20px; }
+      .secondary-text { color: #64748b; font-size: 13px; line-height: 1.6; }
+      .divider { height: 1px; background-color: #e2e8f0; margin: 26px 0; }
+      .social-links { margin: 18px 0 14px; }
+      .social-links a { 
+        color: #f5631e; 
+        text-decoration: none; 
+        margin: 0 8px; 
+        font-weight: 700;
+        font-size: 13px;
+      }
+      .footer-links { margin: 10px 0 16px; }
+      .footer-links a {
+        color: #475569;
+        text-decoration: none;
+        margin: 0 8px;
+        font-size: 12px;
+      }
+      .footer-links a:hover {
+        color: #f5631e;
+      }
+      .feature-box { 
+        background: linear-gradient(180deg, #fffbf8 0%, #fff7f2 100%); 
+        padding: 22px 24px; 
+        border-radius: 14px; 
+        margin: 24px 0; 
+        border: 1px solid #fed7aa; 
+        border-right: 4px solid #f5631e; 
+        direction: rtl; 
+        text-align: right; 
+      }
+      .feature-box strong { display: block; margin-bottom: 8px; color: #0f172a; font-size: 15px; }
+      .feature-box ul { padding: 0 18px 0 0; margin: 0; list-style-position: inside; }
+      .feature-box li { margin-bottom: 6px; color: #334155; }
+      .price-tag { color: #f5631e; font-weight: 900; font-size: 22px; }
+      .alert-box {
+        background-color: #fffbeb;
+        border: 1px solid #fef08a;
+        border-right: 4px solid #eab308;
+        padding: 18px 22px;
+        border-radius: 12px;
+        margin: 22px 0;
+        color: #854d0e;
+        font-size: 14px;
+      }
+      .preheader {
+        display: none !important;
+        visibility: hidden;
+        mso-hide: all;
+        font-size: 1px;
+        line-height: 1px;
+        max-height: 0px;
+        max-width: 0px;
+        opacity: 0;
+        overflow: hidden;
+      }
     </style>
   </head>
   <body>
+    ${preheader ? `<span class="preheader">${preheader}</span>` : ''}
     <div class="wrapper">
-      <div class="container">
-        <div class="header">
-          <h1>${title}</h1>
-        </div>
-        <div class="body">
-          ${content}
-        </div>
-        <div class="footer">
-          <p>© ${new Date().getFullYear()} عرب نوشن (Notion Arabs). جميع الحقوق محفوظة.</p>
-          <p>أكبر مجتمع ومحيط لمستخدمي نوشن في الوطن العربي.</p>
-          <div class="social-links">
-            <a href="https://twitter.com/notionarabs">تويتر</a>
-            <a href="https://instagram.com/notionarabs">انستجرام</a>
-            <a href="https://www.notionarabs.com">الموقع الإلكتروني</a>
-          </div>
-        </div>
-      </div>
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+        <tr>
+          <td align="center">
+            <div class="container">
+              <!-- Header with Official Branding & Logo -->
+              <div class="header">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                  <tr>
+                    <td align="center">
+                      <a href="https://www.notionarabs.com" target="_blank" style="text-decoration: none;">
+                        <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto 16px auto;">
+                          <tr>
+                            <td style="vertical-align: middle; padding-left: 10px;">
+                              <img src="https://www.notionarabs.com/icons/icon-192x192.png" alt="عرب نوشن" width="38" height="38" style="display: block; border-radius: 10px; border: 1.5px solid rgba(255, 255, 255, 0.2);" />
+                            </td>
+                            <td style="vertical-align: middle;">
+                              <span class="brand-title">عرب نوشن<span class="brand-dot">.</span></span>
+                            </td>
+                          </tr>
+                        </table>
+                      </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="center">
+                      <h1>${title}</h1>
+                      <p class="header-subtitle">مجتمع ومنصة نوشن الأولى في العالم العربي</p>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+
+              <!-- Main Content Body -->
+              <div class="body">
+                ${content}
+              </div>
+
+              <!-- Sleek Modern Footer -->
+              <div class="footer">
+                <div class="footer-links">
+                  <a href="https://www.notionarabs.com/templates">تصفح القوالب</a> • 
+                  <a href="https://www.notionarabs.com/blog">المدونة</a> • 
+                  <a href="https://www.notionarabs.com/contact">الدعم الفني</a> • 
+                  <a href="https://www.notionarabs.com/about">من نحن</a>
+                </div>
+                <div class="social-links">
+                  <a href="https://twitter.com/notionarabs" target="_blank">منصة X (تويتر)</a> •
+                  <a href="https://instagram.com/notionarabs" target="_blank">انستجرام</a> •
+                  <a href="https://www.notionarabs.com" target="_blank">الموقع الرسمي</a>
+                </div>
+                <div class="divider" style="margin: 20px 0;"></div>
+                <p style="margin: 0 0 6px 0; font-size: 12px; color: #64748b;">
+                  © ${new Date().getFullYear()} عرب نوشن (Notion Arabs) - جميع الحقوق محفوظة.
+                </p>
+                <p style="margin: 0; font-size: 11px; color: #94a3b8;">
+                  تصلك هذه الرسالة لأنك مسجل في منصة عرب نوشن. 
+                  <a href="https://www.notionarabs.com/user-settings" style="color: #64748b; text-decoration: underline;">إدارة التفضيلات</a>
+                </p>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </table>
     </div>
   </body>
   </html>
@@ -200,7 +567,7 @@ const sendTemplateApprovedEmail = async (user, template) => {
 
   const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nيسعدنا إخبارك بأنه تمت مراجعة وقبول قالبك "${template.title}" بنجاح.\n\nيمكنك مشاهدة القالب هنا: ${templateLink}\n\nشكراً لمساهمتك معنا!\n\nعرب نوشن`;
 
-  await sendEmail({ to: user.email, subject, html, text });
+  await sendEmail({ to: user.email, subject, html, text, category: 'creators' });
 };
 
 /**
@@ -218,9 +585,9 @@ const sendTemplateRejectedEmail = async (user, template, reason, isUpdate = fals
     <p style="font-size: 16px;">نأسف لإخبارك بأنه لم يتم قبول ${isUpdate ? 'تحديثات القالب' : 'القالب'} في الوقت الحالي للملاحظات التالية:</p>
     
     ${reason ? `
-    <div style="background-color: #fff8e1; border-right: 4px solid #ffc107; padding: 20px; border-radius: 12px; margin: 25px 0;">
-      <strong style="color: #856404;">${isUpdate ? 'سبب رفض التحديث:' : 'سبب الرفض:'}</strong><br>
-      <div style="margin-top: 10px; color: #856404;">${reason}</div>
+    <div class="alert-box">
+      <strong>${isUpdate ? 'سبب رفض التحديث:' : 'سبب الرفض:'}</strong><br>
+      <div style="margin-top: 8px;">${reason}</div>
     </div>
     ` : ''}
 
@@ -233,7 +600,7 @@ const sendTemplateRejectedEmail = async (user, template, reason, isUpdate = fals
 
   const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nشكراً لإرسال قالبك "${template.title}" للمراجعة.\n\nنأسف لإخبارك بأنه لم يتم قبول القالب في الوقت الحالي.\n\n${reason ? `السبب: ${reason}\n\n` : ''}يمكنك التعديل وإعادة الإرسال من لوحة التحكم.\n\nعرب نوشن`;
 
-  await sendEmail({ to: user.email, subject, html, text });
+  await sendEmail({ to: user.email, subject, html, text, category: 'creators' });
 };
 
 /**
@@ -260,7 +627,7 @@ const sendCreatorApprovedEmail = async (user) => {
 
   const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nيسعدنا إخبارك بأنه تم قبول طلب انضمامك كمبدع في منصة عرب نوشن.\n\nيمكنك الدخول إلى لوحة التحكم من هنا: ${dashboardLink}\n\nنحن متحمسون لرؤية إبداعاتك!\n\nعرب نوشن`;
 
-  await sendEmail({ to: user.email, subject, html, text });
+  await sendEmail({ to: user.email, subject, html, text, category: 'creators' });
 };
 
 /**
@@ -278,7 +645,7 @@ const sendCreatorRejectedEmail = async (user, reason) => {
     <p style="font-size: 16px;">بعد مراجعة طلبك ونماذج أعمالك، نأسف لإخبارك بأنه لم يتم قبول الطلب في الوقت الحالي للملاحظات التالية:</p>
     
     ${reason ? `
-    <div style="background-color: #fff8e1; border-right: 4px solid #ffc107; padding: 20px; border-radius: 12px; margin: 25px 0; color: #856404;">
+    <div class="alert-box">
       <strong>السبب:</strong><br>
       <div style="margin-top: 10px;">${reason}</div>
     </div>
@@ -293,7 +660,7 @@ const sendCreatorRejectedEmail = async (user, reason) => {
 
   const text = `مرحباً ${user.name || 'صديقنا'}،\n\nنأسف لإخبارك بأنه لم يتم قبول طلب انضمامك كمبدع في الوقت الحالي.\n\n${reason ? `السبب: ${reason}\n\n` : ''}يمكنك المحاولة مرة أخرى في المستقبل.\n\nعرب نوشن`;
 
-  await sendEmail({ to: user.email, subject, html, text });
+  await sendEmail({ to: user.email, subject, html, text, category: 'creators' });
 };
 
 /**
@@ -317,7 +684,7 @@ const sendBlogApprovedEmail = async (user, blog) => {
 
   const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nيسعدنا إخبارك بأنه تمت مراجعة ونشر مقالك "${blog.title}" بنجاح.\n\nيمكنك قراءة المقال هنا: ${blogLink}\n\nشكراً لمشاركتنا معرفتك!\n\nعرب نوشن`;
 
-  await sendEmail({ to: user.email, subject, html, text });
+  await sendEmail({ to: user.email, subject, html, text, category: 'creators' });
 };
 
 /**
@@ -335,7 +702,7 @@ const sendBlogRejectedEmail = async (user, blog, reason) => {
     <p style="font-size: 16px;">بعد المراجعة، نعتذر عن عدم تمكننا من نشر المقال في الوقت الحالي للأسباب التالية:</p>
     
     ${reason ? `
-    <div style="background-color: #fff8e1; border-right: 4px solid #ffc107; padding: 20px; border-radius: 12px; margin: 25px 0; color: #856404;">
+    <div class="alert-box">
       <strong>سبب الرفض:</strong><br>
       <div style="margin-top: 10px;">${reason}</div>
     </div>
@@ -350,7 +717,7 @@ const sendBlogRejectedEmail = async (user, blog, reason) => {
 
   const text = `مرحباً ${user.name || 'مبدعنا'}،\n\nنأسف لإخبارك بأنه لم يتم قبول مقالك "${blog.title}" في الوقت الحالي.\n\n${reason ? `السبب: ${reason}\n\n` : ''}يمكنك تعديل المقال وإعادة إرساله من لوحة التحكم.\n\nعرب نوشن`;
 
-  await sendEmail({ to: user.email, subject, html, text });
+  await sendEmail({ to: user.email, subject, html, text, category: 'creators' });
 };
 
 /**
@@ -376,7 +743,7 @@ const sendVerificationEmail = async (user, verificationUrl) => {
 
   const text = `مرحباً ${user.name}،\n\nشكراً لتسجيلك في عرب نوشن! يرجى تأكيد بريدك الإلكتروني من خلال الرابط التالي:\n${verificationUrl}\n\nعرب نوشن`;
 
-  await sendEmail({ to: user.email, subject, html, text });
+  await sendEmail({ to: user.email, subject, html, text, category: 'auth' });
 };
 
 /**
@@ -411,7 +778,7 @@ const sendWelcomeEmail = async (user) => {
 
   const text = `مرحباً ${user.name}،\n\nأهلاً بك في عرب نوشن! تم تفعيل حسابك بنجاح.\n\nيمكنك الآن تصفح القوالب: ${browseLink}${isCreator ? `\n\nأو الذهاب للوحة التحكم: ${dashboardLink}` : ''}\n\nعرب نوشن`;
 
-  await sendEmail({ to: user.email, subject, html, text });
+  await sendEmail({ to: user.email, subject, html, text, category: 'auth' });
 };
 
 /**
@@ -430,7 +797,7 @@ const sendResetPasswordEmail = async (user, resetUrl) => {
       <a href="${resetUrl}" class="button">إعادة تعيين كلمة المرور</a>
     </div>
     
-    <div style="background-color: #fff8e1; border-right: 4px solid #ffc107; padding: 20px; border-radius: 12px; margin: 25px 0; font-size: 14px;">
+    <div class="alert-box">
       <strong>ملاحظة مهمة:</strong> هذا الرابط صالح لمدة ساعة واحدة فقط. إذا لم تطلب هذا، يمكنك تجاهل البريد بأمان.
     </div>
     
@@ -439,7 +806,7 @@ const sendResetPasswordEmail = async (user, resetUrl) => {
 
   const text = `مرحباً ${user.name}،\n\nتلقينا طلباً لإعادة تعيين كلمة المرور لحسابك في عرب نوشن.\n\nلإعادة تعيين كلمة المرور، زر الرابط التالي:\n${resetUrl}\n\nعرب نوشن`;
 
-  await sendEmail({ to: user.email, subject, html, text });
+  await sendEmail({ to: user.email, subject, html, text, category: 'auth' });
 };
 
 /**
@@ -482,7 +849,7 @@ const sendOrderConfirmationEmail = async (user, order) => {
 
   const text = `مرحباً ${user.name}،\n\nتم استلام طلبك بنجاح.\n\nالمجموع الكلي: ${order.total} ج.م\n\nيمكنك تحميل مشترياتك من هنا: ${orderLink}\n\nعرب نوشن`;
 
-  await sendEmail({ to: user.email, subject, html, text });
+  await sendEmail({ to: user.email, subject, html, text, category: 'orders' });
 };
 
 /**
@@ -514,7 +881,7 @@ const sendPayoutRequestedEmail = async (user, payout) => {
 
   const text = `مرحباً ${user.name}،\n\nلقد استلمنا طلبك لسحب الأرباح بقيمة ${payout.amount} ج.م.\n\nسيتم معالجة الطلب خلال 3 أيام عمل.\n\nعرب نوشن`;
 
-  await sendEmail({ to: user.email, subject, html, text });
+  await sendEmail({ to: user.email, subject, html, text, category: 'creators' });
 };
 
 /**
@@ -541,7 +908,7 @@ const sendPayoutApprovedEmail = async (user, payout) => {
 
   const text = `مبروك ${user.name}!\n\nتم تحويل مبلغ ${payout.amount} ج.م إلى حسابك بنجاح عبر ${payout.method}.\n\nشكراً لإبداعك!\n\nعرب نوشن`;
 
-  await sendEmail({ to: user.email, subject, html, text });
+  await sendEmail({ to: user.email, subject, html, text, category: 'creators' });
 };
 
 /**
@@ -559,7 +926,7 @@ const sendPaymentFailedEmail = async (user, order) => {
     <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">مرحباً ${user.name || 'عزيزنا'}،</h2>
     <p style="font-size: 16px;">نود إعلامك بأن عملية الدفع المتعلقة بـ <strong>"${itemName}"</strong> لم تكتمل بنجاح.</p>
 
-    <div style="background-color: #fff8e1; border-right: 4px solid #ffc107; padding: 20px; border-radius: 12px; margin: 25px 0; color: #856404;">
+    <div class="alert-box">
       <strong>ماذا يمكنك فعله؟</strong>
       <ul style="padding-right: 20px; margin: 10px 0;">
         <li>تأكد من صحة بيانات بطاقتك وتوفر الرصيد الكافي</li>
@@ -578,7 +945,7 @@ const sendPaymentFailedEmail = async (user, order) => {
 
   const text = `مرحباً ${user.name || 'عزيزنا'},\n\nلم تكتمل عملية الدفع الخاصة بـ "${itemName}".\n\nلم يتم خصم أي مبلغ من حسابك. يمكنك المحاولة مرة أخرى أو التواصل مع الدعم: ${supportLink}\n\nعرب نوشن`;
 
-  await sendEmail({ to: user.email, subject, html, text });
+  await sendEmail({ to: user.email, subject, html, text, category: 'orders' });
 };
 
 /**
@@ -594,7 +961,7 @@ const sendPayoutRejectedEmail = async (user, payout, reason) => {
     <p style="font-size: 16px;">نعتذر لإخبارك بأنه لم نتمكن من معالجة طلب سحب الأرباح الخاص بك بقيمة <strong>${payout.amount} ج.م</strong>.</p>
     
     ${reason ? `
-    <div style="background-color: #fff8e1; border-right: 4px solid #ffc107; padding: 20px; border-radius: 12px; margin: 25px 0; color: #856404;">
+    <div class="alert-box">
       <strong>السبب:</strong><br>
       <div style="margin-top: 10px;">${reason}</div>
     </div>
@@ -605,11 +972,14 @@ const sendPayoutRejectedEmail = async (user, payout, reason) => {
 
   const text = `مرحباً ${user.name}،\n\nنأسف لإخبارك بأنه تم رفض طلب سحب الأرباح الخاص بك (${payout.amount} ج.م).\n\n${reason ? `السبب: ${reason}\n\n` : ''}تمت إعادة المبلغ لرصيدك.\n\nعرب نوشن`;
 
-  await sendEmail({ to: user.email, subject, html, text });
+  await sendEmail({ to: user.email, subject, html, text, category: 'creators' });
 };
 
 module.exports = {
   sendEmail,
+  sendViaResend,
+  sendViaBrevo,
+  getMasterTemplate,
   sendTemplateApprovedEmail,
   sendTemplateRejectedEmail,
   sendCreatorApprovedEmail,

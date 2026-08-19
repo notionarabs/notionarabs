@@ -12,6 +12,9 @@ import TemplateCard from '../TemplateCard';
 const HOME_TABS = [
   { id: 'popular', label: 'الأكثر رواجاً', type: 'sort', value: 'popular' },
   { id: 'newest', label: 'الأحدث', type: 'sort', value: 'createdAt' },
+  { id: 'productivity', label: 'الإنتاجية', type: 'category', value: 'الإنتاجية' },
+  { id: 'religious', label: 'ديني', type: 'category', value: 'ديني' },
+  { id: 'business', label: 'الأعمال', type: 'category', value: 'الأعمال' },
   { id: 'free', label: 'قوالب مجانية', type: 'price', value: 'free' }
 ];
 

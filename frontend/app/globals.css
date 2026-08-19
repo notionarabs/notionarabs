@@ -1036,6 +1036,7 @@ select:focus,
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 1;
+    text-overflow: ellipsis;
   }
 
   .line-clamp-2 {
@@ -1043,6 +1044,7 @@ select:focus,
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
+    text-overflow: ellipsis;
   }
 
   .line-clamp-3 {
@@ -1050,6 +1052,7 @@ select:focus,
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
+    text-overflow: ellipsis;
   }
 
   .line-clamp-4 {
@@ -1057,6 +1060,7 @@ select:focus,
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 4;
+    text-overflow: ellipsis;
   }
 }
 

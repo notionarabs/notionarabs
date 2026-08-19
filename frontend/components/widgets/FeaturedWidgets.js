@@ -172,7 +172,7 @@ export default function FeaturedWidgets({ embedded = false }) {
                                 <h3 className="text-xl font-black text-accent-900 dark:text-white mb-2 group-hover:text-primary transition-colors line-clamp-1">
                                     {widget.title}
                                 </h3>
-                                <p className="text-xs sm:text-sm text-accent-700/60 dark:text-white/40 mb-6 line-clamp-2 leading-relaxed flex-1">
+                                <p className="text-xs sm:text-sm text-accent-700/60 dark:text-white/40 mb-6 line-clamp-2 leading-relaxed">
                                     {widget.description}
                                 </p>
 

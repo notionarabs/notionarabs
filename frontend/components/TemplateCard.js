@@ -133,7 +133,7 @@ export default function TemplateCard({ template, className = '' }) {
           {/* Description Snippet (2 lines clamp + auto direction) */}
           <p 
             dir="auto"
-            className="text-xs sm:text-sm text-accent-700/70 dark:text-white/50 mb-4 line-clamp-2 leading-relaxed font-normal flex-1"
+            className="text-xs sm:text-sm text-accent-700/70 dark:text-white/50 mb-4 line-clamp-2 leading-relaxed font-normal"
           >
             {descriptionText}
           </p>

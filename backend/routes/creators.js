@@ -1066,12 +1066,13 @@ router.get('/me/downloads/export', auth, async (req, res) => {
 
     const header = 'اسم المستخدم,البريد الإلكتروني,القالب,معرّف القالب,التاريخ\n';
     const csvRows = rows.map((r) => {
-      const name = (r.user?.name || '').replace(/"/g, '""');
-      const email = (r.user?.email || r.userEmailSnapshot || '').replace(/"/g, '""');
+      const email = (r.user?.email || r.userEmailSnapshot || '').trim();
+      const name = (r.user?.name || r.user?.username || (email ? email.split('@')[0] : '') || (r.userName && r.userName !== 'مستخدم' ? r.userName : '') || 'عميل').trim().replace(/"/g, '""');
+      const cleanEmail = email.replace(/"/g, '""');
       const templateTitle = (r.template?.title || r.templateTitleSnapshot || '').replace(/"/g, '""');
       const templateIdStr = (r.template?._id?.toString?.() || r.template?.toString?.() || '').replace(/"/g, '""');
       const date = new Date(r.createdAt).toISOString();
-      return `"${name}","${email}","${templateTitle}","${templateIdStr}","${date}"`;
+      return `"${name}","${cleanEmail}","${templateTitle}","${templateIdStr}","${date}"`;
     }).join('\n');
 
     const csv = header + csvRows;
@@ -1133,12 +1134,13 @@ router.get('/me/downloads/export-public', async (req, res) => {
 
     const header = 'اسم المستخدم,البريد الإلكتروني,القالب,معرّف القالب,التاريخ\n';
     const csvRows = rows.map((r) => {
-      const name = (r.user?.name || '').replace(/"/g, '""');
-      const email = (r.user?.email || r.userEmailSnapshot || '').replace(/"/g, '""');
+      const email = (r.user?.email || r.userEmailSnapshot || '').trim();
+      const name = (r.user?.name || r.user?.username || (email ? email.split('@')[0] : '') || (r.userName && r.userName !== 'مستخدم' ? r.userName : '') || 'عميل').trim().replace(/"/g, '""');
+      const cleanEmail = email.replace(/"/g, '""');
       const templateTitle = (r.template?.title || r.templateTitleSnapshot || '').replace(/"/g, '""');
       const templateIdStr = (r.template?._id?.toString?.() || r.template?.toString?.() || '').replace(/"/g, '""');
       const date = new Date(r.createdAt).toISOString();
-      return `"${name}","${email}","${templateTitle}","${templateIdStr}","${date}"`;
+      return `"${name}","${cleanEmail}","${templateTitle}","${templateIdStr}","${date}"`;
     }).join('\n');
 
     const csv = header + csvRows;
@@ -1174,8 +1176,16 @@ router.get('/me/activity', auth, async (req, res) => {
     const templateId = req.query.templateId;
 
     // 1. Get creator's templates
-    const templates = await Template.find({ creator: creatorId }).select('_id title');
+    let templateQuery = { creator: creatorId };
+    if (templateId && templateId !== 'all') {
+      templateQuery._id = templateId;
+    }
+    const templates = await Template.find(templateQuery).select('_id title previewImage isPaid price');
     const templateIds = templates.map(t => t._id.toString());
+    const templateMap = {};
+    templates.forEach(t => {
+      templateMap[t._id.toString()] = t;
+    });
 
     if (templateIds.length === 0) {
       return res.json({ success: true, activity: [], pagination: { current: page, pages: 0, total: 0, limit } });
@@ -1184,15 +1194,12 @@ router.get('/me/activity', auth, async (req, res) => {
     // 2. Fetch Downloads
     let downloadsFilter = { creator: creatorId };
     if (templateId && templateId !== 'all') downloadsFilter.template = templateId;
-    
-    // We fetch a bit more for both to ensure we can merge them reasonably for the current page
-    // For a truly scalable solution, a database-level UNION or a single table would be needed.
-    // Given the context, we'll fetch the top 100 of each and merge them.
+
     const supabase = require('../utils/supabase');
     const [downloads, { data: orderItems, error: itemsErr }] = await Promise.all([
       DownloadLog.find(downloadsFilter)
         .populate('user', 'name email username')
-        .populate('template', 'title previewImage')
+        .populate('template', 'title previewImage isPaid price')
         .sort({ createdAt: -1 })
         .limit(200)
         .lean(),
@@ -1233,43 +1240,56 @@ router.get('/me/activity', auth, async (req, res) => {
     }
 
     // 3. Transform and Merge
-    const formattedDownloads = (downloads || []).map(d => ({
-      id: d._id,
-      userId: d.user?._id || d.userId || '',
-      templateId: d.template?._id || d.templateId,
-      templateTitle: d.template?.title || d.templateTitleSnapshot,
-      userName: d.user?.name || 'مستخدم',
-      userEmail: d.user?.email || d.userEmailSnapshot,
-      date: d.createdAt,
-      type: 'download',
-      price: 0
-    }));
-
     const formattedSales = topSalesItems.map(s => {
       const order = ordersMap[s.orderId];
       const buyerUser = usersMap[order.userId];
+      const email = (buyerUser?.email || '').trim();
+      const name = (buyerUser?.name || buyerUser?.username || (email ? email.split('@')[0] : '') || 'عميل').trim();
+      const isPaid = Number(s.price) > 0;
+      const tpl = templateMap[s.templateId?.toString()];
       return {
         id: s.id,
         orderId: s.orderId,
         userId: order.userId || '',
         templateId: s.templateId,
-        templateTitle: s.name,
-        userName: buyerUser?.name || 'مشتري',
-        userEmail: buyerUser?.email,
+        templateTitle: s.name || tpl?.title,
+        previewImage: tpl?.previewImage || null,
+        userName: name,
+        userEmail: email,
         date: order.createdAt,
-        type: 'sale',
-        price: s.price
+        type: isPaid ? 'sale' : 'download',
+        price: isPaid ? s.price : 0
+      };
+    });
+
+    const formattedDownloads = (downloads || []).map(d => {
+      const userObj = d.user && typeof d.user === 'object' ? d.user : null;
+      const email = (userObj?.email || d.userEmailSnapshot || '').trim();
+      const name = (userObj?.name || userObj?.username || (email ? email.split('@')[0] : '') || (d.userName && d.userName !== 'مستخدم' ? d.userName : '') || 'عميل').trim();
+      const tpl = (d.template && typeof d.template === 'object') ? d.template : templateMap[d.template?.toString() || ''];
+      const isPaid = tpl?.isPaid && Number(tpl?.price) > 0;
+      return {
+        id: d._id,
+        userId: userObj?._id || d.userId || '',
+        templateId: tpl?._id || d.templateId,
+        templateTitle: tpl?.title || d.templateTitleSnapshot,
+        previewImage: tpl?.previewImage || null,
+        userName: name,
+        userEmail: email,
+        date: d.createdAt,
+        type: isPaid ? 'sale' : 'download',
+        price: isPaid ? (tpl?.price || 0) : 0
       };
     });
 
     // Merge and remove duplicates (if a sale was also logged as a download)
-    // We'll prioritize the 'sale' record if we find both for the same user, template and time
     const combined = [...formattedSales];
-    const saleKeys = new Set(formattedSales.map(s => `${s.userId || s.userEmail}_${s.templateId}_${new Date(s.date).toDateString()}`));
+    const saleKeys = new Set(
+      formattedSales.map(s => `${s.userId || s.userEmail}_${s.templateId}_${new Date(s.date).toISOString().slice(0, 10)}`)
+    );
 
     formattedDownloads.forEach(d => {
-      const key = `${d.userId || d.userEmail}_${d.templateId}_${new Date(d.date).toDateString()}`;
-      // Only add if it's not already accounted for as a sale
+      const key = `${d.userId || d.userEmail}_${d.templateId}_${new Date(d.date).toISOString().slice(0, 10)}`;
       if (!saleKeys.has(key)) {
         combined.push(d);
       }
@@ -1330,11 +1350,15 @@ router.get('/me/sales/export-public', async (req, res) => {
     }
 
     const templateId = req.query.templateId;
-    const templates = await Template.find({ creator: requesterId }).select('_id title');
+    let templateQuery = { creator: requesterId };
+    if (templateId && templateId !== 'all') {
+      templateQuery._id = templateId;
+    }
+    const templates = await Template.find(templateQuery).select('_id title');
     const templateIds = templates.map(t => t._id.toString());
 
     if (templateIds.length === 0) {
-      return res.status(200).send('\uFEFFاسم المشتري,البريد الإلكتروني,القالب,السعر,التاريخ\n');
+      return res.status(200).send('\uFEFFاسم المشتري,البريد الإلكتروني,القالب,النوع,السعر,التاريخ\n');
     }
 
     const supabase = require('../utils/supabase');
@@ -1343,7 +1367,7 @@ router.get('/me/sales/export-public', async (req, res) => {
       .select('id, orderId, templateId, name, price')
       .in('templateId', templateIds);
     
-    if (templateId) {
+    if (templateId && templateId !== 'all') {
       itemsQuery = itemsQuery.eq('templateId', templateId);
     }
 
@@ -1383,16 +1407,19 @@ router.get('/me/sales/export-public', async (req, res) => {
       });
     }
 
-    const header = 'اسم المشتري,البريد الإلكتروني,القالب,السعر,التاريخ\n';
+    const header = 'اسم المشتري,البريد الإلكتروني,القالب,النوع,السعر,التاريخ\n';
     const csvRows = validItems.map((item) => {
       const order = ordersMap[item.orderId];
       const buyerUser = usersMap[order.userId];
-      const name = (buyerUser?.name || 'مستخدم').replace(/"/g, '""');
-      const email = (buyerUser?.email || '').replace(/"/g, '""');
+      const email = (buyerUser?.email || '').trim();
+      const name = (buyerUser?.name || buyerUser?.username || (email ? email.split('@')[0] : '') || 'عميل').trim().replace(/"/g, '""');
+      const cleanEmail = email.replace(/"/g, '""');
       const templateTitle = (item.name || '').replace(/"/g, '""');
-      const price = item.price || 0;
+      const isPaid = Number(item.price) > 0;
+      const type = isPaid ? 'قالب مدفوع' : 'قالب مجاني';
+      const price = isPaid ? item.price : 0;
       const date = new Date(order.createdAt).toISOString();
-      return `"${name}","${email}","${templateTitle}","${price}","${date}"`;
+      return `"${name}","${cleanEmail}","${templateTitle}","${type}","${price}","${date}"`;
     }).join('\n');
 
     const csv = header + csvRows;
@@ -1433,17 +1460,38 @@ router.get('/me/activity/export-public', async (req, res) => {
     }
 
     const templateId = req.query.templateId;
-    const templates = await Template.find({ creator: requesterId }).select('_id');
+    let templateQuery = { creator: requesterId };
+    if (templateId && templateId !== 'all') {
+      templateQuery._id = templateId;
+    }
+    const templates = await Template.find(templateQuery).select('_id title isPaid price');
     const templateIds = templates.map(t => t._id.toString());
+    const templateMap = {};
+    templates.forEach(t => {
+      templateMap[t._id.toString()] = t;
+    });
 
     if (templateIds.length === 0) {
       return res.status(200).send('\uFEFFاسم المستخدم,البريد الإلكتروني,القالب,النوع,السعر,التاريخ\n');
     }
 
+    let downloadsFilter = { creator: requesterId };
+    if (templateId && templateId !== 'all') {
+      downloadsFilter.template = templateId;
+    }
+
     const supabase = require('../utils/supabase');
     const [downloads, { data: orderItems, error: itemsErr }] = await Promise.all([
-      DownloadLog.find({ creator: requesterId }).sort({ createdAt: -1 }).limit(1000).lean(),
-      supabase.from('OrderItem').select('id, orderId, templateId, name, price').in('templateId', templateIds)
+      DownloadLog.find(downloadsFilter)
+        .populate('user', 'name email username')
+        .populate('template', 'title isPaid price')
+        .sort({ createdAt: -1 })
+        .limit(1000)
+        .lean(),
+      supabase
+        .from('OrderItem')
+        .select('id, orderId, templateId, name, price')
+        .in('templateId', templateIds)
     ]);
 
     if (itemsErr) throw itemsErr;
@@ -1479,30 +1527,64 @@ router.get('/me/activity/export-public', async (req, res) => {
     const formattedSales = topSalesItems.map(s => {
       const order = ordersMap[s.orderId];
       const buyerUser = usersMap[order.userId];
+      const email = (buyerUser?.email || '').trim();
+      const name = (buyerUser?.name || buyerUser?.username || (email ? email.split('@')[0] : '') || 'عميل').trim();
+      const isPaid = Number(s.price) > 0;
       return {
-        name: buyerUser?.name || 'مشتري',
-        email: buyerUser?.email || '',
+        userId: order.userId || '',
+        email,
+        name,
+        templateId: s.templateId,
         template: s.name,
-        type: 'بيع مدفوع',
-        price: s.price,
+        type: isPaid ? 'قالب مدفوع' : 'قالب مجاني',
+        price: isPaid ? s.price : 0,
         date: order.createdAt
       };
     });
 
-    const formattedDownloads = (downloads || []).map(d => ({
-      name: d.user?.name || d.userName || 'مستخدم',
-      email: d.user?.email || d.userEmailSnapshot || '',
-      template: d.template?.title || d.templateTitleSnapshot,
-      type: 'تحميل مجاني',
-      price: 0,
-      date: d.createdAt
-    }));
+    const formattedDownloads = (downloads || []).map(d => {
+      const userObj = d.user && typeof d.user === 'object' ? d.user : null;
+      const email = (userObj?.email || d.userEmailSnapshot || '').trim();
+      const name = (userObj?.name || userObj?.username || (email ? email.split('@')[0] : '') || (d.userName && d.userName !== 'مستخدم' ? d.userName : '') || 'عميل').trim();
+      const tpl = (d.template && typeof d.template === 'object') ? d.template : templateMap[d.template?.toString() || ''];
+      const templateTitle = tpl?.title || d.templateTitleSnapshot || 'قالب';
+      const isPaid = tpl?.isPaid && Number(tpl?.price) > 0;
+      return {
+        userId: userObj?._id?.toString() || (d.user ? d.user.toString() : ''),
+        email,
+        name,
+        templateId: tpl?._id?.toString() || (d.template ? d.template.toString() : ''),
+        template: templateTitle,
+        type: isPaid ? 'قالب مدفوع' : 'قالب مجاني',
+        price: isPaid ? (tpl?.price || 0) : 0,
+        date: d.createdAt
+      };
+    });
 
-    const combined = [...formattedSales, ...formattedDownloads].sort((a, b) => new Date(b.date) - new Date(a.date));
+    // Deduplicate: avoid creating two rows for the same user, template and time
+    const combined = [...formattedSales];
+    const saleKeys = new Set(
+      formattedSales.map(s => `${s.userId || s.email}_${s.templateId}_${new Date(s.date).toISOString().slice(0, 10)}`)
+    );
+
+    formattedDownloads.forEach(d => {
+      const key = `${d.userId || d.email}_${d.templateId}_${new Date(d.date).toISOString().slice(0, 10)}`;
+      if (!saleKeys.has(key)) {
+        combined.push(d);
+      }
+    });
+
+    combined.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     const header = 'اسم المستخدم,البريد الإلكتروني,القالب,النوع,السعر,التاريخ\n';
     const csvRows = combined.map(row => {
-      return `"${row.name}","${row.email}","${row.template}","${row.type}","${row.price}","${row.date}"`;
+      const cleanName = (row.name || '').replace(/"/g, '""');
+      const cleanEmail = (row.email || '').replace(/"/g, '""');
+      const cleanTemplate = (row.template || '').replace(/"/g, '""');
+      const cleanType = (row.type || '').replace(/"/g, '""');
+      const priceVal = row.price !== undefined ? row.price : 0;
+      const dateStr = row.date ? new Date(row.date).toISOString() : '';
+      return `"${cleanName}","${cleanEmail}","${cleanTemplate}","${cleanType}","${priceVal}","${dateStr}"`;
     }).join('\n');
 
     res.set('Content-Type', 'text/csv; charset=utf-8');

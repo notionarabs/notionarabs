@@ -201,10 +201,10 @@ export default function SalesContent() {
                                             <div className="flex items-center gap-3">
                                                 {/* Circular Name Avatar */}
                                                 <div className="w-8 h-8 rounded-full bg-primary-50 dark:bg-orange-500/10 text-primary-600 dark:text-orange-400 flex items-center justify-center text-xs font-black border border-primary-500/10">
-                                                    {(row.buyer?.name || row.userName || row.userUsername || 'U')[0].toUpperCase()}
+                                                    {((row.buyer?.name || row.userName || row.userUsername || (row.buyer?.email || row.userEmail ? (row.buyer?.email || row.userEmail).split('@')[0] : '')) || 'U')[0].toUpperCase()}
                                                 </div>
                                                 <span className="font-bold text-gray-900 dark:text-dark-text-primary text-xs">
-                                                    {row.buyer?.name || row.userName || row.userUsername || 'مستخدم'}
+                                                    {row.buyer?.name || row.userName || row.userUsername || (row.buyer?.email || row.userEmail ? (row.buyer?.email || row.userEmail).split('@')[0] : '') || 'عميل'}
                                                 </span>
                                             </div>
                                         </td>
@@ -292,9 +292,9 @@ export default function SalesContent() {
                                     <span>المشتري / المستخدم</span>
                                     <div className="flex items-center gap-1.5 text-gray-800 dark:text-dark-text-secondary">
                                         <div className="w-5 h-5 rounded-full bg-primary-50 dark:bg-orange-500/10 text-primary-600 dark:text-orange-400 flex items-center justify-center text-[10px] font-black border border-primary-500/10">
-                                            {(row.buyer?.name || row.userName || row.userUsername || 'U')[0].toUpperCase()}
+                                            {((row.buyer?.name || row.userName || row.userUsername || (row.buyer?.email || row.userEmail ? (row.buyer?.email || row.userEmail).split('@')[0] : '')) || 'U')[0].toUpperCase()}
                                         </div>
-                                        <span>{row.buyer?.name || row.userName || row.userUsername || 'مستخدم'}</span>
+                                        <span>{row.buyer?.name || row.userName || row.userUsername || (row.buyer?.email || row.userEmail ? (row.buyer?.email || row.userEmail).split('@')[0] : '') || 'عميل'}</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center justify-between">

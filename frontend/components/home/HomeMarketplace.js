@@ -106,7 +106,7 @@ export default function HomeMarketplace({ initialStats }) {
         </div>
 
         {/* Quick Tabs (No emojis) */}
-        <div className="flex items-center gap-2.5 overflow-x-auto pb-4 mb-12 scrollbar-hide">
+        <div className="flex items-center gap-2.5 overflow-x-auto py-3 px-1 mb-10 scrollbar-hide">
           {HOME_TABS.map((tab) => (
             <button
               key={tab.id}

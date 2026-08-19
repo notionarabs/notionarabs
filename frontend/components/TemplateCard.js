@@ -138,16 +138,7 @@ export default function TemplateCard({ template, className = '' }) {
             {descriptionText}
           </p>
 
-          {/* Optional Tag Highlights */}
-          {Array.isArray(template.tags) && template.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mb-4">
-              {template.tags.slice(0, 2).map((tag, idx) => (
-                <span key={idx} className="px-2 py-0.5 rounded-md bg-accent-900/5 dark:bg-white/5 text-[10px] text-accent-900/60 dark:text-white/40 font-medium">
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          )}
+
 
           {/* Card Footer: Creator & Downloads */}
           <div className="flex items-center justify-between pt-3.5 border-t border-accent-900/5 dark:border-white/5 mt-auto">

@@ -10,7 +10,7 @@ import api from '../../../lib/api';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useToast } from '../../../contexts/ToastContext';
 import Breadcrumb from '../../../components/Breadcrumb';
-import { ShoppingCart, Star, Download, Globe, Calendar, Zap, CheckCircle, ExternalLink, ShieldCheck, Clock, Layers, Rocket, Users, X } from 'lucide-react';
+import { ShoppingCart, Star, Download, Globe, Calendar, Zap, CheckCircle, ExternalLink, ShieldCheck, Clock, Layers, Rocket, Users, X, Tag } from 'lucide-react';
 import Footer from '../../../components/Footer';
 import RatingPopup from '../../../components/RatingPopup';
 import { useRatingPopup } from '../../../hooks/useRatingPopup';
@@ -107,6 +107,12 @@ export default function TemplateClient({ initialTemplate }) {
   const [isSubmittingReply, setIsSubmittingReply] = useState(false);
   const [copied, setCopied] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
+
+  // Coupon promo code state
+  const [couponCode, setCouponCode] = useState('');
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponError, setCouponError] = useState('');
 
   const { showPopup, closePopup } = useRatingPopup(template, user, isAuthenticated);
 
@@ -231,6 +237,36 @@ export default function TemplateClient({ initialTemplate }) {
     }
   };
 
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    try {
+      setIsValidatingCoupon(true);
+      setCouponError('');
+      const tid = template._id || template.id;
+      const res = await api.post('/coupons/validate', {
+        code: couponCode.trim().toUpperCase(),
+        templateId: tid
+      });
+      if (res.data.success && res.data.coupon) {
+        setAppliedCoupon(res.data.coupon);
+        showSuccess(`تم تطبيق كود الخصم (${res.data.coupon.code}) بنجاح! 🎉`);
+      } else {
+        setCouponError(res.data.message || 'كود الخصم غير صالح');
+      }
+    } catch (err) {
+      const msg = err.response?.data?.message || 'كود الخصم غير صالح أو منتهي';
+      setCouponError(msg);
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode('');
+    setCouponError('');
+  };
+
   const handlePurchase = async () => {
     if (!template || !isAuthenticated) {
       if (!isAuthenticated) {
@@ -244,23 +280,38 @@ export default function TemplateClient({ initialTemplate }) {
     try {
       console.log('Creating checkout session for:', tid);
       ensureTokenInHeaders();
-      const res = await api.post('/payments/create-checkout-session', { templateId: tid });
+      const res = await api.post('/payments/create-checkout-session', { 
+        templateId: tid,
+        couponCode: appliedCoupon?.code || undefined
+      });
       
-      if (res.data.success && res.data.checkoutUrl) {
-        console.log('Redirecting to Paymob:', res.data.checkoutUrl);
-        try {
-          localStorage.setItem('pending_payment', JSON.stringify({
-            type: 'purchase',
-            templateId: tid,
-            dbOrderId: res.data.orderId
-          }));
-        } catch (e) {
-          console.error('Error saving pending payment to localStorage:', e);
+      if (res.data.success) {
+        // Free purchase with 100% coupon discount
+        if (res.data.freeOrder && res.data.redirectUrl) {
+          showSuccess('تم تفعيل القالب في حسابك مجاناً عبر كود الخصم! 🎉');
+          window.location.href = res.data.redirectUrl;
+          return;
         }
-        // Direct assignment to window.location.href for maximum reliability
-        window.location.href = res.data.checkoutUrl;
+
+        if (res.data.checkoutUrl) {
+          console.log('Redirecting to Paymob:', res.data.checkoutUrl);
+          try {
+            localStorage.setItem('pending_payment', JSON.stringify({
+              type: 'purchase',
+              templateId: tid,
+              dbOrderId: res.data.orderId
+            }));
+          } catch (e) {
+            console.error('Error saving pending payment to localStorage:', e);
+          }
+          // Direct assignment to window.location.href for maximum reliability
+          window.location.href = res.data.checkoutUrl;
+        } else {
+          console.error('Payment failed to initialize:', res.data);
+          const errorMsg = res.data.message || 'فشل في بدء عملية الدفع';
+          showError(`عذراً: ${errorMsg}`);
+        }
       } else {
-        console.error('Payment failed to initialize:', res.data);
         const errorMsg = res.data.message || 'فشل في بدء عملية الدفع';
         showError(`عذراً: ${errorMsg}`);
       }
@@ -509,10 +560,25 @@ export default function TemplateClient({ initialTemplate }) {
                       <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">السعر النهائي</div>
                       <div className="text-3xl font-black text-primary flex items-baseline gap-1">
                         {template.price > 0 ? (
-                          <>
-                            <span>{template.price}</span>
-                            <span className="text-sm font-bold opacity-80">ج.م</span>
-                          </>
+                          appliedCoupon ? (
+                            <div className="flex flex-col">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm line-through text-gray-400 dark:text-gray-500 font-semibold">{template.price} ج.م</span>
+                                <span className="text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold">
+                                  خصم {appliedCoupon.discountType === 'percentage' ? `${appliedCoupon.discountValue}%` : `${appliedCoupon.discountValue} ج.م`}
+                                </span>
+                              </div>
+                              <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400 flex items-baseline gap-1 mt-0.5">
+                                <span>{appliedCoupon.finalPrice}</span>
+                                <span className="text-sm font-bold opacity-80">ج.م</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <span>{template.price}</span>
+                              <span className="text-sm font-bold opacity-80">ج.م</span>
+                            </>
+                          )
                         ) : 'مجاني'}
                       </div>
                     </div>
@@ -535,6 +601,65 @@ export default function TemplateClient({ initialTemplate }) {
                     </div>
                   </div>
 
+                  {/* Coupon Promo Code Box (Only for paid templates and if user doesn't own it yet) */}
+                  {template.isPaid && !userHasTemplate && (
+                    <div className="bg-gray-50/70 dark:bg-dark-tertiary/30 p-3.5 rounded-2xl border border-gray-100 dark:border-dark-card-border">
+                      {appliedCoupon ? (
+                        <div className="flex items-center justify-between bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/40 px-3.5 py-2.5 rounded-xl">
+                          <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 text-xs font-bold">
+                            <CheckCircle size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                            <span>كود الخصم <strong>{appliedCoupon.code}</strong> مفعل (وفرت {appliedCoupon.discountAmount} ج.م)</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleRemoveCoupon}
+                            className="text-gray-400 hover:text-red-500 p-1 transition-colors"
+                            title="إلغاء الكود"
+                          >
+                            <X size={15} />
+                          </button>
+                        </div>
+                      ) : (
+                        <div>
+                          <div className="flex gap-2">
+                            <div className="relative flex-1">
+                              <Tag size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                              <input
+                                type="text"
+                                placeholder="هل لديك كود خصم؟"
+                                value={couponCode}
+                                onChange={(e) => {
+                                  setCouponCode(e.target.value.toUpperCase());
+                                  if (couponError) setCouponError('');
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    handleApplyCoupon();
+                                  }
+                                }}
+                                className="w-full pl-3 pr-9 py-2 text-xs bg-white dark:bg-dark-secondary border border-gray-200 dark:border-dark-card-border rounded-xl focus:outline-none focus:border-primary text-gray-900 dark:text-white uppercase font-mono font-bold"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={handleApplyCoupon}
+                              disabled={isValidatingCoupon || !couponCode.trim()}
+                              className="px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-bold rounded-xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+                            >
+                              {isValidatingCoupon ? 'جاري التحقق...' : 'تطبيق'}
+                            </button>
+                          </div>
+                          {couponError && (
+                            <p className="text-[11px] text-red-500 font-bold mt-1.5 pr-1">
+                              {couponError}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <div className="space-y-4">
                     <button
                       onClick={userHasTemplate ? () => window.open(template.notionLink, '_blank') : (template.isPaid ? handlePurchase : handleDownload)}
@@ -546,11 +671,11 @@ export default function TemplateClient({ initialTemplate }) {
                         {isPurchasing || isDownloading ? (
                           <div className="flex items-center gap-3">
                             <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
-                            <span className="text-sm font-bold">{isPurchasing ? 'جاري تحويلك للدفع...' : 'جاري التحميل...'}</span>
+                            <span className="text-sm font-bold">{isPurchasing ? 'جاري تجهيز الطلب...' : 'جاري التحميل...'}</span>
                           </div>
                         ) : (
                           <>
-                            <span>{userHasTemplate ? 'فتح في نوشن' : (template.isPaid ? 'شراء الآن' : 'تحميل مجاني')}</span>
+                            <span>{userHasTemplate ? 'فتح في نوشن' : (template.isPaid ? (appliedCoupon && appliedCoupon.finalPrice === 0 ? 'الحصول على القالب مجاناً' : 'شراء الآن') : 'تحميل مجاني')}</span>
                             {userHasTemplate ? <ExternalLink size={22} /> : (template.isPaid ? <ShoppingCart size={22} /> : <Download size={22} />)}
                           </>
                         )}

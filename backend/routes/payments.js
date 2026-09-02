@@ -10,6 +10,7 @@ const DownloadLog = require('../models/DownloadLog');
 const { invalidateCache } = require('../utils/redis-cache');
 const { sendOrderConfirmationEmail, sendPaymentFailedEmail } = require('../services/emailService');
 const PaymentLog = require('../models/PaymentLog');
+const Coupon = require('../models/Coupon');
 const { purchaseRateLimit } = require('../middleware/security');
 const supabase = require('../utils/supabase');
 
@@ -31,6 +32,17 @@ const optionalAuth = async (req, res, next) => {
 // Single source of truth for post-payment fulfillment (purchase or boost).
 async function _fulfillOrder(order, userId) {
     if (!order.items || order.items.length === 0) return;
+
+    // Increment coupon usage if a coupon was used in this order
+    const couponId = order.couponId;
+    if (couponId) {
+        try {
+            await Coupon.incrementUsage(couponId);
+            console.log(`🎟️ Coupon ${couponId} usage successfully recorded for order ${order.id || order._id}`);
+        } catch (couponErr) {
+            console.error('[Payment Fulfillment Coupon Error]:', couponErr?.message || couponErr);
+        }
+    }
 
     const platformFeePercent = parseFloat(process.env.PLATFORM_FEE_PERCENTAGE || '20');
     const buyer = userId ? await User.findById(userId) : null;
@@ -145,7 +157,7 @@ async function _fulfillOrder(order, userId) {
  */
 router.post('/create-checkout-session', auth, purchaseRateLimit, async (req, res) => {
     try {
-        const { templateId } = req.body;
+        const { templateId, couponCode } = req.body;
 
         // 1. Validate template
         const template = await Template.findById(templateId);
@@ -157,7 +169,41 @@ router.post('/create-checkout-session', auth, purchaseRateLimit, async (req, res
             return res.status(400).json({ success: false, message: 'This template is free' });
         }
 
-        const amountCents = Math.round(template.price * 100); // Paymob works in cents
+        // Validate coupon if provided
+        let appliedCoupon = null;
+        let discountAmount = 0;
+        let finalPrice = Number(template.price);
+
+        if (couponCode && typeof couponCode === 'string' && couponCode.trim()) {
+            const cleanCode = couponCode.trim().toUpperCase();
+            const coupon = await Coupon.findOne({ code: cleanCode, isActive: true });
+            if (!coupon) {
+                return res.status(400).json({ success: false, message: 'كود الخصم غير موجود أو غير صالح' });
+            }
+            if (coupon.expiresAt && new Date(coupon.expiresAt) < new Date()) {
+                return res.status(400).json({ success: false, message: 'انتهت صلاحية كود الخصم هذا' });
+            }
+            if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) {
+                return res.status(400).json({ success: false, message: 'تم استنفاد الحد الأقصى لاستخدام كود الخصم هذا' });
+            }
+            const templateCreatorId = String(template.creator?._id || template.creator?.id || template.creator || '');
+            if (String(coupon.creatorId) !== templateCreatorId) {
+                return res.status(400).json({ success: false, message: 'كود الخصم غير متاح لقوالب هذا الصانع' });
+            }
+            if (coupon.templateId && String(coupon.templateId) !== String(template._id || template.id)) {
+                return res.status(400).json({ success: false, message: 'كود الخصم مخصص لقالب آخر' });
+            }
+
+            appliedCoupon = coupon;
+            if (coupon.discountType === 'percentage') {
+                discountAmount = Math.round(((template.price * coupon.discountValue) / 100) * 100) / 100;
+            } else {
+                discountAmount = Math.min(Number(coupon.discountValue), template.price);
+            }
+            finalPrice = Math.max(0, Math.round((template.price - discountAmount) * 100) / 100);
+        }
+
+        const amountCents = Math.round(finalPrice * 100); // Paymob works in cents
 
         // 2a. Prevent duplicate purchases
         const userId = req.user.id || req.user._id;
@@ -190,22 +236,39 @@ router.post('/create-checkout-session', auth, purchaseRateLimit, async (req, res
             phone: req.user.phone || '01012345678'
         };
 
-        // 3. Create order in our DB (pending) before redirecting to payment
+        // 3. Create order in our DB
+        const isFreeWithCoupon = finalPrice === 0;
+
         const order = new Order({
             user: userId,
             items: [{
                 templateId: templateDbId,
                 name: template.title,
-                price: template.price
+                price: finalPrice
             }],
-            total: template.price,
-            status: 'PENDING',
+            total: finalPrice,
+            status: isFreeWithCoupon ? 'COMPLETED' : 'PENDING',
             source: 'purchase',
-            paymentMethod: 'CARD'
+            paymentMethod: isFreeWithCoupon ? 'COUPON' : 'CARD',
+            couponId: appliedCoupon ? appliedCoupon.id : null,
+            discountAmount,
+            originalTotal: template.price
         });
 
         const savedOrder = await order.save();
         const finalOrderId = (savedOrder.id || savedOrder._id || order.id || order._id).toString();
+
+        // 3a. If 100% discount, fulfill immediately without contacting Paymob
+        if (isFreeWithCoupon) {
+            await _fulfillOrder(savedOrder, userId);
+            PaymentLog.record({ event: 'COMPLETED', userId, orderId: finalOrderId, templateId: templateDbId, amount: 0 }).catch(() => {});
+            return res.json({
+                success: true,
+                freeOrder: true,
+                orderId: finalOrderId,
+                redirectUrl: `/payment-success?dbOrderId=${finalOrderId}`
+            });
+        }
 
         // 4. Use Paymob Intention API (new unified checkout)
         // Automatically picks TEST or LIVE integration based on NODE_ENV

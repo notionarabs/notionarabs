@@ -18,6 +18,7 @@ import CreatorEarnings from '../../components/CreatorEarnings';
 import AdminPayouts from '../../components/AdminPayouts';
 import NotificationsContent from '../../components/NotificationsContent';
 import PurchasesContent from '../../components/PurchasesContent';
+import CouponsContent from '../../components/CouponsContent';
 import { 
   Camera, Mail, User as UserIcon, AtSign, Settings, LayoutDashboard, Edit3, 
   Download, TrendingUp, DollarSign, Bell, Award, Calendar, CheckCircle2, 
@@ -561,6 +562,8 @@ function ProfilePageContent() {
         return <AnalyticsContent />;
       case 'earnings':
         return <CreatorEarnings />;
+      case 'coupons':
+        return <CouponsContent />;
       case 'notifications':
         return <NotificationsContent />;
       case 'admin-payouts':

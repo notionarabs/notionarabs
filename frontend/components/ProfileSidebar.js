@@ -22,7 +22,8 @@ import {
     DollarSign,
     Bell,
     LogOut,
-    Package
+    Package,
+    Tag
 } from 'lucide-react';
 
 const ProfileSidebar = ({ userStatus, onNavigate, activeSection, role }) => {
@@ -87,6 +88,7 @@ const ProfileSidebar = ({ userStatus, onNavigate, activeSection, role }) => {
     const contentLinks = isCreator ? [
         { section: 'templates', href: '/profile?tab=templates', label: 'قوالبي', icon: Package },
         { section: 'blogs', href: '/profile?tab=blogs', label: 'مقالاتي', icon: Edit3 },
+        { section: 'coupons', href: '/profile?tab=coupons', label: 'كوبونات الخصم', icon: Tag },
     ] : [];
 
     const analyticsLinks = isCreator ? [

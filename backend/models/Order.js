@@ -18,13 +18,20 @@ class Order {
         this._id = this.id;
         return this;
     }
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('Order')
       .update(updateData)
       .eq('id', dbId)
       .select()
       .maybeSingle();
     
+    if (error && (error.message?.includes('couponId') || error.message?.includes('discountAmount') || error.message?.includes('originalTotal'))) {
+      const { couponId, discountAmount, originalTotal, ...cleanData } = updateData;
+      const retry = await supabase.from('Order').update(cleanData).eq('id', dbId).select().maybeSingle();
+      data = retry.data;
+      error = retry.error;
+    }
+
     if (error) throw error;
     if (data) {
         Object.assign(this, data);
@@ -197,12 +204,20 @@ class Order {
     if (payload.paymentMethod) payload.paymentMethod = payload.paymentMethod.toUpperCase();
 
     // 1. Create the Order
-    const { data: created, error } = await supabase
+    let { data: created, error } = await supabase
       .from('Order')
       .insert([payload])
       .select()
       .single();
       
+    if (error && (error.message?.includes('couponId') || error.message?.includes('discountAmount') || error.message?.includes('originalTotal'))) {
+        console.warn('[ORDER MODEL] Coupon columns missing in Order table. Retrying insert without coupon metadata. Please run coupons_migration.sql');
+        const { couponId, discountAmount, originalTotal, ...cleanPayload } = payload;
+        const retry = await supabase.from('Order').insert([cleanPayload]).select().single();
+        created = retry.data;
+        error = retry.error;
+    }
+
     if (error) {
         console.error('[ORDER MODEL ERROR] Order Insert failed:', JSON.stringify(error, null, 2));
         throw error;

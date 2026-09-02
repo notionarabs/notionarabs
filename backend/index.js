@@ -144,6 +144,7 @@ const orderRoutes = require('./routes/orders');
 const widgetRoutes = require('./routes/widgets');
 const payoutRoutes = require('./routes/payouts');
 const paymentRoutes = require('./routes/payments');
+const couponRoutes = require('./routes/coupons');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
@@ -164,6 +165,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/widgets', widgetRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/payouts', payoutRoutes);
+app.use('/api/coupons', couponRoutes);
 
 // Robots.txt for API - disallow all crawling
 app.get('/robots.txt', (req, res) => {

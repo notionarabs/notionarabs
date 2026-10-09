@@ -27,6 +27,19 @@ export function middleware(request) {
     }
   }
 
+  // Handle academy.notionarabs.com subdomain rewrite
+  const rawHost = request.headers.get('x-forwarded-host') || request.headers.get('host') || hostname;
+  const hostName = rawHost.split(':')[0];
+  const isAcademySubdomain = hostName.startsWith('academy.') || hostName === 'academy.notionarabs.com';
+  if (isAcademySubdomain) {
+    if (pathname === '/') {
+      return NextResponse.rewrite(new URL('/academy', request.url));
+    }
+    if (!pathname.startsWith('/academy') && !pathname.startsWith('/_next') && !pathname.startsWith('/api') && !pathname.includes('.')) {
+      return NextResponse.rewrite(new URL(`/academy${pathname}`, request.url));
+    }
+  }
+
   // 2. Get the auth token from cookies
   const token = request.cookies.get('authToken')?.value;
 
@@ -64,7 +77,7 @@ export function middleware(request) {
     '/consultation', '/careers', '/testimonials', '/success-stories',
     '/privacy', '/terms', '/cookies', '/templates',
     '/categories', '/creators', '/blog', '/widgets', '/projects',
-    '/refund-policy'
+    '/refund-policy', '/academy'
   ];
 
   const isPublicRoute = publicRoutes.some(route => pathname === route);
@@ -75,13 +88,15 @@ export function middleware(request) {
     pathname.match(/^\/creators\/[^\/]+$/) ||
     pathname.match(/^\/categories\/[^\/]+$/) ||
     pathname.startsWith('/widgets/') ||
-    pathname.startsWith('/projects/');
+    pathname.startsWith('/projects/') ||
+    pathname.startsWith('/academy');
 
   const isStaticAsset =
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
     pathname.startsWith('/static') ||
     pathname.includes('.');
+
 
   // Allow access if public or static asset
   if (isPublicRoute || isDynamicPublicRoute || isStaticAsset) {

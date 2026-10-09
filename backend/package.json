@@ -9,6 +9,7 @@
     "test": "jest --testEnvironment node --runInBand",
     "test:watch": "jest --testEnvironment node --watch",
     "sync-widgets": "node scripts/sync-widgets.js",
+    "sync-course": "node scripts/sync-bunny-course.js",
     "generate-screenshots": "node scripts/generate-widget-screenshots.js"
   },
   "jest": {

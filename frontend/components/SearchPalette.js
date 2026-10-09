@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, X, Zap, Layout, BookOpen, Clock, Command, ArrowRight, Users } from 'lucide-react';
+import { Search, X, Zap, Layout, BookOpen, Clock, Command, ArrowRight, Users, GraduationCap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../contexts/ThemeContext';
 import axios from 'axios';
@@ -14,6 +14,7 @@ const IconMap = {
     template: Layout,
     blog: BookOpen,
     creator: Users,
+    academy: GraduationCap,
     search: Search
 };
 
@@ -34,6 +35,7 @@ export default function SearchPalette({ isOpen, onClose }) {
 
     const isSlashCommandQuery = query.startsWith('/');
     const slashCommands = [
+        { cmd: '/academy', label: 'أكاديمية عرب نوشن (قريباً)', type: 'academy', desc: 'دورة احتراف نوشن الشاملة 29 درساً (قريباً)' },
         { cmd: '/templates', label: 'تصفية حسب القوالب فقط', type: 'template', desc: 'قوالب جاهزة متطورة ومنظمة' },
         { cmd: '/widgets', label: 'تصفية حسب الأدوات الذكية فقط', type: 'widget', desc: 'أدوات تفاعلية لتضمينها داخل صفحاتك' },
         { cmd: '/blogs', label: 'تصفية حسب المقالات فقط', type: 'blog', desc: 'مقالات تقنية وشروحات مميزة لعرب نوشن' },
@@ -397,6 +399,7 @@ export default function SearchPalette({ isOpen, onClose }) {
                                 }`}>الوصول السريع</p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     {[
+                                        { label: 'الأكاديمية (قريباً)', icon: <GraduationCap className="w-5 h-5" />, href: '/academy', color: 'text-amber-500', bg: 'bg-amber-500/10' },
                                         { label: 'متجر القوالب', icon: <Layout className="w-5 h-5" />, href: '/templates', color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
                                         { label: 'مختبر الأدوات', icon: <Zap className="w-5 h-5" />, href: '/widgets', color: 'text-orange-500', bg: 'bg-orange-500/10' },
                                         { label: 'مدونة المجتمع', icon: <BookOpen className="w-5 h-5" />, href: '/blog', color: 'text-blue-500', bg: 'bg-blue-500/10' },

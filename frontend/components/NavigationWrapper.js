@@ -22,7 +22,7 @@ export default function NavigationWrapper() {
   // Check if current page should hide the header
   const shouldHideHeader = pagesWithoutHeader.some(page =>
     pathname === page || pathname.startsWith(page + '/')
-  ) || pathname.includes('/embed');
+  ) || pathname.includes('/embed') || pathname.includes('/learn');
 
   // Don't render header for specific pages
   if (shouldHideHeader) {
@@ -32,6 +32,7 @@ export default function NavigationWrapper() {
   // Determine active page based on pathname
   const getActivePage = () => {
     if (pathname === '/') return 'home';
+    if (pathname.startsWith('/academy')) return 'academy';
     if (pathname.startsWith('/store')) return 'store';
     if (pathname.startsWith('/templates')) return 'templates';
     if (pathname.startsWith('/creators')) return 'creators';

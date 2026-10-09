@@ -1,0 +1,439 @@
+[
+  {
+    "id": "course_notion_masterclass_01",
+    "title": "دورة احتراف نوشن الشاملة",
+    "titleEn": "Notion Masterclass",
+    "slug": "notion-masterclass",
+    "description": "الدورة التطبيقية المتكاملة لإتقان نوشن من الصفر وحتى الاحتراف: بناء أنظمة إدارة متكاملة، قواعد البيانات المتقدمة، الصيغ والمعادلات، واستثمار الذكاء الاصطناعي Notion AI.",
+    "descriptionEn": "The ultimate practical masterclass to master Notion from scratch: building workspaces, advanced databases, formulas, and Notion AI.",
+    "thumbnail": "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=1200&q=80",
+    "bunnyLibraryId": "774454",
+    "previewVideoId": "1ec13a4c-4152-4977-9891-9ddc5ee3fef0",
+    "level": "all_levels",
+    "language": "ar",
+    "isPublished": true,
+    "isPaid": false,
+    "price": 0,
+    "currency": "USD",
+    "features": [
+      "29 درساً تطبيقياً فائق الجودة مسجل بدقة عالية",
+      "6 فصول متكاملة تشمل كل تفاصيل وخفايا نوشن",
+      "بناء أنظمة وقواعد بيانات متقدمة خطوة بخطوة",
+      "تطبيقات عملية على ميزات الذكاء الاصطناعي Notion AI",
+      "ملفات وقوالب جاهزة قابلة للنسخ مع كل فصل",
+      "شهادة إتمام ومتابعة للتقدم خطوة بخطوة"
+    ],
+    "modules": [
+      {
+        "id": "mod_2be58d67",
+        "courseId": "course_notion_masterclass_01",
+        "bunnyCollectionId": "2be58d67-c226-438b-81f4-f5e8cc181384",
+        "title": "02 — Getting Started",
+        "titleAr": "02 — البداية وأساسيات الواجهة",
+        "orderIndex": 0,
+        "lessons": [
+          {
+            "id": "les_1ec13a4c",
+            "moduleId": "mod_2be58d67",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "1ec13a4c-4152-4977-9891-9ddc5ee3fef0",
+            "title": "Lesson 2.1",
+            "titleAr": "الدرس 2.1",
+            "duration": 85,
+            "orderIndex": 0,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_48117c17",
+            "moduleId": "mod_2be58d67",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "48117c17-f757-4980-8a26-a4893ab3ac53",
+            "title": "Lesson 2.3",
+            "titleAr": "الدرس 2.3",
+            "duration": 470,
+            "orderIndex": 1,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_6b4bd206",
+            "moduleId": "mod_2be58d67",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "6b4bd206-73b0-459f-a38e-912afffc5af0",
+            "title": "Lesson 2.4",
+            "titleAr": "الدرس 2.4",
+            "duration": 185,
+            "orderIndex": 2,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_887f6fe9",
+            "moduleId": "mod_2be58d67",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "887f6fe9-c83c-4d36-af2d-0f2ff114681d",
+            "title": "Lesson 2.5",
+            "titleAr": "الدرس 2.5",
+            "duration": 349,
+            "orderIndex": 3,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_e0f56218",
+            "moduleId": "mod_2be58d67",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "e0f56218-923f-4a06-a8d3-ea2d72bdd13a",
+            "title": "Lesson 2.6.1",
+            "titleAr": "الدرس 2.6.1",
+            "duration": 474,
+            "orderIndex": 4,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_abc5472b",
+            "moduleId": "mod_2be58d67",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "abc5472b-69f1-414f-97e4-f2881bd046f1",
+            "title": "Lesson 2.6.2",
+            "titleAr": "الدرس 2.6.2",
+            "duration": 703,
+            "orderIndex": 5,
+            "isFreePreview": true,
+            "resources": []
+          }
+        ]
+      },
+      {
+        "id": "mod_9610828e",
+        "courseId": "course_notion_masterclass_01",
+        "bunnyCollectionId": "9610828e-df61-4f8a-a0bc-871fa819f789",
+        "title": "03 — Pages & Blocks",
+        "titleAr": "03 — الصفحات والكتل المتقدمة",
+        "orderIndex": 1,
+        "lessons": [
+          {
+            "id": "les_ac0de31a",
+            "moduleId": "mod_9610828e",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "ac0de31a-db98-4b60-8ef9-621e0df156f5",
+            "title": "Lesson 3.1",
+            "titleAr": "الدرس 3.1",
+            "duration": 528,
+            "orderIndex": 0,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_cf725930",
+            "moduleId": "mod_9610828e",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "cf725930-a480-4be0-9382-6c569090ab85",
+            "title": "Lesson 3.2",
+            "titleAr": "الدرس 3.2",
+            "duration": 1384,
+            "orderIndex": 1,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_a2fb4f56",
+            "moduleId": "mod_9610828e",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "a2fb4f56-e8c9-4bd8-8877-506b7d356d5c",
+            "title": "Lesson 3.3",
+            "titleAr": "الدرس 3.3",
+            "duration": 514,
+            "orderIndex": 2,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_fc372d92",
+            "moduleId": "mod_9610828e",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "fc372d92-d413-4dce-8d94-9fe0180cc3f2",
+            "title": "Lesson 3.4",
+            "titleAr": "الدرس 3.4",
+            "duration": 587,
+            "orderIndex": 3,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_30b034a1",
+            "moduleId": "mod_9610828e",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "30b034a1-4d16-4df5-8fdf-4360891d94df",
+            "title": "Lesson 3.5",
+            "titleAr": "الدرس 3.5",
+            "duration": 327,
+            "orderIndex": 4,
+            "isFreePreview": true,
+            "resources": []
+          }
+        ]
+      },
+      {
+        "id": "mod_15f2f24c",
+        "courseId": "course_notion_masterclass_01",
+        "bunnyCollectionId": "15f2f24c-53b1-4574-84bc-593fc1c67d97",
+        "title": "04 — Database Fundamentals",
+        "titleAr": "04 — أساسيات قواعد البيانات",
+        "orderIndex": 2,
+        "lessons": [
+          {
+            "id": "les_75411230",
+            "moduleId": "mod_15f2f24c",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "75411230-c09a-409f-b0a7-d7d63ecdd0a8",
+            "title": "Lesson 4.1",
+            "titleAr": "الدرس 4.1",
+            "duration": 512,
+            "orderIndex": 0,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_8e094790",
+            "moduleId": "mod_15f2f24c",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "8e094790-87ca-4a0d-ac84-89d427cb1775",
+            "title": "Lesson 4.2",
+            "titleAr": "الدرس 4.2",
+            "duration": 1137,
+            "orderIndex": 1,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_07323a46",
+            "moduleId": "mod_15f2f24c",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "07323a46-24c4-4a7c-8f8f-2a22249a8609",
+            "title": "Lesson 4.4",
+            "titleAr": "الدرس 4.4",
+            "duration": 546,
+            "orderIndex": 2,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_1838e0c2",
+            "moduleId": "mod_15f2f24c",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "1838e0c2-513d-4aa3-a9d2-644551687f63",
+            "title": "Lesson 4.5",
+            "titleAr": "الدرس 4.5",
+            "duration": 234,
+            "orderIndex": 3,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_e05898d5",
+            "moduleId": "mod_15f2f24c",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "e05898d5-4e45-4906-bf78-4a0f68b6cec8",
+            "title": "Lesson 4.6",
+            "titleAr": "الدرس 4.6",
+            "duration": 319,
+            "orderIndex": 4,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_26e3e4c0",
+            "moduleId": "mod_15f2f24c",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "26e3e4c0-b705-4a57-9c44-edf320664bed",
+            "title": "Lesson 4.7",
+            "titleAr": "الدرس 4.7",
+            "duration": 443,
+            "orderIndex": 5,
+            "isFreePreview": true,
+            "resources": []
+          }
+        ]
+      },
+      {
+        "id": "mod_f5b8d0e3",
+        "courseId": "course_notion_masterclass_01",
+        "bunnyCollectionId": "f5b8d0e3-b23b-4229-a5e9-4a3546a47e37",
+        "title": "05 — Advanced Databases",
+        "titleAr": "05 — قواعد البيانات والعلاقات المتقدمة",
+        "orderIndex": 3,
+        "lessons": [
+          {
+            "id": "les_6aba8a12",
+            "moduleId": "mod_f5b8d0e3",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "6aba8a12-9f8e-4689-abf5-008eb2073b03",
+            "title": "Lesson 5.1",
+            "titleAr": "الدرس 5.1",
+            "duration": 595,
+            "orderIndex": 0,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_e5c6cfab",
+            "moduleId": "mod_f5b8d0e3",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "e5c6cfab-6afe-4bb6-86ef-861d18990efd",
+            "title": "Lesson 5.2",
+            "titleAr": "الدرس 5.2",
+            "duration": 1773,
+            "orderIndex": 1,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_0104956f",
+            "moduleId": "mod_f5b8d0e3",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "0104956f-548b-41eb-ae49-60d66bde4808",
+            "title": "Lesson 5.3",
+            "titleAr": "الدرس 5.3",
+            "duration": 1662,
+            "orderIndex": 2,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_8bb454c2",
+            "moduleId": "mod_f5b8d0e3",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "8bb454c2-e29d-4b52-9703-d541264620a3",
+            "title": "Lesson 5.4",
+            "titleAr": "الدرس 5.4",
+            "duration": 374,
+            "orderIndex": 3,
+            "isFreePreview": true,
+            "resources": []
+          }
+        ]
+      },
+      {
+        "id": "mod_ac21d6b0",
+        "courseId": "course_notion_masterclass_01",
+        "bunnyCollectionId": "ac21d6b0-cae7-4342-9530-fad0b89662f0",
+        "title": "06 — Advanced Features",
+        "titleAr": "06 — الميزات المتقدمة والصيغ الرياضية",
+        "orderIndex": 4,
+        "lessons": [
+          {
+            "id": "les_10d2ed6b",
+            "moduleId": "mod_ac21d6b0",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "10d2ed6b-fe51-426d-914a-8f252c49ee03",
+            "title": "Lesson 6.1",
+            "titleAr": "الدرس 6.1",
+            "duration": 388,
+            "orderIndex": 0,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_868d3707",
+            "moduleId": "mod_ac21d6b0",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "868d3707-0ccf-46d5-ac8d-2280bd79417b",
+            "title": "Lesson 6.2",
+            "titleAr": "الدرس 6.2",
+            "duration": 641,
+            "orderIndex": 1,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_3ff5f11a",
+            "moduleId": "mod_ac21d6b0",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "3ff5f11a-43e9-4a82-8bf1-c6fd24f5b5d2",
+            "title": "Lesson 6.3",
+            "titleAr": "الدرس 6.3",
+            "duration": 1207,
+            "orderIndex": 2,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_04dc53b8",
+            "moduleId": "mod_ac21d6b0",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "04dc53b8-a3f4-4a7c-bd9e-86182b4607f6",
+            "title": "Lesson 6.5",
+            "titleAr": "الدرس 6.5",
+            "duration": 319,
+            "orderIndex": 3,
+            "isFreePreview": true,
+            "resources": []
+          }
+        ]
+      },
+      {
+        "id": "mod_62334b5a",
+        "courseId": "course_notion_masterclass_01",
+        "bunnyCollectionId": "62334b5a-83ed-439e-81a7-eacfa44b0dab",
+        "title": "07 — Notion AI",
+        "titleAr": "07 — إتقان الذكاء الاصطناعي Notion AI",
+        "orderIndex": 5,
+        "lessons": [
+          {
+            "id": "les_6d84f0a7",
+            "moduleId": "mod_62334b5a",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "6d84f0a7-8da3-4d37-985c-1e332573a2d2",
+            "title": "Lesson 7.1",
+            "titleAr": "الدرس 7.1",
+            "duration": 1613,
+            "orderIndex": 0,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_07dc66c2",
+            "moduleId": "mod_62334b5a",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "07dc66c2-f269-464c-84fd-9077beefaa30",
+            "title": "Lesson 7.2",
+            "titleAr": "الدرس 7.2",
+            "duration": 445,
+            "orderIndex": 1,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_631016a0",
+            "moduleId": "mod_62334b5a",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "631016a0-9613-4046-80d8-8349c48507d6",
+            "title": "Lesson 7.3",
+            "titleAr": "الدرس 7.3",
+            "duration": 1236,
+            "orderIndex": 2,
+            "isFreePreview": true,
+            "resources": []
+          },
+          {
+            "id": "les_7d289263",
+            "moduleId": "mod_62334b5a",
+            "courseId": "course_notion_masterclass_01",
+            "bunnyVideoId": "7d289263-52a9-483b-a50c-2d89b21238db",
+            "title": "Lesson 7.4",
+            "titleAr": "الدرس 7.4",
+            "duration": 640,
+            "orderIndex": 3,
+            "isFreePreview": true,
+            "resources": []
+          }
+        ]
+      }
+    ],
+    "totalDuration": 19690,
+    "totalLessons": 29
+  }
+]

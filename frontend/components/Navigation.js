@@ -9,7 +9,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useLoading } from '../contexts/LoadingContext';
 import ThemeToggle from './ThemeToggle';
 import UserDropdown from './UserDropdown';
-import { Layout, Zap, BookOpen, Users, Compass, Home, Calendar, Search, User as UserIcon, Command, Briefcase, ShoppingBag, MessageSquare } from 'lucide-react';
+import { Layout, Zap, BookOpen, Users, Compass, Calendar, Search, User as UserIcon, Command, Briefcase, ShoppingBag, MessageSquare, GraduationCap } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { AnimatePresence } from 'framer-motion';
 import SearchPalette from './SearchPalette';
@@ -93,6 +93,7 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
 
   // Memoize navigation items to prevent unnecessary re-renders
   const navItems = useMemo(() => [
+    // { href: '/academy', label: 'الأكاديمية', key: 'academy', icon: <GraduationCap className="w-5 h-5" />, color: 'hover:text-amber-400', badge: 'قريباً' },
     { href: '/templates', label: 'القوالب', key: 'templates', icon: <Layout className="w-5 h-5" />, color: 'hover:text-emerald-400' },
     { href: '/creators', label: 'المبدعين', key: 'creators', icon: <Users className="w-5 h-5" />, color: 'hover:text-purple-400' },
     { href: '/blog', label: 'المدونة', key: 'blog', icon: <BookOpen className="w-5 h-5" />, color: 'hover:text-blue-400' },
@@ -138,18 +139,6 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex gap-1 xl:gap-3 items-center">
-            <div className={`transition-all duration-300 ease-in-out overflow-hidden flex items-center ${activePage !== 'home' ? 'max-w-24 opacity-100' : 'max-w-0 opacity-0'}`}>
-              <Link
-                href="/"
-                className={`nav-link flex-shrink-0 flex items-center gap-2 group/nav text-sm font-bold ${activePage === 'home' ? 'text-primary' : 'text-accent-500/80'}`}
-                onClick={() => handleNavigation('/')}
-              >
-                <span className="transition-all duration-300 group-hover:scale-110 group-hover:text-primary">
-                  <Home className="w-4 h-4" />
-                </span>
-                <span>الرئيسية</span>
-              </Link>
-            </div>
             {navItems.map((item) => (
               <Link
                 key={item.key}
@@ -161,6 +150,11 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
                   {item.icon}
                 </span>
                 <span>{item.label}</span>
+                {item.badge && (
+                  <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-amber-500/15 text-amber-500 border border-amber-500/30 leading-none">
+                    {item.badge}
+                  </span>
+                )}
               </Link>
             ))}
             <button
@@ -229,21 +223,6 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
           <div className="container-custom py-6 flex flex-col h-[calc(100vh-80px)] overflow-y-auto">
             {/* Mobile Navigation Links */}
             <nav className="space-y-2 mb-6" aria-label="Mobile navigation">
-              <div className={`transition-all duration-300 ease-in-out overflow-hidden ${activePage !== 'home' ? 'max-h-16 opacity-100' : 'max-h-0 opacity-0'}`}>
-                <Link
-                  href="/"
-                  onClick={() => handleNavigation('/')}
-                  className="flex items-center justify-between py-3 px-4 text-gray-100 dark:text-dark-text-primary hover:bg-white/10 dark:hover:bg-dark-tertiary rounded-xl transition-all active:scale-95"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${activePage === 'home' ? 'bg-primary-500 text-white' : 'bg-white/10 dark:bg-dark-tertiary text-gray-400'}`}>
-                      <Home className="w-4 h-4" />
-                    </div>
-                    <span className="font-bold">الرئيسية</span>
-                  </div>
-                  <svg className="w-5 h-5 opacity-50 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                </Link>
-              </div>
               {navItems.map((item) => (
                 <Link
                   key={item.key}
@@ -258,7 +237,14 @@ const Navigation = memo(function Navigation({ activePage = '' }) {
                     <div className={`p-2 rounded-lg ${activePage === item.key ? 'bg-primary-500 text-white' : 'bg-white/10 dark:bg-dark-tertiary text-gray-400'}`}>
                       {item.icon}
                     </div>
-                    <span className="font-bold">{item.label}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold">{item.label}</span>
+                      {item.badge && (
+                        <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-amber-500/15 text-amber-500 border border-amber-500/30 leading-none">
+                          {item.badge}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   {activePage === item.key ? (
                     <div className="w-1.5 h-6 rounded-full bg-primary-500 shadow-[0_0_12px_rgba(251,146,60,0.4)]"></div>

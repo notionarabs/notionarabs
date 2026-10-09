@@ -785,19 +785,36 @@ router.get('/google/callback', async (req, res) => {
           try {
             const decodedState = Buffer.from(req.query.state, 'base64').toString('utf8');
             const parsed = JSON.parse(decodedState);
-            if (parsed.origin) {
-              const originUrl = new URL(parsed.origin);
-              if (
-                originUrl.hostname === 'notionarabs.com' ||
-                originUrl.hostname.endsWith('.notionarabs.com') ||
-                originUrl.hostname === 'localhost' ||
-                originUrl.hostname === '127.0.0.1'
-              ) {
-                targetFrontendUrl = parsed.origin.replace(/\/$/, '');
+            const returnTarget = parsed.returnTo || parsed.redirect || '';
+            if (returnTarget) {
+              if (returnTarget.startsWith('http')) {
+                try {
+                  const targetUrl = new URL(returnTarget);
+                  if (
+                    targetUrl.hostname === 'notionarabs.com' ||
+                    targetUrl.hostname.endsWith('.notionarabs.com') ||
+                    targetUrl.hostname === 'localhost' ||
+                    targetUrl.hostname === '127.0.0.1'
+                  ) {
+                    targetFrontendUrl = `${targetUrl.protocol}//${targetUrl.host}`;
+                    targetRedirect = targetUrl.pathname + targetUrl.search;
+                  }
+                } catch (e) {}
+              } else if (returnTarget.startsWith('/')) {
+                targetRedirect = returnTarget;
               }
-            }
-            if (parsed.redirect && typeof parsed.redirect === 'string' && parsed.redirect.startsWith('/')) {
-              targetRedirect = parsed.redirect;
+            } else if (parsed.origin) {
+              try {
+                const originUrl = new URL(parsed.origin);
+                if (
+                  originUrl.hostname === 'notionarabs.com' ||
+                  originUrl.hostname.endsWith('.notionarabs.com') ||
+                  originUrl.hostname === 'localhost' ||
+                  originUrl.hostname === '127.0.0.1'
+                ) {
+                  targetFrontendUrl = parsed.origin.replace(/\/$/, '');
+                }
+              } catch (e) {}
             }
           } catch (e) {
             console.warn('[GOOGLE CALLBACK] Could not parse state:', e.message);

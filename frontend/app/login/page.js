@@ -25,13 +25,36 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Get redirect parameter from URL
+  // Get redirect / returnTo parameter from URL with Open Redirect validation
   useEffect(() => {
-    let redirect = searchParams.get('redirect') || '/';
-    if (typeof window !== 'undefined' && window.location.hostname.startsWith('academy.') && redirect === '/academy') {
-      redirect = '/';
+    const rawTarget = searchParams.get('returnTo') || searchParams.get('redirect') || '/';
+    let safeTarget = '/';
+
+    // Allow relative paths (e.g. /templates, /profile)
+    if (rawTarget.startsWith('/') && !rawTarget.startsWith('//')) {
+      if (typeof window !== 'undefined' && window.location.hostname.startsWith('academy.') && rawTarget === '/academy') {
+        safeTarget = '/';
+      } else {
+        safeTarget = rawTarget;
+      }
+    } else {
+      // Validate absolute URLs against trusted Notion Arabs domains
+      try {
+        const parsed = new URL(rawTarget);
+        if (
+          parsed.hostname === 'notionarabs.com' ||
+          parsed.hostname.endsWith('.notionarabs.com') ||
+          parsed.hostname === 'localhost' ||
+          parsed.hostname === '127.0.0.1'
+        ) {
+          safeTarget = rawTarget;
+        }
+      } catch (e) {
+        safeTarget = '/';
+      }
     }
-    setRedirectPath(redirect);
+
+    setRedirectPath(safeTarget);
   }, [searchParams]);
 
   const getGoogleAuthUrl = () => {
@@ -39,7 +62,7 @@ function LoginForm() {
     try {
       const origin = window.location.origin;
       const target = redirectPath || '/';
-      const payload = JSON.stringify({ origin, redirect: target });
+      const payload = JSON.stringify({ origin, redirect: target, returnTo: target });
       const state = btoa(unescape(encodeURIComponent(payload)));
       return `${getApiUrl('/auth/google')}?state=${encodeURIComponent(state)}`;
     } catch (e) {

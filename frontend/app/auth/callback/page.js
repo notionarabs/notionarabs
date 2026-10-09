@@ -65,11 +65,29 @@ function AuthCallbackForm() {
           setTimeout(() => {
             if (!isRedirecting) {
               setIsRedirecting(true);
-              let returnRedirect = searchParams.get('redirect') || '/';
-              if (window.location.hostname.startsWith('academy.') && returnRedirect === '/academy') {
-                returnRedirect = '/';
+              const rawReturn = searchParams.get('returnTo') || searchParams.get('redirect') || '/';
+              let safeReturn = '/';
+              if (rawReturn.startsWith('/') && !rawReturn.startsWith('//')) {
+                safeReturn = rawReturn;
+              } else {
+                try {
+                  const parsed = new URL(rawReturn);
+                  if (
+                    parsed.hostname === 'notionarabs.com' ||
+                    parsed.hostname.endsWith('.notionarabs.com') ||
+                    parsed.hostname === 'localhost' ||
+                    parsed.hostname === '127.0.0.1'
+                  ) {
+                    safeReturn = rawReturn;
+                  }
+                } catch (e) {
+                  safeReturn = '/';
+                }
               }
-              window.location.href = returnRedirect;
+              if (window.location.hostname.startsWith('academy.') && safeReturn === '/academy') {
+                safeReturn = '/';
+              }
+              window.location.href = safeReturn;
             }
           }, 300);
 
@@ -83,11 +101,29 @@ function AuthCallbackForm() {
             setTimeout(() => {
               if (!isRedirecting) {
                 setIsRedirecting(true);
-                let returnRedirect = searchParams.get('redirect') || '/';
-                if (window.location.hostname.startsWith('academy.') && returnRedirect === '/academy') {
-                  returnRedirect = '/';
+                const rawReturn = searchParams.get('returnTo') || searchParams.get('redirect') || '/';
+                let safeReturn = '/';
+                if (rawReturn.startsWith('/') && !rawReturn.startsWith('//')) {
+                  safeReturn = rawReturn;
+                } else {
+                  try {
+                    const parsed = new URL(rawReturn);
+                    if (
+                      parsed.hostname === 'notionarabs.com' ||
+                      parsed.hostname.endsWith('.notionarabs.com') ||
+                      parsed.hostname === 'localhost' ||
+                      parsed.hostname === '127.0.0.1'
+                    ) {
+                      safeReturn = rawReturn;
+                    }
+                  } catch (e) {
+                    safeReturn = '/';
+                  }
                 }
-                window.location.href = returnRedirect;
+                if (window.location.hostname.startsWith('academy.') && safeReturn === '/academy') {
+                  safeReturn = '/';
+                }
+                window.location.href = safeReturn;
               }
             }, 300);
           } else {

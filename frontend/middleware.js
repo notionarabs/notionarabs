@@ -47,6 +47,20 @@ export function middleware(request) {
       return NextResponse.rewrite(new URL('/academy/notion-masterclass/learn', request.url));
     }
 
+    // Centralized Authentication: Redirect /login and /signup on subdomain to the central login portal
+    if (pathname === '/login' || pathname === '/signup') {
+      const returnUrl = request.nextUrl.searchParams.get('returnTo') || 
+                        request.nextUrl.searchParams.get('redirect') || 
+                        'https://academy.notionarabs.com';
+      const fullReturnUrl = returnUrl.startsWith('http') 
+        ? returnUrl 
+        : `https://academy.notionarabs.com${returnUrl === '/' ? '' : returnUrl}`;
+      const centralHost = isLocalhost ? request.nextUrl.origin : 'https://www.notionarabs.com';
+      const centralAuthUrl = new URL(pathname, centralHost);
+      centralAuthUrl.searchParams.set('returnTo', fullReturnUrl);
+      return NextResponse.redirect(centralAuthUrl, 302);
+    }
+
     // Shared routes must NOT be rewritten to /academy/* so Next.js renders their actual root pages
     const sharedRoutes = [
       '/login',
@@ -156,6 +170,12 @@ export function middleware(request) {
 
   // 6. Handle protected routes — require auth token
   if (!token) {
+    if (isAcademySubdomain) {
+      const centralHost = isLocalhost ? request.nextUrl.origin : 'https://www.notionarabs.com';
+      const centralLoginUrl = new URL('/login', centralHost);
+      centralLoginUrl.searchParams.set('returnTo', `https://academy.notionarabs.com${pathname}`);
+      return NextResponse.redirect(centralLoginUrl);
+    }
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);

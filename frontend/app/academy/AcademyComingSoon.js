@@ -164,12 +164,12 @@ export default function AcademyComingSoon({ user, isAuthenticated, isClassroom =
             ) : (
               <span>
                 هل أنت من مديري الموقع؟{' '}
-                <Link 
-                  href="/login" 
+                <a 
+                  href="https://www.notionarabs.com/login?returnTo=https://academy.notionarabs.com" 
                   className="text-amber-500 underline hover:text-amber-400 transition font-medium"
                 >
                   تسجيل الدخول للمعاينة
-                </Link>
+                </a>
               </span>
             )}
           </span>

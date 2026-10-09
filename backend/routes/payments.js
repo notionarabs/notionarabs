@@ -445,19 +445,23 @@ router.post('/callback', async (req, res) => {
         const hmacSecret = paymobService.hmacSecret;
         const receivedHmac = req.query.hmac;
 
-        if (hmacSecret) {
-            if (!receivedHmac) {
-                console.warn('⚠️ Paymob webhook received without HMAC signature');
+        if (!hmacSecret) {
+            console.error('❌ Paymob HMAC secret is not configured on server');
+            if (paymobService.isLive) {
+                return res.status(500).json({ success: false, message: 'Payment gateway configuration error' });
+            }
+        } else if (!receivedHmac) {
+            console.warn('⚠️ Paymob webhook received without HMAC signature');
+            if (paymobService.isLive) {
+                return res.status(401).json({ success: false, message: 'Missing HMAC signature' });
+            }
+        } else {
+            const calculatedHmac = paymobService.calculateHmac(obj, hmacSecret);
+            const isValid = calculatedHmac && paymobService.timingSafeCompare(calculatedHmac, receivedHmac);
+            if (!isValid) {
+                console.warn('⚠️ Paymob HMAC verification mismatch (Forgiving in Test Mode)');
                 if (paymobService.isLive) {
-                    return res.status(401).json({ success: false, message: 'Missing HMAC signature' });
-                }
-            } else {
-                const calculatedHmac = paymobService.calculateHmac(obj, hmacSecret);
-                if (calculatedHmac === null || calculatedHmac !== receivedHmac) {
-                    console.warn('⚠️ Paymob HMAC verification mismatch (Forgiving in Test Mode)');
-                    if (paymobService.isLive) {
-                        return res.status(401).json({ success: false, message: 'Invalid HMAC signature' });
-                    }
+                    return res.status(401).json({ success: false, message: 'Invalid HMAC signature' });
                 }
             }
         }

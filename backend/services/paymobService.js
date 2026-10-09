@@ -270,7 +270,21 @@ class PaymobService {
             .update(concatenatedString)
             .digest('hex');
 
-        return calculatedHmac === hmacFromRequest;
+        return this.timingSafeCompare(calculatedHmac, hmacFromRequest);
+    }
+
+    /**
+     * Constant-time string comparison to prevent timing attacks
+     * @param {string} a 
+     * @param {string} b 
+     * @returns {boolean}
+     */
+    timingSafeCompare(a, b) {
+        if (typeof a !== 'string' || typeof b !== 'string') return false;
+        const bufA = Buffer.from(a);
+        const bufB = Buffer.from(b);
+        if (bufA.length !== bufB.length) return false;
+        return crypto.timingSafeEqual(bufA, bufB);
     }
 }
 

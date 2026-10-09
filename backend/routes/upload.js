@@ -49,8 +49,22 @@ const resumeUpload = multer({
   }
 });
 
-// Upload resume endpoint (no auth)
-router.post('/resume', resumeUpload.single('resume'), async (req, res) => {
+const rateLimit = require('express-rate-limit');
+
+// Strict rate limit for public resume upload: max 5 uploads per IP per hour
+const resumeUploadRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5,
+  message: {
+    success: false,
+    message: 'تم تجاوز الحد المسموح لرفع السيرة الذاتية. يرجى المحاولة بعد ساعة.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// Upload resume endpoint (public, strictly rate limited)
+router.post('/resume', resumeUploadRateLimit, resumeUpload.single('resume'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({

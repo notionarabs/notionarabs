@@ -110,12 +110,14 @@ class Course {
     const prevLesson = currentIndex > 0 ? allLessonsFlat[currentIndex - 1] : null;
     const nextLesson = currentIndex < allLessonsFlat.length - 1 ? allLessonsFlat[currentIndex + 1] : null;
 
+    const libraryId = course.bunnyLibraryId || process.env.BUNNY_STREAM_LIBRARY_ID;
+
     return {
       course: {
         id: course.id,
         title: course.title,
         slug: course.slug,
-        bunnyLibraryId: course.bunnyLibraryId || '774454'
+        bunnyLibraryId: libraryId
       },
       module: {
         id: targetModule?.id,
@@ -124,7 +126,7 @@ class Course {
       lesson: targetLesson,
       prevLesson: prevLesson ? { id: prevLesson.id, title: prevLesson.titleAr || prevLesson.title } : null,
       nextLesson: nextLesson ? { id: nextLesson.id, title: nextLesson.titleAr || nextLesson.title } : null,
-      streamUrl: `https://iframe.mediadelivery.net/embed/${course.bunnyLibraryId || '774454'}/${targetLesson.bunnyVideoId}?autoplay=false&loop=false&muted=false&preload=true&responsive=true`
+      streamUrl: `https://iframe.mediadelivery.net/embed/${libraryId}/${targetLesson.bunnyVideoId}?autoplay=false&loop=false&muted=false&preload=true&responsive=true`
     };
   }
 

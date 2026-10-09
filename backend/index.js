@@ -30,14 +30,19 @@ const PORT = process.env.PORT || 5000;
 // Trust proxy so req.secure and forwarded headers are accurate behind Render/Vercel proxies
 app.set('trust proxy', 1);
 const allowedOrigins = [
-  process.env.FRONTEND_URL || 'https://notionarabs.com',
+  process.env.FRONTEND_URL,
   'https://www.notionarabs.com',
+  'https://notionarabs.com',
   'https://academy.notionarabs.com',
   'https://api.notionarabs.com',
-  /^https:\/\/[a-zA-Z0-9-]+\.notionarabs\.com$/,
-  'http://localhost:3000',
-  'http://127.0.0.1:3000',
-];
+  // Subdomains of notionarabs.com
+  /^https:\/\/([a-zA-Z0-9-]+\.)?notionarabs\.com$/,
+  // Official Notion Arabs Vercel preview/production deployments only
+  /^https:\/\/notion-arabs(-[a-zA-Z0-9-]+)?\.vercel\.app$/,
+  /^https:\/\/notionarabs(-[a-zA-Z0-9-]+)?\.vercel\.app$/,
+  // Local development origins
+  ...(process.env.NODE_ENV !== 'production' ? ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5000'] : [])
+].filter(Boolean);
 
 // CORS configuration
 const corsOptions = {
@@ -58,19 +63,8 @@ const corsOptions = {
     if (isAllowed) {
       callback(null, true);
     } else {
-      // In production, be more permissive for common deployment platforms
-      if (process.env.NODE_ENV === 'production' && origin && (
-        origin.includes('vercel.app') ||
-        origin.includes('vercel.dev') ||
-        origin.includes('netlify.app') ||
-        origin.includes('herokuapp.com') ||
-        origin.includes('render.com')
-      )) {
-        callback(null, true);
-      } else {
-        console.log(`CORS Error: Origin ${origin} not allowed. Allowed origins:`, allowedOrigins);
-        callback(new Error('Not allowed by CORS'));
-      }
+      console.warn(`CORS Rejected: Origin ${origin} not allowed.`);
+      callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,

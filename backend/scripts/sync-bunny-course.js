@@ -4,8 +4,14 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const supabase = require('../utils/supabase');
 
-const LIBRARY_ID = process.env.BUNNY_STREAM_LIBRARY_ID || '774454';
-const API_KEY = process.env.BUNNY_STREAM_API_KEY || '72f63dcc-f6b4-47c7-8eef37759f8c-7110-4d71';
+const LIBRARY_ID = process.env.BUNNY_STREAM_LIBRARY_ID;
+const API_KEY = process.env.BUNNY_STREAM_API_KEY;
+
+if (!LIBRARY_ID || !API_KEY) {
+  console.error('❌ Missing required environment variables: BUNNY_STREAM_LIBRARY_ID or BUNNY_STREAM_API_KEY');
+  process.exit(1);
+}
+
 
 function fetchBunny(endpoint) {
   return new Promise((resolve, reject) => {

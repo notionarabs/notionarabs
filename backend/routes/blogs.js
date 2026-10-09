@@ -666,14 +666,18 @@ router.get('/export', auth, async (req, res) => {
 router.get('/export-public', async (req, res) => {
   try {
     const jwt = require('jsonwebtoken');
-    const { token } = req.query;
     if (!token) {
       return res.status(401).json({ success: false, message: 'مصادقة مطلوبة' });
     }
 
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET is missing');
+      return res.status(500).json({ success: false, message: 'خطأ في إعدادات الخادم' });
+    }
+
     let decoded;
     try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (e) {
       return res.status(401).json({ success: false, message: 'رمز غير صالح' });
     }

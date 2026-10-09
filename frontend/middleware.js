@@ -32,10 +32,53 @@ export function middleware(request) {
   const hostName = rawHost.split(':')[0];
   const isAcademySubdomain = hostName.startsWith('academy.') || hostName === 'academy.notionarabs.com';
   if (isAcademySubdomain) {
-    if (pathname === '/') {
+    if (pathname === '/' || pathname === '/academy') {
       return NextResponse.rewrite(new URL('/academy', request.url));
     }
-    if (!pathname.startsWith('/academy') && !pathname.startsWith('/_next') && !pathname.startsWith('/api') && !pathname.includes('.')) {
+    if (pathname === '/learn' || pathname === '/academy/learn') {
+      return NextResponse.rewrite(new URL('/academy/notion-masterclass/learn', request.url));
+    }
+
+    // Shared routes must NOT be rewritten to /academy/* so Next.js renders their actual root pages
+    const sharedRoutes = [
+      '/login',
+      '/signup',
+      '/auth',
+      '/verify-email',
+      '/forgot-password',
+      '/reset-password',
+      '/profile',
+      '/settings',
+      '/admin',
+      '/terms',
+      '/privacy',
+      '/cookies'
+    ];
+    const isSharedRoute = sharedRoutes.some(route => pathname === route || pathname.startsWith(route + '/'));
+
+    // Main site routes should redirect to www.notionarabs.com
+    const mainSiteRoutes = [
+      '/templates',
+      '/categories',
+      '/creators',
+      '/blog',
+      '/widgets',
+      '/projects',
+      '/about',
+      '/contact',
+      '/consultation',
+      '/careers',
+      '/testimonials',
+      '/success-stories',
+      '/refund-policy'
+    ];
+    const isMainSiteRoute = mainSiteRoutes.some(route => pathname === route || pathname.startsWith(route + '/'));
+    if (isMainSiteRoute) {
+      const mainUrl = new URL(pathname + request.nextUrl.search, 'https://www.notionarabs.com');
+      return NextResponse.redirect(mainUrl, 302);
+    }
+
+    if (!isSharedRoute && !pathname.startsWith('/academy') && !pathname.startsWith('/_next') && !pathname.startsWith('/api') && !pathname.includes('.')) {
       return NextResponse.rewrite(new URL(`/academy${pathname}`, request.url));
     }
   }

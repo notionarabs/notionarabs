@@ -8,6 +8,28 @@ import { useMaintenance } from './MaintenanceContext';
 
 const AuthContext = createContext();
 
+export const getAuthCookieOptions = () => {
+  const options = { expires: 7, path: '/' };
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    if (hostname.endsWith('notionarabs.com')) {
+      options.domain = '.notionarabs.com';
+    }
+    if (window.location.protocol === 'https:') {
+      options.secure = true;
+      options.sameSite = 'Lax';
+    }
+  }
+  return options;
+};
+
+export const clearAuthCookies = () => {
+  Cookies.remove('authToken', { path: '/' });
+  if (typeof window !== 'undefined' && window.location.hostname.endsWith('notionarabs.com')) {
+    Cookies.remove('authToken', { path: '/', domain: '.notionarabs.com' });
+  }
+};
+
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -100,7 +122,7 @@ export const AuthProvider = ({ children }) => {
 
           // Clear invalid token and cache only for auth errors
           if (apiError.response?.status === 401) {
-            Cookies.remove('authToken', { path: '/' }); // Must match set options to actually delete
+            clearAuthCookies();
             localStorage.removeItem('user');
             localStorage.removeItem('userCacheTimestamp');
             delete api.defaults.headers.common['Authorization'];
@@ -117,7 +139,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       // Only clear token for authentication errors, not network errors
       if (error.response?.status === 401) {
-        Cookies.remove('authToken', { path: '/' }); // Must match set options to actually delete
+        clearAuthCookies();
         localStorage.removeItem('user');
         localStorage.removeItem('userCacheTimestamp');
         delete api.defaults.headers.common['Authorization'];
@@ -208,7 +230,7 @@ export const AuthProvider = ({ children }) => {
       }
       
       // Store token in cookie
-      Cookies.set('authToken', token, { expires: 7 }); // 7 days
+      Cookies.set('authToken', token, getAuthCookieOptions());
 
       // Set token in axios headers
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -251,7 +273,7 @@ export const AuthProvider = ({ children }) => {
       // If we get a token, user was created successfully without verification
       if (token && user) {
         // Store token in cookie
-        Cookies.set('authToken', token, { expires: 7 }); // 7 days
+        Cookies.set('authToken', token, getAuthCookieOptions());
 
         // Set token in axios headers
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -283,7 +305,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    Cookies.remove('authToken', { path: '/' }); // Must match set options to actually delete
+    clearAuthCookies();
     delete api.defaults.headers.common['Authorization'];
     setUser(null);
 
@@ -336,7 +358,7 @@ export const AuthProvider = ({ children }) => {
         if (user.creatorStatus) user.creatorStatus = user.creatorStatus.toString().trim().toLowerCase();
 
         // Store token in cookie
-        Cookies.set('authToken', authToken, { expires: 7 }); // 7 days
+        Cookies.set('authToken', authToken, getAuthCookieOptions());
 
         // Set token in axios headers
         api.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;

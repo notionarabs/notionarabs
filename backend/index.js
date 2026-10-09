@@ -32,7 +32,9 @@ app.set('trust proxy', 1);
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'https://notionarabs.com',
   'https://www.notionarabs.com',
+  'https://academy.notionarabs.com',
   'https://api.notionarabs.com',
+  /^https:\/\/[a-zA-Z0-9-]+\.notionarabs\.com$/,
   'http://localhost:3000',
   'http://127.0.0.1:3000',
 ];

@@ -147,12 +147,12 @@ export default function AcademyComingSoon({ user, isAuthenticated, isClassroom =
             <span>انضم لقناة التيليجرام لمتابعة الإطلاق</span>
           </a>
 
-          <Link
-            href="/templates"
+          <a
+            href="https://www.notionarabs.com/templates"
             className="px-6 py-3.5 rounded-xl font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-neutral-900 hover:bg-gray-200 dark:hover:bg-neutral-800 border border-gray-200 dark:border-neutral-800 transition text-sm sm:text-base"
           >
             تصفح متجر قوالب نوشن
-          </Link>
+          </a>
         </motion.div>
 
         {/* Admin Login Bypass Note for Website Owners */}
@@ -165,7 +165,7 @@ export default function AcademyComingSoon({ user, isAuthenticated, isClassroom =
               <span>
                 هل أنت من مديري الموقع؟{' '}
                 <Link 
-                  href="/login?redirect=/academy" 
+                  href="/login" 
                   className="text-amber-500 underline hover:text-amber-400 transition font-medium"
                 >
                   تسجيل الدخول للمعاينة

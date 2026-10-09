@@ -28,12 +28,16 @@ function AuthCallbackForm() {
         try {
           // Store the token with proper options for HTTPS cross-origin redirects
           const isProduction = window.location.protocol === 'https:';
-          Cookies.set('authToken', token, {
+          const cookieOptions = {
             expires: 7,
             path: '/',
             secure: isProduction,
             sameSite: isProduction ? 'Lax' : 'Strict'
-          });
+          };
+          if (window.location.hostname.endsWith('notionarabs.com')) {
+            cookieOptions.domain = '.notionarabs.com';
+          }
+          Cookies.set('authToken', token, cookieOptions);
 
           // Set token in axios headers
           const api = (await import('../../../lib/api')).default;

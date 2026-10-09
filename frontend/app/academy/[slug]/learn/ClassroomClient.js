@@ -225,13 +225,22 @@ export default function ClassroomClient({ slug = 'notion-masterclass' }) {
       <header className="h-16 border-b border-neutral-800 bg-[#0f0f0f]/90 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between sticky top-0 z-40">
         
         {/* Right side (RTL): Back & Course Title */}
-        <div className="flex items-center gap-3 sm:gap-4 overflow-hidden">
+        <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
           <Link 
-            href="/academy"
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-800/80 hover:bg-neutral-700 text-gray-300 hover:text-white text-xs sm:text-sm font-medium transition"
+            href={`/academy/${slug}`}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-800/80 hover:bg-neutral-700 text-gray-300 hover:text-white text-xs sm:text-sm font-medium transition"
+            title="العودة لصفحة تفاصيل الدورة والمنهج"
           >
             <ArrowRight className="w-4 h-4 ml-1" />
-            <span>العودة للأكاديمية</span>
+            <span className="hidden sm:inline">تفاصيل الدورة</span>
+            <span className="sm:hidden">خروج</span>
+          </Link>
+
+          <Link
+            href="/academy"
+            className="hidden md:inline-flex text-xs text-gray-400 hover:text-amber-400 transition"
+          >
+            الأكاديمية
           </Link>
 
           <div className="h-5 w-[1px] bg-neutral-800 hidden sm:block" />
@@ -358,52 +367,63 @@ export default function ClassroomClient({ slug = 'notion-masterclass' }) {
             </div>
 
             {/* Lesson Resources & Notes Tabs */}
-            <div className="mt-8 rounded-2xl bg-neutral-900/50 border border-neutral-800 overflow-hidden">
-              <div className="flex border-b border-neutral-800 bg-neutral-950/40 px-4">
+            <div className="mt-6 sm:mt-8 rounded-xl sm:rounded-2xl bg-neutral-900/50 border border-neutral-800 overflow-hidden shadow-lg">
+              
+              {/* Responsive Tabs Header (3-col grid on mobile with icons) */}
+              <div className="grid grid-cols-3 border-b border-neutral-800 bg-neutral-950/60 divide-x divide-x-reverse divide-neutral-800/40">
                 <button
                   onClick={() => setActiveTab('notes')}
-                  className={`py-3.5 px-4 text-sm font-bold border-b-2 transition ${
+                  className={`py-3 sm:py-3.5 px-1.5 sm:px-4 text-xs sm:text-sm font-bold flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 transition text-center ${
                     activeTab === 'notes'
-                      ? 'border-amber-500 text-amber-500'
-                      : 'border-transparent text-gray-400 hover:text-gray-200'
+                      ? 'border-b-2 border-amber-500 text-amber-500 bg-amber-500/5'
+                      : 'border-b-2 border-transparent text-gray-400 hover:text-gray-200 hover:bg-neutral-800/20'
                   }`}
                 >
-                  ملاحظات وتلخيص الدرس
+                  <FileText className={`w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 ${activeTab === 'notes' ? 'text-amber-500' : 'text-gray-500'}`} />
+                  <span className="hidden sm:inline">ملاحظات وتلخيص الدرس</span>
+                  <span className="sm:hidden leading-tight">الملخص</span>
                 </button>
+
                 <button
                   onClick={() => setActiveTab('resources')}
-                  className={`py-3.5 px-4 text-sm font-bold border-b-2 transition ${
+                  className={`py-3 sm:py-3.5 px-1.5 sm:px-4 text-xs sm:text-sm font-bold flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 transition text-center ${
                     activeTab === 'resources'
-                      ? 'border-amber-500 text-amber-500'
-                      : 'border-transparent text-gray-400 hover:text-gray-200'
+                      ? 'border-b-2 border-amber-500 text-amber-500 bg-amber-500/5'
+                      : 'border-b-2 border-transparent text-gray-400 hover:text-gray-200 hover:bg-neutral-800/20'
                   }`}
                 >
-                  الموارد وقوالب نوشن
+                  <Layers className={`w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 ${activeTab === 'resources' ? 'text-amber-500' : 'text-gray-500'}`} />
+                  <span className="hidden sm:inline">الموارد وقوالب نوشن</span>
+                  <span className="sm:hidden leading-tight">الموارد</span>
                 </button>
+
                 <button
                   onClick={() => setActiveTab('community')}
-                  className={`py-3.5 px-4 text-sm font-bold border-b-2 transition ${
+                  className={`py-3 sm:py-3.5 px-1.5 sm:px-4 text-xs sm:text-sm font-bold flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 transition text-center ${
                     activeTab === 'community'
-                      ? 'border-amber-500 text-amber-500'
-                      : 'border-transparent text-gray-400 hover:text-gray-200'
+                      ? 'border-b-2 border-amber-500 text-amber-500 bg-amber-500/5'
+                      : 'border-b-2 border-transparent text-gray-400 hover:text-gray-200 hover:bg-neutral-800/20'
                   }`}
                 >
-                  مجتمع النقاش والدعم
+                  <MessageSquare className={`w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 ${activeTab === 'community' ? 'text-amber-500' : 'text-gray-500'}`} />
+                  <span className="hidden sm:inline">مجتمع النقاش والدعم</span>
+                  <span className="sm:hidden leading-tight">المجتمع</span>
                 </button>
               </div>
 
-              <div className="p-6">
+              {/* Responsive Tab Contents */}
+              <div className="p-4 sm:p-6">
                 {activeTab === 'notes' && (
-                  <div className="space-y-4 text-sm text-gray-300 leading-relaxed">
-                    <h3 className="text-base font-bold text-white font-tajawal">
+                  <div className="space-y-3 sm:space-y-4 text-xs sm:text-sm text-gray-300 leading-relaxed">
+                    <h3 className="text-sm sm:text-base font-bold text-white font-tajawal">
                       أبرز ما تتعلمه في هذا الدرس:
                     </h3>
-                    <ul className="list-disc list-inside space-y-2 text-gray-300">
+                    <ul className="list-disc list-inside space-y-1.5 sm:space-y-2 text-gray-300 pr-1">
                       <li>تطبيق عملي خطوة بخطوة داخل مساحة عمل نوشن الفعلية.</li>
                       <li>فهم المبادئ المعمارية لتنظيم البيانات بدون تعقيد.</li>
                       <li>اختصارات وحيل سريعة لتسريع بناء الصفحات وتسهيل العمل اليومي.</li>
                     </ul>
-                    <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400">
+                    <div className="p-3 sm:p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs sm:text-sm text-amber-400 leading-relaxed">
                       💡 <strong>نصيحة تطبيقية:</strong> احرص على فتح نوشن في نافذة مجاورة وتطبيق كل خطوة تشاهدها في الفيديو مباشرة لتثبيت المعلومة.
                     </div>
                   </div>
@@ -411,48 +431,50 @@ export default function ClassroomClient({ slug = 'notion-masterclass' }) {
 
                 {activeTab === 'resources' && (
                   <div className="space-y-3">
-                    <p className="text-xs text-gray-400 mb-2">
+                    <p className="text-xs sm:text-sm text-gray-400 mb-2">
                       قوالب وروابط مساعدة متعلقة بهذه الوحدة التدريبية:
                     </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                       <Link
                         href="/templates"
-                        className="p-3.5 rounded-xl bg-neutral-800/60 hover:bg-neutral-800 border border-neutral-700/60 flex items-center justify-between text-xs text-gray-200 transition"
+                        className="p-3 sm:p-3.5 rounded-xl bg-neutral-800/60 hover:bg-neutral-800 border border-neutral-700/60 flex items-center justify-between text-xs sm:text-sm text-gray-200 transition"
                       >
-                        <div className="flex items-center gap-2.5">
-                          <Layers className="w-4 h-4 text-amber-500" />
-                          <span>تصفح قوالب عرب نوشن الجاهزة</span>
+                        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+                          <Layers className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                          <span className="truncate">تصفح قوالب عرب نوشن الجاهزة</span>
                         </div>
-                        <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
+                        <ExternalLink className="w-3.5 h-3.5 text-gray-400 flex-shrink-0 mr-2" />
                       </Link>
                       <Link
                         href="/widgets"
-                        className="p-3.5 rounded-xl bg-neutral-800/60 hover:bg-neutral-800 border border-neutral-700/60 flex items-center justify-between text-xs text-gray-200 transition"
+                        className="p-3 sm:p-3.5 rounded-xl bg-neutral-800/60 hover:bg-neutral-800 border border-neutral-700/60 flex items-center justify-between text-xs sm:text-sm text-gray-200 transition"
                       >
-                        <div className="flex items-center gap-2.5">
-                          <Sparkles className="w-4 h-4 text-primary-500" />
-                          <span>ودجتس وأدوات نوشن التفاعلية</span>
+                        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+                          <Sparkles className="w-4 h-4 text-primary-500 flex-shrink-0" />
+                          <span className="truncate">ودجتس وأدوات نوشن التفاعلية</span>
                         </div>
-                        <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
+                        <ExternalLink className="w-3.5 h-3.5 text-gray-400 flex-shrink-0 mr-2" />
                       </Link>
                     </div>
                   </div>
                 )}
 
                 {activeTab === 'community' && (
-                  <div className="space-y-3 text-sm text-gray-300">
-                    <p>
+                  <div className="space-y-3 text-center sm:text-right">
+                    <p className="text-xs sm:text-sm text-gray-300 leading-relaxed max-w-xl mx-auto sm:mx-0">
                       هل واجهتك صعوبة في تطبيق خطوة معينة؟ انضم لمجتمع عرب نوشن واطرح استفساراتك وسيقوم المبدعون بمساعدتك فوراً.
                     </p>
-                    <a
-                      href="https://t.me/notionarabs"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#229ED9]/20 border border-[#229ED9]/30 text-[#229ED9] hover:bg-[#229ED9]/30 text-xs font-bold transition"
-                    >
-                      <MessageSquare className="w-4 h-4" />
-                      <span>الانضمام لمجتمع التيليجرام الرسمي</span>
-                    </a>
+                    <div className="pt-1">
+                      <a
+                        href="https://t.me/notionarabs"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#229ED9]/15 hover:bg-[#229ED9]/25 border border-[#229ED9]/30 text-[#229ED9] text-xs sm:text-sm font-bold transition shadow-sm"
+                      >
+                        <MessageSquare className="w-4 h-4 flex-shrink-0" />
+                        <span>الانضمام لمجتمع التيليجرام الرسمي</span>
+                      </a>
+                    </div>
                   </div>
                 )}
               </div>

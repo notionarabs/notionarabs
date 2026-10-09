@@ -31,6 +31,14 @@ export function middleware(request) {
   const rawHost = request.headers.get('x-forwarded-host') || request.headers.get('host') || hostname;
   const hostName = rawHost.split(':')[0];
   const isAcademySubdomain = hostName.startsWith('academy.') || hostName === 'academy.notionarabs.com';
+
+  // Redirect /academy traffic from the main domain to the dedicated academy subdomain in production
+  if (isProduction && !isLocalhost && !isAcademySubdomain && (pathname === '/academy' || pathname.startsWith('/academy/'))) {
+    const academySubPath = pathname.replace(/^\/academy/, '') || '/';
+    const targetUrl = new URL(academySubPath + request.nextUrl.search, 'https://academy.notionarabs.com');
+    return NextResponse.redirect(targetUrl, 301);
+  }
+
   if (isAcademySubdomain) {
     if (pathname === '/' || pathname === '/academy') {
       return NextResponse.rewrite(new URL('/academy', request.url));

@@ -65,8 +65,11 @@ function AuthCallbackForm() {
           setTimeout(() => {
             if (!isRedirecting) {
               setIsRedirecting(true);
-              // Use window.location for more reliable redirect
-              window.location.href = '/';
+              let returnRedirect = searchParams.get('redirect') || '/';
+              if (window.location.hostname.startsWith('academy.') && returnRedirect === '/academy') {
+                returnRedirect = '/';
+              }
+              window.location.href = returnRedirect;
             }
           }, 300);
 
@@ -76,11 +79,15 @@ function AuthCallbackForm() {
           // Check if token was stored successfully
           const storedToken = Cookies.get('authToken');
           if (storedToken) {
-            // Token is valid, redirect to home page
+            // Token is valid, redirect to target page
             setTimeout(() => {
               if (!isRedirecting) {
                 setIsRedirecting(true);
-                window.location.href = '/';
+                let returnRedirect = searchParams.get('redirect') || '/';
+                if (window.location.hostname.startsWith('academy.') && returnRedirect === '/academy') {
+                  returnRedirect = '/';
+                }
+                window.location.href = returnRedirect;
               }
             }, 300);
           } else {

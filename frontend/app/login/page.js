@@ -27,11 +27,25 @@ function LoginForm() {
 
   // Get redirect parameter from URL
   useEffect(() => {
-    const redirect = searchParams.get('redirect');
-    if (redirect) {
-      setRedirectPath(redirect);
+    let redirect = searchParams.get('redirect') || '/';
+    if (typeof window !== 'undefined' && window.location.hostname.startsWith('academy.') && redirect === '/academy') {
+      redirect = '/';
     }
+    setRedirectPath(redirect);
   }, [searchParams]);
+
+  const getGoogleAuthUrl = () => {
+    if (typeof window === 'undefined') return `${getApiUrl('/auth/google')}`;
+    try {
+      const origin = window.location.origin;
+      const target = redirectPath || '/';
+      const payload = JSON.stringify({ origin, redirect: target });
+      const state = btoa(unescape(encodeURIComponent(payload)));
+      return `${getApiUrl('/auth/google')}?state=${encodeURIComponent(state)}`;
+    } catch (e) {
+      return `${getApiUrl('/auth/google')}`;
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -49,8 +63,8 @@ function LoginForm() {
     const result = await login(formData.email, formData.password);
 
     if (result.success) {
-      // Redirect to the intended page or homepage
-      router.push(redirectPath);
+      // Hard reload ensures cookies and session are immediately recognized on the target host
+      window.location.href = redirectPath;
     } else {
       setError(result.error);
       // If email verification is required, show additional options
@@ -102,7 +116,7 @@ function LoginForm() {
           {/* Social Login */}
           <div className="mb-6">
             <a
-              href={`${getApiUrl('/auth/google')}?state=${Math.random().toString(36).substring(2, 15)}`}
+              href={getGoogleAuthUrl()}
               className="w-full flex items-center justify-center gap-3 bg-white dark:bg-dark-tertiary hover:bg-gray-50 dark:hover:bg-white/5 border-none text-gray-700 dark:text-gray-200 font-medium py-3 px-4 rounded-xl transition-all duration-200 group hover:shadow-md"
             >
               <svg className="w-5 h-5 transition-transform group-hover:scale-110 duration-200" viewBox="0 0 24 24">

@@ -21,7 +21,8 @@ export async function GET(request) {
       ? 'https://api.notionarabs.com/api' 
       : 'http://localhost:5000/api');
   
-  const redirectUrl = `${backendUrl.replace(/\/$/, '')}/auth/google/callback?code=${encodeURIComponent(code)}`;
+  const state = searchParams.get('state');
+  const redirectUrl = `${backendUrl.replace(/\/$/, '')}/auth/google/callback?code=${encodeURIComponent(code)}${state ? `&state=${encodeURIComponent(state)}` : ''}`;
   
   console.log('[GOOGLE CALLBACK ROUTE] Redirecting to backend:', backendUrl);
   

@@ -739,7 +739,7 @@ router.get('/google', (req, res) => {
 
   passport.authenticate('google', {
     scope: ['profile', 'email'],
-    state: false
+    state: req.query.state || false
   })(req, res);
 });
 
@@ -757,7 +757,7 @@ router.get('/google/callback', async (req, res) => {
     console.log('[GOOGLE CALLBACK] Received code, initiating passport exchange...');
 
     // Use passport.authenticate as middleware
-    passport.authenticate('google', { session: false, state: false }, async (err, user, info) => {
+    passport.authenticate('google', { session: false }, async (err, user, info) => {
       try {
         if (err) {
           console.error('Passport authentication error:', err);
@@ -777,10 +777,36 @@ router.get('/google/callback', async (req, res) => {
         // Generate token with email fallback capability
         const token = generateToken(user._id, user.email);
 
-        // Redirect to frontend with token
-        const frontendUrl = (process.env.FRONTEND_URL || 'https://www.notionarabs.com').replace(/\/$/, '');
-        console.log('[GOOGLE CALLBACK] Redirecting to frontend with token');
-        res.redirect(`${frontendUrl}/auth/callback?token=${token}&success=true`);
+        // Determine destination URL preserving origin and redirect path from OAuth state
+        let targetFrontendUrl = (process.env.FRONTEND_URL || 'https://www.notionarabs.com').replace(/\/$/, '');
+        let targetRedirect = '';
+
+        if (req.query.state) {
+          try {
+            const decodedState = Buffer.from(req.query.state, 'base64').toString('utf8');
+            const parsed = JSON.parse(decodedState);
+            if (parsed.origin) {
+              const originUrl = new URL(parsed.origin);
+              if (
+                originUrl.hostname === 'notionarabs.com' ||
+                originUrl.hostname.endsWith('.notionarabs.com') ||
+                originUrl.hostname === 'localhost' ||
+                originUrl.hostname === '127.0.0.1'
+              ) {
+                targetFrontendUrl = parsed.origin.replace(/\/$/, '');
+              }
+            }
+            if (parsed.redirect && typeof parsed.redirect === 'string' && parsed.redirect.startsWith('/')) {
+              targetRedirect = parsed.redirect;
+            }
+          } catch (e) {
+            console.warn('[GOOGLE CALLBACK] Could not parse state:', e.message);
+          }
+        }
+
+        const callbackRedirectUrl = `${targetFrontendUrl}/auth/callback?token=${token}&success=true${targetRedirect ? `&redirect=${encodeURIComponent(targetRedirect)}` : ''}`;
+        console.log('[GOOGLE CALLBACK] Redirecting to frontend with token:', callbackRedirectUrl);
+        res.redirect(callbackRedirectUrl);
       } catch (error) {
         console.error('[GOOGLE CALLBACK] Inner processing error:', error);
         const frontendUrl = (process.env.FRONTEND_URL || 'https://www.notionarabs.com').replace(/\/$/, '');
